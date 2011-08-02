@@ -31,6 +31,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -50,9 +51,11 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -72,6 +75,7 @@ import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
 
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.RCorePreferenceNodes;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvManager;
@@ -115,6 +119,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 	private final IObservableValue fListStatus = new WritableValue();
 	
 	private ComboViewer fIndexConsoleViewer;
+	private Button fNetworkEclipseControl;
 	
 	
 	protected REnvConfigurationBlock(final IProject project, final IStatusChangeListener statusListener) {
@@ -254,6 +259,9 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 		final Composite indexOptions = createIndexOptions(pageComposite);
 		indexOptions.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
+		final Composite networkOptions = createNetworkOptions(pageComposite);
+		networkOptions.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		
 		initBindings();
 		updateStatus();
 		getDbc().addValidationStatusProvider(new ValidationStatusProvider() {
@@ -353,6 +361,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 	private Composite createIndexOptions(final Composite parent) {
 		final Group composite = new Group(parent, SWT.NONE);
 		composite.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
+		composite.setText(Messages.REnv_Index_label);
 		
 		final Label label = new Label(composite, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
@@ -386,11 +395,35 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 		return composite;
 	}
 	
+	private Composite createNetworkOptions(final Composite parent) {
+		final Group composite = new Group(parent, SWT.NONE);
+		composite.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
+		composite.setText(Messages.REnv_Network_label);
+		
+		{	Composite line = new Composite(composite, SWT.NONE);
+			line.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+			final GridLayout layout = LayoutUtil.applyCompositeDefaults(new GridLayout(), 2);
+			layout.horizontalSpacing = 0;
+			line.setLayout(layout);
+			
+			fNetworkEclipseControl = new Button(line, SWT.CHECK);
+			final int idx = Messages.REnv_Network_UseEclipse_label.indexOf("<a");
+			fNetworkEclipseControl.setText(Messages.REnv_Network_UseEclipse_label.substring(0, idx).trim());
+			fNetworkEclipseControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			final Link link = addLinkControl(line, Messages.REnv_Network_UseEclipse_label.substring(idx));
+			link.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		}
+		return composite;
+	}
+	
 	@Override
 	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
 		dbc.bindValue(ViewersObservables.observeSingleSelection(fIndexConsoleViewer),
 				createObservable(RRunDebugPreferenceConstants.PREF_RENV_CHECK_UPDATE),
-				null, null);
+				null, null );
+		dbc.bindValue(SWTObservables.observeSelection(fNetworkEclipseControl),
+				createObservable(RCorePreferenceNodes.PREF_RENV_NETWORK_USE_ECLIPSE),
+				null, null );
 	}
 	
 	

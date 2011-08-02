@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.core;
 
+import de.walware.ecommons.preferences.Preference.BooleanPref;
+
 
 /**
  * Preference Nodes for the preferences of 'StatET R Core' plug-in
@@ -21,5 +23,7 @@ public class RCorePreferenceNodes {
 	public static final String CAT_R_CODESTYLE_QUALIFIER = RCore.PLUGIN_ID + "/codestyle/r"; //$NON-NLS-1$
 	
 	public static final String CAT_R_ENVIRONMENTS_QUALIFIER = RCore.PLUGIN_ID + "/r.environments"; //$NON-NLS-1$
+	
+	public static final BooleanPref PREF_RENV_NETWORK_USE_ECLIPSE = new BooleanPref(CAT_R_ENVIRONMENTS_QUALIFIER, "network.use_eclipse"); //$NON-NLS-1$
 	
 }

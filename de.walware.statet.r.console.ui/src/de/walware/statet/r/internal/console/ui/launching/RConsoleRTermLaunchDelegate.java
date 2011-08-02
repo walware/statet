@@ -12,7 +12,6 @@
 package de.walware.statet.r.internal.console.ui.launching;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -83,13 +82,23 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 			return;
 		}
 		
-		final List<String> cmdLine = new ArrayList<String>();
+		final ProcessBuilder builder = new ProcessBuilder();
+		builder.directory(workingDirectory.toLocalFile(EFS.NONE, null));
+		
+		// environment
+		final Map<String, String> envp = builder.environment();
+		LaunchConfigUtil.configureEnvironment(envp, configuration, renv.getEnvironmentsVariables());
+		
+		final List<String> cmdLine = builder.command();
 		cmdLine.addAll(0, renv.getExecCommand(Exec.TERM));
 		if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
 			cmdLine.add("--ess"); //$NON-NLS-1$
 		}
 		else {
 			cmdLine.add("--interactive");
+		}
+		if ("2".equals(envp.get("R_NETWORK"))) { //$NON-NLS-1$ //$NON-NLS-2$
+			cmdLine.add("--internet2"); //$NON-NLS-1$
 		}
 		
 		// arguments
@@ -100,13 +109,6 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		if (progress.isCanceled()) {
 			return;
 		}
-		
-		final ProcessBuilder builder = new ProcessBuilder(cmdLine);
-		builder.directory(workingDirectory.toLocalFile(EFS.NONE, null));
-		
-		// environment
-		final Map<String, String> envp = builder.environment();
-		LaunchConfigUtil.configureEnvironment(envp, configuration, renv.getEnvironmentsVariables());
 		
 		final String encoding = configuration.getAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING, ""); //$NON-NLS-1$
 		Charset charset;

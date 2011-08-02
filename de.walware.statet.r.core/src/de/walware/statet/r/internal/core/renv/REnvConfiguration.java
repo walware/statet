@@ -27,6 +27,8 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
+import org.eclipse.core.net.proxy.IProxyData;
+import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -46,6 +48,7 @@ import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.IntPref;
 import de.walware.ecommons.preferences.Preference.StringArrayPref;
 import de.walware.ecommons.preferences.Preference.StringPref;
+import de.walware.ecommons.preferences.PreferencesUtil;
 
 import de.walware.rj.rsetups.RSetup;
 
@@ -889,7 +892,77 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 			}
 		}
 		envp.put("LC_NUMERIC", "C"); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		if (PreferencesUtil.getInstancePrefs().getPreferenceValue(RCorePreferenceNodes.PREF_RENV_NETWORK_USE_ECLIPSE)) {
+			configureNetwork(envp);
+		}
+		
 		return envp;
+	}
+	
+	protected void configureNetwork(final Map<String, String> envp) {
+		final IProxyService proxyService = RCorePlugin.getDefault().getProxyService();
+		if (proxyService != null && proxyService.isProxiesEnabled()) {
+			final StringBuilder sb = new StringBuilder();
+			{	final String[] nonProxiedHosts = proxyService.getNonProxiedHosts();
+				if (nonProxiedHosts.length > 0) {
+					sb.setLength(0);
+					sb.append(nonProxiedHosts[0]);
+					for (int i = 1; i < nonProxiedHosts.length; i++) {
+						sb.append(',');
+						sb.append(nonProxiedHosts[i]);
+					}
+					envp.put("no_proxy", sb.toString()); //$NON-NLS-1$
+				}
+			}
+			if (LOCAL_PLATFORM == LOCAL_WIN && proxyService.isSystemProxiesEnabled()) {
+				envp.put("R_NETWORK", "2"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else {
+				IProxyData data = proxyService.getProxyData(IProxyData.HTTP_PROXY_TYPE);
+				if (data != null && data.getHost() != null) {
+					sb.setLength(0);
+					sb.append("http://"); //$NON-NLS-1$
+					if (data.isRequiresAuthentication()) {
+						if (data.getPassword() == null || data.getPassword().length() == 0) {
+							envp.put("http_proxy_user", "ask"); //$NON-NLS-1$ //$NON-NLS-2$
+						}
+						else {
+							sb.append((data.getUserId() != null) ? data.getUserId() : "") //$NON-NLS-1$
+									.append(':').append(data.getPassword());
+							sb.append('@');
+						}
+					}
+					sb.append(data.getHost());
+					if (data.getPort() > 0) {
+						sb.append(':').append(data.getPort());
+					}
+					sb.append('/');
+					envp.put("http_proxy", sb.toString());
+				}
+				
+				data = proxyService.getProxyData("FTP"); //$NON-NLS-1$
+				if (data != null && data.getHost() != null) {
+					sb.setLength(0);
+					sb.append("ftp://"); //$NON-NLS-1$
+					sb.append(data.getHost());
+					if (data.getPort() > 0) {
+						sb.append(':').append(data.getPort());
+					}
+					sb.append('/');
+					envp.put("ftp_proxy", sb.toString()); //$NON-NLS-1$
+					
+					if (data.isRequiresAuthentication()) {
+						if (data.getUserId() != null) {
+							envp.put("ftp_proxy_user", data.getUserId()); //$NON-NLS-1$
+						}
+						if (data.getPassword() != null) {
+							envp.put("ftp_proxy_password", data.getPassword()); //$NON-NLS-1$
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	

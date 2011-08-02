@@ -14,10 +14,12 @@ package de.walware.statet.r.internal.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.IDisposable;
@@ -101,6 +103,8 @@ public class RCorePlugin extends Plugin {
 	private REnvManager fREnvManager;
 	private RModelManager fRModelManager;
 	private RHelpManager fRHelpManager;
+	
+	private ServiceTracker fProxyService;
 	
 	
 	/**
@@ -193,6 +197,18 @@ public class RCorePlugin extends Plugin {
 			fDefaultsCoreAccess = new CoreAccess(PreferencesUtil.getDefaultPrefs());
 		}
 		return fDefaultsCoreAccess;
+	}
+	
+	public synchronized IProxyService getProxyService() {
+		if (fProxyService == null) {
+			if (!fStarted) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
+			fProxyService = new ServiceTracker(getBundle().getBundleContext(),
+					IProxyService.class.getName(), null );
+			fProxyService.open();
+		}
+		return (IProxyService) fProxyService.getService();
 	}
 	
 }

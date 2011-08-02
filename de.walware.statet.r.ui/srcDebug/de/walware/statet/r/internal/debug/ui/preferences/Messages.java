@@ -51,10 +51,14 @@ public class Messages extends NLS {
 	public static String REnv_SystemRHome_name;
 	public static String REnv_error_Saving_message;
 	
+	public static String REnv_Index_label;
 	public static String REnv_Update_Console_label;
 	public static String REnv_Update_Console_Auto_label;
 	public static String REnv_Update_Console_Ask_label;
 	public static String REnv_Update_Console_Disabled_label;
+	
+	public static String REnv_Network_label;
+	public static String REnv_Network_UseEclipse_label;
 	
 	public static String RIntegrationExt_description;
 	public static String RIntegrationExt_LocalRMI_label;
