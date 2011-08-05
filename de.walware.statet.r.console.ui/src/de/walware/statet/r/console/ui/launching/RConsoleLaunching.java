@@ -69,9 +69,14 @@ public class RConsoleLaunching {
 	public static final String ATTR_PIN_CONSOLE = ATTR_ROOT+"console.pin"; //$NON-NLS-1$
 	
 	/**
-	 * Attribute key for port of SSH number
+	 * Attribute key for port number of SSH
 	 */
 	public static final String ATTR_SSH_PORT = ATTR_ROOT+"ssh.port"; //$NON-NLS-1$
+	
+	/**
+	 * Attribute key for SSH tunnel option
+	 */
+	public static final String ATTR_SSH_TUNNEL_ENABLED = ATTR_ROOT+"ssh.tunnel.enabled"; //$NON-NLS-1$
 	
 	/**
 	 * Attribute key for command to startup R

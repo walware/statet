@@ -18,7 +18,9 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.RMIClientSocketFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +33,7 @@ import java.util.regex.Pattern;
 
 import com.ibm.icu.text.DateFormat;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -75,6 +78,7 @@ import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TreeComposite;
 
+import de.walware.rj.server.RjsComConfig;
 import de.walware.rj.server.Server;
 import de.walware.rj.server.ServerInfo;
 
@@ -83,6 +87,24 @@ import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 
 
 public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
+	
+	
+	public static abstract class SpecialAddress {
+		
+		private String fPublicHost;
+		private String fPrivateHost;
+		private int fPort;
+		
+		
+		public SpecialAddress(final String publicHost, final String privateHost, final int port) {
+			fPublicHost = publicHost;
+			fPrivateHost = privateHost;
+			fPort = port;
+		}
+		
+		public abstract RMIClientSocketFactory getSocketFactory(IProgressMonitor monitor) throws CoreException;
+		
+	}
 	
 	
 	private static final String SETTINGS_DIALOG_ID = "RRemoteConsoleSelection"; //$NON-NLS-1$
@@ -242,6 +264,11 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 	
 	private String fUsername;
 	
+	private final List<String> fHistoryAddress = new ArrayList<String>(DialogUtil.HISTORY_MAX + 10);
+	private final List<String> fAdditionalAddress = new ArrayList<String>(8);
+	private final Map<String, SpecialAddress> fSpecialAddress = new HashMap<String, SpecialAddress>(8);
+	private String fInitialAddress;
+	
 	
 	public RRemoteConsoleSelectionDialog(final Shell parentShell, final boolean onlyRunning) {
 		super(parentShell);
@@ -260,6 +287,31 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		if (username != null && username.length() > 0) {
 			fUsername = username;
 		}
+	}
+	
+	public void setInitialAddress(final String address) {
+		fAdditionalAddress.remove(address);
+		fAdditionalAddress.add(0, address);
+		fInitialAddress = address;
+	}
+	
+	public void addAdditionalAddress(final String label, final SpecialAddress factory) {
+		fAdditionalAddress.add(label);
+		if (factory != null) {
+			fSpecialAddress.put(label, factory);
+		}
+	}
+	
+	public void clearAdditionaAddress(final boolean specialOnly) {
+		if (specialOnly) {
+			for (Entry<String, ?> entry : fSpecialAddress.entrySet()) {
+				fAdditionalAddress.remove(entry.getKey());
+			}
+		}
+		else {
+			fAdditionalAddress.clear();
+		}
+		fSpecialAddress.clear();
 	}
 	
 	
@@ -296,7 +348,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			fHostAddressControl.setLayoutData(gd);
 			final String[] history = dialogSettings.getArray(SETTINGS_HOST_HISTORY_KEY);
 			if (history != null) {
-				fHostAddressControl.setItems(history);
+				fHistoryAddress.addAll(Arrays.asList(history));
 			}
 			fHostAddressControl.addSelectionListener(new SelectionAdapter() {
 				@Override
@@ -411,7 +463,10 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		}
 		getOkButton().setEnabled(false);
 		if (fRServerList != null && fRServerList.size() > 0) {
-			fHostAddressControl.setItems(DialogUtil.combineHistoryItems(fHostAddressControl.getItems(), input));
+			if (!fSpecialAddress.containsKey(input)) {
+				fHistoryAddress.remove(input);
+				fHistoryAddress.add(0, input);
+			}
 			if (fFilterOnlyRunning) {
 				for (final Iterator<RemoteR> iter = fRServerList.iterator(); iter.hasNext();) {
 					switch (iter.next().info.getState()) {
@@ -430,12 +485,31 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 	}
 	
 	private void updateInput() {
+		final String selectedAddress = fHostAddressControl.getText();
+		final List<String> list = new ArrayList<String>(fHistoryAddress.size() + fAdditionalAddress.size());
+		list.addAll(fHistoryAddress);
+		for (String address : fAdditionalAddress) {
+			if (!list.contains(address)) {
+				list.add(address);
+			}
+		}
+		fHostAddressControl.setItems(list.toArray(new String[list.size()]));
+		
 		fRServerViewer.setInput(fRServerList);
 		
 		if (fUsername != null && fUsername.length() > 0) {
 			Display.getCurrent().asyncExec(new Runnable() {
 				public void run() {
-					fHostAddressControl.select(0);
+					if (fInitialAddress != null) {
+						fHostAddressControl.setText(fInitialAddress);
+						fInitialAddress = null;
+					}
+					else if (selectedAddress != null && selectedAddress.length() > 0) {
+						fHostAddressControl.setText(selectedAddress);
+					}
+					else if (fHostAddressControl.getItemCount() > 0) {
+						fHostAddressControl.select(0);
+					}
 					fRServerViewer.expandToLevel(fUsername.toLowerCase(), 1);
 					updateState();
 				}
@@ -460,7 +534,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 	@Override
 	public boolean close() {
 		final IDialogSettings dialogSettings = getDialogSettings();
-		dialogSettings.put(SETTINGS_HOST_HISTORY_KEY, fHostAddressControl.getItems());
+		dialogSettings.put(SETTINGS_HOST_HISTORY_KEY, fHistoryAddress.toArray(new String[fHistoryAddress.size()]));
 		
 		return super.close();
 	}
@@ -483,26 +557,36 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			progress.setWorkRemaining((addresses.length-i)*2 +1);
 			
 			String address = addresses[i];
-			if (address.startsWith("rmi:")) { //$NON-NLS-1$
-				address = address.substring(4);
+			SpecialAddress special = fSpecialAddress.get(address);
+			if (special == null) {
+				if (address.startsWith("rmi:")) { //$NON-NLS-1$
+					address = address.substring(4);
+				}
+				if (address.startsWith("//")) { //$NON-NLS-1$
+					address = address.substring(2);
+				}
 			}
-			if (address.startsWith("//")) { //$NON-NLS-1$
-				address = address.substring(2);
-			}
-			
 			if (address.length() == 0) {
 				return null;
 			}
 			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
-			final Matcher matcher = ADDRESS_WITH_PORT_PATTERN.matcher(address);
 			IStatus status;
-			if (matcher.matches()) {
-				status = collectServerInfos(matcher.group(1), Integer.parseInt(matcher.group(2)), infos, progress);
+			if (special == null) {
+				final Matcher matcher = ADDRESS_WITH_PORT_PATTERN.matcher(address);
+				if (matcher.matches()) {
+					status = collectServerInfos(matcher.group(1), Integer.parseInt(matcher.group(2)), null,
+							infos, progress );
+				}
+				else {
+					status = collectServerInfos(address, Registry.REGISTRY_PORT, null,
+							infos, progress );
+				}
 			}
 			else {
-				status = collectServerInfos(address, Registry.REGISTRY_PORT, infos, progress);
+				address = special.fPublicHost;
+				status = collectServerInfos(null, 0, special, infos, progress);
 			}
 			switch (status.getSeverity()) {
 			case IStatus.CANCEL:
@@ -536,8 +620,14 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		return Status.OK_STATUS;
 	}
 	
-	private static IStatus collectServerInfos(final String address, final int port, final List<RemoteR> infos, final SubMonitor progress) {
+	private static IStatus collectServerInfos(String address, int port,
+			final SpecialAddress special,
+			final List<RemoteR> infos, final SubMonitor progress) {
 		try {
+			if (special != null) {
+				address = special.fPublicHost;
+				port = special.fPort;
+			}
 			progress.subTask(NLS.bind(RConsoleMessages.RRemoteConsoleSelectionDialog_task_Resolving_message, address));
 			final InetAddress inetAddress = InetAddress.getByName(address);
 			final String hostname = inetAddress.getHostName();
@@ -548,7 +638,16 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			}
 			
 			progress.subTask(NLS.bind(RConsoleMessages.RRemoteConsoleSelectionDialog_task_Connecting_message, hostname));
-			final Registry registry = LocateRegistry.getRegistry(address, port);
+			final Registry registry;
+			if (special != null) {
+				final RMIClientSocketFactory socketFactory = special.getSocketFactory(progress.newChild(5));
+				RjsComConfig.setRMIClientSocketFactory(socketFactory);
+				registry = LocateRegistry.getRegistry(special.fPrivateHost, port, socketFactory );
+			}
+			else {
+				RjsComConfig.setRMIClientSocketFactory(null);
+				registry = LocateRegistry.getRegistry(address, port);
+			}
 			final String rmiBase = (port == Registry.REGISTRY_PORT) ?
 					"//" + address + '/' : //$NON-NLS-1$
 					"//" + address + ':' + port + '/'; //$NON-NLS-1$
@@ -574,6 +673,12 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		}
 		catch (final UnknownHostException e) {
 			return new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID, "Unknown host: " + e.getLocalizedMessage()); //$NON-NLS-1$
+		}
+		catch (final CoreException e) {
+			return e.getStatus();
+		}
+		finally {
+			RjsComConfig.clearRMIClientSocketFactory();
 		}
 	}
 	

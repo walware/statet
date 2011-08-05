@@ -12,7 +12,6 @@
 package de.walware.statet.r.internal.console.ui.launching;
 
 import java.net.MalformedURLException;
-import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,6 +69,7 @@ import de.walware.statet.r.launching.core.ILaunchDelegateAddon;
 import de.walware.statet.r.launching.core.RLaunching;
 import de.walware.statet.r.nico.RWorkspaceConfig;
 import de.walware.statet.r.nico.impl.RjsController;
+import de.walware.statet.r.nico.impl.RjsController.RjsConnection;
 
 
 /**
@@ -77,6 +77,8 @@ import de.walware.statet.r.nico.impl.RjsController;
  */
 public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 	
+	
+	static final long TIMEOUT = 60L * 1000000000L;
 	
 	static class ConfigRunnable implements ISystemRunnable {
 		
@@ -236,123 +238,130 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		if (registryStatus.getSeverity() >= IStatus.ERROR) {
 			throw new CoreException(registryStatus);
 		}
-		final RMIRegistry registry = RMIUtil.INSTANCE.getRegistry(port);
-		
-		engineLaunchDelegate.launch(configuration, mode, launch, progress.newChild(10));
-		final IProcess[] processes = launch.getProcesses();
-		if (processes.length == 0) {
-			return;
-		}
-		
-		progress.worked(1);
-		if (progress.isCanceled()) {
-			return;
-		}
-		
-		// arguments
-		final String[] rArgs = LaunchConfigUtil.getProcessArguments(configuration, RConsoleLaunching.ATTR_OPTIONS);
-		
-		progress.worked(1);
-		if (progress.isCanceled()) {
-			return;
-		}
-		
-		// create process
-		UnterminatedLaunchAlerter.registerLaunchType(RConsoleLaunching.R_CONSOLE_CONFIGURATION_TYPE_ID);
-		
-		final RProcess process = new RProcess(launch, rEnv,
-				LaunchConfigUtil.createLaunchPrefix(configuration),
-				rEnv.getName() + " / RJ " + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
-				rmiAddress.toString(),
-				null, // wd is set at rjs startup
-				timestamp );
-		process.setAttribute(IProcess.ATTR_CMDLINE, rmiAddress.toString() + '\n' + Arrays.toString(rArgs));
-		
-		// Wait until the engine is started or died
-		progress.subTask(RConsoleMessages.LaunchDelegate_WaitForR_subtask);
-		WAIT: for (int i = 0; i < 50; i++) {
-			if (processes[0].isTerminated()) {
-				final boolean silent = configuration.getAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, true);
-				final IStatus logStatus = ToolRunner.createOutputLogStatus(
-						(ILogOutput) processes[0].getAdapter(ILogOutput.class) );
-				// move to R server?
-				final StringBuilder sb = new StringBuilder();
-				sb.append("Launching the R Console was cancelled, because it seems starting the R engine failed. \n");
-				sb.append("Please make sure that R package ");
-				if (ServerUtil.RJ_VERSION[0] > 0 || ServerUtil.RJ_VERSION[1] > 5 || ServerUtil.RJ_VERSION[2] >= 5) {
-					sb.append("'rj' ("); //$NON-NLS-1$;
-					ServerUtil.prettyPrintVersion(ServerUtil.RJ_VERSION, sb);
-					sb.append(" or compatible)"); //$NON-NLS-1$
-				}
-				else {
-					sb.append("'rJava' (with JRI)"); //$NON-NLS-1$
-				}
-				sb.append(" is installed and that the R library paths are set correctly for the R environment configuration '");
-				sb.append(rEnv.getName());
-				sb.append("'.");
-				
-				StatusManager.getManager().handle(new Status(silent ? IStatus.INFO : IStatus.ERROR,
-						RConsoleUIPlugin.PLUGIN_ID, sb.toString(),
-						(logStatus != null) ? new CoreException(logStatus) : null ),
-						silent ? (StatusManager.LOG) : (StatusManager.LOG | StatusManager.SHOW) );
+		try {
+			RjsComConfig.setRMIClientSocketFactory(null);
+			final RMIRegistry registry = RMIUtil.INSTANCE.getRegistry(port);
+			
+			engineLaunchDelegate.launch(configuration, mode, launch, progress.newChild(10));
+			final IProcess[] processes = launch.getProcesses();
+			if (processes.length == 0) {
 				return;
 			}
+			
+			progress.worked(1);
 			if (progress.isCanceled()) {
-				processes[0].terminate();
-				throw new CoreException(Status.CANCEL_STATUS);
+				return;
 			}
-			try {
-				final String[] list = registry.getRegistry().list();
-				for (final String entry : list) {
-					try {
-						if (new RMIAddress(entry).equals(rmiAddress)) {
+			
+			// arguments
+			final String[] rArgs = LaunchConfigUtil.getProcessArguments(configuration, RConsoleLaunching.ATTR_OPTIONS);
+			
+			progress.worked(1);
+			if (progress.isCanceled()) {
+				return;
+			}
+			
+			// create process
+			UnterminatedLaunchAlerter.registerLaunchType(RConsoleLaunching.R_CONSOLE_CONFIGURATION_TYPE_ID);
+			
+			final RProcess process = new RProcess(launch, rEnv,
+					LaunchConfigUtil.createLaunchPrefix(configuration),
+					rEnv.getName() + " / RJ " + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
+					rmiAddress.toString(),
+					null, // wd is set at rjs startup
+					timestamp );
+			process.setAttribute(IProcess.ATTR_CMDLINE, rmiAddress.toString() + '\n' + Arrays.toString(rArgs));
+			
+			// Wait until the engine is started or died
+			progress.subTask(RConsoleMessages.LaunchDelegate_WaitForR_subtask);
+			long t = System.nanoTime();
+			WAIT: for (int i = 0; true; i++) {
+				if (processes[0].isTerminated()) {
+					final boolean silent = configuration.getAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, true);
+					final IStatus logStatus = ToolRunner.createOutputLogStatus(
+							(ILogOutput) processes[0].getAdapter(ILogOutput.class) );
+					// move to R server?
+					final StringBuilder sb = new StringBuilder();
+					sb.append("Launching the R Console was cancelled, because it seems starting the R engine failed. \n");
+					sb.append("Please make sure that R package ");
+					if (ServerUtil.RJ_VERSION[0] > 0 || ServerUtil.RJ_VERSION[1] > 5 || ServerUtil.RJ_VERSION[2] >= 5) {
+						sb.append("'rj' ("); //$NON-NLS-1$;
+						ServerUtil.prettyPrintVersion(ServerUtil.RJ_VERSION, sb);
+						sb.append(" or compatible)"); //$NON-NLS-1$
+					}
+					else {
+						sb.append("'rJava' (with JRI)"); //$NON-NLS-1$
+					}
+					sb.append(" is installed and that the R library paths are set correctly for the R environment configuration '");
+					sb.append(rEnv.getName());
+					sb.append("'.");
+					
+					StatusManager.getManager().handle(new Status(silent ? IStatus.INFO : IStatus.ERROR,
+							RConsoleUIPlugin.PLUGIN_ID, sb.toString(),
+							(logStatus != null) ? new CoreException(logStatus) : null ),
+							silent ? (StatusManager.LOG) : (StatusManager.LOG | StatusManager.SHOW) );
+					return;
+				}
+				if (progress.isCanceled()) {
+					processes[0].terminate();
+					throw new CoreException(Status.CANCEL_STATUS);
+				}
+				try {
+					final String[] list = registry.getRegistry().list();
+					for (final String entry : list) {
+						if (entry.equals(rmiAddress.getName())) {
 							break WAIT;
 						}
 					}
-					catch (final UnknownHostException e) {}
+					if (i > 1 && System.nanoTime() - t > TIMEOUT) {
+						break WAIT;
+					}
+				}
+				catch (final RemoteException e) {
+					if (i > 0 && System.nanoTime() - t > TIMEOUT / 3) {
+						break WAIT;
+					}
+				}
+				try {
+					Thread.sleep(333);
+				}
+				catch (final InterruptedException e) {
+					// continue, monitor and process is checked
 				}
 			}
-			catch (final RemoteException e) {
-				if (i > 25) {
-					break WAIT;
-				}
+			progress.worked(5);
+			
+			final RjsConnection connection = RjsController.lookup(registry.getRegistry(), null, rmiAddress);
+			
+			final HashMap<String, Object> rjsProperties = new HashMap<String, Object>();
+			rjsProperties.put(RjsComConfig.RJ_DATA_STRUCTS_LISTS_MAX_LENGTH_PROPERTY_ID,
+					configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, 10000));
+			rjsProperties.put(RjsComConfig.RJ_DATA_STRUCTS_ENVS_MAX_LENGTH_PROPERTY_ID,
+					configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000));
+			rjsProperties.put("rj.session.startup.time", timestamp); //$NON-NLS-1$
+			final RjsController controller = new RjsController(process, rmiAddress, connection, null,
+					true, true, rArgs, rjsProperties, engineLaunchDelegate.getWorkingDirectory(),
+					createWorkspaceConfig(configuration), trackingConfigs);
+			process.init(controller);
+			RConsoleLaunching.registerDefaultHandlerTo(controller);
+			
+			progress.worked(5);
+			
+			initConsoleOptions(controller, configuration, true);
+			
+			if (fAddon != null) {
+				fAddon.init(configuration, mode, controller, monitor);
 			}
-			catch (final MalformedURLException e) {
-			}
-			try {
-				Thread.sleep(500);
-			}
-			catch (final InterruptedException e) {
-				// continue, monitor and process is checked
-			}
+			
+			final RConsole console = new RConsole(process, new NIConsoleColorAdapter());
+			NicoUITools.startConsoleLazy(console, page, 
+					configuration.getAttribute(RConsoleLaunching.ATTR_PIN_CONSOLE, false));
+			
+			new ToolRunner().runInBackgroundThread(process, new WorkbenchStatusHandler());
 		}
-		progress.worked(5);
-		
-		final HashMap<String, Object> rjsProperties = new HashMap<String, Object>();
-		rjsProperties.put(RjsComConfig.RJ_DATA_STRUCTS_LISTS_MAX_LENGTH_PROPERTY_ID,
-				configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, 10000));
-		rjsProperties.put(RjsComConfig.RJ_DATA_STRUCTS_ENVS_MAX_LENGTH_PROPERTY_ID,
-				configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000));
-		rjsProperties.put("rj.session.startup.time", timestamp); //$NON-NLS-1$
-		final RjsController controller = new RjsController(process, rmiAddress, null,
-				true, true, rArgs, rjsProperties, engineLaunchDelegate.getWorkingDirectory(),
-				createWorkspaceConfig(configuration), trackingConfigs);
-		process.init(controller);
-		RConsoleLaunching.registerDefaultHandlerTo(controller);
-		
-		progress.worked(5);
-		
-		initConsoleOptions(controller, configuration, true);
-		
-		if (fAddon != null) {
-			fAddon.init(configuration, mode, controller, monitor);
+		finally {
+			RjsComConfig.clearRMIClientSocketFactory();
 		}
-		
-		final RConsole console = new RConsole(process, new NIConsoleColorAdapter());
-		NicoUITools.startConsoleLazy(console, page, 
-				configuration.getAttribute(RConsoleLaunching.ATTR_PIN_CONSOLE, false));
-		
-		new ToolRunner().runInBackgroundThread(process, new WorkbenchStatusHandler());
 		
 		if (monitor != null) {
 			monitor.done();

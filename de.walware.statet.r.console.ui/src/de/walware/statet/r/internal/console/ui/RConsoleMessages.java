@@ -43,6 +43,7 @@ public class RConsoleMessages extends NLS {
 	public static String RRemoteConsoleSelectionDialog_info_ListRestored_message;
 	public static String RRemoteConsoleSelectionDialog_error_ConnectionFailed_message;
 	
+	public static String LaunchDelegate_CheckingRegistry_subtask;
 	public static String LaunchDelegate_StartREngine_subtask;
 	public static String LaunchDelegate_WaitForR_subtask;
 	public static String LaunchDelegate_error_MissingAddress_message;

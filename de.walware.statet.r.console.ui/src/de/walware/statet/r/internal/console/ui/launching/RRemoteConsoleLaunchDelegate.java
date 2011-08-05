@@ -15,13 +15,16 @@ import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_SSH_HO
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_SSH_PORT_DATA_KEY;
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_USERNAME_DATA_KEY;
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_USERNAME_FORCE_DATA_KEY;
+import static de.walware.statet.r.internal.console.ui.launching.RConsoleRJLaunchDelegate.TIMEOUT;
 
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
-import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.RMIClientSocketFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,6 +62,7 @@ import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
 import de.walware.ecommons.io.FileValidator;
 import de.walware.ecommons.net.RMIAddress;
+import de.walware.ecommons.net.RMIUtil;
 import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
 import de.walware.ecommons.preferences.Preference;
@@ -81,6 +85,7 @@ import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.nico.ui.util.LoginHandler;
 import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 
+import com.jcraft.jsch.Session;
 import de.walware.rj.server.RjsComConfig;
 import de.walware.rj.server.Server;
 
@@ -96,6 +101,7 @@ import de.walware.statet.r.launching.core.ILaunchDelegateAddon;
 import de.walware.statet.r.launching.core.RLaunching;
 import de.walware.statet.r.launching.ui.REnvTab;
 import de.walware.statet.r.nico.impl.RjsController;
+import de.walware.statet.r.nico.impl.RjsController.RjsConnection;
 import de.walware.statet.r.nico.impl.RjsUtil;
 
 
@@ -147,7 +153,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 	public RRemoteConsoleLaunchDelegate() {
 	}
 	
-	public RRemoteConsoleLaunchDelegate(ILaunchDelegateAddon addon) {
+	public RRemoteConsoleLaunchDelegate(final ILaunchDelegateAddon addon) {
 		fAddon = addon;
 	}
 	
@@ -298,15 +304,54 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 				}
 			}
 			
+			final boolean sshTunnel = configuration.getAttribute(RConsoleLaunching.ATTR_SSH_TUNNEL_ENABLED, false);
+			final Map<String, Object> loginData = new HashMap<String, Object>();
+			
 			RMIAddress rmiAddress = null;
+			RMIClientSocketFactory socketFactory = null;
+			Session sshSession = null;
 			int todo = TODO_START_SERVER;
 			Exception todoException = null;
+			Registry registry = null;
+			boolean registryOK = false;
 			try {
+				progress.subTask(RConsoleMessages.LaunchDelegate_CheckingRegistry_subtask);
 				rmiAddress = new RMIAddress(address);
-				final Remote remote = Naming.lookup(address);
+				
+				// init login data
+				loginData.put(LOGIN_USERNAME_DATA_KEY, username);
+				if (type.equals(RConsoleLaunching.REMOTE_RJS_SSH)) {
+					loginData.put(LOGIN_USERNAME_FORCE_DATA_KEY, true);
+				}
+				final int sshPort = configuration.getAttribute(RConsoleLaunching.ATTR_SSH_PORT, DEFAULT_SSH_PORT);
+				loginData.put(LOGIN_SSH_HOST_DATA_KEY, rmiAddress.getHostAddress().getHostAddress());
+				loginData.put(LOGIN_SSH_PORT_DATA_KEY, Integer.valueOf(sshPort));
+				
+				final Remote remote;
+				if (sshTunnel) {
+					if (sshSession == null) {
+						sshSession = RjsUtil.getSession(loginData, progress.newChild(5));
+					}
+					
+					socketFactory = RjsUtil.createRMIOverSshClientSocketFactory(sshSession);
+					RjsComConfig.setRMIClientSocketFactory(socketFactory);
+					registry = LocateRegistry.getRegistry("127.0.0.1", rmiAddress.getPortNum(),
+							socketFactory );
+					remote = registry.lookup(rmiAddress.getName());
+					registryOK = true;
+				}
+				else {
+					RMIUtil.checkRegistryAccess(rmiAddress);
+					RjsComConfig.setRMIClientSocketFactory(null);
+					registry = LocateRegistry.getRegistry(rmiAddress.getHost(), rmiAddress.getPortNum(),
+							socketFactory );
+					remote = registry.lookup(rmiAddress.getName());
+					registryOK = true;
+				}
 				if (remote instanceof Server) {
 					final Server server = (Server) remote;
-					if (server.getState() <= Server.S_NOT_STARTED) {
+					final int state = server.getState();
+					if (state <= Server.S_NOT_STARTED) {
 						todo = TODO_START_R;
 						if (reconnect != null) {
 							throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID, 0,
@@ -314,7 +359,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 									null ));
 						}
 					}
-					else if (server.getState() == Server.S_CONNECTED) {
+					else if (state == Server.S_CONNECTED) {
 						todo = TODO_CONNECT;
 						if (reconnect != null) {
 						}
@@ -334,10 +379,10 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 							}
 						}
 					}
-					else if (server.getState() <= Server.S_LOST) {
+					else if (state <= Server.S_LOST) {
 						todo = TODO_CONNECT;
 					}
-					else if (server.getState() == Server.S_STOPPED) {
+					else if (state == Server.S_STOPPED) {
 						if (reconnect != null) {
 							throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID, 0,
 									NLS.bind("Cannot reconnect, the R engine at ''{0}'' is terminated.", address),
@@ -346,7 +391,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 						todo = TODO_START_SERVER;
 					}
 					else {
-						throw new IllegalStateException();
+						throw new IllegalStateException("Server state: " + state);
 					}
 				}
 			}
@@ -361,6 +406,9 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 						RConsoleMessages.LaunchDelegate_error_InvalidAddress_message, e ));
 			}
 			catch (final RemoteException e) {
+				if (!registryOK) {
+					registry = null;
+				}
 				todoException = e;
 				todo = TODO_START_SERVER;
 			}
@@ -375,15 +423,6 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			}
 			
 			final String[] args = LaunchConfigUtil.getProcessArguments(configuration, RConsoleLaunching.ATTR_OPTIONS);
-			final Map<String, Object> loginData = new HashMap<String, Object>();
-			loginData.put(LOGIN_USERNAME_DATA_KEY, username);
-			if (type.equals(RConsoleLaunching.REMOTE_RJS_SSH)) {
-				loginData.put(LOGIN_USERNAME_FORCE_DATA_KEY, true);
-			}
-			
-			final int sshPort = configuration.getAttribute(RConsoleLaunching.ATTR_SSH_PORT, DEFAULT_SSH_PORT);
-			loginData.put(LOGIN_SSH_HOST_DATA_KEY, rmiAddress.getHostAddress().getHostAddress());
-			loginData.put(LOGIN_SSH_PORT_DATA_KEY, Integer.valueOf(sshPort));
 			
 			if (reconnect != null) {
 				final Map<String, String> reconnectData = (Map<String, String>) reconnect.get("initData"); //$NON-NLS-1$
@@ -433,33 +472,57 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 					final Hashtable<String, String> envp = new Hashtable<String, String>();
 					envp.put("LC_ALL", "C"); //$NON-NLS-1$ //$NON-NLS-2$
 					envp.put("LANG", "C"); //$NON-NLS-1$ //$NON-NLS-2$
+					envp.put("LC_NUMERIC", "C"); //$NON-NLS-1$ //$NON-NLS-2$
 					RjsUtil.startRemoteServerOverSsh(RjsUtil.getSession(loginData, progress.newChild(5)), command, envp, progress.newChild(5));
 					
 					progress.subTask(RConsoleMessages.LaunchDelegate_WaitForR_subtask);
-					WAIT: for (int i = 0; i < 50; i++) {
+					final long t = System.nanoTime();
+					WAIT: for (int i = 0; true; i++) {
 						if (progress.isCanceled()) {
 							throw new CoreException(Status.CANCEL_STATUS);
 						}
 						try {
-							final String[] list = Naming.list(rmiAddress.getRegistryAddress().getAddress());
-							for (final String entry : list) {
-								try {
-									if (new RMIAddress(entry).equals(rmiAddress)) {
-										break WAIT;
+							if (registry == null) {
+								if (sshTunnel) {
+									if (sshSession == null) {
+										sshSession = RjsUtil.getSession(loginData, progress.newChild(5));
 									}
+									if (socketFactory == null) {
+										socketFactory = RjsUtil.createRMIOverSshClientSocketFactory(sshSession);
+									}
+									registry = LocateRegistry.getRegistry("127.0.0.1", rmiAddress.getPortNum(),
+											socketFactory );
 								}
-								catch (final UnknownHostException e) {}
+								else {
+									RMIUtil.checkRegistryAccess(rmiAddress);
+									registryOK = true;
+									registry = LocateRegistry.getRegistry(rmiAddress.getHost(), rmiAddress.getPortNum());
+								}
 							}
-						}
-						catch (final RemoteException e) {
-							if (i > 25) {
+							final String[] list = registry.list();
+							registryOK = true;
+							for (final String entry : list) {
+								if (entry.equals(rmiAddress.getName())) {
+									break WAIT;
+								}
+							}
+							if (i > 1 && System.nanoTime() - t > TIMEOUT) {
 								break WAIT;
 							}
 						}
-						catch (final MalformedURLException e) {
+						catch (final RemoteException e) {
+							if (i > 0 && System.nanoTime() - t > TIMEOUT / 3) {
+								if (registry == null) {
+									RjsController.lookup(null, e, rmiAddress);
+								}
+								break WAIT;
+							}
+							if (!registryOK) {
+								registry = null;
+							}
 						}
 						try {
-							Thread.sleep(500);
+							Thread.sleep(333);
 						}
 						catch (final InterruptedException e) {
 							// continue, monitor is checked
@@ -483,6 +546,8 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 				}
 			}
 			
+			final RjsConnection connection = RjsController.lookup(registry, null, rmiAddress);
+			
 			// create process
 			UnterminatedLaunchAlerter.registerLaunchType(RConsoleLaunching.R_REMOTE_CONSOLE_CONFIGURATION_TYPE_ID);
 			final boolean startup = (todo == TODO_START_R);
@@ -502,7 +567,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			rjsProperties.put(RjsComConfig.RJ_DATA_STRUCTS_ENVS_MAX_LENGTH_PROPERTY_ID,
 					configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000));
 			rjsProperties.put("rj.session.startup.time", timestamp); //$NON-NLS-1$
-			final RjsController controller = new RjsController(process, rmiAddress, loginData,
+			final RjsController controller = new RjsController(process, rmiAddress, connection, loginData,
 					false, startup, args, rjsProperties, null,
 					RConsoleRJLaunchDelegate.createWorkspaceConfig(configuration), trackingConfigs);
 			
@@ -543,8 +608,8 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			new ToolRunner().runInBackgroundThread(process, new WorkbenchStatusHandler());
 			prevProcessDisposeFinally = false;
 		}
-		
 		finally {
+			RjsComConfig.clearRMIClientSocketFactory();
 			if (prevProcessDisposeFinally && reconnect != null && prevProcess != null) {
 				prevProcess.restartCompleted(reconnect);
 			}

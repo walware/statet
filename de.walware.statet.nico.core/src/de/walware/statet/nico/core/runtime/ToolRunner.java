@@ -97,7 +97,7 @@ public class ToolRunner {
 					ToolRunner.this.run(process);
 				}
 				catch (final CoreException e) {
-					if (e.getStatus().getSeverity() == IStatus.CANCEL) {
+					if (e.getStatus() != null && e.getStatus().getSeverity() == IStatus.CANCEL) {
 					}
 					else {
 						process.fExitValue = NicoCore.EXITVALUE_CORE_EXCEPTION;

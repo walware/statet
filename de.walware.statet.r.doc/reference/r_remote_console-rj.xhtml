@@ -19,7 +19,8 @@ and <b>J</b>RI [<a href="#ref2">2</a>] for the integration of R in Java.
 One server provides a single R session.  You can start multiple servers for the same or for 
 different user on one machine without problems.  The different R sessions are registered in 
 the RMI registry and distinguishable by their names.</p>
-<p>The RJ server is designed for usage in an intranet.</p>
+<p>The RJ server is designed for usage in an intranet, but it also offers the option to use an 
+SSH tunnel for the connections in less secure networks.</p>
 
 <h4>Security</h4>
 <p>Because of the single session approach of the RJ server, one usually starts the server
@@ -39,8 +40,10 @@ following requirements:</p>
 <ul>
 <li>Java: Java version &ge; 5.0, Standard Edition (SE) or greater</li>
 <li>R</li>
-<li>R package rJava with JRI: JRI version &ge; 0.5 (rJava 0.7)</li>
+<li>R package 'rj'</li>
 </ul>
+<p>Note that the version of the parts of RJ in StatET, the console server and the R packages
+must be compatible (same major and minor version, if not published otherwise).</p>
 
 <h2>Setup / Startup</h2>
 <p>A server bundle containing all files is provided on the homepage.  Please look into the

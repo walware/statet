@@ -18,10 +18,10 @@ import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_USERNA
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -135,7 +135,74 @@ public class RjsController extends AbstractRDbgController
 		RjsComConfig.registerRObjectFactory(CombinedFactory.FACTORY_ID, CombinedFactory.INSTANCE);
 	}
 	
-	private final static Filter<IModelElement> TAG_ELEMENT_FILTER = new Filter<IModelElement>() {
+	public static class RjsConnection {
+		
+		private final RMIAddress fRMIAddress;
+		private final Server fServer;
+		
+		
+		private RjsConnection(final RMIAddress rmiAddress, final Server server) {
+			fRMIAddress = rmiAddress;
+			fServer = server;
+		}
+		
+		
+		public RMIAddress getRMIAddress() {
+			return fRMIAddress;
+		}
+		
+		public Server getServer() {
+			return fServer;
+		}
+		
+	}
+	
+	
+	public static RjsConnection lookup(final Registry registry, final RemoteException registryException,
+			final RMIAddress address) throws CoreException {
+		if (address == null) {
+			throw new NullPointerException();
+		}
+		
+		final int[] clientVersion = AbstractRJComClient.version();
+		clientVersion[2] = -1;
+		final Server server;
+		int[] version;
+		try {
+			if (registryException != null) {
+				throw registryException;
+			}
+			server = (Server) registry.lookup(address.getName());
+			version = server.getVersion();
+		}
+		catch (final NotBoundException e) {
+			throw new CoreException(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID,
+					ICommonStatusConstants.LAUNCHING,
+					"The specified R engine is not in the service registry (RMI).", e ));
+		}
+		catch (final RemoteException e) {
+			throw new CoreException(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID,
+					ICommonStatusConstants.LAUNCHING,
+					NLS.bind("Cannot access the host/service registry (RMI) at ''{0}''.", address.getRegistryAddress()),
+					e ));
+		}
+		catch (final ClassCastException e) {
+			throw new CoreException(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID,
+					ICommonStatusConstants.LAUNCHING,
+					NLS.bind("The specified R engine ({0}) is incompatibel to this client ({1}).", RjsUtil.getVersionString(null), RjsUtil.getVersionString(clientVersion)),
+					e ));
+		}
+		if (version.length != 3 || version[0] != clientVersion[0] || version[1] != clientVersion[1]) {
+			throw new CoreException(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID,
+					ICommonStatusConstants.LAUNCHING,
+					NLS.bind("The specified R engine ({0}) is incompatibel to this client ({1}).", RjsUtil.getVersionString(version), RjsUtil.getVersionString(clientVersion)),
+					null ));
+		}
+		return new RjsConnection(address, server);
+	}
+	
+	
+	private static final Filter<IModelElement> TAG_ELEMENT_FILTER = new Filter<IModelElement>() {
 		public boolean include(final IModelElement element) {
 			return ((element.getElementType() & IRElement.MASK_C1) == IRElement.C1_METHOD);
 		}
@@ -340,6 +407,7 @@ public class RjsController extends AbstractRDbgController
 	
 	private boolean fIsBusy = true;
 	
+	private final RjsConnection fRjsConnection;
 	private final NicoComClient fRjs = new NicoComClient();
 	private int fRjsId;
 	
@@ -363,13 +431,13 @@ public class RjsController extends AbstractRDbgController
 	 * @param initialWD
 	 */
 	public RjsController(final RProcess process,
-			final RMIAddress address, final Map<String, Object> initData,
+			final RMIAddress address, final RjsConnection connection, final Map<String, Object> initData,
 			final boolean embedded, final boolean startup, final String[] rArgs,
 			final Map<String, Object> rjsProperties, final IFileStore initialWD,
 			final RWorkspaceConfig workspaceConfig,
 			final List<TrackingConfiguration> trackingConfigurations) {
 		super(process, initData);
-		if (address == null) {
+		if (address == null || connection == null) {
 			throw new IllegalArgumentException();
 		}
 		process.registerFeatureSet(RTool.R_DATA_FEATURESET_ID);
@@ -378,6 +446,7 @@ public class RjsController extends AbstractRDbgController
 			process.registerFeatureSet(IRemoteEngineController.FEATURE_SET_ID);
 		}
 		fAddress = address;
+		fRjsConnection = connection;
 		fEmbedded = embedded;
 		fStartup = startup;
 		fRArgs = rArgs;
@@ -465,42 +534,6 @@ public class RjsController extends AbstractRDbgController
 	
 	@Override
 	protected void startToolL(final IProgressMonitor monitor) throws CoreException {
-		final int[] clientVersion = AbstractRJComClient.version();
-		clientVersion[2] = -1;
-		final Server server;
-		int[] version;
-		try {
-			server = (Server) Naming.lookup(fAddress.getAddress());
-			version = server.getVersion();
-		}
-		catch (final MalformedURLException e) {
-			throw new CoreException(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID,
-					ICommonStatusConstants.LAUNCHING,
-					NLS.bind("The specified address '{0}' is invalid.", fAddress), e ));
-		}
-		catch (final NotBoundException e) {
-			throw new CoreException(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID,
-					ICommonStatusConstants.LAUNCHING,
-					"The specified R engine is not in the service registry (RMI).", e ));
-		}
-		catch (final RemoteException e) {
-			throw new CoreException(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID,
-					ICommonStatusConstants.LAUNCHING,
-					"The host/service registry (RMI) cannot be accessed.", e ));
-		}
-		catch (final ClassCastException e) {
-			throw new CoreException(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID,
-					ICommonStatusConstants.LAUNCHING,
-					NLS.bind("The specified R engine ({0}) is incompatibel to this client ({1}).", RjsUtil.getVersionString(null), RjsUtil.getVersionString(clientVersion)),
-					e ));
-		}
-		if (version.length != 3 || version[0] != clientVersion[0] || version[1] != clientVersion[1]) {
-			throw new CoreException(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID,
-					ICommonStatusConstants.LAUNCHING,
-					NLS.bind("The specified R engine ({0}) is incompatibel to this client ({1}).", RjsUtil.getVersionString(version), RjsUtil.getVersionString(clientVersion)),
-					null ));
-		}
-		
 		fRjsId = RjsComConfig.registerClientComHandler(fRjs);
 		fRjs.initClient(getTool(), this, fRjsProperties, fRjsId);
 		try {
@@ -510,7 +543,7 @@ public class RjsController extends AbstractRDbgController
 			boolean connected = false;
 			while (!connected) {
 				final Map<String, Object> initData = getInitData();
-				final ServerLogin login = server.createLogin(Server.C_CONSOLE_CONNECT);
+				final ServerLogin login = fRjsConnection.getServer().createLogin(Server.C_CONSOLE_CONNECT);
 				try {
 					final Callback[] callbacks = login.getCallbacks();
 					if (callbacks != null) {
@@ -556,10 +589,10 @@ public class RjsController extends AbstractRDbgController
 					ConsoleEngine rjServer;
 					if (fStartup) {
 						args.put("args", fRArgs); //$NON-NLS-1$
-						rjServer = (ConsoleEngine) server.execute(Server.C_CONSOLE_START, args, login.createAnswer());
+						rjServer = (ConsoleEngine) fRjsConnection.getServer().execute(Server.C_CONSOLE_START, args, login.createAnswer());
 					}
 					else {
-						rjServer = (ConsoleEngine) server.execute(Server.C_CONSOLE_CONNECT, args, login.createAnswer());
+						rjServer = (ConsoleEngine) fRjsConnection.getServer().execute(Server.C_CONSOLE_CONNECT, args, login.createAnswer());
 					}
 					fRjs.setServer(rjServer, 0);
 					connected = true;
@@ -581,7 +614,7 @@ public class RjsController extends AbstractRDbgController
 				}
 			}
 			
-			final ServerInfo info = server.getInfo();
+			final ServerInfo info = fRjsConnection.getServer().getInfo();
 			if (fWorkspaceData.isRemote()) {
 				try {
 					final String wd = FileUtil.toString(fWorkspaceData.toFileStore(info.getDirectory()));

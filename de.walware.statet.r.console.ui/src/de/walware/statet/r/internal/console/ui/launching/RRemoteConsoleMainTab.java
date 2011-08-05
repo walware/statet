@@ -11,14 +11,21 @@
 
 package de.walware.statet.r.internal.console.ui.launching;
 
+import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_SSH_HOST_DATA_KEY;
+import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_SSH_PORT_DATA_KEY;
+import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_USERNAME_DATA_KEY;
 import static de.walware.statet.r.console.ui.launching.RConsoleLaunching.REMOTE_RJS;
 import static de.walware.statet.r.console.ui.launching.RConsoleLaunching.REMOTE_RJS_RECONNECT;
 import static de.walware.statet.r.console.ui.launching.RConsoleLaunching.REMOTE_RJS_SSH;
 import static de.walware.statet.r.internal.console.ui.launching.RRemoteConsoleLaunchDelegate.DEFAULT_SSH_PORT;
 
 import java.net.MalformedURLException;
+import java.rmi.registry.Registry;
+import java.rmi.server.RMIClientSocketFactory;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
@@ -56,15 +63,19 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
-import de.walware.ecommons.databinding.NumberValidator;
+import de.walware.ecommons.databinding.IntegerValidator;
 import de.walware.ecommons.net.RMIAddress;
 import de.walware.ecommons.ui.components.WidgetToolsButton;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
+import com.jcraft.jsch.Session;
+
 import de.walware.statet.r.console.ui.IRConsoleHelpContextIds;
 import de.walware.statet.r.console.ui.launching.RConsoleLaunching;
+import de.walware.statet.r.internal.console.ui.launching.RRemoteConsoleSelectionDialog.SpecialAddress;
+import de.walware.statet.r.nico.impl.RjsUtil;
 
 
 public class RRemoteConsoleMainTab extends RConsoleMainTab {
@@ -128,23 +139,25 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 	
 	
 	private Text fAddressControl;
-	private Control[] fAddressControls;
+	private List<Control> fAddressControls;
 	private RRemoteConsoleSelectionDialog fRemoteEngineSelectionDialog;
 	
 	private Text fUsernameControl;
-	private Control[] fLoginControls;
+	private List <Control> fLoginControls;
 	private Label fUsernameInfo;
 	
 	private Text fSshPortControl;
 	private Text fSshAddress;
-	private Control[] fSshControls;
+	private Button fSshTunnelControl;
+	private List<Control> fSshControls;
 	
 	private Text fCommandControl;
-	private Control[] fCommandControls;
+	private List<Control> fCommandControls;
 	
 	private WritableValue fAddressValue;
 	private WritableValue fUserValue;
 	private WritableValue fSshPortValue;
+	private WritableValue fSshTunnelValue;
 	private WritableValue fCommandValue;
 	private WritableValue fSshAddressValue;
 	
@@ -184,8 +197,13 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 	@Override
 	protected Composite createTypeDetailGroup(final Composite parent) {
 		final Group group = new Group(parent, SWT.NONE);
-		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 3));
+		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 4));
 		group.setText("Connection:");
+		
+		fAddressControls = new ArrayList<Control>(8);
+		fLoginControls = new ArrayList<Control>(8);
+		fSshControls = new ArrayList<Control>(8);
+		fCommandControls = new ArrayList<Control>(8);
 		
 		{	// Address:
 			final Label label = new Label(group, SWT.NONE);
@@ -193,7 +211,7 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
 			final Composite composite = new Composite(group, SWT.NONE);
-			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
 			
 			fAddressControl = new Text(composite, SWT.LEFT | SWT.BORDER);
@@ -204,11 +222,60 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 			addressButton.setText("Browse...");
 			addressButton.addSelectionListener(new SelectionAdapter() {
 				@Override
-				public void widgetSelected(final SelectionEvent e) {
-					if (fRemoteEngineSelectionDialog == null) {
+				public void widgetSelected(final SelectionEvent event) {
+					final boolean newDialog = (fRemoteEngineSelectionDialog == null);
+					if (newDialog) {
 						fRemoteEngineSelectionDialog = new RRemoteConsoleSelectionDialog(getShell(), false);
-						fRemoteEngineSelectionDialog.setUser((String) fUserValue.getValue());
 					}
+					else {
+						fRemoteEngineSelectionDialog.clearAdditionaAddress(true);
+					}
+					String userName = (String) fUserValue.getValue();
+					if (userName != null && userName.length() == 0) {
+						userName = null;
+					}
+					final String text = fAddressControl.getText();
+					if (text.length() > 0) {
+						try {
+							final RMIAddress rmiAddress = new RMIAddress(text);
+							final StringBuilder sb = new StringBuilder();
+							sb.append(rmiAddress.getHost());
+							if (rmiAddress.getPortNum() != Registry.REGISTRY_PORT) {
+								sb.append(':').append(rmiAddress.getPortNum());
+							}
+							final String address = sb.toString();
+							fRemoteEngineSelectionDialog.addAdditionalAddress(address, null);
+							if (newDialog) {
+								fRemoteEngineSelectionDialog.setInitialAddress(address);
+							}
+							
+							if (fSshTunnelControl.isEnabled() && fSshTunnelControl.getSelection()
+									&& userName != null) {
+								final Map<String, Object> loginData = new HashMap<String, Object>();
+								loginData.put(LOGIN_SSH_HOST_DATA_KEY, rmiAddress.getHost());
+								final Object sshPort = fSshPortValue.getValue();
+								loginData.put(LOGIN_SSH_PORT_DATA_KEY, (sshPort instanceof Integer) ?
+										((Integer) sshPort).intValue() : DEFAULT_SSH_PORT );
+								loginData.put(LOGIN_USERNAME_DATA_KEY, userName);
+								final SpecialAddress special = new SpecialAddress(
+										rmiAddress.getHost(), "127.0.0.1", rmiAddress.getPortNum() ) {
+									@Override
+									public RMIClientSocketFactory getSocketFactory(
+											final IProgressMonitor monitor) throws CoreException {
+										final Session session = RjsUtil.getSession(loginData, monitor);
+										return RjsUtil.createRMIOverSshClientSocketFactory(session);
+									}
+								};
+								final String label = rmiAddress.getHost() + " through SSH tunnel";
+								fRemoteEngineSelectionDialog.addAdditionalAddress(label, special);
+								fRemoteEngineSelectionDialog.setInitialAddress(label);
+							}
+						}
+						catch (final Exception e) {}
+					}
+					
+					fRemoteEngineSelectionDialog.setUser(userName);
+					
 					if (fRemoteEngineSelectionDialog.open() == Dialog.OK) {
 						final Object result = fRemoteEngineSelectionDialog.getFirstResult();
 						fAddressValue.setValue(result);
@@ -216,53 +283,67 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 				}
 			});
 			
-			fAddressControls = new Control[] {
-					label, composite,
-			};
+			fAddressControls.add(label);
+			fAddressControls.add(composite);
 		}
-		{	// Login:
-			final Label label = new Label(group, SWT.NONE);
-			label.setText("&Username: ");
-			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-			
-			fUsernameControl = new Text(group, SWT.LEFT | SWT.BORDER);
-			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
-			gd.widthHint = gd.minimumWidth = LayoutUtil.hintWidth(fUsernameControl, 25);
-			fUsernameControl.setLayoutData(gd);
-			
-			fUsernameInfo = new Label(group, SWT.LEFT);
-			fUsernameInfo.setText("");
-			fUsernameInfo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			
-			fLoginControls = new Control[] {
-					label, fUsernameControl, fUsernameInfo,
-			};
+		{	// Username:
+			{	final Label label = new Label(group, SWT.NONE);
+				label.setText("&Username: ");
+				label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+				
+				final Composite composite = new Composite(group, SWT.NONE);
+				composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+				composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+				
+				fUsernameControl = new Text(composite, SWT.LEFT | SWT.BORDER);
+				final GridData gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
+				gd.widthHint = gd.minimumWidth = LayoutUtil.hintWidth(fUsernameControl, 20);
+				fUsernameControl.setLayoutData(gd);
+				
+				fUsernameInfo = new Label(composite, SWT.LEFT);
+				fUsernameInfo.setText("");
+				fUsernameInfo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+				
+				fLoginControls.add(label);
+				fLoginControls.add(fUsernameControl);
+				fLoginControls.add(fUsernameInfo);
+			}
+			{	final Label label = new Label(group, SWT.NONE);
+				label.setText("&SSH Port: ");
+				label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+				
+				fSshPortControl = new Text(group, SWT.LEFT | SWT.BORDER);
+				final GridData gd = new GridData(SWT.LEFT, SWT.CENTER, true, false);
+				gd.widthHint = LayoutUtil.hintWidth(fSshPortControl, 6);
+				fSshPortControl.setLayoutData(gd);
+				
+				fSshControls.add(label);
+				fSshControls.add(fSshPortControl);
+			}
 		}
-		
-		{	// SSH:
-			final Label label = new Label(group, SWT.NONE);
-			label.setText("&SSH Port: ");
-			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-			
-			fSshPortControl = new Text(group, SWT.LEFT | SWT.BORDER);
-			final GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
-			gd.widthHint = LayoutUtil.hintWidth(fSshPortControl, 6);
-			fSshPortControl.setLayoutData(gd);
-			
-			final Composite addressComposite = new Composite(group, SWT.NONE);
-			addressComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-			addressComposite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
-			
-			final Label addressLabel = new Label(addressComposite, SWT.LEFT);
-			addressLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-			addressLabel.setText("SSH Address:");
-			fSshAddress = new Text(addressComposite, SWT.LEFT | SWT.BORDER);
-			fSshAddress.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			fSshAddress.setEditable(false);
-			
-			fSshControls = new Control[] {
-					label, fSshPortControl, addressLabel, fSshAddress,
-			};
+		{	// Ext SSH:
+			{	final Label label = new Label(group, SWT.NONE);
+				label.setText("SSH Options: ");
+				label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+				
+				fSshTunnelControl = new Button(group, SWT.CHECK);
+				fSshTunnelControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+				fSshTunnelControl.setText("&Tunnel connections to R engine through SSH");
+				
+				fSshControls.add(label);
+				fSshControls.add(fSshTunnelControl);
+			}
+			{	final Label label = new Label(group, SWT.LEFT);
+				label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+				label.setText("SSH Address:");
+				
+				fSshAddress = new Text(group, SWT.LEFT | SWT.BORDER);
+				fSshAddress.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+				fSshAddress.setEditable(false);
+				
+				fSshControls.add(label);
+				fSshControls.add(fSshAddress);
+			}
 		}
 		
 		{	// Remote Command:
@@ -271,7 +352,7 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
 			final Composite composite = new Composite(group, SWT.NONE);
-			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
 			
 			fCommandControl = new Text(composite, SWT.LEFT | SWT.BORDER);
@@ -309,9 +390,9 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 			};
 			toolsButton.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 			
-			fCommandControls = new Control[] {
-					label, fCommandControl, toolsButton,
-			};
+			fCommandControls.add(label);
+			fCommandControls.add(fCommandControl);
+			fCommandControls.add(toolsButton);
 		}
 		
 		return group;
@@ -374,8 +455,11 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 		fSshPortValue = new WritableValue(null, Integer.class); 
 		dbc.bindValue(SWTObservables.observeText(fSshPortControl, SWT.Modify),
 				fSshPortValue,
-				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(0, 65535, true,
-						"Invalid SSH port number specified (0-65535).")), null);
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(0, 65535, true,
+						"Invalid SSH port number specified (0-65535)." )), null );
+		fSshTunnelValue = new WritableValue(false, Boolean.TYPE);
+		dbc.bindValue(SWTObservables.observeSelection(fSshTunnelControl),
+				fSshTunnelValue, null, null );
 		
 		fCommandValue = new WritableValue("", String.class); 
 		dbc.bindValue(SWTObservables.observeText(fCommandControl, SWT.Modify),
@@ -400,7 +484,7 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 			DialogUtil.setEnabled(getArgumentComposite(), null, true);
 			DialogUtil.setEnabled(fLoginControls, null, true);
 			fUsernameInfo.setText("(optional)");
-			DialogUtil.setVisible(fSshControls, null, false);
+			DialogUtil.setVisible(fSshControls, null, true);
 			DialogUtil.setVisible(fCommandControls, null, false);
 		}
 		else if (REMOTE_RJS_SSH.equals(type.getId())) {
@@ -476,6 +560,16 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 		}
 		fSshPortValue.setValue(port);
 		
+		boolean tunnel;
+		try {
+			tunnel = configuration.getAttribute(RConsoleLaunching.ATTR_SSH_TUNNEL_ENABLED, false); 
+		}
+		catch (final CoreException e) {
+			tunnel = false;
+			logReadingError(e);
+		}
+		fSshTunnelValue.setValue(tunnel);
+		
 		String command;
 		try {
 			command = configuration.getAttribute(RConsoleLaunching.ATTR_COMMAND, ""); 
@@ -490,7 +584,6 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 	@Override
 	protected void doSave(final ILaunchConfigurationWorkingCopy configuration) {
 		super.doSave(configuration);
-		final boolean isSSH = getType().getId().equals(REMOTE_RJS_SSH);
 		
 		if (fAddressControl.isEnabled()) {
 			configuration.setAttribute(RConsoleLaunching.ATTR_ADDRESS, (String) fAddressValue.getValue());
@@ -508,15 +601,23 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 		}
 		
 		final Integer port = (Integer) fSshPortValue.getValue();
-		if (isSSH && port != null) {
+		if (!getType().getId().equals(REMOTE_RJS_RECONNECT) && port != null) {
 			configuration.setAttribute(RConsoleLaunching.ATTR_SSH_PORT, port.intValue());
 		}
 		else {
 			configuration.removeAttribute(RConsoleLaunching.ATTR_SSH_PORT);
 		}
 		
+		final Boolean tunnel = (Boolean) fSshTunnelValue.getValue();
+		if (!getType().getId().equals(REMOTE_RJS_RECONNECT) && tunnel != null) {
+			configuration.setAttribute(RConsoleLaunching.ATTR_SSH_TUNNEL_ENABLED, tunnel.booleanValue());
+		}
+		else {
+			configuration.removeAttribute(RConsoleLaunching.ATTR_SSH_TUNNEL_ENABLED);
+		}
+		
 		final String command = (String) fCommandValue.getValue();
-		if (isSSH && command != null) {
+		if (getType().getId().equals(REMOTE_RJS_SSH) && command != null) {
 			configuration.setAttribute(RConsoleLaunching.ATTR_COMMAND, command);
 		}
 		else {
