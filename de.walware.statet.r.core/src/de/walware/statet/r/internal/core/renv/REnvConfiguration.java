@@ -246,7 +246,19 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		
 		setName(setup.getName());
 		setROS(setup.getOS());
-		fRBits = (setup.getOSArch().equals(Platform.ARCH_X86)) ? 32 : 64;
+		if (LOCAL_PLATFORM == LOCAL_WIN) {
+			String arch = setup.getOSArch();
+			if (arch == null || arch.length() == 0) {
+				arch = Platform.getOSArch();
+			}
+			if (arch.equals(Platform.ARCH_X86)) {
+				setSubArch("i386"); //$NON-NLS-1$
+			}
+			else {
+				setSubArch(arch);
+			}
+		}
+		fRBits = (Platform.ARCH_X86.equals(setup.getOSArch())) ? 32 : 64;
 		setRHome(setup.getRHome());
 		setRDocDirectoryPath("${env_var:R_HOME}/doc"); //$NON-NLS-1$
 		setRShareDirectoryPath("${env_var:R_HOME}/share"); //$NON-NLS-1$
@@ -582,8 +594,13 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		if (arch.charAt(0) != '/') {
 			arch = '/' + arch;
 		}
-		if (LOCAL_PLATFORM == LOCAL_WIN && arch.equals("/x86_64")) { //$NON-NLS-1$
-			return "/x64"; //$NON-NLS-1$
+		if (LOCAL_PLATFORM == LOCAL_WIN) {
+			if (arch.equals("/x86_64")) { //$NON-NLS-1$
+				return "/x64"; //$NON-NLS-1$
+			}
+			else if (arch.equals("/x86")) { // not used at moment
+				return "/i386"; //$NON-NLS-1$
+			}
 		}
 		return arch;
 	}
