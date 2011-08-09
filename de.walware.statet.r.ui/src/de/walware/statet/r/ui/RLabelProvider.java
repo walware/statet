@@ -61,11 +61,12 @@ import de.walware.statet.r.core.model.RElementName;
 public class RLabelProvider extends StyledCellLabelProvider implements IElementLabelProvider, ILabelProvider {
 	
 	
-	public static final int NAMESPACE = 0x01;
-	public static final int HEADER =     0x02;
-	public static final int LONG =      0x04;
-	public static final int COUNT =     0x08;
-	public static final int ASSIST =    0x10;
+	public static final int NAMESPACE =                     0x01;
+	public static final int HEADER =                        0x02;
+	public static final int LONG =                          0x04;
+	public static final int COUNT =                         0x08;
+	public static final int ASSIST =                        0x10;
+	public static final int NO_STORE_TYPE =                 0x20;
 	
 	
 	private final StringBuilder fTextBuilder = new StringBuilder(100);
@@ -766,29 +767,33 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 	
 	protected void appendLongClassInfo(final StyledString text, final ICombinedRElement element, final RList elementAttr) {
 		final StringBuilder textBuilder = getTextBuilder();
-		textBuilder.append(" : "); 
+		textBuilder.append(" : ");
+		RStore classData = null;
 		if (elementAttr != null) {
 			final RObject object = elementAttr.get("class");
 			if (object != null && object.getRObjectType() == RObject.TYPE_VECTOR && object.getData().getStoreType() == RStore.CHARACTER) {
-				final RStore data = object.getData();
-				if (data.getLength() > 0) {
-					final int last = data.getLength() - 1;
+				classData = object.getData();
+				if (classData.getLength() > 0) {
+					final int last = classData.getLength() - 1;
 					for (int i = 0; i < last; i++) {
-						if (!data.isNA(i)) {
-							textBuilder.append(data.getChar(i));
+						if (!classData.isNA(i)) {
+							textBuilder.append(classData.getChar(i));
 							textBuilder.append(", "); 
 						}
 					}
-					textBuilder.append(data.getChar(last));
+					textBuilder.append(classData.getChar(last));
 				}
 			}
 		}
 		if (textBuilder.length() == 3) {
 			textBuilder.append(element.getRClassName());
 		}
-		if (element.getData() != null && element.getData().getStoreType() > 0) {
+		if (element.getData() != null && element.getData().getStoreType() > 0
+				&& !((classData != null) ?
+						classData.contains(RDataUtil.getStoreClass(element.getData())) :
+						element.getRClassName().equals(RDataUtil.getStoreClass(element.getData())) )) {
 			textBuilder.append(" ("); 
-			textBuilder.append(RDataUtil.getStoreMode(element.getData().getStoreType()));
+			textBuilder.append(RDataUtil.getStoreAbbr(element.getData()));
 			textBuilder.append(')');
 		}
 		text.append(textBuilder.toString(), StyledString.DECORATIONS_STYLER);
@@ -803,21 +808,25 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		}
 		else {
 			textBuilder = getTextBuilder();
-			textBuilder.append(" : "); 
+			textBuilder.append(" : ");
 			if (element.getRClassName().equals(element.getData().getBaseVectorRClassName())) {
-				textBuilder.append(RDataUtil.getStoreAbbr(element.getData()));
+				if ((fStyle & NO_STORE_TYPE) == 0) {
+					textBuilder.append(RDataUtil.getStoreAbbr(element.getData()));
+				}
 			}
 			else {
 				textBuilder.append(element.getRClassName());
-				textBuilder.append(" ("); 
-				textBuilder.append(RDataUtil.getStoreAbbr(element.getData()));
-				textBuilder.append(')');
+				if ((fStyle & NO_STORE_TYPE) == 0) {
+					textBuilder.append(" ("); 
+					textBuilder.append(RDataUtil.getStoreAbbr(element.getData()));
+					textBuilder.append(')');
+				}
 			}
 		}
 		textBuilder.append(" ["); 
 		textBuilder.append(element.getLength());
 		textBuilder.append(']');
-		if (datatype == RStore.FACTOR) {
+		if ((fStyle & NO_STORE_TYPE) == 0 && datatype == RStore.FACTOR) {
 			textBuilder.append(" ("); 
 			textBuilder.append(((RFactorStore) element.getData()).getLevelCount());
 			textBuilder.append(" levels)");
@@ -836,13 +845,17 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 			textBuilder.append(" : "); 
 			if (element.getRClassName().equals(RObject.CLASSNAME_ARRAY)
 					|| element.getRClassName().equals(RObject.CLASSNAME_MATRIX)) {
-				textBuilder.append(RDataUtil.getStoreAbbr(element.getData()));
+				if ((fStyle & NO_STORE_TYPE) == 0) {
+					textBuilder.append(RDataUtil.getStoreAbbr(element.getData()));
+				}
 			}
 			else {
 				textBuilder.append(element.getRClassName());
-				textBuilder.append(" ("); 
-				textBuilder.append(RDataUtil.getStoreAbbr(element.getData()));
-				textBuilder.append(')');
+				if ((fStyle & NO_STORE_TYPE) == 0) {
+					textBuilder.append(" ("); 
+					textBuilder.append(RDataUtil.getStoreAbbr(element.getData()));
+					textBuilder.append(')');
+				}
 			}
 		}
 		textBuilder.append(" ["); 

@@ -800,6 +800,7 @@
       </contentTypeBinding>
    </extension>
 
+   <!-- R Help -->
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
@@ -1656,6 +1657,17 @@
             name="%views_RObjectBrowserView_name"
             restorable="true">
       </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            id="de.walware.statet.r.editors.RData"
+            icon="icons/view_16/r_data_editor.png"
+            name="R Data Viewer"
+            class="de.walware.statet.r.internal.ui.dataeditor.RDataEditor"
+            contributorClass="de.walware.statet.r.internal.ui.dataeditor.RDataEditorActionBarContributor"
+            default="true">
+      </editor>
    </extension>
    
    <!-- R Graphics -->

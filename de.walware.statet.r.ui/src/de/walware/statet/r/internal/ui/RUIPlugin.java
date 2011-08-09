@@ -233,6 +233,16 @@ public class RUIPlugin extends AbstractUIPlugin {
 		util.register(RUI.IMG_OBJ_PROMISE, ImageRegistryUtil.T_OBJ, "promise.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_ARGUMENT_ASSIGN, ImageRegistryUtil.T_OBJ, "arg-assign.png"); //$NON-NLS-1$
 		
+		util.register(RUI.IMG_OBJ_COL_LOGI, ImageRegistryUtil.T_OBJ, "col-logi.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_COL_INT, ImageRegistryUtil.T_OBJ, "col-int.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_COL_NUM, ImageRegistryUtil.T_OBJ, "col-num.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_COL_CPLX, ImageRegistryUtil.T_OBJ, "col-cplx.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_COL_CHAR, ImageRegistryUtil.T_OBJ, "col-char.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_COL_RAW, ImageRegistryUtil.T_OBJ, "col-raw.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_COL_FACTOR, ImageRegistryUtil.T_OBJ, "col-factor.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_COL_DATE, ImageRegistryUtil.T_OBJ, "col-date.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_COL_DATETIME, ImageRegistryUtil.T_OBJ, "col-datetime.png"); //$NON-NLS-1$
+		
 		util.register(RUI.IMG_OBJ_LIBRARY_GROUP, ImageRegistryUtil.T_OBJ, "library.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_LIBRARY_LOCATION, ImageRegistryUtil.T_OBJ, "package_folder.png"); //$NON-NLS-1$
 		

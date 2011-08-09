@@ -26,6 +26,7 @@ import com.ibm.icu.text.Collator;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.IHandler2;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -50,10 +51,10 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
-import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
@@ -152,6 +153,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	private static final RElementComparator ELEMENTNAME_COMPARATOR = new RElementComparator();
 	private static final ViewerComparator TYPE_COMPARATOR = new SortByTypeComparator();
+	
+	private static final String OPEN_COMMAND_ID = "org.eclipse.jdt.ui.edit.text.java.open.editor"; //$NON-NLS-1$
 	
 	
 	private static class ContentInput {
@@ -454,7 +457,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			if (!UIAccess.isOkToUse(fTreeViewer)) {
 				return null;
 			}
-			final TreeSelection selection = (TreeSelection) fTreeViewer.getSelection();
+			final ITreeSelection selection = (ITreeSelection) fTreeViewer.getSelection();
 			if (selection == null) {
 				return null;
 			}
@@ -512,14 +515,14 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		public void setEnabled(final Object evaluationContext) {
 			final ToolProcess process = fProcess;
 			setBaseEnabled(process != null && !process.isTerminated()
-					&& ((TreeSelection) fTreeViewer.getSelection()).size() == 1);
+					&& ((ITreeSelection) fTreeViewer.getSelection()).size() == 1);
 		}
 		
 		public Object execute(final ExecutionEvent event) throws ExecutionException {
 			if (!UIAccess.isOkToUse(fTreeViewer)) {
 				return null;
 			}
-			final TreeSelection selection = (TreeSelection) fTreeViewer.getSelection();
+			final ITreeSelection selection = (ITreeSelection) fTreeViewer.getSelection();
 			if (selection == null) {
 				return null;
 			}
@@ -598,14 +601,14 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		public void setEnabled(final Object evaluationContext) {
 			final ToolProcess process = fProcess;
 			setBaseEnabled(process != null && !process.isTerminated()
-					&& ((TreeSelection) fTreeViewer.getSelection()).size() >= 1);
+					&& ((ITreeSelection) fTreeViewer.getSelection()).size() >= 1);
 		}
 		
 		public Object execute(final ExecutionEvent event) throws ExecutionException {
 			if (!UIAccess.isOkToUse(fTreeViewer)) {
 				return null;
 			}
-			final TreeSelection selection = (TreeSelection) fTreeViewer.getSelection();
+			final ITreeSelection selection = (ITreeSelection) fTreeViewer.getSelection();
 			if (selection == null) {
 				return null;
 			}
@@ -1204,6 +1207,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	private CopyElementNameHandler fCopyElementNameHandler;
 	private DeleteHandler fDeleteElementHandler;
 	private PrintHandler fPrintElementHandler;
+	private IHandler2 fOpenInEditorHandler;
 	
 	private Object fCurrentInfoObject;
 	
@@ -1287,7 +1291,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		});
 		fTreeViewer.addPostSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(final SelectionChangedEvent event) {
-				updateSelectionInfo((TreeSelection) event.getSelection());
+				updateSelectionInfo((ITreeSelection) event.getSelection());
 			}
 		});
 		fTreeViewer.setContentProvider(new ContentProvider());
@@ -1348,6 +1352,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		handlerService.activateHandler(RunPrintInR.COMMAND_ID, fPrintElementHandler);
 		final InformationDispatchHandler infoHandler = new InformationDispatchHandler(fTokenOwner);
 		handlerService.activateHandler(InformationDispatchHandler.COMMAND_ID, infoHandler);
+		fOpenInEditorHandler = new OpenInEditorHandler();
+		handlerService.activateHandler(OPEN_COMMAND_ID, fOpenInEditorHandler);
 		
 		fSearchTextItem = new SearchContributionItem("search.text", true) { //$NON-NLS-1$
 			@Override
@@ -1470,7 +1476,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	
 	private void hookContextMenu() {
-		final MenuManager menuManager = new MenuManager("ContextMenu");
+		final MenuManager menuManager = new MenuManager("ContextMenu",
+				"de.walware.statet.r.menus.RObjectBrowserContextMenu" ); //$NON-NLS-1$
 		menuManager.setRemoveAllWhenShown(true);
 		menuManager.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(final IMenuManager m) {
@@ -1483,6 +1490,13 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	}
 	
 	private void contextMenuAboutToShow(final IMenuManager m) {
+		m.add(new HandlerContributionItem(new CommandContributionItemParameter(getSite(),
+				null, OPEN_COMMAND_ID, null,
+				null, null, null,
+				"Open in Data &Viewer", null, null,
+				HandlerContributionItem.STYLE_PUSH, null, true), fOpenInEditorHandler));
+		
+		m.add(new Separator("edit"));
 		m.add(new HandlerContributionItem(new CommandContributionItemParameter(getSite(),
 				"Copy.ElementName", ISourceEditorCommandIds.COPY_ELEMENT_NAME, null, //$NON-NLS-1$
 				null, null, null,
@@ -1541,6 +1555,10 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	public ToolProcess getTool() {
 		return fProcess;
+	}
+	
+	public ITreeSelection getSelection() {
+		return (ITreeSelection) fTreeViewer.getSelection();
 	}
 	
 	public void addToolRetargetable(final IToolRetargetable action) {
@@ -1627,7 +1645,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 		// Adapt and set selection
 		if (selection != null && !selection.isEmpty()) {
-			final TreeSelection s = (TreeSelection) selection;
+			final ITreeSelection s = (ITreeSelection) selection;
 			final TreePath[] paths = s.getPaths();
 			for (int i = 0; i < paths.length; i++) {
 				final TreePath oldPath = paths[i];
@@ -1675,7 +1693,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		fTreeViewer.setComparator(fSortByType ? TYPE_COMPARATOR : null);
 	}
 	
-	private void updateSelectionInfo(final TreeSelection selection) {
+	private void updateSelectionInfo(final ITreeSelection selection) {
 		final Object previousInfoObject = fCurrentInfoObject;
 		fCurrentInfoObject = null;
 		

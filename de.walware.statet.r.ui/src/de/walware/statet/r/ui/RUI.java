@@ -62,6 +62,16 @@ public class RUI {
 	public static final String IMG_OBJ_PROMISE = RUI.PLUGIN_ID + "/image/obj/promise"; //$NON-NLS-1$
 	public static final String IMG_OBJ_ARGUMENT_ASSIGN = RUI.PLUGIN_ID + "/image/obj/argument.assign"; //$NON-NLS-1$
 	
+	public static final String IMG_OBJ_COL_LOGI = RUI.PLUGIN_ID + "/image/obj/col.logi"; //$NON-NLS-1$
+	public static final String IMG_OBJ_COL_INT = RUI.PLUGIN_ID + "/image/obj/col.int"; //$NON-NLS-1$
+	public static final String IMG_OBJ_COL_NUM = RUI.PLUGIN_ID + "/image/obj/col.num"; //$NON-NLS-1$
+	public static final String IMG_OBJ_COL_CPLX = RUI.PLUGIN_ID + "/image/obj/col.cplx"; //$NON-NLS-1$
+	public static final String IMG_OBJ_COL_CHAR = RUI.PLUGIN_ID + "/image/obj/col.char"; //$NON-NLS-1$
+	public static final String IMG_OBJ_COL_RAW = RUI.PLUGIN_ID + "/image/obj/col.raw"; //$NON-NLS-1$
+	public static final String IMG_OBJ_COL_FACTOR = RUI.PLUGIN_ID + "/image/obj/col.factor"; //$NON-NLS-1$
+	public static final String IMG_OBJ_COL_DATE = RUI.PLUGIN_ID + "/image/obj/col.date"; //$NON-NLS-1$
+	public static final String IMG_OBJ_COL_DATETIME = RUI.PLUGIN_ID + "/image/obj/col.datetime"; //$NON-NLS-1$
+	
 	public static final String IMG_OBJ_LIBRARY_GROUP = PLUGIN_ID + "/image/obj/library.group"; //$NON-NLS-1$
 	public static final String IMG_OBJ_LIBRARY_LOCATION = PLUGIN_ID + "/image/obj/library.location"; //$NON-NLS-1$
 	
