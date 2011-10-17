@@ -646,7 +646,7 @@ public class RjsController extends AbstractRDbgController
 						addTimestampToMessage(RNicoMessages.R_Info_Reconnected_message, fProcess.getConnectionTimestamp()) ),
 						monitor);
 			}
-			fRjs.runMainLoop(null, null, monitor);
+			// fRjs.runMainLoop(null, null, monitor); must not wait at server side
 			fRjs.activateConsole();
 			
 			scheduleControllerRunnable(new ControllerSystemRunnable(
