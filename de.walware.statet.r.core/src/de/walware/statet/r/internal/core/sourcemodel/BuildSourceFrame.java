@@ -20,12 +20,11 @@ import java.util.Map;
 import java.util.Set;
 
 import de.walware.ecommons.collections.ConstList;
-import de.walware.ecommons.ltk.IModelElement.Filter;
+import de.walware.ecommons.ltk.IModelElement;
 
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
-import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
@@ -385,7 +384,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		return fElements;
 	}
 	
-	public boolean hasModelChildren(final Filter<? super IRLangElement> filter) {
+	public boolean hasModelChildren(final IModelElement.Filter filter) {
 		for (final ElementAccessList list : fData.values()) {
 			for (final ElementAccess access : list.entries) {
 				if (access.fModelElement != null 
@@ -397,7 +396,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		return false;
 	}
 	
-	public List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+	public List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
 		if (fData.isEmpty()) {
 			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}

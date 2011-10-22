@@ -37,7 +37,7 @@ public interface IRElement extends IModelElement {
 	static final int R_DOC_EXAMPLE_CHUNK =      C2_SOURCE_CHUNK | 0x4;
 	
 	
-	static final Filter<IModelElement> R_S4SLOT_FILTER = new Filter<IModelElement>() {
+	static final IModelElement.Filter R_S4SLOT_FILTER = new IModelElement.Filter() {
 		public boolean include(final IModelElement element) {
 			return (element.getElementType() == R_S4SLOT);
 		}
@@ -48,7 +48,7 @@ public interface IRElement extends IModelElement {
 	
 	IRElement getModelParent();
 	
-	boolean hasModelChildren(Filter<? super IRElement> filter);
-	List<? extends IRElement> getModelChildren(Filter<? super IRElement> filter);
+	boolean hasModelChildren(IModelElement.Filter filter);
+	List<? extends IRElement> getModelChildren(IModelElement.Filter filter);
 	
 }

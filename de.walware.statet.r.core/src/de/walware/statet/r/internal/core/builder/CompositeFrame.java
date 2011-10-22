@@ -104,7 +104,7 @@ public class CompositeFrame implements IRFrame {
 			}
 			final ArrayList<IRLangElement> children = new ArrayList<IRLangElement>();
 			for (final IRLangElement element : fModelElements.values()) {
-				final List<? extends IRLangElement> elementChildren = element.getModelChildren((Filter<IRLangElement>) null);
+				final List<? extends IRLangElement> elementChildren = element.getModelChildren(null);
 				if (!elementChildren.isEmpty()) {
 					children.ensureCapacity(children.size() + elementChildren.size());
 					for (final IRLangElement child : elementChildren) {

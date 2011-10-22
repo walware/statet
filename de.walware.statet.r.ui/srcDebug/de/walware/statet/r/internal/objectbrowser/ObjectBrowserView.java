@@ -91,7 +91,6 @@ import de.walware.ecommons.FastList;
 import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
-import de.walware.ecommons.ltk.IModelElement.Filter;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
@@ -134,7 +133,6 @@ import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
 import de.walware.statet.r.core.data.ICombinedRElement;
-import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementComparator;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -163,14 +161,15 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		boolean processChanged;
 		boolean inputChanged;
 		final boolean filterUserspace;
-		final Filter<IRLangElement> envFilter;
-		final Filter<IRLangElement> otherFilter;
+		final IModelElement.Filter envFilter;
+		final IModelElement.Filter otherFilter;
 		ICombinedRElement[] rootElements;
 		Map<ICombinedRElement, ICombinedRElement[]> envirElements;
 		
 		
 		public ContentInput(final boolean processChanged, final boolean inputChanged,
-				final boolean filterUserspace, final Filter<IRLangElement> envFilter, final Filter<IRLangElement> otherFilter) {
+				final boolean filterUserspace,
+				final IModelElement.Filter envFilter, final IModelElement.Filter otherFilter) {
 			this.processChanged = processChanged;
 			this.inputChanged = inputChanged;
 			this.filterUserspace = filterUserspace;
@@ -180,7 +179,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 	}
 	
-	private static class ContentFilter implements Filter<IRLangElement> {
+	private static class ContentFilter implements IModelElement.Filter {
 		
 		private final boolean fFilterInternal;
 		private final boolean fFilterNoPattern;
@@ -194,7 +193,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		}
 		
 		
-		public boolean include(final IRLangElement element) {
+		public boolean include(final IModelElement element) {
 			final String name = element.getElementName().getSegmentName();
 			if (name != null) {
 				if (fFilterInternal && name.length() > 0 && name.charAt(0) == '.') {
@@ -898,8 +897,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			final boolean processChanged = ((process != null) ? process != fLastProcess : fLastProcess != null);
 			final boolean filterInternal = !fFilterIncludeInternal;
 			final String filterText = fFilterText;
-			Filter<IRLangElement> envFilter;
-			Filter<IRLangElement> otherFilter;
+			IModelElement.Filter envFilter;
+			IModelElement.Filter otherFilter;
 			if (filterText != null && filterText.length() > 0) {
 				final SearchPattern filterPattern = new SearchPattern(SearchPattern.RULE_EXACT_MATCH
 						| SearchPattern.RULE_PREFIX_MATCH | SearchPattern.RULE_CAMELCASE_MATCH
@@ -968,7 +967,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 					}
 					final List<IModelElement> elements = new ArrayList<IModelElement>(length);
 					for (final ICombinedREnvironment entry : userEntries) {
-						elements.addAll(entry.getModelChildren((IModelElement.Filter<IRLangElement>) null));
+						elements.addAll(entry.getModelChildren((IModelElement.Filter) null));
 					}
 					
 					final ICombinedRElement[] array = elements.toArray(new ICombinedRElement[elements.size()]);

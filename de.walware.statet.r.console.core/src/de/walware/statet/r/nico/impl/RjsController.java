@@ -47,7 +47,6 @@ import org.eclipse.osgi.util.NLS;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ltk.IModelElement;
-import de.walware.ecommons.ltk.IModelElement.Filter;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.net.RMIAddress;
@@ -202,7 +201,7 @@ public class RjsController extends AbstractRDbgController
 	}
 	
 	
-	private static final Filter<IModelElement> TAG_ELEMENT_FILTER = new Filter<IModelElement>() {
+	private static final IModelElement.Filter TAG_ELEMENT_FILTER = new IModelElement.Filter() {
 		public boolean include(final IModelElement element) {
 			return ((element.getElementType() & IRElement.MASK_C1) == IRElement.C1_METHOD);
 		}

@@ -13,16 +13,17 @@ package de.walware.statet.r.core.model;
 
 import java.util.List;
 
+import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceStructElement;
 
 
 public interface IRLangSourceElement extends IRLangElement, ISourceStructElement {
 	
 	
-	boolean hasModelChildren(Filter<? super IRLangSourceElement> filter);
-	List<? extends IRLangSourceElement> getModelChildren(Filter<? extends IRLangSourceElement> filter);
+	boolean hasModelChildren(IModelElement.Filter filter);
+	List<? extends IRLangSourceElement> getModelChildren(IModelElement.Filter filter);
 	
-	boolean hasSourceChildren(Filter<? super IRLangSourceElement> filter);
-	List<? extends IRLangSourceElement> getSourceChildren(Filter<? super IRLangSourceElement> filter);
+	boolean hasSourceChildren(IModelElement.Filter filter);
+	List<? extends IRLangSourceElement> getSourceChildren(IModelElement.Filter filter);
 	
 }

@@ -426,8 +426,8 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 							RModel.TYPE_ID, IRModelManager.MODEL_FILE, monitor );
 					if (elements.get(0).getSourceParent() != modelInfo.getSourceElement()) {
 						final List<? extends IRLangSourceElement> orgElements = elements;
-						elements = modelInfo.getSourceElement().getSourceChildren(new IModelElement.Filter<IRLangSourceElement>() {
-							public boolean include(final IRLangSourceElement element) {
+						elements = modelInfo.getSourceElement().getSourceChildren(new IModelElement.Filter() {
+							public boolean include(final IModelElement element) {
 								return orgElements.contains(element);
 //									return map.containsKey(element.getId());
 							}

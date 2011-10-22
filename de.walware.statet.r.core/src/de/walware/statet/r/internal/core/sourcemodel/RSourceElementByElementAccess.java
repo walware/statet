@@ -41,7 +41,7 @@ import de.walware.statet.r.core.rsource.ast.RAst;
 
 
 abstract class RSourceElementByElementAccess
-		implements IRElement, IRLangSourceElement, IModelElement.Filter<IModelElement> {
+		implements IRLangSourceElement, IModelElement.Filter {
 	
 	
 	static final class RPkgImport extends RSourceElementByElementAccess implements IRPackageLoad {
@@ -57,19 +57,19 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		
-		public boolean hasModelChildren(final Filter filter) {
+		public boolean hasModelChildren(final IModelElement.Filter filter) {
 			return false;
 		}
 		
-		public final List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+		public final List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
 			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		
-		public boolean hasSourceChildren(final Filter filter) {
+		public boolean hasSourceChildren(final IModelElement.Filter filter) {
 			return false;
 		}
 		
-		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
+		public List<? extends IRLangSourceElement> getSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		
@@ -133,25 +133,25 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		
-		public boolean hasModelChildren(final Filter filter) {
+		public boolean hasModelChildren(final IModelElement.Filter filter) {
 			if (fModelChildrenProtected == null) {
 				fModelChildrenProtected = fEnvir.getModelChildren(this);
 			}
 			return RSourceElements.hasChildren(fModelChildrenProtected, filter);
 		}
 		
-		public List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+		public List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
 			if (fModelChildrenProtected == null) {
 				fModelChildrenProtected = fEnvir.getModelChildren(this);
 			}
 			return RSourceElements.getChildren(fModelChildrenProtected, filter);
 		}
 		
-		public boolean hasSourceChildren(final Filter filter) {
+		public boolean hasSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.hasChildren(fSourceChildrenProtected, filter);
 		}
 		
-		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
+		public List<? extends IRLangSourceElement> getSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.getChildren(fSourceChildrenProtected, filter);
 		}
 		
@@ -229,25 +229,25 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		
-		public boolean hasModelChildren(final Filter filter) {
+		public boolean hasModelChildren(final IModelElement.Filter filter) {
 			if (fModelChildrenProtected == null) {
 				fModelChildrenProtected = fEnvir.getModelChildren(this);
 			}
 			return RSourceElements.hasChildren(fModelChildrenProtected, filter);
 		}
 		
-		public List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+		public List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
 			if (fModelChildrenProtected == null) {
 				fModelChildrenProtected = fEnvir.getModelChildren(this);
 			}
 			return RSourceElements.getChildren(fModelChildrenProtected, filter);
 		}
 		
-		public boolean hasSourceChildren(final Filter filter) {
+		public boolean hasSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.hasChildren(fSourceChildrenProtected, filter);
 		}
 		
-		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
+		public List<? extends IRLangSourceElement> getSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.getChildren(fSourceChildrenProtected, filter);
 		}
 		
@@ -306,25 +306,25 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		
-		public boolean hasModelChildren(final Filter filter) {
+		public boolean hasModelChildren(final IModelElement.Filter filter) {
 			if (fModelChildrenProtected == null) {
 				fModelChildrenProtected = fEnvir.getModelChildren(this);
 			}
 			return RSourceElements.hasChildren(fModelChildrenProtected, filter);
 		}
 		
-		public List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+		public List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
 			if (fModelChildrenProtected == null) {
 				fModelChildrenProtected = fEnvir.getModelChildren(this);
 			}
 			return RSourceElements.getChildren(fModelChildrenProtected, filter);
 		}
 		
-		public boolean hasSourceChildren(final Filter filter) {
+		public boolean hasSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.hasChildren(fSourceChildrenProtected, filter);
 		}
 		
-		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
+		public List<? extends IRLangSourceElement> getSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.getChildren(fSourceChildrenProtected, filter);
 		}
 		
@@ -354,19 +354,19 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		
-		public boolean hasModelChildren(final Filter filter) {
+		public boolean hasModelChildren(final IModelElement.Filter filter) {
 			return false;
 		}
 		
-		public final List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+		public final List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
 			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		
-		public boolean hasSourceChildren(final Filter filter) {
+		public boolean hasSourceChildren(final IModelElement.Filter filter) {
 			return false;
 		}
 		
-		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
+		public List<? extends IRLangSourceElement> getSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		
@@ -397,19 +397,19 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		
-		public boolean hasModelChildren(final Filter filter) {
+		public boolean hasModelChildren(final IModelElement.Filter filter) {
 			return false;
 		}
 		
-		public final List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+		public final List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
 			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		
-		public boolean hasSourceChildren(final Filter filter) {
+		public boolean hasSourceChildren(final IModelElement.Filter filter) {
 			return false;
 		}
 		
-		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
+		public List<? extends IRLangSourceElement> getSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		

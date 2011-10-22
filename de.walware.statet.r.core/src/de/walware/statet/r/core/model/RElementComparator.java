@@ -22,7 +22,7 @@ import de.walware.statet.r.core.RSymbolComparator;
 public class RElementComparator implements Comparator<IModelElement> {
 	
 	
-	private final Comparator fNameComparator = RSymbolComparator.R_NAMES_COLLATOR;
+	private final Comparator<Object> fNameComparator = RSymbolComparator.R_NAMES_COLLATOR;
 	
 	
 	public int compare(final IModelElement o1, final IModelElement o2) {

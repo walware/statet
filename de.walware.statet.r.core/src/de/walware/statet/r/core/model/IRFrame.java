@@ -14,7 +14,6 @@ package de.walware.statet.r.core.model;
 import java.util.List;
 
 import de.walware.ecommons.ltk.IModelElement;
-import de.walware.ecommons.ltk.IModelElement.Filter;
 
 
 // TODO extend IRElement? return as model parent of elements
@@ -40,8 +39,8 @@ public interface IRFrame {
 	RElementName getElementName();
 	
 	List<? extends IRElement> getModelElements();
-	boolean hasModelChildren(final Filter<? super IRLangElement> filter);
-	List<? extends IRLangElement> getModelChildren(final IModelElement.Filter<? super IRLangElement> filter);
+	boolean hasModelChildren(final IModelElement.Filter filter);
+	List<? extends IRLangElement> getModelChildren(final IModelElement.Filter filter);
 	List<? extends IRFrame> getPotentialParents();
 	
 }

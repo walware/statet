@@ -24,7 +24,6 @@ import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.services.IServiceLocator;
 
 import de.walware.ecommons.ltk.IModelElement;
-import de.walware.ecommons.ltk.IModelElement.Filter;
 import de.walware.ecommons.ltk.ui.ElementNameComparator;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor2OutlinePage;
 import de.walware.ecommons.ui.SharedMessages;
@@ -113,7 +112,7 @@ public class ROutlinePage extends SourceEditor2OutlinePage {
 		
 	}
 	
-	private class ContentFilter implements Filter<IModelElement> {
+	private class ContentFilter implements IModelElement.Filter {
 		
 		private boolean hideCommonVariables;
 		private boolean hideLocalDefinitions;

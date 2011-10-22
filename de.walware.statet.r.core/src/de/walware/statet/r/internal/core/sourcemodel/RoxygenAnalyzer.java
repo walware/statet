@@ -14,8 +14,8 @@ package de.walware.statet.r.internal.core.sourcemodel;
 import java.util.Iterator;
 import java.util.List;
 
+import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceStructElement;
-import de.walware.ecommons.ltk.IModelElement.Filter;
 
 import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.IRModelInfo;
@@ -29,7 +29,7 @@ import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAcce
 import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAccess.RVariable;
 
 
-public class RoxygenAnalyzer implements Filter<IRLangSourceElement> {
+public class RoxygenAnalyzer implements IModelElement.Filter {
 	
 	
 	private IRoxygenAnalyzeContext fContext;
@@ -85,35 +85,36 @@ public class RoxygenAnalyzer implements Filter<IRLangSourceElement> {
 	}
 	
 	
-	public boolean include(final IRLangSourceElement element) {
+	public boolean include(final IModelElement element) {
+		final IRLangSourceElement rElement = (IRLangSourceElement) element;
 		if (fNextComment == null) {
 			return true;
 		}
-		final int offset = element.getSourceRange().getOffset();
+		final int offset = rElement.getSourceRange().getOffset();
 		while (fNextCommentRefOffset < offset) {
 			checkElement(null);
 			nextDocuComment();
 		}
 		if (fNextCommentRefOffset == offset) {
-			if (element instanceof RClass) {
-				final RClass rClass = (RClass) element;
-				final RDocuLink link = new RDocuLink(element, fNextComment);
+			if (rElement instanceof RClass) {
+				final RClass rClass = (RClass) rElement;
+				final RDocuLink link = new RDocuLink(rClass, fNextComment);
 				fNextComment.addAttachment(link);
 				rClass.fDocu = fNextComment;
 				checkElement(rClass);
 				nextDocuComment();
 			}
-			else if (element instanceof RMethod) {
-				final RMethod rMethod = (RMethod) element;
-				final RDocuLink link = new RDocuLink(element, fNextComment);
+			else if (rElement instanceof RMethod) {
+				final RMethod rMethod = (RMethod) rElement;
+				final RDocuLink link = new RDocuLink(rMethod, fNextComment);
 				fNextComment.addAttachment(link);
 				rMethod.fDocu = fNextComment;
 				checkElement(rMethod);
 				nextDocuComment();
 			}
-			else if (element instanceof RVariable) {
-				final RVariable rVariable = (RVariable) element;
-				final RDocuLink link = new RDocuLink(element, fNextComment);
+			else if (rElement instanceof RVariable) {
+				final RVariable rVariable = (RVariable) rElement;
+				final RDocuLink link = new RDocuLink(rVariable, fNextComment);
 				fNextComment.addAttachment(link);
 				rVariable.fDocu = fNextComment;
 				checkElement(rVariable);
@@ -121,8 +122,8 @@ public class RoxygenAnalyzer implements Filter<IRLangSourceElement> {
 			}
 		}
 		
-		if (fNextCommentRefOffset < offset+element.getSourceRange().getLength()) {
-			return element.hasSourceChildren(this);
+		if (fNextCommentRefOffset < offset+rElement.getSourceRange().getLength()) {
+			return rElement.hasSourceChildren(this);
 		}
 		return false;
 	}
