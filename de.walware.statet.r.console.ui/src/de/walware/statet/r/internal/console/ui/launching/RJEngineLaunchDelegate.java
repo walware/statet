@@ -258,6 +258,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		args.append(fAddress);
 		
 		args.append(" -auth=none"); //$NON-NLS-1$
+		args.append(" -embedded");
 		
 		args.append(" -plugins="); //$NON-NLS-1$
 		args.append("awt,"); //$NON-NLS-1$
