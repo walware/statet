@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET R Debug Core
 Bundle-SymbolicName: de.walware.statet.r.debug.core;singleton:=true
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 2.0.1.qualifier
 Bundle-Activator: de.walware.statet.r.internal.debug.core.RDebugCorePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
