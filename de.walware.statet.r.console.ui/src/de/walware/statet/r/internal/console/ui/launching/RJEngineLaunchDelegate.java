@@ -72,6 +72,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	
 	private final String fAddress;
 	private final IREnvConfiguration fRenv;
+	private final String[] fCodebaseLibs;
 	
 	private File fWorkingDirectory;
 	
@@ -81,9 +82,11 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	private String fLibPreloadFile;
 	
 	
-	public RJEngineLaunchDelegate(final String address, final IREnvConfiguration renv) throws CoreException {
+	public RJEngineLaunchDelegate(final String address, final boolean requireCodebase,
+			final IREnvConfiguration renv) throws CoreException {
 		fAddress = address;
 		fRenv = renv;
+		fCodebaseLibs = (requireCodebase) ? CODEBASE_LIBS : null;
 		
 		setLibPreload(true);
 	}
@@ -219,9 +222,9 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 			s.append(" -Djava.rmi.server.hostname="); //$NON-NLS-1$
 			s.append(RMIAddress.LOOPBACK.getHostAddress());
 		}
-		if (s.indexOf(" -Djava.rmi.server.codebase=") < 0) { //$NON-NLS-1$
+		if (fCodebaseLibs != null && s.indexOf(" -Djava.rmi.server.codebase=") < 0) { //$NON-NLS-1$
 			s.append(" -Djava.rmi.server.codebase=\""); //$NON-NLS-1$
-			final String[] rjLibs = EServerUtil.searchRJLibsInPlatform(CODEBASE_LIBS);
+			final String[] rjLibs = EServerUtil.searchRJLibsInPlatform(fCodebaseLibs);
 			s.append(ServerUtil.concatCodebase(rjLibs));
 			s.append("\""); //$NON-NLS-1$
 		}

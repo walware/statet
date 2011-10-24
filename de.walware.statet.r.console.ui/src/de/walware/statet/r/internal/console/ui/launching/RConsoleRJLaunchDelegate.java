@@ -38,8 +38,6 @@ import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
 import de.walware.ecommons.net.RMIAddress;
 import de.walware.ecommons.net.RMIRegistry;
 import de.walware.ecommons.net.RMIUtil;
-import de.walware.ecommons.net.RMIUtil.StopRule;
-import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
@@ -64,7 +62,6 @@ import de.walware.statet.r.console.ui.tools.REnvIndexAutoUpdater;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
-import de.walware.statet.r.launching.RRunDebugPreferenceConstants;
 import de.walware.statet.r.launching.core.ILaunchDelegateAddon;
 import de.walware.statet.r.launching.core.RLaunching;
 import de.walware.statet.r.nico.RWorkspaceConfig;
@@ -212,11 +209,30 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		// r env
 		final IREnvConfiguration rEnv = RLaunching.getREnvConfig(configuration, true);
 		
-		final Integer port = PreferencesUtil.getInstancePrefs().getPreferenceValue(
-				RRunDebugPreferenceConstants.PREF_LOCAL_REGISTRY_PORT );
+		final RMIRegistry registry;
+		boolean requireCodebase;
+		{	final String s = System.getProperty("de.walware.statet.r.console.rmiRegistryPort");
+			int port = -1;
+			if (s != null && s.length() > 0) {
+				try {
+					port = Integer.parseInt(s);
+					registry = RMIUtil.INSTANCE.getRegistry(port);
+					requireCodebase = true;
+				}
+				catch (NumberFormatException e) {
+					throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
+							ICommonStatusConstants.LAUNCHCONFIG_ERROR,
+							RConsoleMessages.LaunchDelegate_error_InvalidAddress_message, e));
+				}
+			}
+			else {
+				registry = RMIUtil.INSTANCE.getEmbeddedPrivateRegistry(progress.newChild(1));
+				requireCodebase = false;
+			}
+		}
 		final RMIAddress rmiAddress;
 		try {
-			rmiAddress = new RMIAddress(RMIAddress.LOOPBACK, port,
+			rmiAddress = new RMIAddress(RMIAddress.LOOPBACK, registry.getAddress().getPortNum(),
 					"rjs-local-"+System.currentTimeMillis()); //$NON-NLS-1$
 		}
 		catch (final MalformedURLException e) {
@@ -224,7 +240,8 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 					ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 					RConsoleMessages.LaunchDelegate_error_InvalidAddress_message, e));
 		}
-		final RJEngineLaunchDelegate engineLaunchDelegate = new RJEngineLaunchDelegate(rmiAddress.getAddress(), rEnv);
+		final RJEngineLaunchDelegate engineLaunchDelegate = new RJEngineLaunchDelegate(
+				rmiAddress.getAddress(), requireCodebase, rEnv);
 		
 		progress.worked(1);
 		if (progress.isCanceled()) {
@@ -233,14 +250,8 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		
 		// start server
 		progress.subTask(RConsoleMessages.LaunchDelegate_StartREngine_subtask);
-		// RMI registry
-		final IStatus registryStatus = RMIUtil.INSTANCE.startSeparateRegistry(port, StopRule.IF_EMPTY);
-		if (registryStatus.getSeverity() >= IStatus.ERROR) {
-			throw new CoreException(registryStatus);
-		}
 		try {
 			RjsComConfig.setRMIClientSocketFactory(null);
-			final RMIRegistry registry = RMIUtil.INSTANCE.getRegistry(port);
 			
 			engineLaunchDelegate.launch(configuration, mode, launch, progress.newChild(10));
 			final IProcess[] processes = launch.getProcesses();

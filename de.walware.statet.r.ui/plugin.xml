@@ -1183,12 +1183,6 @@
             category="de.walware.statet.base.preferencePages.RunDebug"
             class="de.walware.statet.r.internal.debug.ui.preferences.REnvPreferencePage"
             name="%preferencePages.REnvironments.name"/>
-      <page
-            id="de.walware.statet.r.preferencePages.AdvancedIntegration"
-            category="de.walware.statet.r.preferencePages.RInteractionPage"
-            class="de.walware.statet.r.internal.debug.ui.preferences.ExtendedOptionsPreferencePage"
-            name="%preferencePages.RIntegrationExt.name">
-      </page>
    </extension>
    <extension point="org.eclipse.ui.commands">
       <!-- commands of launch shortcuts above -->

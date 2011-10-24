@@ -60,14 +60,6 @@ public class Messages extends NLS {
 	public static String REnv_Network_label;
 	public static String REnv_Network_UseEclipse_label;
 	
-	public static String RIntegrationExt_description;
-	public static String RIntegrationExt_LocalRMI_label;
-	public static String RIntegrationExt_LocalRMI_RegistryAction_Start_label;
-	public static String RIntegrationExt_LocalRMI_RegistryAction_Stop_label;
-	public static String RIntegrationExt_LocalRMI_RegistryAutostart_label;
-	public static String RIntegrationExt_LocalRMI_RegistryPort_error_Invalid_message;
-	public static String RIntegrationExt_LocalRMI_RegistryPort_label;
-	
 	
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);

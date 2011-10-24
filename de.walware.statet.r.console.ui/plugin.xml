@@ -43,6 +43,13 @@
    </extension>
    
 <!-- R Consoles Launch Config -->
+   <extension
+         point="de.walware.ecommons.net.rmi.eRegistryClasspath">
+      <plugin
+            pluginId="de.walware.rj.server">
+      </plugin>
+   </extension>
+   
    <extension point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
             id="de.walware.statet.r.launchConfigurationTypes.RConsole"

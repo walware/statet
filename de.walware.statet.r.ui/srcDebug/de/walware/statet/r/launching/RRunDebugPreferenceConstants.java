@@ -11,12 +11,8 @@
 
 package de.walware.statet.r.launching;
 
-import java.rmi.registry.Registry;
-
 import org.eclipse.core.runtime.preferences.IScopeContext;
 
-import de.walware.ecommons.preferences.Preference.BooleanPref;
-import de.walware.ecommons.preferences.Preference.IntPref;
 import de.walware.ecommons.preferences.Preference.StringPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
 
@@ -36,10 +32,6 @@ public class RRunDebugPreferenceConstants {
 	
 	public static final String CAT_RREMOTE_LAUNCHING_QUALIFIER = ROOT_QUALIFIER + "/r.remote.launching"; //$NON-NLS-1$
 	
-	public static final String CAT_RMI_QUALIFIER = ROOT_QUALIFIER + "/rmi"; //$NON-NLS-1$
-	public static final BooleanPref PREF_LOCAL_REGISTRY_AUTOSTART_ENABLED = new BooleanPref(CAT_RMI_QUALIFIER, "LocalRegistryAutostart.enabled"); //$NON-NLS-1$
-	public static final IntPref PREF_LOCAL_REGISTRY_PORT = new IntPref(CAT_RMI_QUALIFIER, "LocalRegistry.port"); //$NON-NLS-1$
-	
 	public static final String CAT_RENV_QUALIFIER = ROOT_QUALIFIER + "/renv"; //$NON-NLS-1$
 	public static final StringPref PREF_RENV_CHECK_UPDATE = new StringPref(CAT_RENV_QUALIFIER, "index.console_update.mode"); //$NON-NLS-1$
 	
@@ -57,8 +49,6 @@ public class RRunDebugPreferenceConstants {
 	public static void initializeDefaultValues(final IScopeContext context) {
 		PreferencesUtil.setPrefValue(context, RRunDebugPreferenceConstants.PREF_R_CONNECTOR, RControllerCodeLaunchConnector.ID);
 		
-		PreferencesUtil.setPrefValue(context, PREF_LOCAL_REGISTRY_AUTOSTART_ENABLED, true);
-		PreferencesUtil.setPrefValue(context, PREF_LOCAL_REGISTRY_PORT, Registry.REGISTRY_PORT);
 		PreferencesUtil.setPrefValue(context, PREF_RENV_CHECK_UPDATE, ASK);
 	}
 	
