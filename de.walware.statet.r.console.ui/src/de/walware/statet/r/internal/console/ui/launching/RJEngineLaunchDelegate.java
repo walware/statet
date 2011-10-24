@@ -238,10 +238,10 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 			final String rArch = fRenv.getSubArch();
 			if (rArch != null) {
 				if (rArch.equals("i386") || rArch.equals("i586") || rArch.equals("i686")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					s.append("-d32"); //$NON-NLS-1$
+					s.append(" -d32"); //$NON-NLS-1$
 				}
 				else if (rArch.equals("x86_64")) { //$NON-NLS-1$
-					s.append("-d64"); //$NON-NLS-1$
+					s.append(" -d64"); //$NON-NLS-1$
 				}
 			}
 		}
