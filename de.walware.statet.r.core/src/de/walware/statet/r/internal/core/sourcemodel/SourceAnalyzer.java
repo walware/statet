@@ -1791,18 +1791,40 @@ public class SourceAnalyzer extends RAstVisitor {
 				if (baseDef != null && baseDef.size() > 0) {
 					final ArgsBuilder argsBuilder = new ArgsBuilder();
 					// we copy the names
-					final String[] names = new String[baseDef.size()];
-					ARGS: for (int i = 0; i < names.length; i++) {
-						final String name = baseDef.get(i).name;
-						if (name != null && signatureArgNodes != null) {
-							for (int j = 0; j < signatureArgNodes.length; j++) {
-								argsBuilder.add(name, 0, (!name.equals("...") &&
-										name.equals(signatureArgNodes[j].getText())) ? "<?>" : "\u2014");
+					if (signatureArgNodes != null) { // explicit
+						ARGS: for (int i = 0; i < baseDef.size(); i++) {
+							final String name = baseDef.get(i).name;
+							if (name != null) {
+								for (int j = 0; j < signatureArgNodes.length; j++) {
+									if (name.equals(signatureArgNodes[j].getText())) {
+										argsBuilder.add(name, 0, "<?>");
+										continue ARGS;
+									}
+								}
+								argsBuilder.add(name, 0, "\u2014");
 								continue ARGS;
 							}
+							argsBuilder.add(name);
+							continue ARGS;
 						}
-						argsBuilder.add(name);
-						continue ARGS;
+					}
+					else if (baseDef.size() == 1 && "...".equals(baseDef.get(0).name)) {
+						argsBuilder.add("...", 0, "<?>");
+					}
+					else {
+						ARGS: for (int i = 0; i < baseDef.size(); i++) {
+							final String name = baseDef.get(i).name;
+							if (name != null) {
+								if (!name.equals("...")) {
+									argsBuilder.add(name, 0, "<?>");
+									continue ARGS;
+								}
+								argsBuilder.add(name, 0, "\u2014");
+								continue ARGS;
+							}
+							argsBuilder.add(name);
+							continue ARGS;
+						}
 					}
 					methodDef = argsBuilder.toDef();
 				}
