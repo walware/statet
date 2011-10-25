@@ -251,7 +251,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 		
 		final ArgsDefinition argsDef = fFunction.getArgsDefinition();
 		final int count = (argsDef != null) ? argsDef.size() : 0;
-		fVariablesList = new ArrayList(count);
+		fVariablesList = new ArrayList<Variable>(count);
 		boolean dots = false;
 		for (int i = 0; i < count; i++) {
 			final Arg arg = argsDef.get(i);

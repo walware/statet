@@ -23,7 +23,7 @@ import org.eclipse.debug.ui.actions.IToggleBreakpointsTarget;
 public class RetargettableActionAdapterFactory implements IAdapterFactory {
 	
 	
-	private static final Class<?>[] ADAPTERS = new Class[] { IToggleBreakpointsTarget.class };
+	private static final Class<?>[] ADAPTERS = new Class<?>[] { IToggleBreakpointsTarget.class };
 	
 	
 	private IToggleBreakpointsTarget fBreakpointAdapter;
@@ -33,7 +33,7 @@ public class RetargettableActionAdapterFactory implements IAdapterFactory {
 	}
 	
 	
-	public Class[] getAdapterList() {
+	public Class<?>[] getAdapterList() {
 		return ADAPTERS;
 	}
 	

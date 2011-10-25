@@ -29,7 +29,7 @@ public class RVectorValue extends RValue implements IIndexedValue {
 	
 	protected final int fLength;
 	
-	protected RVector[] fData;
+	protected RVector<?>[] fData;
 	
 	
 	public RVectorValue(final RElementVariable variable) {

@@ -175,11 +175,12 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 		}
 		
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public Object[] getElements(final Object inputElement) {
 			final List<RemoteR> all = (List<RemoteR>) inputElement;
 			
 			fMapping.clear();
-			final HashMap mapping = fMapping;
+			final Map mapping = fMapping;
 			for (final RemoteR r : all) {
 				final String username = r.info.getUsername(ServerInfo.USER_OWNER).toLowerCase();
 				List<RemoteR> list = (List<RemoteR>) mapping.get(username);

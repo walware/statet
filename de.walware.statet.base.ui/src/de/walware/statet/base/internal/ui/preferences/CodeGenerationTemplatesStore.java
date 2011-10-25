@@ -118,7 +118,7 @@ public final class CodeGenerationTemplatesStore {
 			final TemplatePersistenceData[] allData = new TemplatePersistenceData[length];
 			
 			for (int i = 0, k = 0; i < datas.length; k += datas[i].length, i++) {
-				System.arraycopy(datas[i], 0, allData, 0, datas[i].length);
+				System.arraycopy(datas[i], 0, allData, k, datas[i].length);
 			}
 			
 			return allData;

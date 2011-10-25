@@ -124,6 +124,7 @@ public class REditorWorkingCopy extends GenericEditorWorkspaceSourceUnitWorkingC
 		return fModelInfo;
 	}
 	
+	@Override
 	public IProblemRequestor getProblemRequestor() {
 		return (IProblemRequestor) RUIPlugin.getDefault().getRDocumentProvider().getAnnotationModel(this);
 	}

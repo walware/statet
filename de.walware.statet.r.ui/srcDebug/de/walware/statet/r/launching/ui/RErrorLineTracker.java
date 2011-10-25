@@ -128,7 +128,7 @@ public class RErrorLineTracker implements IPatternMatchListener {
 	
 	private TextConsole fConsole;
 	private IFileStore fWorkingDirectory;
-	private ToolProcess<?> fTool;
+	private ToolProcess fTool;
 	
 	
 	/**
@@ -138,7 +138,7 @@ public class RErrorLineTracker implements IPatternMatchListener {
 		fWorkingDirectory = workingDirectory;
 	}
 	
-	public RErrorLineTracker(final ToolProcess<?> tool) {
+	public RErrorLineTracker(final ToolProcess tool) {
 		fTool = tool;
 	}
 	

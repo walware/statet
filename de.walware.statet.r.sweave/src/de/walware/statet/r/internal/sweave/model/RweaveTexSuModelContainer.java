@@ -43,6 +43,7 @@ public class RweaveTexSuModelContainer extends SourceUnitModelContainer<SweaveDo
 	}
 	
 	
+	@Override
 	public AstInfo<SweaveDocElement> getAstInfo(final boolean ensureSync, final IProgressMonitor monitor) {
 		if (ensureSync) {
 			reconcileAst(IModelManager.AST, monitor);

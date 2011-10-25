@@ -36,8 +36,8 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.databinding.ComputedOnChangeValue;
+import de.walware.ecommons.databinding.IntegerValidator;
 import de.walware.ecommons.databinding.NotEmptyValidator;
-import de.walware.ecommons.databinding.NumberValidator;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
@@ -323,7 +323,7 @@ public class TrackingConfigurationComposite extends Composite {
 				}
 			});
 			dbc.bindValue(SWTObservables.observeText(fStreamOutputErrorTruncateLinesControl, SWT.Modify), BeansObservables.observeValue(fInput, "trackStreamOutputTruncateLines"), //$NON-NLS-1$
-					new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(2, 1000000, Messages.Tracking_OutputStream_TruncateLines_error_Invalid_message)), null);
+					new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(2, 1000000, Messages.Tracking_OutputStream_TruncateLines_error_Invalid_message)), null);
 		}
 		
 		if (fSubmitTypeControl != null) {

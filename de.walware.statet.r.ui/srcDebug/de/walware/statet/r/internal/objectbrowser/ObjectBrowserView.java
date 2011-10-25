@@ -129,6 +129,7 @@ import de.walware.rj.data.RStore;
 
 import de.walware.statet.r.console.core.AbstractRDataRunnable;
 import de.walware.statet.r.console.core.IRDataAdapter;
+import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
@@ -220,7 +221,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			if (elements != null && elements.length > 0 && elements[0] instanceof ICombinedRElement) {
 				final ICombinedRElement object = (ICombinedRElement) elements[0];
 				if (object.getRObjectType() != RObject.TYPE_ENV) {
-					Arrays.sort(elements, new Comparator() {
+					Arrays.sort(elements, new Comparator<Object>() {
 						public int compare(final Object a, final Object b) {
 							return SortByTypeComparator.this.compare(
 									(ICombinedRElement) a, (ICombinedRElement) b);
@@ -710,9 +711,9 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		/** true if RefreshR is running */
 		private boolean fForceOnWorkspaceChange;
 		/** the process to update */
-		private ToolProcess<? extends RWorkspace> fUpdateProcess;
+		private RProcess fUpdateProcess;
 		/** the process of last update */
-		private ToolProcess<? extends RWorkspace> fLastProcess;
+		private RProcess fLastProcess;
 		/** update all environment */
 		private boolean fForce;
 		/** environments to update, if force is false*/
@@ -732,17 +733,17 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 		
 		public void propertyChanged(final ToolWorkspace workspace, final Map<String, Object> properties) {
+			final RWorkspace rWorkspace = (RWorkspace) workspace;
 			if (properties.containsKey("REnvironments")) {
 				if (fForceOnWorkspaceChange) {
 					fForceOnWorkspaceChange = false;
-					final ToolProcess<? extends RWorkspace> process = workspace.getProcess();
+					final RProcess process = rWorkspace.getProcess();
 					forceUpdate(process);
 					schedule();
 				}
 				else {
-					final ToolProcess<? extends RWorkspace> process = workspace.getProcess();
 					final List<RWorkspace.ICombinedREnvironment> envirs = (List<RWorkspace.ICombinedREnvironment>) properties.get("REnvironments");
-					schedule(workspace.getProcess(), envirs);
+					schedule(rWorkspace.getProcess(), envirs);
 				}
 			}
 			
@@ -750,7 +751,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			if (autorefresh instanceof Boolean) {
 				UIAccess.getDisplay().asyncExec(new Runnable() {
 					public void run() {
-						if (fProcess != workspace.getProcess()) {
+						if (fProcess != rWorkspace.getProcess()) {
 							return;
 						}
 						updateAutoRefresh(((Boolean) autorefresh).booleanValue());
@@ -762,7 +763,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				if (dirty instanceof Boolean) {
 					UIAccess.getDisplay().asyncExec(new Runnable() {
 						public void run() {
-							if (fProcess != workspace.getProcess()) {
+							if (fProcess != rWorkspace.getProcess()) {
 								return;
 							}
 							updateDirty(((Boolean) dirty).booleanValue());
@@ -772,7 +773,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			}
 		}
 		
-		public void forceUpdate(final ToolProcess<? extends RWorkspace> process) {
+		public void forceUpdate(final RProcess process) {
 			synchronized (fProcessLock) {
 				if ((process != null) ? (fProcess != process) : (fProcess != null)) {
 					return;
@@ -783,7 +784,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			}
 		}
 		
-		public void schedule(final ToolProcess<? extends RWorkspace> process, final List<RWorkspace.ICombinedREnvironment> envirs) {
+		public void schedule(final RProcess process, final List<RWorkspace.ICombinedREnvironment> envirs) {
 			if (envirs != null && process != null) {
 				synchronized (fProcessLock) {
 					if (fProcess == null || fProcess != process) {
@@ -821,7 +822,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				final List<ICombinedREnvironment> updateList;
 				final boolean force;
 				final boolean updateInput;
-				final ToolProcess<? extends RWorkspace> process;
+				final RProcess process;
 				synchronized (fProcessLock) {
 					force = fForce;
 					updateInput = (force || fUpdateProcess != null);
@@ -893,7 +894,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			}
 		}
 		
-		private ContentInput createHandler(final ToolProcess<? extends RWorkspace> process, final boolean updateInput) {
+		private ContentInput createHandler(final RProcess process, final boolean updateInput) {
 			final boolean processChanged = ((process != null) ? process != fLastProcess : fLastProcess != null);
 			final boolean filterInternal = !fFilterIncludeInternal;
 			final String filterText = fFilterText;
@@ -919,7 +920,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		}
 		
 		private List<ICombinedREnvironment> updateInput(final List<ICombinedREnvironment> updateList, 
-				final ToolProcess<? extends RWorkspace> process, final ContentInput input) {
+				final RProcess process, final ContentInput input) {
 			if (process != null) {
 				final List<? extends ICombinedREnvironment> oldInput = fInput;
 				final RWorkspace workspaceData = process.getWorkspaceData();
@@ -1180,7 +1181,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	private IDialogSettings fSettings;
 	
-	private ToolProcess<? extends RWorkspace> fProcess; // note: we write only in ui thread
+	private RProcess fProcess; // note: we write only in ui thread
 	private final Object fProcessLock = new Object();
 	private IToolRegistryListener fToolRegistryListener;
 	private final FastList<IToolRetargetable> fToolListenerList =
@@ -1310,7 +1311,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		final IToolRegistry toolRegistry = NicoUI.getToolRegistry();
 		fToolRegistryListener = new IToolRegistryListener() {
 			public void toolSessionActivated(final ToolSessionUIData sessionData) {
-				final ToolProcess<?> process = sessionData.getProcess();
+				final ToolProcess process = sessionData.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					public void run() {
 						connect(process);
@@ -1318,7 +1319,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				});
 			}
 			public void toolTerminated(final ToolSessionUIData sessionData) {
-				final ToolProcess<?> process = sessionData.getProcess();
+				final ToolProcess process = sessionData.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					public void run() {
 						if (fProcess != null && fProcess == process) {
@@ -1518,16 +1519,16 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	}
 	
 	/** May only be called in UI thread */
-	public void connect(final ToolProcess<?> process) {
+	public void connect(final ToolProcess process) {
 		if (fProcess == process) {
 			return;
 		}
-		final ToolProcess<? extends RWorkspace> oldProcess = fProcess;
+		final RProcess oldProcess = fProcess;
 		if (oldProcess != null) {
 			oldProcess.getWorkspaceData().removePropertyListener(fInputUpdater);
 		}
 		synchronized (fProcessLock) {
-			fProcess = (ToolProcess<? extends RWorkspace>) 
+			fProcess = (RProcess) 
 					((process != null && process.isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)) ?
 							process : null);
 		}
@@ -1696,7 +1697,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		final Object previousInfoObject = fCurrentInfoObject;
 		fCurrentInfoObject = null;
 		
-		final ToolProcess<? extends RWorkspace> process = fProcess;
+		final RProcess process = fProcess;
 		if (process == null) {
 			return;
 		}

@@ -51,9 +51,6 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 			public String getSegmentName() {
 				return fId;
 			}
-			public IElementName getNamespace() {
-				return null;
-			}
 			public IElementName getNextSegment() {
 				return null;
 			}

@@ -31,7 +31,7 @@ import de.walware.statet.r.core.model.IRElement;
 public class RElementAdapterFactory implements IAdapterFactory, IContributorResourceAdapter {
 	
 	
-	private static Class<?>[] PROPERTIES = new Class[] {
+	private static Class<?>[] PROPERTIES = new Class<?>[] {
 		IResource.class,
 		IContributorResourceAdapter.class,
 	};

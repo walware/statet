@@ -130,7 +130,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return null;
 	}
 	
-	private static final List<IRLibraryLocation> NO_LIBS = Collections.emptyList();
+	private static final List<RLibraryLocation> NO_LIBS = Collections.emptyList();
 	
 	private static final String[] DEFAULT_LIBS_IDS = new String[] {
 			IRLibraryGroup.R_DEFAULT, IRLibraryGroup.R_SITE,
@@ -139,20 +139,20 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	
 	private static final List<IRLibraryGroup> DEFAULT_LIBS_INIT;
 	static {
-		final RLibraryGroup[] groups = new RLibraryGroup[DEFAULT_LIBS_IDS.length];
+		final IRLibraryGroup[] groups = new IRLibraryGroup[DEFAULT_LIBS_IDS.length];
 		for (int i = 0; i < DEFAULT_LIBS_IDS.length; i++) {
-			groups[i] = new RLibraryGroup(DEFAULT_LIBS_IDS[i], getLibGroupLabel(DEFAULT_LIBS_IDS[i]), NO_LIBS);
+			groups[i] = new RLibraryGroup.Final(DEFAULT_LIBS_IDS[i], getLibGroupLabel(DEFAULT_LIBS_IDS[i]), NO_LIBS);
 		}
 		DEFAULT_LIBS_INIT = new ConstList<IRLibraryGroup>(groups);
 	}
 	
 	private static final List<IRLibraryGroup> DEFAULT_LIBS_DEFAULTS = new ConstList<IRLibraryGroup>(
-			new RLibraryGroup(IRLibraryGroup.R_DEFAULT, getLibGroupLabel(IRLibraryGroup.R_DEFAULT),
-				new ConstList<IRLibraryLocation>(new RLibraryLocation(IRLibraryGroup.DEFAULTLOCATION_R_DEFAULT)) ),
-			new RLibraryGroup(IRLibraryGroup.R_SITE, getLibGroupLabel(IRLibraryGroup.R_SITE),
-				new ConstList<IRLibraryLocation>(new RLibraryLocation(IRLibraryGroup.DEFAULTLOCATION_R_SITE)) ),
-			new RLibraryGroup(IRLibraryGroup.R_USER, getLibGroupLabel(IRLibraryGroup.R_USER), NO_LIBS),
-			new RLibraryGroup(IRLibraryGroup.R_OTHER, getLibGroupLabel(IRLibraryGroup.R_OTHER), NO_LIBS) );
+			new RLibraryGroup.Final(IRLibraryGroup.R_DEFAULT, getLibGroupLabel(IRLibraryGroup.R_DEFAULT),
+				new ConstList<RLibraryLocation>(new RLibraryLocation(IRLibraryGroup.DEFAULTLOCATION_R_DEFAULT)) ),
+			new RLibraryGroup.Final(IRLibraryGroup.R_SITE, getLibGroupLabel(IRLibraryGroup.R_SITE),
+				new ConstList<RLibraryLocation>(new RLibraryLocation(IRLibraryGroup.DEFAULTLOCATION_R_SITE)) ),
+			new RLibraryGroup.Final(IRLibraryGroup.R_USER, getLibGroupLabel(IRLibraryGroup.R_USER), NO_LIBS),
+			new RLibraryGroup.Final(IRLibraryGroup.R_OTHER, getLibGroupLabel(IRLibraryGroup.R_OTHER), NO_LIBS) );
 	
 	
 	public static class Editable extends REnvConfiguration implements WorkingCopy {
@@ -169,12 +169,17 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		
 		
 		@Override
-		protected List copyLibs(final List<? extends IRLibraryGroup> source) {
+		protected List<IRLibraryGroup.WorkingCopy> copyLibs(final List<? extends IRLibraryGroup> source) {
 			final List<IRLibraryGroup.WorkingCopy> list = new ArrayList<IRLibraryGroup.WorkingCopy>(source.size());
 			for (final IRLibraryGroup group : source) {
 				list.add(new RLibraryGroup.Editable((RLibraryGroup) group));
 			}
 			return list;
+		}
+		
+		@Override
+		public List<IRLibraryGroup.WorkingCopy> getRLibraryGroups() {
+			return (List<IRLibraryGroup.WorkingCopy>) fRLibraries;
 		}
 		
 		@Override
@@ -205,7 +210,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	private StringPref fPrefROS;
 	private String fROS;
 	
-	private List<? extends IRLibraryGroup> fRLibraries;
+	protected List<? extends IRLibraryGroup> fRLibraries;
 	private StringPref fPrefRDocDirectory;
 	private String fRDocDirectory;
 	private IFileStore fRDocDirectoryStore;
@@ -287,7 +292,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 				for (int j = 0; j < locations.size(); j++) {
 					libs[j] = new RLibraryLocation(locations.get(j));
 				}
-				groups.add(new RLibraryGroup(id, label, new ConstList<IRLibraryLocation>(libs)));
+				groups.add(new RLibraryGroup.Final(id, label, new ConstList<RLibraryLocation>(libs)));
 			}
 			else {
 				// unknown group
@@ -443,7 +448,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 					for (int j = 0; j < locations.length; j++) {
 						libs[j] = new RLibraryLocation(locations[j]);
 					}
-					groups.add(new RLibraryGroup(id, label, new ConstList<IRLibraryLocation>(libs)));
+					groups.add(new RLibraryGroup.Final(id, label, new ConstList<RLibraryLocation>(libs)));
 				}
 				else {
 					// unknown group
@@ -457,10 +462,10 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		resolvePaths();
 	}
 	
-	protected List copyLibs(final List<? extends IRLibraryGroup> source) {
-		final RLibraryGroup[] groups = new RLibraryGroup[source.size()];
+	protected List<? extends IRLibraryGroup> copyLibs(final List<? extends IRLibraryGroup> source) {
+		final IRLibraryGroup[] groups = new RLibraryGroup[source.size()];
 		for (int i = 0; i < groups.length; i++) {
-			groups[i] = new RLibraryGroup(source.get(i));
+			groups[i] = new RLibraryGroup.Final((RLibraryGroup) source.get(i));
 		}
 		return new ConstList<IRLibraryGroup>(groups);
 	}
@@ -684,7 +689,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		firePropertyChange(PROP_RINCLUDE_DIRECTORY, oldValue, directory);
 	}
 	
-	public List getRLibraryGroups() {
+	public List<? extends IRLibraryGroup> getRLibraryGroups() {
 		return fRLibraries;
 	}
 	

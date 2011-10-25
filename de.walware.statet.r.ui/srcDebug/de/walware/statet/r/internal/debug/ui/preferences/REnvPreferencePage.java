@@ -348,7 +348,6 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 		composite.viewer.setContentProvider(new ArrayContentProvider());
 		// Sorter
 		composite.viewer.setComparator(new ViewerComparator() {
-			@SuppressWarnings("unchecked")
 			@Override
 			public int compare(final Viewer viewer, final Object e1, final Object e2) {
 				return getComparator().compare(((IREnvConfiguration) e1).getName(), ((IREnvConfiguration) e2).getName());

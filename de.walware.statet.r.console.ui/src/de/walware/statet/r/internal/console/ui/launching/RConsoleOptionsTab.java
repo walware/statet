@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import de.walware.ecommons.databinding.NumberValidator;
+import de.walware.ecommons.databinding.IntegerValidator;
 import de.walware.ecommons.databinding.jface.SWTMultiEnabledObservable;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditor;
@@ -360,9 +360,9 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		dbc.bindValue(dbObs, fObjectDBEnabledValue, null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fObjectDBAutoEnabledControl), fObjectDBAutoEnabledValue, null, null);
 		dbc.bindValue(SWTObservables.observeText(fObjectDBListsChildrenControl, SWT.Modify), fObjectDBListsChildrenValue, 
-				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(100, Integer.MAX_VALUE, "Invalid max value for length of R lists to fetch (100-).")), null);
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(100, Integer.MAX_VALUE, "Invalid max value for length of R lists to fetch (100-).")), null);
 		dbc.bindValue(SWTObservables.observeText(fObjectDBEnvsChildrenControl, SWT.Modify), fObjectDBEnvsChildrenValue, 
-				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(100, Integer.MAX_VALUE, "Invalid max value for length of R environments to fetch (100-).")), null);
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(100, Integer.MAX_VALUE, "Invalid max value for length of R environments to fetch (100-).")), null);
 		
 		dbc.bindValue(new SWTMultiEnabledObservable(realm, new Control[] {
 						fObjectDBAutoEnabledControl, fObjectDBEnvsChildrenControl, fObjectDBListsChildrenControl,

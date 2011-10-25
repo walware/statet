@@ -21,7 +21,7 @@ import org.eclipse.search.ui.ISearchPageScoreComputer;
 public class REditorInputAdapterFactory implements IAdapterFactory {
 	
 	
-	private static Class<?>[] PROPERTIES = new Class[] {
+	private static Class<?>[] PROPERTIES = new Class<?>[] {
 //		IRElement.class,
 	};
 	

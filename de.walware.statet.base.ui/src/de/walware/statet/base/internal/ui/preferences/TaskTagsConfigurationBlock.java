@@ -211,7 +211,6 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		composite.viewer.setContentProvider(new ArrayContentProvider());
 		// Sorter
 		composite.viewer.setComparator(new ViewerComparator() {
-			@SuppressWarnings("unchecked")
 			@Override
 			public int compare(final Viewer viewer, final Object e1, final Object e2) {
 				return getComparator().compare(((TaskTag) e1).name, ((TaskTag) e2).name);
@@ -279,7 +278,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 				prios[0] = defaultTag.priority;
 				i++;
 			}
-			for (final Iterator iter = fList.iterator(); iter.hasNext(); ) {
+			for (final Iterator<?> iter = fList.iterator(); iter.hasNext(); ) {
 				final TaskTag item = (TaskTag) iter.next();
 				if (item != defaultTag) {
 					tags[i] = item.name;

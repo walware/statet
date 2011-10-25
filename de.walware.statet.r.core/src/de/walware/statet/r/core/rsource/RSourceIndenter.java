@@ -782,6 +782,7 @@ class ScopeFactory {
 				// first are conditions
 				break;
 			}
+			//$FALL-THROUGH$
 		case C_REPEAT:
 			// use control level instead of cont level
 			initNew(node.getOffset(), line, node, FIX_STRAT, fScope.parent.baseColumn);

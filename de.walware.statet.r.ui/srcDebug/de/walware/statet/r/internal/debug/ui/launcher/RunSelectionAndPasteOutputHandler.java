@@ -168,7 +168,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 					fOutput.append(text);
 				}
 			};
-			final ToolController<? extends RWorkspace> controller = r.getController();
+			final ToolController controller = r.getController();
 			try {
 				controller.getStreams().getOutputStreamMonitor().addListener(listener);
 				controller.getStreams().getErrorStreamMonitor().addListener(listener);

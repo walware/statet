@@ -97,6 +97,11 @@ public final class RScanner {
 		private int fLineCount;
 		private DocuComment fCurrent;
 		
+		void init() {
+			fLineCount = 0;
+			fCurrent = null;
+		}
+		
 		void add(final Comment comment) {
 			if (fCurrent == null) {
 				fCurrent = new DocuComment();
@@ -127,12 +132,6 @@ public final class RScanner {
 			fLineCount = 0;
 			fCurrent = null;
 			return comment;
-		}
-		
-		void clear() {
-			for (int i = 0; i < fLines.length; i++) {
-				fLines[i] = null;
-			}
 		}
 		
 	}
@@ -254,6 +253,9 @@ public final class RScanner {
 	}
 	
 	private void init() {
+		if (fRoxygen != null) {
+			fRoxygen.init();
+		}
 		fNextType = RTerminal.LINEBREAK;
 		fLineOffset.clear();
 		fLineOffset.add(fLexer.getOffset());
@@ -313,6 +315,7 @@ public final class RScanner {
 							continue ITER_TOKEN;
 						}
 						// else error like comma
+						//$FALL-THROUGH$
 					case COMMA:
 						{
 							expr = node.appendNewExpr();
@@ -1626,6 +1629,7 @@ public final class RScanner {
 			return;
 		case LINEBREAK:
 			fLineOffset.add(fLexer.getOffset()+fLexer.getLength());
+			return;
 		default:
 			return;
 		}

@@ -146,7 +146,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 			if (fContainerFullPath != null)
 				path = fContainerFullPath;
 			else {
-				final Iterator it = fResourceSelection.iterator();
+				final Iterator<?> it = fResourceSelection.iterator();
 				if (it.hasNext()) {
 					final Object object = it.next();
 					IResource selectedResource = null;

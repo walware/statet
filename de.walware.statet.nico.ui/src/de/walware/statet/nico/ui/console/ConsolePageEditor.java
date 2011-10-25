@@ -36,7 +36,6 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
-import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
@@ -351,9 +350,6 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 				return;
 			}
 			e.doit = false;
-		}
-		
-		public void keyReleased(final KeyEvent e) {
 		}
 		
 		private void doOutputLineUp() {

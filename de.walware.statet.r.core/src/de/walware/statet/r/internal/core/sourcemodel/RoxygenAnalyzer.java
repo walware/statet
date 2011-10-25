@@ -58,7 +58,7 @@ public class RoxygenAnalyzer implements IModelElement.Filter {
 		}
 		final ISourceStructElement sourceElement = model.getSourceElement();
 		if (sourceElement instanceof IRLangSourceElement) {
-			include((IRLangSourceElement) sourceElement);
+			include(sourceElement);
 		}
 		if (fNextComment != null) {
 			checkElement(null);

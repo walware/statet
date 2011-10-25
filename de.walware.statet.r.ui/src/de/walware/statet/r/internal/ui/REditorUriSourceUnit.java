@@ -88,6 +88,7 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 		RCore.getRModelManager().reconcile(this, reconcileLevel, true, monitor);
 	}
 	
+	@Override
 	public AstInfo<? extends IAstNode> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
 			if (ensureSync) {
@@ -98,6 +99,7 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 		return null;
 	}
 	
+	@Override
 	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
 			if (syncLevel > IModelManager.NONE) {
@@ -112,6 +114,7 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 		FileBufferWorkingBuffer.syncExec(runnable);
 	}
 	
+	@Override
 	public IProblemRequestor getProblemRequestor() {
 		return null;
 	}

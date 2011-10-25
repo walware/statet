@@ -143,7 +143,7 @@ public class ToolSourceProvider extends AbstractSourceProvider implements IWindo
 	}
 	
 	public Map getCurrentState() {
-		final Map map = new HashMap();
+		final Map<String, Object> map = new HashMap<String, Object>();
 		Object tool = null;
 		if (fActiveWindow != null) {
 			tool = fRegistry.getActiveToolSession(fActiveWindow.getActivePage()).getProcess();

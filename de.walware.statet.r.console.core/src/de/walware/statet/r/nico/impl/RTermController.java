@@ -47,9 +47,9 @@ import de.walware.statet.nico.core.runtime.IRequireSynch;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
-import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStatus;
 
+import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.console.core.RConsoleCorePlugin;
@@ -189,7 +189,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 	Long fProcessId;
 	
 	
-	public RTermController(final ToolProcess process, final ProcessBuilder config, final Charset charset) {
+	public RTermController(final RProcess process, final ProcessBuilder config, final Charset charset) {
 		super(process, null);
 		fConfig = config;
 		fCharset = charset;

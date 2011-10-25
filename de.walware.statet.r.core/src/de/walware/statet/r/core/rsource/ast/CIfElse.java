@@ -80,6 +80,7 @@ public class CIfElse extends RAstNode {
 			if (fWithElse) {
 				return fElseExpr.node;
 			}
+			//$FALL-THROUGH$
 		default:
 			throw new IndexOutOfBoundsException();
 		}

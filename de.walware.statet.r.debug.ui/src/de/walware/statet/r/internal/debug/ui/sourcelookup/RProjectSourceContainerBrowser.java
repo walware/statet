@@ -43,7 +43,7 @@ public class RProjectSourceContainerBrowser extends AbstractSourceContainerBrows
 		final List<IProject> projects = getPossibleAdditions(director);
 		final ProjectSelectionDialog dialog = new ProjectSelectionDialog(shell, projects);
 		if (dialog.open() == Dialog.OK) {
-			final Set selectedProjects = dialog.getCheckedElements();
+			final Set<?> selectedProjects = dialog.getCheckedElements();
 			final List<ISourceContainer> containers = new ArrayList<ISourceContainer>();
 			for (final IProject project : projects) {
 				if (selectedProjects.contains(project)) {

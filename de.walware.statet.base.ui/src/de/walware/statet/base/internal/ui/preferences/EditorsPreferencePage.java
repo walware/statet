@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.IStatusChangeListener;
-import de.walware.ecommons.databinding.NumberValidator;
+import de.walware.ecommons.databinding.IntegerValidator;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
 import de.walware.ecommons.preferences.Preference.IntPref;
@@ -264,7 +264,7 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 				null, null);
 		dbc.bindValue(SWTObservables.observeText(fCodeAssistDelayControl, SWT.Modify),
 				createObservable(fCodeAssistDelayPref),
-				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(10, 2000, Messages.Editors_CodeAssist_AutoTriggerDelay_error_message)), null);
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(10, 2000, Messages.Editors_CodeAssist_AutoTriggerDelay_error_message)), null);
 	}
 	
 }

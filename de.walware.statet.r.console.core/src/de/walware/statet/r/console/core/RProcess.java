@@ -24,7 +24,7 @@ import de.walware.statet.r.core.renv.IREnvConfiguration;
 /**
  * Process (in the Eclipse debug framework) for an R instance.
  */
-public class RProcess extends ToolProcess<RWorkspace> {
+public class RProcess extends ToolProcess {
 	
 	
 	private final IREnvConfiguration fREnvConfig;
@@ -49,6 +49,11 @@ public class RProcess extends ToolProcess<RWorkspace> {
 		fREnvConfig = renv;
 	}
 	
+	
+	@Override
+	public RWorkspace getWorkspaceData() {
+		return (RWorkspace) super.getWorkspaceData();
+	}
 	
 	@Override
 	public String createTimestampComment(final long timestamp) {

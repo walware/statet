@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.IStatusChangeListener;
-import de.walware.ecommons.databinding.NumberValidator;
+import de.walware.ecommons.databinding.IntegerValidator;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
@@ -327,7 +327,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 				null, null);
 		dbc.bindValue(SWTObservables.observeText(fFoldingDefaultMinLines, SWT.Modify),
 				createObservable(DefaultRFoldingPreferences.PREF_MINLINES_NUM),
-				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(2, 1000, Messages.REditorOptions_Folding_MinNumOfLines_error_message)), null);
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(2, 1000, Messages.REditorOptions_Folding_MinNumOfLines_error_message)), null);
 		dbc.bindValue(SWTObservables.observeSelection(fFoldingDefaultRoxygenControl),
 				createObservable(DefaultRFoldingPreferences.PREF_ROXYGEN_ENABLED),
 				null, null);
@@ -336,7 +336,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 				null, null);
 		dbc.bindValue(SWTObservables.observeText(fFoldingDefaultRoxygenMinLines, SWT.Modify),
 				createObservable(DefaultRFoldingPreferences.PREF_ROXYGEN_MINLINES_NUM),
-				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(2, 1000, Messages.REditorOptions_Folding_MinNumOfLines_error_message)), null);
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(2, 1000, Messages.REditorOptions_Folding_MinNumOfLines_error_message)), null);
 		
 		dbc.bindValue(SWTObservables.observeSelection(fMarkOccurrencesControl),
 				createObservable(REditorOptions.PREF_MARKOCCURRENCES_ENABLED),

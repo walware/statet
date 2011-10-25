@@ -89,7 +89,7 @@ public class LaunchConfigUtil {
 			envp.putAll(DebugPlugin.getDefault().getLaunchManager().getNativeEnvironmentCasePreserved());
 		}
 		
-		Map<String, String> custom = (configuration != null) ? configuration.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, (Map) null) : null;
+		Map<String, String> custom = (configuration != null) ? configuration.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, (Map<?, ?>) null) : null;
 		if (add != null) {
 			for (int i = 0; i < add.length; i++) {
 				if (add[i] != null) {

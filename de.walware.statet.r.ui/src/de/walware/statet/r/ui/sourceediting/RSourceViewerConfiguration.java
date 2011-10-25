@@ -394,7 +394,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	
 	@Override
 	protected Map getHyperlinkDetectorTargets(final ISourceViewer sourceViewer) {
-		final Map targets = super.getHyperlinkDetectorTargets(sourceViewer);
+		final Map<String, Object> targets = super.getHyperlinkDetectorTargets(sourceViewer);
 		targets.put("de.walware.statet.r.editorHyperlinks.REditorTarget", getSourceEditor()); //$NON-NLS-1$
 		return targets;
 	}

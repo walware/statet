@@ -46,6 +46,8 @@ public class RHelpSearchUIResult extends AbstractTextSearchResult {
 	
 	private static class ChangeEvent extends MatchEvent {
 		
+		private static final long serialVersionUID = -5266244762347509979L;
+		
 		public ChangeEvent(final ISearchResult searchResult) {
 			super(searchResult);
 		}

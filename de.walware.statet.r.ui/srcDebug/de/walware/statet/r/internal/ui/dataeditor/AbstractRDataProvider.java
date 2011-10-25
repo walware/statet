@@ -24,8 +24,8 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FastList;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;

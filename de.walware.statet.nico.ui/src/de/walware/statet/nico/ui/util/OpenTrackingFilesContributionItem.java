@@ -109,7 +109,7 @@ public class OpenTrackingFilesContributionItem extends CompoundContributionItem 
 	
 	@Override
 	protected IContributionItem[] getContributionItems() {
-		final List<ITrack> tracks = fTool.getTracks();
+		final List<? extends ITrack> tracks = fTool.getTracks();
 		final List<IContributionItem> items = new ArrayList<IContributionItem>(tracks.size());
 		for (int i = 0; i < tracks.size(); i++) {
 			final ITrack track = tracks.get(i);

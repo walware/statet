@@ -47,7 +47,6 @@ import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.text.IPartitionConstraint;
 import de.walware.ecommons.ts.ITool;
 
-import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 import de.walware.statet.nico.ui.console.InputDocument;
@@ -210,7 +209,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	private final IElementLabelProvider fLabelProvider = new RLabelProvider(RLabelProvider.NAMESPACE);
 	private ISourceEditor fEditor;
 	private RHeuristicTokenScanner fScanner;
-	private ToolProcess<RWorkspace> fProcess;
+	private RProcess fProcess;
 	
 	private final List<IRFrame>[] fEnvirList = new List[3];
 	private Set<String> fEnvirListPackages;

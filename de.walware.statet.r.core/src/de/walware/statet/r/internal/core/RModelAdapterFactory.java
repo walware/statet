@@ -19,7 +19,7 @@ import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 public class RModelAdapterFactory implements IAdapterFactory {
 	
 	
-	private static final Class[] ADAPTERS = new Class[] {
+	private static final Class<?>[] ADAPTERS = new Class<?>[] {
 		RHeuristicTokenScanner.class,
 	};
 	
@@ -28,7 +28,7 @@ public class RModelAdapterFactory implements IAdapterFactory {
 	}
 	
 	
-	public Class[] getAdapterList() {
+	public Class<?>[] getAdapterList() {
 		return ADAPTERS;
 	}
 	

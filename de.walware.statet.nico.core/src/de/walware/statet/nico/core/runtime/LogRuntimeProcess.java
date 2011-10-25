@@ -33,7 +33,7 @@ public class LogRuntimeProcess extends RuntimeProcess {
 	
 	
 	public LogRuntimeProcess(final ILaunch launch, final Process process, final String name,
-			final Map attributes) {
+			final Map<String, String> attributes) {
 		super(launch, process, name, attributes);
 	}
 	

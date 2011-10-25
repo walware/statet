@@ -379,6 +379,11 @@ public class RWorkspace extends ToolWorkspace {
 	}
 	
 	
+	@Override
+	public RProcess getProcess() {
+		return (RProcess) super.getProcess();
+	}
+	
 	public List<? extends ICombinedREnvironment> getRSearchEnvironments() {
 		final RObjectDB db = fRObjectDB;
 		return (db != null) ? db.fSearchEnvsPublic : null;
@@ -392,7 +397,7 @@ public class RWorkspace extends ToolWorkspace {
 				if (!onlyUptodata) {
 					return renv;
 				}
-				final ToolController<?> controller = getProcess().getController();
+				final ToolController controller = getProcess().getController();
 				if (controller != null && controller.getCounter() == renv.getStamp()) {
 					return renv;
 				}

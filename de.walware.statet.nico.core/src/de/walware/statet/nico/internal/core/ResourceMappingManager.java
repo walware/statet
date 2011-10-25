@@ -94,10 +94,6 @@ public class ResourceMappingManager implements IResourceMappingManager {
 			setPriority(BUILD);
 		}
 		
-		public void schedule(final List<ResourceMapping> list) {
-			schedule();
-		}
-		
 		@Override
 		protected IStatus run(final IProgressMonitor monitor) {
 			final List<ResourceMapping> list = fList;

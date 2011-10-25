@@ -39,7 +39,7 @@ public class RUtil {
 				if (!nextEscaped) {
 					result.append('\\');
 				}
-				// no break
+				//$FALL-THROUGH$
 			default:
 				nextEscaped = false;
 				result.append(c);

@@ -22,30 +22,28 @@ import de.walware.statet.nico.core.runtime.IToolEventHandler;
 public class ToolEventHandlerUtil {
 	
 	
+	@SuppressWarnings("unchecked")
 	public static <C> C getCheckedData(final Map<String, Object> data, final String name, final Class<C> clazz, final boolean required) {
 		final Object obj = data.get(name);
 		if (required && obj == null) {
 			throw new IllegalArgumentException("missing data entry: '" + name + '"');
 		}
-		try {
-			return (C) obj;
+		if (!clazz.isInstance(obj)) {
+			throw new IllegalArgumentException("incompatible data entry: '" + name + "' (" + obj.getClass().getName() + ")");
 		}
-		catch (final ClassCastException e) {
-			throw new IllegalArgumentException("incompatible data entry: '" + name + '"', e);
-		}
+		return (C) obj;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static <C> C getCheckedData(final Map<String, Object> data, final String name, final C defValue) {
 		final Object obj = data.get(name);
 		if (obj == null) {
 			return defValue;
 		}
-		try {
-			return (C) obj;
+		if (!defValue.getClass().isInstance(obj)) {
+			throw new IllegalArgumentException("incompatible data entry: '" + name + "' (" + obj.getClass().getName() + ")");
 		}
-		catch (final ClassCastException e) {
-			throw new IllegalArgumentException("incompatible data entry: '" + name + '"', e);
-		}
+		return (C) obj;
 	}
 	
 	

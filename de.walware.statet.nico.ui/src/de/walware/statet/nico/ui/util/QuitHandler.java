@@ -108,7 +108,7 @@ public class QuitHandler implements IToolEventHandler {
 		
 		final UIRunnable runner = new UIRunnable();
 		runner.fController = tools.getController();
-		final ToolProcess<?> process = runner.fController.getTool();
+		final ToolProcess process = runner.fController.getTool();
 		runner.fDialogTitle = NLS.bind(Messages.TerminatingMonitor_title, process.getLabel(ITool.DEFAULT_LABEL));
 		runner.fDialogMessage = NLS.bind(Messages.TerminatingMonitor_message, process.getLabel(ITool.LONG_LABEL));
 		runner.fDialogOptions = new String[] { Messages.TerminatingMonitor_WaitButton_label, Messages.TerminatingMonitor_ForceButton_label, Messages.TerminatingMonitor_CancelButton_label };

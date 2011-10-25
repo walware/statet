@@ -49,7 +49,7 @@ public class OpenInEditorHandler extends AbstractHandler {
 			final ToolProcess tool = browser.getTool();
 			final ITreeSelection selection;
 			setBaseEnabled(tool != null && !tool.isTerminated()
-					&& (selection = (ITreeSelection) browser.getSelection()).size() == 1
+					&& (selection = browser.getSelection()).size() == 1
 					&& selection.getFirstElement() instanceof RObject
 					&& RLiveDataEditorInput.isSupported((RObject) selection.getFirstElement()) );
 		}
@@ -61,7 +61,7 @@ public class OpenInEditorHandler extends AbstractHandler {
 			ObjectBrowserView browser = (ObjectBrowserView) activePart;
 			
 			final ToolProcess tool = browser.getTool();
-			final ITreeSelection selection = (ITreeSelection) browser.getSelection();
+			final ITreeSelection selection = browser.getSelection();
 			if (tool == null || selection == null || selection.size() != 1) {
 				return null;
 			}

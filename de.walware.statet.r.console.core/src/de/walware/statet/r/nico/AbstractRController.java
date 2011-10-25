@@ -30,7 +30,6 @@ import de.walware.ecommons.ts.IToolService;
 import de.walware.statet.nico.core.runtime.ITrack;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
-import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.util.TrackWriter;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 
@@ -46,7 +45,7 @@ import de.walware.statet.r.core.model.RElementName;
  * 
  * All implementations of {@link ToolController} for R should extends this class.
  */
-public abstract class AbstractRController extends ToolController<RWorkspace>
+public abstract class AbstractRController extends ToolController
 		implements IRBasicAdapter {
 	
 	
@@ -92,7 +91,7 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 	protected List<TrackingConfiguration> fTrackingConfigurations;
 	
 	
-	public AbstractRController(final ToolProcess process, final Map<String, Object> initData) {
+	public AbstractRController(final RProcess process, final Map<String, Object> initData) {
 		super(process, initData);
 		process.registerFeatureSet(RTool.R_BASIC_FEATURESET_ID);
 		fChanged = RWorkspace.REFRESH_COMPLETE;
@@ -106,6 +105,11 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 	@Override
 	public RProcess getTool() {
 		return (RProcess) super.getTool();
+	}
+	
+	@Override
+	public RWorkspace getWorkspaceData() {
+		return (RWorkspace) super.getWorkspaceData();
 	}
 	
 	@Override
@@ -197,7 +201,7 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 	
 	public void briefAboutChange(final Object changed, final int o) {
 		if (changed instanceof Collection) {
-			final Collection collection = (Collection) changed;
+			final Collection<?> collection = (Collection<?>) changed;
 			for (final Object object : collection) {
 				briefAboutChange(object, o);
 			}

@@ -272,7 +272,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 			}
 		};
 		dbc.bindValue(SWTObservables.observeText(fCmdText, SWT.Modify),
-				BeansObservables.observeDetailValue(realm, cmdSelection, "command", String.class), //$NON-NLS-1$
+				BeansObservables.observeDetailValue(cmdSelection, "command", String.class), //$NON-NLS-1$
 				new UpdateValueStrategy().setAfterGetValidator(cmdValidator),
 				new UpdateValueStrategy().setBeforeSetValidator(cmdValidator) );
 		dbc.bindValue(SWTObservables.observeText(fArgumentsControl.getTextControl(), SWT.Modify),

@@ -59,8 +59,7 @@ import de.walware.statet.nico.internal.core.RunnableProgressMonitor;
  * Methods with protected visibility and marked with an L at the end their names must be called only
  * within the lifecycle thread.
  */
-public abstract class ToolController<WorkspaceType extends ToolWorkspace>
-		implements IConsoleService {
+public abstract class ToolController implements IConsoleService {
 	
 	
 	/**
@@ -219,12 +218,13 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		
 		private final int fLevel;
 		
-		public SuspendedInsertRunnable(int level) {
+		public SuspendedInsertRunnable(final int level) {
 			super(SUSPENDED_INSERT_TYPE_ID, "Suspended [" + level + "]");
 			fLevel = level;
 		}
 		
-		public boolean changed(final int event, final ToolProcess process) {
+		@Override
+		public boolean changed(final int event, final ITool process) {
 			switch (event) {
 			case REMOVING_FROM:
 			case MOVING_FROM:
@@ -246,6 +246,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		}
 		
 		
+		@Override
 		public boolean changed(final int event, final ITool tool) {
 			if (event == MOVING_FROM) {
 				return false;
@@ -261,7 +262,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					runnable.run(service, monitor);
 				}
 				catch (CoreException e) {
-					final IStatus status = (e instanceof CoreException) ? ((CoreException) e).getStatus() : null;
+					final IStatus status = (e instanceof CoreException) ? e.getStatus() : null;
 					if (status != null && (status.getSeverity() == IStatus.CANCEL || status.getSeverity() <= IStatus.INFO)) {
 						// ignore
 					}
@@ -292,6 +293,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			return SubmitType.OTHER;
 		}
 		
+		@Override
 		public boolean changed(final int event, final ITool process) {
 			switch (event) {
 			case MOVING_FROM:
@@ -427,7 +429,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	private Object fSuspendEnterData;
 	private int fSuspendExitDetail;
 	
-	protected WorkspaceType fWorkspaceData;
+	protected ToolWorkspace fWorkspaceData;
 	
 	private final Map<String, IToolEventHandler> fHandlers = new HashMap<String, IToolEventHandler>();
 	
@@ -524,7 +526,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		return fStreams;
 	}
 	
-	public ToolProcess<WorkspaceType> getTool() {
+	public ToolProcess getTool() {
 		return fProcess;
 	}
 	
@@ -1671,7 +1673,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		fWorkspaceData.controlRefresh(options, this, monitor);
 	}
 	
-	public WorkspaceType getWorkspaceData() {
+	public ToolWorkspace getWorkspaceData() {
 		return fWorkspaceData;
 	}
 	

@@ -31,6 +31,7 @@ import org.eclipse.debug.internal.core.LaunchConfiguration;
  * Launch configuration which allows to adds temporary additional or overwrite existing
  * attributes to a launch configuration.
  */
+@SuppressWarnings("rawtypes")
 public class OverlayLaunchConfiguration extends LaunchConfiguration {
 	
 	
@@ -149,6 +150,7 @@ public class OverlayLaunchConfiguration extends LaunchConfiguration {
 	}
 	
 	@Override
+	@Deprecated
 	public IPath getLocation() {
 		return fLaunchConfiguration.getLocation();
 	}

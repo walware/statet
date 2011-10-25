@@ -177,6 +177,7 @@ public class FDef extends RAstNode {
 				if (fWithDefault) {
 					return fDefaultExpr.node;
 				}
+				//$FALL-THROUGH$
 			default:
 				throw new IndexOutOfBoundsException();
 			}

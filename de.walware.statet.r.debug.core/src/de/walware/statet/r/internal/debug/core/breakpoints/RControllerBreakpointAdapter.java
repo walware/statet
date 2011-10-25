@@ -234,7 +234,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 							positions = getPendingElementPositions(monitor);
 						}
 						installElementTracepoints(new ElementTracepointInstallationRequest(
-								(positions != null) ? positions : (List) Collections.EMPTY_LIST ), monitor );
+								(positions != null) ? positions : (List<Element>) Collections.EMPTY_LIST ), monitor );
 					}
 					{	final List<TracepointState> states;
 						synchronized (fStateUpdatesLock) {

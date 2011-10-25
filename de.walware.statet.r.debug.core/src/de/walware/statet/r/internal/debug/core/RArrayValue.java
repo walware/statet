@@ -28,9 +28,9 @@ public class RArrayValue extends RValue implements IIndexedValue {
 	public static final int LOAD_SIZE = 500;
 	
 	
-	protected RVector[] fData;
-	protected RVector fDimNames;
-	protected RVector[][] fDimEntryNames;
+	protected RVector<?>[] fData;
+	protected RVector<?> fDimNames;
+	protected RVector<?>[][] fDimEntryNames;
 	
 	protected final int fLength;
 	protected final RIntegerStore fDim;
@@ -40,7 +40,7 @@ public class RArrayValue extends RValue implements IIndexedValue {
 		super(variable);
 		
 		fLength = fVariable.fElement.getLength();
-		fDim = ((RArray) fVariable.fElement).getDim();
+		fDim = ((RArray<?>) fVariable.fElement).getDim();
 	}
 	
 	

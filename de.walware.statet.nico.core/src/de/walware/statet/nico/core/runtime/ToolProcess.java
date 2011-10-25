@@ -44,8 +44,7 @@ import de.walware.statet.nico.core.runtime.ToolWorkspace.Listener;
 /**
  * Provides <code>IProcess</code> for a <code>ToolController</code>.
  */
-public class ToolProcess<WorkspaceType extends ToolWorkspace>
-		extends PlatformObject implements IProcess, ITool, IToolStatusListener {
+public class ToolProcess extends PlatformObject implements IProcess, ITool, IToolStatusListener {
 	
 	public static final String PROCESS_TYPE_SUFFIX = ".nico"; //$NON-NLS-1$
 	
@@ -140,10 +139,10 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	private String fStartupWD;
 	Map<String, Object> fInitData;
 	
-	private ToolController<WorkspaceType> fController;
+	private ToolController fController;
 	private final Queue fQueue;
 	private final History fHistory;
-	private WorkspaceType fWorkspaceData;
+	private ToolWorkspace fWorkspaceData;
 	
 	private final Object fDisposeLock = new Object();
 	private int fRetain;
@@ -155,7 +154,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	private volatile ToolStatus fStatus = ToolStatus.STARTING;
 	volatile int fExitValue = 0;
 	
-	private List<ITrack> fTracks = Collections.emptyList();
+	private List<? extends ITrack> fTracks = Collections.emptyList();
 	
 	
 	public ToolProcess(final ILaunch launch, final String mainType,
@@ -201,7 +200,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		fHistory = new History(this);
 	}
 	
-	public void init(final ToolController<WorkspaceType> controller) {
+	public void init(final ToolController controller) {
 		fController = controller;
 		fWorkspaceData = fController.fWorkspaceData;
 		fWorkspaceData.addPropertyListener(new Listener() {
@@ -343,7 +342,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	}
 	
 	
-	public WorkspaceType getWorkspaceData() {
+	public ToolWorkspace getWorkspaceData() {
 		return fWorkspaceData;
 	}
 	
@@ -575,11 +574,11 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		}
 	}
 	
-	void setTracks(final List<ITrack> tracks) {
+	void setTracks(final List<? extends ITrack> tracks) {
 		fTracks = tracks;
 	}
 	
-	public List<ITrack> getTracks() {
+	public List<? extends ITrack> getTracks() {
 		return fTracks;
 	}
 	

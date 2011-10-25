@@ -43,6 +43,7 @@ import de.walware.ecommons.ts.IToolRunnable;
 
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 import de.walware.statet.nico.internal.ui.ToolRegistry;
 import de.walware.statet.nico.ui.console.NIConsole;
@@ -161,7 +162,7 @@ public class NicoUITools {
 	 * @return the controller of the tool
 	 * @throws CoreException if tool is missing, wrong type or terminated
 	 */
-	public static ToolController accessController(final String type, final ToolProcess process) throws CoreException {
+	public static <W extends ToolWorkspace> ToolController accessController(final String type, final ToolProcess process) throws CoreException {
 		return accessController(type, null, process);
 	}
 	
@@ -173,7 +174,7 @@ public class NicoUITools {
 	 * @return the controller of the tool
 	 * @throws CoreException if tool is missing, wrong type or terminated
 	 */
-	public static ToolController accessController(final String type, final String featureSetId, final ToolProcess process) throws CoreException {
+	public static <W extends ToolWorkspace> ToolController accessController(final String type, final String featureSetId, final ToolProcess process) throws CoreException {
 		accessTool(type, process);
 		final ToolController controller = process.getController();
 		if (controller == null) {
@@ -195,7 +196,7 @@ public class NicoUITools {
 	 * @return the controller of the tool
 	 * @throws CoreException if tool is missing, wrong type or terminated
 	 */
-	public static ToolController getController(final String type, final String featureSetId, final ToolProcess process) {
+	public static <W extends ToolWorkspace> ToolController getController(final String type, final String featureSetId, final ToolProcess process) {
 		if (process == null || (type != null && !type.equals(process.getMainType()))) {
 			return null;
 		}
@@ -326,7 +327,7 @@ public class NicoUITools {
 	 * @return
 	 * @throws PartInitException 
 	 */
-	public static IViewPart getView(final String viewId, final ToolProcess<?> tool,
+	public static IViewPart getView(final String viewId, final ToolProcess tool,
 			final boolean createNew) throws PartInitException {
 		IViewPart view = null;
 		

@@ -86,7 +86,7 @@ public class ToolRunner {
 	}
 	
 	public <WorkspaceType extends ToolWorkspace> void runInBackgroundThread(
-			final ToolProcess<WorkspaceType> process, final IStatusHandler handler) {
+			final ToolProcess process, final IStatusHandler handler) {
 		if (process == null || handler == null) {
 			throw new NullPointerException();
 		}

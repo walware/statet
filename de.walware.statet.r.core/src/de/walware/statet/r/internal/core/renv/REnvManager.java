@@ -428,9 +428,9 @@ public class REnvManager implements IREnvManager {
 		if (id == null) {
 			return null;
 		}
-		final IREnv rEnv = null;
+		IREnv rEnv = null;
 		if (id.equals(IREnv.DEFAULT_WORKBENCH_ENV_ID)) {
-			fDefaultEnv.resolve();
+			rEnv = fDefaultEnv.resolve();
 		}
 		if (rEnv != null) {
 			return rEnv.getId();

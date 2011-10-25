@@ -214,14 +214,6 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		private final FastArrayBufferList<Entry> fToRemove = new FastArrayBufferList<Entry>(Entry.class, 16);
 		private Entry[] fNewEntrys;
 		
-		public synchronized void disable() {
-			fCurrentSource = null;
-			
-			fNewEntrys = null;
-			fToAdd.clear();
-			fToRemove.clear();
-		}
-		
 		public synchronized void setNewSource(final History source, final Entry[] es) {
 			fCurrentSource = source;
 			

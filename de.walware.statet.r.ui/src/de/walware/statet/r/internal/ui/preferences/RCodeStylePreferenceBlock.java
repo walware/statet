@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.IStatusChangeListener;
-import de.walware.ecommons.databinding.NumberValidator;
+import de.walware.ecommons.databinding.IntegerValidator;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -224,7 +224,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
 		dbc.bindValue(SWTObservables.observeText(fTabSize, SWT.Modify),
 				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_TAB_SIZE),
-				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 32, Messages.RCodeStyle_TabSize_error_message)),
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(1, 32, Messages.RCodeStyle_TabSize_error_message)),
 				null);
 		
 		final IObservableValue indentObservable = ViewersObservables.observeSingleSelection(fIndentPolicy);
@@ -244,19 +244,19 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 				null, null);
 		dbc.bindValue(SWTObservables.observeText(fIndentSpaceCount, SWT.Modify),
 				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_SPACES_COUNT),
-				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 32, Messages.RCodeStyle_Indent_NumOfSpaces_error_message)),
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(1, 32, Messages.RCodeStyle_Indent_NumOfSpaces_error_message)),
 				null);
 		dbc.bindValue(SWTObservables.observeText(fIndentBlockDepth, SWT.Modify),
 				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_BLOCK_DEPTH),
-				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 10, Messages.RCodeStyle_Indent_IndentInBlocks_error_message)),
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(1, 10, Messages.RCodeStyle_Indent_IndentInBlocks_error_message)),
 				null);
 		dbc.bindValue(SWTObservables.observeText(fIndentGroupDepth, SWT.Modify),
 				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_GROUP_DEPTH),
-				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 10, Messages.RCodeStyle_Indent_IndentInGroups_error_message)),
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(1, 10, Messages.RCodeStyle_Indent_IndentInGroups_error_message)),
 				null);
 		dbc.bindValue(SWTObservables.observeText(fIndentWrappedCommandDepth, SWT.Modify),
 				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_WRAPPED_COMMAND_DEPTH),
-				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 10, Messages.RCodeStyle_Indent_IndentOfWrappedCommands_error_message)),
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(1, 10, Messages.RCodeStyle_Indent_IndentOfWrappedCommands_error_message)),
 				null);
 		dbc.bindValue(SWTObservables.observeSelection(fReplaceOtherTabs),
 				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_REPLACE_TABS_WITH_SPACES),

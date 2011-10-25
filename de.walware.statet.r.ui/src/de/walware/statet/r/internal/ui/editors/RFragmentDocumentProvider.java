@@ -33,16 +33,16 @@ import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
 public class RFragmentDocumentProvider extends FragmentDocumentProvider {
 	
 	
-	private final Map<ToolProcess<?>, ProcessListener> fProcesses = new HashMap<ToolProcess<?>, ProcessListener>();
+	private final Map<ToolProcess, ProcessListener> fProcesses = new HashMap<ToolProcess, ProcessListener>();
 	
 	
 	private class ProcessListener implements IDebugEventSetListener {
 		
-		private final ToolProcess<?> fProcess;
+		private final ToolProcess fProcess;
 		
 		private final List<Object> fElements = new ArrayList<Object>(4);
 		
-		public ProcessListener(final ToolProcess<?> process) {
+		public ProcessListener(final ToolProcess process) {
 			fProcess = process;
 			
 			init();

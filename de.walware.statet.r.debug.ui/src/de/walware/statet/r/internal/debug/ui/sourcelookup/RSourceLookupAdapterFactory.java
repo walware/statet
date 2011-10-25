@@ -29,7 +29,7 @@ public class RSourceLookupAdapterFactory implements IAdapterFactory,
 		IWorkbenchAdapter, IContributorResourceAdapter {
 	
 	
-	private static final Class[] ADAPTERS = new Class[] {
+	private static final Class<?>[] ADAPTERS = new Class<?>[] {
 		IWorkbenchAdapter.class,
 		IContributorResourceAdapter.class,
 	};
@@ -40,7 +40,7 @@ public class RSourceLookupAdapterFactory implements IAdapterFactory,
 	}
 	
 	
-	public Class[] getAdapterList() {
+	public Class<?>[] getAdapterList() {
 		return ADAPTERS;
 	}
 	

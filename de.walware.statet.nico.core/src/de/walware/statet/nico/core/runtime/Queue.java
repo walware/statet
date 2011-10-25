@@ -148,7 +148,7 @@ public final class Queue implements IQueue {
 	private int fFinishedCacheDetail = -1;
 	private final List<DebugEvent> fEventList = new ArrayList<DebugEvent>(5);
 	
-	private final ToolProcess<?> fProcess;
+	private final ToolProcess fProcess;
 	
 	int fCounter = 1;
 	int fCounterNext = fCounter+1;
@@ -160,7 +160,7 @@ public final class Queue implements IQueue {
 	private final LinkedList<IToolRunnable> fHotList = new LinkedList<IToolRunnable>();
 	
 	
-	Queue(final ToolProcess<?> process) {
+	Queue(final ToolProcess process) {
 		fProcess = process;
 	}
 	
@@ -458,7 +458,7 @@ public final class Queue implements IQueue {
 				fHotList.add(runnable);
 				if (fHotList.size() > 0) {
 					notifyAll();
-					final ToolController<?> controller = fProcess.getController();
+					final ToolController controller = fProcess.getController();
 					if (controller != null) {
 						controller.scheduleHotMode();
 					}

@@ -82,6 +82,7 @@ abstract class SpecItem extends RAstNode {
 				if (fValueExpr != null) {
 					return fValueExpr.node;
 				}
+				//$FALL-THROUGH$
 			default:
 				throw new IndexOutOfBoundsException();
 			}

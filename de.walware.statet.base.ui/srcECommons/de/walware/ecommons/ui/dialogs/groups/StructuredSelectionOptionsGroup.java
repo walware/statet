@@ -140,7 +140,6 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 		return (IStructuredSelection) fSelectionViewer.getSelection();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public ItemT getSingleItem(IStructuredSelection selection) {
 		if (selection.size() == 1) {
 			return (ItemT) selection.getFirstElement(); 

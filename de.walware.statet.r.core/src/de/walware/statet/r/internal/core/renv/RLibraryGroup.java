@@ -20,15 +20,29 @@ import de.walware.statet.r.core.renv.IRLibraryGroup;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
 
 
-public class RLibraryGroup implements IRLibraryGroup {
+public abstract class RLibraryGroup implements IRLibraryGroup {
 	
 	
-	private static List<RLibraryLocation.Editable> toWorkingCopy(final List<RLibraryLocation> locations) {
-		final List<RLibraryLocation.Editable> copies = new ArrayList<RLibraryLocation.Editable>(locations.size());
-		for (final RLibraryLocation location : locations) {
-			copies.add(location.createWorkingCopy());
+	private static List<IRLibraryLocation.WorkingCopy> toWorkingCopy(final List<? extends IRLibraryLocation> locations) {
+		final List<IRLibraryLocation.WorkingCopy> copies = new ArrayList<IRLibraryLocation.WorkingCopy>(locations.size());
+		for (final IRLibraryLocation location : locations) {
+			copies.add(((RLibraryLocation) location).createWorkingCopy());
 		}
 		return copies;
+	}
+	
+	public static class Final extends RLibraryGroup {
+		
+		
+		public Final(final String id, final String label, final List<RLibraryLocation> libraries) {
+			super(id, label, libraries);
+		}
+		
+		public Final(final RLibraryGroup template) {
+			super(template.getId(), template.getLabel(),
+					new ConstList<IRLibraryLocation>(template.getLibraries() ));
+		}
+		
 	}
 	
 	public static class Editable extends RLibraryGroup implements WorkingCopy {
@@ -40,7 +54,7 @@ public class RLibraryGroup implements IRLibraryGroup {
 		}
 		
 		public Editable(final String id, final String label) {
-			super(id, label, new ArrayList<IRLibraryLocation>());
+			super(id, label, new ArrayList<IRLibraryLocation.WorkingCopy>());
 		}
 		
 		
@@ -48,23 +62,23 @@ public class RLibraryGroup implements IRLibraryGroup {
 			return new RLibraryLocation.Editable(path);
 		}
 		
+		@Override
+		public List<IRLibraryLocation.WorkingCopy> getLibraries() {
+			return (List<IRLibraryLocation.WorkingCopy>) fLibraries;
+		}
+		
 	}
 	
 	
 	private final String fId;
 	private String fLabel;
-	protected final List fLibraries;
+	protected final List<? extends IRLibraryLocation> fLibraries;
 	
 	
-	public RLibraryGroup(final String id, final String label, final List<? extends IRLibraryLocation> libraries) {
+	private RLibraryGroup(final String id, final String label, final List<? extends IRLibraryLocation> libraries) {
 		fId = id;
 		fLabel = label;
 		fLibraries = libraries;
-	}
-	
-	public RLibraryGroup(final IRLibraryGroup template) {
-		this(template.getId(), template.getLabel(),
-				new ConstList<IRLibraryLocation>(template.getLibraries() ));
 	}
 	
 	
@@ -80,7 +94,7 @@ public class RLibraryGroup implements IRLibraryGroup {
 		fLabel = label;
 	}
 	
-	public List getLibraries() {
+	public List<? extends IRLibraryLocation> getLibraries() {
 		return fLibraries;
 	}
 	

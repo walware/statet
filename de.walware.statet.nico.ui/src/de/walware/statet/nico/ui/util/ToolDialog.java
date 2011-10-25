@@ -37,7 +37,7 @@ public abstract class ToolDialog extends TitleAreaDialog {
 	private final String fDialogTitle;
 	private final Image fDialogImage;
 	
-	private final ToolProcess<?> fTool;
+	private final ToolProcess fTool;
 	
 	
 	/**

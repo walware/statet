@@ -340,6 +340,7 @@ public class RAst {
 					}
 				}
 			}
+			break;
 		case F_CALL_ARGS:
 			return checkAssign(node.getRParent());
 		case F_CALL_ARG:

@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.IStatusChangeListener;
-import de.walware.ecommons.databinding.NumberValidator;
+import de.walware.ecommons.databinding.IntegerValidator;
 import de.walware.ecommons.databinding.jface.AbstractSWTObservableValue;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
@@ -305,7 +305,7 @@ class RHelpConfigurationBlock extends ManagedConfigurationBlock {
 				createObservable(RHelpPreferences.SEARCH_REUSE_PAGE_ENABLED_PREF) );
 		dbc.bindValue( SWTObservables.observeText(fSearchMaxFragmentsControl, SWT.Modify),
 				createObservable(RHelpPreferences.SEARCH_PREVIEW_FRAGMENTS_MAX_PREF),
-				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 1000,
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(1, 1000,
 						"Invalid maximum for preview fragments specified (1-1000).")), null);
 	}
 	
