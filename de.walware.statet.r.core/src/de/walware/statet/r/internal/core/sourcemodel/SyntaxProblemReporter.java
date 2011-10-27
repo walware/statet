@@ -49,6 +49,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -127,10 +128,11 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	}
 	
 	
-	public void run(final IRSourceUnit unit, final RAstInfo ast, final IProblemRequestor problemRequestor) {
+	public void run(final IRSourceUnit unit, final AbstractDocument doc,
+			final RAstInfo ast, final IProblemRequestor problemRequestor) {
 		try {
 			fCurrentUnit = unit;
-			fCurrentDoc = unit.getDocument(null);
+			fCurrentDoc = doc;
 			fMaxOffset = fCurrentDoc.getLength();
 			fCurrentRequestor = problemRequestor;
 			ast.root.acceptInR(this);

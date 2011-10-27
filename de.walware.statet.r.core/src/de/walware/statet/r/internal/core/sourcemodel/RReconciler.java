@@ -14,6 +14,8 @@ package de.walware.statet.r.internal.core.sourcemodel;
 import com.ibm.icu.text.DecimalFormat;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.text.AbstractDocument;
+import org.eclipse.jface.text.ISynchronizable;
 
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
@@ -115,24 +117,35 @@ public class RReconciler {
 			if (fStop) {
 				return null;
 			}
-			// Report problems
-			if (reconciler) {
-				final IProblemRequestor problemRequestor = su.getProblemRequestor();
-				if (problemRequestor != null) {
-					problemRequestor.beginReportingSequence();
-					f2SyntaxReporter.run(su, data.ast, problemRequestor);
-					problemRequestor.endReportingSequence();
-				}
-			}
 			
-			if (fStop) {
-				return null;
-			}
 			// Throw event
 			if (updated && data.newModel != null && (data.oldModel == null || data.oldModel.getStamp() != data.newModel.getStamp())) {
 				fManager.getEventJob().addUpdate(su, data.oldModel, data.newModel);
 			}
 		}
+		
+		if (reconciler) {
+			if (fStop) {
+				return null;
+			}
+			
+			// Report problems
+			final IProblemRequestor problemRequestor = su.getProblemRequestor();
+			if (problemRequestor != null) {
+				AbstractDocument doc = su.getDocument(monitor);
+				if (doc != null) {
+					synchronized ((doc instanceof ISynchronizable) ?
+							((ISynchronizable) doc).getLockObject() : new Object()) {
+						problemRequestor.beginReportingSequence();
+						synchronized (f2SyntaxReporter) {
+							f2SyntaxReporter.run(su, doc, data.ast, problemRequestor);
+						}
+						problemRequestor.endReportingSequence();
+					}
+				}
+			}
+		}
+		
 		return data.newModel;
 	}
 	
