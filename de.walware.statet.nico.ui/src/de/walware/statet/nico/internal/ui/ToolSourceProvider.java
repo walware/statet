@@ -65,11 +65,11 @@ public class ToolSourceProvider extends AbstractSourceProvider implements IWindo
 	
 	public ToolSourceProvider() {
 		fCreatedListeners = new ArrayList<RegistryListerner>();
+		fRegistry = NicoUIPlugin.getDefault().getToolRegistry();
 		PlatformUI.getWorkbench().addWindowListener(this);
 		for (final IWorkbenchWindow window : PlatformUI.getWorkbench().getWorkbenchWindows()) {
 			windowOpened(window);
 		};
-		fRegistry = NicoUIPlugin.getDefault().getToolRegistry();
 	}
 	
 	
@@ -80,6 +80,7 @@ public class ToolSourceProvider extends AbstractSourceProvider implements IWindo
 				fRegistry.removeListener(iter.next());
 				iter.remove();
 			}
+			fCreatedListeners.clear();
 		}
 	}
 	
