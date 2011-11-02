@@ -755,4 +755,13 @@ public class RAst {
 		return node;
 	}
 	
+	public static boolean isParentChild(final RAstNode parent, RAstNode child) {
+		while ((child = child.getRParent()) != null) {
+			if (child == parent) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 }

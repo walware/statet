@@ -229,7 +229,7 @@ public class RLineBreakpointValidator {
 					}
 					
 					fBaseExpressionRootNode = ((FDef) fBaseElement.getAdapter(FDef.class)).getContChild();
-					if (fBaseExpressionRootNode == null || fBaseExpressionRootNode.getNodeType() != NodeType.BLOCK) {
+					if (!isBaseExpressionRootNodeValid()) {
 //						new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, "Only in blocks.");
 						setInvalid();
 						return;
@@ -269,14 +269,14 @@ public class RLineBreakpointValidator {
 					}
 					
 					if (fBaseElement != fMethodElement) {
-						fBaseExpressionRootNode = ((FDef) fBaseElement.getAdapter(FDef.class)).getContChild();
-						if (fBaseExpressionRootNode == null || fBaseExpressionRootNode.getNodeType() != NodeType.BLOCK) {
-//							new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, "Only in blocks.");
+						fAstNode = ((FDef) fMethodElement.getAdapter(FDef.class)).getContChild();
+						if (fAstNode == null) {
 							setInvalid();
 							return;
 						}
-						fAstNode = ((FDef) fMethodElement.getAdapter(FDef.class)).getContChild();
-						if (fAstNode == null) {
+						fBaseExpressionRootNode = ((FDef) fBaseElement.getAdapter(FDef.class)).getContChild();
+						if (!isBaseExpressionRootNodeValid()) {
+//							new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, "Only in blocks.");
 							setInvalid();
 							return;
 						}
@@ -294,6 +294,12 @@ public class RLineBreakpointValidator {
 		catch (final BadLocationException e) {
 			setInvalid();
 		}
+	}
+	
+	private boolean isBaseExpressionRootNodeValid() {
+		return (fBaseExpressionRootNode != null
+				&& fBaseExpressionRootNode.getNodeType() == NodeType.BLOCK
+				&& RAst.isParentChild(fBaseExpressionRootNode, fAstNode) );
 	}
 	
 	private IRModelInfo getModelInfo(final IProgressMonitor monitor) {
