@@ -216,13 +216,24 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			if (s != null && s.length() > 0) {
 				try {
 					port = Integer.parseInt(s);
-					registry = RMIUtil.INSTANCE.getRegistry(port);
+					final RMIAddress registryAddress = new RMIAddress(RMIAddress.LOOPBACK, port, null);
+					registry = new RMIRegistry(registryAddress, null, true);
 					requireCodebase = true;
 				}
-				catch (NumberFormatException e) {
+				catch (final NumberFormatException e) {
 					throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
 							ICommonStatusConstants.LAUNCHCONFIG_ERROR,
-							RConsoleMessages.LaunchDelegate_error_InvalidAddress_message, e));
+							"The registry port specified by 'de.walware.statet.r.console.rmiRegistryPort' is invalid.", e ));
+				}
+				catch (final MalformedURLException e) {
+					throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
+							ICommonStatusConstants.LAUNCHCONFIG_ERROR,
+							"The registry port specified by 'de.walware.statet.r.console.rmiRegistryPort' is invalid.", e ));
+				}
+				catch (final RemoteException e) {
+					throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
+							ICommonStatusConstants.LAUNCHCONFIG_ERROR,
+							"Connection setup to the registry specified by 'de.walware.statet.r.console.rmiRegistryPort' failed.", e ));
 				}
 			}
 			else {
@@ -285,7 +296,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			
 			// Wait until the engine is started or died
 			progress.subTask(RConsoleMessages.LaunchDelegate_WaitForR_subtask);
-			long t = System.nanoTime();
+			final long t = System.nanoTime();
 			WAIT: for (int i = 0; true; i++) {
 				if (processes[0].isTerminated()) {
 					final boolean silent = configuration.getAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, true);
