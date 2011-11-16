@@ -113,6 +113,21 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 		}
 	}
 	
+	/**
+	 * Creates a new rename refactoring
+	 * 
+	 * @param unit the source unit
+	 * @param region (selected) region of an occurrence of the variable
+	 */
+	public RenameInWorkspaceRefactoring(final IRWorkspaceSourceUnit su, final RAstNode node) {
+		fSourceUnit = su;
+		fElementSet = new RefactoringElementSet(new Object[] { su });
+		
+		if (node.getNodeType() == NodeType.SYMBOL || node.getNodeType() == NodeType.STRING_CONST) {
+			fInitialSymbolNode = node;
+		}
+	}
+	
 	
 	@Override
 	public String getName() {

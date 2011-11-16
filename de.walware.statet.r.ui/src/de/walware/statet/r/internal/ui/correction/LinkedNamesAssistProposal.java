@@ -9,7 +9,7 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.editors;
+package de.walware.statet.r.internal.ui.correction;
 
 import java.util.Arrays;
 
@@ -25,10 +25,10 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension5;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.link.LinkedModeModel;
 import org.eclipse.jface.text.link.LinkedModeUI;
-import org.eclipse.jface.text.link.LinkedPosition;
-import org.eclipse.jface.text.link.LinkedPositionGroup;
 import org.eclipse.jface.text.link.LinkedModeUI.ExitFlags;
 import org.eclipse.jface.text.link.LinkedModeUI.IExitPolicy;
+import org.eclipse.jface.text.link.LinkedPosition;
+import org.eclipse.jface.text.link.LinkedPositionGroup;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Image;
@@ -48,13 +48,14 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 
 public class LinkedNamesAssistProposal implements ICompletionProposal, ICompletionProposalExtension2, ICompletionProposalExtension5 {
 	
+	
 	/**
 	 * An exit policy that skips Backspace and Delete at the beginning and at the end
 	 * of a linked position, respectively.
 	 */
 	public static class DeleteBlockingExitPolicy implements IExitPolicy {
 		
-		private IDocument fDocument;
+		private final IDocument fDocument;
 		
 		public DeleteBlockingExitPolicy(final IDocument document) {
 			fDocument = document;
@@ -93,12 +94,15 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	public static final int IN_FILE_FOLLOWING = 3;
 	
 	
-	private int fMode;
-	private AssistInvocationContext fContext;
-	private RElementAccess fAccess;
+	private final AssistInvocationContext fContext;
+	
+	private final RElementAccess fAccess;
+	private final int fMode;
+	
+	private String fValueSuggestion;
+	
 	private String fLabel;
 	private String fDescription;
-	private String fValueSuggestion;
 	private int fRelevance;
 	
 	

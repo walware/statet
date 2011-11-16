@@ -309,7 +309,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 		
 		// Get node
-		final AstSelection astSelection = context.getAstSelection();
+		final AstSelection astSelection = context.getInvocationAstSelection();
 		IAstNode node = astSelection.getCovering();
 		if (node == null) {
 			node = context.getAstInfo().getRootNode();

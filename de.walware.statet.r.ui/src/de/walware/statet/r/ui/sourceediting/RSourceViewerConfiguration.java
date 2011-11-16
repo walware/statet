@@ -363,6 +363,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	protected IQuickAssistAssistant createQuickAssistant(final ISourceViewer sourceViewer) {
 		final QuickAssistAssistant assistant = new QuickAssistAssistant();
 		assistant.setQuickAssistProcessor(new RQuickAssistProcessor(fEditor));
+		assistant.enableColoredLabels(true);
 		return assistant;
 	}
 	

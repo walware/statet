@@ -23,8 +23,14 @@ import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.QuickAssistProcessor;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 
+import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
+import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.internal.ui.correction.LinkedNamesAssistProposal;
+import de.walware.statet.r.internal.ui.correction.RenameInRegionAssistProposal;
+import de.walware.statet.r.internal.ui.correction.RenameInWorkspaceAssistProposal;
 
 
 public class RQuickAssistProcessor extends QuickAssistProcessor {
@@ -55,25 +61,30 @@ public class RQuickAssistProcessor extends QuickAssistProcessor {
 		}
 		final RAstNode node = (RAstNode) context.getAstSelection().getCovering();
 		
-		RAstNode candidate = node;
-		SEARCH_ACCESS : while (candidate != null) {
-			final Object[] attachments = candidate.getAttachments();
-			for (int i = 0; i < attachments.length; i++) {
-				if (attachments[i] instanceof RElementAccess) {
-					RElementAccess access = (RElementAccess) attachments[i]; 
-					SUB: while (access != null) {
-						if (access.getSegmentName() == null) {
-							break SUB;
+		if (node.getNodeType() == NodeType.SYMBOL || node.getNodeType() == NodeType.STRING_CONST) {
+			RAstNode candidate = node;
+			SEARCH_ACCESS : while (candidate != null) {
+				final Object[] attachments = candidate.getAttachments();
+				for (int i = 0; i < attachments.length; i++) {
+					if (attachments[i] instanceof RElementAccess) {
+						RElementAccess access = (RElementAccess) attachments[i]; 
+						SUB: while (access != null) {
+							if (access.getSegmentName() == null) {
+								break SUB;
+							}
+							if (access.getNameNode() == node) {
+								addAccessAssistProposals(proposals, context, access);
+								break SEARCH_ACCESS;
+							}
+							access = access.getNextSegment();
 						}
-						if (access.getNameNode() == node) {
-							addAccessAssistProposals(proposals, context, access);
-							break SEARCH_ACCESS;
-						}
-						access = access.getNextSegment();
 					}
 				}
+				candidate = candidate.getRParent();
 			}
-			candidate = candidate.getRParent();
+		}
+		else if (context.getLength() > 0 && context.getSourceUnit() instanceof IRSourceUnit) {
+			proposals.add(new RenameInRegionAssistProposal(context));
 		}
 	}
 	
@@ -93,6 +104,9 @@ public class RQuickAssistProcessor extends QuickAssistProcessor {
 				proposals.add(new LinkedNamesAssistProposal(LinkedNamesAssistProposal.IN_FILE_PRECEDING, invocationContext, access));
 				proposals.add(new LinkedNamesAssistProposal(LinkedNamesAssistProposal.IN_FILE_FOLLOWING, invocationContext, access));
 			}
+		}
+		if (invocationContext.getSourceUnit() instanceof IRWorkspaceSourceUnit) {
+			proposals.add(new RenameInWorkspaceAssistProposal(invocationContext, access.getNameNode()));
 		}
 	}
 	
