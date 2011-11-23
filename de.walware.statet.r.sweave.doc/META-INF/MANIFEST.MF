@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Vendor: WalWare.de
+Bundle-Name: StatET R Sweave Documentation
+Bundle-SymbolicName: de.walware.statet.r.sweave.doc;singleton:=true
+Bundle-Version: 3.0.0.qualifier
+Bundle-ActivationPolicy: lazy
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.help

@@ -586,15 +586,5 @@
          </dynamic>
       </menuContribution>
    </extension>
-   <extension
-         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
-      <cheatsheet
-            id="de.walware.statet.r.cheatSheetContent.SweaveConfigProcessing"
-            category="de.walware.statet.r.cheatSheetCategories.R"
-            contentFile="cheatSheets/sweave-configure_document_building.xml"
-            composite="false"
-            name="Configure Sweave Document Building">
-      </cheatsheet>
-   </extension>
 
 </plugin>

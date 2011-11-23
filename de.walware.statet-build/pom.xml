@@ -28,6 +28,7 @@
 		
 		<module>../../texlipse/net.sourceforge.texlipse</module>
 		<module>../de.walware.statet.r.sweave</module>
+		<module>../de.walware.statet.r.sweave.doc</module>
 	</modules>
 	
 	<properties>
