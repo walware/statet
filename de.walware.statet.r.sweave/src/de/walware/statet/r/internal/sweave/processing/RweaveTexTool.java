@@ -20,6 +20,7 @@ import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDele
 import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.VARNAME_SWEAVE_FILE;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
@@ -58,7 +59,9 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.io.FileUtil;
+import de.walware.ecommons.io.FileValidator;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
@@ -99,6 +102,16 @@ class RweaveTexTool implements Runnable, IProcess {
 	private static final int TICKS_OPEN_TEX = 5;
 	private static final int TICKS_OPEN_OUTPUT = 20;
 	private static final int TICKS_REST = 10;
+	
+	
+	public static final List<String> SWEAVE_FOLDER_VARNAMES = new ConstList<String>(
+			VARNAME_SWEAVE_FILE );
+	public static final List<String> SWEAVE_COMMAND_VARNAMES = new ConstList<String>(
+			VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE, VARNAME_OUTPUT_FILE );
+	public static final List<String> OUTPUT_DIR_VARNAMES = new ConstList<String>(
+			VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE );
+	public static final List<String> TEX_COMMAND_VARNAMES = new ConstList<String>(
+			VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE, VARNAME_OUTPUT_FILE );
 	
 	
 	private class R implements IToolRunnable {
@@ -142,14 +155,27 @@ class RweaveTexTool implements Runnable, IProcess {
 		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
-			IRBasicAdapter r = (IRBasicAdapter) service;
+			final IRBasicAdapter r = (IRBasicAdapter) service;
 			try {
 				final ToolWorkspace workspace = r.getWorkspaceData();
-				r.refreshWorkspaceData(0, monitor);
-				updatePathInformations(r.getWorkspaceData());
+				if (fWorkingFolder == null) {
+					r.refreshWorkspaceData(0, monitor);
+					updatePathInformations(r.getWorkspaceData());
+				}
+				else {
+					String path = workspace.toToolPath(fWorkingFolder);
+					path = RUtil.escapeBackslash(path);
+					r.submitToConsole("setwd(\""+path+"\")", monitor);
+					r.refreshWorkspaceData(0, monitor);
+					if (!fWorkingFolder.equals(workspace.getWorkspaceDir())) {
+						fStatus.add(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID,
+								"Failed to set the R working directory." ));
+					}
+				}
 				if (fStatus.getSeverity() >= IStatus.ERROR) {
 					return;
 				}
+				
 				if (beginSchedulingRule(monitor)) {
 					final LocationProcessor processor = new LocationProcessor() {
 						@Override
@@ -167,6 +193,9 @@ class RweaveTexTool implements Runnable, IProcess {
 						progress.beginTask(Messages.RweaveTexProcessing_Sweave_InConsole_label, 100);
 						
 						try {
+							fSweaveRCommands.set(VARNAME_SWEAVE_FILE, fSweaveFile.getFullPath().toString());
+							fSweaveRCommands.set(VARNAME_LATEX_FILE, fTexFile.getFullPath().toString());
+							fSweaveRCommands.set(VARNAME_OUTPUT_FILE, fTexPathConfig.getOutputFile().getFullPath().toString());
 							fSweaveRCommands.performFinalStringSubstitution(processor);
 						}
 						catch (final NullPointerException e) {
@@ -201,6 +230,9 @@ class RweaveTexTool implements Runnable, IProcess {
 						progress.beginTask(Messages.RweaveTexProcessing_Tex_label, 100);
 						
 						try {
+							fTexRCommands.set(VARNAME_SWEAVE_FILE, fSweaveFile.getFullPath().toString());
+							fTexRCommands.set(VARNAME_LATEX_FILE, fTexFile.getFullPath().toString());
+							fTexRCommands.set(VARNAME_OUTPUT_FILE, fTexPathConfig.getOutputFile().getFullPath().toString());
 							fTexRCommands.performFinalStringSubstitution(processor);
 							progress.setWorkRemaining(90);
 						}
@@ -261,6 +293,7 @@ class RweaveTexTool implements Runnable, IProcess {
 	private final IWorkbenchPage fWorkbenchPage;
 	private final ILaunch fLaunch;
 	private Thread fThread;
+	private boolean fUseSchedulingRule = true;
 	private ISchedulingRule fSchedulingRule;
 	private SubMonitor fProgress;
 	
@@ -277,6 +310,7 @@ class RweaveTexTool implements Runnable, IProcess {
 	
 	private String fOutputFormat;
 	private VariableText fOutputDir;
+	private boolean fOutputInitialized;
 	
 	boolean fRunTex;
 	private IFile fTexFile;
@@ -303,11 +337,28 @@ class RweaveTexTool implements Runnable, IProcess {
 				NLS.bind(Messages.RweaveTexProcessing_Status_label, fSweaveFile.getName()), null);
 	}
 	
-	public void setOutput(final VariableText directory, final String format) throws CoreException {
-		fOutputDir = directory;
-		fOutputDir.performInitialStringSubstitution(true);
-		fOutputDir.set(VARNAME_SWEAVE_FILE, fSweaveFile.getFullPath().toString());
-		fOutputFormat = format;
+	
+	public void setWorkingDir(final VariableText wd) throws CoreException {
+		wd.performInitialStringSubstitution(true);
+		wd.set(VARNAME_SWEAVE_FILE, fSweaveFile.getFullPath().toString());
+		wd.performFinalStringSubstitution(null);
+		
+		final FileValidator validator = new FileValidator(false);
+		validator.setResourceLabel("Sweave Working / Output Folder");
+		validator.setOnFile(IStatus.ERROR);
+		validator.setOnExisting(IStatus.OK);
+		validator.setOnNotExisting(IStatus.ERROR);
+		validator.setRequireWorkspace(true, true);
+		{	final IStatus status = validator.validate(wd.getText());
+			if (!status.isOK()) {
+				throw new CoreException(status);
+			}
+		}
+		{	final IStatus status = setWorkingDir(null, (IContainer) validator.getWorkspaceResource(), true);
+			if (!status.isOK()) {
+				throw new CoreException(status);
+			}
+		}
 	}
 	
 	public void setSweave(final VariableText rCommands) throws CoreException {
@@ -317,7 +368,6 @@ class RweaveTexTool implements Runnable, IProcess {
 		fSweaveType = SWEAVE_TYPE_RCONSOLE;
 		fSweaveRCommands = rCommands;
 		fSweaveRCommands.performInitialStringSubstitution(true);
-		fSweaveRCommands.set(VARNAME_SWEAVE_FILE, fSweaveFile.getFullPath().toString());
 	}
 	
 	public void setSweave(final ILaunchConfiguration rCmd) {
@@ -328,6 +378,19 @@ class RweaveTexTool implements Runnable, IProcess {
 		fSweaveConfig = rCmd;
 	}
 	
+	public void setOutput(final VariableText directory, final String format) throws CoreException {
+		fOutputDir = directory;
+		fOutputDir.performInitialStringSubstitution(true);
+		fOutputFormat = format;
+		
+		if (fWorkingFolder != null && !fOutputInitialized) {
+			final IStatus status = initOutputDir();
+			if (!status.isOK()) {
+				throw new CoreException(status);
+			}
+		}
+	}
+	
 	public void setBuildTex(final VariableText commands) throws CoreException {
 		if (fTexType > 0 || commands == null) {
 			throw new IllegalArgumentException();
@@ -335,7 +398,6 @@ class RweaveTexTool implements Runnable, IProcess {
 		fTexType = BUILDTEX_TYPE_RCONSOLE;
 		fTexRCommands = commands;
 		fTexRCommands.performInitialStringSubstitution(true);
-		fTexRCommands.set(VARNAME_SWEAVE_FILE, fSweaveFile.getFullPath().toString());
 	}
 	
 	public void setBuildTex(final Builder texBuilder) {
@@ -376,6 +438,11 @@ class RweaveTexTool implements Runnable, IProcess {
 			}
 		};
 		job.setPriority(Job.BUILD);
+		if (fUseSchedulingRule && (fSweaveType > 0 || fTexType > 0)
+				&& fWorkingFolderInWorkspace != null && fTexPathConfig != null) {
+			job.setRule(createRule());
+			fUseSchedulingRule = false;
+		}
 		return job;
 	}
 	
@@ -417,13 +484,22 @@ class RweaveTexTool implements Runnable, IProcess {
 		}
 		fTexFile = fWorkingFolderInWorkspace.getFile(new Path(fBaseFileName + '.' + fTexFileExtension));
 		
+		if (fOutputDir != null && !fOutputInitialized) {
+			return initOutputDir();
+		}
+		return Status.OK_STATUS;
+	}
+	
+	private IStatus initOutputDir() {
+		fOutputInitialized = true;
 		final String texFilePath = fTexFile.getFullPath().toString();
+		fOutputDir.set(VARNAME_SWEAVE_FILE, fSweaveFile.getFullPath().toString());
 		fOutputDir.set(VARNAME_LATEX_FILE, texFilePath);
 		
 		// 21x
 		if (fOutputFormat == null) {
 			return new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, -1,
-					Messages.RweaveTexProcessing_Tex_error_BuilderNotConfigured_message, null);
+					Messages.RweaveTexProcessing_Tex_error_BuilderNotConfigured_message, null );
 		}
 		final IContainer outputDir;
 		try {
@@ -431,21 +507,17 @@ class RweaveTexTool implements Runnable, IProcess {
 		}
 		catch (final CoreException e) {
 			return new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, -1,
-					Messages.RweaveTexProcessing_Tex_error_OutputDir_message, null);
+					Messages.RweaveTexProcessing_Tex_error_OutputDir_message, null );
 		}
 		fTexPathConfig = new TexPathConfig(fTexFile, outputDir, fOutputFormat);
 		
-		if (fSweaveRCommands != null) {
-			fSweaveRCommands.set(VARNAME_LATEX_FILE, texFilePath);
-			fSweaveRCommands.set(VARNAME_OUTPUT_FILE, fTexPathConfig.getOutputFile().getFullPath().toString());
-		}
-		if (fTexRCommands != null) {
-			fTexRCommands.set(VARNAME_LATEX_FILE, texFilePath);
-			fTexRCommands.set(VARNAME_OUTPUT_FILE, fTexPathConfig.getOutputFile().getFullPath().toString());
-		}
-		
 		return Status.OK_STATUS;
 	}
+	
+	public IFileStore getWorkingDirectory() {
+		return fWorkingFolder;
+	}
+	
 	
 	@Override
 	public void run() {
@@ -459,6 +531,16 @@ class RweaveTexTool implements Runnable, IProcess {
 			doWeave();
 			if (fProgress.isCanceled()) {
 				fStatus.add(new Status(IStatus.CANCEL, SweavePlugin.PLUGIN_ID, Messages.RweaveTexProcessing_info_Canceled_message));
+			}
+			if (fStatus.getSeverity() >= IStatus.ERROR) {
+				return;
+			}
+			
+			if (!fOutputInitialized) {
+				final IStatus status = initOutputDir();
+				if (!status.isOK()) {
+					fStatus.add(status);
+				}
 			}
 			if (fStatus.getSeverity() >= IStatus.ERROR) {
 				return;
@@ -482,6 +564,7 @@ class RweaveTexTool implements Runnable, IProcess {
 				}
 			}
 			
+			endSchedulingRule();
 			doOpenOutput();
 			if (fStatus.getSeverity() >= IStatus.ERROR) {
 				return;
@@ -528,14 +611,18 @@ class RweaveTexTool implements Runnable, IProcess {
 		return sum;
 	}
 	
+	private ISchedulingRule createRule() {
+		return MultiRule.combine(
+				fWorkingFolderInWorkspace.getProject(), 
+				fTexPathConfig.getOutputFile().getParent());
+	}
+	
 	private boolean beginSchedulingRule(final IProgressMonitor monitor) {
-		if (fSchedulingRule != null) {
+		if (!fUseSchedulingRule || fSchedulingRule != null) {
 			return true;
 		}
 		try {
-			final ISchedulingRule rule = MultiRule.combine(
-					fWorkingFolderInWorkspace.getProject(), 
-					fTexPathConfig.getOutputFile().getParent());
+			final ISchedulingRule rule = createRule();
 			Job.getJobManager().beginRule(rule, monitor);
 			fSchedulingRule = rule;
 			return true;
@@ -569,6 +656,9 @@ class RweaveTexTool implements Runnable, IProcess {
 	
 	private void doWeave() { // 1xx
 		if (fSweaveType == SWEAVE_TYPE_RCONSOLE || fTexType == BUILDTEX_TYPE_RCONSOLE) { // 11x
+			if (!(fRunSweave || fRunTex) && fWorkingFolder != null) {
+				return;
+			}
 			try {
 	//			RCodeLaunchRegistry.runRCodeDirect(RUtil.LINE_SEPARATOR_PATTERN.split(fSweaveCommands), false);
 				final ToolProcess rProcess = NicoUI.getToolRegistry().getActiveToolSession(fWorkbenchPage).getProcess();
@@ -611,7 +701,7 @@ class RweaveTexTool implements Runnable, IProcess {
 						return;
 					}
 				}
-				else { // we need the working directory
+				else if (fWorkingFolder == null) { // we need the working directory
 					final SubMonitor progress = fProgress.newChild(TICKS_RWEAVE/10);
 					rTask.updatePathInformations(rProcess.getWorkspaceData());
 					progress.done();
@@ -623,6 +713,9 @@ class RweaveTexTool implements Runnable, IProcess {
 			}
 		}
 		else if (fSweaveConfig != null) { // 12x
+			if (!fRunSweave && fWorkingFolder != null) {
+				return;
+			}
 			try {
 				if (fRunSweave) {
 					final SubMonitor monitor = fProgress.newChild(TICKS_RWEAVE);

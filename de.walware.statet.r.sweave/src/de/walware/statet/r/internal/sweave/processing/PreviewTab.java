@@ -52,6 +52,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -323,34 +324,50 @@ public class PreviewTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
-	private void updateAvailableConfigs() {
-		if (fTexTab == null) {
-			final ILaunchConfigurationTab[] tabs = getLaunchConfigurationDialog().getTabs();
-			for (int i = 0; i < tabs.length; i++) {
-				if (tabs[i] instanceof TexTab) {
-					fTexTab = (TexTab) tabs[i];
-				}
-			}
+	private final Runnable fUpdateConfigsRunnable = new Runnable() {
+		@Override
+		public void run() {
+			fUpdateConfigsScheduled = false;
 			if (fTexTab == null) {
-				return;
-			}
-			if (!fTexTab.addOutputFormatListener(new IChangeListener() {
-				@Override
-				public void handleChange(final ChangeEvent event) {
-					updateAvailableConfigs();
+				final ILaunchConfigurationTab[] tabs = getLaunchConfigurationDialog().getTabs();
+				for (int i = 0; i < tabs.length; i++) {
+					if (tabs[i] instanceof TexTab) {
+						fTexTab = (TexTab) tabs[i];
+					}
 				}
-			})) {
-				fTexTab = null;
-				return;
+				if (fTexTab == null) {
+					return;
+				}
+				if (!fTexTab.addOutputFormatListener(new IChangeListener() {
+					@Override
+					public void handleChange(final ChangeEvent event) {
+						updateAvailableConfigs();
+					}
+				})) {
+					fTexTab = null;
+					return;
+				}
+			}
+			fOutputFormat = fTexTab.getOutputFormat();
+			fAvailablePreviewConfigs = Texlipse.getViewerManager().getAvailableConfigurations(fOutputFormat);
+			if (UIAccess.isOkToUse(fLaunchConfigTable)) {
+				fLaunchConfigTable.setInput(fAvailablePreviewConfigs);
+				if (fSelectionObservable != null) {
+					fSelectionObservable.updateValue();
+				}
 			}
 		}
-		fOutputFormat = fTexTab.getOutputFormat();
-		fAvailablePreviewConfigs = Texlipse.getViewerManager().getAvailableConfigurations(fOutputFormat);
-		if (UIAccess.isOkToUse(fLaunchConfigTable)) {
-			fLaunchConfigTable.setInput(fAvailablePreviewConfigs);
-			if (fSelectionObservable != null) {
-				fSelectionObservable.updateValue();
-			}
+	};
+	private volatile boolean fUpdateConfigsScheduled;
+	
+	private void updateAvailableConfigs() {
+		final Display display = UIAccess.getDisplay();
+		if (display.getThread() == Thread.currentThread()) {
+			fUpdateConfigsRunnable.run();
+		}
+		else if (!fUpdateConfigsScheduled) {
+			fUpdateConfigsScheduled = true;
+			display.asyncExec(fUpdateConfigsRunnable);
 		}
 	}
 	

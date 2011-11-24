@@ -24,6 +24,7 @@ import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.variables.IStringVariable;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationListener;
@@ -48,17 +49,21 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
+import de.walware.ecommons.io.FileValidator;
 import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditor;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.components.CustomizableVariableSelectionDialog;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
+import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.r.cmd.ui.launching.RCmdLaunching;
 import de.walware.statet.r.core.RCore;
@@ -72,6 +77,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 	
 	
 	public static final String NS = "de.walware.statet.r.debug/Rweave/"; //$NON-NLS-1$
+	public static final String ATTR_SWEAVE_FOLDER = NS + "sweave.folder"; //$NON-NLS-1$
 	public static final String ATTR_SWEAVE_ID = NS + "SweaveProcessing"; //$NON-NLS-1$
 	
 	
@@ -216,6 +222,9 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
+	private ResourceInputComposite fDirControl;
+	private WritableValue fDirValue;
+	
 	private ILaunchConfiguration[] fAvailableConfigs;
 	private WritableValue fSelectionValue;
 	
@@ -248,17 +257,18 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		mainComposite.setLayout(LayoutUtil.applyTabDefaults(new GridLayout(), 1));
 		
-		final Label label = new Label(mainComposite, SWT.NONE);
-		label.setText(Messages.RweaveTab_label);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		
+		{	final Label label = new Label(mainComposite, SWT.NONE);
+			label.setText(Messages.RweaveTab_label);
+			label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		}
 		LayoutUtil.addSmallFiller(mainComposite, false);
 		
-		Composite composite;
-		composite = new Composite(mainComposite, SWT.NONE);
-		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		createSweaveCommandGroup(composite);
-		
+		{	final Composite composite = createDirectoryGroup(mainComposite);
+			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		}
+		{	final Composite composite = createSweaveCommandGroup(mainComposite);
+			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		}
 		fLaunchConfigurationListener = new ILaunchConfigurationListener() {
 			@Override
 			public void launchConfigurationAdded(final ILaunchConfiguration configuration) {
@@ -279,9 +289,25 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		initBindings();
 	}
 	
-	private void createSweaveCommandGroup(final Composite group) {
-		GridData gd;
+	private Composite createDirectoryGroup(final Composite parent) {
+		final Group group = new Group(parent, SWT.NONE);
+		group.setText("Working &Folder (path in workspace):");
+		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 1));
+		
+		fDirControl = new ResourceInputComposite(group, ResourceInputComposite.STYLE_TEXT,
+				ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN | ResourceInputComposite.MODE_WS_ONLY,
+				"Working Directory");
+		fDirControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		fDirControl.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS,
+				new ConstList<IStringVariable>(RweaveTexLaunchDelegate.VARIABLE_SWEAVE_FILE) );
+		
+		return group;
+	}
+	
+	private Composite createSweaveCommandGroup(final Composite parent) {
+		final Composite group = new Composite(parent, SWT.NONE);
 		group.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+		GridData gd;
 		
 		fSkipSelectControl = new Button(group, SWT.RADIO);
 		fSkipSelectControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
@@ -351,6 +377,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 			}
 			
 		});
+		return group;
 	}
 	
 	
@@ -392,7 +419,14 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 	
 	@Override
 	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
+		fDirValue = new WritableValue(realm, String.class);
 		fSelectionValue = new WritableValue(realm, String.class);
+		
+		final FileValidator validator = fDirControl.getValidator();
+		validator.setOnEmpty(IStatus.OK);
+		dbc.bindValue(fDirControl.getObservable(), fDirValue,
+				new UpdateValueStrategy().setAfterGetValidator(validator),
+				null );
 		
 		final SelectionObservable obs = new SelectionObservable();
 		fSkipSelectControl.addSelectionListener(obs);
@@ -403,33 +437,49 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		
 		fSelectionValue.setValue("init"); //$NON-NLS-1$
 		
-		dbc.bindValue(obs, fSelectionValue, new UpdateValueStrategy().setAfterGetValidator(obs), null);
+		dbc.bindValue(obs, fSelectionValue,
+				new UpdateValueStrategy().setAfterGetValidator(obs),
+				null );
 	}
 	
 	
 	@Override
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
+		configuration.setAttribute(ATTR_SWEAVE_FOLDER, "${container_path:${source_file_path}}"); //$NON-NLS-1$
 		configuration.setAttribute(ATTR_SWEAVE_ID, RweaveTexLaunchDelegate.SWEAVE_CONSOLE+':');
 	}
 	
 	@Override
 	protected void doInitialize(final ILaunchConfiguration configuration) {
-		String value = null;
-		try {
-			value = configuration.getAttribute(ATTR_SWEAVE_ID, ""); //$NON-NLS-1$
-		} catch (final CoreException e) {
-			logReadingError(e);
+		{	String dir = ""; //$NON-NLS-1$
+			try {
+				dir = configuration.getAttribute(ATTR_SWEAVE_FOLDER, ""); //$NON-NLS-1$
+			}
+			catch (final CoreException e) {
+				logReadingError(e);
+			}
+			fDirValue.setValue(dir);
 		}
+		
 		fConsoleCommandEditor.getDocument().set(RweaveTexLaunchDelegate.DEFAULT_SWEAVE_R_COMMANDS);
 		final Object firstConfig = fCmdLaunchTable.getElementAt(0);
 		fCmdLaunchTable.setSelection((firstConfig != null) ? new StructuredSelection(firstConfig) : new StructuredSelection());
-		fSelectionValue.setValue(value);
+		{	String value = ""; //$NON-NLS-1$
+			try {
+				value = configuration.getAttribute(ATTR_SWEAVE_ID, ""); //$NON-NLS-1$
+			}
+			catch (final CoreException e) {
+				logReadingError(e);
+			}
+			fSelectionValue.setValue(value);
+		}
 		fConsoleCommandEditor.reset();
 	}
 	
 	@Override
 	protected void doSave(final ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(ATTR_SWEAVE_ID, (String) fSelectionValue.getValue());
+		configuration.setAttribute(ATTR_SWEAVE_FOLDER, (String) fDirValue.getValue());
 	}
 	
 	@Override
