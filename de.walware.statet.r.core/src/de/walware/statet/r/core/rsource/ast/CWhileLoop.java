@@ -82,6 +82,9 @@ public class CWhileLoop extends RAstNode {
 		if (fCondExpr.node == child) {
 			return 0;
 		}
+		if (fLoopExpr.node == child) {
+			return 1;
+		}
 		return -1;
 	}
 	
