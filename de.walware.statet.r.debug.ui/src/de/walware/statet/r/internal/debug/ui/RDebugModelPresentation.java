@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.IStackFrame;
@@ -67,6 +68,8 @@ public class RDebugModelPresentation extends LabelProvider
 	private static ImageDescriptorRegistry fImageDescriptorRegistry;
 	
 	private static RLabelProvider gLabelProvider = new RLabelProvider();
+	
+	private static boolean gCheckLength = Platform.getWS().equals(Platform.WS_GTK);
 	
 	private static void initResources() {
 		getImageDescriptorRegistry();
@@ -125,22 +128,26 @@ public class RDebugModelPresentation extends LabelProvider
 	
 	@Override
 	public String getText(final Object element) {
+		String text = null;
 		try {
 			if (element instanceof IRDebugTarget) {
-				return getText((IRDebugTarget) element);
+				text = getText((IRDebugTarget) element);
 			}
-			if (element instanceof IRBreakpoint) {
-				return getText((IRBreakpoint) element);
+			else if (element instanceof IRBreakpoint) {
+				text = getText((IRBreakpoint) element);
 			}
-			if (element instanceof IRThread) {
-				return getText((IRThread) element);
+			else if (element instanceof IRThread) {
+				text = getText((IRThread) element);
 			}
-			if (element instanceof IRStackFrame) {
-				return getText((IRStackFrame) element);
+			else if (element instanceof IRStackFrame) {
+				text = getText((IRStackFrame) element);
 			}
 		}
 		catch (final CoreException e) {}
-		return null;
+		if (gCheckLength && text != null && text.length() > 2000) {
+			return text.substring(0, 2000);
+		}
+		return text;
 	}
 	
 	
