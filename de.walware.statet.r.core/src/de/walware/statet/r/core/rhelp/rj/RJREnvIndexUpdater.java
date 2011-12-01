@@ -111,7 +111,7 @@ public class RJREnvIndexUpdater {
 		public void finish(final SubMonitor progress) throws CoreException {
 			while (true) {
 				try {
-					fQueue.add(FINISH);
+					fQueue.put(FINISH);
 					join();
 					return;
 				}
