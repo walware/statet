@@ -238,6 +238,7 @@ public class RModelIndex {
 			fRemoveSuMainNamesStatement.setInt(1, proj.id);
 			fRemoveSuStatement.setInt(1, proj.id);
 		}
+		/** requires {@link #prepareRemoveSu(Proj)} */
 		public void executeRemoveSu() throws SQLException {
 			fRemoveSuExportsStatement.setInt(2, currentSuId);
 			fRemoveSuExportsStatement.executeUpdate();
@@ -258,6 +259,7 @@ public class RModelIndex {
 			fGetSuIdStatement.setInt(1, proj.id);
 			fAddSuIdStatement.setInt(1, proj.id);
 		}
+		/** requires {@link #initProjForSu(Proj)}, {@link #prepareGetSuId(Proj)} */
 		public void executeGetOrAddSuId(final String publicId, final boolean newSuHint) throws SQLException {
 			if (!newSuHint) {
 				fGetSuIdStatement.setString(2, publicId);
@@ -293,6 +295,7 @@ public class RModelIndex {
 				}
 			}
 		}
+		/** requires {@link #prepareGetSuId(Proj)} */
 		public boolean executeGetSuId(final String publicId) throws SQLException {
 			fGetSuIdStatement.setString(2, publicId);
 			final ResultSet result = fGetSuIdStatement.executeQuery();
@@ -421,9 +424,6 @@ public class RModelIndex {
 		}
 		
 		fLock.writeLock().lock();
-		PreparedStatement updateExportsStatement = null;
-		PreparedStatement insertExportsStatement = null;
-		PreparedStatement insertMainNameStatement = null;
 		try {
 			final Proj proj = getOrCreateProjectId(project);
 			
@@ -463,14 +463,16 @@ public class RModelIndex {
 			}
 			
 			if (fDBInitialized == 1) {
-				DbTools dbTools = getDbTools();
-				dbTools.initProjForSu(proj);
-				
-				dbTools.prepareGetSuId(proj);
-				
+				DbTools dbTools = null;
+				PreparedStatement updateExportsStatement = null;
+				PreparedStatement insertExportsStatement = null;
+				PreparedStatement insertMainNameStatement = null;
 				final ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
 				for (final Entry<String, RBuildReconciler.Result> newItem : newItems.entrySet()) {
-					if (updateExportsStatement == null) {
+					if (dbTools == null) {
+						dbTools = getDbTools();
+						dbTools.initProjForSu(proj);
+						dbTools.prepareGetSuId(proj);
 						updateExportsStatement = dbTools.connection.prepareStatement("update RINDEX.EXPORTS set OBJECTDATA = ? where (PROJECT_ID = ? and SU_ID = ?)");
 						updateExportsStatement.setInt(2, proj.id);
 						insertExportsStatement = dbTools.connection.prepareStatement("insert into RINDEX.EXPORTS (PROJECT_ID, SU_ID, OBJECTDATA) values (?, ?, ?)");
@@ -515,13 +517,29 @@ public class RModelIndex {
 						dbTools.connection.commit();
 					}
 					catch (final SQLException e) {
+						try {
+							if (updateExportsStatement != null) {
+								updateExportsStatement.close();
+							}
+							if (insertExportsStatement != null) {
+								insertExportsStatement.close();
+							}
+							if (insertMainNameStatement != null) {
+								insertMainNameStatement.close();
+							}
+						}
+						catch (final SQLException ignore) {}
+						
 						onDbToolsError(e);
-						dbTools = getDbTools();
-						updateExportsStatement = null;
+						dbTools = null;
 					}
 				}
 				
 				if (remove != null && !remove.isEmpty()) {
+					if (dbTools == null) {
+						dbTools = getDbTools();
+						dbTools.prepareGetSuId(proj);
+					}
 					dbTools.prepareRemoveSu(proj);
 					for (final String suNameId : remove) {
 						frame.removeModelElement(suNameId);
@@ -561,18 +579,6 @@ public class RModelIndex {
 			onDbToolsError(e);
 		}
 		finally {
-			try {
-				if (updateExportsStatement != null) {
-					updateExportsStatement.close();
-				}
-				if (insertExportsStatement != null) {
-					insertExportsStatement.close();
-				}
-				if (insertMainNameStatement != null) {
-					insertMainNameStatement.close();
-				}
-			}
-			catch (final SQLException ignore) {}
 			fLock.writeLock().unlock();
 		}
 	}
