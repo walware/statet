@@ -14,7 +14,10 @@ package de.walware.statet.r.internal.ui.editors;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.quickassist.IQuickAssistInvocationContext;
+import org.eclipse.swt.graphics.Point;
 
 import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.QuickAssistProcessor;
@@ -34,7 +37,14 @@ public class RQuickAssistProcessor extends QuickAssistProcessor {
 	
 	@Override
 	protected AssistInvocationContext createContext() {
-		return new RAssistInvocationContext(getEditor(), -1, false);
+		final Point selection = getEditor().getViewer().getSelectedRange();
+		return new RAssistInvocationContext(getEditor(), selection.x, true);
+	}
+	
+	@Override
+	protected AssistInvocationContext createContext(final IQuickAssistInvocationContext invocationContext,
+			final IProgressMonitor monitor) {
+		return new RAssistInvocationContext(getEditor(), invocationContext.getOffset(), true);
 	}
 	
 	@Override
