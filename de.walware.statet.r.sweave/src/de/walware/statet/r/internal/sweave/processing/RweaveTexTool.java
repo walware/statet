@@ -387,6 +387,7 @@ class RweaveTexTool implements Runnable, IProcess {
 				for (int i = 0; i < found.length; i++) {
 					if (found[i].getType() == IResource.PROJECT || found[i].getType() == IResource.FOLDER) {
 						fWorkingFolderInWorkspace = found[i];
+						break;
 					}
 				}
 			}
