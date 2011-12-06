@@ -31,6 +31,7 @@ import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.osgi.framework.Version;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
@@ -77,6 +78,8 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 	
 	static final long TIMEOUT = 60L * 1000000000L;
 	
+	static final Version VERSION_2_12_0 = new Version(2, 12, 0);
+	
 	static class ConfigRunnable implements ISystemRunnable {
 		
 		
@@ -116,7 +119,13 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			final IRDataAdapter r = (IRDataAdapter) service;
-			r.evalVoid("library(\"rj\", quietly= TRUE)", monitor); //$NON-NLS-1$
+			final Version rVersion = r.getPlatform().getRVersion();
+			if (rVersion.compareTo(VERSION_2_12_0) < 0) {
+				r.evalVoid("library('rj')", monitor); //$NON-NLS-1$
+			}
+			else {
+				r.evalVoid("library('rj', quietly= TRUE)", monitor); //$NON-NLS-1$
+			}
 			if (fEnableRHelp) {
 				r.evalVoid(".statet.reassignHelp()", monitor); //$NON-NLS-1$
 			}
