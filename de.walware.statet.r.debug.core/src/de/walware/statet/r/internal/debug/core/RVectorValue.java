@@ -18,6 +18,7 @@ import org.eclipse.debug.core.model.IVariable;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.RVector;
+
 import de.walware.statet.r.core.data.ICombinedRElement;
 
 

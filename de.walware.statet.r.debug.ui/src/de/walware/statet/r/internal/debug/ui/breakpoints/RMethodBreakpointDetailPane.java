@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import de.walware.ecommons.debug.ui.breakpoints.AbstractBreakpointDetailEditor;
 import de.walware.ecommons.debug.ui.breakpoints.AbstractBreakpointDetailPane;
+
 import de.walware.statet.r.internal.debug.ui.Messages;
 
 

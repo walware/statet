@@ -22,9 +22,11 @@ import org.eclipse.ui.IWorkbenchPart;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.util.UIAccess;
+
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStatus;
 import de.walware.statet.nico.ui.NicoUITools;
+
 import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.debug.core.IRStackFrame;
 import de.walware.statet.r.nico.AbstractRDbgController;

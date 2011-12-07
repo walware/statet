@@ -20,6 +20,7 @@ import org.eclipse.debug.core.sourcelookup.containers.AbstractSourceContainer;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.io.FileUtil;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.debug.core.RDebugCorePlugin;
 import de.walware.statet.r.internal.debug.core.sourcelookup.Messages;

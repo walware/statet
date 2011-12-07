@@ -38,8 +38,10 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 
 import de.walware.ecommons.ui.util.ImageDescriptorRegistry;
+
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
+
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.debug.core.IRDebugTarget;
 import de.walware.statet.r.debug.core.IRDimVariable;

@@ -29,6 +29,7 @@ import org.eclipse.ui.texteditor.MarkerUtilities;
 
 import de.walware.ecommons.ltk.ISourceUnitManager;
 import de.walware.ecommons.ltk.LTK;
+
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.debug.core.breakpoints.IRLineBreakpoint;

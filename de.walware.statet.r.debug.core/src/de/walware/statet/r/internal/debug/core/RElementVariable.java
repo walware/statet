@@ -15,6 +15,7 @@ import org.eclipse.debug.core.DebugException;
 
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
+
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.debug.core.IRElementVariable;

@@ -17,6 +17,7 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
 
 import de.walware.ecommons.ltk.IModelElement;
+
 import de.walware.statet.r.core.data.ICombinedRElement;
 
 

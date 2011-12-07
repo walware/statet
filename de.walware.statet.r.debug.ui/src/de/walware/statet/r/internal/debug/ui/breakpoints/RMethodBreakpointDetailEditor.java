@@ -25,6 +25,7 @@ import org.eclipse.ui.IPropertyListener;
 
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ui.util.LayoutUtil;
+
 import de.walware.statet.r.debug.core.breakpoints.IRMethodBreakpoint;
 
 

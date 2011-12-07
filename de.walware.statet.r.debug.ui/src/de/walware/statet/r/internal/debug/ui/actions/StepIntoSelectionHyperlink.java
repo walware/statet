@@ -16,6 +16,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.nico.AbstractRDbgController;
 

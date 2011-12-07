@@ -17,6 +17,7 @@ import org.eclipse.debug.core.model.IVariable;
 
 import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RStore;
+
 import de.walware.statet.r.debug.core.IRIndexVariable;
 
 

@@ -20,6 +20,7 @@ import org.eclipse.ui.IContributorResourceAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 
 import de.walware.ecommons.ts.ITool;
+
 import de.walware.statet.r.debug.core.sourcelookup.IRSourceLookupMatch;
 import de.walware.statet.r.debug.core.sourcelookup.RRuntimeSourceFragment;
 import de.walware.statet.r.internal.debug.ui.RDebugUIPlugin;

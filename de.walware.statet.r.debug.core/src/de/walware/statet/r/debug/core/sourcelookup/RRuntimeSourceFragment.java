@@ -13,7 +13,9 @@ package de.walware.statet.r.debug.core.sourcelookup;
 
 import de.walware.ecommons.text.ISourceFragment;
 import de.walware.ecommons.ts.ITool;
+
 import de.walware.statet.nico.core.runtime.ToolProcess;
+
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.renv.IREnv;
 

@@ -14,6 +14,7 @@ package de.walware.statet.r.internal.debug.core.breakpoints;
 import de.walware.rj.server.dbg.Tracepoint;
 import de.walware.rj.server.dbg.TracepointEvent;
 import de.walware.rj.server.dbg.TracepointState;
+
 import de.walware.statet.r.debug.core.breakpoints.IRBreakpoint;
 import de.walware.statet.r.debug.core.breakpoints.IRMethodBreakpointStatus;
 

@@ -27,11 +27,13 @@ import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IStepFilters;
 import org.eclipse.debug.core.model.IThread;
 
-import de.walware.rj.server.dbg.DbgFilterState;
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 import de.walware.statet.nico.core.runtime.ToolStatus;
+
+import de.walware.rj.server.dbg.DbgFilterState;
+
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.debug.core.IRDebugTarget;
 import de.walware.statet.r.debug.core.breakpoints.IRBreakpoint;

@@ -28,10 +28,13 @@ import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
-import de.walware.rj.server.dbg.CallStack;
+
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 import de.walware.statet.nico.core.runtime.ToolStatus;
+
+import de.walware.rj.server.dbg.CallStack;
+
 import de.walware.statet.r.debug.core.IRDebugTarget;
 import de.walware.statet.r.debug.core.IRStackFrame;
 import de.walware.statet.r.debug.core.IRThread;

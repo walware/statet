@@ -21,9 +21,11 @@ import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.IInfoHover;
+
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStatus;
 import de.walware.statet.nico.ui.NicoUITools;
+
 import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;

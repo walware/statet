@@ -28,6 +28,7 @@ import de.walware.ecommons.debug.ui.breakpoints.AbstractBreakpointDetailEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditor;
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.LayoutUtil;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.debug.core.breakpoints.IRLineBreakpoint;
 import de.walware.statet.r.internal.ui.RUIPlugin;

@@ -38,6 +38,7 @@ import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.text.IMarkerPositionResolver;
 import de.walware.ecommons.text.ui.AnnotationMarkerPositionResolver;
+
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.debug.core.RDebugModel;

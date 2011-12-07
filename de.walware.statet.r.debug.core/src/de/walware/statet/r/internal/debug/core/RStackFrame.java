@@ -30,10 +30,12 @@ import org.eclipse.debug.core.model.IVariable;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
+
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
 import de.walware.rj.server.dbg.CallStack;
 import de.walware.rj.server.dbg.FrameContext;
+
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
 import de.walware.statet.r.core.data.ICombinedRElement;

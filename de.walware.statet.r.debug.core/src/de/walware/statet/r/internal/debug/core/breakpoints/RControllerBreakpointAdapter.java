@@ -53,6 +53,10 @@ import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
+
+import de.walware.statet.nico.core.runtime.Queue;
+import de.walware.statet.nico.core.runtime.ToolStatus;
+
 import de.walware.rj.data.REnvironment;
 import de.walware.rj.server.dbg.DbgEnablement;
 import de.walware.rj.server.dbg.ElementTracepointInstallationReport;
@@ -65,8 +69,7 @@ import de.walware.rj.server.dbg.TracepointEvent;
 import de.walware.rj.server.dbg.TracepointPosition;
 import de.walware.rj.server.dbg.TracepointState;
 import de.walware.rj.server.dbg.TracepointStatesUpdate;
-import de.walware.statet.nico.core.runtime.Queue;
-import de.walware.statet.nico.core.runtime.ToolStatus;
+
 import de.walware.statet.r.console.core.RDbg;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
 import de.walware.statet.r.core.RProject;
