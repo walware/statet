@@ -22,6 +22,8 @@
    <topic href="reference/r_editor.xhtml" label="R Script Editor">
       <topic href="reference/r_editor-highlighting.xhtml" label="Highlighting">
       </topic>
+      <topic href="reference/r_editor-navigation.xhtml" label="Navigation">
+      </topic>
       <topic href="reference/r_editor-contentassist.xhtml" label="Content Assist">
       </topic>
       <topic href="reference/r_editor-quickfix.xhtml" label="Quick Fix">

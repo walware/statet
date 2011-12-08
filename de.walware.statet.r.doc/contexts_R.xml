@@ -15,6 +15,8 @@
 		<description>The R Editor provides you with R specific text editing support.</description>
 		<topic href="reference/r_editor-highlighting.xhtml"
 				label="R Script Editor - Highlighting" />
+		<topic href="reference/r_editor-navigation.xhtml"
+				label="R Script Editor - Navigation" />
 		<topic href="reference/r_editor-contentassist.xhtml"
 				label="R Script Editor - Content Assistant" />
 		<topic href="reference/r_editor-quickfix.xhtml"

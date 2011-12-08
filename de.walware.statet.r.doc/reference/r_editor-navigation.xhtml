@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Script Editor - Navigation</title>
+	<meta name="copyright" content="Copyright (c) 2011 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1>Navigation</h1>
+
+<p>Beside the common actions to move the cursor and select ranges in text editors in Eclipse,
+the R editor offers additional content aware ways to navigate inside the R editor and the Eclipse
+workspace.</p>
+
+<h2 id="editor">Commands</h2>
+
+<table class="style1">
+<thead><tr>
+	<th></th>
+	<th>Name</th>
+	<th>Description</th>
+	<th>Availability</th>
+</tr></thead>
+<tr><th colspan="4">Expand selection
+		<p>This commands provides syntax aware code selection including a selection history.
+		The menu items can be found in the submenu
+		<span class="uisequence">Edit &gt; Expand Selection To</span>.</p></th></tr>
+<tr>
+	<td></td>
+	<td><span class="uilabel">Select Enclosing Element</span></td>
+	<td><p>Expands the selection to the enclosing element of the current selection</p></td>
+	<td>Main&nbsp;menu (Edit)<br/>
+		Local&nbsp;command<br/>
+		<kbd>Ctrl+Shift+Up</kbd></td>
+</tr>
+<tr>
+	<td></td>
+	<td><span class="uilabel">Select Next Element</span></td>
+	<td><p>Expands the selection to include the element following the current selection</p></td>
+	<td>Main&nbsp;menu (Edit)<br/>
+		Local&nbsp;command<br/>
+		<kbd>Ctrl+Shift+Right</kbd></td>
+</tr>
+<tr>
+	<td></td>
+	<td><span class="uilabel">Select Previous Element</span></td>
+	<td><p>Expands the selection to include the element previous to the current selection</p></td>
+	<td>Main&nbsp;menu (Edit)<br/>
+		Local&nbsp;command<br/>
+		<kbd>Ctrl+Shift+Right</kbd></td>
+</tr>
+<tr>
+	<td></td>
+	<td><span class="uilabel">Restore Last Selection</span></td>
+	<td><p>Restores the selection to the last selection (only for commands above)</p></td>
+	<td>Main&nbsp;menu (Edit)<br/>
+		Local&nbsp;command<br/>
+		<kbd>Ctrl+Shift+Down</kbd></td>
+</tr>
+<tr><th colspan="4">Show R element</th></tr>
+<tr id="opendeclaration">
+	<td></td>
+	<td><span class="uilabel">Open Declaration</span></td>
+	<td><p>Opens the declaration of the R element referenced by the current selection</p></td>
+	<td>Main&nbsp;menu (Navigate)<br/>
+		Local&nbsp;command<br/>
+		<kbd>F3</kbd></td>
+</tr>
+<tr id="opendeclaration">
+	<td></td>
+	<td><span class="uilabel">Show In</span></td>
+	<td><p>Shows the element or related information of the current selection in another view,
+		for example the R help page in the R Help view</p></td>
+	<td>Main&nbsp;menu (Navigate)<br/>
+		Context menu<br/></td>
+</tr>
+<tr><th colspan="4">Other</th></tr>
+<tr>
+	<td></td>
+	<td><span class="uilabel">Go to matching bracket</span></td>
+	<td><p>Moves the cursor to the matching bracket</p></td>
+	<td>Main&nbsp;menu (Navigate)<br/>
+		Local&nbsp;command<br/>
+		<kbd>Ctrl+Shift+P</kbd></td>
+</tr>
+</table>
+
+<h2 id="links">Hyperlinks</h2>
+
+<p>Hyperlinks allows to access context sensitive actions using the mouse. Hyperlinks are enabled
+on demand by pressing a modifier key or key combination; if the hyperlink action is available at the mouse
+position, the link is shown in the editor and can be triggered by a mouse click.</p>
+<p>There are several hyperlink actions for the R editor including actions to navigate:</p>
+
+<table class="style1">
+<thead><tr>
+	<th>Name</th>
+	<th>Description / Action</th>
+	<th>Default Modifier(s)</th>
+</tr></thead>
+<tr>
+	<td>Element Declaration</td>
+	<td>Opens the declaration of an R element in Eclipse<br/>
+	(available for detected R element names),
+	like the command <a href="#opendeclaration">Open Declaration</a></td>
+	<td><kbd>Ctrl</kbd><br/></td>
+</tr>
+<tr>
+	<td>Local File Path</td>
+	<td>Opens the file in an editor in Eclipse<br/>
+	(available for detected path names in string)</td>
+	<td><kbd>Ctrl</kbd><br/></td>
+</tr>
+</table>
+
+<h4>Configuration</h4>
+
+<p>The different kind of hyperlinks can be configured in the preferences 
+(<span class="uisequence">Window&nbsp;&gt; Preferences</span>) at:
+<span class="uisequence indent">General &gt; Editors &gt; Text Editors &gt; Hyperlinking</span>
+
+Only items listed as <span class="uilabel">Available In</span> "R Editor" in the table are relevant 
+for R code.
+</p>
+
+</body>
+</html>
