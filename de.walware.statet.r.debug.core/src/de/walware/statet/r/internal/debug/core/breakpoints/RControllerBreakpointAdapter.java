@@ -106,7 +106,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 		}
 		
 		void setExprSrcref(final int[] srcref) {
-			exprSrcref = srcref;
+			this.exprSrcref = srcref;
 		}
 		
 		public IRLineBreakpoint getBreakpoint() {
