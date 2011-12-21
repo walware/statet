@@ -2,7 +2,7 @@
 <feature
       id="de.walware.statet.r.sweave"
       label="StatET for R - Sweave Add-on"
-      version="2.0.0.qualifier"
+      version="2.0.3.qualifier"
       provider-name="WalWare.de"
       license-feature="de.walware.opensource.license"
       license-feature-version="1.0.0">

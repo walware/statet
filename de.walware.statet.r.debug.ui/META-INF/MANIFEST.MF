@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET R Debug UI
 Bundle-SymbolicName: de.walware.statet.r.debug.ui;singleton:=true
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 2.0.3.qualifier
 Bundle-Activator: de.walware.statet.r.internal.debug.ui.RDebugUIPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin

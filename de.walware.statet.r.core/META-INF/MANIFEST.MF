@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET R Core
 Bundle-SymbolicName: de.walware.statet.r.core;singleton:=true
-Bundle-Version: 2.0.2.qualifier
+Bundle-Version: 2.0.3.qualifier
 Bundle-Activator: de.walware.statet.r.internal.core.RCorePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin

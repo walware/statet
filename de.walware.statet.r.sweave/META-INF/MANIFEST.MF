@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET R Sweave
 Bundle-SymbolicName: de.walware.statet.r.sweave;singleton:=true
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 2.0.3.qualifier
 Bundle-Activator: de.walware.statet.r.internal.sweave.SweavePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
