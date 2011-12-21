@@ -37,6 +37,7 @@ public class RCmdMessages extends NLS {
 	public static String RCmd_Resource_PackageDir_label;
 	public static String RCmd_Resource_PackageDirOrArchive_label;
 	public static String RCmd_Resource_Doc_label;
+	public static String RCmd_Resource_DocOrDir_label;
 	public static String RCmd_Resource_Other_label;
 	
 	public static String RCmd_LaunchDelegate_Running_label;

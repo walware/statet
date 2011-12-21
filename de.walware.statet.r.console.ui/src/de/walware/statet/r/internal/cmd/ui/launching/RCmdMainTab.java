@@ -90,7 +90,8 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		public final static int PACKAGE_DIR = 1;
 		public final static int PACKAGE_DIR_OR_ARCHIVE = 2;
 		public final static int DOC = 3;
-		public final static int CUSTOM = 4;
+		public final static int DOC_OR_DIR = 4;
+		public final static int CUSTOM = 5;
 		
 		private final String fName;
 		private String fCommand;
@@ -146,12 +147,12 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	
 	private void createCommands() {
 		final List<Cmd> commands = new ArrayList<Cmd>();
-		commands.add(new Cmd(RCmdMessages.RCmd_CmdCheck_name, "CMD check", Cmd.PACKAGE_DIR)); //$NON-NLS-1$
+		commands.add(new Cmd(RCmdMessages.RCmd_CmdCheck_name, "CMD check", Cmd.PACKAGE_DIR_OR_ARCHIVE)); //$NON-NLS-1$
 		commands.add(new Cmd(RCmdMessages.RCmd_CmdBuild_name, "CMD build", Cmd.PACKAGE_DIR)); //$NON-NLS-1$
 		commands.add(new Cmd(RCmdMessages.RCmd_CmdInstall_name, "CMD INSTALL", Cmd.PACKAGE_DIR_OR_ARCHIVE)); //$NON-NLS-1$
 		commands.add(new Cmd(RCmdMessages.RCmd_CmdRemove_name, "CMD REMOVE", Cmd.PACKAGE_DIR)); //$NON-NLS-1$
 		commands.add(new Cmd(RCmdMessages.RCmd_CmdRdconv_name, "CMD Rdconv", Cmd.DOC)); //$NON-NLS-1$
-		commands.add(new Cmd(RCmdMessages.RCmd_CmdRd2dvi_name, "CMD Rd2dvi", Cmd.DOC)); //$NON-NLS-1$
+		commands.add(new Cmd(RCmdMessages.RCmd_CmdRd2dvi_name, "CMD Rd2dvi", Cmd.DOC_OR_DIR)); //$NON-NLS-1$
 		commands.add(new Cmd(RCmdMessages.RCmd_CmdRd2txt_name, "CMD Rd2txt", Cmd.DOC)); //$NON-NLS-1$
 		commands.add(new Cmd(RCmdMessages.RCmd_CmdSd2Rd_name, "CMD Sd2Rd", Cmd.DOC)); //$NON-NLS-1$
 		commands.add(new Cmd(RCmdMessages.RCmd_CmdRoxygen_name, "CMD roxygen", Cmd.PACKAGE_DIR)); //$NON-NLS-1$
@@ -304,7 +305,11 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 						label = RCmdMessages.RCmd_Resource_Doc_label;
 						mode = ResourceInputComposite.MODE_FILE;
 						break;
-					default: // Cmd.CUSTOM
+					case Cmd.DOC_OR_DIR:
+						label = RCmdMessages.RCmd_Resource_DocOrDir_label;
+						mode = ResourceInputComposite.MODE_FILE | ResourceInputComposite.MODE_DIRECTORY;
+						break;
+					default: // Cmd.CUSTOM:
 						label = RCmdMessages.RCmd_Resource_Other_label;
 						mode = ResourceInputComposite.MODE_FILE | ResourceInputComposite.MODE_DIRECTORY;
 						break;
