@@ -371,7 +371,7 @@ public class RModelIndex {
 			closeDbTools();
 		}
 		finally {
-			fLock.writeLock().lock();
+			fLock.writeLock().unlock();
 		}
 	}
 	
