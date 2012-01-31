@@ -58,6 +58,11 @@ public class RFragmentSourceUnit extends GenericFragmentSourceUnit implements IR
 		return RModel.TYPE_ID;
 	}
 	
+	@Override
+	public int getElementType() {
+		return IRSourceUnit.R_OTHER_SU;
+	}
+	
 	
 	@Override
 	protected void register() {
