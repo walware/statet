@@ -11,7 +11,9 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -143,9 +145,7 @@ public final class Queue implements IQueue {
 	private IToolRunnable fInsertRunnable = null;
 	private final List<IToolRunnable> fInsertRunnableStack = new ArrayList<IToolRunnable>();
 	private int fInsertIndex = -1;
-	private IToolRunnable[] fFinishedExpected = null;
-	private IToolRunnable[] fFinishedCache = null;
-	private int fFinishedCacheDetail = -1;
+	private final Deque<IToolRunnable[]> fFinishedExpected = new ArrayDeque<IToolRunnable[]>();
 	private final List<DebugEvent> fEventList = new ArrayList<DebugEvent>(5);
 	
 	private final ToolProcess fProcess;
@@ -174,7 +174,6 @@ public final class Queue implements IQueue {
 	}
 	
 	public synchronized void sendElements() {
-		checkFinishedCache();
 		checkIOCache();
 		final IToolRunnable[] queueElements = fList.toArray(new IToolRunnable[fList.size()]);
 		final DebugEvent event = new DebugEvent(this, DebugEvent.MODEL_SPECIFIC, QUEUE_INFO);
@@ -263,7 +262,6 @@ public final class Queue implements IQueue {
 	
 	private void doRemove(final IToolRunnable[] runnables) {
 		synchronized (this) {
-			checkFinishedCache();
 			checkIOCache();
 			final List<IToolRunnable> removed = new ArrayList<IToolRunnable>(runnables.length);
 			boolean checkInsert = false;
@@ -297,7 +295,6 @@ public final class Queue implements IQueue {
 		}
 		final IToolRunnable[] array;
 		synchronized (this) {
-			checkFinishedCache();
 			checkIOCache();
 			final List<IToolRunnable> removed = new ArrayList<IToolRunnable>(runnables.length);
 			boolean checkInsert = false;
@@ -320,7 +317,6 @@ public final class Queue implements IQueue {
 		}
 		
 		synchronized (to) {
-			to.checkFinishedCache();
 			to.checkIOCache();
 			if (to == this && fInsertIndex >= 0) {
 				fList.addAll(fInsertIndex, new ConstList<IToolRunnable>(array));
@@ -349,7 +345,6 @@ public final class Queue implements IQueue {
 		}
 		final IToolRunnable[] array;
 		synchronized (this) {
-			checkFinishedCache();
 			checkIOCache();
 			final List<IToolRunnable> removed = new ArrayList<IToolRunnable>(fList.size());
 			for (final Iterator<IToolRunnable> iter = fList.iterator(); iter.hasNext();) {
@@ -368,7 +363,6 @@ public final class Queue implements IQueue {
 		}
 		
 		synchronized (to) {
-			to.checkFinishedCache();
 			to.checkIOCache();
 			to.fList.addAll(new ConstList<IToolRunnable>(array));
 			for (int i = 0; i < array.length; i++) {
@@ -492,7 +486,6 @@ public final class Queue implements IQueue {
 			return;
 		}
 		
-		checkFinishedCache();
 		checkIOCache();
 		if (fInsertIndex >= 0)  {
 			if (runnables.length == 1) {
@@ -519,7 +512,6 @@ public final class Queue implements IQueue {
 	}
 	
 	void internalAddInsert(final IToolRunnable runnable) {
-		checkFinishedCache();
 		checkIOCache();
 		
 		fInsertRunnableStack.add(runnable);
@@ -532,7 +524,6 @@ public final class Queue implements IQueue {
 	}
 	
 	void internalRemoveInsert(final IToolRunnable runnable) {
-		checkFinishedCache();
 		checkIOCache();
 		
 		final List<IToolRunnable> removed = new ArrayList<IToolRunnable>(fInsertIndex+1);
@@ -619,7 +610,6 @@ public final class Queue implements IQueue {
 	}
 	
 	void internalCheck() {
-		checkFinishedCache();
 		checkIOCache();
 		fireEvents();
 	}
@@ -637,8 +627,6 @@ public final class Queue implements IQueue {
 	}
 	
 	IToolRunnable internalPoll() {
-		checkFinishedCache();
-		
 		IToolRunnable[] runnable;
 		if (fSingleIOCache != null) {
 			runnable = fSingleIOCache;
@@ -673,7 +661,7 @@ public final class Queue implements IQueue {
 		addChangeEvent(IToolRunnable.STARTING, runnable);
 		
 		fireEvents();
-		fFinishedExpected = runnable;
+		fFinishedExpected.push(runnable);
 		return runnable[0];
 	}
 	
@@ -681,12 +669,9 @@ public final class Queue implements IQueue {
 	 * Not necessary in synchronized block
 	 */
 	void internalFinished(final IToolRunnable runnable, final int detail) {
-		assert (runnable == fFinishedExpected[0]);
-		assert (fFinishedCache == null);
+		assert (runnable == fFinishedExpected.peek()[0]);
 		
-		// this order is important
-		fFinishedCacheDetail = detail;
-		fFinishedCache = fFinishedExpected;
+		addChangeEvent(detail, fFinishedExpected.poll());
 	}
 	
 	List<IToolRunnable> internalGetList() {
@@ -695,7 +680,6 @@ public final class Queue implements IQueue {
 	}
 	
 	void dispose() {
-		checkFinishedCache();
 		checkIOCache();
 		if (!fList.isEmpty()) {
 			final IToolRunnable[] array = fList.toArray(new IToolRunnable[fList.size()]);
@@ -715,13 +699,6 @@ public final class Queue implements IQueue {
 		fireEvents();
 	}
 	
-	
-	private void checkFinishedCache() {
-		if (fFinishedCache != null) {
-			addChangeEvent(fFinishedCacheDetail, fFinishedCache);
-			fFinishedCache = null;
-		}
-	}
 	
 	private void checkIOCache() {
 		if (fSingleIOCache != null) {
@@ -747,7 +724,9 @@ public final class Queue implements IQueue {
 	private void addDebugEvent(final int code, final int detail, final Delta delta) {
 		final DebugEvent event = new DebugEvent(this, code, detail);
 		event.setData(delta);
-		fEventList.add(event);
+		synchronized (fEventList) {
+			fEventList.add(event);
+		}
 	}
 	
 	private void fireEvents() {
@@ -755,10 +734,12 @@ public final class Queue implements IQueue {
 			return;
 		}
 		final DebugPlugin manager = DebugPlugin.getDefault();
-		if (manager != null) {
-			manager.fireDebugEventSet(fEventList.toArray(new DebugEvent[fEventList.size()]));
+		synchronized (fEventList) {
+			if (manager != null) {
+				manager.fireDebugEventSet(fEventList.toArray(new DebugEvent[fEventList.size()]));
+			}
+			fEventList.clear();
 		}
-		fEventList.clear();
 	}
 	
 }
