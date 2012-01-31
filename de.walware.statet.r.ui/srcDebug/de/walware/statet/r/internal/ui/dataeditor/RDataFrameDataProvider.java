@@ -94,17 +94,13 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 		
 		final RObject fragment;
 		{	final StringBuilder cmd = getRCmdStringBuilder();
-			cmd.append("local({" +
-					"x<-");
+			cmd.append("rj:::.getDataFrameValues(");
 			cmd.append(fInput.getFullName());
-			cmd.append('[');
+			cmd.append(',');
 			appendRowIdxs(cmd, f.beginRowIdx, f.endRowIdx);
 			cmd.append(',');
 			appendColumnIdxs(cmd, f.beginColumnIdx, f.endColumnIdx);
-			cmd.append(",drop = FALSE];" +
-					"row.names(x)<-NULL;" +
-					"x;" +
-					"})");
+			cmd.append(')');
 			fragment = r.evalData(cmd.toString(), monitor);
 		}
 		final RDataFrame dataframe = RDataUtil.checkRDataFrame(fragment,
@@ -132,18 +128,11 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 		
 		final RObject fragment;
 		{	final StringBuilder cmd = getRCmdStringBuilder();
-			cmd.append("local({" +
-					"x.names<-row.names(" );
+			cmd.append("rj:::.getDataFrameRowNames(");
 			cmd.append(fInput.getFullName());
-			cmd.append(");");
-			cmd.append("row.idxs<-");
+			cmd.append(',');
 			appendRowIdxs(cmd, f.beginRowIdx, f.endRowIdx);
-			cmd.append(';');
-			cmd.append("if (!is.null(x.names)) " +
-					"x.names[row.idxs] " +
-					"else " +
-					"row.idxs;" +
-					"})");
+			cmd.append(')');
 			fragment = r.evalData(cmd.toString(), monitor);
 		}
 		final RVector<?> vector = RDataUtil.checkRVector(fragment);

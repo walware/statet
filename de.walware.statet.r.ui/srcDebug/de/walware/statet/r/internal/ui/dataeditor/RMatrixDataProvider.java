@@ -120,17 +120,13 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 		
 		final RObject fragment;
 		{	final StringBuilder cmd = getRCmdStringBuilder();
-			cmd.append("local({" +
-					"x<-");
+			cmd.append("rj:::.getDataMatrixValues(");
 			cmd.append(fInput.getFullName());
-			cmd.append('[');
+			cmd.append(',');
 			appendRowIdxs(cmd, f.beginRowIdx, f.endRowIdx);
 			cmd.append(',');
 			appendColumnIdxs(cmd, f.beginColumnIdx, f.endColumnIdx);
-			cmd.append(",drop = FALSE];" +
-					"rownames(x)<-NULL;" +
-					"x;" +
-					"})");
+			cmd.append(')');
 			fragment = r.evalData(cmd.toString(), monitor);
 		}
 		final RArray<?> array = RDataUtil.checkRArray(fragment, 2);
@@ -156,18 +152,11 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 		
 		final RObject fragment;
 		{	final StringBuilder cmd = getRCmdStringBuilder();
-			cmd.append("local({" +
-					"x.names<-rownames(" );
+			cmd.append("rj:::.getDataMatrixRowNames(");
 			cmd.append(fInput.getFullName());
-			cmd.append(");" +
-					"row.idxs<-");
+			cmd.append(',');
 			appendRowIdxs(cmd, f.beginRowIdx, f.endRowIdx);
-			cmd.append(";" +
-					"if (!is.null(x.names)) " +
-					"x.names[row.idxs] " +
-					"else " +
-					"row.idxs;" +
-					"})");
+			cmd.append(')');
 			fragment = r.evalData(cmd.toString(), monitor);
 		}
 		final RVector<?> vector = RDataUtil.checkRVector(fragment);

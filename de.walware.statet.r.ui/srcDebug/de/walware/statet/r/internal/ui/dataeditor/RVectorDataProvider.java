@@ -87,15 +87,11 @@ public class RVectorDataProvider extends AbstractRDataProvider<RVector<?>> {
 		
 		final RObject fragment;
 		{	final StringBuilder cmd = getRCmdStringBuilder();
-			cmd.append("local({" +
-					"x<-");
+			cmd.append("rj:::.getDataVectorValues(");
 			cmd.append(fInput.getFullName());
-			cmd.append('[');
+			cmd.append(',');
 			appendRowIdxs(cmd, f.beginRowIdx, f.endRowIdx);
-			cmd.append("];" +
-					"names(x)<-NULL;" +
-					"x;" +
-					"})");
+			cmd.append(')');
 			fragment = r.evalData(cmd.toString(), monitor);
 		}
 		final RVector<?> vector = RDataUtil.checkRVector(fragment);
@@ -118,18 +114,11 @@ public class RVectorDataProvider extends AbstractRDataProvider<RVector<?>> {
 		
 		final RObject fragment;
 		{	final StringBuilder cmd = getRCmdStringBuilder();
-			cmd.append("local({" +
-					"x.names<-names(" );
+			cmd.append("rj:::.getDataVectorRowNames(");
 			cmd.append(fInput.getFullName());
-			cmd.append(");" +
-					"row.idxs<-");
+			cmd.append(',');
 			appendRowIdxs(cmd, f.beginRowIdx, f.endRowIdx);
-			cmd.append(";" +
-					"if (!is.null(x.names)) " +
-					"x.names[row.idxs] " +
-					"else " +
-					"row.idxs;" +
-					"})");
+			cmd.append(')');
 			fragment = r.evalData(cmd.toString(), monitor);
 		}
 		final RVector<?> vector = RDataUtil.checkRVector(fragment);
