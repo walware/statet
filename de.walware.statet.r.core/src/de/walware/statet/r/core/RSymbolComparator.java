@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.Locale;
 
 import com.ibm.icu.text.Collator;
+import com.ibm.icu.text.RuleBasedCollator;
 
 
 /**
@@ -87,6 +88,9 @@ public class RSymbolComparator implements Comparator<String> {
 	
 	
 	public static final Collator R_NAMES_COLLATOR = Collator.getInstance(Locale.ENGLISH);
+	static {
+		((RuleBasedCollator) R_NAMES_COLLATOR).setUpperCaseFirst(true);
+	}
 	
 	
 	@Override

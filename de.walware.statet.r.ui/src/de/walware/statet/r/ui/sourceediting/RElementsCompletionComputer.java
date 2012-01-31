@@ -18,8 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.ibm.icu.text.Collator;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -148,7 +146,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		final ArrayList<String> list = new ArrayList<String>();
 		Collections.addAll(list, RTokens.CONSTANT_WORDS);
 		Collections.addAll(list, RTokens.FLOWCONTROL_WORDS);
-		Collections.sort(list, Collator.getInstance());
+		Collections.sort(list, RSymbolComparator.R_NAMES_COLLATOR);
 		list.trimToSize();
 		fgKeywords = Collections.unmodifiableList(list);
 	}
