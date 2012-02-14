@@ -307,7 +307,7 @@
             </visibleWhen>
          </command>
          <command
-               commandId="de.walware.statet.base.commands.RefactorRenameInSelectedRegion"
+               commandId="de.walware.ecommons.ltk.commands.RefactorRenameInSelectedRegion"
                style="push">
             <visibleWhen
                   checkEnabled="false">
@@ -317,7 +317,7 @@
             </visibleWhen>
          </command>
          <command
-               commandId="de.walware.statet.base.commands.RefactorInlineLocalVariable"
+               commandId="de.walware.ecommons.ltk.commands.RefactorInlineLocalVariable"
                style="push">
             <visibleWhen
                   checkEnabled="false">
@@ -327,7 +327,7 @@
             </visibleWhen>
          </command>
          <command
-               commandId="de.walware.statet.base.commands.RefactorExtractLocalVariable"
+               commandId="de.walware.ecommons.ltk.commands.RefactorExtractLocalVariable"
                style="push">
             <visibleWhen
                   checkEnabled="false">
@@ -484,7 +484,7 @@
          </activeWhen>
       </handler>
       <handler
-            commandId="de.walware.statet.base.commands.RefactorRenameInSelectedRegion"
+            commandId="de.walware.ecommons.ltk.commands.RefactorRenameInSelectedRegion"
             class="de.walware.statet.r.internal.ui.refactoring.RenameInRegionHandler">
          <activeWhen>
             <with variable="activePartId">
@@ -495,7 +495,7 @@
          </activeWhen>
       </handler>
       <handler
-            commandId="de.walware.statet.base.commands.RefactorInlineLocalVariable"
+            commandId="de.walware.ecommons.ltk.commands.RefactorInlineLocalVariable"
             class="de.walware.statet.r.internal.ui.refactoring.InlineTempHandler">
          <activeWhen>
             <with variable="activePartId">
@@ -506,7 +506,7 @@
          </activeWhen>
       </handler>
       <handler
-            commandId="de.walware.statet.base.commands.RefactorExtractLocalVariable"
+            commandId="de.walware.ecommons.ltk.commands.RefactorExtractLocalVariable"
             class="de.walware.statet.r.internal.ui.refactoring.ExtractTempHandler">
          <activeWhen>
             <with variable="activePartId">
