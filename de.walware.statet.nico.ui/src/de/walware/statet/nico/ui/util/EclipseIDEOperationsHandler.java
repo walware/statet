@@ -46,6 +46,7 @@ public class EclipseIDEOperationsHandler implements IToolEventHandler {
 	public static final String SHOW_HISTORY_ID = "common/showHistory"; //$NON-NLS-1$
 	
 	
+	@Override
 	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		if (id.equals(SHOW_FILE_ID)) {
 			final IFileStore fileStore;
@@ -61,6 +62,7 @@ public class EclipseIDEOperationsHandler implements IToolEventHandler {
 			}
 			final Display display = UIAccess.getDisplay();
 			display.syncExec(new Runnable() {
+				@Override
 				public void run() {
 					final IWorkbenchPage page = NicoUI.getToolRegistry().findWorkbenchPage(tools.getTool());
 					try {
@@ -78,6 +80,7 @@ public class EclipseIDEOperationsHandler implements IToolEventHandler {
 			final String pattern = ToolEventHandlerUtil.getCheckedData(data, "pattern", String.class, false); //$NON-NLS-1$
 			final Display display = UIAccess.getDisplay();
 			display.syncExec(new Runnable() {
+				@Override
 				public void run() {
 					try {
 						final IWorkbenchPage page = NicoUI.getToolRegistry().findWorkbenchPage(tools.getTool());

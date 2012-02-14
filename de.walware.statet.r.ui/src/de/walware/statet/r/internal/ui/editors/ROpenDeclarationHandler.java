@@ -168,6 +168,7 @@ public class ROpenDeclarationHandler extends AbstractHandler {
 	}
 	
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final IWorkbenchPart activePart = WorkbenchUIUtil.getActivePart(event.getApplicationContext());
 		final ISourceEditor editor = (ISourceEditor) activePart.getAdapter(ISourceEditor.class);

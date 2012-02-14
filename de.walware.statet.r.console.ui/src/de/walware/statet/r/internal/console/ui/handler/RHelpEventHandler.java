@@ -44,6 +44,7 @@ public class RHelpEventHandler implements IToolEventHandler {
 	}
 	
 	
+	@Override
 	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		if (id.equals(AbstractRController.SHOW_RHELP_HANDLER_ID)) {
 			String url = ToolEventHandlerUtil.getCheckedData(data, "url", String.class, true);
@@ -66,6 +67,7 @@ public class RHelpEventHandler implements IToolEventHandler {
 			final String urlToOpen = url;
 			try {
 				UIAccess.checkedSyncExec(new CheckedRunnable() {
+					@Override
 					public void run() throws CoreException {
 						final RHelpView view = (RHelpView) NicoUITools.getView(RUI.R_HELP_VIEW_ID, tools.getTool(), true);
 						view.openUrl(urlToOpen, null);

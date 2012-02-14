@@ -30,52 +30,64 @@ public abstract class CombinedElement implements ICombinedRElement {
 	protected RElementName fElementName;
 	
 	
+	@Override
 	public RList getAttributes() {
 		return null;
 	}
 	
 	
+	@Override
 	public String getModelTypeId() {
 		return null;
 	}
 	
+	@Override
 	public String getId() {
 		return null; // not yet implemented
 	}
 	
+	@Override
 	public final RElementName getElementName() {
 		return fElementName;
 	}
 	
+	@Override
 	public boolean exists() {
 		return true;
 	}
 	
+	@Override
 	public boolean isReadOnly() {
 		return false;
 	}
 	
+	@Override
 	public final CombinedElement getModelParent() {
 		return fParent;
 	}
 	
+	@Override
 	public ISourceUnit getSourceUnit() {
 		return null;
 	}
 	
+	@Override
 	public IRegion getSourceRange() {
 		return null;
 	}
 	
+	@Override
 	public IRegion getNameSourceRange() {
 		return null;
 	}
 	
+	@Override
 	public IRegion getDocumentationRange() {
 		return null;
 	}
 	
 	
+	@Override
 	public Object getAdapter(final Class required) {
 		if (IModelElement.class.equals(required)) {
 			return this;

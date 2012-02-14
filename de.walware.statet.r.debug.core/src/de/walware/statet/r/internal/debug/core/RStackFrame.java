@@ -63,18 +63,22 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		
 		private boolean fCancel;
 		
+		@Override
 		public String getTypeId() {
 			return "r/dbg/stackframe";
 		}
 		
+		@Override
 		public String getLabel() {
 			return "Update Debug Context (Stack Frame)";
 		}
 		
+		@Override
 		public boolean isRunnableIn(final ITool tool) {
 			return (tool == fThread.getDebugTarget().getProcess());
 		}
 		
+		@Override
 		public boolean changed(final int event, final ITool process) {
 			switch (event) {
 			case REMOVING_FROM:
@@ -97,6 +101,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			loadContext((AbstractRDbgController) service, monitor);
@@ -115,18 +120,22 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 			fRExpression = rExpression;
 		}
 		
+		@Override
 		public String getTypeId() {
 			return "r/dbg/stackframe";
 		}
 		
+		@Override
 		public String getLabel() {
 			return "Update Debug Context (Variables)";
 		}
 		
+		@Override
 		public boolean isRunnableIn(final ITool tool) {
 			return (tool == fThread.getDebugTarget().getProcess());
 		}
 		
+		@Override
 		public boolean changed(final int event, final ITool tool) {
 			switch (event) {
 			case REMOVING_FROM:
@@ -147,6 +156,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			final AbstractRDbgController r = (AbstractRDbgController) service;
@@ -171,18 +181,22 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 			fStamp = stamp;
 		}
 		
+		@Override
 		public String getTypeId() {
 			return "r/dbg/stackframe";
 		}
 		
+		@Override
 		public String getLabel() {
 			return "Update Debug Context (Variables)";
 		}
 		
+		@Override
 		public boolean isRunnableIn(final ITool tool) {
 			return (tool == fThread.getDebugTarget().getProcess());
 		}
 		
+		@Override
 		public boolean changed(final int event, final ITool tool) {
 			switch (event) {
 			case REMOVING_FROM:
@@ -203,6 +217,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			final AbstractRDbgController r = (AbstractRDbgController) service;
@@ -302,10 +317,12 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 				dbgFrame, call, fileName, breakpointStatus);
 	}
 	
+	@Override
 	public IRThread getThread() {
 		return fThread;
 	}
 	
+	@Override
 	public String getName() throws DebugException {
 		return fCall;
 	}
@@ -315,70 +332,86 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		return fCall;
 	}
 	
+	@Override
 	public String getInfoFileName() {
 		return fFileName;
 	}
 	
+	@Override
 	public int getInfoLineNumber() {
 		final int[] exprSrcref = fDbgFrame.getExprSrcref();
 		return (exprSrcref != null) ? exprSrcref[0] : -1;
 	}
 	
+	@Override
 	public int getPosition() {
 		return fDbgFrame.getPosition();
 	}
 	
 	
+	@Override
 	public boolean isTerminated() {
 		return fThread.isTerminated();
 	}
 	
+	@Override
 	public boolean canTerminate() {
 		return fThread.canTerminate();
 	}
 	
+	@Override
 	public void terminate() throws DebugException {
 		fThread.terminate();
 	}
 	
 	
+	@Override
 	public boolean isSuspended() {
 		return fThread.isSuspended();
 	}
 	
+	@Override
 	public boolean canSuspend() {
 		return fThread.canSuspend();
 	}
 	
+	@Override
 	public boolean canResume() {
 		return fThread.canResume();
 	}
 	
+	@Override
 	public void suspend() throws DebugException {
 		fThread.suspend();
 	}
 	
+	@Override
 	public void resume() throws DebugException {
 		fThread.resume();
 	}
 	
 	
+	@Override
 	public boolean isStepping() {
 		return fThread.isStepping();
 	}
 	
+	@Override
 	public boolean canStepInto() {
 		return (isSuspended() && fDbgFrame.isTopFrame());
 	}
 	
+	@Override
 	public boolean canStepOver() {
 		return (isSuspended() && (fDbgFrame.getFlags() & CallStack.FLAG_NOSTEPPING) == 0);
 	}
 	
+	@Override
 	public boolean canStepReturn() {
 		return (isSuspended() && fDbgFrame.getPosition() > 0 && !fDbgFrame.isTopLevelCommand());
 	}
 	
+	@Override
 	public void stepInto() throws DebugException {
 		if (!canStepInto()) {
 			return;
@@ -386,6 +419,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		getThread().stepInto();
 	}
 	
+	@Override
 	public void stepOver() throws DebugException {
 		if (!canStepOver()) {
 			return;
@@ -393,6 +427,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		((RMainThread) getThread()).stepToFrame(this, 0);
 	}
 	
+	@Override
 	public void stepReturn() throws DebugException {
 		if (!canStepReturn()) {
 			return;
@@ -401,10 +436,12 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 	}
 	
 	
+	@Override
 	public boolean hasVariables() throws DebugException {
 		return fDbgFrame.getPosition() > 0;
 	}
 	
+	@Override
 	public IVariable[] getVariables() throws DebugException {
 		fLock.readLock().lock();
 		try {
@@ -418,10 +455,12 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		}
 	}
 	
+	@Override
 	public boolean hasRegisterGroups() throws DebugException {
 		return false;
 	}
 	
+	@Override
 	public IRegisterGroup[] getRegisterGroups() throws DebugException {
 		return null;
 	}
@@ -435,6 +474,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		fLock.writeLock().unlock();
 	}
 	
+	@Override
 	public int getLineNumber() throws DebugException {
 		PositionResolver resolver;
 		fLock.readLock().lock();
@@ -450,6 +490,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		return getInfoLineNumber();
 	}
 	
+	@Override
 	public int getCharStart() throws DebugException {
 		final PositionResolver resolver;
 		fLock.readLock().lock();
@@ -465,6 +506,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		return -1;
 	}
 	
+	@Override
 	public int getCharEnd() throws DebugException {
 		final PositionResolver resolver;
 		fLock.readLock().lock();

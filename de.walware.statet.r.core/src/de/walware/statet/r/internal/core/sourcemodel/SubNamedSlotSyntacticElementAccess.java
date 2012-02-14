@@ -28,10 +28,12 @@ final class SubNamedSlotSyntacticElementAccess extends SubAbstractElementAccess 
 	}
 	
 	
+	@Override
 	public int getType() {
 		return RElementName.SUB_NAMEDSLOT;
 	}
 	
+	@Override
 	public final String getSegmentName() {
 		return fNode.getSubnameChild().getText();
 	}

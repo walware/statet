@@ -99,6 +99,7 @@ public class ExportConsoleOutputWizard extends Wizard {
 			fOpenValue = new WritableValue(false, Boolean.class);
 		}
 		
+		@Override
 		public void createControl(final Composite parent) {
 			initializeDialogUnits(parent);
 			
@@ -219,6 +220,7 @@ public class ExportConsoleOutputWizard extends Wizard {
 		final boolean openInEditor = fConfigPage.getOpenInEditor();
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {
+				@Override
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					final SubMonitor progress = SubMonitor.convert(monitor, "Export Output", 100);
 					final TextConsoleViewer outputViewer = fConsolePage.getOutputViewer();
@@ -231,6 +233,7 @@ public class ExportConsoleOutputWizard extends Wizard {
 						if (fSelectionLength > 0) {
 							final AtomicReference<ITextSelection> currentSelection = new AtomicReference<ITextSelection>();
 							getShell().getDisplay().syncExec(new Runnable() {
+								@Override
 								public void run() {
 									final ITextSelection selection = (ITextSelection) outputViewer.getSelection();
 									if (selection.getLength() != fSelectionLength) {
@@ -377,6 +380,7 @@ public class ExportConsoleOutputWizard extends Wizard {
 			
 			if (openInEditor) {
 				UIAccess.getDisplay().asyncExec(new Runnable() {
+					@Override
 					public void run() {
 						OpenTrackingFilesContributionItem.open("export", fileStore);
 					}

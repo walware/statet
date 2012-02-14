@@ -53,19 +53,23 @@ public class OpenRElementHyperlink implements IHyperlink {
 	}
 	
 	
+	@Override
 	public String getTypeLabel() {
 		return null;
 	}
 	
+	@Override
 	public IRegion getHyperlinkRegion() {
 		return fRegion;
 	}
 	
+	@Override
 	public String getHyperlinkText() {
 		return null;
 //		return NLS.bind("Open Declaration {0}", fAccess.getDisplayName());
 	}
 	
+	@Override
 	public void open() {
 		try {
 			final List<ISourceElement> list = RModel.searchDeclaration(fAccess, fSu);

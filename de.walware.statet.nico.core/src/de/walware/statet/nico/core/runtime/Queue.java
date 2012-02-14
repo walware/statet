@@ -198,6 +198,7 @@ public final class Queue implements IQueue {
 	 * @param runnable the runnable to add
 	 * @return the status of the queue operation.
 	 */
+	@Override
 	public IStatus add(final IToolRunnable runnable) {
 		if (runnable == null) {
 			throw new NullPointerException("runnable"); //$NON-NLS-1$
@@ -240,6 +241,7 @@ public final class Queue implements IQueue {
 		return status;
 	}
 	
+	@Override
 	public void remove(final IToolRunnable runnable) {
 		if (runnable == null) {
 			throw new NullPointerException("runnable"); //$NON-NLS-1$
@@ -434,10 +436,12 @@ public final class Queue implements IQueue {
 		}
 	}
 	
+	@Override
 	public boolean isHotSupported() {
 		return true;
 	}
 	
+	@Override
 	public IStatus addHot(final IToolRunnable runnable) {
 		return addHot(runnable, 0);
 	}
@@ -468,6 +472,7 @@ public final class Queue implements IQueue {
 		}
 	}
 	
+	@Override
 	public void removeHot(final IToolRunnable runnable) {
 		if (runnable == null) {
 			throw new NullPointerException("runnable"); //$NON-NLS-1$

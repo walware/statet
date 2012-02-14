@@ -34,14 +34,17 @@ public final class ConsoleDefaultScope implements IScopeContext {
 	}
 	
 	
+	@Override
 	public IPath getLocation() {
 		return fBaseScope.getLocation();
 	}
 	
+	@Override
 	public String getName() {
 		return SCOPE;
 	}
 	
+	@Override
 	public IEclipsePreferences getNode(final String qualifier) {
 		final int idx = qualifier.indexOf('/');
 		if (idx < 0) {

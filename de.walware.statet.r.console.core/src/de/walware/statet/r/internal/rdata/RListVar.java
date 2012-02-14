@@ -49,6 +49,7 @@ public class RListVar extends CombinedElement
 		readExternal(io, factory);
 	}
 	
+	@Override
 	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		doReadExternal(io, factory);
 	}
@@ -71,7 +72,7 @@ public class RListVar extends CombinedElement
 			this.components = new CombinedElement[length];
 			for (int i = 0; i < length; i++) {
 				this.components[i] = CombinedFactory.INSTANCE.readObject(io, this,
-						(this.namesAttribute.isNA(i) || this.namesAttribute.getChar(i).length() == 0) ? 
+						(this.namesAttribute.isNA(i) || this.namesAttribute.getChar(i).isEmpty()) ? 
 								RElementName.create(RElementName.SUB_INDEXED_D, Integer.toString(i+1), i+1) :
 								RElementName.create(RElementName.SUB_NAMEDPART, this.namesAttribute.getChar(i), i+1) );
 			}
@@ -79,6 +80,7 @@ public class RListVar extends CombinedElement
 		return options;
 	}
 	
+	@Override
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		doWriteExternal(io, 0, factory);
 	}
@@ -109,23 +111,28 @@ public class RListVar extends CombinedElement
 	}
 	
 	
+	@Override
 	public byte getRObjectType() {
 		return TYPE_LIST;
 	}
 	
+	@Override
 	public final String getRClassName() {
 		return this.className1;
 	}
 	
 	
+	@Override
 	public int getLength() {
 		return this.length;
 	}
 	
+	@Override
 	public final RCharacterStore getNames() {
 		return this.namesAttribute;
 	}
 	
+	@Override
 	public final String getName(final int idx) {
 		if (this.namesAttribute != null) {
 			return this.namesAttribute.getChar(idx);
@@ -133,10 +140,12 @@ public class RListVar extends CombinedElement
 		return null;
 	}
 	
+	@Override
 	public final RObject get(final int idx) {
 		return this.components[idx];
 	}
 	
+	@Override
 	public final RObject get(final String name) {
 		if (this.namesAttribute != null) {
 			final int idx = this.namesAttribute.indexOf(name);
@@ -147,21 +156,25 @@ public class RListVar extends CombinedElement
 		return null;
 	}
 	
+	@Override
 	public final RObject[] toArray() {
 		final RObject[] array = new RObject[this.length];
 		System.arraycopy(this.components, 0, array, 0, this.length);
 		return array;
 	}
 	
+	@Override
 	public final RStore getData() {
 		return null;
 	}
 	
 	
+	@Override
 	public int getElementType() {
 		return R_GENERAL_VARIABLE;
 	}
 	
+	@Override
 	public final boolean hasModelChildren(final Filter filter) {
 		if (this.components == null) {
 			return false;
@@ -179,6 +192,7 @@ public class RListVar extends CombinedElement
 		}
 	}
 	
+	@Override
 	public final List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		if (this.components == null) {
 			return Collections.emptyList();

@@ -126,6 +126,7 @@ public class FunctionToS4MethodWizard extends RefactoringWizard {
 			return (FunctionToS4MethodRefactoring) super.getRefactoring();
 		}
 		
+		@Override
 		public void createControl(final Composite parent) {
 			final Composite composite = new Composite(parent, SWT.NONE);
 			composite.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
@@ -190,6 +191,7 @@ public class FunctionToS4MethodWizard extends RefactoringWizard {
 				label.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false));
 				label.setText("Method &parameters:");
 				label.addTraverseListener(new TraverseListener() {
+					@Override
 					public void keyTraversed(final TraverseEvent e) {
 						if (e.detail == SWT.TRAVERSE_MNEMONIC) {
 							e.doit = false;
@@ -282,12 +284,14 @@ public class FunctionToS4MethodWizard extends RefactoringWizard {
 			dbc.bindValue(SWTObservables.observeText(fFunctionNameControl, SWT.Modify),
 					PojoObservables.observeValue(realm, getRefactoring(), "functionName"), //$NON-NLS-1$
 					new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
+						@Override
 						public IStatus validate(final Object value) {
 							return new RefactoringBasedStatus(getRefactoring().checkFunctionName((String) value));
 						}
 					}), null);
 			final IObservableList argumentsList = new WritableList(realm, getRefactoring().getVariables(), Variable.class);
 			fArgumentsViewer.addCheckStateListener(new ICheckStateListener() {
+				@Override
 				public void checkStateChanged(final CheckStateChangedEvent event) {
 					final Object element = event.getElement();
 					if (element instanceof Variable) {

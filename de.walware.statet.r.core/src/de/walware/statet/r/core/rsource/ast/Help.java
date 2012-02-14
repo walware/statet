@@ -119,6 +119,7 @@ public class Help extends RAstNode {
 		fRightExpr.node.acceptInR(visitor);
 	}
 	
+	@Override
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		if (fLeftExpr.node != null) {
 			visitor.visit(fLeftExpr.node);

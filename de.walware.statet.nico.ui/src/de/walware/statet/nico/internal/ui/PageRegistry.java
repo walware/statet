@@ -153,10 +153,12 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 			return (family == PageRegistry.this);
 		}
 		
+		@Override
 		public boolean contains(final ISchedulingRule rule) {
 			return false;
 		}
 		
+		@Override
 		public boolean isConflicting(final ISchedulingRule rule) {
 			if (rule instanceof Job) {
 				return ((Job) rule).belongsTo(PageRegistry.this);
@@ -202,6 +204,7 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 			if (console == null) {
 				final AtomicReference<NIConsole> ref = new AtomicReference<NIConsole>();
 				UIAccess.getDisplay(fPage.getWorkbenchWindow().getShell()).syncExec(new Runnable() {
+					@Override
 					public void run() {
 						ref.set(searchConsole(exclude));
 					}
@@ -248,10 +251,12 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 			return (family == PageRegistry.this);
 		}
 		
+		@Override
 		public boolean contains(final ISchedulingRule rule) {
 			return false;
 		}
 		
+		@Override
 		public boolean isConflicting(final ISchedulingRule rule) {
 			if (rule instanceof Job) {
 				return ((Job) rule).belongsTo(PageRegistry.this);
@@ -316,6 +321,7 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 	}
 	
 	
+	@Override
 	public void debugContextChanged(final DebugContextEvent event) {
 		final ISelection selection = event.getContext();
 		if (selection instanceof IStructuredSelection) {
@@ -345,6 +351,7 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 		}
 	}
 	
+	@Override
 	public void handleDebugEvents(final DebugEvent[] events) {
 		final ToolProcess tool = fActiveProcess;
 		if (tool == null) {

@@ -86,6 +86,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		}
 		
 		
+		@Override
 		public Object getValueType() {
 			return String.class;
 		}
@@ -136,24 +137,29 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 			return fEncodedValue;
 		}
 		
+		@Override
 		public void widgetDefaultSelected(final SelectionEvent e) {
 		}
 		
+		@Override
 		public void widgetSelected(final SelectionEvent e) {
 			if (!isInitializing()) {
 				updateValue();
 			}
 		}
 		
+		@Override
 		public void selectionChanged(final SelectionChangedEvent event) {
 			if (!isInitializing()) {
 				updateValue();
 			}
 		}
 		
+		@Override
 		public void documentAboutToBeChanged(final DocumentEvent event) {
 		}
 		
+		@Override
 		public void documentChanged(final DocumentEvent event) {
 			if (!isInitializing()) {
 				updateValue();
@@ -191,6 +197,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 			}
 		}
 		
+		@Override
 		public IStatus validate(final Object value) {
 			return fCurrentStatus;
 		}
@@ -223,6 +230,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 	private Button fCmdLaunchNewButton;
 	
 	
+	@Override
 	public String getName() {
 		return Messages.Processing_SweaveTab_label;
 	}
@@ -233,6 +241,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
+	@Override
 	public void createControl(final Composite parent) {
 		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
@@ -251,12 +260,15 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		createSweaveCommandGroup(composite);
 		
 		fLaunchConfigurationListener = new ILaunchConfigurationListener() {
+			@Override
 			public void launchConfigurationAdded(final ILaunchConfiguration configuration) {
 				updateAvailableConfigs();
 			}
+			@Override
 			public void launchConfigurationChanged(final ILaunchConfiguration configuration) {
 				updateAvailableConfigs();
 			}
+			@Override
 			public void launchConfigurationRemoved(final ILaunchConfiguration configuration) {
 				updateAvailableConfigs();
 			}
@@ -395,6 +407,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
+	@Override
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(ATTR_SWEAVE_ID, RweaveTexLaunchDelegate.SWEAVE_CONSOLE+':');
 	}

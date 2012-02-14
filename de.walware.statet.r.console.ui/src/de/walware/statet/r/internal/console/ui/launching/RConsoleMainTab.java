@@ -142,6 +142,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		return null;
 	}
 	
+	@Override
 	public String getName() {
 		return RConsoleMessages.RConsole_MainTab_name;
 	}
@@ -151,6 +152,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		return StatetImages.getImage(StatetImages.LAUNCHCONFIG_MAIN);
 	}
 	
+	@Override
 	public void createControl(final Composite parent) {
 		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
@@ -265,6 +267,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 				null);
 		
 		fTypeValue.addValueChangeListener(new IValueChangeListener() {
+			@Override
 			public void handleValueChange(final ValueChangeEvent event) {
 				final Object newValue = event.diff.getNewValue();
 				updateType((RConsoleType) newValue);
@@ -287,6 +290,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
+	@Override
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(RConsoleLaunching.ATTR_TYPE, fDefaultType.getId()); //s
 		configuration.setAttribute(RConsoleLaunching.ATTR_OPTIONS, ""); //$NON-NLS-1$

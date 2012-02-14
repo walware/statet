@@ -112,6 +112,7 @@ public abstract class AbstractBreakpointDetailEditor {
 		
 		fAggregateStatus = new AggregateValidationStatus(fDbc, AggregateValidationStatus.MAX_SEVERITY);
 		fAggregateStatus.addValueChangeListener(new IValueChangeListener() {
+			@Override
 			public void handleValueChange(final ValueChangeEvent event) {
 				fCurrentStatus = (IStatus) event.diff.getNewValue();
 //				updateDialogState();
@@ -136,6 +137,7 @@ public abstract class AbstractBreakpointDetailEditor {
 		};
 		
 		fComposite.addDisposeListener(new DisposeListener() {
+			@Override
 			public void widgetDisposed(final DisposeEvent e) {
 				disposeBindings();
 			}

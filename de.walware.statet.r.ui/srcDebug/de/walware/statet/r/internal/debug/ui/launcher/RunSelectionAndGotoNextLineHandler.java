@@ -39,6 +39,7 @@ public class RunSelectionAndGotoNextLineHandler extends AbstractHandler {
 	}
 	
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final IWorkbenchPart workbenchPart = HandlerUtil.getActivePart(event);
 		final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event.getApplicationContext());

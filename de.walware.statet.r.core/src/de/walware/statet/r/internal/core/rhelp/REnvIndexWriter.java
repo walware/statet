@@ -275,7 +275,7 @@ public class REnvIndexWriter implements IREnvIndex {
 	}
 	
 	public void setDocDir(String docDir) {
-		if (docDir != null && docDir.length() == 0) {
+		if (docDir != null && docDir.isEmpty()) {
 			docDir = null;
 		}
 		fStatus.add(new Status(IStatus.INFO, RCore.PLUGIN_ID, "Setting doc dir to: " + //$NON-NLS-1$

@@ -31,10 +31,12 @@ public class RHelpSearchMatch implements IRHelpSearchMatch {
 		}
 		
 		
+		@Override
 		public String getField() {
 			return fField;
 		}
 		
+		@Override
 		public String getFieldLabel() {
 			if (fField == IREnvIndex.ALIAS_FIELD_NAME || fField == IREnvIndex.ALIAS_TXT_FIELD_NAME) {
 				return "Topic";
@@ -57,6 +59,7 @@ public class RHelpSearchMatch implements IRHelpSearchMatch {
 			return "";
 		}
 		
+		@Override
 		public String getText() {
 			return fText;
 		}
@@ -94,18 +97,22 @@ public class RHelpSearchMatch implements IRHelpSearchMatch {
 		fTotalMatches = totalMatches;
 	}
 	
+	@Override
 	public IRHelpPage getPage() {
 		return fPage;
 	}
 	
+	@Override
 	public float getScore() {
 		return fScore;
 	}
 	
+	@Override
 	public int getMatchesCount() {
 		return fTotalMatches;
 	}
 	
+	@Override
 	public MatchFragment[] getBestFragments() {
 		return fBestFragments;
 	}

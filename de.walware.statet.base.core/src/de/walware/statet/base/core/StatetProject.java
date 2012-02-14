@@ -57,18 +57,22 @@ public class StatetProject implements IProjectNature, IPreferenceAccess {
 	}
 	
 	
+	@Override
 	public void setProject(final IProject project) {
 		fProject = project;
 		fContexts = createPrefContexts(true);
 	}
 	
+	@Override
 	public IProject getProject() {
 		return fProject;
 	}
 	
+	@Override
 	public void configure() throws CoreException {
 	}
 	
+	@Override
 	public void deconfigure() throws CoreException {
 	}
 	
@@ -88,18 +92,22 @@ public class StatetProject implements IProjectNature, IPreferenceAccess {
 				};
 	}
 	
+	@Override
 	public <T> T getPreferenceValue(final Preference<T> key) {
 		return PreferencesUtil.getPrefValue(fContexts, key);
 	}
 	
+	@Override
 	public IEclipsePreferences[] getPreferenceNodes(final String nodeQualifier) {
 		return PreferencesUtil.getRelevantNodes(nodeQualifier, fContexts);
 	}
 	
+	@Override
 	public IScopeContext[] getPreferenceContexts() {
 		return fContexts;
 	}
 	
+	@Override
 	public void addPreferenceNodeListener(final String nodeQualifier, final IPreferenceChangeListener listener) {
 		int i = fContexts.length-2;
 		while (i >= 0) {
@@ -110,6 +118,7 @@ public class StatetProject implements IProjectNature, IPreferenceAccess {
 		}
 	}
 	
+	@Override
 	public void removePreferenceNodeListener(final String nodeQualifier, final IPreferenceChangeListener listener) {
 		int i = fContexts.length-2;
 		while (i >= 0) {

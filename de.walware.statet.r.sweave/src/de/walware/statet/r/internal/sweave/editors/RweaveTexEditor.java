@@ -177,6 +177,7 @@ public class RweaveTexEditor extends SourceEditor1 {
 	}
 	
 	
+	@Override
 	public String getModelTypeId() {
 		return Sweave.R_TEX_MODEL_TYPE_ID;
 	}

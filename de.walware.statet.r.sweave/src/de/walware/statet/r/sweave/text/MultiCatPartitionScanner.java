@@ -107,6 +107,7 @@ public class MultiCatPartitionScanner implements IPartitionTokenScanner, IPartit
 		}
 	}
 	
+	@Override
 	public void setPartitionerCallback(final Partitioner partitioner) {
 		for (final IPartitionTokenScanner scanner : fContentTypeScanners) {
 			if (scanner instanceof IPartitionScannerCallbackExt) {
@@ -121,10 +122,12 @@ public class MultiCatPartitionScanner implements IPartitionTokenScanner, IPartit
 	}
 	
 	
+	@Override
 	public void setRange(final IDocument document, final int offset, final int length) {
 		setPartialRange(document, offset, length, null, -1);
 	}
 	
+	@Override
 	public void setPartialRange(final IDocument document, final int offset, final int length, final String contentType, int partitionOffset) {
 		if (partitionOffset < 0) {
 			partitionOffset = offset;
@@ -170,6 +173,7 @@ public class MultiCatPartitionScanner implements IPartitionTokenScanner, IPartit
 		return null;
 	}
 	
+	@Override
 	public IToken nextToken() {
 		if (!fCurrentScanner.isInCat()) {
 			fCurrentCatScannerType ++;
@@ -241,10 +245,12 @@ public class MultiCatPartitionScanner implements IPartitionTokenScanner, IPartit
 		}
 	}
 	
+	@Override
 	public int getTokenOffset() {
 		return fCurrentScanner.getTokenOffset();
 	}
 	
+	@Override
 	public int getTokenLength() {
 		return fCurrentScanner.getTokenLength();
 	}

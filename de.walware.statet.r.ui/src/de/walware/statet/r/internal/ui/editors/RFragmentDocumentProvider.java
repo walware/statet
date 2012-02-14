@@ -58,6 +58,7 @@ public class RFragmentDocumentProvider extends FragmentDocumentProvider {
 			fProcesses.remove(fProcess);
 		}
 		
+		@Override
 		public void handleDebugEvents(final DebugEvent[] events) {
 			for (int i = 0; i < events.length; i++) {
 				if (events[i].getSource() == fProcess) {

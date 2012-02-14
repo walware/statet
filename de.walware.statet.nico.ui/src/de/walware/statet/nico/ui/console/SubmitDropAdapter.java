@@ -40,25 +40,31 @@ public class SubmitDropAdapter implements DropTargetListener {
 	}
 	
 	
+	@Override
 	public void dragEnter(final DropTargetEvent event) {
 		validate(event);
 	}
 	
+	@Override
 	public void dragLeave(final DropTargetEvent event) {
 	}
 	
+	@Override
 	public void dragOperationChanged(final DropTargetEvent event) {
 		validate(event);
 	}
 	
+	@Override
 	public void dragOver(final DropTargetEvent event) {
 		event.feedback = DND.FEEDBACK_NONE;
 	}
 	
+	@Override
 	public void dropAccept(final DropTargetEvent event) {
 		validate(event);
 	}
 	
+	@Override
 	public void drop(final DropTargetEvent event) {
 		if (LocalTaskTransfer.getTransfer().isSupportedType(event.currentDataType)) {
 			final LocalTaskTransfer.Data data = (Data) event.data;

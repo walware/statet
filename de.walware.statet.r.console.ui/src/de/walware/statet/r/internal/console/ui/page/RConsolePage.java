@@ -94,6 +94,7 @@ public class RConsolePage extends NIConsolePage {
 		fHelpContextProvider = RUIHelp.createEnrichedRHelpContextProvider(
 				getInputGroup().getViewer(), IRConsoleHelpContextIds.R_CONSOLE );
 		getInputGroup().getViewer().getTextWidget().addHelpListener(new HelpListener() {
+			@Override
 			public void helpRequested(final HelpEvent e) {
 				PlatformUI.getWorkbench().getHelpSystem().displayHelp(fHelpContextProvider.getContext(null));
 			}

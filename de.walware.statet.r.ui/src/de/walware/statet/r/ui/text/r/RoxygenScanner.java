@@ -44,14 +44,17 @@ public class RoxygenScanner extends CommentScanner {
 			fDefaultToken = defaultToken;
 		}
 		
+		@Override
 		public IToken getSuccessToken() {
 			return fTagToken;
 		}
 		
+		@Override
 		public IToken evaluate(final ICharacterScanner scanner) {
 			return evaluate(scanner, false);
 		}
 		
+		@Override
 		public IToken evaluate(final ICharacterScanner scanner, final boolean resume) {
 			int c;
 			if (!resume) {

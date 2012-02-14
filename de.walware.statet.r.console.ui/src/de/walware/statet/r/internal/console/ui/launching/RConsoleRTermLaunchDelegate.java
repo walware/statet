@@ -57,6 +57,7 @@ import de.walware.statet.r.nico.impl.RTermController;
 public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate {
 	
 	
+	@Override
 	public void launch(final ILaunchConfiguration configuration, final String mode,
 			final ILaunch launch, final IProgressMonitor monitor)
 			throws CoreException {

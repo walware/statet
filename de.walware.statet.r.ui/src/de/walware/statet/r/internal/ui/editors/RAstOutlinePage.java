@@ -50,9 +50,11 @@ public class RAstOutlinePage extends SourceEditor1OutlinePage {
 		super.configureViewer(viewer);
 		
 		viewer.setComparer(new IElementComparer() {
+			@Override
 			public int hashCode(final Object element) {
 				return ((RAstNode) element).hashCodeIgnoreAst();
 			}
+			@Override
 			public boolean equals(final Object a, final Object b) {
 				return ((RAstNode) a).equalsIgnoreAst(b);
 			}

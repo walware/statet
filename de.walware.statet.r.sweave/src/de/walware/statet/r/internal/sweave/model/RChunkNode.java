@@ -39,24 +39,29 @@ public class RChunkNode implements IAstNode {
 	}
 	
 	
+	@Override
 	public int getStatusCode() {
 		return 0;
 	}
 	
 	
+	@Override
 	public IAstNode getParent() {
 		return fParent;
 	}
 	
+	@Override
 	public IAstNode getRoot() {
 		return fParent.getRoot();
 	}
 	
 	
+	@Override
 	public boolean hasChildren() {
 		return true;
 	}
 	
+	@Override
 	public int getChildCount() {
 		return 1;
 	}
@@ -65,6 +70,7 @@ public class RChunkNode implements IAstNode {
 		return new RAstNode[] { fRSource };
 	}
 	
+	@Override
 	public IAstNode getChild(final int index) {
 		if (index == 0) {
 			return fRSource;
@@ -72,6 +78,7 @@ public class RChunkNode implements IAstNode {
 		throw new IndexOutOfBoundsException();
 	}
 	
+	@Override
 	public int getChildIndex(final IAstNode element) {
 		if (element == fRSource) {
 			return 0;
@@ -80,23 +87,28 @@ public class RChunkNode implements IAstNode {
 	}
 	
 	
+	@Override
 	public void accept(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
 	
+	@Override
 	public void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(fRSource);
 	}
 	
 	
+	@Override
 	public int getOffset() {
 		return fStartOffset;
 	}
 	
+	@Override
 	public int getStopOffset() {
 		return fStopOffset;
 	}
 	
+	@Override
 	public int getLength() {
 		return fStopOffset-fStartOffset;
 	}

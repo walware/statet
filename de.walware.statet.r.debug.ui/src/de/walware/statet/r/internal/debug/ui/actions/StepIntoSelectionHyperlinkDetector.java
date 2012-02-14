@@ -29,6 +29,7 @@ public class StepIntoSelectionHyperlinkDetector extends AbstractHyperlinkDetecto
 	}
 	
 	
+	@Override
 	public IHyperlink[] detectHyperlinks(final ITextViewer textViewer,
 			final IRegion region, final boolean canShowMultipleHyperlinks) {
 		final ISourceEditor editor = (ISourceEditor) getAdapter(ISourceEditor.class);

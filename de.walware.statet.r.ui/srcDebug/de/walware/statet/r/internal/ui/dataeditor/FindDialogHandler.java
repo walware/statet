@@ -50,6 +50,7 @@ public class FindDialogHandler extends AbstractHandler {
 		}
 	}
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final IWorkbenchWindow window = fWorkbenchPart.getSite().getWorkbenchWindow();
 		

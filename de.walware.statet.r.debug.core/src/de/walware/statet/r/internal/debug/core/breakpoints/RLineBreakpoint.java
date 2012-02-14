@@ -39,6 +39,7 @@ public class RLineBreakpoint extends RGenericLineBreakpoint {
 				elementType, elementId, elementLabel, subLabel );
 		
 		final IWorkspaceRunnable wr = new IWorkspaceRunnable() {
+			@Override
 			public void run(final IProgressMonitor monitor) throws CoreException {
 				// create the marker
 				setMarker(resource.createMarker(R_LINE_BREAKPOINT_MARKER_TYPE));
@@ -58,6 +59,7 @@ public class RLineBreakpoint extends RGenericLineBreakpoint {
 	}
 	
 	
+	@Override
 	public String getBreakpointType() {
 		return RDebugModel.R_LINE_BREAKPOINT_TYPE_ID;
 	}

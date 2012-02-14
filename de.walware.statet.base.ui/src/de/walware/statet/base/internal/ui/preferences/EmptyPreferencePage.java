@@ -29,6 +29,7 @@ public class EmptyPreferencePage extends PreferencePage implements IWorkbenchPre
 	}
 	
 	
+	@Override
 	public void init(final IWorkbench workbench) {
 	}
 	

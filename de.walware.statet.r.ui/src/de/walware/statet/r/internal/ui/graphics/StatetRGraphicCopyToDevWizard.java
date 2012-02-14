@@ -89,6 +89,7 @@ public class StatetRGraphicCopyToDevWizard extends Wizard {
 			setDescription("Select the file to save the graphic to.");
 		}
 		
+		@Override
 		public void createControl(final Composite parent) {
 			initializeDialogUnits(parent);
 			
@@ -230,6 +231,7 @@ public class StatetRGraphicCopyToDevWizard extends Wizard {
 							}
 							if (fileName != null && fileName.fetchInfo(EFS.NONE, monitor).exists()) {
 								UIAccess.getDisplay().asyncExec(new Runnable() {
+									@Override
 									public void run() {
 										try {
 											IWorkbenchPage page = workbenchPage;

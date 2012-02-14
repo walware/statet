@@ -38,25 +38,31 @@ public class RReconcilingStrategy implements IReconcilingStrategy, IReconcilingS
 		fDocumentProvider = RUIPlugin.getDefault().getRDocumentProvider();
 	}
 	
+	@Override
 	public void initialReconcile() {
 		reconcile();
 	}
 	
+	@Override
 	public void setDocument(final IDocument document) {
 	}
 	
+	@Override
 	public void setInput(final ISourceUnit input) {
 		fInput = input;
 	}
 	
+	@Override
 	public void reconcile(final IRegion partition) {
 		reconcile();
 	}
 	
+	@Override
 	public void reconcile(final DirtyRegion dirtyRegion, final IRegion subRegion) {
 		reconcile();
 	}
 	
+	@Override
 	public void setProgressMonitor(final IProgressMonitor monitor) {
 		fMonitor = monitor;
 	}

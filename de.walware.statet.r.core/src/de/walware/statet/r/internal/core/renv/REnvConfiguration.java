@@ -253,7 +253,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		setROS(setup.getOS());
 		if (LOCAL_PLATFORM == LOCAL_WIN) {
 			String arch = setup.getOSArch();
-			if (arch == null || arch.length() == 0) {
+			if (arch == null || arch.isEmpty()) {
 				arch = Platform.getOSArch();
 			}
 			if (arch.equals(Platform.ARCH_X86)) {
@@ -348,22 +348,27 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	}
 	
 	
+	@Override
 	public IREnv getReference() {
 		return fREnv;
 	}
 	
+	@Override
 	public String getType() {
 		return fType;
 	}
 	
+	@Override
 	public boolean isEditable() {
 		return (fType == USER_LOCAL_TYPE || fType == USER_REMOTE_TYPE);
 	}
 	
+	@Override
 	public boolean isLocal() {
 		return (fType == USER_LOCAL_TYPE || fType == EPLUGIN_LOCAL_TYPE);
 	}
 	
+	@Override
 	public boolean isRemote() {
 		return (fType == USER_REMOTE_TYPE);
 	}
@@ -508,6 +513,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return map;
 	}
 	
+	@Override
 	public Editable createWorkingCopy() {
 		return new Editable(this);
 	}
@@ -519,6 +525,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	
 /*-- Properties --------------------------------------------------------------*/
 	
+	@Override
 	public String getName() {
 		return fName;
 	}
@@ -577,12 +584,12 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	}
 	
 	private String checkArchForStatet(String arch) {
-		if (arch == null || arch.length() == 0) {
+		if (arch == null || arch.isEmpty()) {
 			return null;
 		}
 		if (arch.charAt(0) == '/') {
 			arch = arch.substring(1);
-			if (arch.length() == 0) {
+			if (arch.isEmpty()) {
 				return null;
 			}
 		}
@@ -610,6 +617,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return arch;
 	}
 	
+	@Override
 	public IStatus validate() {
 		CoreException error = null;
 		if (isLocal()) {
@@ -627,6 +635,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return Status.OK_STATUS;
 	}
 	
+	@Override
 	public String getRHome() {
 		return fRHomeDirectory;
 	}
@@ -637,6 +646,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		firePropertyChange(PROP_RHOME, oldValue, label);
 	}
 	
+	@Override
 	public String getSubArch() {
 		return fSubArch;
 	}
@@ -648,6 +658,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		firePropertyChange(PROP_SUBARCH, oldValue, arch);
 	}
 	
+	@Override
 	public String getROS() {
 		return fROS;
 	}
@@ -659,6 +670,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	}
 	
 	
+	@Override
 	public String getRDocDirectoryPath() {
 		return fRDocDirectory;
 	}
@@ -669,6 +681,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		firePropertyChange(PROP_RDOC_DIRECTORY, oldValue, directory);
 	}
 	
+	@Override
 	public String getRShareDirectoryPath() {
 		return fRShareDirectory;
 	}
@@ -679,6 +692,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		firePropertyChange(PROP_RSHARE_DIRECTORY, oldValue, directory);
 	}
 	
+	@Override
 	public String getRIncludeDirectoryPath() {
 		return fRIncludeDirectory;
 	}
@@ -689,10 +703,12 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		firePropertyChange(PROP_RINCLUDE_DIRECTORY, oldValue, directory);
 	}
 	
+	@Override
 	public List<? extends IRLibraryGroup> getRLibraryGroups() {
 		return fRLibraries;
 	}
 	
+	@Override
 	public IRLibraryGroup getRLibraryGroup(final String id) {
 		for (final IRLibraryGroup group : fRLibraries) {
 			if (group.getId().equals(id)) {
@@ -703,10 +719,12 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	}
 	
 	
+	@Override
 	public String getIndexDirectoryPath() {
 		return fIndexDirectory;
 	}
 	
+	@Override
 	public IFileStore getIndexDirectoryStore() {
 		return fIndexDirectoryStore;
 	}
@@ -718,6 +736,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	}
 	
 	
+	@Override
 	public List<String> getExecCommand(String arg1, final Set<Exec> execTypes) throws CoreException {
 		final String test = (arg1 != null) ? arg1.trim().toUpperCase() : ""; //$NON-NLS-1$
 		Exec type = Exec.COMMON;
@@ -739,6 +758,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return commandLine;
 	}
 	
+	@Override
 	public List<String> getExecCommand(final Exec execType) throws CoreException {
 		final List<IFileStore> binDirs = getBinDirs();
 		IFileStore exe = null;
@@ -859,10 +879,12 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return file;
 	}
 	
+	@Override
 	public Map<String, String> getEnvironmentsVariables() throws CoreException {
 		return getEnvironmentsVariables(true);
 	}
 	
+	@Override
 	public Map<String, String> getEnvironmentsVariables(final boolean configureRLibs) throws CoreException {
 		final Map<String, String> envp = new HashMap<String, String>();
 		final IFileStore rHomeStore = FileUtil.expandToLocalFileStore(getRHome(), null, null);
@@ -946,7 +968,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 					sb.setLength(0);
 					sb.append("http://"); //$NON-NLS-1$
 					if (data.isRequiresAuthentication()) {
-						if (data.getPassword() == null || data.getPassword().length() == 0) {
+						if (data.getPassword() == null || data.getPassword().isEmpty()) {
 							envp.put("http_proxy_user", "ask"); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 						else {

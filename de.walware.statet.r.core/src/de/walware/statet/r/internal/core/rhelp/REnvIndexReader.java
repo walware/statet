@@ -61,6 +61,7 @@ public class REnvIndexReader implements IREnvIndex {
 	
 	private static final FieldSelector LOAD_NAME_SELECTOR = new FieldSelector() {
 		private static final long serialVersionUID = 1L;
+		@Override
 		public FieldSelectorResult accept(final String fieldName) {
 			if (fieldName == PAGE_FIELD_NAME) {
 				return FieldSelectorResult.LOAD;
@@ -70,6 +71,7 @@ public class REnvIndexReader implements IREnvIndex {
 	};
 	private static final FieldSelector LOAD_ID_SELECTOR = new FieldSelector() {
 		private static final long serialVersionUID = 1L;
+		@Override
 		public FieldSelectorResult accept(final String fieldName) {
 			if (fieldName == PAGE_FIELD_NAME
 					|| fieldName == PACKAGE_FIELD_NAME) {
@@ -80,6 +82,7 @@ public class REnvIndexReader implements IREnvIndex {
 	};
 	private static final FieldSelector LOAD_HTML_SELECTOR = new FieldSelector() {
 		private static final long serialVersionUID = 1L;
+		@Override
 		public FieldSelectorResult accept(final String fieldName) {
 			if (fieldName == DOC_HTML_FIELD_NAME) {
 				return FieldSelectorResult.LOAD;
@@ -90,6 +93,7 @@ public class REnvIndexReader implements IREnvIndex {
 	
 	private static final FieldSelector LOAD_PKG_TOPICS_SELECTOR = new FieldSelector() {
 		private static final long serialVersionUID = 1L;
+		@Override
 		public FieldSelectorResult accept(final String fieldName) {
 			if (fieldName == PAGE_FIELD_NAME
 					|| fieldName == ALIAS_FIELD_NAME) {
@@ -101,6 +105,7 @@ public class REnvIndexReader implements IREnvIndex {
 	
 	private static final FieldSelector LOAD_PKG_DESCRIPTION_SELECTOR = new FieldSelector() {
 		private static final long serialVersionUID = 1L;
+		@Override
 		public FieldSelectorResult accept(final String fieldName) {
 			if (fieldName == DESCRIPTION_TXT_FIELD_NAME
 					|| fieldName == PKG_PRIORITY_FIELD_NAME
@@ -220,6 +225,7 @@ public class REnvIndexReader implements IREnvIndex {
 	private static String[] sortFields(final List<String> fieldNames) {
 		final String[] array = fieldNames.toArray(new String[fieldNames.size()]);
 		Arrays.sort(array, new Comparator<String>() {
+			@Override
 			public int compare(final String o1, final String o2) {
 				return getRank(o1) - getRank(o2);
 			}

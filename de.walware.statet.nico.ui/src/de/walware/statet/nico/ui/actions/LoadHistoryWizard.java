@@ -75,6 +75,7 @@ public class LoadHistoryWizard extends Wizard {
 			assert (charset != null);
 			
 			getContainer().run(true, true, new IRunnableWithProgress() {
+				@Override
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 					final IStatus status = history.load(file, charset, false, monitor);
 					if (status.getSeverity() == IStatus.ERROR) {

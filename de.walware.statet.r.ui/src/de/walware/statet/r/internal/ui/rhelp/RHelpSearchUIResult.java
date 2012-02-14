@@ -85,10 +85,12 @@ public class RHelpSearchUIResult extends AbstractTextSearchResult {
 	}
 	
 	
+	@Override
 	public ImageDescriptor getImageDescriptor() {
 		return RUI.getImageDescriptor(RUI.IMG_OBJ_R_HELP_SEARCH);
 	}
 	
+	@Override
 	public String getLabel() {
 		final String queryLabel = fQuery.getLongLabel();
 		final String matchLabel;
@@ -113,10 +115,12 @@ public class RHelpSearchUIResult extends AbstractTextSearchResult {
 		return queryLabel + " – " + matchLabel; //$NON-NLS-1$
 	}
 	
+	@Override
 	public String getTooltip() {
 		return getLabel();
 	}
 	
+	@Override
 	public RHelpSearchUIQuery getQuery() {
 		return fQuery;
 	}

@@ -61,6 +61,7 @@ public class UnterminatedLaunchAlerter implements IWorkbenchListener {
 	}
 	
 	
+	@Override
 	public boolean preShutdown(final IWorkbench workbench, final boolean forced) {
 		final ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
 		final List<ILaunchConfigurationType> programTypes = new LinkedList<ILaunchConfigurationType>();
@@ -130,6 +131,7 @@ public class UnterminatedLaunchAlerter implements IWorkbenchListener {
 		}
 	}
 	
+	@Override
 	public void postShutdown(final IWorkbench workbench) {
 	}
 	

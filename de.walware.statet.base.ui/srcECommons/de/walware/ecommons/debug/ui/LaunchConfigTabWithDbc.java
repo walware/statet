@@ -57,6 +57,7 @@ public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfiguration
 			fWrappedValidator = validator;
 		}
 		
+		@Override
 		public IStatus validate(final Object value) {
 			final IStatus status = fWrappedValidator.validate(value);
 			if (status != null) {
@@ -116,6 +117,7 @@ public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfiguration
 		
 		fAggregateStatus = new AggregateValidationStatus(fDbc, AggregateValidationStatus.MAX_SEVERITY);
 		fAggregateStatus.addValueChangeListener(new IValueChangeListener() {
+			@Override
 			public void handleValueChange(final ValueChangeEvent event) {
 				fCurrentStatus = (IStatus) event.diff.getNewValue();
 				updateDialogState();
@@ -135,6 +137,7 @@ public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfiguration
 		};
 		
 		getControl().addDisposeListener(new DisposeListener() {
+			@Override
 			public void widgetDisposed(final DisposeEvent e) {
 				disposeBindings();
 			}
@@ -173,6 +176,7 @@ public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfiguration
 				NLS.bind("An error occurred while reading launch configuration (name: ''{0}'', id: ''{1}'')", getName(), getId()), e)); //$NON-NLS-1$
 	}
 	
+	@Override
 	public void initializeFrom(final ILaunchConfiguration configuration) {
 		fInitializing = true;
 		doInitialize(configuration);
@@ -194,6 +198,7 @@ public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfiguration
 	public void deactivated(final ILaunchConfigurationWorkingCopy workingCopy) {
 	}
 	
+	@Override
 	public void performApply(final ILaunchConfigurationWorkingCopy configuration) {
 		if (!canSave()) {
 			configuration.setAttribute(getValidationErrorAttr(), true); // To enable the revert button

@@ -268,7 +268,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 	}
 	
 	public RefactoringStatus checkFunctionName(final String newName) {
-		if (newName == null || newName.length() == 0) {
+		if (newName == null || newName.isEmpty()) {
 			return RefactoringStatus.createFatalErrorStatus(
 					NLS.bind(Messages.RIdentifiers_error_EmptyFor_message, "The function name"));
 		}

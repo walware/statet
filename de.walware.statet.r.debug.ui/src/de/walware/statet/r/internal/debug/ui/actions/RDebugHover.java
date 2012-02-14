@@ -44,6 +44,7 @@ public class RDebugHover implements IInfoHover {
 	}
 	
 	
+	@Override
 	public Object getHoverInfo(final AssistInvocationContext context) {
 		final IWorkbenchPart part = context.getEditor().getWorkbenchPart();
 		final ToolProcess process = NicoUITools.getTool(part);
@@ -134,6 +135,7 @@ public class RDebugHover implements IInfoHover {
 		return null;
 	}
 	
+	@Override
 	public IInformationControlCreator getHoverControlCreator() {
 		if (fControlCreator == null) {
 			fControlCreator = new RElementInfoHoverCreator();

@@ -34,11 +34,13 @@ public class RweaveTexDocUnit extends GenericResourceSourceUnit
 	}
 	
 	
+	@Override
 	public String getModelTypeId() {
 		return Sweave.R_TEX_MODEL_TYPE_ID;
 	}
 	
 	
+	@Override
 	public IRCoreAccess getRCoreAccess() {
 		final RProject project = RProject.getRProject(getResource().getProject());
 		if (project != null) {
@@ -47,6 +49,7 @@ public class RweaveTexDocUnit extends GenericResourceSourceUnit
 		return RCore.getWorkbenchAccess();
 	}
 	
+	@Override
 	public IREnv getREnv() {
 		return RCore.getREnvManager().getDefault();
 	}
@@ -78,6 +81,7 @@ public class RweaveTexDocUnit extends GenericResourceSourceUnit
 		super.unregister();
 	}
 	
+	@Override
 	public void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
 	}
 	

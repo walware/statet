@@ -44,6 +44,7 @@ public class ToolAction extends Action implements IToolRetargetable {
 	}
 	
 	
+	@Override
 	public void setTool(final ToolProcess tool) {
 		fTool = tool;
 		handleToolChanged();
@@ -53,6 +54,7 @@ public class ToolAction extends Action implements IToolRetargetable {
 		update();
 	}
 	
+	@Override
 	public void toolTerminated() {
 		update();
 	}

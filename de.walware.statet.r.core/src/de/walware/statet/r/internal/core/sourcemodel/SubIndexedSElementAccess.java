@@ -29,10 +29,12 @@ final class SubIndexedSElementAccess extends SubAbstractElementAccess {
 	}
 	
 	
+	@Override
 	public final int getType() {
 		return RElementName.SUB_INDEXED_S;
 	}
 	
+	@Override
 	public final String getSegmentName() {
 		return null;
 	}

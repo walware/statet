@@ -28,6 +28,7 @@ public class DebugLaunchDelegateAddon implements ILaunchDelegateAddon {
 	}
 	
 	
+	@Override
 	public void init(final ILaunchConfiguration configuration, final String mode,
 			final AbstractRController controller, final IProgressMonitor monitor) {
 		if (mode.equals(ILaunchManager.DEBUG_MODE)

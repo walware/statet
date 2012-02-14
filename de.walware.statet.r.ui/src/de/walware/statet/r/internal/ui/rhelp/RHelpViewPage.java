@@ -91,6 +91,7 @@ public class RHelpViewPage extends PageBookBrowserPage {
 		final IContextService contextService = (IContextService) serviceLocator.getService(IContextService.class);
 		
 		final IHandler2 breadcrumbHandler = new AbstractHandler() {
+			@Override
 			public Object execute(final ExecutionEvent event) throws ExecutionException {
 				if (fBreadcrumb != null) {
 					fBreadcrumb.activate();

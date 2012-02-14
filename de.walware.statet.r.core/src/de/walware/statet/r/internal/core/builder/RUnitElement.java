@@ -61,14 +61,17 @@ public class RUnitElement implements IRLangElement, Serializable {
 	}
 	
 	
+	@Override
 	public String getModelTypeId() {
 		return null;
 	}
 	
+	@Override
 	public int getElementType() {
 		return IModelElement.C2_SOURCE_FILE;
 	}
 	
+	@Override
 	public RElementName getElementName() {
 		final IElementName elementName = fSourceUnit.getElementName();
 		if (elementName instanceof RElementName) {
@@ -77,34 +80,42 @@ public class RUnitElement implements IRLangElement, Serializable {
 		return RElementName.create(RElementName.RESOURCE, elementName.getSegmentName());
 	}
 	
+	@Override
 	public String getId() {
 		return fSourceUnit.getId();
 	}
 	
+	@Override
 	public boolean exists() {
 		return true;
 	}
 	
+	@Override
 	public boolean isReadOnly() {
 		return fSourceUnit.isReadOnly();
 	}
 	
+	@Override
 	public ISourceUnit getSourceUnit() {
 		return fSourceUnit;
 	}
 	
+	@Override
 	public IRElement getModelParent() {
 		return null;
 	}
 	
+	@Override
 	public boolean hasModelChildren(final Filter filter) {
 		return ExportedRElement.hasChildren(fElements, filter);
 	}
 	
+	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		return ExportedRElement.getChildren(fElements, filter);
 	}
 	
+	@Override
 	public Object getAdapter(final Class required) {
 		if (IRFrame.class.equals(required)) {
 			return fEnvir;
@@ -120,14 +131,17 @@ public class RUnitElement implements IRLangElement, Serializable {
 	}
 	
 	
+	@Override
 	public IRegion getSourceRange() {
 		return null;
 	}
 	
+	@Override
 	public IRegion getNameSourceRange() {
 		return null;
 	}
 	
+	@Override
 	public IRegion getDocumentationRange() {
 		return null;
 	}

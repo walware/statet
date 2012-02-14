@@ -30,20 +30,25 @@ public class KeywordSelectionDialog extends ElementTreeSelectionDialog {
 	
 	public static class KeywordsContentProvider implements ITreeContentProvider {
 		
+		@Override
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 		}
 		
+		@Override
 		public Object[] getElements(final Object inputElement) {
 			return ((List<?>) inputElement).toArray();
 		}
 		
+		@Override
 		public void dispose() {
 		}
 		
+		@Override
 		public Object getParent(final Object element) {
 			return null;
 		}
 		
+		@Override
 		public Object[] getChildren(final Object parentElement) {
 			if (parentElement instanceof IRHelpKeywordNode) {
 				return ((IRHelpKeywordNode) parentElement).getNestedKeywords().toArray();
@@ -51,6 +56,7 @@ public class KeywordSelectionDialog extends ElementTreeSelectionDialog {
 			return null;
 		}
 		
+		@Override
 		public boolean hasChildren(final Object element) {
 			return (element instanceof IRHelpKeywordNode
 					&& !((IRHelpKeywordNode) element).getNestedKeywords().isEmpty() );

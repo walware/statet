@@ -65,10 +65,12 @@ public final class RDataFrameVar extends RListVar
 	}
 	
 	
+	@Override
 	public int getColumnCount() {
 		return getLength();
 	}
 	
+	@Override
 	public RCharacterStore getColumnNames() {
 		return getNames();
 	}
@@ -77,20 +79,24 @@ public final class RDataFrameVar extends RListVar
 		return getName(idx);
 	}
 	
+	@Override
 	public RStore getColumn(final int idx) {
 		final RObject obj = get(idx);
 		return (obj != null) ? obj.getData() : null;
 	}
 	
+	@Override
 	public RStore getColumn(final String name) {
 		final RObject obj = get(name);
 		return (obj != null) ? obj.getData() : null;
 	}
 	
+	@Override
 	public int getRowCount() {
 		return this.rowCount;
 	}
 	
+	@Override
 	public RStore getRowNames() {
 		return this.rownamesAttribute;
 	}

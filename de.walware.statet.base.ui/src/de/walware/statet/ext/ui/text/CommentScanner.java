@@ -39,10 +39,12 @@ public class CommentScanner extends AbstractRuleBasedScanner
 	
 	private static class TaskTagDetector implements IWordDetector {
 		
+		@Override
 		public boolean isWordStart(final char c) {
 			return Character.isLetterOrDigit(c);
 		}
 		
+		@Override
 		public boolean isWordPart(final char c) {
 			return Character.isLetterOrDigit(c);
 		}

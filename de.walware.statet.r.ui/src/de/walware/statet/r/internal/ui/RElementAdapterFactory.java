@@ -45,11 +45,13 @@ public class RElementAdapterFactory implements IAdapterFactory, IContributorReso
 	private Object fSearchPageScoreComputer;
 	
 	
+	@Override
 	public Class<?>[] getAdapterList() {
 		updateLazyLoadedAdapters();
 		return PROPERTIES;
 	}
 	
+	@Override
 	public Object getAdapter(final Object adaptableObject, final Class key) {
 		updateLazyLoadedAdapters();
 		final IRElement element = getRElement(adaptableObject);
@@ -111,6 +113,7 @@ public class RElementAdapterFactory implements IAdapterFactory, IContributorReso
 		}
 	}
 	
+	@Override
 	public IResource getAdaptedResource(final IAdaptable adaptable) {
 		final IRElement element = getRElement(adaptable);
 		if (element != null) {

@@ -32,12 +32,15 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	
 	private class ItemContentProvider implements IStructuredContentProvider {
 
+		@Override
 		public void dispose() {
 		}
 
+		@Override
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		}
 		
+		@Override
 		public Object[] getElements(Object inputElement) {
 			return getListModel().toArray();
 		}
@@ -58,6 +61,7 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 		fSelectionViewer.addSelectionChangedListener(createSelectionChangeListener());
 		fSelectionViewer.addDoubleClickListener(createDoubleClickListener());
 		fSelectionViewer.getControl().addKeyListener(new KeyAdapter() {
+			@Override
 			public void keyPressed(KeyEvent e) {
 				handleKeyPressed(e);
 			}
@@ -73,6 +77,7 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	
 	protected ISelectionChangedListener createSelectionChangeListener() {
 		return new ISelectionChangedListener() {
+			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				handleSelection(getSingleItem(selection), selection);
@@ -82,6 +87,7 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	
 	protected IDoubleClickListener createDoubleClickListener() {
 		return new IDoubleClickListener() {
+			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				handleDoubleClick(getSingleItem(selection), selection);

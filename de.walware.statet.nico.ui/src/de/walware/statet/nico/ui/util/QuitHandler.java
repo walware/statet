@@ -52,6 +52,7 @@ public class QuitHandler implements IToolEventHandler {
 		private String[] fDialogOptions;
 		private volatile int fResult;
 		
+		@Override
 		public void run() {
 			final IWorkbenchWindow window = UIAccess.getActiveWorkbenchWindow(true);
 			final MessageDialog dialog = new MessageDialog(window.getShell(), fDialogTitle, null, fDialogMessage, MessageDialog.QUESTION, fDialogOptions, 0);
@@ -60,6 +61,7 @@ public class QuitHandler implements IToolEventHandler {
 			if (fResult == 1) {
 				try {
 					window.run(true, true, new IRunnableWithProgress() {
+						@Override
 						public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 							try {
 								fController.kill(monitor);
@@ -81,6 +83,7 @@ public class QuitHandler implements IToolEventHandler {
 		
 	}
 	
+	@Override
 	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		if (PlatformUI.getWorkbench().isClosing()) {
 			final ToolController controller = tools.getController();

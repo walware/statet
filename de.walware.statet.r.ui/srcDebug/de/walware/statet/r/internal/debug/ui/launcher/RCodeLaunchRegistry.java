@@ -216,12 +216,14 @@ public class RCodeLaunchRegistry {
 		final InstanceScope scope = new InstanceScope();
 		scope.getNode(RRunDebugPreferenceConstants.PREF_R_CONNECTOR.getQualifier())
 				.addPreferenceChangeListener(new IPreferenceChangeListener() {
+			@Override
 			public void preferenceChange(final PreferenceChangeEvent event) {
 				loadConnectorExtensions();
 			}
 		});
 		scope.getNode(RRunDebugPreferenceConstants.CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER)
 				.addPreferenceChangeListener(new IPreferenceChangeListener() {
+			@Override
 			public void preferenceChange(final PreferenceChangeEvent event) {
 				loadHandlerPreferences();
 			}

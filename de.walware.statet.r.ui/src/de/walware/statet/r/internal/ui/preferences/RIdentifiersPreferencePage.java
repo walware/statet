@@ -130,6 +130,7 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 				}
 			};
 			fCellEditor.addListener(new ICellEditorListener() {
+				@Override
 				public void editorValueChanged(final boolean oldValidState, final boolean newValidState) {
 					if (!newValidState) {
 						fStatusListener.statusChanged(new Status(Status.ERROR, RUI.PLUGIN_ID, fCellEditor.getErrorMessage()));
@@ -138,9 +139,11 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 						fStatusListener.statusChanged(Status.OK_STATUS);
 					}
 				}
+				@Override
 				public void applyEditorValue() {
 					fStatusListener.statusChanged(Status.OK_STATUS);
 				}
+				@Override
 				public void cancelEditor() {
 					fStatusListener.statusChanged(Status.OK_STATUS);
 				}
@@ -271,8 +274,10 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 		
 		button.setText(Messages.RIdentifiers_AddAction_label);
 		button.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetDefaultSelected(final SelectionEvent e) {
 			}
+			@Override
 			public void widgetSelected(final SelectionEvent e) {
 				addNewWord();
 			}
@@ -285,8 +290,10 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 		
 		button.setText(Messages.RIdentifiers_EditAction_label);
 		button.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetDefaultSelected(final SelectionEvent e) {
 			}
+			@Override
 			public void widgetSelected(final SelectionEvent e) {
 				final IStructuredSelection selection = (IStructuredSelection) fWordList.getSelection();
 				if (selection.size() == 1) {
@@ -303,8 +310,10 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 		
 		button.setText(Messages.RIdentifiers_RemoveAction_label);
 		button.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetDefaultSelected(final SelectionEvent e) {
 			}
+			@Override
 			public void widgetSelected(final SelectionEvent e) {
 				final IStructuredSelection selection = (IStructuredSelection) fWordList.getSelection();
 				deleteWords(selection.toArray());
@@ -315,6 +324,7 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 		// Binding
 		fCategoryList.setInput(fCategories);
 		fCategoryList.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
 			public void selectionChanged(final SelectionChangedEvent event) {
 				final Category cat = (Category) ((IStructuredSelection) event.getSelection()).getFirstElement();
 				fWordList.setInput(cat.fSet);
@@ -327,6 +337,7 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 		fActiveCategory = fCategories[0];
 		updateControls();
 		Display.getCurrent().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				if (UIAccess.isOkToUse(fCategoryList)) {
 					fCategoryList.setSelection(new StructuredSelection(fActiveCategory));

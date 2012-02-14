@@ -30,6 +30,7 @@ public class StatetBasePreferencePage extends FieldEditorPreferencePage implemen
 	}
 	
 	
+	@Override
 	public void init(final IWorkbench workbench) {
 	}
 	

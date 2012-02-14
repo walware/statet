@@ -69,6 +69,7 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 	}
 	
 	
+	@Override
 	public void update() {
 		setEnabled(fSourceEditor.isEditable(false));
 	}
@@ -82,6 +83,7 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 			final ITextSelection selection = (ITextSelection) fEditor.getSelectionProvider().getSelection();
 			
 			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
+				@Override
 				public void run(final IProgressMonitor monitor)
 						throws InvocationTargetException, InterruptedException {
 					try {
@@ -162,6 +164,7 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 			final int newPos = fIndenter.getNewIndentOffset(startLine);
 			if (newPos >= 0) {
 				UIAccess.getDisplay().syncExec(new Runnable() {
+					@Override
 					public void run() {
 						if (UIAccess.isOkToUse(fSourceEditor.getViewer())) {
 							fEditor.selectAndReveal(newPos, 0);

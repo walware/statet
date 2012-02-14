@@ -82,7 +82,7 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 	
 	private static List<String> toList(final String input) {
 		final String[] array = SEPARATOR_PATTERN.split(input);
-		if (array.length == 1 && array[0].length() == 0) {
+		if (array.length == 1 && array[0].isEmpty()) {
 			return new ConstList<String>();
 		}
 		return new ConstList<String>(array);
@@ -145,10 +145,12 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 		return fDialogSettings;
 	}
 	
+	@Override
 	public void setContainer(final ISearchPageContainer container) {
 		fContainer = container;
 	}
 	
+	@Override
 	public void createControl(final Composite parent) {
 		final Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(LayoutUtil.applyTabDefaults(new GridLayout(), 1));
@@ -186,6 +188,7 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 		initSettings();
 		fREnvControl.setSetting(RCore.getREnvManager().getDefault());
 		Display.getCurrent().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				if (UIAccess.isOkToUse(fSearchTextControl)) {
 					fSearchTextControl.setFocus();
@@ -400,6 +403,7 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 		fREnvControl = new REnvSelectionComposite(group);
 		fREnvControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fREnvControl.addChangeListener(new REnvSelectionComposite.ChangeListener() {
+			@Override
 			public void settingChanged(final REnvSelectionComposite source, final String oldValue,
 					final String newValue, final IREnv newREnv) {
 				updateState();
@@ -544,6 +548,7 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 	}
 	
 	
+	@Override
 	public boolean performAction() {
 		final RHelpSearchQuery query = createPattern();
 		if (query.getREnv() == null || query.getREnv().getConfig() == null) {

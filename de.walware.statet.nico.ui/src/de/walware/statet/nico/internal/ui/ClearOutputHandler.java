@@ -36,6 +36,7 @@ public class ClearOutputHandler extends AbstractHandler {
 	}
 	
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final ToolSessionUIData session = NicoUI.getToolRegistry().getActiveToolSession(
 				UIAccess.getActiveWorkbenchPage(true) );
@@ -49,6 +50,7 @@ public class ClearOutputHandler extends AbstractHandler {
 		}
 		consoleView.display(console);
 		BusyIndicator.showWhile(ConsolePlugin.getStandardDisplay(), new Runnable() {
+			@Override
 			public void run() {
 				console.clearConsole();
 			}

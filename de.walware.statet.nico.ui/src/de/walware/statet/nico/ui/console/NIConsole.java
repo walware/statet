@@ -67,12 +67,14 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 	
 	private class SettingsListener implements SettingsChangeNotifier.ChangeListener, IPropertyChangeListener {
 		
+		@Override
 		public void settingsChanged(final Set<String> groupIds) {
 			if (groupIds.contains(ConsolePreferences.GROUP_ID)) {
 				updateSettings();
 			}
 		}
 		
+		@Override
 		public void propertyChange(final PropertyChangeEvent event) {
 			if (getSymbolicFontName().equals(event.getProperty()) ) {
 				setFont(null);
@@ -111,6 +113,7 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 		
 		if (!gFontInitialized) {
 			UIAccess.getDisplay().syncExec(new Runnable() {
+				@Override
 				public void run() {
 					setFont(null);
 					gFontInitialized = true;
@@ -127,6 +130,7 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 		fAdapter.connect(process, this);
 		
 		fDebugListener = new IDebugEventSetListener() {
+			@Override
 			public void handleDebugEvents(final DebugEvent[] events) {
 				EVENTS: for (final DebugEvent event : events) {
 					if (event.getSource() == fProcess) {
@@ -150,6 +154,7 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 			
 			private void runSetName(final String name) {
 				UIAccess.getDisplay().syncExec(new Runnable() {
+					@Override
 					public void run() {
 						setName(name);
 //						ConsolePlugin.getDefault().getConsoleManager().warnOfContentChange(NIConsole.this);
@@ -266,6 +271,7 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 				private static final int BUFFER_SIZE = 9216;
 				private final StringBuilder fBuffer = new StringBuilder(BUFFER_SIZE);
 				
+				@Override
 				public void streamAppended(final String text, final IStreamMonitor monitor) {
 					try {
 						synchronized (out) {
@@ -337,6 +343,7 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 				private void ring() {
 					final Display display = UIAccess.getDisplay();
 					display.asyncExec(new Runnable() {
+						@Override
 						public void run() {
 							display.beep();
 						};
@@ -383,6 +390,7 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 		return fProcess;
 	}
 	
+	@Override
 	public Object getAdapter(final Class required) {
 		if (ITool.class.equals(required)) {
 			return fProcess;

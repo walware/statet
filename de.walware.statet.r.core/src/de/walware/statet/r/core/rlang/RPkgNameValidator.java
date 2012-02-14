@@ -44,9 +44,10 @@ public class RPkgNameValidator implements IValidator {
 	}
 	
 	
+	@Override
 	public IStatus validate(final Object value) {
 		final String name = (String) value;
-		if (name == null || name.length() == 0) {
+		if (name == null || name.isEmpty()) {
 			if (fRequired) {
 				return ValidationStatus.error(Messages.RPkgName_Validation_error_Empty_message);
 			}

@@ -62,10 +62,12 @@ public abstract class AbstractBreakpointDetailPane implements IDetailPane3 {
 		fDescription = description;
 	}
 	
+	@Override
 	public void init(final IWorkbenchPartSite partSite) {
 		fSite = partSite;
 	}
 	
+	@Override
 	public void dispose() {
 		fEditor = null;
 		fSite = null;
@@ -74,23 +76,28 @@ public abstract class AbstractBreakpointDetailPane implements IDetailPane3 {
 	}
 	
 	
+	@Override
 	public String getID() {
 		return fId;
 	}
 	
+	@Override
 	public String getName() {
 		return fName;
 	}
 	
+	@Override
 	public String getDescription() {
 		return fDescription;
 	}
 	
 	
+	@Override
 	public void addPropertyListener(final IPropertyListener listener) {
 		fListeners.add(listener);
 	}
 	
+	@Override
 	public void removePropertyListener(final IPropertyListener listener) {
 		fListeners.remove(listener);
 	}
@@ -110,6 +117,7 @@ public abstract class AbstractBreakpointDetailPane implements IDetailPane3 {
 		}
 	}
 	
+	@Override
 	public Control createControl(final Composite parent) {
 		fComposite = new Composite(parent, SWT.NONE);
 		fComposite.setLayout(LayoutUtil.applyContentDefaults(new GridLayout(), 1));
@@ -137,27 +145,33 @@ public abstract class AbstractBreakpointDetailPane implements IDetailPane3 {
 		return fEditor;
 	}
 	
+	@Override
 	public boolean setFocus() {
 		return fComposite.setFocus();
 	}
 	
 	
+	@Override
 	public boolean isDirty() {
 		return (fEditor != null && fEditor.isDirty());
 	}
 	
+	@Override
 	public void doSaveAs() {
 		// do nothing
 	}
 	
+	@Override
 	public boolean isSaveAsAllowed() {
 		return false;
 	}
 	
+	@Override
 	public boolean isSaveOnCloseNeeded() {
 		return isDirty() && fEditor.getStatus().isOK();
 	}
 	
+	@Override
 	public void doSave(final IProgressMonitor monitor) {
 		final IStatusLineManager statusLine = getStatusLine();
 		if (statusLine != null) {
@@ -198,6 +212,7 @@ public abstract class AbstractBreakpointDetailPane implements IDetailPane3 {
 		return null;
 	}
 	
+	@Override
 	public void display(final IStructuredSelection selection) {
 		// clear status line
 		final IStatusLineManager statusLine = getStatusLine();

@@ -127,6 +127,7 @@ public class CForLoop extends RAstNode {
 		fLoopExpr.node.acceptInR(visitor);
 	}
 	
+	@Override
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(fVarSymbol);
 		visitor.visit(fCondExpr.node);

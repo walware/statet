@@ -53,6 +53,7 @@ public class RKeywordCompletionProposal extends SimpleCompletionProposal {
 		return null;
 	}
 	
+	@Override
 	public boolean isAutoInsertable() {
 		return true;
 	}

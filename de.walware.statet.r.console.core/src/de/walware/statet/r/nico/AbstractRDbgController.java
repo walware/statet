@@ -133,6 +133,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			if (getStatusL() == ToolStatus.STARTED_SUSPENDED
@@ -155,6 +156,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	private int fTopLevelBrowserAction;
 	private final IToolRunnable fTopLevelBrowserRunnable = new ControllerSystemRunnable(
 			"r/debug", "Debugging") { //$NON-NLS-1$
+		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			if (getCurrentLevelL() == 0) {
@@ -239,18 +241,22 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 		fBreakpointAdapter = breakpointAdapter;
 		
 		addSuspendUpdateRunnable(new ControllerSystemRunnable("r/callstack", "Load Callstack") {
+			@Override
 			public void run(final IToolService service,
 					final IProgressMonitor monitor) throws CoreException {
 				getCallStack(monitor);
 			}
 		});
 		addToolStatusListener(new IToolStatusListener() {
+			@Override
 			public void controllerStatusRequested(final ToolStatus currentStatus, final ToolStatus requestedStatus,
 					final List<DebugEvent> eventCollection) {
 			}
+			@Override
 			public void controllerStatusRequestCanceled(final ToolStatus currentStatus, final ToolStatus requestedStatus,
 					final List<DebugEvent> eventCollection) {
 			}
+			@Override
 			public void controllerStatusChanged(final ToolStatus oldStatus, final ToolStatus newStatus,
 					final List<DebugEvent> eventCollection) {
 				switch (newStatus) {
@@ -310,7 +316,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 		if ((getPrompt().meta & META_PROMPT_SUSPENDED) != 0) {
 			final String trimmed = input.trim();
 			final char c;
-			if (trimmed.length() == 0) {
+			if (trimmed.isEmpty()) {
 				fDefaultOutputStream.append(fLineSeparator, SubmitType.OTHER, 0);
 				// revert counter?
 				return false;

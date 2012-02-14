@@ -39,6 +39,7 @@ public class REditorInformationProvider extends EditorInformationProvider {
 	}
 	
 	
+	@Override
 	public IRegion getSubject(final ITextViewer textViewer, final int offset) {
 		if (fScanner == null) {
 			fScanner = (RHeuristicTokenScanner) LTK.getModelAdapter(

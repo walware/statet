@@ -35,6 +35,7 @@ public class RContentAssistProcessor extends ContentAssistProcessor {
 	
 	
 	private static IPartitionConstraint NO_R_COMMENT_CONSTRAINT = new IPartitionConstraint() {
+		@Override
 		public boolean matches(final String partitionType) {
 			return (partitionType != IRDocumentPartitions.R_COMMENT);
 		}

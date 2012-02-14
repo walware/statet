@@ -27,9 +27,11 @@ public class GotoRConsole implements IHandler {
 	}
 	
 	
+	@Override
 	public void dispose() {
 	}
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		try {
 			RCodeLaunching.gotoRConsole();
@@ -41,17 +43,21 @@ public class GotoRConsole implements IHandler {
 	}
 	
 	
+	@Override
 	public boolean isEnabled() {
 		return true;
 	}
 	
+	@Override
 	public boolean isHandled() {
 		return true;
 	}
 	
+	@Override
 	public void addHandlerListener(final IHandlerListener handlerListener) {
 	}
 	
+	@Override
 	public void removeHandlerListener(final IHandlerListener handlerListener) {
 	}
 	

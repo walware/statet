@@ -96,6 +96,7 @@ public class ExtractFunctionWizard extends RefactoringWizard {
 			return (ExtractFunctionRefactoring) super.getRefactoring();
 		}
 		
+		@Override
 		public void createControl(final Composite parent) {
 			final Composite composite = new Composite(parent, SWT.NONE);
 			composite.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
@@ -148,6 +149,7 @@ public class ExtractFunctionWizard extends RefactoringWizard {
 				label.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false));
 				label.setText("Function &parameters:");
 				label.addTraverseListener(new TraverseListener() {
+					@Override
 					public void keyTraversed(final TraverseEvent e) {
 						if (e.detail == SWT.TRAVERSE_MNEMONIC) {
 							e.doit = false;
@@ -217,11 +219,13 @@ public class ExtractFunctionWizard extends RefactoringWizard {
 			dbc.bindValue(SWTObservables.observeText(fVariableNameControl, SWT.Modify),
 					PojoObservables.observeValue(realm, getRefactoring(), "functionName"),
 					new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
+						@Override
 						public IStatus validate(final Object value) {
 							return new RefactoringBasedStatus(getRefactoring().checkFunctionName((String) value));
 						}
 					}), null);
 			fArgumentsViewer.addCheckStateListener(new ICheckStateListener() {
+				@Override
 				public void checkStateChanged(final CheckStateChangedEvent event) {
 					final Object element = event.getElement();
 					if (element instanceof Variable) {

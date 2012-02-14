@@ -33,6 +33,7 @@ public class RSourcePathComputer implements ISourcePathComputerDelegate {
 	}
 	
 	
+	@Override
 	public ISourceContainer[] computeSourceContainers(final ILaunchConfiguration configuration,
 			final IProgressMonitor monitor) throws CoreException {
 		final IREnv rEnv = RLaunching.readREnv(configuration);

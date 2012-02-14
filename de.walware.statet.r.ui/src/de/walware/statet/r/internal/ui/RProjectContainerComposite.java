@@ -199,6 +199,7 @@ public class RProjectContainerComposite extends Composite {
 //			}
 //		});
 		fTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
 			public void doubleClick(final DoubleClickEvent event) {
 				final ISelection selection = event.getSelection();
 				if (selection instanceof IStructuredSelection) {

@@ -72,6 +72,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	
 	private class SettingsListener implements IEclipsePreferences.IPreferenceChangeListener {
 		
+		@Override
 		public void preferenceChange(final PreferenceChangeEvent event) {
 			fInitialized = false;
 		}

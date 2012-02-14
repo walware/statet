@@ -85,6 +85,7 @@ public class REnvManager implements IREnvManager {
 		fLock = new ReentrantReadWriteLock(true);
 	}
 	
+	@Override
 	public Lock getReadLock() {
 		return fLock.readLock();
 	}
@@ -317,6 +318,7 @@ public class REnvManager implements IREnvManager {
 	}
 	
 	
+	@Override
 	public String[] set(final IREnvConfiguration[] configs, final String defaultConfigId) throws CoreException {
 		checkAndLock(true);
 		try {
@@ -345,6 +347,7 @@ public class REnvManager implements IREnvManager {
 //		}
 //	}
 	
+	@Override
 	public IREnvConfiguration[] getConfigurations() {
 		checkAndLock(false);
 		try {
@@ -367,6 +370,7 @@ public class REnvManager implements IREnvManager {
 		}
 	}
 	
+	@Override
 	public synchronized IREnv get(String id, final String name) {
 		id = resolveId(id);
 		checkAndLock(false);
@@ -438,6 +442,7 @@ public class REnvManager implements IREnvManager {
 		return id;
 	}
 	
+	@Override
 	public IREnv getDefault() {
 		checkAndLock(false);
 		try {
@@ -448,6 +453,7 @@ public class REnvManager implements IREnvManager {
 		}
 	}
 	
+	@Override
 	public WorkingCopy newConfiguration(final String type) {
 		if ("user-remote".equals(type)) {
 			return new REnvConfiguration.Editable(IREnvConfiguration.USER_REMOTE_TYPE, newUserRemoteLink());

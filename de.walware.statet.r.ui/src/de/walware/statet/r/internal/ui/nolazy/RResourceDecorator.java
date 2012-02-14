@@ -40,6 +40,7 @@ public class RResourceDecorator extends BaseLabelProvider implements ILightweigh
 	}
 	
 	
+	@Override
 	public void decorate(final Object element, final IDecoration decoration) {
 		IProject project = null;
 		if (element instanceof IProject) {

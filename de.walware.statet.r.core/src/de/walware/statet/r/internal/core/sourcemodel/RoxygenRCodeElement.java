@@ -46,82 +46,101 @@ final class RoxygenRCodeElement implements IBuildSourceFrameElement {
 	}
 	
 	
+	@Override
 	public void setSourceChildren(final List<? extends IRLangSourceElement> children) {
 //		fSourceChildrenProtected = children;
 	}
 	
+	@Override
 	public BuildSourceFrame getBuildFrame() {
 		return fEnvir;
 	}
 	
 	
+	@Override
 	public String getModelTypeId() {
 		return RModel.TYPE_ID;
 	}
 	
+	@Override
 	public int getElementType() {
 		return IRElement.R_DOC_EXAMPLE_CHUNK;
 	}
 	
+	@Override
 	public RElementName getElementName() {
 		return null;
 	}
 	
+	@Override
 	public String getId() {
 		return Integer.toHexString(IRElement.R_DOC_EXAMPLE_CHUNK) + ":#" + fNumber;
 	}
 	
+	@Override
 	public boolean exists() {
 		return getSourceUnit().exists();
 	}
 	
+	@Override
 	public boolean isReadOnly() {
 		return getSourceUnit().isReadOnly();
 	}
 	
 	
+	@Override
 	public IRElement getModelParent() {
 		return null;
 	}
 	
+	@Override
 	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
 	
+	@Override
 	public List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
 		return RSourceElements.NO_R_SOURCE_CHILDREN;
 	}
 	
+	@Override
 	public ISourceStructElement getSourceParent() {
 		return fParent;
 	}
 	
+	@Override
 	public boolean hasSourceChildren(final Filter filter) {
 		return RSourceElements.hasChildren(fSourceChildrenProtected, filter);
 	}
 	
+	@Override
 	public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
 		return RSourceElements.getChildren(fSourceChildrenProtected, filter);
 	}
 	
+	@Override
 	public ISourceUnit getSourceUnit() {
 		return fParent.getSourceUnit();
 	}
 	
 	
+	@Override
 	public IRegion getSourceRange() {
 		return fSourceNode;
 	}
 	
+	@Override
 	public IRegion getNameSourceRange() {
 		return null;
 	}
 	
+	@Override
 	public IRegion getDocumentationRange() {
 		return null;
 	}
 	
 	
+	@Override
 	public Object getAdapter(final Class required) {
 		if (IAstNode.class.equals(required)) {
 			return fSourceNode;

@@ -41,22 +41,27 @@ class RTermCancelRunnable implements IToolRunnable {
 	}
 	
 	
+	@Override
 	public String getLabel() {
 		return RNicoMessages.RTerm_CancelTask_label;
 	}
 	
+	@Override
 	public String getTypeId() {
 		return null; // not a real runnable
 	}
 	
+	@Override
 	public boolean changed(final int event, final ITool process) {
 		return true;
 	}
 	
+	@Override
 	public boolean isRunnableIn(final ITool tool) {
 		return true;
 	}
 	
+	@Override
 	public void run(final IToolService service,
 			final IProgressMonitor monitor) throws CoreException {
 		final IRBasicAdapter r = (IRBasicAdapter) service;

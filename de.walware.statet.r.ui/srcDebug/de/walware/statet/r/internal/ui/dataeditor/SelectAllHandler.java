@@ -29,6 +29,7 @@ public class SelectAllHandler extends AbstractHandler {
 	}
 	
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		fTableComposite.selectAll();
 		return null;

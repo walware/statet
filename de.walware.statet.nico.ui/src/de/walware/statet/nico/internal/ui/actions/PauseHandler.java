@@ -72,6 +72,7 @@ public class PauseHandler extends ToolRetargetableHandler implements IElementUpd
 		}
 	}
 	
+	@Override
 	public void updateElement(final UIElement element, final Map parameters) {
 		element.setChecked(fIsChecked);
 	}
@@ -87,6 +88,7 @@ public class PauseHandler extends ToolRetargetableHandler implements IElementUpd
 		return (wasChecked != fIsChecked);
 	}
 	
+	@Override
 	public void handleDebugEvents(final DebugEvent[] events) {
 		if (getState() != S_ONAIR) {
 			return;

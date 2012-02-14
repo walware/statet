@@ -32,6 +32,7 @@ public class ToolStreamProxy implements IStreamsProxy {
 	}
 	
 	
+	@Override
 	public void write(final String input) throws IOException {
 		throw new IOException("Function is not supported."); //$NON-NLS-1$
 	}
@@ -44,10 +45,12 @@ public class ToolStreamProxy implements IStreamsProxy {
 		return fInfoMonitor;
 	}
 	
+	@Override
 	public ToolStreamMonitor getOutputStreamMonitor() {
 		return fOutputMonitor;
 	}
 	
+	@Override
 	public ToolStreamMonitor getErrorStreamMonitor() {
 		return fErrorMonitor;
 	}

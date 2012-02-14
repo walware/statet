@@ -30,20 +30,24 @@ public class REnvProxy implements IREnv {
 	}
 	
 	
+	@Override
 	public String getId() {
 		return fId;
 	}
 	
+	@Override
 	public String getName() {
 		final IREnv rEnv = resolve();
 		return (rEnv != null) ? rEnv.getName() : "";
 	}
 	
+	@Override
 	public IREnvConfiguration getConfig() {
 		final IREnv rEnv = resolve();
 		return (rEnv != null) ? rEnv.getConfig() : null;
 	}
 	
+	@Override
 	public IREnv resolve() {
 		return fLink;
 	}

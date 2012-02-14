@@ -51,6 +51,7 @@ public class RValue extends RDebugElement implements IValue {
 	}
 	
 	
+	@Override
 	public String getValueString() throws DebugException {
 		switch (fVariable.fElement.getElementType()) {
 		case RObject.TYPE_NULL:
@@ -63,18 +64,22 @@ public class RValue extends RDebugElement implements IValue {
 		return ""; //$NON-NLS-1$
 	}
 	
+	@Override
 	public String getReferenceTypeName() throws DebugException {
 		return fVariable.fElement.getRClassName();
 	}
 	
+	@Override
 	public boolean isAllocated() throws DebugException {
 		return true;
 	}
 	
+	@Override
 	public boolean hasVariables() throws DebugException {
 		return false;
 	}
 	
+	@Override
 	public IVariable[] getVariables() throws DebugException {
 		return NO_VARIABLES;
 	}

@@ -214,6 +214,7 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 		updateStyles();
 	}
 	
+	@Override
 	public void propertyChange(final PropertyChangeEvent event) {
 		if (event.getProperty().equals("de.walware.statet.base.themes.DocViewFont") //$NON-NLS-1$
 				|| event.getProperty().equals("de.walware.statet.base.themes.DocViewBackgroundColor") //$NON-NLS-1$
@@ -223,6 +224,7 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 		}
 	}
 	
+	@Override
 	public void settingsChanged(final Set<String> groupIds) {
 		if (groupIds.contains(RUIPreferenceConstants.R.TS_GROUP_ID)
 				|| groupIds.contains(RIdentifierGroups.GROUP_ID)) {
@@ -248,6 +250,7 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 	private void updateStyles() {
 		final StringBuilder sb = new StringBuilder(1024);
 		UIAccess.getDisplay().syncExec(new Runnable() {
+			@Override
 			public void run() {
 				collectCss(sb);
 			}

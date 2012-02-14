@@ -73,10 +73,12 @@ public class GenerateRoxygenElementComment extends AbstractHandler implements IE
 	}
 	
 	
+	@Override
 	public void updateElement(final UIElement element, final Map parameters) {
 		element.setText(RUIMessages.GenerateRoxygenElementComment_label);
 	}
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		if (!(event.getApplicationContext() instanceof IEvaluationContext)) {
 			return null;

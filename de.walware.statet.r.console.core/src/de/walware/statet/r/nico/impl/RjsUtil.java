@@ -184,6 +184,7 @@ public class RjsUtil {
 			throw new IOException("Not supported");
 		}
 		
+		@Override
 		public void setOption(final int optID, final Object value) throws SocketException {
 			switch (optID) {
 			case SocketOptions.TCP_NODELAY:
@@ -208,6 +209,7 @@ public class RjsUtil {
 			throw new SocketException("Not supported: option= " + optID + " with value= " + value);
 		}
 		
+		@Override
 		public Object getOption(final int optID) throws SocketException {
 			switch (optID) {
 			case SocketOptions.TCP_NODELAY:
@@ -231,6 +233,7 @@ public class RjsUtil {
 	
 	public static RMIClientSocketFactory createRMIOverSshClientSocketFactory(final Session session) {
 		return new RMIClientSocketFactory() {
+			@Override
 			public Socket createSocket(final String host, final int port) throws IOException {
 //				System.out.println("SshSocket new: to= " + host + ":" + port);
 				try {

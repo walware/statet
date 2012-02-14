@@ -66,6 +66,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 			
 			final Composite container = new Composite(parent, SWT.NONE);
 			container.addListener(SWT.Dispose, new Listener() {
+				@Override
 				public void handleEvent(final Event event) {
 					toolkit.dispose();
 				}
@@ -138,6 +139,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 		return fBuilder;
 	}
 	
+	@Override
 	public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 		final String cmdInfo = LaunchConfigUtil.generateCommandLine(fBuilder.command());
 		monitor.beginTask(Messages.HelpRequestor_Task_name+cmdInfo, 10);
@@ -152,6 +154,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 			final String helpText = reader.collect();
 			
 			UIAccess.getDisplay().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					InfoTray tray = null;
 					if (fDialog.getTray() instanceof InfoTray) {

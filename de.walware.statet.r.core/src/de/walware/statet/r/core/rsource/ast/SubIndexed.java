@@ -142,6 +142,7 @@ public abstract class SubIndexed extends RAstNode {
 			acceptChildren(visitor, fSpecs);
 		}
 		
+		@Override
 		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 			for (final RAstNode child : fSpecs) {
 				visitor.visit(child);
@@ -289,6 +290,7 @@ public abstract class SubIndexed extends RAstNode {
 		fSublist.acceptInR(visitor);
 	}
 	
+	@Override
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(fExpr.node);
 		visitor.visit(fSublist);

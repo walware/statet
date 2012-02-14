@@ -26,6 +26,7 @@ import de.walware.statet.r.internal.sweave.SweavePlugin;
 public class RweaveTexTextViewerCreator implements IViewerCreator {
 	
 	
+	@Override
 	public Viewer createViewer(final Composite parent, final CompareConfiguration config) {
 		final RweaveTexViewerConfigurator viewerConfigurator = new RweaveTexViewerConfigurator(
 				RCore.getWorkbenchAccess());

@@ -44,6 +44,7 @@ public class InlineTempWizard extends RefactoringWizard {
 			return (InlineTempRefactoring) super.getRefactoring();
 		}
 		
+		@Override
 		public void createControl(final Composite parent) {
 			final Composite composite = new Composite(parent, SWT.NONE);
 			composite.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));

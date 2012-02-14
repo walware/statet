@@ -128,10 +128,11 @@ public class REnvRemoteConfigDialog extends ExtStatusDialog {
 		db.getContext().bindValue(SWTObservables.observeText(fNameControl, SWT.Modify), 
 				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_NAME), 
 				new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
+					@Override
 					public IStatus validate(final Object value) {
 						String s = (String) value;
 						s = s.trim();
-						if (s.length() == 0) {
+						if (s.isEmpty()) {
 							return ValidationStatus.error(Messages.REnv_Detail_Name_error_Missing_message);
 						}
 						if (fExistingNames.contains(s)) {

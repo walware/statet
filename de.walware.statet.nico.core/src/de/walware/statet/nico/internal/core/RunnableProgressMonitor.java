@@ -51,20 +51,25 @@ public class RunnableProgressMonitor implements IProgressMonitorWithBlocking, IP
 	
 /* IProgressMonitor / IProgressMonitorWithBlocking */
 	
+	@Override
 	public void beginTask(final String taskName, final int totalWork) {
 	}
 	
+	@Override
 	public void setTaskName(final String taskName) {
 	}
 	
+	@Override
 	public void subTask(final String name) {
 		fSubTaskName = name;
 	}
 	
+	@Override
 	public void done() {
 		fCurrentWorked = TOTAL_WORK;
 	}
 	
+	@Override
 	public void worked(final int work) {
 		
 		int newValue = fCurrentWorked + work;
@@ -74,24 +79,29 @@ public class RunnableProgressMonitor implements IProgressMonitorWithBlocking, IP
 		fCurrentWorked = newValue;
 	}
 	
+	@Override
 	public void internalWorked(final double work) {
 	}
 	
+	@Override
 	public void setCanceled(final boolean value) {
 		isCanceled = true;
 		fRefreshLabel = true;
 	}
 	
+	@Override
 	public boolean isCanceled() {
 		return isCanceled;
 	}
 	
 	
+	@Override
 	public void setBlocked(final IStatus reason) {
 		fBlockedMessage = (reason != null) ? reason.getMessage() : ""; //$NON-NLS-1$
 		fRefreshLabel = true;
 	}
 	
+	@Override
 	public void clearBlocked() {
 		fBlockedMessage = null;
 		fRefreshLabel = true;
@@ -100,10 +110,12 @@ public class RunnableProgressMonitor implements IProgressMonitorWithBlocking, IP
 	
 /* IProgressInfo / Getter access */
 	
+	@Override
 	public int getWorked() {
 		return fCurrentWorked;
 	}
 	
+	@Override
 	public String getLabel() {
 		if (fRefreshLabel) {
 			fRefreshLabel = false;
@@ -112,6 +124,7 @@ public class RunnableProgressMonitor implements IProgressMonitorWithBlocking, IP
 		return fLabel;
 	}
 	
+	@Override
 	public String getSubLabel() {
 		return fSubTaskName;
 	}
@@ -128,6 +141,7 @@ public class RunnableProgressMonitor implements IProgressMonitorWithBlocking, IP
 		return fMainName;
 	}
 	
+	@Override
 	public IToolRunnable getRunnable() {
 		return fRunnable;
 	}

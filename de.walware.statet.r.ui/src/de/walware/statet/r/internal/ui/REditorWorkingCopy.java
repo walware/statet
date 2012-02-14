@@ -65,14 +65,17 @@ public class REditorWorkingCopy extends GenericEditorWorkspaceSourceUnitWorkingC
 		}
 	}
 	
+	@Override
 	public IRCoreAccess getRCoreAccess() {
 		return ((IRSourceUnit) fFrom).getRCoreAccess();
 	}
 	
+	@Override
 	public IREnv getREnv() {
 		return ((IRSourceUnit) fFrom).getREnv();
 	}
 	
+	@Override
 	public void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
 		RCore.getRModelManager().reconcile(this, reconcileLevel, true, monitor);
 	}
@@ -100,26 +103,32 @@ public class REditorWorkingCopy extends GenericEditorWorkspaceSourceUnitWorkingC
 	}
 	
 	
+	@Override
 	public Object getModelLockObject() {
 		return fModelLock;
 	}
 	
+	@Override
 	public SourceContent getParseContent(final IProgressMonitor monitor) {
 		return getContent(monitor);
 	}
 	
+	@Override
 	public void setRAst(final RAstInfo ast) {
 		fAst = ast;
 	}
 	
+	@Override
 	public RAstInfo getCurrentRAst() {
 		return fAst;
 	}
 	
+	@Override
 	public void setRModel(final IRModelInfo model) {
 		fModelInfo = model;
 	}
 	
+	@Override
 	public IRModelInfo getCurrentRModel() {
 		return fModelInfo;
 	}

@@ -42,15 +42,19 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	public GenericConsoleSourceUnit(final String id, final InputDocument document) {
 		fId = id;
 		fName = new IElementName() {
+			@Override
 			public int getType() {
 				return 0x011; // see RElementName
 			}
+			@Override
 			public String getDisplayName() {
 				return fId;
 			}
+			@Override
 			public String getSegmentName() {
 				return fId;
 			}
+			@Override
 			public IElementName getNextSegment() {
 				return null;
 			}
@@ -62,6 +66,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public WorkingContext getWorkingContext() {
 		return LTK.EDITOR_CONTEXT;
 	}
@@ -69,6 +74,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public ISourceUnit getUnderlyingUnit() {
 		return null;
 	}
@@ -76,6 +82,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean isSynchronized() {
 		return true;
 	}
@@ -83,6 +90,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public int getElementType() {
 		return IModelElement.C2_SOURCE_CHUNK;
 	}
@@ -90,6 +98,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IElementName getElementName() {
 		return fName;
 	}
@@ -97,6 +106,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getId() {
 		return fId;
 	}
@@ -104,6 +114,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean exists() {
 		return fCounter > 0;
 	}
@@ -111,6 +122,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean isReadOnly() {
 		return false;
 	}
@@ -120,6 +132,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	 * 
 	 * A console is always modifiable.
 	 */
+	@Override
 	public boolean checkState(final boolean validate, final IProgressMonitor monitor) {
 		return true;
 	}
@@ -129,6 +142,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	 * 
 	 * A console has no resource.
 	 */
+	@Override
 	public Object getResource() {
 		return null;
 	}
@@ -137,6 +151,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public AbstractDocument getDocument(final IProgressMonitor monitor) {
 		return fDocument;
 	}
@@ -144,6 +159,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public SourceContent getContent(final IProgressMonitor monitor) {
 		return WorkingBuffer.createContentFromDocument(fDocument);
 	}
@@ -151,6 +167,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Object getAdapter(final Class required) {
 		return null;
 	}
@@ -158,6 +175,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IModelElement getModelParent() {
 		return null;
 	}
@@ -165,6 +183,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
@@ -172,6 +191,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<? extends IModelElement> getModelChildren(final Filter filter) {
 		return NO_CHILDREN;
 	}
@@ -179,6 +199,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public synchronized final void connect(final IProgressMonitor monitor) {
 		fCounter++;
 	}
@@ -186,6 +207,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public synchronized final void disconnect(final IProgressMonitor monitor) {
 		fCounter--;
 	}
@@ -193,6 +215,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public synchronized boolean isConnected() {
 		return (fCounter > 0);
 	}

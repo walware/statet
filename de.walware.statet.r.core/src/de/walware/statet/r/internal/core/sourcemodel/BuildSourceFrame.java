@@ -81,6 +81,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		}
 		
 		
+		@Override
 		public RElementName getElementName() {
 			return null;
 		}
@@ -157,6 +158,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		}
 		
 		
+		@Override
 		public RElementName getElementName() {
 			return fElementName;
 		}
@@ -349,23 +351,28 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		return list.toArray(new BuildSourceFrame[list.size()]);
 	}
 	
+	@Override
 	public int getFrameType() {
 		return fType;
 	}
 	
+	@Override
 	public String getFrameId() {
 		return fId;
 	}
 	
+	@Override
 	public List<? extends IRFrame> getPotentialParents() {
 		return fParents;
 	}
 	
 	
+	@Override
 	public Set<String> getAllAccessNames() {
 		return Collections.unmodifiableSet(fData.keySet());
 	}
 	
+	@Override
 	public List<? extends RElementAccess> getAllAccessOfElement(final String name) {
 		final ElementAccessList list = fData.get(name);
 		if (list == null) {
@@ -374,16 +381,19 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		return Collections.unmodifiableList(list.entries);
 	}
 	
+	@Override
 	public boolean isResolved(final String name) {
 		final ElementAccessList accessList = fData.get(name);
 		return (accessList != null && accessList.isCreated >= CREATED_RESOLVED); 
 	}
 	
 	
+	@Override
 	public List<? extends IRElement> getModelElements() {
 		return fElements;
 	}
 	
+	@Override
 	public boolean hasModelChildren(final IModelElement.Filter filter) {
 		for (final ElementAccessList list : fData.values()) {
 			for (final ElementAccess access : list.entries) {
@@ -396,6 +406,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		return false;
 	}
 	
+	@Override
 	public List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
 		if (fData.isEmpty()) {
 			return RSourceElements.NO_R_SOURCE_CHILDREN;

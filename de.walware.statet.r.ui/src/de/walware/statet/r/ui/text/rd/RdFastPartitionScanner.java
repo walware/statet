@@ -68,10 +68,12 @@ public class RdFastPartitionScanner implements IPartitionTokenScanner {
 	}
 	
 	
+	@Override
 	public void setRange(final IDocument document, final int offset, final int length) {
 		setPartialRange(document, offset, length, null, -1);
 	}
 	
+	@Override
 	public void setPartialRange(final IDocument document, final int offset, final int length, final String contentType, int partitionOffset) {
 		if (partitionOffset < 0) {
 			partitionOffset = offset;
@@ -85,6 +87,7 @@ public class RdFastPartitionScanner implements IPartitionTokenScanner {
 	}
 	
 	
+	@Override
 	public IToken nextToken() {
 		fTokenOffset += fTokenLength;
 		fTokenLength = fPrefixLength;
@@ -224,10 +227,12 @@ public class RdFastPartitionScanner implements IPartitionTokenScanner {
 	}
 	
 	
+	@Override
 	public int getTokenLength() {
 		return fTokenLength;
 	}
 	
+	@Override
 	public int getTokenOffset() {
 		return fTokenOffset;
 	}

@@ -52,6 +52,7 @@ public final class RSourceUnit extends RResourceUnit
 		}
 	}
 	
+	@Override
 	public String getModelTypeId() {
 		return RModel.TYPE_ID;
 	}
@@ -89,21 +90,26 @@ public final class RSourceUnit extends RResourceUnit
 		return null;
 	}
 	
+	@Override
 	public synchronized void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
 	}
 	
 	
+	@Override
 	public Object getModelLockObject() {
 		return fModelLock;
 	}
 	
+	@Override
 	public SourceContent getParseContent(final IProgressMonitor monitor) {
 		return getContent(monitor);
 	}
 	
+	@Override
 	public void setRAst(final RAstInfo ast) {
 	}
 	
+	@Override
 	public RAstInfo getCurrentRAst() {
 		final IRModelInfo model = getCurrentRModel();
 		if (model != null) {
@@ -112,10 +118,12 @@ public final class RSourceUnit extends RResourceUnit
 		return null;
 	}
 	
+	@Override
 	public void setRModel(final IRModelInfo model) {
 //		fModelInfo = model;
 	}
 	
+	@Override
 	public IRModelInfo getCurrentRModel() {
 		return fModelInfo;
 	}

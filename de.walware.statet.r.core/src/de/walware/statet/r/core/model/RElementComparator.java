@@ -25,6 +25,7 @@ public class RElementComparator implements Comparator<IModelElement> {
 	private final Comparator<Object> fNameComparator = RSymbolComparator.R_NAMES_COLLATOR;
 	
 	
+	@Override
 	public int compare(final IModelElement o1, final IModelElement o2) {
 		final IElementName name1 = o1.getElementName();
 		final IElementName name2 = o2.getElementName();

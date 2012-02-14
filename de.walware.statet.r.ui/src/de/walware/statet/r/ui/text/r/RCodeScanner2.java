@@ -151,6 +151,7 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 	}
 	
 	
+	@Override
 	public IToken nextToken() {
 		fCurrentOffset += fCurrentLength;
 		if (fLexerToken == null) {
@@ -183,10 +184,12 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		return token;
 	}
 	
+	@Override
 	public int getTokenOffset() {
 		return fCurrentOffset;
 	}
 	
+	@Override
 	public int getTokenLength() {
 		return fCurrentLength;
 	}
@@ -196,6 +199,7 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		return fTextStyles.getToken(key);
 	}
 	
+	@Override
 	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 		fTextStyles.handleSettingsChanged(groupIds, options);
 		if (groupIds.contains(RIdentifierGroups.GROUP_ID)) {

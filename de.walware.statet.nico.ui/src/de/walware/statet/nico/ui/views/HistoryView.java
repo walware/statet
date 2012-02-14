@@ -143,6 +143,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	
 	private static final EntryFilter EMPTY_FILTER = new EntryFilter() {
 		
+		@Override
 		public boolean select(final Entry e) {
 			return (e.getCommandMarker() >= 0);
 		}
@@ -157,6 +158,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 			fSubmitTypes = types;
 		}
 		
+		@Override
 		public boolean select(final Entry e) {
 			final SubmitType type = e.getSubmitType();
 			return (type == null
@@ -227,6 +229,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 			}
 		}
 		
+		@Override
 		public synchronized void completeChange(final History source, final Entry[] es) {
 			if (fCurrentSource != source) {
 				return;
@@ -241,6 +244,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 			}
 		}
 		
+		@Override
 		public synchronized void entryAdded(final History source, final Entry e) {
 			if (fCurrentSource != source) {
 				return;
@@ -253,6 +257,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 			}
 		}
 		
+		@Override
 		public synchronized void entryRemoved(final History source, final Entry e) {
 			if (fCurrentSource != source) {
 				return;
@@ -265,6 +270,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 			}
 		}
 		
+		@Override
 		public void run() {
 			final Entry[] newEntries;
 			final int toAdd;
@@ -538,6 +544,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		};
 		final TableColumn column = new TableColumn(fTable, SWT.DEFAULT);
 		fTable.addListener(SWT.Resize, new Listener() {
+			@Override
 			public void handleEvent(final Event event) {
 				// adapt the column width to the width of the table
 				final int tableWidth = fTable.getClientArea().width;
@@ -548,6 +555,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 			}
 		});
 		fTable.addKeyListener(new KeyListener() {
+			@Override
 			public void keyPressed(final KeyEvent e) {
 				if (e.keyCode == SWT.ARROW_UP && 
 						fTable.getSelectionCount() == 1 && fTable.getSelectionIndex() == 0) {
@@ -556,6 +564,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 					e.doit = false;
 				}
 			}
+			@Override
 			public void keyReleased(final KeyEvent e) {
 			}
 		});
@@ -571,17 +580,21 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		// listen on console changes
 		final IToolRegistry toolRegistry = NicoUI.getToolRegistry();
 		fToolRegistryListener = new IToolRegistryListener() {
+			@Override
 			public void toolSessionActivated(final ToolSessionUIData sessionData) {
 				final ToolProcess process = sessionData.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
+					@Override
 					public void run() {
 						connect(process);
 					}
 				});
 			}
+			@Override
 			public void toolTerminated(final ToolSessionUIData sessionData) {
 				final ToolProcess process = sessionData.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
+					@Override
 					public void run() {
 						if (fProcess != null && fProcess == process) {
 							connect(null);
@@ -607,6 +620,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 		fFilterEmptyAction = new FilterEmptyAction();
 		fScrollLockAction = new ScrollLockAction(new Receiver() {
+			@Override
 			public void setAutoScroll(final boolean enabled) {
 				fDoAutoscroll = enabled;
 			}
@@ -623,6 +637,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 		enabledSelectionActions(false);
 		fTable.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetSelected(final SelectionEvent e) {
 				if (fTable.getSelectionCount() > 0) {
 					enabledSelectionActions(true);
@@ -631,6 +646,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 					enabledSelectionActions(false);
 				}
 			};
+			@Override
 			public void widgetDefaultSelected(final SelectionEvent e) {
 				fSubmitAction.run();
 			}
@@ -640,6 +656,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		fSaveHistoryAction = new SaveHistoryAction(this);
 		
 		fSearchStartHandler = new AbstractHandler() {
+			@Override
 			public Object execute(final ExecutionEvent arg0) {
 				fSearchTextItem.show();
 				return null;
@@ -648,6 +665,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		handlerService.activateHandler(IWorkbenchCommandConstants.EDIT_FIND_AND_REPLACE, fSearchStartHandler);
 		
 		fSearchNextHandler = new AbstractHandler() {
+			@Override
 			public Object execute(final ExecutionEvent arg0) {
 				search(true, -1);
 				return null;
@@ -657,6 +675,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		handlerService.activateHandler("org.eclipse.ui.navigate.next", fSearchNextHandler); //$NON-NLS-1$
 		
 		fSearchPrevHandler = new AbstractHandler() {
+			@Override
 			public Object execute(final ExecutionEvent arg0) {
 				search(false, -1);
 				return null;
@@ -676,6 +695,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		final MenuManager menuMgr = new MenuManager("ContextMenu"); //$NON-NLS-1$
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
+			@Override
 			public void menuAboutToShow(final IMenuManager manager) {
 				HistoryView.this.fillContextMenu(manager);
 			}
@@ -780,10 +800,12 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		}
 	}
 	
+	@Override
 	public void addToolRetargetable(final IToolRetargetable action) {
 		fToolListenerList.add(action);
 	}
 	
+	@Override
 	public void removeToolRetargetable(final IToolRetargetable action) {
 		fToolListenerList.remove(action);
 	}
@@ -814,6 +836,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	 * 
 	 * @return a tool process or <code>null</code>, if no process is connected.
 	 */
+	@Override
 	public ToolProcess getTool() {
 		return fProcess;
 	}
@@ -854,7 +877,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 		final int itemCount = fTable.getItemCount();
 		final String text = fSearchTextItem.getText();
-		if (itemCount == 0 || text.length() == 0) {
+		if (itemCount == 0 || text.isEmpty()) {
 			return;
 		}
 		

@@ -32,6 +32,7 @@ public class RCmdToolTabGroup extends AbstractLaunchConfigurationTabGroup {
 	}
 	
 	
+	@Override
 	public void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {
 		final ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
 				new RCmdMainTab(),

@@ -88,6 +88,7 @@ public class RDebugModelPresentation extends LabelProvider
 	}
 	
 	
+	@Override
 	public boolean requiresUIThread(final Object element) {
 		return !fIsResourcesInitilized;
 	}
@@ -359,6 +360,7 @@ public class RDebugModelPresentation extends LabelProvider
 	}
 	
 	
+	@Override
 	public IEditorInput getEditorInput(Object element) {
 		if (element instanceof IMarker) {
 			element = DebugPlugin.getDefault().getBreakpointManager().getBreakpoint((IMarker) element);
@@ -381,6 +383,7 @@ public class RDebugModelPresentation extends LabelProvider
 		return null;
 	}
 	
+	@Override
 	public String getEditorId(final IEditorInput input, final Object element) {
 		try {
 			if (input instanceof IFileEditorInput) {
@@ -397,9 +400,11 @@ public class RDebugModelPresentation extends LabelProvider
 		return null;
 	}
 	
+	@Override
 	public void setAttribute(final String attribute, final Object value) {
 	}
 	
+	@Override
 	public void computeDetail(final IValue value, final IValueDetailListener listener) {
 	}
 	

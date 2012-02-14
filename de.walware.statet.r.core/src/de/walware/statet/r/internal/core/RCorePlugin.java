@@ -80,10 +80,12 @@ public class RCorePlugin extends Plugin {
 			fListener = new PreferencesManageListener(fRCodeStyle, fPrefs, RCodeStyleSettings.ALL_GROUP_IDS);
 		}
 		
+		@Override
 		public IPreferenceAccess getPrefs() {
 			return fPrefs;
 		}
 		
+		@Override
 		public RCodeStyleSettings getRCodeStyle() {
 			return fRCodeStyle;
 		};

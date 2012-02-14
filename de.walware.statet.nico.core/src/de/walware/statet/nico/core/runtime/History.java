@@ -145,6 +145,7 @@ public class History {
 		fProcess = process;
 		
 		fPreferenceListener = new IPreferenceChangeListener() {
+			@Override
 			public void preferenceChange(final PreferenceChangeEvent event) {
 				checkSettings(false);
 			}
@@ -164,6 +165,7 @@ public class History {
 			final EnumSet<SubmitType> set = SubmitType.getDefaultSet();
 			for (final SubmitType submitType : set) {
 				final IStreamListener listener = new IStreamListener() {
+					@Override
 					public void streamAppended(final String text, final IStreamMonitor monitor) {
 						if ((((ToolStreamMonitor) monitor).getMeta() & IConsoleService.META_HISTORY_DONTADD) == 0) {
 							addCommand(text, submitType);
@@ -239,6 +241,7 @@ public class History {
 			final FileUtil fileUtil = FileUtil.getFileUtil(file);
 			final HistoryData exch = new HistoryData();
 			final ReaderAction action = new ReaderAction() {
+				@Override
 				public void run(final BufferedReader reader, final IProgressMonitor monitor) throws IOException, CoreException {
 					long timeStamp = fileUtil.getTimeStamp(new SubProgressMonitor(monitor, 1));
 					if (timeStamp < 0) {

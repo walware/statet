@@ -117,6 +117,7 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		return fRealEditor;
 	}
 	
+	@Override
 	public void propertyChange(final PropertyChangeEvent event) {
 		final String name = event.getPropertyName();
 		if (name.equals(RCodeStyleSettings.PROP_TAB_SIZE)) {
@@ -190,10 +191,12 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		fUpdateIndent = false;
 	}
 	
+	@Override
 	public RCodeStyleSettings getRCodeStyle() {
 		return fRCodeStyleCopy;
 	}
 	
+	@Override
 	public IPreferenceAccess getPrefs() {
 		return fSourceCoreAccess.getPrefs();
 	}

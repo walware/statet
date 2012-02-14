@@ -38,6 +38,7 @@ public class CopyDataHandler extends AbstractHandler {
 //		setBaseEnabled(table != null && !table.isDisposed());
 	}
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final NatTable table = fTableComposite.getNatTable();
 		if (table != null) {

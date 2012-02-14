@@ -33,6 +33,7 @@ public class RweaveContentHandler implements ICodeLaunchContentHandler {
 	}
 	
 	
+	@Override
 	public String[] getCodeLines(final IDocument document) throws BadLocationException, CoreException {
 		if (document instanceof IDocumentExtension3) {
 			final IDocumentExtension3 doc3 = (IDocumentExtension3) document;

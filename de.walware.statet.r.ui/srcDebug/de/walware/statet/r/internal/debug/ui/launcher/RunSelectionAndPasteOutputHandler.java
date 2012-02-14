@@ -129,27 +129,33 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 			fLines = null;
 		}
 		
+		@Override
 		public String getTypeId() {
 			return "editor/run-and-paste"; //$NON-NLS-1$
 		}
 		
+		@Override
 		public String getLabel() {
 			return RLaunchingMessages.RunCodeAndPasteOutput_RTask_label;
 		}
 		
+		@Override
 		public SubmitType getSubmitType() {
 			return SubmitType.EDITOR;
 		}
 		
+		@Override
 		public boolean isRunnableIn(final ITool tool) {
 			return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
 		}
 		
+		@Override
 		public boolean changed(final int event, final ITool process) {
 			switch (event) {
 			case REMOVING_FROM:
 			case BEING_ABANDONED:
 				UIAccess.getDisplay().asyncExec(new Runnable() {
+					@Override
 					public void run() {
 						dispose();
 					}
@@ -159,11 +165,13 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			final IRBasicAdapter r = (IRBasicAdapter) service;
 			fOutput = new StringBuilder(200);
 			final IStreamListener listener = new IStreamListener() {
+				@Override
 				public void streamAppended(final String text, final IStreamMonitor monitor) {
 					fOutput.append(text);
 				}
@@ -201,6 +209,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 			}
 		}
 		
+		@Override
 		public void run() {
 			// After R in display
 			final SourceViewer viewer = fEditor.getViewer();
@@ -266,6 +275,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 	}
 	
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final IWorkbenchPart workbenchPart = HandlerUtil.getActivePart(event);
 		final ISourceEditor editor = (ISourceEditor) workbenchPart.getAdapter(ISourceEditor.class);

@@ -26,6 +26,7 @@ public class MultiColumnResizeCommandHandler extends AbstractLayerCommandHandler
 	}
 	
 	
+	@Override
 	public Class<MultiColumnResizeCommand> getCommandClass() {
 		return MultiColumnResizeCommand.class;
 	}

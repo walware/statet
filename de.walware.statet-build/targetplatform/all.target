@@ -5,9 +5,11 @@
 	<locations>
 		<location includeAllPlatforms="true" includeMode="slicer" includeSource="false"
 				type="InstallableUnit">
-			<repository location="http://download.eclipse.org/releases/helios"/>
-			<unit id="org.eclipse.platform.ide" version="3.6.2.M20110210-1200"/>
-			<unit id="org.eclipse.jdt.feature.group" version="3.6.2.r362_v20101117-0800-7z8XFW6FLFlmjJcvz03jyeFBLS_F"/>
+			<repository location="http://download.eclipse.org/releases/indigo"/>
+			<unit id="org.eclipse.platform.feature.group"
+					version="3.7.1.r37x_v20110729-9gF7UHOxFtniV7mI3T556iZN9AU8bEZ1lHMcVK"/>
+			<unit id="org.eclipse.jdt.feature.group"
+					version="3.7.1.r371_v20110810-0800-7z8gFcoFMLfTabvKsR5Qm9rBGEBK"/>
 		</location>
 	</locations>
 </target>

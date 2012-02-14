@@ -53,6 +53,7 @@ public class HistorySubmitAction extends Action {
 		}
 		
 		final IRunnableWithProgress runnable = new IRunnableWithProgress() {
+			@Override
 			public void run(final IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
 				try {
 					monitor.beginTask(NicoUITools.createSubmitMessage(controller.getTool()), 1000);

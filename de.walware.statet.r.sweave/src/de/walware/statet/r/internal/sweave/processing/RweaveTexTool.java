@@ -110,18 +110,22 @@ class RweaveTexTool implements Runnable, IProcess {
 		R() {
 		}
 		
+		@Override
 		public String getTypeId() {
 			return "r/sweave/commands"; //$NON-NLS-1$
 		}
 		
+		@Override
 		public boolean isRunnableIn(final ITool tool) {
 			return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
 		}
 		
+		@Override
 		public String getLabel() {
 			return NLS.bind(Messages.RweaveTexProcessing_Sweave_Task_label, fSweaveFile.getName());
 		}
 		
+		@Override
 		public boolean changed(final int event, final ITool tool) {
 			switch (event) {
 			case REMOVING_FROM:
@@ -135,6 +139,7 @@ class RweaveTexTool implements Runnable, IProcess {
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			IRBasicAdapter r = (IRBasicAdapter) service;
@@ -147,6 +152,7 @@ class RweaveTexTool implements Runnable, IProcess {
 				}
 				if (beginSchedulingRule(monitor)) {
 					final LocationProcessor processor = new LocationProcessor() {
+						@Override
 						public String process(String path) throws CoreException {
 							final IFileStore store = FileUtil.getFileStore(path);
 							path = workspace.toToolPath(store);
@@ -441,6 +447,7 @@ class RweaveTexTool implements Runnable, IProcess {
 		return Status.OK_STATUS;
 	}
 	
+	@Override
 	public void run() {
 		try {
 			fProgress.beginTask('\'' + fProfileName + '\'', calculateTicks());
@@ -793,6 +800,7 @@ class RweaveTexTool implements Runnable, IProcess {
 	
 	private void openEditor(final IFile file) {
 		UIAccess.getDisplay().syncExec(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					IDE.openEditor(fWorkbenchPage, file);
@@ -804,10 +812,12 @@ class RweaveTexTool implements Runnable, IProcess {
 		});
 	}
 	
+	@Override
 	public Object getAdapter(final Class adapter) {
 		return null;
 	}
 	
+	@Override
 	public void setAttribute(final String key, final String value) {
 		if (fAttributes == null) {
 			initAttributes();
@@ -821,6 +831,7 @@ class RweaveTexTool implements Runnable, IProcess {
 		}
 	}
 	
+	@Override
 	public String getAttribute(final String key) {
 		if (fAttributes != null) {
 			return fAttributes.get(key);
@@ -828,6 +839,7 @@ class RweaveTexTool implements Runnable, IProcess {
 		return null;
 	}
 	
+	@Override
 	public int getExitValue() throws DebugException {
 		if (!isTerminated()) {
 			throw new DebugException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, -1,
@@ -836,22 +848,27 @@ class RweaveTexTool implements Runnable, IProcess {
 		return fExitValue;
 	}
 	
+	@Override
 	public String getLabel() {
 		return fName;
 	}
 	
+	@Override
 	public ILaunch getLaunch() {
 		return fLaunch;
 	}
 	
+	@Override
 	public IStreamsProxy getStreamsProxy() {
 		return null;
 	}
 	
+	@Override
 	public boolean canTerminate() {
 		return (fProgress != null);
 	}
 	
+	@Override
 	public void terminate() throws DebugException {
 		final IProgressMonitor monitor = fProgress;
 		final Thread thread = fThread;
@@ -863,6 +880,7 @@ class RweaveTexTool implements Runnable, IProcess {
 		}
 	}
 	
+	@Override
 	public boolean isTerminated() {
 		return (fProgress == null);
 	}

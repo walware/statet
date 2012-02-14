@@ -173,13 +173,16 @@ public class RHelpSearchResultPage extends AbstractTextSearchViewPage
 		public TreeContentProvider() {
 		}
 		
+		@Override
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 			fViewer = (TreeViewer) viewer;
 		}
 		
+		@Override
 		public void dispose() {
 		}
 		
+		@Override
 		public Object[] getElements(final Object inputElement) {
 			final IRPackageHelp[] packages = getInput().getPackages();
 			fCurrentPackages.clear();
@@ -187,6 +190,7 @@ public class RHelpSearchResultPage extends AbstractTextSearchViewPage
 			return packages;
 		}
 		
+		@Override
 		public Object getParent(final Object element) {
 			if (element instanceof IRHelpPage) {
 				return ((IRHelpPage) element).getPackage();
@@ -194,6 +198,7 @@ public class RHelpSearchResultPage extends AbstractTextSearchViewPage
 			return null;
 		}
 		
+		@Override
 		public boolean hasChildren(final Object element) {
 			if (element instanceof IRPackageHelp) {
 				return true;
@@ -205,6 +210,7 @@ public class RHelpSearchResultPage extends AbstractTextSearchViewPage
 			return false;
 		}
 		
+		@Override
 		public Object[] getChildren(final Object parentElement) {
 			if (parentElement instanceof IRPackageHelp) {
 				return getInput().getMatches((IRPackageHelp) parentElement);
@@ -215,6 +221,7 @@ public class RHelpSearchResultPage extends AbstractTextSearchViewPage
 			return new Object[0];
 		}
 		
+		@Override
 		public void elementsChanged(final Object[] elements) {
 			final Set<IRPackageHelp> packages = new HashSet<IRPackageHelp>();
 			for (int i = 0; i < elements.length; i++) {
@@ -268,13 +275,16 @@ public class RHelpSearchResultPage extends AbstractTextSearchViewPage
 		public TableContentProvider() {
 		}
 		
+		@Override
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 			fViewer = (TableViewer) viewer;
 		}
 		
+		@Override
 		public void dispose() {
 		}
 		
+		@Override
 		public Object[] getElements(final Object inputElement) {
 			final RHelpSearchUIMatch[] matches = getInput().getMatches();
 			fCurrentMatches.clear();
@@ -282,6 +292,7 @@ public class RHelpSearchResultPage extends AbstractTextSearchViewPage
 			return matches;
 		}
 		
+		@Override
 		public void elementsChanged(final Object[] elements) {
 			final Map<IRPackageHelp, RHelpSearchUIMatch[]> packages = new HashMap<IRPackageHelp, RHelpSearchUIMatch[]>();
 			fViewer.getTable().setRedraw(false);
@@ -472,6 +483,7 @@ public class RHelpSearchResultPage extends AbstractTextSearchViewPage
 		ColumnViewerToolTipSupport.enableFor(viewer);
 	}
 	
+	@Override
 	public void propertyChange(final PropertyChangeEvent event) {
 		final String property = event.getProperty();
 		if (property.equals(JFacePreferences.QUALIFIER_COLOR)
@@ -480,6 +492,7 @@ public class RHelpSearchResultPage extends AbstractTextSearchViewPage
 				|| property.equals(RHelpLabelProvider.HIGHLIGHT_BG_COLOR_NAME)
 				|| property.equals(IWorkbenchPreferenceConstants.USE_COLORED_LABELS)) {
 			Display.getDefault().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					final StructuredViewer viewer = getViewer();
 					if (UIAccess.isOkToUse(viewer)) {

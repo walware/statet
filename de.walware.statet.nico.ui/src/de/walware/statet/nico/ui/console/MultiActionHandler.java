@@ -111,6 +111,7 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		}
 	}
 	
+	@Override
 	public void handleEvent(final Event event) {
 		switch (event.type) {
 		case SWT.FocusIn:
@@ -127,6 +128,7 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		}
 	}
 	
+	@Override
 	public void selectionChanged(final SelectionChangedEvent event) {
 		updateEnabledState(); 
 	}

@@ -136,6 +136,7 @@ abstract class SpecItem extends RAstNode {
 		}
 	}
 	
+	@Override
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		if (fArgName != null) {
 			visitor.visit(fArgName);

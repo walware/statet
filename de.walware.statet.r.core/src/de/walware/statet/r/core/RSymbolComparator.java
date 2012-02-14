@@ -41,7 +41,7 @@ public class RSymbolComparator implements Comparator<String> {
 		 * @return if candidate starts with prefix
 		 */
 		public boolean matches(final String candidate) {
-			if (candidate == null || candidate.length() == 0) {
+			if (candidate == null || candidate.isEmpty()) {
 				return false;
 			}
 			if (fPrefix.length == 0) {
@@ -89,6 +89,7 @@ public class RSymbolComparator implements Comparator<String> {
 	public static final Collator R_NAMES_COLLATOR = Collator.getInstance(Locale.ENGLISH);
 	
 	
+	@Override
 	public int compare(final String name1, final String name2) {
 		return R_NAMES_COLLATOR.compare(check(name1), check(name2));
 	}

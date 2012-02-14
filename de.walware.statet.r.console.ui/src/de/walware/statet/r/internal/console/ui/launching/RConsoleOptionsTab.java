@@ -129,11 +129,13 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
+	@Override
 	public String getName() {
 		return RConsoleMessages.RConsole_OptionsTab_name;
 	}
 	
 	
+	@Override
 	public void createControl(final Composite parent) {
 		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
@@ -376,6 +378,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
+	@Override
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
 	}
 	

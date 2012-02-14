@@ -93,6 +93,7 @@ public class RHelpView extends PageBookBrowserView
 			setBaseEnabled(getCurrentBrowserPage() != null);
 		}
 		
+		@Override
 		public Object execute(final ExecutionEvent event) throws ExecutionException {
 			final PageBookBrowserPage browserPage = getCurrentBrowserPage();
 			if (browserPage != null) {
@@ -175,6 +176,7 @@ public class RHelpView extends PageBookBrowserView
 					if (getCurrentBrowserPage() == null
 							&& display != null && !display.isDisposed()) {
 						display.asyncExec(new Runnable() {
+							@Override
 							public void run() {
 								if (getCurrentBrowserPage() == null
 										&& UIAccess.isOkToUse(getPageBook())) {
@@ -190,19 +192,25 @@ public class RHelpView extends PageBookBrowserView
 		}
 		
 		getSite().getPage().addPartListener(new IPartListener2() {
+			@Override
 			public void partOpened(final IWorkbenchPartReference partRef) {
 			}
+			@Override
 			public void partClosed(final IWorkbenchPartReference partRef) {
 				if (fLinkedEditor != null && partRef.getPart(false) == fLinkedEditor) {
 					clear();
 				}
 			}
+			@Override
 			public void partVisible(final IWorkbenchPartReference partRef) {
 			}
+			@Override
 			public void partHidden(final IWorkbenchPartReference partRef) {
 			}
+			@Override
 			public void partInputChanged(final IWorkbenchPartReference partRef) {
 			}
+			@Override
 			public void partActivated(final IWorkbenchPartReference partRef) {
 				final IWorkbenchPart part = partRef.getPart(false);
 				if (part instanceof SourceEditor1) {
@@ -213,8 +221,10 @@ public class RHelpView extends PageBookBrowserView
 					clear();
 				}
 			}
+			@Override
 			public void partDeactivated(final IWorkbenchPartReference partRef) {
 			}
+			@Override
 			public void partBroughtToTop(final IWorkbenchPartReference partRef) {
 			}
 			private void clear() {
@@ -329,9 +339,11 @@ public class RHelpView extends PageBookBrowserView
 		}
 	}
 	
+	@Override
 	public void inputChanged() {
 	}
 	
+	@Override
 	public void stateChanged(final LTKInputData state) {
 		if (!fIsLinkingWithEditor) {
 			return;
@@ -397,6 +409,7 @@ public class RHelpView extends PageBookBrowserView
 					}
 					if (url != null) {
 						UIAccess.getDisplay().asyncExec(new Runnable() {
+							@Override
 							public void run() {
 								if ((explicite || fLinkedEditor != null
 										&& fLinkedEditor == fLinkedEditor.getSite().getPage().getActiveEditor())
@@ -425,6 +438,7 @@ public class RHelpView extends PageBookBrowserView
 		return super.getAdapter(required);
 	}
 	
+	@Override
 	public boolean show(final ShowInContext context) {
 		final ISelection selection = context.getSelection();
 		if (selection instanceof LTKInputData) {

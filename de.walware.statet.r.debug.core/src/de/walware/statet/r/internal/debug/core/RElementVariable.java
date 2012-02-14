@@ -39,6 +39,7 @@ public class RElementVariable extends RVariable implements IRElementVariable {
 	}
 	
 	
+	@Override
 	public ICombinedRElement getElement() {
 		if (fElement.getRObjectType() == RObject.TYPE_REFERENCE) {
 			resolveRef();
@@ -46,14 +47,17 @@ public class RElementVariable extends RVariable implements IRElementVariable {
 		return fElement;
 	}
 	
+	@Override
 	public String getName() throws DebugException {
 		return fElement.getElementName().getDisplayName();
 	}
 	
+	@Override
 	public String getReferenceTypeName() throws DebugException {
 		return fElement.getRClassName();
 	}
 	
+	@Override
 	public synchronized RValue getValue() throws DebugException {
 		if (fValue == null) {
 			fValue = createValue();

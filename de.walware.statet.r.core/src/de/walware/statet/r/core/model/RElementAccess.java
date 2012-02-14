@@ -26,6 +26,7 @@ public abstract class RElementAccess extends RElementName {
 	
 	public static final Comparator<RElementAccess> NAME_POSITION_COMPARATOR = 
 		new Comparator<RElementAccess>() {
+			@Override
 			public int compare(final RElementAccess o1, final RElementAccess o2) {
 				return (o1.getNameNode().getOffset() - o2.getNameNode().getOffset()); 
 			}

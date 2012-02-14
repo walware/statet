@@ -147,6 +147,7 @@ public class PresentationConfig extends AbstractRegistryConfiguration {
 	}
 	
 	
+	@Override
 	public void configureRegistry(final IConfigRegistry configRegistry) {
 		// base
 		{	final Style cellStyle = new Style();

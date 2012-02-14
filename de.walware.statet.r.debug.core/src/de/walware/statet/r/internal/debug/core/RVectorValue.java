@@ -64,10 +64,12 @@ public class RVectorValue extends RValue implements IIndexedValue {
 		return getVariables(1, getSize());
 	}
 	
+	@Override
 	public int getInitialOffset() {
 		return 1;
 	}
 	
+	@Override
 	public int getSize() throws DebugException {
 		if (fLength <= 1) {
 			return 0;
@@ -75,6 +77,7 @@ public class RVectorValue extends RValue implements IIndexedValue {
 		return fLength;
 	}
 	
+	@Override
 	public IVariable getVariable(final int offset) throws DebugException {
 		final ICombinedRElement element = fVariable.fElement;
 		if (element.getLength() <= 1) {
@@ -86,6 +89,7 @@ public class RVectorValue extends RValue implements IIndexedValue {
 		return new RVectorIndexVariable(this, offset-1);
 	}
 	
+	@Override
 	public IVariable[] getVariables(final int offset, final int length) throws DebugException {
 		final ICombinedRElement element = fVariable.fElement;
 		if (element.getLength() <= 1) {

@@ -53,10 +53,12 @@ public class RConsole extends NIConsole implements IRCoreAccess {
 		return "de.walware.statet.base.themes.ConsoleFont"; //$NON-NLS-1$
 	}
 	
+	@Override
 	public IPreferenceAccess getPrefs() {
 		return fPrefs;
 	}
 	
+	@Override
 	public RCodeStyleSettings getRCodeStyle() {
 		return RCore.getWorkbenchAccess().getRCodeStyle();
 	}

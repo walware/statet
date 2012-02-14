@@ -60,22 +60,27 @@ public class AdjustWidthHandler extends AbstractHandler {
 		}
 		
 		
+		@Override
 		public String getTypeId() {
 			return "r/console/width"; //$NON-NLS-1$
 		}
 		
+		@Override
 		public Image getImage() {
 			return ConsolePlugin.getImage(IConsoleConstants.IMG_VIEW_CONSOLE);
 		}
 		
+		@Override
 		public String getLabel() {
 			return RConsoleMessages.AdjustWidth_task;
 		}
 		
+		@Override
 		public boolean isRunnableIn(final ITool tool) {
 			return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
 		}
 		
+		@Override
 		public boolean changed(final int event, final ITool tool) {
 			if (event == MOVING_FROM) {
 				return false;
@@ -83,6 +88,7 @@ public class AdjustWidthHandler extends AbstractHandler {
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			final IRBasicAdapter r = (IRBasicAdapter) service;
@@ -108,6 +114,7 @@ public class AdjustWidthHandler extends AbstractHandler {
 				&& !process.isTerminated() );
 	}
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final ToolSessionUIData session = NicoUI.getToolRegistry().getActiveToolSession(
 				UIAccess.getActiveWorkbenchPage(true) );

@@ -38,9 +38,11 @@ public abstract class StatetExtNature implements IProjectNature {
 	
 /*-- IProjectNature ----------------------------------------------------------*/
 	
+	@Override
 	public void setProject(final IProject project) {
 		fProject = project;
 		project.getWorkspace().addResourceChangeListener(new IResourceChangeListener() {
+			@Override
 			public void resourceChanged(final IResourceChangeEvent event) {
 				if (event.getResource() == fProject) {
 					fProject.getWorkspace().removeResourceChangeListener(this);
@@ -50,13 +52,16 @@ public abstract class StatetExtNature implements IProjectNature {
 		}, IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.PRE_DELETE);
 	}
 	
+	@Override
 	public IProject getProject() {
 		return fProject;
 	}
 	
+	@Override
 	public void configure() throws CoreException {
 	}
 	
+	@Override
 	public void deconfigure() throws CoreException {
 		dispose();
 	}

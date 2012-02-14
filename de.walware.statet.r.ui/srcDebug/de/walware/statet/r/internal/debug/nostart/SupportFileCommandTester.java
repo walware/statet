@@ -77,6 +77,7 @@ public class SupportFileCommandTester extends PropertyTester {
 		}
 	}
 	
+	@Override
 	public boolean test(final Object receiver, final String property, final Object[] args, final Object expectedValue) {
 		IFile file = null;
 		if (receiver instanceof IFile) {

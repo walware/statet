@@ -28,6 +28,7 @@ public class LogRuntimeProcessFactory implements IProcessFactory {
 	}
 	
 	
+	@Override
 	public IProcess newProcess(final ILaunch launch, final Process process, final String label,
 			final Map attributes) {
 		return new LogRuntimeProcess(launch, process, label, attributes);

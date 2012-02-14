@@ -34,6 +34,7 @@ public class RdEditor extends SourceEditor1 {
 		super();
 	}
 	
+	@Override
 	public String getModelTypeId() {
 		return "Rd"; // not yet a real type
 	}

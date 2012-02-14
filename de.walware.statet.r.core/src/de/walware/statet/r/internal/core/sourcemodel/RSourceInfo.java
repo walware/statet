@@ -54,30 +54,37 @@ public class RSourceInfo implements IRModelInfo {
 		fSourceElement = unitElement;
 	}
 	
+	@Override
 	public final long getStamp() {
 		return fAst.stamp;
 	}
 	
+	@Override
 	public final RAstInfo getAst() {
 		return fAst;
 	}
 	
+	@Override
 	public IRLangSourceElement getSourceElement() {
 		return fSourceElement;
 	}
 	
+	@Override
 	public BuildSourceFrame getTopFrame() {
 		return fTopFrame;
 	}
 	
+	@Override
 	public final Map<String, ? extends IRFrameInSource> getSourceFrames() {
 		return fProtectedLocalFrames;
 	}
 	
+	@Override
 	public PackageReferences getReferencedPackages() {
 		return fPackageRefs;
 	}
 	
+	@Override
 	public final Map<String, ? extends IRFrame> getReferencedFrames() {
 		return fProtectedNamespaceFrames;
 	}

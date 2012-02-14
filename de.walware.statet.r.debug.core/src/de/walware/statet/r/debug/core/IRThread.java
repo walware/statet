@@ -20,6 +20,7 @@ import org.eclipse.debug.core.model.IThread;
 public interface IRThread extends IThread {
 	
 	
+	@Override
 	IRDebugTarget getDebugTarget();
 	
 }

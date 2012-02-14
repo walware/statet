@@ -108,6 +108,7 @@ public final class DocuComment extends RAstNode {
 		}
 	}
 	
+	@Override
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		for (int i = 0; i < fLines.length; i++) {
 			visitor.visit(fLines[i]);

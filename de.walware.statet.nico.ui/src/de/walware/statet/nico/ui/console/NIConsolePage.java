@@ -148,9 +148,11 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		private boolean wasEmpty = true;
 		
+		@Override
 		public void documentAboutToBeChanged(final DocumentEvent event) {
 		}
 		
+		@Override
 		public void documentChanged(final DocumentEvent event) {
 			final boolean isEmpty = (event.fDocument.getLength() == 0);
 			if (isEmpty != wasEmpty) {
@@ -165,9 +167,11 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		private volatile boolean fIsSheduled = false;
 		
+		@Override
 		public void documentAboutToBeChanged(final DocumentEvent event) {
 		}
 		
+		@Override
 		public void documentChanged(final DocumentEvent event) {
 			if (!fIsSheduled) {
 				fIsSheduled = true;
@@ -176,6 +180,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			}
 		}
 		
+		@Override
 		public void run() {
 			// post change run
 			fIsSheduled = false;
@@ -198,6 +203,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			fLastExplicit = -1;
 		}
 		
+		@Override
 		public void handleEvent(final Event event) {
 			if (event.widget == fSash) {
 				if (event.type == SWT.Selection && event.detail != SWT.DRAG) {
@@ -287,6 +293,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			}
 		}
 		
+		@Override
 		public void handleDebugEvents(final DebugEvent[] events) {
 			final ToolProcess process = getConsole().getProcess();
 			final ToolWorkspace data = process.getWorkspaceData();
@@ -339,6 +346,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				thisId = ++updateId;
 			}
 			UIAccess.getDisplay().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					final long diff = (schedule - System.nanoTime()) / 1000000L;
 					if (diff > 5) {
@@ -432,6 +440,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	
+	@Override
 	public void init(final IPageSite site) throws PartInitException {
 		fSite = site;
 		fInputGroup = createInputGroup();
@@ -448,6 +457,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		return fInputGroup;
 	}
 	
+	@Override
 	public void createControl(final Composite parent) {
 		PreferencesUtil.getSettingsChangeNotifier().addChangeListener(this);
 		fConsole.addPropertyChangeListener(this);
@@ -477,6 +487,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fOutputViewer.getControl().setLayoutData(outputGD);
 		
 		fOutputViewer.getTextWidget().addKeyListener(new KeyListener() {
+			@Override
 			public void keyPressed(final KeyEvent e) {
 				if (e.doit
 						&& (e.character > 0)
@@ -497,6 +508,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 					setFocus();
 				}
 			}
+			@Override
 			public void keyReleased(final KeyEvent e) {
 			}
 		});
@@ -540,6 +552,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fResizer.fontChanged();
 		
 		Display.getCurrent().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				if (fInputGroup != null && UIAccess.isOkToUse(fInputGroup.getViewer())) {
 					fOutputViewer.revealEndOfDocument();
@@ -569,6 +582,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			}
 		}
 		
+		@Override
 		public void handleEvent(final Event event) {
 			switch (event.type) {
 			case SWT.Activate:
@@ -590,6 +604,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		final IServiceLocator pageServices = getSite();
 		final IServiceLocatorCreator serviceCreator = (IServiceLocatorCreator) pageServices.getService(IServiceLocatorCreator.class);
 		fInputServices = (ServiceLocator) serviceCreator.createServiceLocator(pageServices, null, new IDisposable() {
+			@Override
 			public void dispose() {
 				fInputServices = null;
 			}
@@ -602,6 +617,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		final IContextService inputKeys = (IContextService) fInputServices.getService(IContextService.class);
 		
 		inputControl.addListener(SWT.FocusIn, new Listener() {
+			@Override
 			public void handleEvent(final Event event) {
 				if (fInputServices != null) {
 					fInputServices.activate();
@@ -610,6 +626,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			}
 		});
 		inputControl.addListener(SWT.FocusOut, new Listener() {
+			@Override
 			public void handleEvent(final Event event) {
 				if (fInputServices != null) {
 					fInputServices.deactivate();
@@ -680,6 +697,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fOutputMenuManager = new MenuManager("ContextMenu", id); //$NON-NLS-1$
 		fOutputMenuManager.setRemoveAllWhenShown(true);
 		fOutputMenuManager.addMenuListener(new IMenuListener() {
+			@Override
 			public void menuAboutToShow(final IMenuManager manager) {
 				fillOutputContextMenu(manager);
 			}
@@ -693,6 +711,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fInputMenuManager = new MenuManager("ContextMenu", id); //$NON-NLS-1$
 		fInputMenuManager.setRemoveAllWhenShown(true);
 		fInputMenuManager.addMenuListener(new IMenuListener() {
+			@Override
 			public void menuAboutToShow(final IMenuManager manager) {
 				fillInputContextMenu(manager);
 			}
@@ -807,6 +826,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 	
+	@Override
 	public void dispose() {
 		fConsole.removePropertyChangeListener(this);
 		PreferencesUtil.getSettingsChangeNotifier().removeChangeListener(this);
@@ -870,6 +890,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	
+	@Override
 	public IPageSite getSite() {
 		return fSite;
 	}
@@ -878,6 +899,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		return fConsoleView;
 	}
 	
+	@Override
 	public Control getControl() {
 		return fControl;
 	}
@@ -890,14 +912,17 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		return fClipboard;
 	}
 	
+	@Override
 	public ToolProcess getTool() {
 		return fConsole.getProcess();
 	}
 	
+	@Override
 	public void addToolRetargetable(final IToolRetargetable listener) {
 		fToolActions.add(listener);
 	}
 	
+	@Override
 	public void removeToolRetargetable(final IToolRetargetable listener) {
 		fToolActions.remove(listener);
 	}
@@ -930,6 +955,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fInputGroup.clear();
 	}
 	
+	@Override
 	public Object getAdapter(final Class required) {
 		if (fInputGroup != null) {
 			if (Widget.class.equals(required)) {
@@ -957,6 +983,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		return fConsole.getAdapter(required);
 	}
 	
+	@Override
 	public ShowInContext getShowInContext() {
 		final IProcess process = fConsole.getProcess();
 		if (process == null) {
@@ -978,15 +1005,18 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		return new ShowInContext(null, selection);
 	}
 	
+	@Override
 	public String[] getShowInTargetIds() {
 		return new String[] { IDebugUIConstants.ID_DEBUG_VIEW };
 	}
 	
 	
+	@Override
 	public void setActionBars(final IActionBars actionBars) {
 //		fOutputViewer.setActionBars(actionBars);
 	}
 	
+	@Override
 	public void setFocus() {
 		fInputGroup.getViewer().getControl().setFocus();
 	}
@@ -1001,6 +1031,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			fOutputPasteAction.setEnabled(false);
 			final Button button = fInputGroup.getSubmitButton();
 			UIAccess.getDisplay(getSite().getShell()).asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					if (UIAccess.isOkToUse(button)) {
 						button.setEnabled(false);
@@ -1012,11 +1043,13 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		}
 	}
 	
+	@Override
 	public void setAutoScroll(final boolean enabled) {
 		fOutputViewer.setAutoScroll(enabled);
 		fOutputScrollLockAction.setChecked(!enabled);
 	}
 	
+	@Override
 	public void propertyChange(final PropertyChangeEvent event) {
 		if (UIAccess.isOkToUse(fControl) ) {
 			final Object source = event.getSource();
@@ -1046,9 +1079,11 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		}
 	}
 	
+	@Override
 	public void settingsChanged(final Set<String> groupIds) {
 		final Map<String, Object> options = new HashMap<String, Object>();
 		UIAccess.getDisplay().syncExec(new Runnable() {
+			@Override
 			public void run() {
 				handleSettingsChanged(groupIds, options);
 			}

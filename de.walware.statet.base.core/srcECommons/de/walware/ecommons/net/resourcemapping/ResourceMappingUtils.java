@@ -31,6 +31,7 @@ public class ResourceMappingUtils {
 			fBundleId = bundle.getBundleId();
 		}
 		
+		@Override
 		public void bundleChanged(final BundleEvent event) {
 			if (event.getBundle().getBundleId() == fBundleId
 					&& event.getType() == BundleEvent.STOPPED) {

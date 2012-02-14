@@ -113,6 +113,7 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 	}
 	
 	
+	@Override
 	public void connect(final IDocument doc) {
 		fDocument = doc;
 		fDocument.setDocumentPartitioner(this);
@@ -132,6 +133,7 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 		fLowWaterMark = low;
 		fHighWaterMark = high;
 		ConsolePlugin.getStandardDisplay().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				checkBufferSize();
 			}
@@ -149,6 +151,7 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 		fQueueJob.schedule(); //ensure that all pending partitions are processed.
 	}
 	
+	@Override
 	public void disconnect() {
 		synchronized (fOverflowLock) {
 			fConnected = false;
@@ -157,21 +160,26 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 		}
 	}
 	
+	@Override
 	public void documentAboutToBeChanged(final DocumentEvent event) {
 	}
 	
+	@Override
 	public boolean documentChanged(final DocumentEvent event) {
 		return documentChanged2(event) != null;
 	}
 	
+	@Override
 	public String[] getLegalContentTypes() {
 		return fPartitionIds;
 	}
 	
+	@Override
 	public String getContentType(final int offset) {
 		return getPartition(offset).getType();
 	}
 	
+	@Override
 	public ITypedRegion[] computePartitioning(final int offset, final int length) {
 		final int rangeEnd = offset + length;
 		int left = 0;
@@ -231,6 +239,7 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 		return list.toArray(new NIConsolePartition[list.size()]);
 	}
 	
+	@Override
 	public ITypedRegion getPartition(final int offset) {
 		for (int i = 0; i < fPartitions.size(); i++) {
 			final ITypedRegion partition = fPartitions.get(i);
@@ -273,6 +282,7 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 		}
 	}
 	
+	@Override
 	public IRegion documentChanged2(final DocumentEvent event) {
 		if (fDocument == null) {
 			return null; //another thread disconnected the partitioner
@@ -548,10 +558,12 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 		}
 	}
 	
+	@Override
 	public boolean isReadOnly(final int offset) {
 		return true;
 	}
 	
+	@Override
 	public StyleRange[] getStyleRanges(final int offset, final int length) {
 		if (!fConnected) {
 			return new StyleRange[0];

@@ -150,20 +150,24 @@ public class REnvIndexAutoUpdater {
 			}
 			
 			fRememberGloballyControl.addSelectionListener(new SelectionListener() {
+				@Override
 				public void widgetSelected(final SelectionEvent e) {
 					if (fRememberGloballyControl.getSelection()) {
 						fRememberSessionControl.setSelection(false);
 					}
 				}
+				@Override
 				public void widgetDefaultSelected(final SelectionEvent e) {
 				}
 			});
 			fRememberSessionControl.addSelectionListener(new SelectionListener() {
+				@Override
 				public void widgetSelected(final SelectionEvent e) {
 					if (fRememberSessionControl.getSelection()) {
 						fRememberGloballyControl.setSelection(false);
 					}
 				}
+				@Override
 				public void widgetDefaultSelected(final SelectionEvent e) {
 				}
 			});
@@ -191,18 +195,22 @@ public class REnvIndexAutoUpdater {
 		private boolean fRJMissing;
 		
 		
+		@Override
 		public String getTypeId() {
 			return "r/index/check"; //$NON-NLS-1$
 		}
 		
+		@Override
 		public String getLabel() {
 			return RConsoleMessages.REnvIndex_Check_task;
 		}
 		
+		@Override
 		public boolean isRunnableIn(final ITool tool) {
 			return (tool.isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID));
 		}
 		
+		@Override
 		public boolean changed(final int event, final ITool tool) {
 			if (event == MOVING_FROM) {
 				return false;
@@ -210,6 +218,7 @@ public class REnvIndexAutoUpdater {
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			final RjsController r = (RjsController) service; // interface?
@@ -258,6 +267,7 @@ public class REnvIndexAutoUpdater {
 				if (global != AUTO && fSessionSetting == null) {
 					final AtomicBoolean update = new AtomicBoolean();
 					UIAccess.getDisplay().syncExec(new Runnable() {
+						@Override
 						public void run() {
 							final AskDialog dialog = new AskDialog(fProcess, message);
 							update.set(dialog.open() == 0);

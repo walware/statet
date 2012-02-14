@@ -153,6 +153,7 @@ public final class RCodeLaunching {
 		}
 		
 		
+		@Override
 		public IRSourceUnit getFile() {
 			return fSourceUnit;
 		}
@@ -161,6 +162,7 @@ public final class RCodeLaunching {
 			fNode = node;
 		}
 		
+		@Override
 		public List<IRLangSourceElement> getElements() {
 			if (fElements == null) {
 				if (fNode != null) {
@@ -189,18 +191,22 @@ public final class RCodeLaunching {
 			fBeginColumn = TextUtil.getColumn(fDocument, fBeginOffset, fBeginLine, 8);
 		}
 		
+		@Override
 		public boolean hasBeginDetail() {
 			return (fBeginLine >= 0 && fBeginColumn >= 0);
 		}
 		
+		@Override
 		public int getOffset() {
 			return fBeginOffset;
 		}
 		
+		@Override
 		public int getFirstLine() {
 			return fBeginLine;
 		}
 		
+		@Override
 		public int getFirstColumn() {
 			return fBeginColumn;
 		}
@@ -211,18 +217,22 @@ public final class RCodeLaunching {
 			fEndColumn = TextUtil.getColumn(fDocument, fEndOffset-1, fEndLine, 8);
 		}
 		
+		@Override
 		public boolean hasEndDetail() {
 			return (fEndLine >= 0 && fEndColumn >= 0);
 		}
 		
+		@Override
 		public int getLength() {
 			return fEndOffset-fBeginOffset;
 		}
 		
+		@Override
 		public int getLastLine() {
 			return fEndLine;
 		}
 		
+		@Override
 		public int getLastColumn() {
 			return fEndColumn;
 		}
@@ -254,6 +264,7 @@ public final class RCodeLaunching {
 			}
 		}
 		
+		@Override
 		public Object getAdapter(final Class required) {
 			if (IMarker.class.equals(required)) {
 				return fMarker;
@@ -330,6 +341,7 @@ public final class RCodeLaunching {
 		if (fileStore != null && connector instanceof RControllerCodeLaunchConnector) {
 			final IFileStore store = fileStore;
 			((RControllerCodeLaunchConnector) connector).submit(new RControllerCodeLaunchConnector.CommandsCreator() {
+				@Override
 				public IStatus submitTo(final ToolController controller) {
 					final ToolWorkspace workspace = controller.getWorkspaceData();
 					try {
@@ -371,16 +383,19 @@ public final class RCodeLaunching {
 			throws CoreException {
 		final List<IDynamicVariable> variables = new ArrayList<IDynamicVariable>();
 		variables.add(new DynamicVariable(FILE_NAME_VARIABLE) {
+			@Override
 			public String getValue(final String argument) throws CoreException {
 				return RUtil.escapeCompletely(path);
 			}
 		});
 		variables.add(new DynamicVariable(FILE_ENCODING_VARIABLE) {
+			@Override
 			public String getValue(final String argument) throws CoreException {
 				return encoding != null ? RUtil.escapeCompletely(encoding) : "unknown";
 			}
 		});
 		variables.add(new DynamicVariable(ECHO_ENABLED_VARIABLE) {
+			@Override
 			public String getValue(final String argument) throws CoreException {
 				final Boolean echo = PreferencesUtil.getInstancePrefs().getPreferenceValue(
 						LaunchShortcutUtil.ECHO_ENABLED_PREF);
@@ -390,6 +405,7 @@ public final class RCodeLaunching {
 		});
 		final VariableText text = new VariableText(command, variables, true);
 		text.performFinalStringSubstitution(new LocationProcessor() {
+			@Override
 			public String process(final String path) throws CoreException {
 				return RUtil.escapeCompletely(path);
 			}
@@ -429,6 +445,7 @@ public final class RCodeLaunching {
 		if (connector instanceof RControllerCodeLaunchConnector) {
 			return ((RControllerCodeLaunchConnector) connector).submit(
 					new RControllerCodeLaunchConnector.CommandsCreator() {
+				@Override
 				public IStatus submitTo(final ToolController controller) {
 					final IToolRunnable[] runnables = new IToolRunnable[codeRegions.size()];
 					final List<String> lines = new ArrayList<String>();

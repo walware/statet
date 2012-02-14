@@ -22,6 +22,7 @@ public class RIdentifierCellValidator implements ICellEditorValidator {
 	private RRefactoringAdapter fAdapter = new RRefactoringAdapter();
 	
 	
+	@Override
 	public String isValid(final Object value) {
 		final String s = (value instanceof String) ? (String) value : null;
 		final String message = fAdapter.validateIdentifier(s, null);

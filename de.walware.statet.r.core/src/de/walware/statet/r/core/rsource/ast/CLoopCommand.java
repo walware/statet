@@ -133,6 +133,7 @@ public abstract class CLoopCommand extends RAstNode {
 	public final void acceptInRChildren(final RAstVisitor visitor) {
 	}
 	
+	@Override
 	public final void acceptInChildren(final ICommonAstVisitor visitor) {
 	}
 	

@@ -58,15 +58,18 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit
 	}
 	
 	
+	@Override
 	public String getModelTypeId() {
 		return RModel.TYPE_ID;
 	}
 	
 	
+	@Override
 	public void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
 		RCore.getRModelManager().reconcile(this, reconcileLevel, true, monitor);
 	}
 	
+	@Override
 	public AstInfo<? extends IAstNode> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
 			if (ensureSync) {
@@ -77,6 +80,7 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit
 		return null;
 	}
 	
+	@Override
 	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
 			if (syncLevel > IModelManager.NONE) {
@@ -87,18 +91,22 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit
 		return null;
 	}
 	
+	@Override
 	public void syncExec(final SourceDocumentRunnable runnable) throws InvocationTargetException {
 		throw new UnsupportedOperationException();
 	}
 	
+	@Override
 	public IProblemRequestor getProblemRequestor() {
 		return null;
 	}
 	
+	@Override
 	public IRCoreAccess getRCoreAccess() {
 		return fRConsole;
 	}
 	
+	@Override
 	public IREnv getREnv() {
 		final IREnv rEnv = (IREnv) fRConsole.getProcess().getAdapter(IREnv.class);
 		return (rEnv != null) ? rEnv : RCore.getREnvManager().getDefault();
@@ -115,10 +123,12 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit
 	}
 	
 	
+	@Override
 	public Object getModelLockObject() {
 		return fModelLock;
 	}
 	
+	@Override
 	public SourceContent getParseContent(final IProgressMonitor monitor) {
 		Object lock = null;
 		if (fDocument instanceof ISynchronizable) {
@@ -135,18 +145,22 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit
 		}
 	}
 	
+	@Override
 	public void setRAst(final RAstInfo ast) {
 		fAst = ast;
 	}
 	
+	@Override
 	public RAstInfo getCurrentRAst() {
 		return fAst;
 	}
 	
+	@Override
 	public void setRModel(final IRModelInfo model) {
 		fModelInfo = model;
 	}
 	
+	@Override
 	public IRModelInfo getCurrentRModel() {
 		return fModelInfo;
 	}

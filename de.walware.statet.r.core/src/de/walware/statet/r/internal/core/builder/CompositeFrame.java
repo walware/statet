@@ -53,18 +53,22 @@ public class CompositeFrame implements IRFrame {
 	}
 	
 	
+	@Override
 	public RElementName getElementName() {
 		return fElementName;
 	}
 	
+	@Override
 	public String getFrameId() {
 		return null;
 	}
 	
+	@Override
 	public int getFrameType() {
 		return fFrameType;
 	}
 	
+	@Override
 	public List<? extends IRElement> getModelElements() {
 		fLock.lock();
 		try {
@@ -78,6 +82,7 @@ public class CompositeFrame implements IRFrame {
 		}
 	}
 	
+	@Override
 	public boolean hasModelChildren(final Filter filter) {
 		fLock.lock();
 		try {
@@ -96,6 +101,7 @@ public class CompositeFrame implements IRFrame {
 		}
 	}
 	
+	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		fLock.lock();
 		try {
@@ -121,6 +127,7 @@ public class CompositeFrame implements IRFrame {
 		}
 	}
 	
+	@Override
 	public List<? extends IRFrame> getPotentialParents() {
 		return Collections.EMPTY_LIST;
 	}

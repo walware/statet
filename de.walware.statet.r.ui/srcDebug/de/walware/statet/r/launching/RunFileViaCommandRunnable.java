@@ -47,30 +47,37 @@ public class RunFileViaCommandRunnable implements IConsoleRunnable, IToolRunnabl
 	}
 	
 	
+	@Override
 	public String getTypeId() {
 		return "r/console/runFileCommand"; //$NON-NLS-1$
 	}
 	
+	@Override
 	public SubmitType getSubmitType() {
 		return SubmitType.EDITOR;
 	}
 	
+	@Override
 	public Image getImage() {
 		return fImage;
 	}
 	
+	@Override
 	public String getLabel() {
 		return fLabel;
 	}
 	
+	@Override
 	public boolean isRunnableIn(final ITool tool) {
 		return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
 	}
 	
+	@Override
 	public boolean changed(final int event, final ITool tool) {
 		return true;
 	}
 	
+	@Override
 	public void run(final IToolService service,
 			final IProgressMonitor monitor) throws CoreException {
 		final AbstractRController r = (AbstractRController) service;

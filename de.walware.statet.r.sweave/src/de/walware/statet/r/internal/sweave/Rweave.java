@@ -101,6 +101,7 @@ public class Rweave {
 	
 	
 	public static final IPartitionConstraint CHUNK_CONTROL_PARTITION_CONSTRAINT = new IPartitionConstraint() {
+		@Override
 		public boolean matches(final String partitionType) {
 			return (partitionType == Rweave.CHUNK_CONTROL_CONTENT_TYPE
 					|| partitionType == Rweave.CHUNK_COMMENT_CONTENT_TYPE
@@ -109,6 +110,7 @@ public class Rweave {
 	};
 	
 	public static final IPartitionConstraint R_PARTITION_CONSTRAINT = new IPartitionConstraint() {
+		@Override
 		public boolean matches(final String partitionType) {
 			return (partitionType == IRDocumentPartitions.R_DEFAULT_EXPL
 					|| partitionType == IRDocumentPartitions.R_STRING
@@ -121,6 +123,7 @@ public class Rweave {
 	};
 	
 	public static final IPartitionConstraint TEX_PARTITION_CONSTRAINT = new IPartitionConstraint() {
+		@Override
 		public boolean matches(final String partitionType) {
 			return (partitionType == IDocument.DEFAULT_CONTENT_TYPE
 					|| partitionType == ITexDocumentConstants.TEX_DEFAULT_EXPL_CONTENT_TYPE
@@ -133,6 +136,7 @@ public class Rweave {
 	
 	public static final PartitioningConfiguration TEX_PARTITIONING_CONFIG = new PartitioningConfiguration(
 			R_TEX_PARTITIONING, new IPartitionConstraint() {
+				@Override
 				public boolean matches(final String partitionType) {
 					return (partitionType == IDocument.DEFAULT_CONTENT_TYPE
 							|| partitionType == ITexDocumentConstants.TEX_DEFAULT_EXPL_CONTENT_TYPE);
@@ -141,6 +145,7 @@ public class Rweave {
 	
 	public static final PartitioningConfiguration R_PARTITIONING_CONFIG = new PartitioningConfiguration(
 			R_TEX_PARTITIONING, new IPartitionConstraint() {
+				@Override
 				public boolean matches(final String partitionType) {
 					return (partitionType == IRDocumentPartitions.R_DEFAULT_EXPL);
 				}

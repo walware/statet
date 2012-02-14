@@ -147,7 +147,7 @@ public class LoginHandler implements IToolEventHandler {
 					field.setLayoutData(gd);
 					
 					String init = nameCallback.getName();
-					if (init == null || init.length() == 0) {
+					if (init == null || init.isEmpty()) {
 						init = nameCallback.getDefaultName();
 					}
 					if (init != null) {
@@ -155,6 +155,7 @@ public class LoginHandler implements IToolEventHandler {
 					}
 					
 					fOkRunners.add(new Runnable() {
+						@Override
 						public void run() {
 							if (fUsername == null) {
 								fUsername = field.getText();
@@ -176,6 +177,7 @@ public class LoginHandler implements IToolEventHandler {
 					field.setTextLimit(50);
 					
 					fOkRunners.add(new Runnable() {
+						@Override
 						public void run() {
 							passwordCallback.setPassword(field.getText().toCharArray());
 						}
@@ -193,7 +195,7 @@ public class LoginHandler implements IToolEventHandler {
 					field.setLayoutData(gd);
 					
 					String init = inputCallback.getText();
-					if (init == null || init.length() == 0) {
+					if (init == null || init.isEmpty()) {
 						init = inputCallback.getDefaultText();
 					}
 					if (init != null) {
@@ -201,6 +203,7 @@ public class LoginHandler implements IToolEventHandler {
 					}
 					
 					fOkRunners.add(new Runnable() {
+						@Override
 						public void run() {
 							inputCallback.setText(field.getText());
 						}
@@ -243,6 +246,7 @@ public class LoginHandler implements IToolEventHandler {
 	}
 	
 	
+	@Override
 	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final boolean saveAllowed = ToolEventHandlerUtil.getCheckedData(data, "save.allowed", Boolean.TRUE); //$NON-NLS-1$
 		final boolean saveActivated = ToolEventHandlerUtil.getCheckedData(data, "save.activated", Boolean.FALSE); //$NON-NLS-1$
@@ -278,6 +282,7 @@ public class LoginHandler implements IToolEventHandler {
 			final AtomicReference<IStatus> result = new AtomicReference<IStatus>(Status.CANCEL_STATUS);
 			final ToolProcess process = tools.getTool();
 			UIAccess.getDisplay().syncExec(new Runnable() {
+				@Override
 				public void run() {
 					final IWorkbenchWindow window = UIAccess.getActiveWorkbenchWindow(true);
 					final LoginDialog dialog = new LoginDialog(process, window.getShell());
@@ -323,7 +328,7 @@ public class LoginHandler implements IToolEventHandler {
 				if (callback instanceof NameCallback) {
 					final NameCallback nameCallback = (NameCallback) callback;
 					String name = (node != null) ? node.get(SECURE_PREF_NAME_KEY + nameCount++, null) : null;
-					if (name == null || name.length() == 0 || Boolean.TRUE.equals(data.get(LOGIN_USERNAME_FORCE_DATA_KEY))) {
+					if (name == null || name.isEmpty() || Boolean.TRUE.equals(data.get(LOGIN_USERNAME_FORCE_DATA_KEY))) {
 						name = (String) data.get(LOGIN_USERNAME_DATA_KEY);
 					}
 					if (name != null && name.length() > 0) {

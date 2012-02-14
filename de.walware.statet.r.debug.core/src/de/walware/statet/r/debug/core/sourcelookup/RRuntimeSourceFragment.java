@@ -45,6 +45,7 @@ public class RRuntimeSourceFragment implements ISourceFragment {
 	}
 	
 	
+	@Override
 	public String getId() {
 		return fId;
 	}
@@ -53,19 +54,23 @@ public class RRuntimeSourceFragment implements ISourceFragment {
 		return fProcess;
 	}
 	
+	@Override
 	public String getName() {
 		return fName;
 	}
 	
+	@Override
 	public String getFullName() {
 		return fFullName;
 	}
 	
+	@Override
 	public String getSource() {
 		return fSource;
 	}
 	
 	
+	@Override
 	public Object getAdapter(final Class required) {
 		if (ToolProcess.class.equals(required)) {
 			return fProcess;

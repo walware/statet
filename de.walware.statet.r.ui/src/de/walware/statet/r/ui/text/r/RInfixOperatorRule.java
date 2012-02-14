@@ -51,6 +51,7 @@ public class RInfixOperatorRule implements IRule {
 		}
 	}
 	
+	@Override
 	public IToken evaluate(final ICharacterScanner scanner) {
 		int c = scanner.read();
 		if (c == '%') {

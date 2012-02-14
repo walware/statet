@@ -45,6 +45,7 @@ public class RMethodBreakpoint extends RLineBreakpoint implements IRMethodBreakp
 		attributes.put(ENTRY_MARKER_ATTR, Boolean.TRUE);
 		
 		final IWorkspaceRunnable wr = new IWorkspaceRunnable() {
+			@Override
 			public void run(final IProgressMonitor monitor) throws CoreException {
 				// create the marker
 				setMarker(resource.createMarker(R_METHOD_BREAKPOINT_MARKER_TYPE));
@@ -83,14 +84,17 @@ public class RMethodBreakpoint extends RLineBreakpoint implements IRMethodBreakp
 		}
 	}
 	
+	@Override
 	public boolean isEntry() throws CoreException {
 		return ensureMarker().getAttribute(ENTRY_MARKER_ATTR, true);
 	}
 	
+	@Override
 	public boolean isExit() throws CoreException {
 		return ensureMarker().getAttribute(EXIT_MARKER_ATTR, false);
 	}
 	
+	@Override
 	public void setEntry(final boolean enabled) throws CoreException {
 		if (isEntry() != enabled) {
 			if (!isEnabled() && enabled) {
@@ -108,6 +112,7 @@ public class RMethodBreakpoint extends RLineBreakpoint implements IRMethodBreakp
 		}
 	}
 	
+	@Override
 	public void setExit(final boolean enabled) throws CoreException {
 		if (isExit() != enabled) {
 			if (!isEnabled() && enabled) {

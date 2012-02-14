@@ -59,6 +59,7 @@ public class ResourceMappingManager implements IResourceMappingManager {
 	
 	public static final Comparator<IResourceMapping> DEFAULT_COMPARATOR = new Comparator<IResourceMapping>() {
 		
+		@Override
 		public int compare(final IResourceMapping o1, final IResourceMapping o2) {
 			final int diff = o1.getHost().compareTo(o2.getHost());
 			if (diff != 0) {
@@ -71,6 +72,7 @@ public class ResourceMappingManager implements IResourceMappingManager {
 	
 	private static final Comparator<IResourceMapping> LOCAL_COMPARATOR = new Comparator<IResourceMapping>() {
 		
+		@Override
 		public int compare(final IResourceMapping o1, final IResourceMapping o2) {
 			return - o1.getFileStore().toURI().compareTo(o2.getFileStore().toURI());
 		}
@@ -79,6 +81,7 @@ public class ResourceMappingManager implements IResourceMappingManager {
 	
 	private static final Comparator<IResourceMapping> REMOTE_COMPARATOR = new Comparator<IResourceMapping>() {
 		
+		@Override
 		public int compare(final IResourceMapping o1, final IResourceMapping o2) {
 			return - o1.getRemotePath().toPortableString().compareTo(o2.getRemotePath().toPortableString());
 		}
@@ -283,6 +286,7 @@ public class ResourceMappingManager implements IResourceMappingManager {
 	}
 	
 	
+	@Override
 	public List<IResourceMapping> getResourceMappingsFor(final String hostAddress, final ResourceMappingOrder order) {
 		final List<IResourceMapping> mappings = getMappingsFor(hostAddress, order);
 		if (mappings != null) {
@@ -291,6 +295,7 @@ public class ResourceMappingManager implements IResourceMappingManager {
 		return Collections.emptyList();
 	}
 	
+	@Override
 	public IFileStore mapRemoteResourceToFileStore(final String hostAddress, IPath remotePath, final IPath relativeBasePath) {
 		if (!remotePath.isAbsolute()) {
 			if (relativeBasePath == null) {
@@ -310,6 +315,7 @@ public class ResourceMappingManager implements IResourceMappingManager {
 		return null;
 	}
 	
+	@Override
 	public IPath mapFileStoreToRemoteResource(final String hostAddress, final IFileStore fileStore) {
 		final List<IResourceMapping> mappings = getResourceMappingsFor(hostAddress, ResourceMappingOrder.LOCAL);
 		for (final IResourceMapping mapping : mappings) {

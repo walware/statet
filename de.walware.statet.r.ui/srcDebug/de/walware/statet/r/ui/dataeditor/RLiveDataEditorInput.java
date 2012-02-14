@@ -54,27 +54,33 @@ public class RLiveDataEditorInput extends PlatformObject implements IRDataEditor
 	}
 	
 	
+	@Override
 	public ImageDescriptor getImageDescriptor() {
 		return null;
 	}
 	
+	@Override
 	public String getName() {
 		return fInput.getLastName();
 	}
 	
+	@Override
 	public String getToolTipText() {
 		return NLS.bind("{0} in {1}", fInput.getElementName().getDisplayName(),
 				fInput.getProcess().getLabel(ITool.LONG_LABEL));
 	}
 	
+	@Override
 	public boolean exists() {
 		return !fInput.getProcess().isTerminated();
 	}
 	
+	@Override
 	public IPersistableElement getPersistable() {
 		return null;
 	}
 	
+	@Override
 	public RProcessDataTableInput getRDataTableInput() {
 		return fInput;
 	}

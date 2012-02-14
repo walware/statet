@@ -122,9 +122,11 @@ public abstract class RweaveTexProfileDefaultHandler extends AbstractHandler imp
 	}
 	
 	
+	@Override
 	public void availableProfileChanged(final ILaunchConfiguration[] configs) {
 	}
 	
+	@Override
 	public void activeProfileChanged(final ILaunchConfiguration config) {
 		fTooltip = MessageUtil.escapeForTooltip(fSweaveManager.getLabelForLaunch(config, fLaunchFlags, true));
 		final ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
@@ -132,10 +134,12 @@ public abstract class RweaveTexProfileDefaultHandler extends AbstractHandler imp
 	}
 	
 	
+	@Override
 	public void updateElement(final UIElement element, final Map parameters) {
 		element.setTooltip(fTooltip);
 	}
 	
+	@Override
 	public Object execute(final ExecutionEvent arg0) throws ExecutionException {
 		final ILaunchConfiguration config = fSweaveManager.getActiveProfile();
 		if (config != null) {
@@ -143,6 +147,7 @@ public abstract class RweaveTexProfileDefaultHandler extends AbstractHandler imp
 		}
 		else {
 			final Runnable runnable = new Runnable() {
+				@Override
 				public void run() {
 					final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
 					fSweaveManager.openConfigurationDialog(page.getWorkbenchWindow().getShell(), null);

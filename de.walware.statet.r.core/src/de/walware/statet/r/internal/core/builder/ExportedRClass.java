@@ -36,6 +36,7 @@ public class ExportedRClass extends ExportedRElement implements IRClass, Seriali
 	}
 	
 	
+	@Override
 	public List<String> getExtendedClassNames() {
 		return fSuperClassNames;
 	}

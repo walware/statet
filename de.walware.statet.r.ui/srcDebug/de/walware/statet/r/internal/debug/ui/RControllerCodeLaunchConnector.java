@@ -49,8 +49,10 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 	}
 	
 	
+	@Override
 	public boolean submit(final String[] rCommands, final boolean gotoConsole) throws CoreException {
 		return submit(new CommandsCreator() {
+			@Override
 			public IStatus submitTo(final ToolController controller) {
 				return controller.submit(rCommands, SubmitType.EDITOR);
 			}
@@ -60,6 +62,7 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 	public boolean submit(final CommandsCreator rCommands, final boolean gotoConsole) throws CoreException {
 		final AtomicReference<ToolSessionUIData> info = new AtomicReference<ToolSessionUIData>();
 		UIAccess.checkedSyncExec(new UIAccess.CheckedRunnable() {
+			@Override
 			public void run() throws CoreException {
 				final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
 				info.set(NicoUI.getToolRegistry().getActiveToolSession(page));
@@ -77,6 +80,7 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 		return true;
 	}
 	
+	@Override
 	public void gotoConsole() throws CoreException {
 		final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
 		final ToolSessionUIData info = NicoUI.getToolRegistry().getActiveToolSession(page);

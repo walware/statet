@@ -107,18 +107,22 @@ public abstract class ToolController implements IConsoleService {
 		}
 		
 		
+		@Override
 		public String getTypeId() {
 			return fTypeId;
 		}
 		
+		@Override
 		public String getLabel() {
 			return fLabel;
 		}
 		
+		@Override
 		public boolean isRunnableIn(final ITool tool) {
 			return (tool == getTool());
 		}
 		
+		@Override
 		public boolean changed(final int event, final ITool tool) {
 			if (event == MOVING_FROM) {
 				return false;
@@ -150,10 +154,12 @@ public abstract class ToolController implements IConsoleService {
 			fType = type;
 		}
 		
+		@Override
 		public String getTypeId() {
 			return TYPE_ID;
 		}
 		
+		@Override
 		public SubmitType getSubmitType() {
 			return fType;
 		}
@@ -162,6 +168,7 @@ public abstract class ToolController implements IConsoleService {
 			return fText;
 		}
 		
+		@Override
 		public String getLabel() {
 			if (fLabel == null) {
 				fLabel = fText.trim();
@@ -169,10 +176,12 @@ public abstract class ToolController implements IConsoleService {
 			return fLabel;
 		}
 		
+		@Override
 		public boolean changed(final int event, final ITool process) {
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			((IConsoleService) service).submitToConsole(fText, monitor);
@@ -185,22 +194,27 @@ public abstract class ToolController implements IConsoleService {
 		public StartRunnable() {
 		}
 		
+		@Override
 		public String getTypeId() {
 			return START_TYPE_ID;
 		}
 		
+		@Override
 		public boolean isRunnableIn(final ITool tool) {
 			return (tool == getTool());
 		}
 		
+		@Override
 		public SubmitType getSubmitType() {
 			return SubmitType.CONSOLE;
 		}
 		
+		@Override
 		public String getLabel() {
 			return Messages.ToolController_CommonStartTask_label;
 		}
 		
+		@Override
 		public boolean changed(final int event, final ITool process) {
 			if ((event & MASK_EVENT_GROUP) == REMOVING_EVENT_GROUP) {
 				return false;
@@ -208,6 +222,7 @@ public abstract class ToolController implements IConsoleService {
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService s,
 				final IProgressMonitor monitor) throws CoreException {
 		}
@@ -233,6 +248,7 @@ public abstract class ToolController implements IConsoleService {
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 		}
@@ -254,6 +270,7 @@ public abstract class ToolController implements IConsoleService {
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			final IToolRunnable[] runnables = fSuspendUpdateRunnables.toArray();
@@ -310,6 +327,7 @@ public abstract class ToolController implements IConsoleService {
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService adapter,
 				final IProgressMonitor monitor) {
 			fSuspendExitRunnable = this;
@@ -526,6 +544,7 @@ public abstract class ToolController implements IConsoleService {
 		return fStreams;
 	}
 	
+	@Override
 	public ToolProcess getTool() {
 		return fProcess;
 	}
@@ -1613,6 +1632,7 @@ public abstract class ToolController implements IConsoleService {
 		fDisposables.clear();
 	}
 	
+	@Override
 	public void handleStatus(final IStatus status, final IProgressMonitor monitor) {
 		if (status == null || status.getSeverity() == IStatus.OK) {
 			return;
@@ -1638,6 +1658,7 @@ public abstract class ToolController implements IConsoleService {
 	}
 	
 	
+	@Override
 	public final ToolController getController() {
 		return this;
 	}
@@ -1660,6 +1681,7 @@ public abstract class ToolController implements IConsoleService {
 		}
 	}
 	
+	@Override
 	public IToolRunnable getCurrentRunnable() {
 		return fCurrentRunnable;
 	}
@@ -1669,18 +1691,22 @@ public abstract class ToolController implements IConsoleService {
 	}
 	
 	
+	@Override
 	public final void refreshWorkspaceData(final int options, final IProgressMonitor monitor) throws CoreException {
 		fWorkspaceData.controlRefresh(options, this, monitor);
 	}
 	
+	@Override
 	public ToolWorkspace getWorkspaceData() {
 		return fWorkspaceData;
 	}
 	
+	@Override
 	public boolean isDefaultPrompt() {
 		return (fDefaultPrompt == fCurrentPrompt); 
 	}
 	
+	@Override
 	public Prompt getPrompt() {
 		return fCurrentPrompt;
 	}
@@ -1708,6 +1734,7 @@ public abstract class ToolController implements IConsoleService {
 		fWorkspaceData.controlSetRemoteWorkspaceDir(directory);
 	}
 	
+	@Override
 	public void submitToConsole(final String input,
 			final IProgressMonitor monitor) throws CoreException {
 		fCurrentInput = input;

@@ -390,6 +390,7 @@ class TaskTagsInputDialog extends ExtStatusDialog {
 		((GridData) fNameControl.getLayoutData()).widthHint =
 				new PixelConverter(fNameControl).convertWidthInCharsToPixels(45);
 		fNameControl.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(final ModifyEvent e) {
 				fName = fNameControl.getText();
 				doValidation();
@@ -403,6 +404,7 @@ class TaskTagsInputDialog extends ExtStatusDialog {
 		};
 		fPriorityControl = layouter.addLabeledComboControl(Messages.TaskTags_InputDialog_Priority_label, items);
 		fPriorityControl.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(final ModifyEvent e) {
 				switch (fPriorityControl.getSelectionIndex()) {
 				case 0:
@@ -439,6 +441,7 @@ class TaskTagsInputDialog extends ExtStatusDialog {
 		if (display != null) {
 			display.asyncExec(
 				new Runnable() {
+					@Override
 					public void run() {
 						fNameControl.setFocus();
 					}
@@ -459,7 +462,7 @@ class TaskTagsInputDialog extends ExtStatusDialog {
 	private void doValidation() {
 		final StatusInfo status = new StatusInfo();
 		final String newText = fNameControl.getText();
-		if (newText.length() == 0) {
+		if (newText.isEmpty()) {
 			status.setError(Messages.TaskTags_InputDialog_error_EnterName_message);
 		} else {
 			if (newText.indexOf(',') != -1) {

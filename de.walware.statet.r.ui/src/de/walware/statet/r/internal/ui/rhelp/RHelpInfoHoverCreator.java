@@ -173,6 +173,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 	}
 	
 	
+	@Override
 	public void setInput(final Object input) {
 		fInputChanged = true;
 		if (input instanceof RHelpInfoHoverCreator.Data) {
@@ -183,6 +184,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 		}
 	}
 	
+	@Override
 	public boolean hasContents() {
 		return (fInput != null);
 	}
@@ -257,6 +259,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 		fInfoBrowser.addTitleListener(this);
 		
 		fInfoBrowser.addOpenWindowListener(new OpenWindowListener() {
+			@Override
 			public void open(final WindowEvent event) {
 				event.required = true;
 			}
@@ -269,11 +272,13 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 		fInfoBrowser.setLayoutData(gd);
 		
 		fInfoBrowser.addKeyListener(new KeyListener() {
+			@Override
 			public void keyPressed(final KeyEvent e)  {
 				if (e.character == SWT.ESC) {
 					dispose();
 				}
 			}
+			@Override
 			public void keyReleased(final KeyEvent e) {}
 		});
 		
@@ -335,13 +340,16 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 	}
 	
 	
+	@Override
 	public Browser getBrowser() {
 		return fInfoBrowser;
 	}
 	
+	@Override
 	public void showMessage(final int severity, final String message) {
 	}
 	
+	@Override
 	public void changing(final LocationEvent event) {
 		if (event.location.startsWith("http://")) {
 			try {
@@ -357,6 +365,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 		event.doit = false;
 	}
 	
+	@Override
 	public void changed(final LocationEvent event) {
 		if (!event.top) {
 			return;
@@ -366,15 +375,18 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 		updateTitle(obj, fBrowserTitle);
 	}
 	
+	@Override
 	public void changed(final ProgressEvent event) {
 		fHandlerCollection.update(null);
 	}
 	
+	@Override
 	public void completed(final ProgressEvent event) {
 		fLoadingCompleted = true;
 		fHandlerCollection.update(null);
 	}
 	
+	@Override
 	public void changed(final TitleEvent event) {
 		String title = event.title;
 		if (title == null) {
@@ -389,6 +401,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 		fBrowserTitle = title;
 	}
 	
+	@Override
 	public void open(final WindowEvent event) {
 		event.required = true;
 	}
@@ -490,6 +503,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 			
 			final Display display = Display.getCurrent();
 			display.timerExec(200, new Runnable() {
+				@Override
 				public void run() {
 					fLoadingCompleted = true;
 				}
@@ -575,6 +589,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 		return new RHelpInfoHoverCreator(true);
 	}
 	
+	@Override
 	public void propertyChange(final PropertyChangeEvent event) {
 		final String property = event.getProperty();
 		if (property.equals(PREF_DETAIL_PANE_FONT) || property.equals(JFaceResources.DEFAULT_FONT)) {

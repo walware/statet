@@ -35,10 +35,12 @@ public class PackageReferences implements IPackageReferences {
 	}
 	
 	
+	@Override
 	public Set<String> getAllPackageNames() {
 		return Collections.unmodifiableSet(fData.keySet());
 	}
 	
+	@Override
 	public boolean isImported(final String name) {
 		final ElementAccessList list = fData.get(name);
 		if (list == null) {
@@ -47,6 +49,7 @@ public class PackageReferences implements IPackageReferences {
 		return (list.isCreated == CREATED_IMPORTED);
 	}
 	
+	@Override
 	public List<? extends RElementAccess> getAllAccessOfPackage(final String name) {
 		final ElementAccessList list = fData.get(name);
 		if (list == null) {

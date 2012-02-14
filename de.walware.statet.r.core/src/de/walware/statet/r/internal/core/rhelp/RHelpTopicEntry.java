@@ -55,6 +55,7 @@ public class RHelpTopicEntry implements Comparable<RHelpTopicEntry> {
 		return fAlias.equals(other.fAlias) && fPage.equals(other.fPage);
 	}
 	
+	@Override
 	public int compareTo(final RHelpTopicEntry o) {
 		final int diff = RSymbolComparator.R_NAMES_COLLATOR.compare(fAlias, o.fAlias);
 		if (diff != 0) {

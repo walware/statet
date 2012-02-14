@@ -63,6 +63,7 @@ public abstract class RAstNode implements IAstNode {
 	
 	public abstract RTerminal getOperator(final int index);
 	
+	@Override
 	public final int getStatusCode() {
 		return fStatus;
 	}
@@ -78,6 +79,7 @@ public abstract class RAstNode implements IAstNode {
 		return fRParent;
 	}
 	
+	@Override
 	public IAstNode getParent() {
 		return fRParent;
 	};
@@ -91,6 +93,7 @@ public abstract class RAstNode implements IAstNode {
 		return candidate;
 	}
 	
+	@Override
 	public final IAstNode getRoot() {
 		IAstNode candidate = this;
 		IAstNode p;
@@ -100,21 +103,28 @@ public abstract class RAstNode implements IAstNode {
 		return candidate;
 	}
 	
+	@Override
 	public abstract boolean hasChildren();
+	@Override
 	public abstract int getChildCount();
+	@Override
 	public abstract RAstNode getChild(int index);
 	public abstract RAstNode[] getChildren();
+	@Override
 	public abstract int getChildIndex(IAstNode child);
 	
 	
+	@Override
 	public final int getOffset() {
 		return fStartOffset;
 	}
 	
+	@Override
 	public final int getStopOffset() {
 		return fStopOffset;
 	}
 	
+	@Override
 	public final int getLength() {
 		return fStopOffset-fStartOffset;
 	}
@@ -135,6 +145,7 @@ public abstract class RAstNode implements IAstNode {
 	}
 	
 	
+	@Override
 	public final void accept(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}

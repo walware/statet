@@ -90,6 +90,7 @@ public interface IRDocumentPartitions {
 	
 	public static final PartitioningConfiguration R_PARTITIONING_CONFIG = new PartitioningConfiguration(
 			R_PARTITIONING, new IPartitionConstraint() {
+				@Override
 				public boolean matches(final String partitionType) {
 					return (partitionType == R_DEFAULT
 							|| partitionType == R_DEFAULT_EXPL);
@@ -140,6 +141,7 @@ public interface IRDocumentPartitions {
 	
 	public static final PartitioningConfiguration RDOC_PARTITIONING_CONFIG = new PartitioningConfiguration(
 			RDOC_DOCUMENT_PARTITIONING, new IPartitionConstraint() {
+				@Override
 				public boolean matches(final String partitionType) {
 					return (partitionType == RDOC_DEFAULT);
 				}

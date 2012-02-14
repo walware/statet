@@ -80,6 +80,7 @@ public class DocuText extends RAstNode {
 	public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
 	}
 	
+	@Override
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 	}
 	

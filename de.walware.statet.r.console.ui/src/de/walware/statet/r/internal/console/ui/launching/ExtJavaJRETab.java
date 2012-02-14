@@ -118,6 +118,7 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 		fVmArgsControl = new InputArgumentsComposite(group, RConsoleMessages.JavaJRE_Tab_VMArguments_label);
 		fVmArgsControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fVmArgsControl.getTextControl().addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(final ModifyEvent e) {
 				updateLaunchConfigurationDialog();
 			}
@@ -136,9 +137,11 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 		tabHolder.getParent().layout(new Control[] { tabHolder });
 	}
 	
+	@Override
 	public void settingsChanged(final Set<String> groupIds) {
 		if (groupIds.contains(IREnvManager.SETTINGS_GROUP_ID)) {
 			UIAccess.getDisplay().syncExec(new Runnable() {
+				@Override
 				public void run() {
 					final int previous = fLastCheckedRBits;
 					updateRBits();
@@ -238,6 +241,7 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 			fValidInBackground = true;
 			try {
 				getLaunchConfigurationDialog().run(true, true, new IRunnableWithProgress() {
+					@Override
 					public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 						final String[] propertyNames = new String[] { "os.arch", "java.vm.name", "sun.arch.data.model", "com.ibm.vm.bitmode" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 						try {

@@ -43,12 +43,14 @@ public class ToolSourceProvider extends AbstractSourceProvider implements IWindo
 			fWindow = window;
 		}
 		
+		@Override
 		public void toolSessionActivated(final ToolSessionUIData info) {
 			if (fActiveWindow == fWindow) {
 				handleActivated(info.getProcess());
 			}
 		}
 		
+		@Override
 		public void toolTerminated(final ToolSessionUIData sessionData) {
 			if (fActiveWindow == fWindow) {
 				handleTerminated(sessionData.getProcess());
@@ -73,6 +75,7 @@ public class ToolSourceProvider extends AbstractSourceProvider implements IWindo
 	}
 	
 	
+	@Override
 	public void dispose() {
 		synchronized (fCreatedListeners) {
 			final Iterator<RegistryListerner> iter = fCreatedListeners.iterator();
@@ -85,6 +88,7 @@ public class ToolSourceProvider extends AbstractSourceProvider implements IWindo
 	}
 	
 	
+	@Override
 	public void windowOpened(final IWorkbenchWindow window) {
 		final RegistryListerner listener = new RegistryListerner(window);
 		synchronized (fCreatedListeners) {
@@ -93,6 +97,7 @@ public class ToolSourceProvider extends AbstractSourceProvider implements IWindo
 		fRegistry.addListener(listener, window.getActivePage());
 	}
 	
+	@Override
 	public void windowClosed(final IWorkbenchWindow window) {
 		synchronized (fCreatedListeners) {
 			final Iterator<RegistryListerner> iter = fCreatedListeners.iterator();
@@ -105,11 +110,13 @@ public class ToolSourceProvider extends AbstractSourceProvider implements IWindo
 		fActiveWindow = null;
 	}
 	
+	@Override
 	public void windowActivated(final IWorkbenchWindow window) {
 		fActiveWindow = window;
 		handleActivated(fRegistry.getActiveToolSession(window.getActivePage()).getProcess());
 	}
 	
+	@Override
 	public void windowDeactivated(final IWorkbenchWindow window) {
 	}
 	
@@ -139,10 +146,12 @@ public class ToolSourceProvider extends AbstractSourceProvider implements IWindo
 		}
 	}
 	
+	@Override
 	public String[] getProvidedSourceNames() {
 		return new String[] { ACTIVE_TOOL_NAME };
 	}
 	
+	@Override
 	public Map getCurrentState() {
 		final Map<String, Object> map = new HashMap<String, Object>();
 		Object tool = null;

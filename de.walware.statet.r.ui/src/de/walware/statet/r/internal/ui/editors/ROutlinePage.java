@@ -117,6 +117,7 @@ public class ROutlinePage extends SourceEditor2OutlinePage {
 		private boolean hideCommonVariables;
 		private boolean hideLocalDefinitions;
 		
+		@Override
 		public boolean include(final IModelElement element) {
 			switch (element.getElementType()) {
 			case IRElement.R_ARGUMENT:

@@ -168,6 +168,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		fCustomCommand.fCommand = "CMD "; //$NON-NLS-1$
 	}
 	
+	@Override
 	public String getName() {
 		return RCmdMessages.RCmd_MainTab_name;
 	}
@@ -177,6 +178,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		return StatetImages.getImage(StatetImages.LAUNCHCONFIG_MAIN);
 	}
 	
+	@Override
 	public void createControl(final Composite parent) {
 		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
@@ -264,9 +266,10 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		final IObservableValue cmdSelection = ViewersObservables.observeSingleSelection(fCmdCombo);
 		dbc.bindValue(cmdSelection, fCmdValue, null, null);
 		final IValidator cmdValidator = new IValidator() {
+			@Override
 			public IStatus validate(final Object value) {
 				final String s = (String) value;
-				if (s == null || s.trim().length() == 0) {
+				if (s == null || s.trim().isEmpty()) {
 					return ValidationStatus.warning(RCmdMessages.RCmd_MainTab_error_MissingCMD_message);
 				}
 				return ValidationStatus.ok();
@@ -286,6 +289,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 				new UpdateValueStrategy().setAfterGetValidator(
 						new SavableErrorValidator(fResourceControl.getValidator())), null);
 		cmdSelection.addValueChangeListener(new IValueChangeListener() {
+			@Override
 			public void handleValueChange(final ValueChangeEvent event) {
 				final Cmd cmd = (Cmd) event.diff.getNewValue();
 				if (cmd != null) {
@@ -322,6 +326,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
+	@Override
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(RCmdLaunching.ATTR_R_CMD_COMMAND, fCommands[0].getCommand());
 		configuration.setAttribute(RCmdLaunching.ATTR_R_CMD_OPTIONS, ""); //$NON-NLS-1$

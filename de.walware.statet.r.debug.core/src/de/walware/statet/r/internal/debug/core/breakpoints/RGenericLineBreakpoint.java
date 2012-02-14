@@ -188,18 +188,22 @@ public abstract class RGenericLineBreakpoint extends RBreakpoint implements IRLi
 	}
 	
 	
+	@Override
 	public int getLineNumber() throws CoreException {
 		return ensureMarker().getAttribute(IMarker.LINE_NUMBER, -1);
 	}
 	
+	@Override
 	public int getCharStart() throws CoreException {
 		return ensureMarker().getAttribute(IMarker.CHAR_START, -1);
 	}
 	
+	@Override
 	public int getCharEnd() throws CoreException {
 		return ensureMarker().getAttribute(IMarker.CHAR_END, -1);
 	}
 	
+	@Override
 	public int getElementType() throws CoreException {
 		return ensureMarker().getAttribute(ELEMENT_TYPE_MARKER_ATTR, -1);
 	}
@@ -208,23 +212,28 @@ public abstract class RGenericLineBreakpoint extends RBreakpoint implements IRLi
 		return ensureMarker().getAttribute(ELEMENT_ID_MARKER_ATTR, null);
 	}
 	
+	@Override
 	public String getElementLabel() throws CoreException {
 		return ensureMarker().getAttribute(ELEMENT_LABEL_MARKER_ATTR, null);
 	}
 	
+	@Override
 	public String getSubLabel() throws CoreException {
 		return ensureMarker().getAttribute(SUB_LABEL_MARKER_ATTR, null);
 	}
 	
 	
+	@Override
 	public void setConditionEnabled(final boolean enabled) throws CoreException {
 		ensureMarker().setAttribute(CONDITION_ENABLED_MARKER_ATTR, enabled);
 	}
 	
+	@Override
 	public boolean isConditionEnabled() throws CoreException {
 		return ensureMarker().getAttribute(CONDITION_ENABLED_MARKER_ATTR, false);
 	}
 	
+	@Override
 	public void setConditionExpr(final String code) throws CoreException {
 		final IMarker marker = ensureMarker();
 		if (code != null && code.trim().length() > 0) {
@@ -238,6 +247,7 @@ public abstract class RGenericLineBreakpoint extends RBreakpoint implements IRLi
 		}
 	}
 	
+	@Override
 	public String getConditionExpr() throws CoreException {
 		return ensureMarker().getAttribute(CONDITION_EXPR_MARKER_ATTR, ""); //$NON-NLS-1$
 	}

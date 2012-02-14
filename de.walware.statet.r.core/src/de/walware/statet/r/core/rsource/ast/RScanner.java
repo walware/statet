@@ -39,6 +39,7 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_RUNTIME_
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_SYNTAX_SEQREL_UNEXPECTED;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -109,9 +110,7 @@ public final class RScanner {
 			comment.fRParent = fCurrent;
 			
 			if (fLineCount == fLines.length) {
-				final Comment[] lines = new Comment[fLineCount+64];
-				System.arraycopy(fLines, 0, lines, 0, fLineCount);
-				fLines = lines;
+				fLines = Arrays.copyOf(fLines, fLineCount+64);
 			}
 			fLines[fLineCount++] = comment;
 		}
@@ -122,8 +121,7 @@ public final class RScanner {
 		
 		DocuComment finish(final RLexer lexer) {
 			final DocuComment comment = new DocuComment();
-			final Comment[] lines = new Comment[fLineCount];
-			System.arraycopy(fLines, 0, lines, 0, fLineCount);
+			final Comment[] lines = Arrays.copyOf(fLines, fLineCount);
 			comment.fLines = lines;
 			comment.fStartOffset = lines[0].fStartOffset;
 			comment.fStopOffset = lines[fLineCount-1].fStopOffset;

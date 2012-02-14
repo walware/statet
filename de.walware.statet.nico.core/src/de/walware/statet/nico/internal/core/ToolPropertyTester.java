@@ -31,6 +31,7 @@ public class ToolPropertyTester extends PropertyTester {
 	}
 	
 	
+	@Override
 	public boolean test(final Object receiver, final String property, final Object[] args, final Object expectedValue) {
 		ITool tool = null;
 		if (receiver instanceof ITool) {

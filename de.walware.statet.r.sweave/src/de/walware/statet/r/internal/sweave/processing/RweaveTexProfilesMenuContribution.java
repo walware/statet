@@ -256,18 +256,22 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 		}
 		
 		
+		@Override
 		public void menuShown(final MenuEvent e) {
 			if (!fIsMenuInitialized) {
 				fillMenu();
 			}
 		}
 		
+		@Override
 		public void menuHidden(final MenuEvent e) {
 		}
 		
+		@Override
 		public void widgetDefaultSelected(final SelectionEvent e) {
 		}
 		
+		@Override
 		public void widgetSelected(final SelectionEvent e) {
 			final Object data = e.widget.getData();
 			if (data == null) {
@@ -333,9 +337,11 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 			}
 		}
 		
+		@Override
 		public void widgetDefaultSelected(final SelectionEvent e) {
 		}
 		
+		@Override
 		public void widgetSelected(final SelectionEvent e) {
 			fSweaveManager.openConfigurationDialog(UIAccess.getActiveWorkbenchShell(true), null);
 		}
@@ -378,9 +384,11 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 		return items;
 	}
 	
+	@Override
 	public void activeProfileChanged(final ILaunchConfiguration config) {
 	}
 	
+	@Override
 	public void availableProfileChanged(final ILaunchConfiguration[] configs) {
 	}
 	

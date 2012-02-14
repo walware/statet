@@ -55,6 +55,7 @@ public class RSimpleCompletionComputer extends SimpleCompletionProposal {
 		return (end - replacementOffset);
 	}
 	
+	@Override
 	public boolean isAutoInsertable() {
 		return false;
 	}

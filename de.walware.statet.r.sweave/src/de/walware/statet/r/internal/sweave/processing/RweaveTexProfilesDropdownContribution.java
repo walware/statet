@@ -112,9 +112,11 @@ public class RweaveTexProfilesDropdownContribution extends CompoundContributionI
 		return items;
 	}
 	
+	@Override
 	public void activeProfileChanged(final ILaunchConfiguration config) {
 	}
 	
+	@Override
 	public void availableProfileChanged(final ILaunchConfiguration[] configs) {
 	}
 	

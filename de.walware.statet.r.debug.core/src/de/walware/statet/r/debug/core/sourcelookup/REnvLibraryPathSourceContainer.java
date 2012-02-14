@@ -45,10 +45,12 @@ public class REnvLibraryPathSourceContainer extends CompositeSourceContainer {
 	}
 	
 	
+	@Override
 	public ISourceContainerType getType() {
 		return getSourceContainerType(TYPE_ID);
 	}
 	
+	@Override
 	public String getName() {
 		return NLS.bind(Messages.REnvLibraryPathSourceContainer_name, fREnv.getName());
 	}

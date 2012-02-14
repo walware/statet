@@ -20,10 +20,14 @@ import de.walware.ecommons.ltk.ISourceStructElement;
 public interface IRLangSourceElement extends IRLangElement, ISourceStructElement {
 	
 	
+	@Override
 	boolean hasModelChildren(IModelElement.Filter filter);
+	@Override
 	List<? extends IRLangSourceElement> getModelChildren(IModelElement.Filter filter);
 	
+	@Override
 	boolean hasSourceChildren(IModelElement.Filter filter);
+	@Override
 	List<? extends IRLangSourceElement> getSourceChildren(IModelElement.Filter filter);
 	
 }

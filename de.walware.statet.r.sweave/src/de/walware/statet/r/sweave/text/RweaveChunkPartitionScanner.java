@@ -51,6 +51,7 @@ public class RweaveChunkPartitionScanner extends RFastPartitionScanner implement
 	}
 	
 	
+	@Override
 	public void setParent(final MultiCatPartitionScanner parent) {
 		fParent = parent;
 	}
@@ -202,10 +203,12 @@ public class RweaveChunkPartitionScanner extends RFastPartitionScanner implement
 	}
 	
 	
+	@Override
 	public String[] getContentTypes() {
 		return Rweave.R_CHUNK_PARTITION_TYPES;
 	}
 	
+	@Override
 	public boolean isInCat() {
 		return fIsInChunk;
 	}

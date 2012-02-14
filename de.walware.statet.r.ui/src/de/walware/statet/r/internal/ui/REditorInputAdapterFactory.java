@@ -37,11 +37,13 @@ public class REditorInputAdapterFactory implements IAdapterFactory {
 	}
 	
 	
+	@Override
 	public Class<?>[] getAdapterList() {
 		updateLazyLoadedAdapters();
 		return PROPERTIES;
 	}
 	
+	@Override
 	public Object getAdapter(final Object adaptableObject, final Class key) {
 		updateLazyLoadedAdapters();
 		if (fSearchPageScoreComputerClass != null && fSearchPageScoreComputerClass.equals(key)) {

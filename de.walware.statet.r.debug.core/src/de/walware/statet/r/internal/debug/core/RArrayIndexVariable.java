@@ -35,6 +35,7 @@ public class RArrayIndexVariable extends RVariable implements IRIndexVariable, I
 	}
 	
 	
+	@Override
 	public String getName() throws DebugException {
 		final StringBuilder sb = new StringBuilder();
 		{	final RStore names = fMainValue.getDimNames(0, fIndex[0] / RArrayValue.LOAD_SIZE);
@@ -56,18 +57,22 @@ public class RArrayIndexVariable extends RVariable implements IRIndexVariable, I
 		return sb.toString();
 	}
 
+	@Override
 	public IValue getValue() throws DebugException {
 		return this;
 	}
 	
+	@Override
 	public boolean isAllocated() throws DebugException {
 		return true;
 	}
 	
+	@Override
 	public String getReferenceTypeName() throws DebugException {
 		return RDataUtil.getStoreAbbr(fMainValue.fVariable.fElement.getData());
 	}
 	
+	@Override
 	public String getValueString() throws DebugException {
 		final int dataIdx = RDataUtil.getDataIdx(fMainValue.fDim, fIndex);
 		final RStore data = fMainValue.getData(dataIdx / RArrayValue.LOAD_SIZE);
@@ -78,10 +83,12 @@ public class RArrayIndexVariable extends RVariable implements IRIndexVariable, I
 		return data.isNA(index) ? "NA" : data.getChar(index);
 	}
 	
+	@Override
 	public boolean hasVariables() throws DebugException {
 		return false;
 	}
 	
+	@Override
 	public IVariable[] getVariables() throws DebugException {
 		throw newNotSupported();
 	}

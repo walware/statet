@@ -128,10 +128,12 @@ public class EnrichedRHelpContext implements IContext3 {
 			fPart = null;
 		}
 		
+		@Override
 		public int getContextChangeMask() {
 			return SELECTION;
 		}
 		
+		@Override
 		public IContext getContext(final Object target) {
 			IContext context = HelpSystem.getContext(fContextId);
 			final String plaintext = searchContextInfo(fTarget);
@@ -141,6 +143,7 @@ public class EnrichedRHelpContext implements IContext3 {
 			return context;
 		}
 		
+		@Override
 		public String getSearchExpression(final Object target) {
 			
 			return null;
@@ -157,10 +160,12 @@ public class EnrichedRHelpContext implements IContext3 {
 			fUrl = url;
 		}
 		
+		@Override
 		public String getLabel() {
 			return fLabel;
 		}
 		
+		@Override
 		public String getHref() {
 			return fUrl;
 		}
@@ -219,22 +224,27 @@ public class EnrichedRHelpContext implements IContext3 {
 	}
 	
 	
+	@Override
 	public String getTitle() {
 		return fTitle;
 	}
 	
+	@Override
 	public String getText() {
 		return fText;
 	}
 	
+	@Override
 	public String getStyledText() {
 		return fStyledText;
 	}
 	
+	@Override
 	public IHelpResource[] getRelatedTopics() {
 		return fRelatedTopics;
 	}
 	
+	@Override
 	public String getCategory(final IHelpResource topic) {
 		if (topic instanceof RHelpResource) {
 			return Messages.RHelp_category;
@@ -242,6 +252,7 @@ public class EnrichedRHelpContext implements IContext3 {
 		return null;
 	}
 	
+	@Override
 	public ICommandLink[] getRelatedCommands() {
 		return fRelatedCommands;
 	}

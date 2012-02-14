@@ -41,6 +41,7 @@ public class CatPartitioner extends Partitioner {
 		public CatPositionUpdater() {
 		}
 		
+		@Override
 		public void update(final DocumentEvent event) {
 			if (active) {
 				updatePositions(event);

@@ -55,6 +55,7 @@ public class OpenInEditorHandler extends AbstractHandler {
 		}
 	}
 	
+	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		final IWorkbenchPart activePart = WorkbenchUIUtil.getActivePart(event.getApplicationContext());
 		if (activePart instanceof ObjectBrowserView) {

@@ -33,6 +33,7 @@ public class RCodePartitionConstraint implements IPartitionConstraint {
 	}
 	
 	
+	@Override
 	public boolean matches(final String partitionType) {
 		return (fRDefaultPartitionConstraint.matches(partitionType)
 				|| partitionType == IRDocumentPartitions.R_STRING

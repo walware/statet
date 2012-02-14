@@ -38,17 +38,22 @@ public interface IRElement extends IModelElement {
 	
 	
 	static final IModelElement.Filter R_S4SLOT_FILTER = new IModelElement.Filter() {
+		@Override
 		public boolean include(final IModelElement element) {
 			return (element.getElementType() == R_S4SLOT);
 		}
 	};
 	
 	
+	@Override
 	RElementName getElementName();
 	
+	@Override
 	IRElement getModelParent();
 	
+	@Override
 	boolean hasModelChildren(IModelElement.Filter filter);
+	@Override
 	List<? extends IRElement> getModelChildren(IModelElement.Filter filter);
 	
 }

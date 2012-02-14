@@ -53,12 +53,14 @@ public final class RReferenceVar extends CombinedElement
 		readExternal(io, factory);
 	}
 	
+	@Override
 	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		fHandle = io.readLong();
 		fType = io.readInt();
 		fClassName = io.readString();
 	}
 	
+	@Override
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		io.writeLong(fHandle);
 		io.writeInt(fType);
@@ -66,22 +68,27 @@ public final class RReferenceVar extends CombinedElement
 	}
 	
 	
+	@Override
 	public byte getRObjectType() {
 		return TYPE_REFERENCE;
 	}
 	
+	@Override
 	public int getReferencedRObjectType() {
 		return fType;
 	}
 	
+	@Override
 	public String getRClassName() {
 		return fClassName;
 	}
 	
+	@Override
 	public int getLength() {
 		return 0;
 	}
 	
+	@Override
 	public long getHandle() {
 		return fHandle;
 	}
@@ -90,6 +97,7 @@ public final class RReferenceVar extends CombinedElement
 		fResolver = resolver;
 	}
 	
+	@Override
 	public RObject getResolvedRObject() {
 		if (fResolver != null) {
 			return fResolver.resolve(this, false);
@@ -97,19 +105,23 @@ public final class RReferenceVar extends CombinedElement
 		return null;
 	}
 	
+	@Override
 	public RStore getData() {
 		return null;
 	}
 	
 	
+	@Override
 	public int getElementType() {
 		return R_GENERAL_VARIABLE;
 	}
 	
+	@Override
 	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
 	
+	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		return Collections.EMPTY_LIST;
 	}

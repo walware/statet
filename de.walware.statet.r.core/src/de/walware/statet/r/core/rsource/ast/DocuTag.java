@@ -91,6 +91,7 @@ public class DocuTag extends RAstNode {
 		}
 	}
 	
+	@Override
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		for (int i = 0; i < fFragments.length; i++) {
 			visitor.visit(fFragments[i]);

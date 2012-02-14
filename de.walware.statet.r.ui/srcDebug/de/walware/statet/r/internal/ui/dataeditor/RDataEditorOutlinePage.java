@@ -146,9 +146,11 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 	
 	private class RDataContentProvider implements ITreeContentProvider {
 		
+		@Override
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 		}
 		
+		@Override
 		public Object[] getElements(final Object inputElement) {
 			if (fDescription != null) {
 				return new Object[] { fDescription };
@@ -156,6 +158,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 			return new Object[0];
 		}
 		
+		@Override
 		public Object getParent(final Object element) {
 			if (element instanceof RDataTableColumn) {
 				return fDescription;
@@ -166,6 +169,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 			return null;
 		}
 		
+		@Override
 		public boolean hasChildren(final Object element) {
 			if (element == fDescription) {
 				return (fDescription.dataColumns.length > 0);
@@ -181,6 +185,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 			return false;
 		}
 		
+		@Override
 		public Object[] getChildren(final Object parentElement) {
 			if (parentElement == fDescription && fDescription.dataColumns.length <= 2500) {
 				return fDescription.dataColumns;
@@ -198,6 +203,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 			return new Object[0];
 		}
 		
+		@Override
 		public void dispose() {
 		}
 		
@@ -355,6 +361,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 	protected void init() {
 		super.init();
 		fEditor.getRDataTable().addTableListener(new IRDataTableListener() {
+			@Override
 			public void inputChanged(final IRDataTableInput input, final RDataTableContentDescription description) {
 				final boolean isNew = (description != null
 						&& (fDescription == null

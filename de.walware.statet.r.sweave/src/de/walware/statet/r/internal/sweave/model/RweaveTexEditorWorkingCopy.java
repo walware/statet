@@ -38,10 +38,12 @@ public class RweaveTexEditorWorkingCopy extends GenericEditorWorkspaceSourceUnit
 	}
 	
 	
+	@Override
 	public IRCoreAccess getRCoreAccess() {
 		return ((IRSourceUnit) fFrom).getRCoreAccess();
 	}
 	
+	@Override
 	public IREnv getREnv() {
 		return RCore.getREnvManager().getDefault();
 	}
@@ -81,6 +83,7 @@ public class RweaveTexEditorWorkingCopy extends GenericEditorWorkspaceSourceUnit
 		return super.getAdapter(required);
 	}
 	
+	@Override
 	public void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
 	}
 	

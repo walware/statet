@@ -77,16 +77,20 @@ public class RHelpBreadcrumb extends AbstractBreadcrumb {
 	private class RHelpContentProvider implements ITreeContentProvider {
 		
 		
+		@Override
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 		}
 		
+		@Override
 		public void dispose() {
 		}
 		
+		@Override
 		public Object[] getElements(final Object inputElement) {
 			return getChildren(inputElement);
 		}
 		
+		@Override
 		public Object getParent(final Object element) {
 			if (element instanceof IREnv || element instanceof String) {
 				return fHelpManager;
@@ -103,6 +107,7 @@ public class RHelpBreadcrumb extends AbstractBreadcrumb {
 			return null;
 		}
 		
+		@Override
 		public boolean hasChildren(final Object element) {
 			if (element instanceof IRHelpManager) {
 				return true;
@@ -116,6 +121,7 @@ public class RHelpBreadcrumb extends AbstractBreadcrumb {
 			return false;
 		}
 		
+		@Override
 		public Object[] getChildren(final Object element) {
 			if (element instanceof IRHelpManager) {
 				return fHelpManager.getREnvWithHelp().toArray();

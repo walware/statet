@@ -58,6 +58,7 @@ public abstract class RLibraryGroup implements IRLibraryGroup {
 		}
 		
 		
+		@Override
 		public RLibraryLocation.Editable newLibrary(final String path) {
 			return new RLibraryLocation.Editable(path);
 		}
@@ -82,10 +83,12 @@ public abstract class RLibraryGroup implements IRLibraryGroup {
 	}
 	
 	
+	@Override
 	public String getId() {
 		return fId;
 	}
 	
+	@Override
 	public String getLabel() {
 		return fLabel;
 	}
@@ -94,6 +97,7 @@ public abstract class RLibraryGroup implements IRLibraryGroup {
 		fLabel = label;
 	}
 	
+	@Override
 	public List<? extends IRLibraryLocation> getLibraries() {
 		return fLibraries;
 	}

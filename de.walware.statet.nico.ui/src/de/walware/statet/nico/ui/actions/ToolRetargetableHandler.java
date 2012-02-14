@@ -53,6 +53,7 @@ public abstract class ToolRetargetableHandler extends AbstractHandler implements
 			assert (getServiceLocator() != null);
 		}
 		
+		@Override
 		public void run() {
 			final ICommandService commandService = (ICommandService) getServiceLocator().getService(ICommandService.class);
 			if (commandService != null) {
@@ -126,6 +127,7 @@ public abstract class ToolRetargetableHandler extends AbstractHandler implements
 	}
 	
 	
+	@Override
 	public final void setTool(final ToolProcess tool) {
 		boolean update = false;
 		
@@ -148,6 +150,7 @@ public abstract class ToolRetargetableHandler extends AbstractHandler implements
 		}
 	}
 	
+	@Override
 	public void toolTerminated() {
 		boolean update = false;
 		synchronized (this) {
@@ -245,6 +248,7 @@ public abstract class ToolRetargetableHandler extends AbstractHandler implements
 				&& !tool.isTerminated());
 	}
 	
+	@Override
 	public final Object execute(final ExecutionEvent event) throws ExecutionException {
 		if (fToolProvider != null) {
 			final ToolProcess tool = fToolProvider.getTool();

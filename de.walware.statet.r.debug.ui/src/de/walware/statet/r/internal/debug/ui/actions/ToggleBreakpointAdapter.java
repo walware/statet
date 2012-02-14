@@ -108,12 +108,14 @@ public class ToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 		return new Data(editor, (IRWorkspaceSourceUnit) su);
 	}
 	
+	@Override
 	public boolean canToggleLineBreakpoints(final IWorkbenchPart part, final ISelection selection) {
 		final IREditor editor = getREditor(part, selection);
 		return (editor != null && editor.getSourceUnit() instanceof IWorkspaceSourceUnit
 				&& selection instanceof ITextSelection );
 	}
 	
+	@Override
 	public void toggleLineBreakpoints(final IWorkbenchPart part, final ISelection selection) throws CoreException {
 		final Data data = createData(getREditor(part, selection));
 		if (data == null) {
@@ -122,6 +124,7 @@ public class ToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 		final IProgressService progressService = (IProgressService) part.getSite().getWorkbenchWindow().getService(IProgressService.class);
 		try {
 			progressService.busyCursorWhile(new IRunnableWithProgress() {
+				@Override
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					try {
 						data.init2(monitor);
@@ -141,12 +144,14 @@ public class ToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 		catch (final InterruptedException e) {}
 	}
 	
+	@Override
 	public boolean canToggleMethodBreakpoints(final IWorkbenchPart part, final ISelection selection) {
 		final IREditor editor = getREditor(part, selection);
 		return (editor != null && editor.getSourceUnit() instanceof IWorkspaceSourceUnit
 				&& selection instanceof ITextSelection );
 	}
 	
+	@Override
 	public void toggleMethodBreakpoints(final IWorkbenchPart part, final ISelection selection) throws CoreException {
 		final Data data = createData(getREditor(part, selection));
 		if (data == null) {
@@ -155,6 +160,7 @@ public class ToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 		final IProgressService progressService = (IProgressService) part.getSite().getWorkbenchWindow().getService(IProgressService.class);
 		try {
 			progressService.busyCursorWhile(new IRunnableWithProgress() {
+				@Override
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					try {
 						data.init2(monitor);
@@ -174,24 +180,29 @@ public class ToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 		catch (final InterruptedException e) {}
 	}
 	
+	@Override
 	public boolean canToggleWatchpoints(final IWorkbenchPart part, final ISelection selection) {
 		return false;
 	}
 	
+	@Override
 	public void toggleWatchpoints(final IWorkbenchPart part, final ISelection selection) throws CoreException {
 	}
 	
+	@Override
 	public boolean canToggleBreakpoints(final IWorkbenchPart part, final ISelection selection) {
 		final IREditor editor = getREditor(part, selection);
 		return (editor != null && editor.getSourceUnit() instanceof IWorkspaceSourceUnit
 				&& selection instanceof ITextSelection );
 	}
 	
+	@Override
 	public void toggleBreakpoints(final IWorkbenchPart part, final ISelection selection) throws CoreException {
 		final Data data = createData(getREditor(part, selection));
 		final IProgressService progressService = (IProgressService) part.getSite().getWorkbenchWindow().getService(IProgressService.class);
 		try {
 			progressService.busyCursorWhile(new IRunnableWithProgress() {
+				@Override
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					try {
 						data.init2(monitor);

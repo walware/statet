@@ -210,6 +210,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 			fSlider.addListener(SWT.Selection, this);
 		}
 		
+		@Override
 		public void handleEvent(final Event event) {
 			final int selection = fSlider.getSelection();
 			int newIndex;
@@ -263,6 +264,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		private boolean fMessageSetted;
 		private String fMessage;
 		
+		@Override
 		public void setMessage(final boolean error, final String message, final Image image) {
 			final IStatusLineManager manager = fConsolePage.getSite().getActionBars().getStatusLineManager();
 			if (manager != null) {
@@ -310,6 +312,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	
 	private class ThisKeyListener implements VerifyKeyListener {
 		
+		@Override
 		public void verifyKey(final VerifyEvent e) {
 			final int key = (e.stateMask | e.keyCode);
 			switch (key) {
@@ -520,10 +523,12 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		fSubmitButton.setLayoutData(gd);
 		fSubmitButton.setText(Messages.Console_SubmitButton_label);
 		fSubmitButton.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetSelected(final SelectionEvent e) {
 				doSubmit();
 				fSourceViewer.getControl().setFocus();
 			}
+			@Override
 			public void widgetDefaultSelected(final SelectionEvent e) {
 			}
 		});
@@ -535,10 +540,13 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		setFont(fConsolePage.getConsole().getFont());
 		
 		fHistoryListener = new IHistoryListener() {
+			@Override
 			public void entryAdded(final History source, final Entry e) {
 			}
+			@Override
 			public void entryRemoved(final History source, final Entry e) {
 			}
+			@Override
 			public void completeChange(final History source, final Entry[] es) {
 				fCurrentHistoryEntry = null;
 			}
@@ -546,20 +554,24 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		fProcess.getHistory().addListener(fHistoryListener);
 		
 		fDocument.addPrenotifiedDocumentListener(new IDocumentListener() {
+			@Override
 			public void documentAboutToBeChanged(final DocumentEvent event) {
 				if (fHistoryCompoundChange != null && !fInHistoryChange) {
 					fHistoryCompoundChange = null;
 					fSourceViewer.getUndoManager().endCompoundChange();
 				}
 			}
+			@Override
 			public void documentChanged(final DocumentEvent event) {
 			}
 		});
 		
 		fWorkspaceListener = new ToolWorkspace.Listener() {
+			@Override
 			public void propertyChanged(final ToolWorkspace workspace, final Map<String, Object> properties) {
 				if (properties.containsKey("wd")) {
 					UIAccess.getDisplay(null).asyncExec(new Runnable() {
+						@Override
 						public void run() {
 							fStatusLine.updateWD();
 						}
@@ -568,6 +580,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 			}
 		};
 		fConsolePage.getControl().addListener(SWT.Activate, new Listener() {
+			@Override
 			public void handleEvent(final Event event) {
 				fStatusLine.refresh();
 			}
@@ -607,11 +620,13 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		// annotationModel.setLockObject(fDocument.getLockObject());
 		fSourceViewer.setDocument(fDocument, annotationModel);
 		fSourceViewer.addPostSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
 			public void selectionChanged(final SelectionChangedEvent event) {
 				fStatusLine.cleanStatusLine();
 			}
 		});
 		fSourceViewer.getTextWidget().addListener(SWT.FocusOut, new Listener() {
+			@Override
 			public void handleEvent(final Event event) {
 				fStatusLine.cleanStatusLine();
 			}
@@ -621,6 +636,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 				configuration.getPreferences() );
 	}
 	
+	@Override
 	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 		fConfigurator.handleSettingsChanged(groupIds, options);
 		if (groupIds.contains(ConsolePreferences.GROUP_ID)) {
@@ -714,6 +730,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		fSelectionHistory.addUpdateListener(backHandler);
 		
 		{	final IHandler2 handler = new AbstractHandler() {
+				@Override
 				public Object execute(final ExecutionEvent arg0)
 						throws ExecutionException {
 					doHistoryOlder(getLineStart());
@@ -724,6 +741,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 			handlerService.activateHandler("de.walware.statet.nico.commands.SearchHistoryOlder", handler);
 		}
 		{	final IHandler2 handler = new AbstractHandler() {
+				@Override
 				public Object execute(final ExecutionEvent arg0)
 						throws ExecutionException {
 					doHistoryNewer(getLineStart());
@@ -734,6 +752,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 			handlerService.activateHandler("de.walware.statet.nico.commands.SearchHistoryNewer", handler);
 		}
 		{	final IHandler2 handler = new AbstractHandler() {
+				@Override
 				public Object execute(final ExecutionEvent arg0)
 				throws ExecutionException {
 					doHistoryNewest();
@@ -955,34 +974,42 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	
 /*- Complete ISourceEditor --------------------------------------------------*/
 	
+	@Override
 	public String getModelTypeId() {
 		return fSourceUnit.getModelTypeId();
 	}
 	
+	@Override
 	public ISourceUnit getSourceUnit() {
 		return fSourceUnit;
 	}
 	
+	@Override
 	public IWorkbenchPart getWorkbenchPart() {
 		return fConsolePage.getView();
 	}
 	
+	@Override
 	public IServiceLocator getServiceLocator() {
 		return fConsolePage.fInputServices;
 	}
 	
+	@Override
 	public InputSourceViewer getViewer() {
 		return fSourceViewer;
 	}
 	
+	@Override
 	public PartitioningConfiguration getPartitioning() {
 		return fConfigurator.getPartitioning();
 	}
 	
+	@Override
 	public boolean isEditable(final boolean validate) {
 		return true;
 	}
 	
+	@Override
 	public void selectAndReveal(final int offset, final int length) {
 		if (UIAccess.isOkToUse(fSourceViewer)) {
 			fSourceViewer.setSelectedRange(offset, length);
@@ -990,6 +1017,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		}
 	}
 	
+	@Override
 	public Object getAdapter(final Class required) {
 		if (ISourceEditor.class.equals(required)) {
 			return this;
@@ -1003,6 +1031,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		return fConsolePage.getAdapter(required);
 	}
 	
+	@Override
 	public ITextEditToolSynchronizer getTextEditToolSynchronizer() {
 		return null;
 	}

@@ -305,6 +305,7 @@ public abstract class RElementName implements IElementName {
 	
 	public static final Comparator<IElementName> NAMEONLY_COMPARATOR = new Comparator<IElementName>() {
 		
+		@Override
 		public int compare(IElementName o1, IElementName o2) {
 			final String n1 = o1.getSegmentName();
 			final String n2 = o2.getSegmentName();
@@ -377,10 +378,12 @@ public abstract class RElementName implements IElementName {
 		}
 		
 		
+		@Override
 		public int getType() {
 			return fType;
 		}
 		
+		@Override
 		public String getSegmentName() {
 			return fSegmentName;
 		}
@@ -421,6 +424,7 @@ public abstract class RElementName implements IElementName {
 		}
 		
 		
+		@Override
 		public int getIndex() {
 			return fIdx;
 		}
@@ -697,8 +701,10 @@ public abstract class RElementName implements IElementName {
 	
 	
 	public abstract RElementName getNamespace();
+	@Override
 	public abstract RElementName getNextSegment();
 	
+	@Override
 	public String getDisplayName() {
 		return createDisplayName(this, 0);
 	}

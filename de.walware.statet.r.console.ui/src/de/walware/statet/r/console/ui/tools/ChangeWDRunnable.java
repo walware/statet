@@ -46,22 +46,27 @@ public class ChangeWDRunnable implements IToolRunnable {
 	}
 	
 	
+	@Override
 	public String getTypeId() {
 		return TYPE_ID;
 	}
 	
+	@Override
 	public boolean isRunnableIn(final ITool tool) {
 		return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
 	}
 	
+	@Override
 	public String getLabel() {
 		return RConsoleMessages.ChangeWorkingDir_Task_label;
 	}
 	
+	@Override
 	public boolean changed(final int event, final ITool process) {
 		return true;
 	}
 	
+	@Override
 	public void run(final IToolService service,
 			final IProgressMonitor monitor) throws CoreException {
 		final IRBasicAdapter r = (IRBasicAdapter) service;

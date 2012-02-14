@@ -49,18 +49,22 @@ public class RArgumentListContextInformation implements IAssistInformationPropos
 		return fArgs;
 	}
 	
+	@Override
 	public String getContextDisplayString() {
 		return getInformationDisplayString();
 	}
 	
+	@Override
 	public int getContextInformationPosition() {
 		return Math.max(fOffset, 0);
 	}
 	
+	@Override
 	public Image getImage() {
 		return null;
 	}
 	
+	@Override
 	public String getInformationDisplayString() {
 		return fInformation;
 	}

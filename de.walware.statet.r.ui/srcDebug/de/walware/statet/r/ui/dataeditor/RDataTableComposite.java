@@ -110,6 +110,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	
 	private class FindListener implements IFindListener {
 		
+		@Override
 		public void handleFindEvent(final FindEvent event) {
 			if (fTable != null) {
 				if (event.rowIdx >= 0) {
@@ -125,6 +126,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	
 	private class SelectionFindFilter implements IFindFilter {
 		
+		@Override
 		public boolean match(final int rowIdx, final int columnIdx) {
 			if (fTable != null) {
 				if (columnIdx >= 0) {
@@ -163,6 +165,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	private long fSelectionUpdateScheduleStamp;
 	private boolean fSelectionCheckLabel;
 	private final Runnable fSelectionUpdateRunnable = new Runnable() {
+		@Override
 		public void run() {
 			updateSelection();
 		}
@@ -278,6 +281,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		table.addConfiguration(new UIBindings.HeaderContextMenuConfiguration(table));
 		
 		table.addDisposeListener(new DisposeListener() {
+			@Override
 			public void widgetDisposed(final DisposeEvent e) {
 				dataProvider.dispose();
 				presentation.dispose();
@@ -301,6 +305,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		fTable = table;
 		fTableInitialized = false;
 		fTable.addLayerListener(new ILayerListener() {
+			@Override
 			public void handleLayerEvent(final ILayerEvent event) {
 				if (event instanceof ISelectionEvent) {
 					scheduleUpdateSelection(false, 100);
@@ -313,6 +318,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			}
 		});
 		dataProvider.addDataChangedListener(new AbstractRDataProvider.IDataProviderListener() {
+			@Override
 			public void onInputInitialized(final boolean structChanged) {
 				if (fTable != table || table.isDisposed()) {
 					return;
@@ -351,6 +357,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 				}
 			}
 			
+			@Override
 			public void onInputFailed(final int error) {
 				if (error == ERROR_STRUCT_CHANGED) {
 					showReload();
@@ -367,6 +374,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 //				dataLayer.fireLayerEvent(new RowStructuralRefreshEvent(dataLayer));
 //			}
 			
+			@Override
 			public void onRowsChanged(final int beginIdx, final int endIdx) {
 				dataLayer.fireLayerEvent(new RowUpdateEvent(dataLayer, new Range(beginIdx, endIdx)));
 			}
@@ -529,17 +537,21 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		return null;
 	}
 	
+	@Override
 	public ISelection getSelection() {
 		return null;
 	}
 	
+	@Override
 	public void setSelection(final ISelection selection) {
 	}
 	
+	@Override
 	public void addSelectionChangedListener(final ISelectionChangedListener listener) {
 		fSelectionListeners.add(listener);
 	}
 	
+	@Override
 	public void removeSelectionChangedListener(final ISelectionChangedListener listener) {
 		fSelectionListeners.remove(listener);
 	}
@@ -575,18 +587,22 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			try {
 				((RProcessDataTableInput) input).run(new ISystemRunnable() {
 					
+					@Override
 					public String getTypeId() {
 						return "r/dataeditor/init"; //$NON-NLS-1$
 					}
 					
+					@Override
 					public String getLabel() {
 						return "Prepare Data Viewer (" + input.getLastName() + ")";
 					}
 					
+					@Override
 					public boolean isRunnableIn(final ITool tool) {
 						return true; // TODO
 					}
 					
+					@Override
 					public boolean changed(final int event, final ITool process) {
 						if (event == MOVING_FROM) {
 							return false;
@@ -594,6 +610,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 						return true;
 					}
 					
+					@Override
 					public void run(final IToolService service,
 							final IProgressMonitor monitor) throws CoreException {
 						final RService r = (RService) service;
@@ -621,6 +638,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 							break;
 						}
 						UIAccess.getDisplay().asyncExec(new Runnable() {
+							@Override
 							public void run() {
 								if (dataProvider != null) {
 									initTable(input, dataProvider);

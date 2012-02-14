@@ -89,7 +89,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	
 	public static FileValidator getWorkingDirectoryValidator(final ILaunchConfiguration configuration, final boolean validate) throws CoreException {
 		String path = readWorkingDirectory(configuration);
-		if (path == null || path.trim().length() == 0) {
+		if (path == null || path.trim().isEmpty()) {
 			path = System.getProperty("user.dir"); //$NON-NLS-1$
 		}
 		final FileValidator validator = new FileValidator(true);
@@ -126,6 +126,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
+	@Override
 	public String getName() {
 		return RLaunchingMessages.REnv_Tab_title;
 	}
@@ -135,6 +136,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		return RUI.getImage(RUI.IMG_OBJ_R_RUNTIME_ENV);
 	}
 	
+	@Override
 	public void createControl(final Composite parent) {
 		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
@@ -197,6 +199,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		}
 	}
 	
+	@Override
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
 		if (fLocal) {
 			configuration.setAttribute(RLaunching.OLD_ATTR_RENV_CODE, IREnv.DEFAULT_WORKBENCH_ENV_ID);

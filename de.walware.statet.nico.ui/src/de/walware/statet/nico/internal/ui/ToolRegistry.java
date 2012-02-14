@@ -61,6 +61,7 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 		
 		private final AtomicInteger fOwnJobs = new AtomicInteger(0);
 		
+		@Override
 		public void scheduled(final IJobChangeEvent event) {
 			if (event.getJob().getName() == OWN_SHOWCONSOLE_NAME) {
 				fOwnJobs.incrementAndGet();
@@ -69,9 +70,11 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 				checkJob(event.getJob());
 			}
 		}
+		@Override
 		public void aboutToRun(final IJobChangeEvent event) {
 			checkJob(event.getJob());
 		}
+		@Override
 		public void done(final IJobChangeEvent event) {
 			if (event.getJob().getName() == OWN_SHOWCONSOLE_NAME) {
 				fOwnJobs.decrementAndGet();
@@ -87,10 +90,13 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 			}
 		}
 		
+		@Override
 		public void sleeping(final IJobChangeEvent event) {
 		}
+		@Override
 		public void awake(final IJobChangeEvent event) {
 		}
+		@Override
 		public void running(final IJobChangeEvent event) {
 		}
 		
@@ -99,11 +105,14 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 	
 	private class LaunchesListener implements ILaunchesListener {
 		
+		@Override
 		public void launchesAdded(final ILaunch[] launches) {
 		}
+		@Override
 		public void launchesChanged(final ILaunch[] launches) {
 		}
 		
+		@Override
 		public void launchesRemoved(final ILaunch[] launches) {
 			final List<ToolProcess> list = new ArrayList<ToolProcess>();
 			for (final ILaunch launch : launches) {
@@ -183,11 +192,14 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 	}
 	
 	
+	@Override
 	public void pageOpened(final IWorkbenchPage page) {
 	}
+	@Override
 	public void pageActivated(final IWorkbenchPage page) {
 	}
 	
+	@Override
 	public void pageClosed(final IWorkbenchPage page) {
 		PageRegistry reg;
 		synchronized (fPageRegistries) {
@@ -222,6 +234,7 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 	}
 	
 	
+	@Override
 	public void addListener(final IToolRegistryListener listener, final IWorkbenchPage page) {
 		if (page == null) {
 			fListenersWorkbench.add(listener);
@@ -232,6 +245,7 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 		}
 	}
 	
+	@Override
 	public void removeListener(final IToolRegistryListener listener) {
 		fListenersWorkbench.remove(listener);
 		synchronized (fPageRegistries) {
@@ -250,6 +264,7 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 		}
 	}
 	
+	@Override
 	public ToolSessionUIData getActiveToolSession(final IWorkbenchPage page) {
 		if (page == null) {
 			return null;
@@ -262,6 +277,7 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 		return null;
 	}
 	
+	@Override
 	public IWorkbenchPage findWorkbenchPage(final ToolProcess process) {
 		final IWorkbenchPage activePage = UIAccess.getActiveWorkbenchPage(false);
 		IWorkbenchPage page = null;

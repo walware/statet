@@ -36,26 +36,31 @@ public class WindowToolProvider implements IToolProvider, IToolRegistryListener 
 	}
 	
 	
+	@Override
 	public void addToolRetargetable(final IToolRetargetable listener) {
 		assert (fListener == null);
 		fListener = listener;
 		NicoUI.getToolRegistry().addListener(this, fPage);
 	}
 	
+	@Override
 	public void removeToolRetargetable(final IToolRetargetable listener) {
 		assert (fListener == listener || fListener == null);
 		fListener = null;
 		NicoUI.getToolRegistry().removeListener(this);
 	}
 	
+	@Override
 	public ToolProcess getTool() {
 		return NicoUI.getToolRegistry().getActiveToolSession(fPage).getProcess();
 	}
 	
+	@Override
 	public void toolSessionActivated(final ToolSessionUIData informations) {
 		fListener.setTool(informations.getProcess());
 	}
 	
+	@Override
 	public void toolTerminated(final ToolSessionUIData sessionData) {
 		fListener.toolTerminated();
 	}

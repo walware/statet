@@ -60,6 +60,7 @@ public class TerminateToolAction extends Action implements IUpdate {
 	}
 	
 	
+	@Override
 	public void update() {
 		setEnabled(fProcess.canTerminate());
 	}

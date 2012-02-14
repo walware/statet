@@ -27,6 +27,7 @@ import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 
 public class RTextViewerCreator implements IViewerCreator {
 	
+	@Override
 	public Viewer createViewer(final Composite parent, final CompareConfiguration config) {
 		final RSourceViewerConfigurator viewerConfigurator = new RSourceViewerConfigurator(
 				RCore.getWorkbenchAccess());

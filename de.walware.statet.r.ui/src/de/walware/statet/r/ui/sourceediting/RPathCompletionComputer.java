@@ -225,7 +225,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 		String unescaped = RUtil.unescapeCompletely(prefix);
 		// keep a single (not escaped) backslash
 		if (prefix.length() > 0 && prefix.charAt(prefix.length()-1) == '\\' && 
-				(unescaped.length() == 0 || unescaped.charAt(unescaped.length()-1) != '\\')) {
+				(unescaped.isEmpty() || unescaped.charAt(unescaped.length()-1) != '\\')) {
 			unescaped = unescaped + '\\';
 		}
 		return super.checkPrefix(unescaped);

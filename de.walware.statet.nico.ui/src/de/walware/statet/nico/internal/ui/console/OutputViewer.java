@@ -67,9 +67,11 @@ public class OutputViewer extends TextConsoleViewer {
 	private IDocumentListener getDocumentListener() {
 		if (fDocumentListener == null) {
 			fDocumentListener = new IDocumentListener() {
+				@Override
 				public void documentAboutToBeChanged(final DocumentEvent event) {
 				}
 				
+				@Override
 				public void documentChanged(final DocumentEvent event) {
 					if (fAutoScroll) {
 						revealEndOfDocument();
@@ -84,6 +86,7 @@ public class OutputViewer extends TextConsoleViewer {
 	public void revealEndOfDocument() {
 		final Display display = UIAccess.getDisplay();
 		display.asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				final StyledText textWidget = getTextWidget();
 				if (!UIAccess.isOkToUse(textWidget)) {
@@ -113,6 +116,7 @@ public class OutputViewer extends TextConsoleViewer {
 						textWidget.setTopPixel(move[0]);
 						final int[] state = new int[] { 1 };
 						display.timerExec(75, new Runnable() {
+							@Override
 							public void run() {
 								int i = state[0];
 								if (!UIAccess.isOkToUse(textWidget)

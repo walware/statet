@@ -52,23 +52,28 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		
+		@Override
 		public IRegion getDocumentationRange() {
 			return null;
 		}
 		
 		
+		@Override
 		public boolean hasModelChildren(final IModelElement.Filter filter) {
 			return false;
 		}
 		
+		@Override
 		public final List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
 			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		
+		@Override
 		public boolean hasSourceChildren(final IModelElement.Filter filter) {
 			return false;
 		}
 		
+		@Override
 		public List<? extends IRLangSourceElement> getSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
@@ -111,15 +116,18 @@ abstract class RSourceElementByElementAccess
 			fArgs = args;
 		}
 		
+		@Override
 		public void setSourceChildren(final List<? extends IRLangSourceElement> children) {
 			fSourceChildrenProtected = children;
 		}
 		
+		@Override
 		public BuildSourceFrame getBuildFrame() {
 			return fEnvir;
 		}
 		
 		
+		@Override
 		public IRegion getDocumentationRange() {
 			return fDocu;
 		}
@@ -128,11 +136,13 @@ abstract class RSourceElementByElementAccess
 			return fFDefNode;
 		}
 		
+		@Override
 		public ArgsDefinition getArgsDefinition() {
 			return fArgs;
 		}
 		
 		
+		@Override
 		public boolean hasModelChildren(final IModelElement.Filter filter) {
 			if (fModelChildrenProtected == null) {
 				fModelChildrenProtected = fEnvir.getModelChildren(this);
@@ -140,6 +150,7 @@ abstract class RSourceElementByElementAccess
 			return RSourceElements.hasChildren(fModelChildrenProtected, filter);
 		}
 		
+		@Override
 		public List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
 			if (fModelChildrenProtected == null) {
 				fModelChildrenProtected = fEnvir.getModelChildren(this);
@@ -147,10 +158,12 @@ abstract class RSourceElementByElementAccess
 			return RSourceElements.getChildren(fModelChildrenProtected, filter);
 		}
 		
+		@Override
 		public boolean hasSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.hasChildren(fSourceChildrenProtected, filter);
 		}
 		
+		@Override
 		public List<? extends IRLangSourceElement> getSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.getChildren(fSourceChildrenProtected, filter);
 		}
@@ -211,24 +224,29 @@ abstract class RSourceElementByElementAccess
 			}
 		}
 		
+		@Override
 		public void setSourceChildren(final List<? extends IRLangSourceElement> children) {
 			fSourceChildrenProtected = children;
 		}
 		
+		@Override
 		public BuildSourceFrame getBuildFrame() {
 			return fEnvir;
 		}
 		
 		
+		@Override
 		public DocuComment getDocumentationRange() {
 			return fDocu;
 		}
 		
+		@Override
 		public List<String> getExtendedClassNames() {
 			return fSuperClassesTypeNamesProtected;
 		}
 		
 		
+		@Override
 		public boolean hasModelChildren(final IModelElement.Filter filter) {
 			if (fModelChildrenProtected == null) {
 				fModelChildrenProtected = fEnvir.getModelChildren(this);
@@ -236,6 +254,7 @@ abstract class RSourceElementByElementAccess
 			return RSourceElements.hasChildren(fModelChildrenProtected, filter);
 		}
 		
+		@Override
 		public List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
 			if (fModelChildrenProtected == null) {
 				fModelChildrenProtected = fEnvir.getModelChildren(this);
@@ -243,10 +262,12 @@ abstract class RSourceElementByElementAccess
 			return RSourceElements.getChildren(fModelChildrenProtected, filter);
 		}
 		
+		@Override
 		public boolean hasSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.hasChildren(fSourceChildrenProtected, filter);
 		}
 		
+		@Override
 		public List<? extends IRLangSourceElement> getSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.getChildren(fSourceChildrenProtected, filter);
 		}
@@ -284,28 +305,34 @@ abstract class RSourceElementByElementAccess
 			fExtTypeName = extTypeName;
 		}
 		
+		@Override
 		public void setSourceChildren(final List<? extends IRLangSourceElement> children) {
 			fSourceChildrenProtected = children;
 		}
 		
+		@Override
 		public BuildSourceFrame getBuildFrame() {
 			return fEnvir;
 		}
 		
 		
+		@Override
 		public String getExtCommand() {
 			return fExtCommand;
 		}
 		
+		@Override
 		public String getExtTypeName() {
 			return fExtTypeName;
 		}
 		
+		@Override
 		public IRegion getDocumentationRange() {
 			return null;
 		}
 		
 		
+		@Override
 		public boolean hasModelChildren(final IModelElement.Filter filter) {
 			if (fModelChildrenProtected == null) {
 				fModelChildrenProtected = fEnvir.getModelChildren(this);
@@ -313,6 +340,7 @@ abstract class RSourceElementByElementAccess
 			return RSourceElements.hasChildren(fModelChildrenProtected, filter);
 		}
 		
+		@Override
 		public List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
 			if (fModelChildrenProtected == null) {
 				fModelChildrenProtected = fEnvir.getModelChildren(this);
@@ -320,10 +348,12 @@ abstract class RSourceElementByElementAccess
 			return RSourceElements.getChildren(fModelChildrenProtected, filter);
 		}
 		
+		@Override
 		public boolean hasSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.hasChildren(fSourceChildrenProtected, filter);
 		}
 		
+		@Override
 		public List<? extends IRLangSourceElement> getSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.getChildren(fSourceChildrenProtected, filter);
 		}
@@ -349,23 +379,28 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		
+		@Override
 		public DocuComment getDocumentationRange() {
 			return fDocu;
 		}
 		
 		
+		@Override
 		public boolean hasModelChildren(final IModelElement.Filter filter) {
 			return false;
 		}
 		
+		@Override
 		public final List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
 			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		
+		@Override
 		public boolean hasSourceChildren(final IModelElement.Filter filter) {
 			return false;
 		}
 		
+		@Override
 		public List<? extends IRLangSourceElement> getSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
@@ -388,27 +423,33 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		
+		@Override
 		public String getTypeName() {
 			return fTypeName;
 		}
 		
+		@Override
 		public IRegion getDocumentationRange() {
 			return null;
 		}
 		
 		
+		@Override
 		public boolean hasModelChildren(final IModelElement.Filter filter) {
 			return false;
 		}
 		
+		@Override
 		public final List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
 			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		
+		@Override
 		public boolean hasSourceChildren(final IModelElement.Filter filter) {
 			return false;
 		}
 		
+		@Override
 		public List<? extends IRLangSourceElement> getSourceChildren(final IModelElement.Filter filter) {
 			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
@@ -436,6 +477,7 @@ abstract class RSourceElementByElementAccess
 		}
 	}
 	
+	@Override
 	public final String getModelTypeId() {
 		return RModel.TYPE_ID;
 	}
@@ -444,10 +486,12 @@ abstract class RSourceElementByElementAccess
 		return fAccess;
 	}
 	
+	@Override
 	public boolean include(final IModelElement element) {
 		return (element == this);
 	}
 	
+	@Override
 	public final IRElement getModelParent() {
 		final List<? extends IRElement> elements = fAccess.getFrame().getModelElements();
 		for (final IRElement element : elements) {
@@ -458,22 +502,27 @@ abstract class RSourceElementByElementAccess
 		return null;
 	}
 	
+	@Override
 	public final ISourceStructElement getSourceParent() {
 		return fParent;
 	}
 	
+	@Override
 	public final ISourceUnit getSourceUnit() {
 		return fParent.getSourceUnit();
 	}
 	
+	@Override
 	public final int getElementType() {
 		return fType;
 	}
 	
+	@Override
 	public final RElementName getElementName() {
 		return fAccess;
 	}
 	
+	@Override
 	public final String getId() {
 		final String name = getElementName().getDisplayName();
 		final StringBuilder sb = new StringBuilder(name.length() + 10);
@@ -485,19 +534,23 @@ abstract class RSourceElementByElementAccess
 		return sb.toString();
 	}
 	
+	@Override
 	public final boolean exists() {
 		return fParent.exists();
 	}
 	
+	@Override
 	public final boolean isReadOnly() {
 		return fParent.isReadOnly();
 	}
 	
 	
+	@Override
 	public final IRegion getSourceRange() {
 		return fAccess.getNode();
 	}
 	
+	@Override
 	public final IRegion getNameSourceRange() {
 		RElementAccess access = fAccess;
 		while (access.getNextSegment() != null) {
@@ -512,6 +565,7 @@ abstract class RSourceElementByElementAccess
 	}
 	
 	
+	@Override
 	public Object getAdapter(final Class required) {
 		if (IAstNode.class.equals(required)) {
 			return fAccess.getNode();

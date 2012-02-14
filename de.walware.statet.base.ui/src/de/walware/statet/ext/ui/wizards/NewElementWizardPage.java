@@ -170,6 +170,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 				fResourceNameControl.setText(fResourceName);
 		}
 		
+		@Override
 		public void handleEvent(final Event event) {
 			fContainerFullPath = fContainerGroup.getContainerFullPath();
 			final String name =  fResourceNameControl.getText();
@@ -262,7 +263,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 		}
 		
 		protected IStatus validateResourceName(final String resourceName) {
-			if (resourceName == null || resourceName.trim().length() == 0) {
+			if (resourceName == null || resourceName.trim().isEmpty()) {
 				if (fResourceNameEdited)
 					return new StatusInfo(IStatus.ERROR, NLS.bind(
 							StatetWizardsMessages.ResourceGroup_error_EmptyName,
@@ -334,6 +335,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 	/** (non-Javadoc)
 	 * Method declared on IDialogPage.
 	 */
+	@Override
 	public void createControl(final Composite parent) {
 		initializeDialogUnits(parent);
 		

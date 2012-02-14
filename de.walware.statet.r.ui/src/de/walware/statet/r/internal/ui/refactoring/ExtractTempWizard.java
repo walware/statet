@@ -60,6 +60,7 @@ public class ExtractTempWizard extends RefactoringWizard {
 			return (ExtractTempRefactoring) super.getRefactoring();
 		}
 		
+		@Override
 		public void createControl(final Composite parent) {
 			final Composite composite = new Composite(parent, SWT.NONE);
 			composite.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
@@ -125,6 +126,7 @@ public class ExtractTempWizard extends RefactoringWizard {
 			dbc.bindValue(SWTObservables.observeText(fVariableNameControl, SWT.Modify),
 					PojoObservables.observeValue(realm, getRefactoring(), "tempName"), //$NON-NLS-1$
 					new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
+						@Override
 						public IStatus validate(final Object value) {
 							return new RefactoringBasedStatus(getRefactoring().checkTempName((String) value));
 						}

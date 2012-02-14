@@ -19,6 +19,7 @@ import de.walware.statet.r.core.model.IRLangElement;
 public interface ICombinedRElement extends IRLangElement, RObject {
 	
 	
+	@Override
 	ICombinedRElement getModelParent();
 	
 }

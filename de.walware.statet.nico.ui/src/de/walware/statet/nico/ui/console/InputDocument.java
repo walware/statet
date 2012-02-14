@@ -60,34 +60,42 @@ public class InputDocument extends AbstractDocument {
 			fMasterPartitioner = partitioner;
 		}
 		
+		@Override
 		public void connect(final IDocument document) {
 			throw new UnsupportedOperationException();
 		}
 		
+		@Override
 		public void disconnect() {
 			throw new UnsupportedOperationException();
 		}
 		
+		@Override
 		public void documentAboutToBeChanged(final DocumentEvent event) {
 			throw new UnsupportedOperationException();
 		}
 		
+		@Override
 		public boolean documentChanged(final DocumentEvent event) {
 			throw new UnsupportedOperationException();
 		}
 		
+		@Override
 		public ITypedRegion[] computePartitioning(final int offset, final int length) {
 			return remap(fMasterPartitioner.computePartitioning(fOffsetInMaster+offset, length));
 		}
 		
+		@Override
 		public String getContentType(final int offset) {
 			return fMasterPartitioner.getContentType(fOffsetInMaster+offset);
 		}
 		
+		@Override
 		public String[] getLegalContentTypes() {
 			return fMasterPartitioner.getLegalContentTypes();
 		}
 		
+		@Override
 		public ITypedRegion getPartition(final int offset) {
 			return remap(fMasterPartitioner.getPartition(fOffsetInMaster+offset));
 		}
@@ -102,18 +110,22 @@ public class InputDocument extends AbstractDocument {
 			fMasterPartitioner2 = (IDocumentPartitionerExtension2) partitioner;
 		}
 		
+		@Override
 		public ITypedRegion[] computePartitioning(final int offset, final int length, final boolean includeZeroLengthPartitions) {
 			return fMasterPartitioner2.computePartitioning(fOffsetInMaster+offset, length, includeZeroLengthPartitions);
 		}
 		
+		@Override
 		public String getContentType(final int offset, final boolean preferOpenPartitions) {
 			return fMasterPartitioner2.getContentType(fOffsetInMaster+offset, preferOpenPartitions);
 		}
 		
+		@Override
 		public String[] getManagingPositionCategories() {
 			return fMasterPartitioner2.getManagingPositionCategories();
 		}
 		
+		@Override
 		public ITypedRegion getPartition(final int offset, final boolean preferOpenPartitions) {
 			return fMasterPartitioner2.getPartition(fOffsetInMaster+offset, preferOpenPartitions);
 		}
@@ -133,8 +145,10 @@ public class InputDocument extends AbstractDocument {
 		completeInitialization();
 		
 		addDocumentListener(new IDocumentListener() {
+			@Override
 			public void documentAboutToBeChanged(final DocumentEvent event) {
 			}
+			@Override
 			public void documentChanged(final DocumentEvent event) {
 				try {
 					fIgnoreMasterChanges = true;
@@ -146,15 +160,18 @@ public class InputDocument extends AbstractDocument {
 			}
 		});
 		fMaster.addDocumentListener(new IDocumentListener() {
+			@Override
 			public void documentAboutToBeChanged(final DocumentEvent event) {
 				if (!fIgnoreMasterChanges) {
 					fOffsetInMaster = fOffsetInMaster - event.fLength + event.fText.length();
 				}
 			}
+			@Override
 			public void documentChanged(final DocumentEvent event) {
 			}
 		});
 		fMaster.addDocumentPartitioningListener(new IDocumentPartitioningListener() {
+			@Override
 			@SuppressWarnings("deprecation")
 			public void documentPartitioningChanged(final IDocument document) {
 				fireDocumentPartitioningChanged(new Region(0, getLength()));

@@ -45,12 +45,14 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 	public TextConsoleConnector() {
 	}
 	
+	@Override
 	public boolean submit(final String[] rCommands, final boolean gotoConsole) throws CoreException {
 		if (rCommands == null) {
 			throw new NullPointerException();
 		}
 		
 		UIAccess.checkedSyncExec(new UIAccess.CheckedRunnable() {
+			@Override
 			public void run() throws CoreException {
 				final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
 				IWorkbenchPart activePart = page.getActivePart();
@@ -88,8 +90,10 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 		return true; // otherwise, we throw exception
 	}
 	
+	@Override
 	public void gotoConsole() throws CoreException {
 		UIAccess.checkedSyncExec(new UIAccess.CheckedRunnable() {
+			@Override
 			public void run() throws CoreException {
 				final TextConsole console = getAndShowConsole();
 				if (console == null || console instanceof NIConsole) {

@@ -83,6 +83,7 @@ public class QueueView extends ViewPart {
 		private volatile boolean fExpectInfoEvent = false;
 		private IToolRunnable[] fRefreshData;
 		
+		@Override
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 			if (oldInput != null && newInput == null) {
 				unregister();
@@ -97,6 +98,7 @@ public class QueueView extends ViewPart {
 			}
 		}
 		
+		@Override
 		public Object[] getElements(final Object inputElement) {
 			IToolRunnable[] elements;
 			if (fRefreshData != null) {
@@ -121,12 +123,14 @@ public class QueueView extends ViewPart {
 			}
 		}
 		
+		@Override
 		public void dispose() {
 			unregister();
 		}
 		
 		private void setElements(final IToolRunnable[] elements) {
 			UIAccess.getDisplay().syncExec(new Runnable() {
+				@Override
 				public void run() {
 					if (!UIAccess.isOkToUse(fTableViewer)) {
 						return;
@@ -137,6 +141,7 @@ public class QueueView extends ViewPart {
 			});
 		}
 		
+		@Override
 		public void handleDebugEvents(final DebugEvent[] events) {
 			final ToolProcess process = fProcess;
 			if (process == null) {
@@ -175,6 +180,7 @@ public class QueueView extends ViewPart {
 									}
 								}
 								UIAccess.getDisplay().syncExec(new Runnable() {
+									@Override
 									public void run() {
 										if (!UIAccess.isOkToUse(fTableViewer)) {
 											return;
@@ -199,6 +205,7 @@ public class QueueView extends ViewPart {
 						case IToolRunnable.MOVING_FROM:
 							if (!fExpectInfoEvent) {
 								UIAccess.getDisplay().syncExec(new Runnable() {
+									@Override
 									public void run() {
 										if (!UIAccess.isOkToUse(fTableViewer)) {
 											return;
@@ -244,6 +251,7 @@ public class QueueView extends ViewPart {
 	
 	private class TableLabelProvider extends LabelProvider implements ITableLabelProvider {
 		
+		@Override
 		public Image getColumnImage(final Object element, final int columnIndex) {
 			if (columnIndex == 0) {
 				return getImage(element);
@@ -256,6 +264,7 @@ public class QueueView extends ViewPart {
 			return NicoUITools.getImage((IToolRunnable) element);
 		}
 		
+		@Override
 		public String getColumnText(final Object element, final int columnIndex) {
 			if (columnIndex == 0) {
 				return getText(element);
@@ -404,14 +413,17 @@ public class QueueView extends ViewPart {
 		final IToolRegistry toolRegistry = NicoUI.getToolRegistry();
 		connect(toolRegistry.getActiveToolSession(getViewSite().getPage()).getProcess());
 		fToolRegistryListener = new IToolRegistryListener() {
+			@Override
 			public void toolSessionActivated(final ToolSessionUIData sessionData) {
 				final ToolProcess process = sessionData.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
+					@Override
 					public void run() {
 						connect(process);
 					}
 				});
 			}
+			@Override
 			public void toolTerminated(final ToolSessionUIData sessionData) {
 				// handled by debug events
 			}
@@ -515,6 +527,7 @@ public class QueueView extends ViewPart {
 	
 	private void disconnect(final ToolProcess process) {
 		UIAccess.getDisplay().syncExec(new Runnable() {
+			@Override
 			public void run() {
 				if (fProcess != null && fProcess == process) {
 					connect(null);
@@ -526,6 +539,7 @@ public class QueueView extends ViewPart {
 	/** May only be called in UI thread */
 	public void connect(final ToolProcess process) {
 		final Runnable runnable = new Runnable() {
+			@Override
 			public void run() {
 				if (!UIAccess.isOkToUse(fTableViewer)) {
 					return;

@@ -33,6 +33,7 @@ public class RDataTableSelection implements ISelection {
 	}
 	
 	
+	@Override
 	public boolean isEmpty() {
 		return (fAnchorRowLabel == null);
 	}

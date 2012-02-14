@@ -76,14 +76,17 @@ public class RArrayValue extends RValue implements IIndexedValue {
 		return getVariables(1, getSize());
 	}
 	
+	@Override
 	public int getInitialOffset() {
 		return 1;
 	}
 	
+	@Override
 	public int getSize() throws DebugException {
 		return (fLength > 0) ? fDim.getInt(fDim.getLength()-1) : 0;
 	}
 	
+	@Override
 	public IVariable getVariable(final int offset) throws DebugException {
 		{	final int n = fDim.getInt(fDim.getLength()-1);
 			if (n <= 0) {
@@ -103,6 +106,7 @@ public class RArrayValue extends RValue implements IIndexedValue {
 		}
 	}
 	
+	@Override
 	public IVariable[] getVariables(final int offset, final int length) throws DebugException {
 		{	final int n = fDim.getInt(fDim.getLength()-1);
 			if (n <= 0) {

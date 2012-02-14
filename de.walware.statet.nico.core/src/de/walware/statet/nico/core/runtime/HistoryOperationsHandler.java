@@ -42,6 +42,7 @@ public class HistoryOperationsHandler implements IToolEventHandler {
 	public static final String ADDTO_HISTORY_ID = "common/addtoHistory"; //$NON-NLS-1$
 	
 	
+	@Override
 	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		if (id.equals(LOAD_HISTORY_ID)) {
 			return loadHistory(tools, data, monitor);

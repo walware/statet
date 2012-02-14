@@ -122,11 +122,13 @@ public class REditor extends SourceEditor1 implements IREditor {
 		private boolean fIsMarkEnabled;
 		private RunData fLastRun;
 		
+		@Override
 		public void install(final ISourceEditor editor) {
 			fIsMarkEnabled = true;
 			addPostSelectionWithElementInfoListener(this);
 		}
 		
+		@Override
 		public void uninstall() {
 			fIsMarkEnabled = false;
 			removePostSelectionWithElementInfoListener(this);
@@ -134,10 +136,12 @@ public class REditor extends SourceEditor1 implements IREditor {
 		}
 		
 		
+		@Override
 		public void inputChanged() {
 			fLastRun = null;
 		}
 		
+		@Override
 		public void stateChanged(final LTKInputData state) {
 			final boolean ok = update((IRSourceUnit) state.getInputElement(), state.getAstSelection(), state.getSelection());
 			if (!ok && state.isStillValid()) {
@@ -418,6 +422,7 @@ public class REditor extends SourceEditor1 implements IREditor {
 		final SourceViewer viewer = (SourceViewer) getSourceViewer();
 		fHelpContextProvider = RUIHelp.createEnrichedRHelpContextProvider(this, IRUIHelpContextIds.R_EDITOR);
 		viewer.getTextWidget().addHelpListener(new HelpListener() {
+			@Override
 			public void helpRequested(final HelpEvent e) {
 				PlatformUI.getWorkbench().getHelpSystem().displayHelp(fHelpContextProvider.getContext(null));
 			}
@@ -435,6 +440,7 @@ public class REditor extends SourceEditor1 implements IREditor {
 	}
 	
 	
+	@Override
 	public String getModelTypeId() {
 		return RModel.TYPE_ID;
 	}

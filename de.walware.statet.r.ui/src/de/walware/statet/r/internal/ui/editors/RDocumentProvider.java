@@ -84,6 +84,7 @@ public class RDocumentProvider extends SourceDocumentProvider<IRSourceUnit> impl
 		final IPreferenceAccess access = PreferencesUtil.getInstancePrefs();
 		RUIPlugin.getDefault().registerPluginDisposable(this);
 		fEditorPrefListener = new IEclipsePreferences.IPreferenceChangeListener() {
+			@Override
 			public void preferenceChange(final PreferenceChangeEvent event) {
 				if (event.getKey().equals(REditorOptions.PREF_PROBLEMCHECKING_ENABLED.getKey())) {
 					updateEditorPrefs();
@@ -95,6 +96,7 @@ public class RDocumentProvider extends SourceDocumentProvider<IRSourceUnit> impl
 	}
 	
 	
+	@Override
 	public void dispose() {
 		if (fEditorPrefListener != null) {
 			final IPreferenceAccess access = PreferencesUtil.getInstancePrefs();

@@ -82,6 +82,7 @@ class RHelpConfigurationBlock extends ManagedConfigurationBlock {
 			fHomeCustomControl.addSelectionListener(this);
 		}
 		
+		@Override
 		public Object getValueType() {
 			return String.class;
 		}
@@ -162,6 +163,7 @@ class RHelpConfigurationBlock extends ManagedConfigurationBlock {
 			}
 		}
 		
+		@Override
 		public void widgetSelected(final SelectionEvent e) {
 			if (fIsUpdating) {
 				return;
@@ -175,9 +177,11 @@ class RHelpConfigurationBlock extends ManagedConfigurationBlock {
 			}
 		}
 		
+		@Override
 		public void widgetDefaultSelected(final SelectionEvent e) {
 		}
 		
+		@Override
 		public void modifyText(final ModifyEvent e) {
 			if (fIsUpdating) {
 				return;

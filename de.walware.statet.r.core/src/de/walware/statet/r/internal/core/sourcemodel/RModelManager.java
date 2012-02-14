@@ -117,11 +117,13 @@ public class RModelManager implements IRModelManager {
 		return fIndex;
 	}
 	
+	@Override
 	public void addElementChangedListener(final IElementChangedListener listener, final WorkingContext context) {
 		final ContextItem contextEntry = getContextItem(context, true);
 		contextEntry.modelListeners.add(listener);
 	}
 	
+	@Override
 	public void removeElementChangedListener(final IElementChangedListener listener, final WorkingContext context) {
 		final ContextItem contextItem = getContextItem(context, false);
 		if (contextItem == null) {
@@ -145,6 +147,7 @@ public class RModelManager implements IRModelManager {
 		return getContextItem(context, true);
 	}
 	
+	@Override
 	public void registerDependentUnit(final ISourceUnit copy) {
 		assert (copy.getModelTypeId().equals(RModel.TYPE_ID) ?
 				copy.getElementType() == IRSourceUnit.R_OTHER_SU : true);
@@ -156,6 +159,7 @@ public class RModelManager implements IRModelManager {
 		}
 	}
 	
+	@Override
 	public void deregisterDependentUnit(final ISourceUnit copy) {
 		final ContextItem contextItem = getContextItem(copy.getWorkingContext(), true);
 		synchronized (contextItem) {
@@ -177,10 +181,12 @@ public class RModelManager implements IRModelManager {
 	/**
 	 * Refresh reuses existing ast
 	 */
+	@Override
 	public void refresh(final WorkingContext context) {
 		new RefreshJob(context).schedule();
 	}
 	
+	@Override
 	public void reconcile(final ISourceUnit u, final int level, final boolean reconciler, final IProgressMonitor monitor) {
 		if (u instanceof IManagableRUnit) {
 			fReconciler.reconcile((IManagableRUnit) u, level, reconciler, monitor);
@@ -207,10 +213,12 @@ public class RModelManager implements IRModelManager {
 	}
 	
 	
+	@Override
 	public IRFrame getProjectFrame(final RProject project) {
 		return fIndex.getProjectFrame(project.getProject());
 	}
 	
+	@Override
 	public List<String> findReferencingSourceUnits(final IProject project, final RElementName name) {
 		return fIndex.findReferencingSourceUnits(project, name);
 	}

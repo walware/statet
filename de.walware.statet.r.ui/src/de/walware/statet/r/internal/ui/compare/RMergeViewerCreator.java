@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Composite;
 public class RMergeViewerCreator implements IViewerCreator {
 	
 	
+	@Override
 	public Viewer createViewer(final Composite parent, final CompareConfiguration config) {
 		return new RMergeViewer(parent, config);
 	}

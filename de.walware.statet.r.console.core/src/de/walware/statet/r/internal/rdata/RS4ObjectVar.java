@@ -48,6 +48,7 @@ public final class RS4ObjectVar extends CombinedElement
 		readExternal(io, factory);
 	}
 	
+	@Override
 	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		this.className = io.readString();
 		this.dataSlotIdx = io.readInt();
@@ -60,6 +61,7 @@ public final class RS4ObjectVar extends CombinedElement
 		}
 	}
 	
+	@Override
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		io.writeString(this.className);
 		io.writeInt(this.dataSlotIdx);
@@ -70,45 +72,55 @@ public final class RS4ObjectVar extends CombinedElement
 		}
 	}
 	
+	@Override
 	public byte getRObjectType() {
 		return TYPE_S4OBJECT;
 	}
 	
+	@Override
 	public String getRClassName() {
 		return this.className;
 	}
 	
 	
+	@Override
 	public int getLength() {
 		return this.slotValues.length;
 	}
 	
 	
+	@Override
 	public boolean hasDataSlot() {
 		return (this.dataSlotIdx >= 0);
 	}
 	
+	@Override
 	public RObject getDataSlot() {
 		return (this.dataSlotIdx >= 0) ? this.slotValues[this.dataSlotIdx] : null;
 	}
 	
+	@Override
 	public RStore getData() {
 		return (this.dataSlotIdx >= 0 && this.slotValues[this.dataSlotIdx] != null) ?
 				this.slotValues[this.dataSlotIdx].getData() : null;
 	}
 	
+	@Override
 	public RCharacterStore getNames() {
 		return this.slotNames;
 	}
 	
+	@Override
 	public String getName(final int idx) {
 		return this.slotNames.getChar(idx);
 	}
 	
+	@Override
 	public RObject get(final int idx) {
 		return this.slotValues[idx];
 	}
 	
+	@Override
 	public RObject get(final String name) {
 		final int idx = this.slotNames.indexOf(name);
 		if (idx >= 0) {
@@ -117,6 +129,7 @@ public final class RS4ObjectVar extends CombinedElement
 		throw new IllegalArgumentException();
 	}
 	
+	@Override
 	public final RObject[] toArray() {
 		final RObject[] array = new RObject[this.slotValues.length];
 		System.arraycopy(this.slotValues, 0, array, 0, this.slotValues.length);
@@ -124,10 +137,12 @@ public final class RS4ObjectVar extends CombinedElement
 	}
 	
 	
+	@Override
 	public int getElementType() {
 		return R_GENERAL_VARIABLE;
 	}
 	
+	@Override
 	public boolean hasModelChildren(final Filter filter) {
 		if (filter == null) {
 			return (slotValues.length > 0);
@@ -142,6 +157,7 @@ public final class RS4ObjectVar extends CombinedElement
 		}
 	}
 	
+	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		if (filter == null) {
 			return new ConstList<IRLangElement>(slotValues);

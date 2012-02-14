@@ -32,6 +32,7 @@ public class RElementHyperlinkDetector extends AbstractHyperlinkDetector {
 	}
 	
 	
+	@Override
 	public IHyperlink[] detectHyperlinks(final ITextViewer textViewer,
 			final IRegion region, final boolean canShowMultipleHyperlinks) {
 		final List<IHyperlink> hyperlinks = new ArrayList<IHyperlink>();

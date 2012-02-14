@@ -139,6 +139,7 @@ public class RSourceIndenter {
 			}
 		}
 		
+		@Override
 		public void visit(final IAstNode node) throws InvocationTargetException {
 			if (node.getStopOffset() >= fStartOffset && node.getOffset() <= fStopOffset) {
 				if (node instanceof RAstNode) {
@@ -709,6 +710,7 @@ class ScopeFactory {
 	}
 	
 	private class FirstLineStrategy implements IndentStrategy {
+		@Override
 		public int getIndent(final Scope scope, final int line) {
 			if (line <= scope.startLine) {
 				return scope.baseColumn;
@@ -719,6 +721,7 @@ class ScopeFactory {
 		}
 	}
 	private class FixStrategy implements IndentStrategy {
+		@Override
 		public int getIndent(final Scope scope, final int line) {
 			return scope.baseColumn;
 		}

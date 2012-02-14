@@ -49,6 +49,7 @@ public class RHelpSearchUIMatch extends Match implements Comparable<RHelpSearchU
 				&& fRMatch.equals(((RHelpSearchUIMatch) obj).getRHelpMatch()) );
 	}
 	
+	@Override
 	public int compareTo(final RHelpSearchUIMatch o) {
 		return fRMatch.getPage().compareTo(o.getRHelpMatch().getPage());
 	}

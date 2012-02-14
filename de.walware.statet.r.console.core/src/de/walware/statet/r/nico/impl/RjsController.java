@@ -202,6 +202,7 @@ public class RjsController extends AbstractRDbgController
 	
 	
 	private static final IModelElement.Filter TAG_ELEMENT_FILTER = new IModelElement.Filter() {
+		@Override
 		public boolean include(final IModelElement element) {
 			return ((element.getElementType() & IRElement.MASK_C1) == IRElement.C1_METHOD);
 		}
@@ -388,6 +389,7 @@ public class RjsController extends AbstractRDbgController
 					scheduleControllerRunnable(new ControllerSystemRunnable(
 							"r/check", "Connection Check") { //$NON-NLS-1$
 						
+						@Override
 						public void run(final IToolService s,
 								final IProgressMonitor monitor) throws CoreException {
 							fRjs.runMainLoopPing(monitor);
@@ -470,6 +472,7 @@ public class RjsController extends AbstractRDbgController
 		return fIsBusy;
 	}
 	
+	@Override
 	public boolean isDisconnected() {
 		return (fConnectionState == Server.S_DISCONNECTED || fConnectionState == Server.S_LOST);
 	}
@@ -480,6 +483,7 @@ public class RjsController extends AbstractRDbgController
 	 * 
 	 * @param monitor a progress monitor
 	 */
+	@Override
 	public void disconnect(final IProgressMonitor monitor) throws CoreException {
 		switch (getStatus()) {
 		case STARTED_IDLING:
@@ -504,6 +508,7 @@ public class RjsController extends AbstractRDbgController
 					scheduleControllerRunnable(new ControllerSystemRunnable(
 							"common/disconnect/finish", "Disconnect") { //$NON-NLS-1$
 						
+						@Override
 						public void run(final IToolService s,
 								final IProgressMonitor monitor) throws CoreException {
 							if (!isTerminated()) {
@@ -651,6 +656,7 @@ public class RjsController extends AbstractRDbgController
 			scheduleControllerRunnable(new ControllerSystemRunnable(
 					"r/rj/start2", "Finish Initialization / Read Output") { //$NON-NLS-1$
 				
+				@Override
 				public void run(final IToolService s,
 						final IProgressMonitor monitor) throws CoreException {
 					if (!fRjs.isConsoleReady()) { // R is still working
@@ -1042,18 +1048,22 @@ public class RjsController extends AbstractRDbgController
 	}
 	
 	
+	@Override
 	public RPlatform getPlatform() {
 		return fRjs.getRPlatform();
 	}
 	
+	@Override
 	public void evalVoid(final String command, final IProgressMonitor monitor) throws CoreException {
 		fRjs.evalVoid(command, null, monitor);
 	}
 	
+	@Override
 	public RObject evalData(final String command, final IProgressMonitor monitor) throws CoreException {
 		return fRjs.evalData(command, null, null, 0, -1, monitor);
 	}
 	
+	@Override
 	public RObject evalData(final String command, final String factoryId,
 			final int options, final int depth, final IProgressMonitor monitor) throws CoreException {
 		return fRjs.evalData(command, null, factoryId, options, depth, monitor);
@@ -1065,10 +1075,12 @@ public class RjsController extends AbstractRDbgController
 		return fRjs.evalData(command, envir, factoryId, options, depth, monitor);
 	}
 	
+	@Override
 	public RObject evalData(final RReference reference, final IProgressMonitor monitor) throws CoreException {
 		return fRjs.evalData(reference, null, 0, -1, monitor);
 	}
 	
+	@Override
 	public RObject evalData(final RReference reference, final String factoryId,
 			final int options, final int depth, final IProgressMonitor monitor) throws CoreException {
 		return fRjs.evalData(reference, factoryId, options, depth, monitor);
@@ -1080,6 +1092,7 @@ public class RjsController extends AbstractRDbgController
 		return fRjs.findData(symbol, envir, inherits, factoryId, options, depth, monitor);
 	}
 	
+	@Override
 	public ICombinedRElement evalCombinedStruct(final String command,
 			final int options, final int depth, final RElementName name, final IProgressMonitor monitor) throws CoreException {
 		final RObject data = evalData(command,
@@ -1107,6 +1120,7 @@ public class RjsController extends AbstractRDbgController
 		return null;
 	}
 	
+	@Override
 	public ICombinedRElement evalCombinedStruct(final RElementName name,
 			final int options, final int depth, final IProgressMonitor monitor) throws CoreException {
 		final String command = RElementName.createDisplayName(name, RElementName.DISPLAY_NS_PREFIX | RElementName.DISPLAY_EXACT);
@@ -1116,6 +1130,7 @@ public class RjsController extends AbstractRDbgController
 		return evalCombinedStruct(command, options, depth, name, monitor);
 	}
 	
+	@Override
 	public ICombinedRElement evalCombinedStruct(final RReference reference,
 			final int options, final int depth, final RElementName name, final IProgressMonitor monitor) throws CoreException {
 		final RObject data = evalData(reference, CombinedFactory.FACTORY_ID, (options | RObjectFactory.F_ONLY_STRUCT), depth, monitor);
@@ -1127,47 +1142,58 @@ public class RjsController extends AbstractRDbgController
 		return null;
 	}
 	
+	@Override
 	public void assignData(final String expression, final RObject data, final IProgressMonitor monitor) throws CoreException {
 		fRjs.assignData(expression, data, null, monitor);
 	}
 	
+	@Override
 	public void downloadFile(final OutputStream out, final String fileName, final int options, final IProgressMonitor monitor) throws CoreException {
 		fRjs.downloadFile(out, fileName, options, monitor);
 	}
 	
+	@Override
 	public byte[] downloadFile(final String fileName, final int options, final IProgressMonitor monitor) throws CoreException {
 		return fRjs.downloadFile(fileName, options, monitor);
 	}
 	
+	@Override
 	public void uploadFile(final InputStream in, final long length, final String fileName, final int options, final IProgressMonitor monitor) throws CoreException {
 		fRjs.uploadFile(in, length, fileName, options, monitor);
 	}
 	
+	@Override
 	public FunctionCall createFunctionCall(final String name) throws CoreException {
 		return new FunctionCallImpl(fRjs, name, fRObjectFactory);
 	}
 	
+	@Override
 	public RGraphicCreator createRGraphicCreator(final int options) throws CoreException {
 		return new RGraphicCreatorImpl(this, fRjs, options);
 	}
 	
 	
+	@Override
 	public void addCancelHandler(final Callable<Boolean> handler) {
 		fRjs.addCancelHandler(handler);
 	}
 	
+	@Override
 	public void removeCancelHandler(final Callable<Boolean> handler) {
 		fRjs.removeCancelHandler(handler);
 	}
 	
+	@Override
 	public Lock getWaitLock() {
 		return fRjs.getWaitLock();
 	}
 	
+	@Override
 	public void waitingForUser(final IProgressMonitor monitor) {
 		fRjs.waitingForUser();
 	}
 	
+	@Override
 	public void resume() {
 		fRjs.resume();
 	}

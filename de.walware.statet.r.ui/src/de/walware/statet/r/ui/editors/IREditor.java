@@ -19,6 +19,7 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 public interface IREditor extends ISourceEditor {
 	
 	
+	@Override
 	public IRSourceUnit getSourceUnit();
 	
 }

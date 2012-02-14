@@ -30,6 +30,7 @@ public class RGraphicEventHandler implements IToolEventHandler {
 	}
 	
 	
+	@Override
 	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		data.put("factory", RUIPlugin.getDefault().getCommonRGraphicFactory()); //$NON-NLS-1$
 		

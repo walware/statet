@@ -120,6 +120,7 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 		
 		fPreviewEditor = new ViewerSourceEditorAdapter(viewer, null);
 		new SettingsUpdater(new ISettingsChangedHandler() {
+			@Override
 			public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 				if (fCurrentPreviewConfigurator != null) {
 					fCurrentPreviewConfigurator.handleSettingsChanged(groupIds, options);

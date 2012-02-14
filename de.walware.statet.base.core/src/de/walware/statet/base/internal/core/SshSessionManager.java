@@ -51,6 +51,7 @@ public class SshSessionManager implements ISshSessionService, IDisposable {
 	}
 	
 	
+	@Override
 	public Session getSshSession(final String username, final String host, final int port,
 			final IProgressMonitor monitor) throws CoreException {
 		final String key = username + '@' + host + ':' + Integer.toString((port > 0) ? port : 22);
@@ -72,6 +73,7 @@ public class SshSessionManager implements ISshSessionService, IDisposable {
 		}
 	}
 	
+	@Override
 	public void dispose() {
 		final Collection<Session> sessions = fPool.values();
 		for (final Session session : sessions) {

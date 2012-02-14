@@ -33,18 +33,22 @@ public final class RPromiseVar extends CombinedElement {
 	}
 	
 	
+	@Override
 	public byte getRObjectType() {
 		return TYPE_PROMISE;
 	}
 	
+	@Override
 	public String getRClassName() {
 		return "<promise>";
 	}
 	
+	@Override
 	public int getLength() {
 		return 0;
 	}
 	
+	@Override
 	public RStore getData() {
 		return null;
 	}
@@ -55,14 +59,17 @@ public final class RPromiseVar extends CombinedElement {
 	}
 	
 	
+	@Override
 	public int getElementType() {
 		return R_GENERAL_VARIABLE;
 	}
 	
+	@Override
 	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
 	
+	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		return Collections.EMPTY_LIST;
 	}

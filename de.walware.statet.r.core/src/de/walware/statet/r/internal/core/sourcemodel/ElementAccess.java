@@ -45,6 +45,7 @@ public abstract class ElementAccess extends RElementAccess {
 			super(fullNode, nameNode);
 		}
 		
+		@Override
 		public int getType() {
 			return RElementName.MAIN_DEFAULT;
 		}
@@ -61,6 +62,7 @@ public abstract class ElementAccess extends RElementAccess {
 			super(fullNode, nameNode);
 		}
 		
+		@Override
 		public int getType() {
 			return RElementName.SUB_NAMEDSLOT;
 		}
@@ -73,6 +75,7 @@ public abstract class ElementAccess extends RElementAccess {
 			super(fullNode, null);
 		}
 		
+		@Override
 		public int getType() {
 			return RElementName.MAIN_CLASS;
 		}
@@ -85,6 +88,7 @@ public abstract class ElementAccess extends RElementAccess {
 			super(fullNode, nameNode);
 		}
 		
+		@Override
 		public int getType() {
 			return RElementName.MAIN_PACKAGE;
 		}
@@ -106,6 +110,7 @@ public abstract class ElementAccess extends RElementAccess {
 	}
 	
 	
+	@Override
 	public final String getSegmentName() {
 		return fShared.name;
 	}

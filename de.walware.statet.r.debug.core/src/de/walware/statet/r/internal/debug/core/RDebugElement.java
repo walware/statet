@@ -28,6 +28,7 @@ public class RDebugElement extends DebugElement {
 	}
 	
 	
+	@Override
 	public final String getModelIdentifier() {
 		return RDebugModel.IDENTIFIER;
 	}

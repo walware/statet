@@ -39,10 +39,12 @@ public class RProjectSourceContainer extends CompositeSourceContainer implements
 	}
 	
 	
+	@Override
 	public ISourceContainerType getType() {
 		return getSourceContainerType(TYPE_ID);
 	}
 	
+	@Override
 	public String getName() {
 		return fProject.getName();
 	}
@@ -71,6 +73,7 @@ public class RProjectSourceContainer extends CompositeSourceContainer implements
 		return null;
 	}
 	
+	@Override
 	public IFile findSourceElement(final URI fileUri, final IFile[] fileInWorkspace) {
 		if (fProject.isOpen() && fProject.exists()) {
 			for (final IFile workspaceFile : fileInWorkspace) {
@@ -83,6 +86,7 @@ public class RProjectSourceContainer extends CompositeSourceContainer implements
 		return null;
 	}
 	
+	@Override
 	public void findSourceElement(final IPath path, final List<Object> elements) {
 		if (fProject.isOpen() && fProject.exists()) {
 			final IFile file = fProject.getFile(path);

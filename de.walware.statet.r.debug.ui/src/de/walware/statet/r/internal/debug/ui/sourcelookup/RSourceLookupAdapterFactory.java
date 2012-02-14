@@ -40,10 +40,12 @@ public class RSourceLookupAdapterFactory implements IAdapterFactory,
 	}
 	
 	
+	@Override
 	public Class<?>[] getAdapterList() {
 		return ADAPTERS;
 	}
 	
+	@Override
 	public Object getAdapter(final Object adaptableObject, final Class adapterType) {
 		if (adapterType == IWorkbenchAdapter.class
 				|| adapterType == IContributorResourceAdapter.class) {
@@ -53,14 +55,17 @@ public class RSourceLookupAdapterFactory implements IAdapterFactory,
 	}
 	
 	
+	@Override
 	public Object[] getChildren(final Object o) {
 		return null;
 	}
 	
+	@Override
 	public Object getParent(final Object o) {
 		return null;
 	}
 	
+	@Override
 	public ImageDescriptor getImageDescriptor(final Object obj) {
 		if (obj instanceof IRSourceLookupMatch) {
 			final Object element = ((IRSourceLookupMatch) obj).getElement();
@@ -79,6 +84,7 @@ public class RSourceLookupAdapterFactory implements IAdapterFactory,
 		return null;
 	}
 	
+	@Override
 	public String getLabel(final Object obj) {
 		if (obj instanceof IRSourceLookupMatch) {
 			final Object element = ((IRSourceLookupMatch) obj).getElement();
@@ -98,6 +104,7 @@ public class RSourceLookupAdapterFactory implements IAdapterFactory,
 		return obj.toString();
 	}
 	
+	@Override
 	public IResource getAdaptedResource(final IAdaptable obj) {
 		if (obj instanceof IRSourceLookupMatch) {
 			final Object element = ((IRSourceLookupMatch) obj).getElement();

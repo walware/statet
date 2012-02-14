@@ -32,6 +32,7 @@ public class ToolLifecycleManager implements IDebugEventSetListener {
 			fTool = tool;
 		}
 		
+		@Override
 		public void handleDebugEvents(final DebugEvent[] events) {
 			for (final DebugEvent event : events) {
 				if (event.getSource() == fTool) {
@@ -75,6 +76,7 @@ public class ToolLifecycleManager implements IDebugEventSetListener {
 		fLifeListeners.remove(listener);
 	}
 	
+	@Override
 	public void handleDebugEvents(final DebugEvent[] events) {
 		for (final DebugEvent event : events) {
 			switch (event.getKind()) {

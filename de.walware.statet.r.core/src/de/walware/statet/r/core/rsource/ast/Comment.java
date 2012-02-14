@@ -147,6 +147,7 @@ public abstract class Comment extends RAstNode {
 	public void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
 	}
 	
+	@Override
 	public void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 	}
 	

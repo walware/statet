@@ -120,6 +120,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 	
 	public IRegion expandSelectionRegion(final AbstractDocument document, final IRegion region, final IRegion limit) {
 		fScanner.configure(document, new IPartitionConstraint() {
+			@Override
 			public boolean matches(final String partitionType) {
 				return (partitionType != IRDocumentPartitions.R_COMMENT);
 			}
@@ -173,7 +174,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 	
 	
 	public String validateIdentifier(final String value, final String identifierMessageName) {
-		if (value == null || value.length() == 0) { 
+		if (value == null || value.isEmpty()) { 
 			return (identifierMessageName != null) ?
 					NLS.bind(Messages.RIdentifiers_error_EmptyFor_message, identifierMessageName, Messages.RIdentifiers_error_Empty_message) :
 					Messages.RIdentifiers_error_Empty_message;

@@ -194,6 +194,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		}
 		
 		
+		@Override
 		public boolean include(final IModelElement element) {
 			final String name = element.getElementName().getSegmentName();
 			if (name != null) {
@@ -222,6 +223,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				final ICombinedRElement object = (ICombinedRElement) elements[0];
 				if (object.getRObjectType() != RObject.TYPE_ENV) {
 					Arrays.sort(elements, new Comparator<Object>() {
+						@Override
 						public int compare(final Object a, final Object b) {
 							return SortByTypeComparator.this.compare(
 									(ICombinedRElement) a, (ICombinedRElement) b);
@@ -366,6 +368,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	private class FilterUserspaceHandler extends AbstractHandler implements IElementUpdater {
 		
+		@Override
 		public Object execute(final ExecutionEvent event) throws ExecutionException {
 			fFilterUserspace = !fFilterUserspace;
 			fSettings.put(FILTER_USERSPACEONLY_SETTINGS_KEY, fFilterUserspace);
@@ -374,6 +377,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			return null;
 		}
 		
+		@Override
 		public void updateElement(final UIElement element, final Map parameters) {
 			element.setChecked(fFilterUserspace);
 		}
@@ -382,6 +386,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	private class FilterInternalHandler extends AbstractHandler implements IElementUpdater {
 		
+		@Override
 		public Object execute(final ExecutionEvent event) throws ExecutionException {
 			fFilterIncludeInternal = !fFilterIncludeInternal;
 			fSettings.put(FILTER_INTERNALINCLUDE_SETTINGS_KEY, fFilterIncludeInternal);
@@ -389,6 +394,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			return null;
 		}
 		
+		@Override
 		public void updateElement(final UIElement element, final Map parameters) {
 			element.setChecked(fFilterIncludeInternal);
 		}
@@ -397,6 +403,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	private class SortByTypeHandler extends AbstractHandler implements IElementUpdater {
 		
+		@Override
 		public Object execute(final ExecutionEvent event) throws ExecutionException {
 			fSortByType = !fSortByType;
 			fSettings.put(SORT_BYTYPE_SETTINGS_KEY, fSortByType);
@@ -404,6 +411,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			return null;
 		}
 		
+		@Override
 		public void updateElement(final UIElement element, final Map parameters) {
 			element.setChecked(fSortByType);
 		}
@@ -423,6 +431,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		protected void setBaseEnabled(final boolean state) {
 			super.setBaseEnabled(state);
 		}
+		@Override
 		public void updateElement(final UIElement element, final Map parameters) {
 			fCurrentState = false;
 			if (fProcess != null) {
@@ -453,6 +462,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			setBaseEnabled(!fTreeViewer.getSelection().isEmpty());
 		}
 		
+		@Override
 		public Object execute(final ExecutionEvent event) throws ExecutionException {
 			if (!UIAccess.isOkToUse(fTreeViewer)) {
 				return null;
@@ -518,6 +528,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 					&& ((ITreeSelection) fTreeViewer.getSelection()).size() == 1);
 		}
 		
+		@Override
 		public Object execute(final ExecutionEvent event) throws ExecutionException {
 			if (!UIAccess.isOkToUse(fTreeViewer)) {
 				return null;
@@ -565,6 +576,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				fTopEnvirs = topEnvirs;
 			}
 			
+			@Override
 			public Image getImage() {
 				return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_DELETE);
 			}
@@ -604,6 +616,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 					&& ((ITreeSelection) fTreeViewer.getSelection()).size() >= 1);
 		}
 		
+		@Override
 		public Object execute(final ExecutionEvent event) throws ExecutionException {
 			if (!UIAccess.isOkToUse(fTreeViewer)) {
 				return null;
@@ -614,14 +627,17 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			}
 			final TreePath[] treePaths = selection.getPaths();
 			Arrays.sort(treePaths, new Comparator<TreePath>() {
+				@Override
 				public int compare(final TreePath o1, final TreePath o2) {
 					return o1.getSegmentCount()-o2.getSegmentCount();
 				}
 			});
 			final IElementComparer comparer = new IElementComparer() {
+				@Override
 				public int hashCode(final Object e) {
 					return e.hashCode();
 				}
+				@Override
 				public boolean equals(final Object e1, final Object e2) {
 					return (e1 == e2);
 				}
@@ -732,6 +748,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		}
 		
 		
+		@Override
 		public void propertyChanged(final ToolWorkspace workspace, final Map<String, Object> properties) {
 			final RWorkspace rWorkspace = (RWorkspace) workspace;
 			if (properties.containsKey("REnvironments")) {
@@ -750,6 +767,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			final Object autorefresh = properties.get("AutoRefresh.enabled");
 			if (autorefresh instanceof Boolean) {
 				UIAccess.getDisplay().asyncExec(new Runnable() {
+					@Override
 					public void run() {
 						if (fProcess != rWorkspace.getProcess()) {
 							return;
@@ -762,6 +780,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				final Object dirty = properties.get("RObjectDB.dirty");
 				if (dirty instanceof Boolean) {
 					UIAccess.getDisplay().asyncExec(new Runnable() {
+						@Override
 						public void run() {
 							if (fProcess != rWorkspace.getProcess()) {
 								return;
@@ -870,6 +889,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 					}
 				}
 				UIAccess.getDisplay().syncExec(new Runnable() {
+					@Override
 					public void run() {
 						if ((process != null) ? (fProcess != process) : (fProcess != null)) {
 							return;
@@ -1020,9 +1040,11 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	private class ContentProvider implements ITreeContentProvider {
 		
+		@Override
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 		}
 		
+		@Override
 		public Object[] getElements(final Object inputElement) {
 			if (fActiveInput == null || fActiveInput.rootElements == null) {
 				return new Object[0];
@@ -1030,6 +1052,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			return fActiveInput.rootElements;
 		}
 		
+		@Override
 		public Object getParent(final Object element) {
 			if (element instanceof ICombinedRElement) {
 				return ((ICombinedRElement) element).getModelParent();
@@ -1037,6 +1060,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			return null;
 		}
 		
+		@Override
 		public boolean hasChildren(final Object element) {
 			if (element instanceof ICombinedRElement) {
 				final ICombinedRElement object = (ICombinedRElement) element;
@@ -1066,6 +1090,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			return false;
 		}
 		
+		@Override
 		public Object[] getChildren(final Object parentElement) {
 			if (parentElement instanceof ICombinedRElement) {
 				final ICombinedRElement object = (ICombinedRElement) parentElement;
@@ -1091,6 +1116,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			return null;
 		}
 		
+		@Override
 		public void dispose() {
 		}
 		
@@ -1268,6 +1294,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			}
 		});
 		fTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
 			public void doubleClick(final DoubleClickEvent event) {
 				final IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				if (selection.size() != 1) {
@@ -1290,6 +1317,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			}
 		});
 		fTreeViewer.addPostSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
 			public void selectionChanged(final SelectionChangedEvent event) {
 				updateSelectionInfo((ITreeSelection) event.getSelection());
 			}
@@ -1310,17 +1338,21 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		// listen on console changes
 		final IToolRegistry toolRegistry = NicoUI.getToolRegistry();
 		fToolRegistryListener = new IToolRegistryListener() {
+			@Override
 			public void toolSessionActivated(final ToolSessionUIData sessionData) {
 				final ToolProcess process = sessionData.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
+					@Override
 					public void run() {
 						connect(process);
 					}
 				});
 			}
+			@Override
 			public void toolTerminated(final ToolSessionUIData sessionData) {
 				final ToolProcess process = sessionData.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
+					@Override
 					public void run() {
 						if (fProcess != null && fProcess == process) {
 							connect(null);
@@ -1367,6 +1399,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		fSearchTextItem.setResultControl(fTreeViewer.getTree());
 		
 		fSearchStartHandler = new AbstractHandler() {
+			@Override
 			public Object execute(final ExecutionEvent arg0) {
 				fSearchTextItem.show();
 				return null;
@@ -1417,6 +1450,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		viewMenu.add(fRefreshMenuItem);
 		
 		viewMenu.addMenuListener(new IMenuListener() {
+			@Override
 			public void menuAboutToShow(final IMenuManager manager) {
 				autoRefreshItem.update();
 			}
@@ -1480,6 +1514,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				"de.walware.statet.r.menus.RObjectBrowserContextMenu" ); //$NON-NLS-1$
 		menuManager.setRemoveAllWhenShown(true);
 		menuManager.addMenuListener(new IMenuListener() {
+			@Override
 			public void menuAboutToShow(final IMenuManager m) {
 				contextMenuAboutToShow(m);
 			}
@@ -1553,6 +1588,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		fInputUpdater.schedule();
 	}
 	
+	@Override
 	public ToolProcess getTool() {
 		return fProcess;
 	}
@@ -1561,10 +1597,12 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		return (ITreeSelection) fTreeViewer.getSelection();
 	}
 	
+	@Override
 	public void addToolRetargetable(final IToolRetargetable action) {
 		fToolListenerList.add(action);
 	}
 	
+	@Override
 	public void removeToolRetargetable(final IToolRetargetable action) {
 		fToolListenerList.remove(action);
 	}

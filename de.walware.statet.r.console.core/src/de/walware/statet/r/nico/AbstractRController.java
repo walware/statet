@@ -55,6 +55,7 @@ public abstract class AbstractRController extends ToolController
 			super(text, type);
 		}
 		
+		@Override
 		public boolean isRunnableIn(final ITool tool) {
 			return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
 		}
@@ -117,6 +118,7 @@ public abstract class AbstractRController extends ToolController
 		return new ControllerSystemRunnable(
 				"common/cancel/post", "Reset prompt") { //$NON-NLS-1$
 			
+			@Override
 			public void run(final IToolService s,
 					final IProgressMonitor monitor) throws CoreException {
 				if (!isTerminated()) {
@@ -195,10 +197,12 @@ public abstract class AbstractRController extends ToolController
 		fContinuePromptText = text;
 	}
 	
+	@Override
 	public void briefAboutChange(final int o) {
 		fChanged |= o;
 	}
 	
+	@Override
 	public void briefAboutChange(final Object changed, final int o) {
 		if (changed instanceof Collection) {
 			final Collection<?> collection = (Collection<?>) changed;
@@ -218,6 +222,7 @@ public abstract class AbstractRController extends ToolController
 		return (fChanged != 0 || !fChangedEnvirs.isEmpty());
 	}
 	
+	@Override
 	public int getBriefedChanges() {
 		return fChanged;
 	}
@@ -269,6 +274,7 @@ public abstract class AbstractRController extends ToolController
 		submitToConsole("q()", monitor); //$NON-NLS-1$
 	}
 	
+	@Override
 	public void quit(final IProgressMonitor monitor) throws CoreException {
 		doQuitL(monitor);
 	}

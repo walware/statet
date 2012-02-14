@@ -33,14 +33,17 @@ public class RHelpPage implements IRHelpPage {
 	}
 	
 	
+	@Override
 	public IRPackageHelp getPackage() {
 		return fPackage;
 	}
 	
+	@Override
 	public String getName() {
 		return fName;
 	}
 	
+	@Override
 	public String getTitle() {
 		return fTitle;
 	}
@@ -61,6 +64,7 @@ public class RHelpPage implements IRHelpPage {
 				&& fPackage.equals(other.getPackage()) ));
 	}
 	
+	@Override
 	public int compareTo(final IRHelpPage o) {
 		return RSymbolComparator.R_NAMES_COLLATOR.compare(fName, o.getName());
 	}

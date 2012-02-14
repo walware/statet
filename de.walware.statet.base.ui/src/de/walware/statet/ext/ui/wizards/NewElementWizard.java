@@ -379,6 +379,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 	 * Stores the configuration element for the wizard. The config element will
 	 * be used in <code>performFinish</code> to set the result perspective.
 	 */
+	@Override
 	public void setInitializationData(final IConfigurationElement config, final String propertyName, final Object data) {
 		fConfigElement = config;
 	}
@@ -411,6 +412,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 //	public abstract IJavaElement getCreatedElement();
 	
 	
+	@Override
 	public void init(final IWorkbench workbench, final IStructuredSelection currentSelection) {
 		fWorkbench = workbench;
 		fSelection = currentSelection;

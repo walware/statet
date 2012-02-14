@@ -32,6 +32,7 @@ import de.walware.statet.r.ui.RUI;
 public class DefaultCodeLaunchHandler implements ICodeLaunchContentHandler {
 	
 	
+	@Override
 	public String[] getCodeLines(final IDocument document) throws CoreException {
 		try {
 			final ArrayList<String> lines = new ArrayList<String>(document.getNumberOfLines()+1);

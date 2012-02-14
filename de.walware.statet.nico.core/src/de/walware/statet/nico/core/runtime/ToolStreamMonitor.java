@@ -35,6 +35,7 @@ public class ToolStreamMonitor implements IStreamMonitor {
 	}
 	
 	
+	@Override
 	public void addListener(final IStreamListener listener) {
 		// Assign all SubmitTypes to this listener 
 		addListener(listener, SubmitType.getDefaultSet());
@@ -62,12 +63,14 @@ public class ToolStreamMonitor implements IStreamMonitor {
 		}
 	}
 	
+	@Override
 	public void removeListener(final IStreamListener listener) {
 		for (final ListenerList list : fListeners.values()) {
 			list.remove(listener);
 		}
 	}
 	
+	@Override
 	public String getContents() {
 		// not buffered
 		return ""; //$NON-NLS-1$

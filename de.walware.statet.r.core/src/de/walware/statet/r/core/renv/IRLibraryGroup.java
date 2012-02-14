@@ -37,6 +37,7 @@ public interface IRLibraryGroup {
 	
 	public interface WorkingCopy extends IRLibraryGroup {
 		
+		@Override
 		public List<IRLibraryLocation.WorkingCopy> getLibraries();
 		
 		IRLibraryLocation.WorkingCopy newLibrary(String path);

@@ -39,6 +39,7 @@ public class RunHelpSearchInR extends AbstractRCommandHandler {
 	}
 	
 	
+	@Override
 	public Object execute(final ExecutionEvent arg) throws ExecutionException {
 		String text = arg.getParameter(PAR_TEXT);
 		if (text == null) {

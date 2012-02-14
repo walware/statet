@@ -132,6 +132,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	private static final char[] F_BRACKETS = new char[] { '(', ')' };
 	
 	private static final IPartitionConstraint NO_R_COMMENT_CONSTRAINT = new IPartitionConstraint() {
+		@Override
 		public boolean matches(final String partitionType) {
 			return (partitionType != IRDocumentPartitions.R_COMMENT);
 		};
@@ -168,6 +169,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		private int fEnvirListIter1 = -1;
 		private IRFrame fNext;
 		
+		@Override
 		public boolean hasNext() {
 			if (fNext != null) {
 				return true;
@@ -190,6 +192,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			return fEnvirListIter0;
 		}
 		
+		@Override
 		public IRFrame next() {
 			if (hasNext()) {
 				final IRFrame frame = fNext;
@@ -199,6 +202,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			return null;
 		}
 		
+		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
@@ -225,6 +229,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void sessionStarted(final ISourceEditor editor) {
 		if (fEditor != editor) {
 			fEditor = editor;
@@ -251,6 +256,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void sessionEnded() {
 		fEnvirList[LOCAL_ENVIR] = null;
 		fEnvirList[WS_ENVIR] = null;
@@ -291,6 +297,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IStatus computeCompletionProposals(final AssistInvocationContext context,
 			final int mode, final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		if (mode == IContentAssistComputer.INFORMATION_MODE) {
@@ -407,7 +414,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 				break;
 			case IRFrame.PACKAGE:
 				relevance = -5;
-				if (iter.getEnvirGroup() > 0 && namePrefix.length() == 0) {
+				if (iter.getEnvirGroup() > 0 && namePrefix.isEmpty()) {
 					continue;
 				}
 				break;
@@ -717,6 +724,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IStatus computeContextInformation(final AssistInvocationContext context,
 			final AssistProposalCollector<IAssistInformationProposal> proposals, final IProgressMonitor monitor) {
 		return computeContextInformation2(context, proposals, true, monitor);

@@ -2,7 +2,7 @@
 <feature
       id="de.walware.statet.r.sweave"
       label="StatET for R - Sweave Add-on"
-      version="2.0.3.qualifier"
+      version="3.0.0.qualifier"
       provider-name="WalWare.de"
       license-feature="de.walware.opensource.license"
       license-feature-version="1.0.0">
@@ -20,7 +20,7 @@
    </license>
 
    <requires>
-      <import feature="de.walware.statet.r" version="2.0.0" match="equivalent" />
+      <import feature="de.walware.statet.r" version="3.0.0" match="equivalent" />
    </requires>
 
    <plugin

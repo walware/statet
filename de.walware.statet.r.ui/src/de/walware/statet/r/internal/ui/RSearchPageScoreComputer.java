@@ -29,6 +29,7 @@ public class RSearchPageScoreComputer implements ISearchPageScoreComputer {
 	}
 	
 	
+	@Override
 	public int computeScore(final String pageId, final Object input) {
 		if (RUI.R_HELP_SEARCH_PAGE_ID.equals(pageId)) {
 			if (input instanceof IRElement || input instanceof IRSourceUnit) {

@@ -82,8 +82,10 @@ public interface IREnvConfiguration {
 		
 		void setRIncludeDirectoryPath(String directory);
 		
+		@Override
 		List<IRLibraryGroup.WorkingCopy> getRLibraryGroups();
 		
+		@Override
 		IRLibraryGroup.WorkingCopy getRLibraryGroup(String id);
 		
 		boolean isValidRHomeLocation(IFileStore rHome);

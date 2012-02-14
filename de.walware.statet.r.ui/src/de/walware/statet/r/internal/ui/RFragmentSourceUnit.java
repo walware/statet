@@ -49,10 +49,12 @@ public class RFragmentSourceUnit extends GenericFragmentSourceUnit implements IR
 	}
 	
 	
+	@Override
 	public WorkingContext getWorkingContext() {
 		return LTK.EDITOR_CONTEXT;
 	}
 	
+	@Override
 	public String getModelTypeId() {
 		return RModel.TYPE_ID;
 	}
@@ -70,6 +72,7 @@ public class RFragmentSourceUnit extends GenericFragmentSourceUnit implements IR
 		RCore.getRModelManager().deregisterDependentUnit(this);
 	}
 	
+	@Override
 	public void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
 		RCore.getRModelManager().reconcile(this, reconcileLevel, true, monitor);
 	}
@@ -96,14 +99,17 @@ public class RFragmentSourceUnit extends GenericFragmentSourceUnit implements IR
 		return null;
 	}
 	
+	@Override
 	public void syncExec(final SourceDocumentRunnable runnable) throws InvocationTargetException {
 		runnable.run();
 	}
 	
+	@Override
 	public IRCoreAccess getRCoreAccess() {
 		return RCore.getWorkbenchAccess();
 	}
 	
+	@Override
 	public IREnv getREnv() {
 		IREnv rEnv = (IREnv) getFragment().getAdapter(IREnv.class);
 		if (rEnv != null) {
@@ -113,26 +119,32 @@ public class RFragmentSourceUnit extends GenericFragmentSourceUnit implements IR
 	}
 	
 	
+	@Override
 	public Object getModelLockObject() {
 		return fModelLock;
 	}
 	
+	@Override
 	public SourceContent getParseContent(final IProgressMonitor monitor) {
 		return getContent(monitor);
 	}
 	
+	@Override
 	public void setRAst(final RAstInfo ast) {
 		fAst = ast;
 	}
 	
+	@Override
 	public RAstInfo getCurrentRAst() {
 		return fAst;
 	}
 	
+	@Override
 	public void setRModel(final IRModelInfo model) {
 		fModelInfo = model;
 	}
 	
+	@Override
 	public IRModelInfo getCurrentRModel() {
 		return fModelInfo;
 	}

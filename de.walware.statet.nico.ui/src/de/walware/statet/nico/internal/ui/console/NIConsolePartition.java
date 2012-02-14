@@ -42,14 +42,17 @@ public class NIConsolePartition implements ITypedRegion {
 		fOutputStream = stream;
 	}
 	
+	@Override
 	public String getType() {
 		return fType;
 	}
 	
+	@Override
 	public int getOffset() {
 		return fOffset;
 	}
 	
+	@Override
 	public int getLength() {
 		return fLength;
 	}

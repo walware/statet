@@ -57,6 +57,7 @@ public class RunSelectionHandler extends AbstractHandler implements IElementUpda
 	}
 	
 	
+	@Override
 	public void updateElement(final UIElement element, final Map parameters) {
 		element.setText(appendVariant(RLaunchingMessages.RunCode_OtherSelection_label));
 	}
@@ -65,6 +66,7 @@ public class RunSelectionHandler extends AbstractHandler implements IElementUpda
 		return label;
 	}
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event.getApplicationContext());
 		

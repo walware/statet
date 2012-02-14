@@ -46,6 +46,7 @@ public class InputSourceViewer extends SourceViewer {
 	private void initTabControl() {
 		// disable traverse on TAB key event, to enable TAB char insertion.
 		getTextWidget().addListener(SWT.Traverse, new Listener() {
+			@Override
 			public void handleEvent(final Event event) {
 				if (event.stateMask == SWT.NONE && event.character == SWT.TAB) {
 					event.doit = false;

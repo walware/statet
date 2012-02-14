@@ -87,6 +87,7 @@ public class SaveHistoryWizard extends Wizard {
 			final Set<SubmitType> types = fPage.getContentSubmitTypes();
 			
 			getContainer().run(true, true, new IRunnableWithProgress() {
+				@Override
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 					final IStatus status = history.save(file, fmode, charset, false, types, monitor);
 					if (status.getSeverity() == IStatus.ERROR) {

@@ -48,6 +48,7 @@ public final class ROtherVar extends CombinedElement
 		readExternal(io, factory);
 	}
 	
+	@Override
 	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		final int options = io.readInt();
 		fClassName = io.readString();
@@ -56,6 +57,7 @@ public final class ROtherVar extends CombinedElement
 		}
 	}
 	
+	@Override
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		final boolean withAttr = ((io.flags & RObjectFactoryImpl.F_WITH_ATTR) != 0) && (fAttributes != null);
 		io.writeInt((withAttr) ? RObjectFactoryImpl.F_WITH_ATTR : 0);
@@ -66,31 +68,38 @@ public final class ROtherVar extends CombinedElement
 	}
 	
 	
+	@Override
 	public byte getRObjectType() {
 		return TYPE_OTHER;
 	}
 	
+	@Override
 	public String getRClassName() {
 		return fClassName;
 	}
 	
+	@Override
 	public int getLength() {
 		return 0;
 	}
 	
+	@Override
 	public RStore getData() {
 		return null;
 	}
 	
 	
+	@Override
 	public int getElementType() {
 		return R_GENERAL_VARIABLE;
 	}
 	
+	@Override
 	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
 	
+	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		return Collections.EMPTY_LIST;
 	}

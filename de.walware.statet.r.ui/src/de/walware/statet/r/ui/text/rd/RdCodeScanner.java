@@ -40,6 +40,7 @@ public class RdCodeScanner extends AbstractRuleBasedScanner {
 		/* (non-Javadoc)
 		 * @see org.eclipse.jface.text.rules.IWordDetector#isWordStart(char)
 		 */
+		@Override
 		public boolean isWordStart(final char c) {
 			return (c == '\\');
 		}
@@ -47,6 +48,7 @@ public class RdCodeScanner extends AbstractRuleBasedScanner {
 		/* (non-Javadoc)
 		 * @see org.eclipse.jface.text.rules.IWordDetector#isWordPart(char)
 		 */
+		@Override
 		public boolean isWordPart(final char c) {
 			return Character.isLetter(c);
 		}

@@ -126,14 +126,17 @@ public class RFastPartitionScanner implements IPartitionTokenScanner, IPartition
 	 * 
 	 * @param contentType
 	 */
+	@Override
 	public void setStartPartitionType(final String contentType) {
 		fStartPartitionState = getState(contentType);
 	}
 	
+	@Override
 	public void setRange(final IDocument document, final int offset, final int length) {
 		setPartialRange(document, offset, length, null, -1);
 	}
 	
+	@Override
 	public void setPartialRange(final IDocument document, final int offset, final int length, final String contentType, int partitionOffset) {
 		if (partitionOffset < 0) {
 			partitionOffset = offset;
@@ -181,6 +184,7 @@ public class RFastPartitionScanner implements IPartitionTokenScanner, IPartition
 	}
 	
 	
+	@Override
 	public IToken nextToken() {
 		fToken = null;
 		fTokenOffset += fTokenLength;
@@ -351,10 +355,12 @@ public class RFastPartitionScanner implements IPartitionTokenScanner, IPartition
 	}
 	
 	
+	@Override
 	public int getTokenLength() {
 		return fTokenLength;
 	}
 	
+	@Override
 	public int getTokenOffset() {
 		return fTokenOffset;
 	}

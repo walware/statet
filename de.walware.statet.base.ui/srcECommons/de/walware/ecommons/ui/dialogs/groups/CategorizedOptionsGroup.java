@@ -63,6 +63,7 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 
 	private class CategorizedItemLabelProvider extends LabelProvider {
 
+		@Override
 		public String getText(Object element) {
 			if (element instanceof String) // Category
 				return (String) element;
@@ -72,22 +73,27 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 
 	private class CategorizedItemContentProvider implements ITreeContentProvider {
 	
+		@Override
 		public void dispose() {
 		}
 
+		@Override
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		}
 
+		@Override
 		public Object[] getElements(Object inputElement) {
 			
 			return fCategorys;
 		}
 
+		@Override
 		public boolean hasChildren(Object element) {
 
 			return element instanceof String;
 		}
 
+		@Override
 		public Object[] getChildren(Object parentElement) {
 			
 			if (parentElement instanceof String) {
@@ -98,6 +104,7 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 			return new Object[0];
 		}
 
+		@Override
 		public Object getParent(Object element) {
 			
 			if (element instanceof String)
@@ -149,9 +156,11 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 		return new CategorizedItemContentProvider();
 	}
 	
+	@Override
 	protected IDoubleClickListener createDoubleClickListener() {
 		
 		return new IDoubleClickListener() {
+			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				if (selection != null && selection.size() == 1) {
@@ -175,6 +184,7 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 		super.initFields();
 		
 		getStructuredViewer().getControl().getDisplay().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				TreeViewer viewer = getStructuredViewer();
 				if (viewer != null && UIAccess.isOkToUse(viewer)) {

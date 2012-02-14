@@ -49,6 +49,7 @@ public class RDebugUIUtils {
 	public static IRStackFrame getFrame(final IWorkbenchPart part, final ToolProcess process) {
 		final AtomicReference<IRStackFrame> ref = new AtomicReference<IRStackFrame>();
 		UIAccess.getDisplay().syncExec(new Runnable() {
+			@Override
 			public void run() {
 				final IDebugContextService contextService = DebugUITools.getDebugContextManager()
 						.getContextService(part.getSite().getWorkbenchWindow());

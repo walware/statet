@@ -48,6 +48,7 @@ public class InsertAssignmentAction extends Action implements IUpdate {
 		update();
 	}
 	
+	@Override
 	public void update() {
 		setEnabled(fEditor.isEditable(false));
 	}

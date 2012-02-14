@@ -89,14 +89,17 @@ public class ResourceMapping implements IResourceMapping {
 		return fLocalText;
 	}
 	
+	@Override
 	public IFileStore getFileStore() {
 		return fFileStore;
 	}
 	
+	@Override
 	public String getHost() {
 		return fHostName;
 	}
 	
+	@Override
 	public IPath getRemotePath() {
 		return fRemotePath;
 	}

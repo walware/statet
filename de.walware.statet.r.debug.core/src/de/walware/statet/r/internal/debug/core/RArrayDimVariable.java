@@ -35,6 +35,7 @@ public class RArrayDimVariable extends RVariable implements IRDimVariable, IInde
 	}
 	
 	
+	@Override
 	public String getName() throws DebugException {
 		final StringBuilder sb = new StringBuilder();
 		{	final int dim = fMainValue.fDim.getLength()-fSeletectedDim.length;
@@ -61,18 +62,22 @@ public class RArrayDimVariable extends RVariable implements IRDimVariable, IInde
 		return sb.toString();
 	}
 	
+	@Override
 	public IValue getValue() throws DebugException {
 		return this;
 	}
 	
+	@Override
 	public boolean isAllocated() throws DebugException {
 		return true;
 	}
 	
+	@Override
 	public String getReferenceTypeName() throws DebugException {
 		return "";
 	}
 	
+	@Override
 	public String getValueString() throws DebugException {
 		final StringBuilder sb = new StringBuilder();
 		final int m = fMainValue.fDim.getLength() - fSeletectedDim.length;
@@ -93,22 +98,27 @@ public class RArrayDimVariable extends RVariable implements IRDimVariable, IInde
 		return sb.toString();
 	}
 	
+	@Override
 	public boolean hasVariables() throws DebugException {
 		return (fMainValue.fDim.getInt(fMainValue.fDim.getLength()-fSeletectedDim.length) > 0);
 	}
 	
+	@Override
 	public IVariable[] getVariables() throws DebugException {
 		return getVariables(1, getSize());
 	}
 	
+	@Override
 	public int getInitialOffset() {
 		return 1;
 	}
 	
+	@Override
 	public int getSize() throws DebugException {
 		return fMainValue.fDim.getInt(fMainValue.fDim.getLength()-fSeletectedDim.length-1);
 	}
 	
+	@Override
 	public IVariable getVariable(final int offset) throws DebugException {
 		{	final int n = fMainValue.fDim.getInt(fMainValue.fDim.getLength()-fSeletectedDim.length-1);
 			if (n <= 0) {
@@ -132,6 +142,7 @@ public class RArrayDimVariable extends RVariable implements IRDimVariable, IInde
 		}
 	}
 	
+	@Override
 	public IVariable[] getVariables(final int offset, final int length) throws DebugException {
 		{	final int n = fMainValue.fDim.getInt(fMainValue.fDim.getLength()-fSeletectedDim.length-1);
 			if (n <= 0) {

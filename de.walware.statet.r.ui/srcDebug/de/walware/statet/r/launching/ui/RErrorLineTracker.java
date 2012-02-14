@@ -64,12 +64,15 @@ public class RErrorLineTracker implements IPatternMatchListener {
 			fLine = line;
 		}
 		
+		@Override
 		public void linkEntered() {
 		}
 		
+		@Override
 		public void linkExited() {
 		}
 		
+		@Override
 		public void linkActivated() {
 			final FileValidator fileValidator = new FileValidator(true);
 			fileValidator.setOnDirectory(IStatus.ERROR);
@@ -143,26 +146,32 @@ public class RErrorLineTracker implements IPatternMatchListener {
 	}
 	
 	
+	@Override
 	public int getCompilerFlags() {
 		return Pattern.MULTILINE;
 	}
 	
+	@Override
 	public String getLineQualifier() {
 		return null;
 	}
 	
+	@Override
 	public String getPattern() {
 		return NUM_LINE_REGEX;
 	}
 	
+	@Override
 	public void connect(final TextConsole console) {
 		fConsole = console;
 	}
 	
+	@Override
 	public void disconnect() {
 		fConsole = null;
 	}
 	
+	@Override
 	public void matchFound(final PatternMatchEvent event) {
 		try {
 			final IDocument document = fConsole.getDocument();

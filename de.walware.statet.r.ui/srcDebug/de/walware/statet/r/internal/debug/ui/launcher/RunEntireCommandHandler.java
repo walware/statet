@@ -88,6 +88,7 @@ public class RunEntireCommandHandler extends AbstractHandler {
 	}
 	
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final IWorkbenchPart workbenchPart = HandlerUtil.getActivePart(event);
 		final AtomicReference<IStatus> success = new AtomicReference<IStatus>();
@@ -101,6 +102,7 @@ public class RunEntireCommandHandler extends AbstractHandler {
 					if (data.selection != null) {
 						((IProgressService) workbenchPart.getSite().getService(IProgressService.class))
 								.busyCursorWhile(new IRunnableWithProgress() {
+							@Override
 							public void run(final IProgressMonitor monitor)
 									throws InvocationTargetException {
 								try {
@@ -191,6 +193,7 @@ public class RunEntireCommandHandler extends AbstractHandler {
 					data.selection.getOffset()+data.selection.getLength() );
 			if (next != null) {
 				UIAccess.getDisplay().asyncExec(new Runnable() {
+					@Override
 					public void run() {
 						data.editor.selectAndReveal(next.getOffset(), 0);
 					}

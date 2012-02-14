@@ -45,6 +45,7 @@ public interface IConsoleService extends IToolService {
 	 * 
 	 * @return the tool process
 	 */
+	@Override
 	ToolProcess getTool();
 	
 	/**

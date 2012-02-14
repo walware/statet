@@ -97,6 +97,7 @@ public class Group extends RAstNode {
 		fExpr.node.acceptInR(visitor);
 	}
 	
+	@Override
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(fExpr.node);
 	}

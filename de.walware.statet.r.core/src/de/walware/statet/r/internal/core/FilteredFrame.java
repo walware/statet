@@ -36,35 +36,43 @@ public class FilteredFrame implements IRFrame, IModelElement.Filter {
 	}
 	
 	
+	@Override
 	public String getFrameId() {
 		return fFrame.getFrameId();
 	}
 	
+	@Override
 	public int getFrameType() {
 		return fFrame.getFrameType();
 	}
 	
+	@Override
 	public RElementName getElementName() {
 		return null;
 	}
 	
+	@Override
 	public boolean hasModelChildren(final IModelElement.Filter filter) {
 		return fFrame.hasModelChildren((fExclude != null) ? this : null);
 	}
 	
+	@Override
 	public List<? extends IRLangElement> getModelChildren(final IModelElement.Filter filter) {
 		return fFrame.getModelChildren((fExclude != null) ? this : null);
 	}
 	
+	@Override
 	public List<? extends IRElement> getModelElements() {
 		return fFrame.getModelElements();
 	}
 	
+	@Override
 	public List<? extends IRFrame> getPotentialParents() {
 		return fFrame.getPotentialParents();
 	}
 	
 	
+	@Override
 	public boolean include(final IModelElement element) {
 		final ISourceUnit su = (element instanceof ISourceElement) ?
 				((ISourceElement) element).getSourceUnit() : null;

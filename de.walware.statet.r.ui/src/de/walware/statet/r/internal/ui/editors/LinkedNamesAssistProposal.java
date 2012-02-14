@@ -60,6 +60,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 			fDocument = document;
 		}
 		
+		@Override
 		public ExitFlags doExit(final LinkedModeModel model, final VerifyEvent event,
 				final int offset, final int length) {
 			switch (event.character) {
@@ -132,18 +133,21 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void selected(final ITextViewer textViewer, final boolean smartToggle) {
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void unselected(final ITextViewer textViewer) {
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean validate(final IDocument document, final int offset, final DocumentEvent event) {
 		return false;
 	}
@@ -151,6 +155,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void apply(final ITextViewer viewer, final char trigger, final int stateMask, final int offset) {
 		try {
 			Point seletion = viewer.getSelectedRange();
@@ -220,6 +225,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 		return idx;
 	}
 	
+	@Override
 	public void apply(final IDocument document) {
 		throw new UnsupportedOperationException();
 	}
@@ -227,6 +233,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Point getSelection(final IDocument document) {
 		return null;
 	}
@@ -239,6 +246,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getDisplayString() {
 		return fLabel;
 	}
@@ -246,6 +254,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Image getImage() {
 		return LTKUI.getImages().get(LTKUI.OBJ_TEXT_LINKEDRENAME);
 	}
@@ -253,6 +262,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getAdditionalProposalInfo() {
 		return fDescription;
 	}
@@ -260,6 +270,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Object getAdditionalProposalInfo(final IProgressMonitor monitor) {
 		return new DefaultBrowserInformationInput(null, getDisplayString(), fDescription, 
 				DefaultBrowserInformationInput.FORMAT_TEXT_INPUT);
@@ -268,6 +279,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IContextInformation getContextInformation() {
 		return null;
 	}

@@ -69,6 +69,7 @@ class SubmitPasteAction extends Action {
 	
 	static IRunnableWithProgress createRunnable(final ToolController controller, final String text) {
 		return new IRunnableWithProgress () {
+			@Override
 			public void run(final IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
 				try {
 					monitor.beginTask(NicoUITools.createSubmitMessage(controller.getTool()), 1000);

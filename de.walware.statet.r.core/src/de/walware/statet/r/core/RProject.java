@@ -184,10 +184,12 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 	}
 	
 	
+	@Override
 	public IPreferenceAccess getPrefs() {
 		return getStatetProject();
 	}
 	
+	@Override
 	public RCodeStyleSettings getRCodeStyle() {
 		return fRCodeStyle;
 	}

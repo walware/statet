@@ -103,6 +103,7 @@ public class SweaveProcessing implements ILaunchConfigurationListener, IDisposab
 		}
 	}
 	
+	@Override
 	public void dispose() {
 		final ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		launchManager.removeLaunchConfigurationListener(this);
@@ -112,6 +113,7 @@ public class SweaveProcessing implements ILaunchConfigurationListener, IDisposab
 	}
 	
 	
+	@Override
 	public void launchConfigurationAdded(final ILaunchConfiguration configuration) {
 		try {
 			if (configuration.getType() == fConfigType) {
@@ -126,6 +128,7 @@ public class SweaveProcessing implements ILaunchConfigurationListener, IDisposab
 		}
 	}
 	
+	@Override
 	public void launchConfigurationChanged(final ILaunchConfiguration configuration) {
 		try {
 			if (configuration.getType() == fConfigType && !configuration.isWorkingCopy()) {
@@ -140,6 +143,7 @@ public class SweaveProcessing implements ILaunchConfigurationListener, IDisposab
 		}
 	}
 	
+	@Override
 	public void launchConfigurationRemoved(final ILaunchConfiguration configuration) {
 		try {
 			// no possible to test for type (exception)
@@ -239,12 +243,14 @@ public class SweaveProcessing implements ILaunchConfigurationListener, IDisposab
 	public void launch(final ILaunchConfiguration configuration, final int flags) {
 		final String label = getLabelForLaunch(configuration, flags, true);
 		UIAccess.getDisplay().syncExec(new Runnable() {
+			@Override
 			public void run() {
 				final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 				page.activate(page.getActiveEditor());
 			}
 		});
 		final IRunnableWithProgress runnable = new IRunnableWithProgress() {
+			@Override
 			public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 				monitor.beginTask(label, 1);
 				try {

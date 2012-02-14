@@ -26,6 +26,7 @@ public class ColumnResizeCommandHandler extends AbstractLayerCommandHandler<Colu
 	}
 	
 	
+	@Override
 	public Class<ColumnResizeCommand> getCommandClass() {
 		return ColumnResizeCommand.class;
 	}

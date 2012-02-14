@@ -35,6 +35,7 @@ public class NamedPipeConnector implements IRCodeLaunchConnector {
 	}
 	
 	
+	@Override
 	public boolean submit(final String[] rCommands, boolean gotoConsole) throws CoreException {
 		// Initializing the pipe/file each time has the advantages:
 		//  - No problem if pipe/file is deleted during one Eclipse session.
@@ -69,6 +70,7 @@ public class NamedPipeConnector implements IRCodeLaunchConnector {
 		}
 	}
 	
+	@Override
 	public void gotoConsole() throws CoreException {
 		
 	}

@@ -83,6 +83,7 @@ public abstract class Dummy extends RAstNode {
 		public final void acceptInRChildren(final RAstVisitor visitor) {
 		}
 		
+		@Override
 		public final void acceptInChildren(final ICommonAstVisitor visitor) {
 		}
 		
@@ -184,6 +185,7 @@ public abstract class Dummy extends RAstNode {
 			fRightExpr.node.acceptInR(visitor);
 		}
 		
+		@Override
 		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 			if (fLeftExpr.node != null) {
 				visitor.visit(fLeftExpr.node);

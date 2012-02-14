@@ -143,11 +143,13 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 	}
 	
 	
+	@Override
 	public String getPageHttpUrl(final IRHelpPage page, final String target) {
 		final IRPackageHelp packageHelp = page.getPackage();
 		return getPageHttpUrl(packageHelp.getName(), page.getName(), packageHelp.getREnv(), target);
 	}
 	
+	@Override
 	public String getPageHttpUrl(final String packageName, final String pageName,
 			final IREnv rEnv, final String target) {
 		checkRunning();
@@ -171,6 +173,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		return createUrl(sb.toString());
 	}
 	
+	@Override
 	public String getTopicHttpUrl(final String topic, final String packageName,
 			final IREnv rEnv, final String target) {
 		checkRunning();
@@ -203,10 +206,12 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		return createUrl(sb.toString());
 	}
 	
+	@Override
 	public String getPackageHttpUrl(final IRPackageHelp packageHelp, final String target) {
 		return getPageHttpUrl(packageHelp.getName(), null, packageHelp.getREnv(), target);
 	}
 	
+	@Override
 	public String toHttpUrl(final String url, final IREnv rEnv, final String target) {
 		checkRunning();
 		if (url.startsWith("rhelp:///")) { //$NON-NLS-1$
@@ -302,6 +307,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		return url;
 	}
 	
+	@Override
 	public String toHttpUrl(final Object object, final String target) {
 		if (object == this) {
 			return "about:blank"; //$NON-NLS-1$
@@ -337,6 +343,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		}
 	}
 	
+	@Override
 	public Object getContentOfUrl(final String url) {
 		try {
 			final URI uri = new URI(url);
@@ -378,6 +385,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		return null;
 	}
 	
+	@Override
 	public boolean ensureIsRunning() {
 		if (!fHttpdStarted) {
 			startServer();
@@ -385,12 +393,14 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		return fRunning;
 	}
 	
+	@Override
 	public boolean isDynamic(final URI url) {
 		checkRunning();
 		return ((fHttpd.getHost().equals(url.getHost()) && fHttpd.getPort() == url.getPort()
 				|| PORTABLE_URL_SCHEME.equals(url.getScheme()) ));
 	}
 	
+	@Override
 	public URI toHttpUrl(final URI url) throws URISyntaxException {
 		if (isDynamic(url)) {
 			String path = url.getPath();
@@ -403,6 +413,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		return url;
 	}
 	
+	@Override
 	public URI toPortableUrl(final URI url) throws URISyntaxException {
 		if (isDynamic(url)) {
 			String path = url.getPath();
@@ -458,6 +469,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 	}
 	
 	
+	@Override
 	public void search(final RHelpSearchQuery query, final IRHelpSearchRequestor requestor,
 			final IProgressMonitor monitor) throws CoreException {
 		if (query == null) {
@@ -494,6 +506,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 	}
 	
 	
+	@Override
 	public void settingsChanged(final Set<String> groupIds) {
 		if (groupIds.contains(IREnvManager.SETTINGS_GROUP_ID)) {
 			final IREnvConfiguration[] configurations = fREnvManager.getConfigurations();
@@ -588,6 +601,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		}
 	}
 	
+	@Override
 	public List<IREnv> getREnvWithHelp() {
 		final IREnvConfiguration[] configurations = fREnvManager.getConfigurations();
 		final EnvItem[] items = new EnvItem[configurations.length];
@@ -627,6 +641,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		return withHelp;
 	}
 	
+	@Override
 	public boolean hasHelp(IREnv rEnv) {
 		if (rEnv != null) {
 			rEnv = rEnv.resolve();
@@ -661,6 +676,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		return false;
 	}
 	
+	@Override
 	public REnvHelp getHelp(IREnv rEnv) {
 		if (rEnv != null) {
 			rEnv = rEnv.resolve();
@@ -716,6 +732,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		return item.indexLock;
 	}
 	
+	@Override
 	public void dispose() {
 		final SettingsChangeNotifier changeNotifier = PreferencesUtil.getSettingsChangeNotifier();
 		if (changeNotifier != null) {

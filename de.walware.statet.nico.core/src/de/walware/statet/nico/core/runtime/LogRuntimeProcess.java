@@ -81,6 +81,7 @@ class RuntimeProcessOutput implements ILogOutput {
 			fStreamMonitor.addListener(this);
 		}
 		
+		@Override
 		public void streamAppended(final String text, final IStreamMonitor monitor) {
 			if (!fFlushed) {
 				String contents = null;
@@ -166,6 +167,7 @@ class RuntimeProcessOutput implements ILogOutput {
 		}
 	}
 	
+	@Override
 	public synchronized String getOutput() {
 		return fStringBuilder.toString();
 	}

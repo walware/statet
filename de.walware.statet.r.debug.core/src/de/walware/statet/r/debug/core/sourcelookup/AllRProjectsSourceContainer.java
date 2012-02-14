@@ -38,10 +38,12 @@ public class AllRProjectsSourceContainer extends CompositeSourceContainer implem
 	}
 	
 	
+	@Override
 	public ISourceContainerType getType() {
 		return getSourceContainerType(TYPE_ID);
 	}
 	
+	@Override
 	public String getName() {
 		return Messages.AllRProjectsSourceContainer_name;
 	}
@@ -64,6 +66,7 @@ public class AllRProjectsSourceContainer extends CompositeSourceContainer implem
 	}
 	
 	
+	@Override
 	public Object findSourceElement(final URI fileUri, final IFile[] fileInWorkspace) throws CoreException {
 		final ISourceContainer[] containers = getSourceContainers();
 		for (int i = 0; i < containers.length; i++) {
@@ -76,6 +79,7 @@ public class AllRProjectsSourceContainer extends CompositeSourceContainer implem
 		return null;
 	}
 	
+	@Override
 	public void findSourceElement(final IPath path, final List<Object> elements) throws CoreException {
 		final ISourceContainer[] containers = getSourceContainers();
 		for (int i = 0; i < containers.length; i++) {

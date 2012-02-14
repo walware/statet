@@ -67,6 +67,7 @@ public final class REnvironmentVar extends CombinedElement
 		}
 	}
 	
+	@Override
 	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		//-- options
 		final int options = io.readInt();
@@ -92,6 +93,7 @@ public final class REnvironmentVar extends CombinedElement
 		}
 	}
 	
+	@Override
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		//-- options
 		int options = 0;
@@ -181,44 +183,54 @@ public final class REnvironmentVar extends CombinedElement
 	}
 	
 	
+	@Override
 	public final byte getRObjectType() {
 		return TYPE_ENV;
 	}
 	
+	@Override
 	public String getRClassName() {
 		return this.className1;
 	}
 	
 	
+	@Override
 	public int getSpecialType() {
 		return fSpecialType;
 	}
 	
+	@Override
 	public String getEnvironmentName() {
 		return fEnvironmentName;
 	}
 	
+	@Override
 	public long getHandle() {
 		return this.handle;
 	}
 	
 	
+	@Override
 	public int getLength() {
 		return this.length;
 	}
 	
+	@Override
 	public RCharacterStore getNames() {
 		return this.namesAttribute;
 	}
 	
+	@Override
 	public String getName(final int idx) {
 		return this.namesAttribute.getChar(idx);
 	}
 	
+	@Override
 	public RObject get(final int idx) {
 		return this.components[idx];
 	}
 	
+	@Override
 	public RObject get(final String name) {
 		final int idx = this.namesAttribute.indexOf(name);
 		if (idx >= 0) {
@@ -227,22 +239,26 @@ public final class REnvironmentVar extends CombinedElement
 		return null;
 	}
 	
+	@Override
 	public RObject[] toArray() {
 		final RObject[] array = new RObject[this.length];
 		System.arraycopy(this.components, 0, array, 0, this.length);
 		return array;
 	}
 	
+	@Override
 	public RStore getData() {
 		return null;
 	}
 	
 	
+	@Override
 	public int getElementType() {
 		return R_GENERAL_VARIABLE;
 	}
 	
 	
+	@Override
 	public boolean hasModelChildren(final Filter filter) {
 		if (this.components == null) {
 			return false;
@@ -260,6 +276,7 @@ public final class REnvironmentVar extends CombinedElement
 		}
 	}
 	
+	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		if (this.components == null) {
 			return Collections.emptyList();
@@ -279,6 +296,7 @@ public final class REnvironmentVar extends CombinedElement
 	}
 	
 	
+	@Override
 	public int getFrameType() {
 		return fFrameType;
 	}
@@ -308,14 +326,17 @@ public final class REnvironmentVar extends CombinedElement
 	}
 	
 	
+	@Override
 	public String getFrameId() {
 		return null;
 	}
 	
+	@Override
 	public List<? extends IRElement> getModelElements() {
 		return null;
 	}
 	
+	@Override
 	public List<? extends IRFrame> getPotentialParents() {
 		return null;
 	}

@@ -33,10 +33,13 @@ public interface IRBasicAdapter extends IConsoleService {
 	int META_PROMPT_INCOMPLETE_INPUT = 1 << 8;
 	
 	
+	@Override
 	ToolProcess getTool();
 	
+	@Override
 	ToolController getController();
 	
+	@Override
 	RWorkspace getWorkspaceData();
 	
 	/**

@@ -104,10 +104,12 @@ public class RdSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		viewer.setSelectedRange(selectedRange.x, selectedRange.y);
 	}
 	
+	@Override
 	public RCodeStyleSettings getRCodeStyle() {
 		return null;
 	}
 	
+	@Override
 	public IPreferenceAccess getPrefs() {
 		return fSourceCoreAccess.getPrefs();
 	}

@@ -144,6 +144,7 @@ public class ChooseFileHandler implements IToolEventHandler {
 	}
 	
 	
+	@Override
 	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final String message;
 		{	String s = ToolEventHandlerUtil.getCheckedData(data, LOGIN_MESSAGE_DATA_KEY, String.class, false); 
@@ -156,6 +157,7 @@ public class ChooseFileHandler implements IToolEventHandler {
 		final Boolean newFile = ToolEventHandlerUtil.getCheckedData(data, "newResource", Boolean.class, true); //$NON-NLS-1$
 		final AtomicReference<IFileStore> file = new AtomicReference<IFileStore>();
 		final Runnable runnable = new Runnable() {
+			@Override
 			public void run() {
 				final ChooseFileDialog dialog = new ChooseFileDialog(UIAccess.getActiveWorkbenchShell(true),
 						tools.getTool(), message, newFile.booleanValue());

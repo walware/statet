@@ -133,7 +133,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 	
 	static {
 		String path = PreferencesUtil.getInstancePrefs().getPreferenceValue(DEFAULT_COMMAND_PATH);
-		if (path == null || path.length() == 0) {
+		if (path == null || path.isEmpty()) {
 			path = "~/.RJServer/startup.sh"; //$NON-NLS-1$
 		}
 		DEFAULT_COMMAND = path
@@ -158,6 +158,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 	}
 	
 	
+	@Override
 	public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch,
 			final IProgressMonitor monitor) throws CoreException {
 		try {
@@ -179,6 +180,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 				final AtomicReference<String> address = new AtomicReference<String>();
 				final String username = configuration.getAttribute(RConsoleLaunching.ATTR_LOGIN_NAME, (String) null);
 				UIAccess.getDisplay().syncExec(new Runnable() {
+					@Override
 					public void run() {
 						final RRemoteConsoleSelectionDialog dialog = new RRemoteConsoleSelectionDialog(null, true);
 						dialog.setUser(username);
@@ -282,7 +284,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			else {
 				address = configuration.getAttribute(RConsoleLaunching.ATTR_ADDRESS, (String) null);
 			}
-			if (address == null || address.length() == 0) {
+			if (address == null || address.isEmpty()) {
 				throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
 						ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 						RConsoleMessages.LaunchDelegate_error_MissingAddress_message, null ));
@@ -369,6 +371,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 							final String msg = NLS.bind("It seems, a client is already connected to the remote R engine (''{0}'').\n Do you want to disconnect this client and connect to the engine?", address);
 							final AtomicBoolean force = new AtomicBoolean(false);
 							display.syncExec(new Runnable() {
+								@Override
 								public void run() {
 									force.set(MessageDialog.openQuestion(shell, "Connect", msg));
 								}
@@ -437,7 +440,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 				progress.setWorkRemaining(21);
 				if (type.equals(RConsoleLaunching.REMOTE_RJS_SSH)) {
 					command = configuration.getAttribute(RConsoleLaunching.ATTR_COMMAND, "");
-					if (command.length() == 0) {
+					if (command.isEmpty()) {
 						throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
 								ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 								"Command to startup R over SSH is missing.", null )); //$NON-NLS-1$
@@ -574,10 +577,13 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			// move all tasks, if started
 			if (reconnect != null && prevProcess != null) {
 				controller.addToolStatusListener(new IToolStatusListener() {
+					@Override
 					public void controllerStatusRequested(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
 					}
+					@Override
 					public void controllerStatusRequestCanceled(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
 					}
+					@Override
 					public void controllerStatusChanged(final ToolStatus oldStatus, final ToolStatus newStatus, final List<DebugEvent> eventCollection) {
 						if (newStatus != ToolStatus.TERMINATED) {
 							final Queue prevQueue = prevProcess.getQueue();

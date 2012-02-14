@@ -34,6 +34,7 @@ public class RdParser {
 			fOffsets.add(offset);
 		}
 		
+		@Override
 		public int getLineOfOffset(final int offset) {
 			if (fOffsets.size() == 0) {
 				return -1;

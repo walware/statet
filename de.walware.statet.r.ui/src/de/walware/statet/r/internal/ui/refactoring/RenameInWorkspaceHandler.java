@@ -36,6 +36,7 @@ public class RenameInWorkspaceHandler extends AbstractHandler {
 	}
 	
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event.getApplicationContext());
 		final IWorkbenchPart activePart = WorkbenchUIUtil.getActivePart(event.getApplicationContext());

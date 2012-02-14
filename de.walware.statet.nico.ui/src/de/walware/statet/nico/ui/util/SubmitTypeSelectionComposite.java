@@ -43,6 +43,7 @@ public class SubmitTypeSelectionComposite extends Composite {
 			super(fViewer.getTable());
 		}
 		
+		@Override
 		public Object getValueType() {
 			return EnumSet.class;
 		}
@@ -100,6 +101,7 @@ public class SubmitTypeSelectionComposite extends Composite {
 		fViewer.setInput(SubmitType.values());
 		
 		fViewer.addCheckStateListener(new ICheckStateListener() {
+			@Override
 			public void checkStateChanged(final CheckStateChangedEvent event) {
 				final SubmitType type = (SubmitType) event.getElement();
 				final EnumSet<SubmitType> newSet = EnumSet.copyOf(fCurrentSelection);

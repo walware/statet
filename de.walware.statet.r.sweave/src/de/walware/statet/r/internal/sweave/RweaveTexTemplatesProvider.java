@@ -58,18 +58,22 @@ public class RweaveTexTemplatesProvider implements ICodeGenerationTemplatesCateg
 	public RweaveTexTemplatesProvider() {
 	}
 	
+	@Override
 	public String getProjectNatureId() {
 		return RProject.NATURE_ID;
 	}
 	
+	@Override
 	public TemplateStore getTemplateStore() {
 		return SweavePlugin.getDefault().getRweaveTexGenerationTemplateStore();
 	}
 	
+	@Override
 	public ContextTypeRegistry getContextTypeRegistry() {
 		return SweavePlugin.getDefault().getRweaveTexGenerationTemplateContextRegistry();
 	}
 	
+	@Override
 	public SourceEditorViewerConfigurator getEditTemplateDialogConfiguator(final TemplateVariableProcessor processor, final IProject project) {
 		return new RweaveTexTemplateConfigurator(RProject.getRProject(project), processor);
 	}

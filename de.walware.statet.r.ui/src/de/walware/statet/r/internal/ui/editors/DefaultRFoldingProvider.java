@@ -316,6 +316,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 	}
 	
 	
+	@Override
 	public void install(final ISourceEditor editor) {
 		PreferencesUtil.getSettingsChangeNotifier().addChangeListener(this);
 		updateConfig();
@@ -323,6 +324,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 		fEditor.getModelInputProvider().addListener(this);
 	}
 	
+	@Override
 	public void elementChanged(final IModelElement element) {
 		final Input input = new Input((IRSourceUnit) element);
 		synchronized (this) {
@@ -330,6 +332,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 		}
 	}
 	
+	@Override
 	public void elementInitialInfo(final IModelElement element) {
 		final Input input = fInput;
 		if (input.fUnit == element) {
@@ -337,6 +340,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 		}
 	}
 	
+	@Override
 	public void elementUpdatedInfo(final IModelElement element, final IModelElementDelta delta) {
 		final Input input = fInput;
 		if (input.fUnit == element) {
@@ -344,6 +348,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 		}
 	}
 	
+	@Override
 	public void uninstall() {
 		PreferencesUtil.getSettingsChangeNotifier().removeChangeListener(this);
 		if (fEditor != null) {
@@ -352,6 +357,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 		}
 	}
 	
+	@Override
 	public void settingsChanged(final Set<String> groupIds) {
 		if (groupIds.contains(DefaultRFoldingPreferences.GROUP_ID)) {
 			updateConfig();

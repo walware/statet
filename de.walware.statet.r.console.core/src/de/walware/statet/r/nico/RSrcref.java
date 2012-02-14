@@ -70,26 +70,32 @@ public class RSrcref implements IRSrcref {
 	}
 	
 	
+	@Override
 	public boolean hasBeginDetail() {
 		return (fFirstLine >= 0 && fFirstColumn >= 0);
 	}
 	
+	@Override
 	public int getFirstLine() {
 		return fFirstLine;
 	}
 	
+	@Override
 	public int getFirstColumn() {
 		return fFirstColumn;
 	}
 	
+	@Override
 	public boolean hasEndDetail() {
 		return (fLastLine >= 0 && fLastColumn >= 0);
 	}
 	
+	@Override
 	public int getLastLine() {
 		return fLastLine;
 	}
 	
+	@Override
 	public int getLastColumn() {
 		return fLastColumn;
 	}

@@ -60,6 +60,7 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 	
 	
 	private static final Comparator<IREnv> RENV_COMPARATOR = new Comparator<IREnv>() {
+		@Override
 		public int compare(final IREnv o1, final IREnv o2) {
 			return Collator.getInstance().compare(o1.getName(), o2.getName());
 		}
@@ -78,6 +79,7 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 			REnvSelectionComposite.this.addChangeListener(CompositeObservable.this);
 		}
 		
+		@Override
 		public void settingChanged(final REnvSelectionComposite source, final String oldValue,
 				final String newValue, final IREnv newREnv) {
 			fireValueChange(Diffs.createValueDiff(oldValue, newValue));
@@ -93,6 +95,7 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 			return getEncodedSetting();
 		}
 		
+		@Override
 		public Object getValueType() {
 			return String.class;
 		}
@@ -104,6 +107,7 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 	
 	private class ChooseREnvValidator implements IValidator {
 		
+		@Override
 		public IStatus validate(final Object dummy) {
 			if (fInvalidPreference) {
 				return ValidationStatus.error(RUIMessages.ChooseREnv_error_InvalidPreferences_message);
@@ -245,6 +249,7 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 		});
 	}
 	
+	@Override
 	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 		loadREnvironments();
 	}

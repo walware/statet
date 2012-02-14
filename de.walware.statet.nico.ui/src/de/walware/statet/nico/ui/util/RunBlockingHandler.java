@@ -39,11 +39,13 @@ import de.walware.statet.nico.internal.ui.Messages;
 public class RunBlockingHandler implements IToolEventHandler {
 	
 	
+	@Override
 	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
 		final IToolRunnable toolRunnable = ToolEventHandlerUtil.getCheckedData(data, RUN_RUNNABLE_DATA_KEY, IToolRunnable.class, true); 
 		try {
 			progressService.busyCursorWhile(new IRunnableWithProgress() {
+				@Override
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					try {
 						toolRunnable.run(tools, monitor);

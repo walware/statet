@@ -264,6 +264,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 		
 		if (enable) {
 			UIAccess.getDisplay(getShell()).asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					fGroup.reselect();
 				}
@@ -304,6 +305,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 		
 		fPatternEditor = new ViewerSourceEditorAdapter(viewer, null);
 		new SettingsUpdater(new ISettingsChangedHandler() {
+			@Override
 			public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 				if (fPatternConfigurator != null) {
 					fPatternConfigurator.handleSettingsChanged(groupIds, options);

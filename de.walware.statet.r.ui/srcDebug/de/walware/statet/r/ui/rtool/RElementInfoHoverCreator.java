@@ -107,6 +107,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 	}
 	
 	
+	@Override
 	public void setInput(final Object input) {
 		fInputChanged = true;
 		if (input instanceof RElementInfoData) {
@@ -117,6 +118,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 		}
 	}
 	
+	@Override
 	public boolean hasContents() {
 		return (fInput != null);
 	}
@@ -344,6 +346,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 		return new RElementInfoHoverCreator(true);
 	}
 	
+	@Override
 	public void propertyChange(final PropertyChangeEvent event) {
 		final String property = event.getProperty();
 		if (property.equals(PREF_DETAIL_PANE_FONT) || property.equals(JFaceResources.DEFAULT_FONT)) {

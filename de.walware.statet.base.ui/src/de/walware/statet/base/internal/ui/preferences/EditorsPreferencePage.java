@@ -250,6 +250,7 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		final IObservableValue colorItem = ViewersObservables.observeSingleSelection(fColorList);
 		dbc.bindValue(new ColorSelectorObservableValue(fColorEditor),
 				MasterDetailObservables.detailValue(colorItem, new IObservableFactory() {
+					@Override
 					public IObservable createObservable(final Object target) {
 						final AppearanceColorsItem item = (AppearanceColorsItem) target;
 						return EditorsConfigurationBlock.this.createObservable(item.pref);

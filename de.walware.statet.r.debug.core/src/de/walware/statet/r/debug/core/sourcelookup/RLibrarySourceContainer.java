@@ -63,10 +63,12 @@ public class RLibrarySourceContainer extends AbstractSourceContainer {
 	}
 	
 	
+	@Override
 	public ISourceContainerType getType() {
 		return getSourceContainerType(TYPE_ID);
 	}
 	
+	@Override
 	public String getName() {
 		final String s = fLocationPath.toString();
 		if (fLocationStore == null) {
@@ -89,6 +91,7 @@ public class RLibrarySourceContainer extends AbstractSourceContainer {
 		return fLocationStore;
 	}
 	
+	@Override
 	public Object[] findSourceElements(final String name) throws CoreException {
 		return null;
 	}

@@ -81,6 +81,7 @@ public class NIConsoleColorAdapter {
 			return;
 		}
 		UIAccess.getDisplay().syncExec(new Runnable() {
+			@Override
 			public void run() {
 				for (final String streamId : STREAM_IDS) {
 					final NIConsoleOutputStream stream = console.getStream(streamId);

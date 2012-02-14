@@ -99,14 +99,17 @@ public class PackageSelectionDialog extends SelectionDialog {
 		ColumnViewerToolTipSupport.enableFor(tableComposite.viewer);
 		
 		fViewer.setCheckStateProvider(new ICheckStateProvider() {
+			@Override
 			public boolean isGrayed(final Object element) {
 				return false;
 			}
+			@Override
 			public boolean isChecked(final Object element) {
 				return fSelection.contains(element);
 			}
 		});
 		fViewer.addCheckStateListener(new ICheckStateListener() {
+			@Override
 			public void checkStateChanged(final CheckStateChangedEvent event) {
 				final Object element = event.getElement();
 				if (element instanceof IRPackageHelp) {

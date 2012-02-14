@@ -136,6 +136,7 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 		return null;
 	}
 	
+	@Override
 	public void launch(final ILaunchConfiguration configuration, final String mode,
 			final ILaunch launch, final IProgressMonitor monitor) throws CoreException {
 		LaunchConfigUtil.initProgressMonitor(configuration, monitor, 100);

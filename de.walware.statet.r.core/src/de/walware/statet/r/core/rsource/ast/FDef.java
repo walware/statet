@@ -94,6 +94,7 @@ public class FDef extends RAstNode {
 			acceptChildren(visitor, fSpecs);
 		}
 		
+		@Override
 		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 			for (final RAstNode child : fSpecs) {
 				visitor.visit(child);
@@ -229,6 +230,7 @@ public class FDef extends RAstNode {
 			}
 		}
 		
+		@Override
 		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 			visitor.visit(fArgName);
 			if (fWithDefault) {
@@ -377,6 +379,7 @@ public class FDef extends RAstNode {
 		fExpr.node.acceptInR(visitor);
 	}
 	
+	@Override
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(fArgs);
 		visitor.visit(fExpr.node);

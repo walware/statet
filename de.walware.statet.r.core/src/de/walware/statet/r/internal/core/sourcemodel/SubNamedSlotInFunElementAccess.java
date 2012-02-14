@@ -27,10 +27,12 @@ final class SubNamedSlotInFunElementAccess extends SubAbstractElementAccess {
 	}
 	
 	
+	@Override
 	public final int getType() {
 		return RElementName.SUB_NAMEDSLOT;
 	}
 	
+	@Override
 	public final String getSegmentName() {
 		return fSlotNameNode.getText();
 	}

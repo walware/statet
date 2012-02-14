@@ -31,6 +31,7 @@ import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
 public class ReportStatusHandler implements IToolEventHandler {
 	
 	
+	@Override
 	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final IStatus status = ToolEventHandlerUtil.getCheckedData(data, REPORT_STATUS_DATA_KEY, IStatus.class, false); 
 		if (status != null) {

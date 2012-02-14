@@ -75,6 +75,7 @@ public class NicoUITools {
 	
 	public static void startConsoleLazy(final NIConsole console, final IWorkbenchPage page, final boolean pin) {
 		DebugPlugin.getDefault().addDebugEventListener(new IDebugEventSetListener() {
+			@Override
 			public void handleDebugEvents(final DebugEvent[] events) {
 				final ToolProcess process = console.getProcess();
 				for (final DebugEvent event : events) {

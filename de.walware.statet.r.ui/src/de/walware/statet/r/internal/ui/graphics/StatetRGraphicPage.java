@@ -53,6 +53,7 @@ public class StatetRGraphicPage extends RGraphicPage {
 			setBaseEnabled(tool != null && !tool.isTerminated());
 		}
 		
+		@Override
 		public Object execute(final ExecutionEvent event) throws ExecutionException {
 			final Object rHandle = getGraphic().getRHandle();
 			if (rHandle instanceof RProcess) {

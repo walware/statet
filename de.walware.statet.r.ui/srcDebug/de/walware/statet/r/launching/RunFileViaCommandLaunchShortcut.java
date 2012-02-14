@@ -52,6 +52,7 @@ public class RunFileViaCommandLaunchShortcut implements ILaunchShortcut {
 	}
 	
 	
+	@Override
 	public void launch(final ISelection selection, final String mode) {
 		assert mode.equals("run"); //$NON-NLS-1$
 		
@@ -88,6 +89,7 @@ public class RunFileViaCommandLaunchShortcut implements ILaunchShortcut {
 		}
 	}
 	
+	@Override
 	public void launch(final IEditorPart editor, final String mode) {
 		assert mode.equals("run"); //$NON-NLS-1$
 		

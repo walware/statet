@@ -24,12 +24,14 @@ import de.walware.statet.r.core.rsource.ast.RAstInfo;
 public interface IRModelInfo extends ISourceUnitModelInfo {
 	
 	
+	@Override
 	IRLangSourceElement getSourceElement();
 	Map<String, ? extends IRFrameInSource> getSourceFrames();
 	IRFrameInSource getTopFrame();
 	IPackageReferences getReferencedPackages();
 	Map<String, ? extends IRFrame> getReferencedFrames();
 	
+	@Override
 	RAstInfo getAst();
 	
 }

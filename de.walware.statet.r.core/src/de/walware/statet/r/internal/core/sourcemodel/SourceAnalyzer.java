@@ -114,6 +114,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	
 	private static final Comparator<ISourceStructElement> SOURCEELEMENT_SORTER = new Comparator<ISourceStructElement>() {
+		@Override
 		public int compare(final ISourceStructElement e1, final ISourceStructElement e2) {
 			return (e1.getSourceRange().getOffset() - e2.getSourceRange().getOffset());
 		}
@@ -181,10 +182,12 @@ public class SourceAnalyzer extends RAstVisitor {
 		private int fCounter;
 		
 		
+		@Override
 		public IRModelInfo getModelInfo() {
 			return fModelInfo;
 		}
 		
+		@Override
 		public void createSelfAccess(final IRLangSourceElement element, final RAstNode symbol) {
 			final String text = symbol.getText();
 			if (text == null) {
@@ -201,6 +204,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 		}
 		
+		@Override
 		public void createNamespaceImportAccess(final RAstNode symbol) {
 			final String text = symbol.getText();
 			if (text == null) {
@@ -211,6 +215,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fModelInfo.fPackageRefs.add(text, access);
 		}
 		
+		@Override
 		public void createNamespaceObjectImportAccess(final IRFrameInSource namespace, final RAstNode symbol) {
 			final String text = symbol.getText();
 			if (text == null) {
@@ -253,6 +258,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 		}
 		
+		@Override
 		public IRFrameInSource getNamespaceFrame(final String name) {
 			final String id = BuildSourceFrame.createId(IRFrame.PACKAGE, name, -1);
 			BuildSourceFrame frame = fModelInfo.fNamespaceFrames.get(id);
@@ -264,6 +270,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			return null;
 		}
 		
+		@Override
 		public void createSlotAccess(final RClass rClass, final RAstNode symbol) {
 			final String text = symbol.getText();
 			if (text == null) {
@@ -284,6 +291,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 		}
 		
+		@Override
 		public void createArgAccess(final RMethod rMethod, final RAstNode symbol) {
 			final String text = symbol.getText();
 			if (text == null) {
@@ -305,6 +313,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 		}
 		
+		@Override
 		public void createRSourceRegion(final RAstNode node) {
 			if (!fRoxygenExamples) {
 				fCounter = 0;
@@ -352,6 +361,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	private final Map<String, IFCallAnalyzer> fFCallAnalyzers = new HashMap<String, IFCallAnalyzer>();
 	private IFCallAnalyzer fFCallFallback;
 	private final IFCallAnalyzer fFCallNoAnalysis = new IFCallAnalyzer() {
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
@@ -1285,6 +1295,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_scope = fArgsDef.indexOf(scopeArgName);
 		}
 		
+		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -1319,6 +1330,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgsDef = argsDef;
 		}
 		
+		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -1376,6 +1388,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_value = fArgsDef.indexOf("value");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fReturnValue = null;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -1418,6 +1431,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgsDef = rdef.BASE_REMOVE_args;
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -1474,6 +1488,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_scope = fArgsDef.indexOf("pos");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -1508,6 +1523,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgsDef = rdef.BASE_SAVE_args;
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -1548,6 +1564,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_fName = fArgsDef.indexOf("name");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -1578,6 +1595,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_fName = fArgsDef.indexOf("what");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -1611,6 +1629,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_stringOnly = fArgsDef.indexOf("character.only");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			
@@ -1664,6 +1683,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		public BaseGlobalenv(final RCoreFunctions rdef) {
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
@@ -1677,6 +1697,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		public BaseTopenv(final RCoreFunctions rdef) {
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 //			final RAstNode envir = resolveEnvir(argValues, fArgsDef);
@@ -1694,6 +1715,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgsDef = rdef.BASE_C_args;
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			Object returnValue = null;
 			REQUEST: for (int i = 0; i < fRequest.length; i++) {
@@ -1743,6 +1765,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_signature = fArgsDef.indexOf("signature");
 		}
 		
+		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -1871,6 +1894,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_fName = fArgsDef.indexOf("f");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -1899,6 +1923,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgsDef = rdef.METHODS_SIGNATURE_args;
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -1947,6 +1972,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_prototype = fArgsDef.indexOf("prototype");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -2031,6 +2057,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_superClassNames = fArgsDef.indexOf("members");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -2092,6 +2119,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgsDef = rdef.METHODS_REPRESENTATION_args;
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			final boolean requested = (fRequest == REPRESENTATION_REQUEST // || isRequested(REG_CLASS_REPRESENTATION)
 					&& fCurrentSourceContainerBuilder.element.getElementType() == IRElement.R_S4CLASS);
@@ -2159,6 +2187,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgsDef = rdef.METHODS_PROTOTYPE_args;
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			final boolean requested = (fRequest == PROTOTYPE_REQUEST // || isRequested(REG_CLASS_REPRESENTATION)
 					&& fCurrentSourceContainerBuilder.element.getElementType() == IRElement.R_S4CLASS);
@@ -2223,6 +2252,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_replaceF = fArgsDef.indexOf("replace");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -2287,6 +2317,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_className = fArgsDef.indexOf("Class");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -2320,6 +2351,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_toClass = fArgsDef.indexOf("to");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -2360,6 +2392,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_className = fArgsDef.indexOf("Class");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -2391,6 +2424,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_className = fArgsDef.indexOf(classNameNodeName);
 		}
 		
+		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -2461,6 +2495,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_fDef = fArgsDef.indexOf("definition");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -2516,6 +2551,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_signature = fArgsDef.indexOf("signature");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -2549,6 +2585,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_fName = fArgsDef.indexOf("f");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -2579,6 +2616,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_fName = fArgsDef.indexOf(fNameNodeName);
 		}
 		
+		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -2643,6 +2681,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fArgIdx_slotName = fArgsDef.indexOf("name");
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
@@ -2677,6 +2716,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		public NoDefFallback() {
 		}
 		
+		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			fRequest = NO_REQUESTS;
 			

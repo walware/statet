@@ -143,6 +143,7 @@ public class RenameInRegionWizard extends RefactoringWizard {
 			return (RenameInRegionRefactoring) super.getRefactoring();
 		}
 		
+		@Override
 		public void createControl(final Composite parent) {
 			final Composite composite = new Composite(parent, SWT.NONE);
 			composite.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
@@ -183,6 +184,7 @@ public class RenameInRegionWizard extends RefactoringWizard {
 				label.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false));
 				label.setText("Enter new variable name(s):");
 				label.addTraverseListener(new TraverseListener() {
+					@Override
 					public void keyTraversed(final TraverseEvent e) {
 						if (e.detail == SWT.TRAVERSE_MNEMONIC) {
 							e.doit = false;
@@ -316,30 +318,36 @@ public class RenameInRegionWizard extends RefactoringWizard {
 			
 			table.viewer.setContentProvider(new ITreeContentProvider() {
 				private Map<IRFrame, Map<String, Variable>> fVariables;
+				@Override
 				public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 					fVariables = (Map<IRFrame, Map<String, Variable>>) newInput;
 				}
+				@Override
 				public Object[] getElements(final Object inputElement) {
 					return fVariables.keySet().toArray();
 				}
+				@Override
 				public Object getParent(final Object element) {
 					if (element instanceof Variable) {
 						return ((Variable) element).getFrame();
 					}
 					return null;
 				}
+				@Override
 				public boolean hasChildren(final Object element) {
 					if (element instanceof IRFrame) {
 						return true;
 					}
 					return false;
 				}
+				@Override
 				public Object[] getChildren(final Object parentElement) {
 					if (parentElement instanceof IRFrame) {
 						return fVariables.get(parentElement).values().toArray();
 					}
 					return null;
 				}
+				@Override
 				public void dispose() {
 				}
 			});

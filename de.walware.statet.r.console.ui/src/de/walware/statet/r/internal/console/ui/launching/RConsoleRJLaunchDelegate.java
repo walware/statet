@@ -97,18 +97,22 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		}
 		
 		
+		@Override
 		public String getTypeId() {
 			return "r/integration"; //$NON-NLS-1$
 		}
 		
+		@Override
 		public String getLabel() {
 			return "Initialize R-StatET Tools";
 		}
 		
+		@Override
 		public boolean isRunnableIn(final ITool tool) {
 			return (tool == fTool);
 		}
 		
+		@Override
 		public boolean changed(final int event, final ITool process) {
 			if ((event & MASK_EVENT_GROUP) == REMOVING_EVENT_GROUP) {
 				return false;
@@ -116,6 +120,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			final IRDataAdapter r = (IRDataAdapter) service;
@@ -181,6 +186,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 	}
 	
 	
+	@Override
 	public void launch(final ILaunchConfiguration configuration, final String mode, 
 			final ILaunch launch, final IProgressMonitor monitor) throws CoreException {
 		final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);

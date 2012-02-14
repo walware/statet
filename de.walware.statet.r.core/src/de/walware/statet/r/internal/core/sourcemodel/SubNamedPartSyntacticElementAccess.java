@@ -28,10 +28,12 @@ final class SubNamedPartSyntacticElementAccess extends SubAbstractElementAccess 
 	}
 	
 	
+	@Override
 	public int getType() {
 		return RElementName.SUB_NAMEDPART;
 	}
 	
+	@Override
 	public final String getSegmentName() {
 		return fNode.getSubnameChild().getText();
 	}

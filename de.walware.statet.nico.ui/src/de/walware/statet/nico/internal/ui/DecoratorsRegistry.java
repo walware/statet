@@ -45,6 +45,7 @@ public class DecoratorsRegistry {
 		Image icon;
 		
 		
+		@Override
 		public Image getImage() {
 			if (icon == null && iconDescriptor != null) {
 				icon = fManager.createImageWithDefault(iconDescriptor);
@@ -63,9 +64,11 @@ public class DecoratorsRegistry {
 	public DecoratorsRegistry() {
 		fDisplay = UIAccess.getDisplay();
 		final Runnable runnable = new Runnable() {
+			@Override
 			public void run() {
 				fManager = JFaceResources.getResources(fDisplay);
 				fDisplay.disposeExec(new Runnable() {
+					@Override
 					public void run() {
 						DecoratorsRegistry.this.dispose();
 					}
@@ -88,7 +91,7 @@ public class DecoratorsRegistry {
 		for (final IConfigurationElement configuration : configurationElements) {
 			if (configuration.getName().equals(RUNNABLE_ELEMENT_NAME)) {
 				final String typeId = configuration.getAttribute(RUNNABLE_ID_ATTRIBUTE_NAME);
-				if (typeId == null || typeId.length() == 0) {
+				if (typeId == null || typeId.isEmpty()) {
 					// TODO log
 				}
 				else {

@@ -55,13 +55,16 @@ public class TexChunkPartitionScanner extends TexFastPartitionScanner
 		super.handleChar(state, c);
 	}
 	
+	@Override
 	public void setParent(final MultiCatPartitionScanner parent) {
 	}
 	
+	@Override
 	public String[] getContentTypes() {
 		return Rweave.TEX_PARTITION_TYPES;
 	}
 	
+	@Override
 	public boolean isInCat() {
 		return fIsInChunk;
 	}

@@ -116,7 +116,9 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 		final ScrolledComposite scrolled = new ScrolledComposite(layouter.composite, SWT.V_SCROLL);
 		fConnectorsDescription = addLinkControl(scrolled, ""); //$NON-NLS-1$
 		scrolled.addControlListener(new ControlListener() {
+			@Override
 			public void controlMoved(final org.eclipse.swt.events.ControlEvent e) {};
+			@Override
 			public void controlResized(final org.eclipse.swt.events.ControlEvent e) {
 				updateDescriptionSize();
 			};
@@ -131,6 +133,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 		scrolled.setContent(fConnectorsDescription);
 		
 		fConnectorsSelector.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(final ModifyEvent e) {
 				final int idx = fConnectorsSelector.getSelectionIndex();
 				if (idx >= 0) {
@@ -198,6 +201,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	protected void updateControls() {
 		loadValues();
 		UIAccess.getDisplay(getShell()).asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				final int idx = fConnectorsSelector.getSelectionIndex();
 				if (idx >= 0) {
@@ -228,7 +232,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 			if (fCommandEditors[i] != null) {
 				final String key = fFileCommands[i].getId()+":command"; //$NON-NLS-1$
 				final String command = fCommandEditors[i].getDocument().get();
-				if (command == null || command.length() == 0 || command.equals(fFileCommands[i].getDefaultCommand())) {
+				if (command == null || command.isEmpty() || command.equals(fFileCommands[i].getDefaultCommand())) {
 					node.remove(key);
 				}
 				else {

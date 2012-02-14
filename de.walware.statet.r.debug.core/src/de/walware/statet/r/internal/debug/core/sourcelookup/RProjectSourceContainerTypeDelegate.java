@@ -31,6 +31,7 @@ public class RProjectSourceContainerTypeDelegate extends AbstractSourceContainer
 	}
 	
 	
+	@Override
 	public ISourceContainer createSourceContainer(final String memento)
 			throws CoreException {
 		final Node node = parseDocument(memento);
@@ -39,7 +40,7 @@ public class RProjectSourceContainerTypeDelegate extends AbstractSourceContainer
 			if (RProjectSourceContainer.TYPE_ID.equals(element.getNodeName())) {
 				final IProject project;
 				{	final String s = element.getAttribute("name"); //$NON-NLS-1$
-					if (s == null || s.length() == 0) {
+					if (s == null || s.isEmpty()) {
 						abort(Messages.RProjectSourceContainer_error_InvalidConfiguration_message, null); 
 					}
 					project = ResourcesPlugin.getWorkspace().getRoot().getProject(s);
@@ -52,6 +53,7 @@ public class RProjectSourceContainerTypeDelegate extends AbstractSourceContainer
 		return null;
 	}
 	
+	@Override
 	public String getMemento(final ISourceContainer container) throws CoreException {
 		final RProjectSourceContainer rProjectContainer = (RProjectSourceContainer) container;
 		final Document document = newDocument();

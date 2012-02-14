@@ -46,6 +46,7 @@ public class RSourceLookupDirector extends AbstractSourceLookupDirector {
 		initializeParticipants();
 	}
 	
+	@Override
 	public void initializeParticipants() {
 		addParticipants(new ISourceLookupParticipant[] {
 				new RSourceLookupParticipant(),

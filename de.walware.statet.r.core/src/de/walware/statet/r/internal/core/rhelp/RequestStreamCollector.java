@@ -44,6 +44,7 @@ public class RequestStreamCollector extends Collector implements IREnvIndex {
 			fFieldNamesToLoad = fieldNamesToLoad;
 		}
 		
+		@Override
 		public FieldSelectorResult accept(final String fieldName) {
 			if (fieldName == PACKAGE_FIELD_NAME
 					|| fieldName == PAGE_FIELD_NAME) {

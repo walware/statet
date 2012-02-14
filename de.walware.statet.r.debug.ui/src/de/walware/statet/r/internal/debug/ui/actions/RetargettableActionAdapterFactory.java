@@ -33,10 +33,12 @@ public class RetargettableActionAdapterFactory implements IAdapterFactory {
 	}
 	
 	
+	@Override
 	public Class<?>[] getAdapterList() {
 		return ADAPTERS;
 	}
 	
+	@Override
 	public Object getAdapter(final Object adaptableObject, final Class adapterType) {
 		if (IToggleBreakpointsTarget.class.equals(adapterType)) {
 			synchronized (this) {

@@ -62,6 +62,7 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	}
 	
 	
+	@Override
 	public void createControl(final Composite parent) {
 		initializeDialogUnits(parent);
 		
@@ -73,6 +74,7 @@ public abstract class AbstractHistoryPage extends WizardPage {
 		fLocationGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fLocationGroup.setHistory(getDialogSettings().getArray(SETTINGS_HISTORY));
 		fLocationGroup.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(final ModifyEvent e) {
 				validate();
 			}

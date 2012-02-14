@@ -37,15 +37,18 @@ public class SweaveDocElement implements IAstNode {
 	}
 	
 	
+	@Override
 	public int getStatusCode() {
 		return 0;
 	}
 	
 	
+	@Override
 	public IAstNode getParent() {
 		return fParent;
 	}
 	
+	@Override
 	public IAstNode getRoot() {
 		if (fParent != null) {
 			return fParent.getRoot();
@@ -53,10 +56,12 @@ public class SweaveDocElement implements IAstNode {
 		return null;
 	}
 	
+	@Override
 	public boolean hasChildren() {
 		return !fChildren.isEmpty();
 	}
 	
+	@Override
 	public int getChildCount() {
 		return fChildren.size();
 	}
@@ -65,10 +70,12 @@ public class SweaveDocElement implements IAstNode {
 		return fChildren.toArray(new IAstNode[fChildren.size()]);
 	}
 	
+	@Override
 	public IAstNode getChild(final int index) {
 		return fChildren.get(index);
 	}
 	
+	@Override
 	public int getChildIndex(final IAstNode element) {
 		final int n = fChildren.size();
 		for (int i = 0; i < n; i++) {
@@ -79,24 +86,29 @@ public class SweaveDocElement implements IAstNode {
 		return -1;
 	}
 	
+	@Override
 	public void accept(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
 	
+	@Override
 	public void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		for (final IAstNode child : fChildren) {
 			visitor.visit(child);
 		}
 	}
 	
+	@Override
 	public int getOffset() {
 		return fStartOffset;
 	}
 	
+	@Override
 	public int getStopOffset() {
 		return fStopOffset;
 	}
 	
+	@Override
 	public int getLength() {
 		return fStopOffset-fStartOffset;
 	}

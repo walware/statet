@@ -36,24 +36,29 @@ public class OtherNode implements IAstNode {
 	}
 	
 	
+	@Override
 	public int getStatusCode() {
 		return 0;
 	}
 	
 	
+	@Override
 	public IAstNode getParent() {
 		return fParent;
 	}
 	
+	@Override
 	public IAstNode getRoot() {
 		return fParent.getRoot();
 	}
 	
 	
+	@Override
 	public boolean hasChildren() {
 		return true;
 	}
 	
+	@Override
 	public int getChildCount() {
 		return 0;
 	}
@@ -62,31 +67,38 @@ public class OtherNode implements IAstNode {
 		return new RAstNode[] { };
 	}
 	
+	@Override
 	public IAstNode getChild(final int index) {
 		throw new IndexOutOfBoundsException();
 	}
 	
+	@Override
 	public int getChildIndex(final IAstNode element) {
 		return -1;
 	}
 	
 	
+	@Override
 	public void accept(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
 	
+	@Override
 	public void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 	}
 	
 	
+	@Override
 	public int getOffset() {
 		return fStartOffset;
 	}
 	
+	@Override
 	public int getStopOffset() {
 		return fStopOffset;
 	}
 	
+	@Override
 	public int getLength() {
 		return fStopOffset-fStartOffset;
 	}

@@ -56,6 +56,7 @@ public class RDoubleCommentAction extends Action implements IUpdate {
 	}
 	
 	
+	@Override
 	public void update() {
 		setEnabled(fEditor.isEditable(false));
 	}

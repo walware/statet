@@ -41,34 +41,42 @@ public class RPackageDescription implements IRPackageDescription {
 	}
 	
 	
+	@Override
 	public String getName() {
 		return fName;
 	}
 	
+	@Override
 	public String getTitle() {
 		return fTitle;
 	}
 	
+	@Override
 	public String getDescription() {
 		return fDescription;
 	}
 	
+	@Override
 	public String getPriority() {
 		return fPriority;
 	}
 	
+	@Override
 	public String getVersion() {
 		return fVersion;
 	}
 	
+	@Override
 	public String getAuthor() {
 		return fAuthor;
 	}
 	
+	@Override
 	public String getMaintainer() {
 		return fMaintainer;
 	}
 	
+	@Override
 	public String getUrl() {
 		return fUrl;
 	}

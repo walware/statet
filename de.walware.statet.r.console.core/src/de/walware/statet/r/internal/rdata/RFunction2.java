@@ -63,44 +63,54 @@ public final class RFunction2 extends CombinedElement
 		}
 	}
 	
+	@Override
 	public byte getRObjectType() {
 		return TYPE_FUNCTION;
 	}
 	
+	@Override
 	public String getRClassName() {
 		return "function";
 	}
 	
+	@Override
 	public int getLength() {
 		return 0;
 	}
 	
+	@Override
 	public String getHeaderSource() {
 		return null;
 	}
 	
+	@Override
 	public String getBodySource() {
 		return null;
 	}
 	
+	@Override
 	public RStore getData() {
 		return null;
 	}
 	
 	
+	@Override
 	public int getElementType() {
 		return IRElement.R_COMMON_FUNCTION;
 	}
 	
+	@Override
 	public ArgsDefinition getArgsDefinition() {
 		return fArgs;
 	}
 	
 	
+	@Override
 	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
 	
+	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		return Collections.EMPTY_LIST;
 	}

@@ -42,6 +42,7 @@ public abstract class RBreakpoint extends Breakpoint implements IRBreakpoint {
 	}
 	
 	
+	@Override
 	public String getModelIdentifier() {
 		return RDebugModel.IDENTIFIER;
 	}
@@ -82,6 +83,7 @@ public abstract class RBreakpoint extends Breakpoint implements IRBreakpoint {
 //	}
 	
 	
+	@Override
 	public ITargetData registerTarget(final IRDebugTarget target, final ITargetData data) {
 		if (target == null) {
 			throw new NullPointerException("target");
@@ -100,6 +102,7 @@ public abstract class RBreakpoint extends Breakpoint implements IRBreakpoint {
 		return oldData;
 	}
 	
+	@Override
 	public ITargetData unregisterTarget(final IRDebugTarget target) {
 		if (target == null) {
 			throw new NullPointerException("target");
@@ -118,11 +121,13 @@ public abstract class RBreakpoint extends Breakpoint implements IRBreakpoint {
 		catch (final CoreException e) {}
 	}
 	
+	@Override
 	public ITargetData getTargetData(final IRDebugTarget target) {
 		return fInstalledTargets.get(target);
 	}
 	
 	
+	@Override
 	public boolean isInstalled() throws CoreException {
 		return (fInstallCount.get() > 0);
 	}

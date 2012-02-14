@@ -72,18 +72,22 @@ public class RdCodeTemplatesProvider implements ICodeGenerationTemplatesCategory
 	public RdCodeTemplatesProvider() {
 	}
 	
+	@Override
 	public String getProjectNatureId() {
 		return RProject.NATURE_ID;
 	}
 	
+	@Override
 	public TemplateStore getTemplateStore() {
 		return RUIPlugin.getDefault().getRdCodeGenerationTemplateStore();
 	}
 	
+	@Override
 	public ContextTypeRegistry getContextTypeRegistry() {
 		return RUIPlugin.getDefault().getRdCodeGenerationTemplateContextRegistry();
 	}
 	
+	@Override
 	public SourceEditorViewerConfigurator getEditTemplateDialogConfiguator(final TemplateVariableProcessor processor, final IProject project) {
 		return new RdTemplateConfigurator(RProject.getRProject(project), processor);
 	}

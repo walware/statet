@@ -158,7 +158,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 						setText(rhome[0], true);
 						updateArchs(false);
 						final String current = fNameControl.getText().trim();
-						if ((current.length() == 0 || current.equals("R")) && rhome[1] != null) { //$NON-NLS-1$
+						if ((current.isEmpty() || current.equals("R")) && rhome[1] != null) { //$NON-NLS-1$
 							fNameControl.setText(rhome[1]);
 						}
 					}
@@ -314,25 +314,31 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			treeComposite.setLayoutData(gd);
 			fRLibrariesViewer = treeComposite.viewer;
 			treeComposite.viewer.setContentProvider(new ITreeContentProvider() {
+				@Override
 				public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 				}
+				@Override
 				public void dispose() {
 				}
+				@Override
 				public Object[] getElements(final Object inputElement) {
 					return fConfigModel.getRLibraryGroups().toArray();
 				}
+				@Override
 				public Object getParent(final Object element) {
 					if (element instanceof RLibraryContainer) {
 						return ((RLibraryContainer) element).parent;
 					}
 					return null;
 				}
+				@Override
 				public boolean hasChildren(final Object element) {
 					if (element instanceof IRLibraryGroup.WorkingCopy) {
 						return !((IRLibraryGroup.WorkingCopy) element).getLibraries().isEmpty();
 					}
 					return false;
 				}
+				@Override
 				public Object[] getChildren(final Object parentElement) {
 					if (parentElement instanceof IRLibraryGroup.WorkingCopy) {
 						final IRLibraryGroup.WorkingCopy group = (IRLibraryGroup.WorkingCopy) parentElement;
@@ -543,10 +549,11 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		db.getContext().bindValue(SWTObservables.observeText(fNameControl, SWT.Modify), 
 				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_NAME), 
 				new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
+					@Override
 					public IStatus validate(final Object value) {
 						String s = (String) value;
 						s = s.trim();
-						if (s.length() == 0) {
+						if (s.isEmpty()) {
 							return ValidationStatus.error(Messages.REnv_Detail_Name_error_Missing_message);
 						}
 						if (fExistingNames.contains(s)) {
@@ -561,6 +568,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		final Binding rHomeBinding = db.getContext().bindValue(fRHomeControl.getObservable(), 
 				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RHOME), 
 				new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
+					@Override
 					public IStatus validate(final Object value) {
 						final IStatus status = fRHomeControl.getValidator().validate(value);
 						if (!status.isOK()) {
@@ -574,6 +582,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 					}
 				}), null);
 		rHomeBinding.getValidationStatus().addValueChangeListener(new IValueChangeListener() {
+			@Override
 			public void handleValueChange(final ValueChangeEvent event) {
 				final IStatus status = (IStatus) event.diff.getNewValue();
 				fLoadButton.setEnabled(status.isOK());
@@ -684,6 +693,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	private void detectSettings() {
 		try {
 			run(true, true, new IRunnableWithProgress() {
+				@Override
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					try {
 						detectSettings(monitor);
@@ -767,7 +777,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		final IPath rHomePath = new Path(rHome);
 		final IPath userHomePath = new Path(System.getProperty("user.home")); //$NON-NLS-1$
 		for (final String location : locations) {
-			if (location.length() == 0) {
+			if (location.isEmpty()) {
 				continue;
 			}
 			String s;

@@ -60,10 +60,12 @@ public class RChunkDirectLaunchShortcut implements ILaunchShortcut {
 	}
 	
 	
+	@Override
 	public void launch(final ISelection selection, final String mode) {
 		// not supported
 	}
 	
+	@Override
 	public void launch(final IEditorPart editor, final String mode) {
 		assert mode.equals("run"); //$NON-NLS-1$
 		
@@ -72,12 +74,14 @@ public class RChunkDirectLaunchShortcut implements ILaunchShortcut {
 			final ITextEditor textEditor = (ITextEditor) editor;
 			final AtomicReference<ITextSelection> textSelection = new AtomicReference<ITextSelection>();
 			UIAccess.getDisplay().syncExec(new Runnable() {
+				@Override
 				public void run() {
 					 textSelection.set((ITextSelection) textEditor.getSelectionProvider().getSelection());
 				}
 			});
 			
 			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
+				@Override
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 					try {
 						doLaunch(editorInput, textSelection.get(), monitor);

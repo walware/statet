@@ -72,6 +72,7 @@ public final class NicoUIPlugin extends AbstractUIPlugin {
 		
 		fToolRegistry = new ToolRegistry();
 		fToolRegistry.addListener(new IToolRegistryListener() {
+			@Override
 			public void toolSessionActivated(final ToolSessionUIData sessionData) {
 				if (sessionData.getProcess() != null) {
 					fToolRegistry.removeListener(this);
@@ -81,6 +82,7 @@ public final class NicoUIPlugin extends AbstractUIPlugin {
 					}
 				}
 			}
+			@Override
 			public void toolTerminated(final ToolSessionUIData sessionData) {
 			}
 		}, null);

@@ -86,6 +86,7 @@ public class TexTab extends LaunchConfigTabWithDbc {
 			fControl.addSelectionListener(this);
 		}
 		
+		@Override
 		public Object getValueType() {
 			return Integer.class;
 		}
@@ -104,9 +105,11 @@ public class TexTab extends LaunchConfigTabWithDbc {
 			}
 		}
 		
+		@Override
 		public void widgetDefaultSelected(final SelectionEvent e) {
 		}
 		
+		@Override
 		public void widgetSelected(final SelectionEvent e) {
 			final int oldValue = fCurrentBuilder;
 			fCurrentBuilder = fControl.getSelectedBuilder();
@@ -155,6 +158,7 @@ public class TexTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
+	@Override
 	public String getName() {
 		return Messages.Processing_TexTab_label;
 	}
@@ -165,6 +169,7 @@ public class TexTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
+	@Override
 	public void createControl(final Composite parent) {
 		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
@@ -361,11 +366,13 @@ public class TexTab extends LaunchConfigTabWithDbc {
 		dbc.bindValue(SWTObservables.observeText(fOutputFormatControl), fOutputFormatValue);
 		
 		fBuildTexBuilderIdValue.addValueChangeListener(new IValueChangeListener() {
+			@Override
 			public void handleValueChange(final ValueChangeEvent event) {
 				updateFormat();
 			}
 		});
 		fBuildTexTypeValue.addValueChangeListener(new IValueChangeListener() {
+			@Override
 			public void handleValueChange(final ValueChangeEvent event) {
 				final Object newValue = event.diff.getNewValue();
 				final int typeId = (newValue instanceof Integer) ? ((Integer) newValue).intValue() : -1;
@@ -423,6 +430,7 @@ public class TexTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
+	@Override
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(ATTR_OPENTEX_ENABLED, OPEN_OFF);
 		configuration.setAttribute(ATTR_BUILDTEX_TYPE, RweaveTexLaunchDelegate.DEFAULT_BUILDTEX_TYPE);

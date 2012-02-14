@@ -54,9 +54,11 @@ public class ButtonGroup {
 		
 		SelectionListener listener = new SelectionListener() {
 			
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				doButtonSelected(e);
 			}
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				doButtonSelected(e);
 			}

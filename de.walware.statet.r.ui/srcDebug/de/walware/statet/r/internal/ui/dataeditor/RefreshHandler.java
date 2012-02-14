@@ -29,6 +29,7 @@ public class RefreshHandler extends AbstractHandler {
 	}
 	
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		fTableComposite.refresh();
 		return null;

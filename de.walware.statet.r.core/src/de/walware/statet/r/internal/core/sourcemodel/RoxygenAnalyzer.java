@@ -85,6 +85,7 @@ public class RoxygenAnalyzer implements IModelElement.Filter {
 	}
 	
 	
+	@Override
 	public boolean include(final IModelElement element) {
 		final IRLangSourceElement rElement = (IRLangSourceElement) element;
 		if (fNextComment == null) {

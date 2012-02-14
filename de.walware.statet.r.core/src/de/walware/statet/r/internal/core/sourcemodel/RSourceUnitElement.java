@@ -46,23 +46,28 @@ final class RSourceUnitElement implements IBuildSourceFrameElement {
 	}
 	
 	
+	@Override
 	public void setSourceChildren(final List<? extends IRLangSourceElement> children) {
 		fSourceChildrenProtected = children;
 	}
 	
+	@Override
 	public BuildSourceFrame getBuildFrame() {
 		return fEnvir;
 	}
 	
 	
+	@Override
 	public String getModelTypeId() {
 		return RModel.TYPE_ID;
 	}
 	
+	@Override
 	public int getElementType() {
 		return IModelElement.C2_SOURCE_FILE;
 	}
 	
+	@Override
 	public RElementName getElementName() {
 		final IElementName elementName = fSourceUnit.getElementName();
 		if (elementName instanceof RElementName) {
@@ -71,62 +76,76 @@ final class RSourceUnitElement implements IBuildSourceFrameElement {
 		return RElementName.create(RElementName.RESOURCE, elementName.getSegmentName());
 	}
 	
+	@Override
 	public String getId() {
 		return fSourceUnit.getId();
 	}
 	
+	@Override
 	public boolean exists() {
 		final ISourceUnitModelInfo modelInfo = getSourceUnit().getModelInfo(RModel.TYPE_ID, 0, null);
 		return (modelInfo != null && modelInfo.getSourceElement() == this);
 	}
 	
+	@Override
 	public boolean isReadOnly() {
 		return fSourceUnit.isReadOnly();
 	}
 	
 	
+	@Override
 	public IRElement getModelParent() {
 		return null;
 	}
 	
+	@Override
 	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
 	
+	@Override
 	public List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
 		return null;
 	}
 	
+	@Override
 	public ISourceStructElement getSourceParent() {
 		return null;
 	}
 	
+	@Override
 	public boolean hasSourceChildren(final Filter filter) {
 		return RSourceElements.hasChildren(fSourceChildrenProtected, filter);
 	}
 	
+	@Override
 	public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
 		return RSourceElements.getChildren(fSourceChildrenProtected, filter);
 	}
 	
+	@Override
 	public ISourceUnit getSourceUnit() {
 		return fSourceUnit;
 	}
 	
 	
+	@Override
 	public IRegion getSourceRange() {
 		return fSourceNode;
 	}
 	
+	@Override
 	public IRegion getNameSourceRange() {
 		return null;
 	}
 	
+	@Override
 	public IRegion getDocumentationRange() {
 		return null;
 	}
 	
 	
+	@Override
 	public Object getAdapter(final Class required) {
 		if (IAstNode.class.equals(required)) {
 			return fSourceNode;

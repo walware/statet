@@ -47,6 +47,7 @@ public class RFileHyperlinkDetector extends AbstractHyperlinkDetector {
 	}
 	
 	
+	@Override
 	public IHyperlink[] detectHyperlinks(final ITextViewer textViewer,
 			final IRegion region, final boolean canShowMultipleHyperlinks) {
 		try {
@@ -83,7 +84,7 @@ public class RFileHyperlinkDetector extends AbstractHyperlinkDetector {
 					string = document.get(start, stop-start);
 				}
 				
-				if (string == null || string.length() == 0) {
+				if (string == null || string.isEmpty()) {
 					return null;
 				}
 				IContainer relativeBase = null;

@@ -127,6 +127,7 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 	}
 	
 	
+	@Override
 	public Image getImage(Object element) {
 		if (element instanceof RHelpSearchUIMatch) {
 			element = ((RHelpSearchUIMatch) element).getRHelpMatch().getPage();
@@ -151,6 +152,7 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 		}
 	}
 	
+	@Override
 	public String getText(Object element) {
 		if (element instanceof RHelpSearchUIMatch) {
 			element = ((RHelpSearchUIMatch) element).getRHelpMatch().getPage();

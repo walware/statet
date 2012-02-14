@@ -23,6 +23,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class WorkbenchStatusHandler implements IStatusHandler {
 	
 	
+	@Override
 	public Object handleStatus(final IStatus status, final Object source) throws CoreException {
 		StatusManager.getManager().handle(status,
 				StatusManager.LOG | StatusManager.SHOW);

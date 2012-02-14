@@ -45,6 +45,7 @@ public class RHelpSearchUIQuery implements ISearchQuery {
 	}
 	
 	
+	@Override
 	public IStatus run(final IProgressMonitor monitor) throws OperationCanceledException {
 		synchronized (this) {
 			if (fResult == null) {
@@ -54,10 +55,12 @@ public class RHelpSearchUIQuery implements ISearchQuery {
 		}
 		
 		final IRHelpSearchRequestor requestor = new IRHelpSearchRequestor() {
+			@Override
 			public int maxFragments() {
 				return PreferencesUtil.getInstancePrefs().getPreferenceValue(
 						RHelpPreferences.SEARCH_PREVIEW_FRAGMENTS_MAX_PREF);
 			}
+			@Override
 			public void matchFound(final IRHelpSearchMatch match) {
 				fResult.addMatch(new RHelpSearchUIMatch(match));
 			}
@@ -74,6 +77,7 @@ public class RHelpSearchUIQuery implements ISearchQuery {
 		}
 	}
 	
+	@Override
 	public String getLabel() {
 		return Messages.Search_Query_label;
 	}
@@ -91,14 +95,17 @@ public class RHelpSearchUIQuery implements ISearchQuery {
 		return NLS.bind(Messages.Search_Pattern_label, searchString);
 	}
 	
+	@Override
 	public boolean canRerun() {
 		return fQuery.getREnv().getConfig() != null;
 	}
 	
+	@Override
 	public boolean canRunInBackground() {
 		return true;
 	}
 	
+	@Override
 	public ISearchResult getSearchResult() {
 		synchronized (this) {
 			if (fResult == null) {

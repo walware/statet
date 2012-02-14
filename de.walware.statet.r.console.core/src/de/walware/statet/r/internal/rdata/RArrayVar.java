@@ -62,6 +62,7 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 		readExternal(io, factory);
 	}
 	
+	@Override
 	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		//-- options
 		final int options = io.readInt();
@@ -88,6 +89,7 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 		}
 	}
 	
+	@Override
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		//-- options
 		int options = 0;
@@ -116,14 +118,17 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 	}
 	
 	
+	@Override
 	public final byte getRObjectType() {
 		return TYPE_ARRAY;
 	}
 	
+	@Override
 	public String getRClassName() {
 		return this.className1;
 	}
 	
+	@Override
 	public int getLength() {
 		if (this.dimAttribute.getLength() == 0) {
 			return 0;
@@ -139,10 +144,12 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 		return length;
 	}
 	
+	@Override
 	public RIntegerStore getDim() {
 		return this.dimAttribute;
 	}
 	
+	@Override
 	public RCharacterStore getDimNames() {
 		if (this.dimnamesAttribute != null) {
 			return this.dimnamesAttribute.getNames();
@@ -150,6 +157,7 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 		return null;
 	}
 	
+	@Override
 	public RStore getNames(final int dim) {
 		if (this.dimnamesAttribute != null) {
 			return this.dimnamesAttribute.get(dim);
@@ -158,19 +166,23 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 	}
 	
 	
+	@Override
 	public DataType getData() {
 		return this.data;
 	}
 	
 	
+	@Override
 	public int getElementType() {
 		return R_GENERAL_VARIABLE;
 	}
 	
+	@Override
 	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
 	
+	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		return Collections.EMPTY_LIST;
 	}

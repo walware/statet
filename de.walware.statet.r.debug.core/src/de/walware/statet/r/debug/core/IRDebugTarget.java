@@ -22,8 +22,10 @@ import de.walware.statet.r.console.core.RProcess;
 public interface IRDebugTarget extends IDebugTarget {
 	
 	
+	@Override
 	RProcess getProcess();
 	
+	@Override
 	IRDebugTarget getDebugTarget();
 	
 }

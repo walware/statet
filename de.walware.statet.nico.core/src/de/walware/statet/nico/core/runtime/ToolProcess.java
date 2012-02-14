@@ -179,10 +179,13 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		fCaptureOutput = false;
 		
 		DebugPlugin.getDefault().getLaunchManager().addLaunchListener(new ILaunchesListener() {
+			@Override
 			public void launchesAdded(final ILaunch[] launches) {
 			}
+			@Override
 			public void launchesChanged(final ILaunch[] launches) {
 			}
+			@Override
 			public void launchesRemoved(final ILaunch[] launches) {
 				for (final ILaunch launch : launches) {
 					if (fLaunch == launch) {
@@ -204,6 +207,7 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		fController = controller;
 		fWorkspaceData = fController.fWorkspaceData;
 		fWorkspaceData.addPropertyListener(new Listener() {
+			@Override
 			public void propertyChanged(final ToolWorkspace workspace, final Map<String, Object> properties) {
 				final DebugEvent nameEvent;
 				synchronized (fAttributes) {
@@ -231,6 +235,7 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		fFeatureSets.add(featureSetID);
 	}
 	
+	@Override
 	public boolean isProvidingFeatureSet(final String featureSetID) {
 		return fFeatureSets.contains(featureSetID);
 	}
@@ -286,6 +291,7 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 				idx1 : idx2;
 	}
 	
+	@Override
 	public final String getMainType() {
 		return fMainType;
 	}
@@ -297,6 +303,7 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 	 * 
 	 * @return
 	 */
+	@Override
 	public String getLabel() {
 		return fName;
 	}
@@ -314,6 +321,7 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 	 * @param config allows to configure the information to include in the label
 	 * @return the label
 	 */
+	@Override
 	public String getLabel(final int config) {
 		if ((config & LONG_LABEL) != 0) {
 			return fToolLabelLong;
@@ -321,6 +329,7 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		return fToolLabelShort;
 	}
 	
+	@Override
 	public ILaunch getLaunch() {
 		return fLaunch;
 	}
@@ -333,10 +342,12 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		return fHistory;
 	}
 	
+	@Override
 	public Queue getQueue() {
 		return fQueue;
 	}
 	
+	@Override
 	public IStreamsProxy getStreamsProxy() {
 		return (fCaptureOutput && fController != null) ? fController.getStreams() : null;
 	}
@@ -346,6 +357,7 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		return fWorkspaceData;
 	}
 	
+	@Override
 	public void setAttribute(final String key, final String value) {
 		final DebugEvent event = doSetAttribute(key, value);
 		if (event != null) {
@@ -366,6 +378,7 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		}
 	}
 	
+	@Override
 	public String getAttribute(final String key) {
 		synchronized (fAttributes) {
 			return fAttributes.get(key);
@@ -398,10 +411,12 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 	}
 	
 	
+	@Override
 	public boolean canTerminate() {
 		return (!isTerminated());
 	}
 	
+	@Override
 	public void terminate() throws DebugException {
 		final ToolController controller = fController;
 		if (controller != null) {
@@ -409,10 +424,12 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		}
 	}
 	
+	@Override
 	public boolean isTerminated() {
 		return fStatus == ToolStatus.TERMINATED;
 	}
 	
+	@Override
 	public int getExitValue() throws DebugException {
 		if (!isTerminated()) {
 			throw new DebugException(new Status(
@@ -423,6 +440,7 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		return fExitValue;
 	}
 	
+	@Override
 	public void controllerStatusRequested(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
 		switch(requestedStatus) {
 		case STARTED_PAUSED:
@@ -436,6 +454,7 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		}
 	}
 	
+	@Override
 	public void controllerStatusRequestCanceled(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
 		switch(requestedStatus) {
 		case STARTED_PAUSED:
@@ -450,6 +469,7 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 	}
 	
 	/** Called by Controller */
+	@Override
 	public void controllerStatusChanged(final ToolStatus oldStatus, final ToolStatus newStatus, final List<DebugEvent> eventCollection) {
 		fStatus = newStatus;
 		switch(newStatus) {

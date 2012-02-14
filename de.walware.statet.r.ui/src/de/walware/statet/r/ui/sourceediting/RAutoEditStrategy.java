@@ -76,6 +76,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	
 	
 	private class RealTypeListener implements VerifyKeyListener {
+		@Override
 		public void verifyKey(final VerifyEvent event) {
 			if (!event.doit) {
 				return;
@@ -140,11 +141,13 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		fMyListener = new RealTypeListener();
 	}
 	
+	@Override
 	public void install(final ISourceEditor editor) {
 		assert (editor.getViewer() == fViewer);
 		fViewer.prependVerifyKeyListener(fMyListener);
 	}
 	
+	@Override
 	public void uninstall() {
 		fViewer.removeVerifyKeyListener(fMyListener);
 	}

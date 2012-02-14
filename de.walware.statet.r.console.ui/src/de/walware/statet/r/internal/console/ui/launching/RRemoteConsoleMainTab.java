@@ -120,6 +120,7 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 				return Status.CANCEL_STATUS;
 			}
 			fSshAddressValue.getRealm().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					fSshAddressValue.setValue(s);
 				}
@@ -127,6 +128,7 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 			return Status.OK_STATUS;
 		}
 		
+		@Override
 		public void handleValueChange(final ValueChangeEvent event) {
 			cancel();
 			fUser = (String) fUserValue.getValue();
@@ -231,7 +233,7 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 						fRemoteEngineSelectionDialog.clearAdditionaAddress(true);
 					}
 					String userName = (String) fUserValue.getValue();
-					if (userName != null && userName.length() == 0) {
+					if (userName != null && userName.isEmpty()) {
 						userName = null;
 					}
 					final String text = fAddressControl.getText();
@@ -427,7 +429,7 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 				// Calculate the validation status
 				if (!getType().getId().equals(REMOTE_RJS_RECONNECT)) {
 					final String text = (String) fAddressValue.getValue();
-					if (text == null || text.length() == 0) {
+					if (text == null || text.isEmpty()) {
 						return ValidationStatus.error("Missing address for R remote engine ('//host[:port]/rsessionname').");
 					}
 					try {
@@ -496,14 +498,15 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 			DialogUtil.setVisible(fCommandControls, null, true);
 			
 			UIAccess.getDisplay().asyncExec(new Runnable() {
+				@Override
 				public void run() {
-					if (fUserValue.getValue() == null || ((String) fUserValue.getValue()).length() == 0) {
+					if (fUserValue.getValue() == null || ((String) fUserValue.getValue()).isEmpty()) {
 						fUserValue.setValue(System.getProperty("user.name")); 
 					}
 					if (fSshPortValue.getValue() == null) {
 						fSshPortValue.setValue(22);
 					}
-					if (fCommandValue.getValue() == null || ((String) fCommandValue.getValue()).length() == 0) {
+					if (fCommandValue.getValue() == null || ((String) fCommandValue.getValue()).isEmpty()) {
 						fCommandValue.setValue(RRemoteConsoleLaunchDelegate.DEFAULT_COMMAND);
 					}
 				}

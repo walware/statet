@@ -141,18 +141,21 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void sessionStarted(final ISourceEditor editor) {
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void sessionEnded() {
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IStatus computeCompletionProposals(final AssistInvocationContext context,
 			final int mode, final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		final String tagPrefix = getTagPrefix(context);
@@ -208,6 +211,7 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IStatus computeContextInformation(final AssistInvocationContext context,
 			final AssistProposalCollector<IAssistInformationProposal> proposals, final IProgressMonitor monitor) {
 		return null;

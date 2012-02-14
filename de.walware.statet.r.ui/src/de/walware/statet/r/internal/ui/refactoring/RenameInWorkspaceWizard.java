@@ -68,6 +68,7 @@ public class RenameInWorkspaceWizard extends RefactoringWizard {
 			return (RenameInWorkspaceRefactoring) super.getRefactoring();
 		}
 		
+		@Override
 		public void createControl(final Composite parent) {
 			final Composite composite = new Composite(parent, SWT.NONE);
 			composite.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
@@ -178,6 +179,7 @@ public class RenameInWorkspaceWizard extends RefactoringWizard {
 			dbc.bindValue(SWTObservables.observeText(fVariableNameControl, SWT.Modify),
 					PojoObservables.observeValue(realm, getRefactoring(), "newName"), //$NON-NLS-1$
 					new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
+						@Override
 						public IStatus validate(final Object value) {
 							final RenameInWorkspaceRefactoring refactoring = getRefactoring();
 							final RefactoringStatus status = refactoring.checkNewName((String) value);

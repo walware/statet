@@ -181,7 +181,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 			result.merge(RefactoringStatus.createFatalErrorStatus(Messages.RenameInWorkspace_error_InvalidSelection_message)); // no common variable
 			return;
 		}
-		if (currentAccess.getSegmentName() == null || currentAccess.getSegmentName().length() == 0) {
+		if (currentAccess.getSegmentName() == null || currentAccess.getSegmentName().isEmpty()) {
 			result.merge(RefactoringStatus.createFatalErrorStatus(Messages.RenameInWorkspace_error_InvalidSelection_message));
 			return;
 		}

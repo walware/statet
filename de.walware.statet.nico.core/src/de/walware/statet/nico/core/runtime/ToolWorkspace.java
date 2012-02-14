@@ -60,12 +60,15 @@ public class ToolWorkspace {
 	
 	private class ControllerListener implements IToolStatusListener {
 		
+		@Override
 		public void controllerStatusRequested(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
 		}
 		
+		@Override
 		public void controllerStatusRequestCanceled(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
 		}
 		
+		@Override
 		public void controllerStatusChanged(final ToolStatus oldStatus, final ToolStatus newStatus, final List<DebugEvent> eventCollection) {
 			if (newStatus == ToolStatus.TERMINATED) {
 				dispose();
@@ -91,18 +94,22 @@ public class ToolWorkspace {
 	private class AutoUpdater implements ISystemRunnable {
 		
 		
+		@Override
 		public String getTypeId() {
 			return "common/workspace/update.auto";
 		}
 		
+		@Override
 		public String getLabel() {
 			return "Auto Update";
 		}
 		
+		@Override
 		public boolean isRunnableIn(final ITool tool) {
 			return (tool == fProcess);
 		}
 		
+		@Override
 		public boolean changed(final int event, final ITool tool) {
 			switch (event) {
 			case REMOVING_FROM:
@@ -112,6 +119,7 @@ public class ToolWorkspace {
 			return true;
 		}
 		
+		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			fIsRefreshing = true;
@@ -194,6 +202,7 @@ public class ToolWorkspace {
 			}
 		});
 		fStringVariables.add(new DynamicVariable.LocationVariable(NicoVariables.SESSION_STARTUP_WD_VARIABLE) {
+			@Override
 			public String getValue(final String argument) throws CoreException {
 				return fProcess.getStartupWD();
 			}

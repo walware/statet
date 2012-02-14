@@ -59,6 +59,7 @@ public class RPkgProjectWizardPage extends WizardPage {
 	}
 	
 	
+	@Override
 	public void createControl(final Composite parent) {
 		initializeDialogUnits(parent);
 		

@@ -31,6 +31,7 @@ public abstract class CategorizedOptionButtonsGroup<ItemT extends CategorizedIte
 		super(true, false);
 	
 		fButtonGroup = new ButtonGroup(buttonLabels, new ButtonListener() {
+			@Override
 			public void handleButtonPressed(int buttonIdx) {
 				IStructuredSelection selection = getSelectedItems();
 				CategorizedOptionButtonsGroup.this.handleButtonPressed(buttonIdx, getSingleItem(selection), selection);

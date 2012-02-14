@@ -52,6 +52,7 @@ public class RContextInformationValidator implements IContextInformationValidato
 	}
 	
 	
+	@Override
 	public boolean isContextInformationValid(final int offset) {
 		if (fInfo == null) {
 			return false;
@@ -69,6 +70,7 @@ public class RContextInformationValidator implements IContextInformationValidato
 		return (offset == fStartOffset);
 	}
 	
+	@Override
 	public void install(final IContextInformation info, final ITextViewer viewer, final int offset) {
 		fScannedArgs = null;
 		fLastPresentation = -2;
@@ -85,6 +87,7 @@ public class RContextInformationValidator implements IContextInformationValidato
 		fStartOffset = offset;
 	}
 	
+	@Override
 	public boolean updatePresentation(final int offset, final TextPresentation presentation) {
 		if (fArgInfo != null) {
 			final ArgsDefinition args = fArgInfo.getArguments();

@@ -51,21 +51,26 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 	
 	private class ActivationListener implements IPartListener {
 		
+		@Override
 		public void partActivated(final IWorkbenchPart part) {
 			if (part == RDataEditor.this) {
 				updateStatusLine();
 			}
 		}
 		
+		@Override
 		public void partBroughtToTop(final IWorkbenchPart part) {
 		}
 		
+		@Override
 		public void partClosed(final IWorkbenchPart part) {
 		}
 		
+		@Override
 		public void partOpened(final IWorkbenchPart part) {
 		}
 		
+		@Override
 		public void partDeactivated(final IWorkbenchPart part) {
 		}
 		
@@ -81,6 +86,7 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 	private RDataEditorOutlinePage fOutlinePage;
 	
 	private final IRDataTableInput.StateListener fInputStateListener = new IRDataTableInput.StateListener() {
+		@Override
 		public void tableUnavailable() {
 			close(false);
 		}
@@ -173,6 +179,7 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 	@Override
 	public void createPartControl(final Composite parent) {
 		fTable = new RDataTableComposite(parent, new Runnable() {
+			@Override
 			public void run() {
 				close(false);
 			}
@@ -234,6 +241,7 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 	
 	protected void initStatusLine() {
 		fTable.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
 			public void selectionChanged(final SelectionChangedEvent event) {
 				final IStatusLineManager manager = getEditorSite().getActionBars().getStatusLineManager();
 				final RDataTableSelection selection = (RDataTableSelection) event.getSelection();
@@ -277,6 +285,7 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 	public void close(final boolean save) {
 		final Display display = getSite().getShell().getDisplay();
 		display.asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				getSite().getPage().closeEditor(RDataEditor.this, save);
 			}

@@ -44,14 +44,17 @@ public class ModelDelta implements IModelElementDelta {
 	}
 	
 	
+	@Override
 	public IModelElement getModelElement() {
 		return fElement;
 	}
 	
+	@Override
 	public RAstInfo getOldAst() {
 		return fOldAst;
 	}
 	
+	@Override
 	public RAstInfo getNewAst() {
 		return fNewAst;
 	}

@@ -54,22 +54,27 @@ public class RunEntireCommandRunnable implements IConsoleRunnable {
 	}
 	
 	
+	@Override
 	public String getTypeId() {
 		return "r/console/runCommand"; //$NON-NLS-1$
 	}
 	
+	@Override
 	public SubmitType getSubmitType() {
 		return SubmitType.EDITOR;
 	}
 	
+	@Override
 	public String getLabel() {
 		return fLabel;
 	}
 	
+	@Override
 	public boolean isRunnableIn(ITool tool) {
 		return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
 	}
 	
+	@Override
 	public boolean changed(final int event, final ITool process) {
 		switch (event) {
 		case REMOVING_FROM:
@@ -84,6 +89,7 @@ public class RunEntireCommandRunnable implements IConsoleRunnable {
 		return true;
 	}
 	
+	@Override
 	public void run(final IToolService service,
 			final IProgressMonitor monitor) throws CoreException {
 		final AbstractRController r = (AbstractRController) service;

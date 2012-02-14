@@ -99,6 +99,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 	}
 	
 	
+	@Override
 	public Image getImage(final IModelElement element) {
 		switch ((element.getElementType() & MASK_C1) >> SHIFT_C1) {
 		
@@ -192,6 +193,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 	}
 	
 	
+	@Override
 	public String getText(final IModelElement element) {
 		final String name = element.getElementName().getDisplayName();
 		
@@ -247,6 +249,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 //		}
 //	}
 	
+	@Override
 	public StyledString getStyledText(final IModelElement element) {
 		if (element instanceof IRElement) {
 			final IRElement rElement = (IRElement) element;
@@ -421,6 +424,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 //	}
 	
 	
+	@Override
 	public Image getImage(final Object element) {
 		if (element instanceof ICombinedRElement) {
 			return getImage((ICombinedRElement) element);
@@ -431,6 +435,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		return null;
 	}
 	
+	@Override
 	public String getText(final Object element) {
 		if (element instanceof ICombinedRElement) {
 			return getText((ICombinedRElement) element);

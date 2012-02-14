@@ -46,14 +46,17 @@ public class BreakpointMarkerUpdater implements IMarkerUpdater {
 	};
 	
 	
+	@Override
 	public String getMarkerType() {
 		return IBreakpoint.BREAKPOINT_MARKER;
 	}
 	
+	@Override
 	public String[] getAttribute() {
 		return ATTRIBUTES;
 	}
 	
+	@Override
 	public boolean updateMarker(final IMarker marker, final IDocument document, final Position position) {
 		if (position == null) {
 			return true;

@@ -308,7 +308,7 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 	
 	private boolean updateName(final RElementName envName) {
 		if (envName == null || envName.getSegmentName() == null
-				|| envName.getSegmentName().length() == 0) {
+				|| envName.getSegmentName().isEmpty()) {
 			return false;
 		}
 		final List<RElementName> segments = new ArrayList<RElementName>();

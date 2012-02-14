@@ -66,31 +66,40 @@ public class FindDataDialog extends ExtStatusDialog {
 	
 	private class PartListener implements IWindowListener, IPartListener {
 		
+		@Override
 		public void windowOpened(final IWorkbenchWindow window) {
 		}
+		@Override
 		public void windowClosed(final IWorkbenchWindow window) {
 			if (fWindow == window) {
 				close();
 			}
 		}
+		@Override
 		public void windowActivated(final IWorkbenchWindow window) {
 		}
+		@Override
 		public void windowDeactivated(final IWorkbenchWindow window) {
 		}
 		
+		@Override
 		public void partOpened(final IWorkbenchPart part) {
 		}
+		@Override
 		public void partClosed(final IWorkbenchPart part) {
 			if (fPart == part) {
 				fPart = null;
 			}
 		}
+		@Override
 		public void partActivated(final IWorkbenchPart part) {
 			fPart = part;
 			update(part);
 		}
+		@Override
 		public void partDeactivated(final IWorkbenchPart part) {
 		}
+		@Override
 		public void partBroughtToTop(final IWorkbenchPart part) {
 		}
 		
@@ -115,6 +124,7 @@ public class FindDataDialog extends ExtStatusDialog {
 	
 	
 	private final IFindListener fFindListener = new IFindListener() {
+		@Override
 		public void handleFindEvent(final IFindListener.FindEvent event) {
 			updateStatus(event.status);
 		}
@@ -206,6 +216,7 @@ public class FindDataDialog extends ExtStatusDialog {
 				new GridData(SWT.FILL, SWT.CENTER, true, false), fTextControl, 25 ));
 		
 		fTextControl.addListener(SWT.Modify, new Listener() {
+			@Override
 			public void handleEvent(final Event event) {
 				updateStatus(null);
 				updateState();
@@ -331,7 +342,7 @@ public class FindDataDialog extends ExtStatusDialog {
 	}
 	
 	private void loadQuery(final String text) {
-		if (text == null || text.length() == 0) {
+		if (text == null || text.isEmpty()) {
 			return;
 		}
 		

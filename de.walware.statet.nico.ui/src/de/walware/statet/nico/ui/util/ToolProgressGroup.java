@@ -50,15 +50,19 @@ public class ToolProgressGroup {
 	
 	
 	private static final IProgressInfo DUMMY_INFO = new IProgressInfo() {
+		@Override
 		public String getLabel() {
 			return ""; //$NON-NLS-1$
 		}
+		@Override
 		public String getSubLabel() {
 			return ""; //$NON-NLS-1$
 		}
+		@Override
 		public int getWorked() {
 			return 0;
 		}
+		@Override
 		public IToolRunnable getRunnable() {
 			return null;
 		}
@@ -89,6 +93,7 @@ public class ToolProgressGroup {
 	
 	private class DebugEventListener implements IDebugEventSetListener {
 		
+		@Override
 		public void handleDebugEvents(final DebugEvent[] events) {
 			final ToolInfo tool = fTool;
 			for (final DebugEvent event : events) {
@@ -156,6 +161,7 @@ public class ToolProgressGroup {
 	private void createControls(final Composite parent) {
 		fComposite = new Composite(parent, SWT.NONE);
 		fComposite.addDisposeListener(new DisposeListener() {
+			@Override
 			public void widgetDisposed(final DisposeEvent e) {
 				ToolProgressGroup.this.dispose();
 			}

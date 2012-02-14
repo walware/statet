@@ -39,6 +39,7 @@ public class RunHelpInR extends AbstractRCommandHandler {
 	}
 	
 	
+	@Override
 	public Object execute(final ExecutionEvent arg) throws ExecutionException {
 		String topic = arg.getParameter(PAR_TOPIC);
 		if (topic == null) {

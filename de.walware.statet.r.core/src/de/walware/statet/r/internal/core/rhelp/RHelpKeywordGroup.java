@@ -35,18 +35,22 @@ public class RHelpKeywordGroup implements IRHelpKeyword.Group {
 	}
 	
 	
+	@Override
 	public String getLabel() {
 		return fLabel;
 	}
 	
+	@Override
 	public String getDescription() {
 		return fDescription;
 	}
 	
+	@Override
 	public List<IRHelpKeyword> getNestedKeywords() {
 		return fNested;
 	}
 	
+	@Override
 	public IRHelpKeyword getNestedKeyword(final String keyword) {
 		for (int i = 0; i < fNested.size(); i++) {
 			final IRHelpKeyword node = fNested.get(i);

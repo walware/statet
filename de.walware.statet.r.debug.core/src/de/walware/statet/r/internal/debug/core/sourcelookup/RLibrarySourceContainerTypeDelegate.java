@@ -29,6 +29,7 @@ public class RLibrarySourceContainerTypeDelegate extends AbstractSourceContainer
 	}
 	
 	
+	@Override
 	public ISourceContainer createSourceContainer(final String memento)
 			throws CoreException {
 		final Node node = parseDocument(memento);
@@ -36,7 +37,7 @@ public class RLibrarySourceContainerTypeDelegate extends AbstractSourceContainer
 			final Element element = (Element) node;
 			if (RLibrarySourceContainer.TYPE_ID.equals(element.getNodeName())) {
 				final String path = element.getAttribute("path"); //$NON-NLS-1$
-				if (path == null || path.length() == 0) {
+				if (path == null || path.isEmpty()) {
 					abort(Messages.RLibrarySourceContainer_error_InvalidConfiguration_message, null); 
 				}
 				return new RLibrarySourceContainer(path);
@@ -47,6 +48,7 @@ public class RLibrarySourceContainerTypeDelegate extends AbstractSourceContainer
 		return null;
 	}
 	
+	@Override
 	public String getMemento(final ISourceContainer container) throws CoreException {
 		final RLibrarySourceContainer rLibraryContainer = (RLibrarySourceContainer) container;
 		final Document document = newDocument();

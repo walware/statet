@@ -139,10 +139,12 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 		}
 		
 		
+		@Override
 		public Object getElement() {
 			return fSourceElement;
 		}
 		
+		@Override
 		public synchronized int getLineNumber() {
 			if (fCurrentContext != fFrame.getContext()) {
 				update();
@@ -150,6 +152,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 			return fLineNumber;
 		}
 		
+		@Override
 		public synchronized int getCharStart() {
 			if (fCurrentContext != fFrame.getContext()) {
 				update();
@@ -157,6 +160,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 			return fCharStart;
 		}
 		
+		@Override
 		public synchronized int getCharEnd() {
 			if (fCurrentContext != fFrame.getContext()) {
 				update();
@@ -172,6 +176,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 			fFrame.setPositionResolver(fCurrentContext, this);
 		}
 		
+		@Override
 		public void select() {
 			install();
 		}
@@ -222,6 +227,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 	}
 	
 	
+	@Override
 	public String getSourceName(final Object object) throws CoreException {
 		if (object instanceof RStackFrame) {
 			final RStackFrame frame = (RStackFrame) object;

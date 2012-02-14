@@ -93,6 +93,7 @@ public class UIBindings {
 		}
 		
 		
+		@Override
 		public void run(final NatTable natTable, final KeyEvent event) {
 			natTable.doCommand(new ScrollCommand(getDirection(), getStepSize()));
 		}
@@ -107,6 +108,7 @@ public class UIBindings {
 		}
 		
 		
+		@Override
 		public void run(final NatTable natTable, final KeyEvent event) {
 			final Set<SelectionFlag> flags = ((event.stateMask & SWT.SHIFT) == SWT.SHIFT) ?
 					EnumSet.of(SelectionFlag.RANGE_SELECTION) : SelectionFlag.NONE;
@@ -121,6 +123,7 @@ public class UIBindings {
 		public ColumnHeaderConfiguration() {
 		}
 		
+		@Override
 		public void configureUiBindings(final UiBindingRegistry uiBindingRegistry) {
 			uiBindingRegistry.registerFirstMouseMoveBinding(new ColumnResizeEventMatcher(
 					IMouseEventMatcher.NO_BUTTON, true),
@@ -150,6 +153,7 @@ public class UIBindings {
 		}
 		
 		
+		@Override
 		public void configureUiBindings(final UiBindingRegistry uiBindingRegistry) {
 			// scroll/roll navigation
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.CTRL, SWT.ARROW_UP),
@@ -267,6 +271,7 @@ public class UIBindings {
 		}
 		
 		
+		@Override
 		public void configureUiBindings(final UiBindingRegistry uiBindingRegistry) {
 			uiBindingRegistry.registerSingleClickBinding(
 					new MouseEventMatcher(GridRegion.COLUMN_HEADER, 1, SWT.ALT),
@@ -286,6 +291,7 @@ public class UIBindings {
 			fMenuManager = new MenuManager();
 			fMenuManager.createContextMenu(natTable);
 			natTable.addDisposeListener(new DisposeListener() {
+				@Override
 				public void widgetDisposed(final DisposeEvent e) {
 					fMenuManager.dispose();
 				}
@@ -327,6 +333,7 @@ public class UIBindings {
 			});
 		}
 		
+		@Override
 		public void configureUiBindings(final UiBindingRegistry uiBindingRegistry) {
 			uiBindingRegistry.registerSingleClickBinding(
 					new MouseEventMatcher(GridRegion.COLUMN_HEADER, IMouseEventMatcher.RIGHT_BUTTON, SWT.NONE),

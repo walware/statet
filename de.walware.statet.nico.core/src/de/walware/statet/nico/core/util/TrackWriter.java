@@ -134,6 +134,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 			if (fConfig.getTrackStreamInput()) {
 				fInputListener = (fConfig.getTrackStreamInputHistoryOnly()) ?
 						new IStreamListener() {
+							@Override
 							public void streamAppended(final String text, final IStreamMonitor monitor) {
 								if ((((ToolStreamMonitor) monitor).getMeta() & IConsoleService.META_HISTORY_DONTADD) == 0) {
 									TrackWriter.this.streamAppendedNL(text);
@@ -141,6 +142,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 							}
 						} :
 						new IStreamListener() {
+							@Override
 							public void streamAppended(final String text, final IStreamMonitor monitor) {
 								TrackWriter.this.streamAppended(text, monitor);
 							}
@@ -151,6 +153,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 				if (fConfig.getTrackStreamOutputTruncate()) {
 					fTrumcateMax = fConfig.getTrackStreamOutputTruncateLines();
 					fOutputListener = new IStreamListener() {
+						@Override
 						public void streamAppended(final String text, final IStreamMonitor monitor) {
 							TrackWriter.this.streamAppendedTruncateOutput(text);
 						}
@@ -193,6 +196,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 		return FileUtil.getFileStore(filePath);
 	}
 	
+	@Override
 	public void streamAppended(final String text, final IStreamMonitor monitor) {
 		fTruncateCurrent = 0;
 		try {
@@ -272,6 +276,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 		dispose();
 	}
 	
+	@Override
 	public void dispose() {
 		if (fOutputWriter != null) {
 			try {
@@ -286,10 +291,12 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 		}
 	}
 	
+	@Override
 	public String getName() {
 		return fConfig.getName();
 	}
 	
+	@Override
 	public void flush() {
 		final Writer writer = fOutputWriter;
 		if (writer != null) {
@@ -300,6 +307,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 			}
 		}
 	}
+	@Override
 	public IFileStore getFile() {
 		return fStoreFile;
 	}

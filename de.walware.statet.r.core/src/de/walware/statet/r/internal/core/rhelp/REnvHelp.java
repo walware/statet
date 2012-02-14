@@ -77,18 +77,22 @@ public class REnvHelp implements IREnvHelp {
 		}
 	}
 	
+	@Override
 	public IREnv getREnv() {
 		return fREnv;
 	}
 	
+	@Override
 	public List<IRHelpKeyword.Group> getKeywords() {
 		return fKeywords;
 	}
 	
+	@Override
 	public List<IRPackageHelp> getRPackages() {
 		return fPackages;
 	}
 	
+	@Override
 	public IRPackageHelp getRPackage(final String packageName) {
 		return getPackageMap().get(packageName);
 	}
@@ -141,6 +145,7 @@ public class REnvHelp implements IREnvHelp {
 		return reader;
 	}
 	
+	@Override
 	public IRHelpPage getPage(final String packageName, final String name) {
 		final IRPackageHelp packageHelp = getPackageMap().get(packageName);
 		if (packageHelp != null) {
@@ -149,6 +154,7 @@ public class REnvHelp implements IREnvHelp {
 		return null;
 	}
 	
+	@Override
 	public IRHelpPage getPageForTopic(final String packageName, final String topic) {
 		final IRPackageHelp packageHelp = getPackageMap().get(packageName);
 		if (packageHelp != null) {
@@ -161,19 +167,23 @@ public class REnvHelp implements IREnvHelp {
 		return getIndex().getPageForTopic(packageHelp, topic);
 	}
 	
+	@Override
 	public String getHtmlPage(final IRHelpPage page) {
 		return getHtmlPage(page.getPackage().getName(), page.getName(), null, null, null);
 	}
 	
+	@Override
 	public String getHtmlPage(final String packageName, final String pageName) {
 		return getHtmlPage(packageName, pageName, null, null, null);
 	}
 	
+	@Override
 	public String getHtmlPage(final String packageName, final String pageName,
 			final String queryString, final String[] preTags, final String[] postTags) {
 		return getIndex().getHtmlPage(packageName, pageName, queryString, preTags, postTags);
 	}
 	
+	@Override
 	public List<IRHelpPage> getPagesForTopic(final String topic) {
 		return getIndex().getPagesForTopic(topic, getPackageMap());
 	}
@@ -202,6 +212,7 @@ public class REnvHelp implements IREnvHelp {
 		fLock.readLock().lock();
 	}
 	
+	@Override
 	public void unlock() {
 		fLock.readLock().unlock();
 	}

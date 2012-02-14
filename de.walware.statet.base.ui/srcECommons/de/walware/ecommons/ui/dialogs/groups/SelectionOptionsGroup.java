@@ -41,6 +41,7 @@ public abstract class SelectionOptionsGroup<ItemT extends Object> implements Opt
 	}
 
 
+	@Override
 	public void createGroup(Composite parent, int hSpan) {
 		Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), 2);
 		fComposite = layouter.composite;
@@ -68,6 +69,7 @@ public abstract class SelectionOptionsGroup<ItemT extends Object> implements Opt
 	/**
 	 * Standard-Implementierung macht nichts.
 	 */
+	@Override
 	public void initFields() {
 	}
 

@@ -47,18 +47,22 @@ public class StepIntoSelectionHyperlink implements IHyperlink {
 	}
 	
 	
+	@Override
 	public String getTypeLabel() {
 		return null;
 	}
 	
+	@Override
 	public IRegion getHyperlinkRegion() {
 		return fRegion;
 	}
 	
+	@Override
 	public String getHyperlinkText() {
 		return null;
 	}
 	
+	@Override
 	public void open() {
 		StepIntoSelectionHandler.exec(fController, fDocument, fAccess, fEditor.getWorkbenchPart());
 	}

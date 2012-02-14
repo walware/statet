@@ -236,6 +236,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 			
 			fListButtons.connectTo(fListViewer, fList, fDefault);
 			fListViewer.setComparer(new IElementComparer() {
+				@Override
 				public int hashCode(final Object element) {
 					if (element instanceof IREnvConfiguration) {
 						return ((IREnvConfiguration) element).getReference().hashCode();
@@ -243,6 +244,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 					return element.hashCode();
 				}
 				
+				@Override
 				public boolean equals(final Object a, final Object b) {
 					if (a instanceof IREnvConfiguration && b instanceof IREnvConfiguration) {
 						return ((IREnvConfiguration) a).getReference().equals(

@@ -51,6 +51,7 @@ public class RHelpHover implements IInfoHover {
 	}
 	
 	
+	@Override
 	public Object getHoverInfo(final AssistInvocationContext context) {
 		final AstSelection selection = context.getAstSelection();
 		if (!(selection.getCovering() instanceof RAstNode)) {
@@ -159,6 +160,7 @@ public class RHelpHover implements IInfoHover {
 		return null;
 	}
 	
+	@Override
 	public IInformationControlCreator getHoverControlCreator() {
 		return new RHelpInfoHoverCreator(fFocus);
 	}

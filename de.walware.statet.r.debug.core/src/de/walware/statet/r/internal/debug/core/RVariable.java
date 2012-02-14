@@ -26,26 +26,32 @@ public abstract class RVariable extends RDebugElement implements IVariable {
 	}
 	
 	
+	@Override
 	public boolean hasValueChanged() throws DebugException {
 		return false;
 	}
 	
+	@Override
 	public boolean supportsValueModification() {
 		return false;
 	}
 	
+	@Override
 	public boolean verifyValue(final String expression) throws DebugException {
 		throw newNotSupported();
 	}
 	
+	@Override
 	public boolean verifyValue(final IValue value) throws DebugException {
 		throw newNotSupported();
 	}
 	
+	@Override
 	public void setValue(final String expression) throws DebugException {
 		throw newNotSupported();
 	}
 	
+	@Override
 	public void setValue(final IValue value) throws DebugException {
 		throw newNotSupported();
 	}

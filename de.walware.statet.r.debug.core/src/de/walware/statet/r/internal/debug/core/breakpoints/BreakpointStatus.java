@@ -35,6 +35,7 @@ public class BreakpointStatus implements IRMethodBreakpointStatus {
 	}
 	
 	
+	@Override
 	public int getKind() {
 		switch (fEvent.getKind()) {
 		case TracepointEvent.KIND_ABOUT_TO_HIT:
@@ -43,19 +44,23 @@ public class BreakpointStatus implements IRMethodBreakpointStatus {
 		return 0;
 	}
 	
+	@Override
 	public String getLabel() {
 		return fLabel;
 	}
 	
+	@Override
 	public IRBreakpoint getBreakpoint() {
 		return fBreakpoint;
 	}
 	
+	@Override
 	public boolean isEntry() {
 		return (fEvent.getType() == Tracepoint.TYPE_FB
 				&& (fEvent.getFlags() & TracepointState.FLAG_MB_ENTRY) != 0 );
 	}
 	
+	@Override
 	public boolean isExit() {
 		return (fEvent.getType() == Tracepoint.TYPE_FB
 				&& (fEvent.getFlags() & TracepointState.FLAG_MB_EXIT) != 0 );

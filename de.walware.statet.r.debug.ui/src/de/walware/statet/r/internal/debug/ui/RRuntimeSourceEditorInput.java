@@ -35,32 +35,39 @@ public class RRuntimeSourceEditorInput implements ISourceFragmentEditorInput {
 	}
 	
 	
+	@Override
 	public ISourceFragment getSourceFragment() {
 		return fFragment;
 	}
 	
+	@Override
 	public ImageDescriptor getImageDescriptor() {
 		return RDebugUIPlugin.getDefault().getImageRegistry().getDescriptor(
 				RDebugUIPlugin.IMG_OBJ_R_SOURCE_FROM_RUNTIME );
 	}
 	
+	@Override
 	public String getName() {
 		return fFragment.getName();
 	}
 	
+	@Override
 	public boolean exists() {
 		return !fFragment.getProcess().isTerminated();
 	}
 	
+	@Override
 	public String getToolTipText() {
 		return fFragment.getFullName() + '\n' + fFragment.getProcess().getLabel(ITool.LONG_LABEL);
 	}
 	
+	@Override
 	public IPersistableElement getPersistable() {
 		return null;
 	}
 	
 	
+	@Override
 	public Object getAdapter(final Class required) {
 		if (required == ToolProcess.class) {
 			return fFragment.getProcess();

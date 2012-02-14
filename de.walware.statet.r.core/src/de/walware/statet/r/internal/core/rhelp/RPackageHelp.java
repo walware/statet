@@ -55,22 +55,27 @@ public class RPackageHelp implements IRPackageHelp {
 	}
 	
 	
+	@Override
 	public String getName() {
 		return fName;
 	}
 	
+	@Override
 	public String getTitle() {
 		return fTitle;
 	}
 	
+	@Override
 	public String getVersion() {
 		return fVersion;
 	}
 	
+	@Override
 	public IREnv getREnv() {
 		return fREnv;
 	}
 	
+	@Override
 	public IRPackageDescription getPackageDescription() {
 		final REnvHelp help = RCorePlugin.getDefault().getRHelpManager().getHelp(fREnv);
 		if (help != null) {
@@ -84,10 +89,12 @@ public class RPackageHelp implements IRPackageHelp {
 		return null;
 	}
 	
+	@Override
 	public List<IRHelpPage> getHelpPages() {
 		return fHelpPages;
 	}
 	
+	@Override
 	public IRHelpPage getHelpPage(final String name) {
 		if (name != null) {
 			for (final IRHelpPage page : fHelpPages) {
@@ -128,6 +135,7 @@ public class RPackageHelp implements IRPackageHelp {
 				&& fREnv.equals(other.getREnv()));
 	}
 	
+	@Override
 	public int compareTo(final IRPackageHelp o) {
 		return RSymbolComparator.R_NAMES_COLLATOR.compare(fName, o.getName());
 	}

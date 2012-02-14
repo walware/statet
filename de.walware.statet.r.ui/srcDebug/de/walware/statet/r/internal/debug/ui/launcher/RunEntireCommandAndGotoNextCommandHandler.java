@@ -43,6 +43,7 @@ public class RunEntireCommandAndGotoNextCommandHandler extends RunEntireCommandH
 			final RAstNode[] nodes = data.nodes;
 			final int offset = getNextOffset(nodes[nodes.length-1], data.document);
 			UIAccess.getDisplay().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					data.editor.selectAndReveal(offset, 0);
 				}

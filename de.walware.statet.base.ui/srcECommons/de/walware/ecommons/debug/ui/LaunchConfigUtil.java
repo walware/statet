@@ -192,6 +192,7 @@ public class LaunchConfigUtil {
 			}
 		}
 		
+		@Override
 		public void handleDebugEvents(final DebugEvent[] events) {
 			for (int i = 0; i < events.length; i++) {
 				final DebugEvent event = events[i];
@@ -325,6 +326,7 @@ public class LaunchConfigUtil {
 		
 		private final Collator fCollator = Collator.getInstance();
 		
+		@Override
 		public int compare(final ILaunchConfiguration c1, final ILaunchConfiguration c2) {
 			return fCollator.compare(c1.getName(), c2.getName());
 		}

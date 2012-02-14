@@ -91,6 +91,7 @@ public class ChangeWorkingDirectoryWizard extends Wizard {
 			setDescription(RConsoleMessages.ChangeWorkingDir_SelectDialog_message);
 		}
 		
+		@Override
 		public void createControl(final Composite parent) {
 			initializeDialogUnits(parent);
 			

@@ -49,10 +49,12 @@ public class RModelEventJob extends Job {
 			fEvent = event;
 		}
 		
+		@Override
 		public void run() {
 			fListener.elementChanged(fEvent);
 		}
 		
+		@Override
 		public void handleException(final Throwable exception) {
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "An error occured while notifying an ElementChangedListener.", exception));  //$NON-NLS-1$
 		}

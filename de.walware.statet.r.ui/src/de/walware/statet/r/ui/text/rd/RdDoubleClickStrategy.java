@@ -48,6 +48,7 @@ public class RdDoubleClickStrategy implements ITextDoubleClickStrategy {
 	/**
 	 * @see ITextDoubleClickStrategy#doubleClicked
 	 */
+	@Override
 	public void doubleClicked(final ITextViewer textViewer) {
 		final int offset = textViewer.getSelectedRange().x;
 		

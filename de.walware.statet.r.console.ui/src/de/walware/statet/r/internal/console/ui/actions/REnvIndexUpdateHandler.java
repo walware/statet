@@ -54,6 +54,7 @@ public class REnvIndexUpdateHandler extends AbstractHandler {
 	}
 	
 	
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		ToolProcess process = fProcess;
 		if (process == null) {

@@ -172,9 +172,11 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		
 		private final HashMap<String, RemoteR[]> fMapping = new HashMap<String, RemoteR[]>();
 		
+		@Override
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 		}
 		
+		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public Object[] getElements(final Object inputElement) {
 			final List<RemoteR> all = (List<RemoteR>) inputElement;
@@ -199,6 +201,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			return fMapping.keySet().toArray();
 		}
 		
+		@Override
 		public Object getParent(final Object element) {
 			if (element instanceof RemoteR) {
 				return ((RemoteR) element).info.getUsername(ServerInfo.USER_OWNER);
@@ -206,10 +209,12 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			return null;
 		}
 		
+		@Override
 		public boolean hasChildren(final Object element) {
 			return (element instanceof String);
 		}
 		
+		@Override
 		public Object[] getChildren(final Object parentElement) {
 			if (parentElement instanceof String) {
 				return fMapping.get(parentElement);
@@ -217,6 +222,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			return null;
 		}
 		
+		@Override
 		public void dispose() {
 		}
 		
@@ -417,9 +423,11 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			fRServerViewer.setContentProvider(new RemoteRContentProvider());
 			
 			fRServerViewer.getTree().addSelectionListener(new SelectionListener() {
+				@Override
 				public void widgetSelected(final SelectionEvent e) {
 					updateState();
 				}
+				@Override
 				public void widgetDefaultSelected(final SelectionEvent e) {
 					updateState();
 					if (getOkButton().isEnabled()) {
@@ -446,6 +454,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		if (input != null && input.length() > 0) {
 			try {
 				new ProgressMonitorDialog(getShell()).run(true, true, new IRunnableWithProgress() {
+					@Override
 					public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 						status.set(updateRServerList(input, monitor));
 					}
@@ -500,6 +509,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		
 		if (fUsername != null && fUsername.length() > 0) {
 			Display.getCurrent().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					if (fInitialAddress != null) {
 						fHostAddressControl.setText(fInitialAddress);
@@ -567,7 +577,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 					address = address.substring(2);
 				}
 			}
-			if (address.length() == 0) {
+			if (address.isEmpty()) {
 				return null;
 			}
 			if (monitor.isCanceled()) {

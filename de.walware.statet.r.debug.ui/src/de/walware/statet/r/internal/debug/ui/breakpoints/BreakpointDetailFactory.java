@@ -30,6 +30,7 @@ public class BreakpointDetailFactory implements IDetailPaneFactory {
 	}
 	
 	
+	@Override
 	public Set getDetailPaneTypes(final IStructuredSelection selection) {
 		final Set<String> types = new HashSet<String>();
 		if (selection.size() == 1 && selection.getFirstElement() instanceof IRBreakpoint) {
@@ -44,6 +45,7 @@ public class BreakpointDetailFactory implements IDetailPaneFactory {
 		return types;
 	}
 	
+	@Override
 	public String getDefaultDetailPane(final IStructuredSelection selection) {
 		if (selection.size() == 1 && selection.getFirstElement() instanceof IRBreakpoint) {
 			final String breakpointType = ((IRBreakpoint) selection.getFirstElement()).getBreakpointType();
@@ -57,6 +59,7 @@ public class BreakpointDetailFactory implements IDetailPaneFactory {
 		return null;
 	}
 	
+	@Override
 	public String getDetailPaneName(final String paneID) {
 		if (paneID.equals(RLineBreakpointDetailPane.ID)
 				|| paneID.equals(RMethodBreakpointDetailPane.ID) ) { 
@@ -65,6 +68,7 @@ public class BreakpointDetailFactory implements IDetailPaneFactory {
 		return null;
 	}
 	
+	@Override
 	public String getDetailPaneDescription(final String paneID) {
 		if (paneID.equals(RLineBreakpointDetailPane.ID)
 				|| paneID.equals(RMethodBreakpointDetailPane.ID) ) { 
@@ -73,6 +77,7 @@ public class BreakpointDetailFactory implements IDetailPaneFactory {
 		return null;
 	}
 	
+	@Override
 	public IDetailPane createDetailPane(final String paneID) {
 		if (paneID.equals(RLineBreakpointDetailPane.ID)) {
 			return new RLineBreakpointDetailPane();

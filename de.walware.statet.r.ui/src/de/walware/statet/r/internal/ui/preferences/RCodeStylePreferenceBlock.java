@@ -230,6 +230,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		final IObservableValue indentObservable = ViewersObservables.observeSingleSelection(fIndentPolicy);
 		indentObservable.setValue(null);
 		indentObservable.addValueChangeListener(new IValueChangeListener() {
+			@Override
 			public void handleValueChange(final ValueChangeEvent event) {
 				final IndentationType t = (IndentationType) event.diff.getNewValue();
 				fIndentSpaceCountLabel.setEnabled(t == IndentationType.SPACES);

@@ -106,48 +106,59 @@ public class ExportedRElement implements IRLangElement, Serializable {
 	}
 	
 	
+	@Override
 	public String getModelTypeId() {
 		return RModel.TYPE_ID;
 	}
 	
+	@Override
 	public String getId() {
 		return fElementId;
 	}
 	
+	@Override
 	public int getElementType() {
 		return fElementType;
 	}
 	
+	@Override
 	public RElementName getElementName() {
 		return fElementName;
 	}
 	
+	@Override
 	public boolean exists() {
 		return true;
 	}
 	
+	@Override
 	public boolean isReadOnly() {
 		return false;
 	}
 	
 	
+	@Override
 	public IRElement getModelParent() {
 		return fParent;
 	}
 	
+	@Override
 	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
 	
+	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		return Collections.EMPTY_LIST;
 	}
 	
 	
+	@Override
 	public ISourceUnit getSourceUnit() {
 		return fParent.getSourceUnit();
 	}
 	
+	@Override
 	public IRegion getSourceRange() {
 		if (fSourceOffset >= 0) {
 			return new Region(fSourceOffset, fSourceLength);
@@ -155,6 +166,7 @@ public class ExportedRElement implements IRLangElement, Serializable {
 		return null;
 	}
 	
+	@Override
 	public IRegion getNameSourceRange() {
 		if (fNameOffset >= 0) {
 			return new Region(fNameOffset, fNameLength);
@@ -162,11 +174,13 @@ public class ExportedRElement implements IRLangElement, Serializable {
 		return null;
 	}
 	
+	@Override
 	public IRegion getDocumentationRange() {
 		return null;
 	}
 	
 	
+	@Override
 	public Object getAdapter(final Class required) {
 		return null;
 	}

@@ -34,6 +34,7 @@ public class StatetPerspectiveFactory implements IPerspectiveFactory {
 		super();
 	}
 	
+	@Override
 	public void createInitialLayout(final IPageLayout layout) {
 		final String editorArea = layout.getEditorArea();
 		

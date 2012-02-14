@@ -404,6 +404,7 @@ public abstract class NatTableContributionItem extends ContributionItem {
 	private Listener getItemListener() {
 		if (menuItemListener == null) {
 			menuItemListener = new Listener() {
+				@Override
 				public void handleEvent(final Event event) {
 					switch (event.type) {
 					case SWT.Dispose:
@@ -492,6 +493,7 @@ public abstract class NatTableContributionItem extends ContributionItem {
 						workbenchHelpSystem.setHelp(menu, helpContextId);
 					}
 					menuManager.addMenuListener(new IMenuListener() {
+						@Override
 						public void menuAboutToShow(final IMenuManager manager) {
 							dropDownMenuAboutToShow(manager);
 						}

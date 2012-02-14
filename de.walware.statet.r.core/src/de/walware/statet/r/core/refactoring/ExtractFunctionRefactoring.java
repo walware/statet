@@ -316,6 +316,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 		} catch (final InvocationTargetException e) {}
 		fVariablesList = new ArrayList<Variable>(fVariablesMap.values());
 		Collections.sort(fVariablesList, new Comparator<Variable>() {
+			@Override
 			public int compare(final Variable o1, final Variable o2) {
 				return RElementAccess.NAME_POSITION_COMPARATOR.compare(o1.fFirstAccess, o2.fFirstAccess);
 			}

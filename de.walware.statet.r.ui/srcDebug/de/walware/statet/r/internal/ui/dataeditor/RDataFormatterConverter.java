@@ -80,10 +80,12 @@ public class RDataFormatterConverter implements IDisplayConverter {
 	}
 	
 	
+	@Override
 	public Object canonicalToDisplayValue(final Object canonicalValue) {
 		return getFormatter().modelToDisplayValue(canonicalValue);
 	}
 	
+	@Override
 	public Object displayToCanonicalValue(final Object displayValue) {
 		throw new UnsupportedOperationException();
 	}

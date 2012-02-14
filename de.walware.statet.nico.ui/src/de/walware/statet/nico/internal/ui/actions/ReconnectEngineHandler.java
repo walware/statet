@@ -79,6 +79,7 @@ public class ReconnectEngineHandler extends ToolRetargetableHandler {
 	
 	private IRunnableWithProgress createRunnable(final ToolProcess process) {
 		return new IRunnableWithProgress() {
+			@Override
 			public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				final ILaunch originallaunch = process.getLaunch();
 				ILaunchConfiguration originalConfig = originallaunch.getLaunchConfiguration();

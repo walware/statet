@@ -65,6 +65,7 @@ public abstract class AbstractRCommandHandler extends AbstractHandler {
 	protected String getRSelection() {
 		final AtomicReference<String> topic = new AtomicReference<String>();
 		UIAccess.getDisplay().syncExec(new Runnable() {
+			@Override
 			public void run() {
 				topic.set(EnrichedRHelpContext.searchContextInfo(UIAccess.getActiveWorkbenchPage(true).getActivePart()));
 				if (topic.get() == null) {

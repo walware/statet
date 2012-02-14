@@ -76,6 +76,7 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 	
 	private enum SubmitType { DONOTHING, SUBMITINPUT, PASTECLIPBOARD };
 	
+	@Override
 	public boolean submit(final String[] rCommands, final boolean gotoConsole) throws CoreException {
 		// goto option not implemented (requires extension of .net-code)
 		final SubmitType type;
@@ -99,6 +100,7 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 //		cmd[1]  = rCmd.toString();
 	}
 	
+	@Override
 	public void gotoConsole() throws CoreException {
 		doRunConnector(SubmitType.DONOTHING, null);
 	}
@@ -111,6 +113,7 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 		final IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
 		
 		final IRunnableWithProgress runnable = new IRunnableWithProgress(){
+			@Override
 			public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 				try {
 					final Process p = DebugPlugin.exec(processCmd, null);
