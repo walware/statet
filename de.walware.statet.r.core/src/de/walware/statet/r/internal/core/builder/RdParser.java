@@ -56,6 +56,13 @@ public class RdParser {
 			return low-1;
 		}
 		
+		public int getLineOffset(final int line) {
+			if (line < 0 || line >= fOffsets.size()) {
+				return -1;
+			}
+			return fOffsets.get(line);
+		}
+		
 	}
 	
 	
