@@ -23,7 +23,6 @@ import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.WorkingContext;
-import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.text.ISourceFragment;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -78,7 +77,7 @@ public class RFragmentSourceUnit extends GenericFragmentSourceUnit implements IR
 	}
 	
 	@Override
-	public AstInfo<? extends IAstNode> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
+	public AstInfo getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
 		if (type == null || type == RModel.TYPE_ID) {
 			if (ensureSync) {
 				RCore.getRModelManager().reconcile(this, IModelManager.AST, false, monitor);

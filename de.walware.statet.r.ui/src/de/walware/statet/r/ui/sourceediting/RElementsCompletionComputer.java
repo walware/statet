@@ -312,7 +312,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		final AstSelection astSelection = context.getAstSelection();
 		IAstNode node = astSelection.getCovering();
 		if (node == null) {
-			node = context.getAstInfo().root;
+			node = context.getAstInfo().getRootNode();
 		}
 		if (!(node instanceof RAstNode)) {
 			return null;
@@ -764,10 +764,11 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	
 	private FCallInfo searchFCallInfo(final AssistInvocationContext context, final int fcallOpen) {
 		final AstInfo astInfo = context.getAstInfo();
-		if (astInfo == null || astInfo.root == null) {
+		if (astInfo == null || astInfo.getRootNode() == null) {
 			return null;
 		}
-		final AstSelection selection = AstSelection.search(astInfo.root, fcallOpen, fcallOpen+1, AstSelection.MODE_COVERING_SAME_LAST);
+		final AstSelection selection = AstSelection.search(astInfo.getRootNode(),
+				fcallOpen, fcallOpen+1, AstSelection.MODE_COVERING_SAME_LAST );
 		IAstNode node = selection.getCovering();
 		
 		while (node != null && node instanceof RAstNode) {

@@ -31,6 +31,7 @@ import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.LTKUtil;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
+
 import de.walware.statet.r.console.core.RDbg;
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRLangSourceElement;
@@ -341,7 +342,7 @@ public class RLineBreakpointValidator {
 	}
 	
 	private RAstNode searchSuspendAstNode(final int offset, final IProgressMonitor monitor) {
-		final IAstNode astNode = AstSelection.search(getModelInfo(monitor).getAst().root,
+		final IAstNode astNode = AstSelection.search(getModelInfo(monitor).getAst().getRootNode(),
 				offset, offset, AstSelection.MODE_COVERING_SAME_FIRST).getCovering();
 		if (astNode instanceof RAstNode) {
 			RAstNode rNode = (RAstNode) astNode;

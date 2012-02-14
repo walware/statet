@@ -49,16 +49,16 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
-import org.eclipse.osgi.util.NLS;
 
+import de.walware.ecommons.MessageBuilder;
 import de.walware.ecommons.ltk.IProblem;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.Problem;
+import de.walware.ecommons.ltk.SourceContent;
+import de.walware.ecommons.ltk.SourceContentLines;
+import de.walware.ecommons.text.ILineInformation;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -117,25 +117,31 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	private static final int MASK = 0x00ffffff;
 	
 	private ISourceUnit fCurrentUnit;
-	private IDocument fCurrentDoc;
+	private SourceContent fCurrentContent;
+	private ILineInformation fCurrentLines;
 	private IProblemRequestor fCurrentRequestor;
+	
+	private final MessageBuilder fMessageBuilder = new MessageBuilder();
 	private final List<IProblem> fProblemBuffer = new ArrayList<IProblem>(BUFFER_SIZE);
+	
 	private boolean fReportSubsequent = false;
-	private int fMaxOffset;
+//	private int fMaxOffset;
 	
 	
 	public SyntaxProblemReporter() {
 	}
 	
 	
-	public void run(final IRSourceUnit unit, final AbstractDocument doc,
+	public void run(final IRSourceUnit unit, final SourceContentLines content,
 			final RAstInfo ast, final IProblemRequestor problemRequestor) {
 		try {
 			fCurrentUnit = unit;
-			fCurrentDoc = doc;
-			fMaxOffset = fCurrentDoc.getLength();
+			fCurrentContent = content;
+			fCurrentLines = content.lines;
+//			fCurrentDoc = unit.getDocument(null);
+//			fMaxOffset = fCurrentDoc.getLength();
 			fCurrentRequestor = problemRequestor;
-			ast.root.acceptInR(this);
+			ast.getRootNode().acceptInR(this);
 			if (fProblemBuffer.size() > 0) {
 				fCurrentRequestor.acceptProblems(RModel.TYPE_ID, fProblemBuffer);
 			}
@@ -145,7 +151,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		finally {
 			fProblemBuffer.clear();
 			fCurrentUnit = null;
-			fCurrentDoc = null;
+//			fCurrentDoc = null;
 			fCurrentRequestor = null;
 		}
 	}
@@ -162,8 +168,8 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		
 		case STATUS2_SYNTAX_TOKEN_UNEXPECTED:
 			addProblem(IProblem.SEVERITY_ERROR, code,
-					NLS.bind(ProblemMessages.Syntax_TokenUnexpected_message, getFullText(node)),
-					node.getOffset(), node.getStopOffset());
+					fMessageBuilder.bind(ProblemMessages.Syntax_TokenUnexpected_message, getFullText(node)),
+					node.getOffset(), node.getStopOffset() );
 			return;
 		}
 		handleUnknownCodes(node);
@@ -171,20 +177,30 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	protected void handleUnknownCodes(final RAstNode node) {
 		final int code = (node.getStatusCode() & MASK);
-		String message = "Unhandled/Unknown code of R AST node:\n"+ //$NON-NLS-1$
-				"  Code: 0x"+Integer.toHexString(code)+"\n"+ //$NON-NLS-1$ //$NON-NLS-2$
-				"  Node: "+node.toString()+" ("+node.getOffset()+", "+node.getLength()+")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		if (fCurrentDoc != null) {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("Unhandled/Unknown code of R AST node:"); //$NON-NLS-1$
+		sb.append('\n');
+		sb.append("  Code: 0x").append(Integer.toHexString(code)); //$NON-NLS-1$
+		sb.append('\n');
+		sb.append("  Node: ").append(node);
+		sb.append(" (").append(node.getOffset()).append(", ").append(node.getLength()).append(')'); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append('\n');
+		if (fCurrentContent != null) {
 			try {
-				final int line = fCurrentDoc.getLineOfOffset(node.getOffset());
-				final IRegion lineInfo = fCurrentDoc.getLineInformation(line);
-				message += "  Line "+line+" at offset "+lineInfo.getOffset()+" (can be wrong, if out of synch): \n    "+ //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						fCurrentDoc.get(lineInfo.getOffset(), lineInfo.getLength());
+				final int line = fCurrentLines.getLineOfOffset(node.getOffset());
+				sb.append("  Line ").append((line+1)).append(" (offset )").append(fCurrentLines.getLineOffset(line)); //$NON-NLS-1$ //$NON-NLS-2$
+				sb.append('\n');
+				
+				final int firstLine = Math.max(0, line-2);
+				final int lastLine = Math.min(fCurrentLines.getNumberOfLines()-1, fCurrentLines.getLineOfOffset(line)+2);
+				sb.append("  Source (line ").append((firstLine+1)).append('-').append((lastLine)).append("): \n"); //$NON-NLS-1$ //$NON-NLS-2$
+				sb.append(fCurrentContent.text.substring(fCurrentLines.getLineOffset(firstLine),
+						fCurrentLines.getLineOffset(lastLine) ));
 			}
 			catch (final BadLocationException e) {
 			}
 		}
-		RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, message));
+		RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, sb.toString()));
 	}
 	
 	
@@ -217,7 +233,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_CC_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_BlockNotClosed_message,
-							node.getStopOffset()-1, node.getStopOffset()+1);
+							node.getStopOffset()-1, node.getStopOffset()+1 );
 					break;
 				default:
 					handleCommonCodes(node);
@@ -241,7 +257,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_CC_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_GroupNotClosed_message,
-							node.getStopOffset()-1, node.getStopOffset()+1);
+							node.getStopOffset()-1, node.getStopOffset()+1 );
 					break;
 				default:
 					handleCommonCodes(node);
@@ -265,17 +281,17 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_IF_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_IfOfElseMissing_message,
-							node.getOffset(), node.getOffset()+1);
+							node.getOffset(), node.getOffset()+1 );
 					break;
 				case STATUS2_SYNTAX_CONDITION_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionMissing_If_message,
-							node.getOffset()+1, node.getOffset()+3);
+							node.getOffset()+1, node.getOffset()+3 );
 					break;
 				case STATUS2_SYNTAX_CONDITION_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionNotClosed_If_message,
-							node.getCondChild().getStopOffset()-1, node.getCondChild().getStopOffset()+1);
+							node.getCondChild().getStopOffset()-1, node.getCondChild().getStopOffset()+1 );
 					break;
 				default:
 					handleCommonCodes(node);
@@ -299,17 +315,17 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_CONDITION_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionMissing_For_message,
-							node.getOffset()+2, node.getOffset()+4);
+							node.getOffset()+2, node.getOffset()+4 );
 					break;
 				case STATUS2_SYNTAX_CONDITION_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionNotClosed_For_message,
-							node.getCondChild().getStopOffset()-1, node.getCondChild().getStopOffset()+1);
+							node.getCondChild().getStopOffset()-1, node.getCondChild().getStopOffset()+1 );
 					break;
 				case STATUS2_SYNTAX_IN_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_InOfForConditionMissing_message,
-							node.getVarChild().getStopOffset()-1, node.getVarChild().getStopOffset()+1);
+							node.getVarChild().getStopOffset()-1, node.getVarChild().getStopOffset()+1 );
 					break;
 				default:
 					handleCommonCodes(node);
@@ -353,12 +369,12 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_CONDITION_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionMissing_While_message,
-							node.getOffset()+4, node.getOffset()+6);
+							node.getOffset()+4, node.getOffset()+6 );
 					break;
 				case STATUS2_SYNTAX_CONDITION_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionNotClosed_While_message,
-							node.getCondChild().getStopOffset()-1, node.getCondChild().getStopOffset()+1);
+							node.getCondChild().getStopOffset()-1, node.getCondChild().getStopOffset()+1 );
 					break;
 				default:
 					handleCommonCodes(node);
@@ -401,7 +417,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_FCALL_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_FcallArgsNotClosed_message,
-							node.getArgsChild().getStopOffset()-1, node.getArgsChild().getStopOffset()+1);
+							node.getArgsChild().getStopOffset()-1, node.getArgsChild().getStopOffset()+1 );
 					break;
 				default:
 					handleCommonCodes(node);
@@ -463,12 +479,12 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_FDEF_ARGS_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_FdefArgsMissing_message,
-							node.getOffset()+7, node.getOffset()+9);
+							node.getOffset()+7, node.getOffset()+9 );
 					break;
 				case STATUS2_SYNTAX_FDEF_ARGS_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_FdefArgsNotClosed_message,
-							node.getArgsChild().getStopOffset()-1, node.getArgsChild().getStopOffset()+1);
+							node.getArgsChild().getStopOffset()-1, node.getArgsChild().getStopOffset()+1 );
 					break;
 				default:
 					handleCommonCodes(node);
@@ -565,9 +581,10 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
 				if ((code & STATUS_MASK_123) == (IRSourceConstants.STATUS_SYNTAX_SEQREL_UNEXPECTED & STATUS_MASK_123)) {
-					addProblem(IProblem.SEVERITY_ERROR, code,
-							NLS.bind(ProblemMessages.Syntax_TokenUnexpected_SeqRel_message, node.getOperator(0).text),
-							node.getOffset(), node.getStopOffset());
+					addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
+							ProblemMessages.Syntax_TokenUnexpected_SeqRel_message,
+							node.getOperator(0).text ),
+							node.getOffset(), node.getStopOffset() );
 				}
 				else {
 //				switch ((code & STATUS_MASK_12)) {
@@ -667,10 +684,10 @@ public class SyntaxProblemReporter extends RAstVisitor {
 			try {
 				switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_TOKEN_NOT_CLOSED:
-					addProblem(IProblem.SEVERITY_ERROR, code, NLS.bind(
+					addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
 							ProblemMessages.Syntax_SpecialNotClosed_message,
-							getStartText(node)),
-							node.getStopOffset()-1, node.getStopOffset()+1);
+							getStartText(node) ),
+							node.getStopOffset()-1, node.getStopOffset()+1 );
 					break;
 				default:
 					handleCommonCodes(node);
@@ -713,22 +730,22 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case IRSourceConstants.STATUS2_SYNTAX_SUBINDEXED_NOT_CLOSED:
 				{
 					if (node.getNodeType() == NodeType.SUB_INDEXED_S) {
-						addProblem(IProblem.SEVERITY_ERROR, code, NLS.bind(
+						addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
 								ProblemMessages.Syntax_SubindexedNotClosed_S_message,
-								getStartText(node)),
-								node.getStopOffset()-1, node.getStopOffset()+1);
+								getStartText(node) ),
+								node.getStopOffset()-1, node.getStopOffset()+1 );
 					}
 					else if (node.getSublistCloseOffset() != Integer.MIN_VALUE) {
-						addProblem(IProblem.SEVERITY_ERROR, code, NLS.bind(
+						addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
 								ProblemMessages.Syntax_SubindexedNotClosed_Done_message,
-								getStartText(node)),
-								node.getStopOffset()-1, node.getStopOffset()+1);
+								getStartText(node) ),
+								node.getStopOffset()-1, node.getStopOffset()+1 );
 					}
 					else {
-						addProblem(IProblem.SEVERITY_ERROR, code, NLS.bind(
+						addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
 								ProblemMessages.Syntax_SubindexedNotClosed_Dboth_message,
-								getStartText(node)),
-								node.getStopOffset()-1, node.getStopOffset()+1);
+								getStartText(node) ),
+								node.getStopOffset()-1, node.getStopOffset()+1 );
 					}
 					break;
 				}
@@ -828,10 +845,10 @@ public class SyntaxProblemReporter extends RAstVisitor {
 			try {
 				switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_TOKEN_NOT_CLOSED:
-					addProblem(IProblem.SEVERITY_ERROR, code, NLS.bind(
+					addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
 							ProblemMessages.Syntax_StringNotClosed_message,
-							getStartText(node), node.getOperator(0).text),
-							node.getStopOffset()-1, node.getStopOffset()+1);
+							getStartText(node), node.getOperator(0).text ),
+							node.getStopOffset()-1, node.getStopOffset()+1 );
 					break;
 				default:
 					handleCommonCodes(node);
@@ -852,16 +869,16 @@ public class SyntaxProblemReporter extends RAstVisitor {
 			try {
 				switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_FLOAT_WITH_L:
-					addProblem(IProblem.SEVERITY_WARNING, code, NLS.bind(
+					addProblem(IProblem.SEVERITY_WARNING, code, fMessageBuilder.bind(
 							ProblemMessages.Syntax_FloatWithLLiteral_message,
-							getFullText(node)),
-							node.getStopOffset()-1, node.getStopOffset());
+							getFullText(node) ),
+							node.getStopOffset()-1, node.getStopOffset() );
 					break;
 				case STATUS2_SYNTAX_FLOAT_EXP_INVALID:
-					addProblem(IProblem.SEVERITY_ERROR, code, NLS.bind(
+					addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
 							ProblemMessages.Syntax_FloatExpInvalid_message,
-							getFullText(node), node.getOperator(0).text),
-							node.getOffset(), node.getStopOffset());
+							getFullText(node), node.getOperator(0).text ),
+							node.getOffset(), node.getStopOffset() );
 					break;
 				default:
 					handleCommonCodes(node);
@@ -903,20 +920,20 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_SYMBOL_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_SymbolMissing_message,
-							node.getOffset()-1, node.getStopOffset()+1);
+							node.getOffset()-1, node.getStopOffset()+1 );
 					break;
 				case STATUS2_SYNTAX_ELEMENTNAME_MISSING:
 					// this can be a status for string too, but never used there
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ElementnameMissing_message,
-							node.getOffset()-1, node.getStopOffset()+1);
+							node.getOffset()-1, node.getStopOffset()+1 );
 					break;
 				case STATUS2_SYNTAX_TOKEN_NOT_CLOSED:
 					// assert(node.getOperator(0) == RTerminal.SYMBOL_G)
-					addProblem(IProblem.SEVERITY_ERROR, code, NLS.bind(
+					addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
 							ProblemMessages.Syntax_QuotedSymbolNotClosed_message,
-							getStartText(node)),
-							node.getStopOffset()-1, node.getStopOffset()+1);
+							getStartText(node) ),
+							node.getStopOffset()-1, node.getStopOffset()+1 );
 					break;
 				default:
 					handleCommonCodes(node);
@@ -956,21 +973,21 @@ public class SyntaxProblemReporter extends RAstVisitor {
 			try {
 				STATUS2: switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_TOKEN_UNKNOWN:
-					addProblem(IProblem.SEVERITY_ERROR, code, NLS.bind(
+					addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
 							ProblemMessages.Syntax_TokenUnknown_message,
-							getFullText(node)),
-							node.getOffset(), node.getStopOffset());
+							getFullText(node) ),
+							node.getOffset(), node.getStopOffset() );
 					break STATUS2;
 				case STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ExprBeforeOpMissing_message,
-							node.getOffset()-1, node.getStopOffset()+1);
+							node.getOffset()-1, node.getStopOffset()+1 );
 					break STATUS2;
 				case STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING:
-					addProblem(IProblem.SEVERITY_ERROR, code, NLS.bind(
+					addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
 							ProblemMessages.Syntax_ExprAfterOpMissing_message,
-							getFullText(node)),
-							node.getOffset()-1, node.getStopOffset()+1);
+							getFullText(node) ),
+							node.getOffset()-1, node.getStopOffset()+1 );
 					break STATUS2;
 //					case STATUS2_SYNTAX_EXPR_AS_REF_MISSING:
 //					addProblem(IProblem.ERROR, code,
@@ -980,12 +997,12 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_EXPR_AS_CONDITION_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ExprAsConditionMissing_message,
-							node.getOffset()-1, node.getStopOffset()+1);
+							node.getOffset()-1, node.getStopOffset()+1 );
 					break STATUS2;
 				case STATUS2_SYNTAX_EXPR_AS_FORSEQ_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ExprAsForSequenceMissing_message,
-							node.getOffset()-1, node.getStopOffset()+1);
+							node.getOffset()-1, node.getStopOffset()+1 );
 					break STATUS2;
 				case STATUS2_SYNTAX_EXPR_AS_BODY_MISSING:
 				{
@@ -1011,24 +1028,24 @@ public class SyntaxProblemReporter extends RAstVisitor {
 					}
 					if (node.getLength() > 0) {
 						addProblem(IProblem.SEVERITY_ERROR, code, message,
-								node.getOffset(), node.getStopOffset());
+								node.getOffset(), node.getStopOffset() );
 					}
 					else {
 						addProblem(IProblem.SEVERITY_ERROR, code, message,
-								node.getOffset()-1, node.getStopOffset()+1);
+								node.getOffset()-1, node.getStopOffset()+1 );
 					}
 					break STATUS2;
 				}
 				case STATUS2_SYNTAX_EXPR_IN_GROUP_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ExprInGroupMissing_message,
-							node.getOffset()-1, node.getStopOffset()+1);
+							node.getOffset()-1, node.getStopOffset()+1 );
 					break STATUS2;
 				case STATUS2_SYNTAX_EXPR_AS_ARGVALUE_MISSING:
 					if ((code & STATUS_MASK_3) == IRSourceConstants.STATUS3_FDEF) {
 						addProblem(IProblem.SEVERITY_ERROR, code,
 								ProblemMessages.Syntax_ExprAsFdefArgDefaultMissing_message,
-								node.getOffset()-1, node.getStopOffset());
+								node.getOffset()-1, node.getStopOffset() );
 					}
 					else {
 						handleUnknownCodes(node);
@@ -1038,7 +1055,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 					if (node.getChildCount() == 2) {
 						addProblem(IProblem.SEVERITY_ERROR, code,
 								ProblemMessages.Syntax_OperatorMissing_message,
-								node.getChild(0).getStopOffset()-1, node.getChild(1).getOffset()+1);
+								node.getChild(0).getStopOffset()-1, node.getChild(1).getOffset()+1 );
 					}
 					else {
 						handleUnknownCodes(node);
@@ -1061,7 +1078,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		final String text = node.getText();
 		if (text != null) {
 			if (text.length() > FULL_TEXT_LIMIT) {
-				return text.substring(0, FULL_TEXT_LIMIT)+'…';
+				return text.substring(0, FULL_TEXT_LIMIT) + '…';
 			}
 			else {
 				return text;
@@ -1069,10 +1086,11 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		}
 		else {
 			if (node.getLength() > FULL_TEXT_LIMIT) {
-				return fCurrentDoc.get(node.getOffset(), FULL_TEXT_LIMIT)+'…';
+				return fCurrentContent.text.substring(node.getOffset(),
+						node.getOffset()+FULL_TEXT_LIMIT ) + '…';
 			}
 			else {
-				return fCurrentDoc.get(node.getOffset(), node.getLength());
+				return fCurrentContent.text.substring(node.getOffset(), node.getStopOffset());
 			}
 		}
 	}
@@ -1081,7 +1099,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		final String text = node.getText();
 		if (text != null) {
 			if (text.length() > START_TEXT_LIMIT) {
-				return text.substring(0, START_TEXT_LIMIT)+'…';
+				return text.substring(0, START_TEXT_LIMIT) + '…';
 			}
 			else {
 				return text;
@@ -1089,18 +1107,26 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		}
 		else {
 			if (node.getLength() > START_TEXT_LIMIT) {
-				return fCurrentDoc.get(node.getOffset(), START_TEXT_LIMIT)+'…';
+				return fCurrentContent.text.substring(node.getOffset(),
+						node.getOffset()+START_TEXT_LIMIT) + '…';
 			}
 			else {
-				return fCurrentDoc.get(node.getOffset(), node.getLength());
+				return fCurrentContent.text.substring(node.getOffset(), node.getStopOffset());
 			}
 		}
 	}
 	
 	
-	protected final void addProblem(final int severity, final int code, final String message, final int startOffset, final int stopOffset) {
-		fProblemBuffer.add(new Problem(severity, code, message, 
-				fCurrentUnit, (startOffset >= 0) ? startOffset : 0, (stopOffset <= fMaxOffset) ? stopOffset : fMaxOffset));
+	protected final void addProblem(final int severity, final int code, final String message,
+			int startOffset, int stopOffset) {
+		if (startOffset < 0) {
+			startOffset = 0;
+		}
+		if (stopOffset > fCurrentContent.text.length()) {
+			stopOffset = fCurrentContent.text.length();
+		}
+		fProblemBuffer.add(new Problem(severity, code, message, fCurrentUnit,
+				startOffset, stopOffset ));
 		if (fProblemBuffer.size() >= BUFFER_SIZE) {
 			fCurrentRequestor.acceptProblems(RModel.TYPE_ID, fProblemBuffer);
 			fProblemBuffer.clear();

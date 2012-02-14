@@ -31,6 +31,7 @@ import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
+
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRModelManager;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -63,7 +64,9 @@ public class StepIntoSelectionHandler extends AbstractHandler {
 				final IRModelInfo info = (IRModelInfo) su.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, new NullProgressMonitor());
 				if (info != null) {
 					final RAstInfo astInfo = info.getAst();
-					final AstSelection selection = AstSelection.search(astInfo.root, region.getOffset(), region.getOffset()+region.getLength(), AstSelection.MODE_COVERING_SAME_LAST);
+					final AstSelection selection = AstSelection.search(astInfo.getRootNode(),
+							region.getOffset(), region.getOffset()+region.getLength(),
+							AstSelection.MODE_COVERING_SAME_LAST );
 					final IAstNode covering = selection.getCovering();
 					if (covering instanceof RAstNode) {
 						final RAstNode node = (RAstNode) covering;

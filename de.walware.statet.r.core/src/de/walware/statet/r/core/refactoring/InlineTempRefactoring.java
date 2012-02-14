@@ -115,7 +115,9 @@ public class InlineTempRefactoring extends Refactoring {
 					if (modelInfo != null) {
 						final RAstInfo ast = modelInfo.getAst();
 						if (ast != null) {
-							node = (RAstNode) AstSelection.search(ast.root, region.getOffset(), region.getOffset()+region.getLength(), AstSelection.MODE_COVERING_SAME_LAST).getCovering();
+							node = (RAstNode) AstSelection.search(ast.getRootNode(),
+									region.getOffset(), region.getOffset()+region.getLength(),
+									AstSelection.MODE_COVERING_SAME_LAST ).getCovering();
 						}
 					}
 				}

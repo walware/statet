@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
-import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ui.GenericEditorWorkspaceSourceUnitWorkingCopy;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -69,7 +68,7 @@ public class RweaveTexEditorWorkingCopy extends GenericEditorWorkspaceSourceUnit
 	
 	
 	@Override
-	public AstInfo<? extends IAstNode> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
+	public AstInfo getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
 		return fModel.getAstInfo(ensureSync, monitor);
 	}
 	

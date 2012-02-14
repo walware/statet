@@ -110,7 +110,9 @@ public class ROpenDeclarationHandler extends AbstractHandler {
 				final IRModelInfo info = (IRModelInfo) su.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, new NullProgressMonitor());
 				if (info != null) {
 					final RAstInfo astInfo = info.getAst();
-					final AstSelection selection = AstSelection.search(astInfo.root, region.getOffset(), region.getOffset()+region.getLength(), AstSelection.MODE_COVERING_SAME_LAST);
+					final AstSelection selection = AstSelection.search(astInfo.getRootNode(),
+							region.getOffset(), region.getOffset()+region.getLength(),
+							AstSelection.MODE_COVERING_SAME_LAST );
 					final IAstNode covering = selection.getCovering();
 					if (covering instanceof RAstNode) {
 						final RAstNode node = (RAstNode) covering;

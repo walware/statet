@@ -43,9 +43,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.collections.primitives.ArrayIntList;
-import org.apache.commons.collections.primitives.IntList;
-
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.text.IStringCache;
@@ -143,7 +140,6 @@ public final class RScanner {
 	private RTerminal fNextType;
 	private boolean fWasLinebreak;
 	
-	private final IntList fLineOffset = new ArrayIntList();
 	private List<RAstNode> fComments;
 	private RoxygenCollector fRoxygen;
 	private int fCommentsLevel;
@@ -255,13 +251,7 @@ public final class RScanner {
 			fRoxygen.init();
 		}
 		fNextType = RTerminal.LINEBREAK;
-		fLineOffset.clear();
-		fLineOffset.add(fLexer.getOffset());
 		consumeToken();
-	}
-	
-	public int[] getLineOffsets() {
-		return fLineOffset.toArray();
 	}
 	
 	final SourceComponent scanSourceUnit(final RAstNode parent) {
@@ -1625,9 +1615,6 @@ public final class RScanner {
 				consumeComment();
 			}
 			return;
-		case LINEBREAK:
-			fLineOffset.add(fLexer.getOffset()+fLexer.getLength());
-			return;
 		default:
 			return;
 		}
@@ -1658,7 +1645,6 @@ public final class RScanner {
 				continue;
 				
 			case LINEBREAK:
-				fLineOffset.add(fLexer.getOffset()+fLexer.getLength());
 				fNextType = fLexer.next();
 				if (fNextType == RTerminal.LINEBREAK && fRoxygen.hasComment()) {
 					fComments.add(fRoxygen.finish(null));
@@ -1693,7 +1679,6 @@ public final class RScanner {
 				continue;
 				
 			case LINEBREAK:
-				fLineOffset.add(fLexer.getOffset()+fLexer.getLength());
 				fNextType = fLexer.next();
 				continue;
 				

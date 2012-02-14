@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.text.BadLocationException;
 
 import de.walware.ecommons.text.ILineInformation;
 
@@ -84,8 +85,9 @@ public class TaskMarkerHandler {
 		final String[] tags = taskPrefs.getTags();
 		final TaskPriority[] prios = taskPrefs.getPriorities();
 		
-		if (tags.length == 0)
+		if (tags.length == 0) {
 			return;
+		}
 		
 		fTaskTagMap = new HashMap<String, TaskPriority>(tags.length);
 		final String separatorRegex = "[^\\p{L}\\p{N}]"; //$NON-NLS-1$
@@ -103,7 +105,8 @@ public class TaskMarkerHandler {
 	}
 	
 	
-	public void checkForTasks(final String content, final int offset, final ILineInformation lines) throws CoreException {
+	public void checkForTasks(final String content, final int offset, final ILineInformation lines)
+			throws CoreException, BadLocationException {
 		if (fTaskTagPattern != null) {
 			final Matcher matcher = fTaskTagPattern.matcher(content);
 			if (matcher.find()) {

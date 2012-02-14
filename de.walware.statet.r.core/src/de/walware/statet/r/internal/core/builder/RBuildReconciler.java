@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.Status;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
+import de.walware.ecommons.text.ILineInformation;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
@@ -117,15 +118,16 @@ public class RBuildReconciler extends RReconciler {
 			initParseInput(data);
 //			problemRequestor.beginReportingSequence();
 			try {
-				final List<RAstNode> comments = data.ast.root.getComments();
+				final List<RAstNode> comments = data.ast.getRootNode().getComments();
 				fTaskScanner.setup((IResource) su.getResource());
+				final ILineInformation lines = getContentLines(data).lines;
 				for (final RAstNode comment : comments) {
 						final int offset = comment.getOffset()+1;
-						fTaskScanner.checkForTasks(data.content.text.substring(offset, offset+comment.getLength()-1),
-								offset, data.ast.getLineInformation());
+						fTaskScanner.checkForTasks(data.content.text.substring(
+								offset, offset+comment.getLength()-1 ), offset, lines );
 				}
 			}
-			catch (final CoreException e) {
+			catch (final Exception e) {
 				fStatusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
 						ICommonStatusConstants.BUILD_ERROR, "Failed to create task marker(s).", e));
 			}

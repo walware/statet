@@ -46,6 +46,7 @@ import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RScanner;
+import de.walware.statet.r.core.rsource.ast.SourceComponent;
 import de.walware.statet.r.internal.core.refactoring.Messages;
 
 
@@ -294,10 +295,10 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		
 		final RAstInfo ast = new RAstInfo(RAst.LEVEL_MINIMAL, 0);
 		final RScanner scanner = new RScanner(parseInput, ast);
-		ast.root = scanner.scanSourceUnit();
+		final SourceComponent rootNode = scanner.scanSourceUnit();
 		
 		final RSourceIndenter indenter = new RSourceIndenter(coreConfig);
-		final TextEdit edits = indenter.getIndentEdits(doc, ast, 0, 1, doc.getNumberOfLines()-1);
+		final TextEdit edits = indenter.getIndentEdits(doc, rootNode, 0, 1, doc.getNumberOfLines()-1);
 		edits.apply(doc, 0);
 		return doc.get(prefix.length(), doc.getLength()-prefix.length());
 	}

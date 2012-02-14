@@ -22,7 +22,6 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
-import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 import de.walware.ecommons.text.IndentUtil.IndentEditAction;
@@ -40,7 +39,6 @@ import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.GenericVisitor;
 import de.walware.statet.r.core.rsource.ast.Group;
 import de.walware.statet.r.core.rsource.ast.NodeType;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
 import de.walware.statet.r.core.rsource.ast.SubIndexed;
@@ -58,7 +56,7 @@ public class RSourceIndenter {
 	private ComputeIndentVisitor fComputeVisitor;
 	
 	private AbstractDocument fDocument;
-	private AstInfo<?> fAst;
+	private RAstNode fRootNode;
 	private RCodeStyleSettings fCodeStyle;
 	
 	private int fRefLine;
@@ -84,7 +82,7 @@ public class RSourceIndenter {
 				fCurrentLine = (fRefLine >= 0) ? fRefLine : fFirstLine;
 				fStartOffset = fDocument.getLineOffset(fCurrentLine);
 				fStopOffset = fDocument.getLineOffset(fLastLine)+fDocument.getLineLength(fLastLine);
-				fAst.root.accept(this);
+				fRootNode.accept(this);
 			}
 			catch (final BadLocationException e) {
 				throw new InvocationTargetException(e);
@@ -515,16 +513,17 @@ public class RSourceIndenter {
 	 */
 	public void clear() {
 		fDocument = null;
-		fAst = null;
+		fRootNode = null;
 		fCodeStyle = null;
 		fUtil = null;
 		fLineLevels = null;
 	}
 	
-	public TextEdit getIndentEdits(final AbstractDocument document, final RAstInfo ast, final int codeOffset, final int firstLine, final int lastLine) throws CoreException {
+	public TextEdit getIndentEdits(final AbstractDocument document, final RAstNode rootNode,
+			final int codeOffset, final int firstLine, final int lastLine) throws CoreException {
 		try {
 			fDocument = document;
-			fAst = ast;
+			fRootNode = rootNode;
 			computeIndent(codeOffset, firstLine, lastLine);
 			return createEdits();
 		}

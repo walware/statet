@@ -44,8 +44,10 @@ import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.LTK;
+
 import de.walware.rj.server.dbg.FrameContext;
 import de.walware.rj.server.dbg.Srcref;
+
 import de.walware.statet.r.console.core.RDbg;
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.model.IRMethod;
@@ -786,7 +788,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 				}
 			}
 			if (fDef == null) {
-				final RAstNode node = ((RAstInfo) modelInfo.getAst()).root.getChild(0);
+				final RAstNode node = ((RAstInfo) modelInfo.getAst()).getRootNode().getChild(0);
 				if (node.getNodeType() == NodeType.F_DEF) {
 					fDef = (FDef) node;
 				}

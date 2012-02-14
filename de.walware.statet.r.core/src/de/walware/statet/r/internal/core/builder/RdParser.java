@@ -14,6 +14,7 @@ package de.walware.statet.r.internal.core.builder;
 import org.apache.commons.collections.primitives.ArrayIntList;
 import org.apache.commons.collections.primitives.IntList;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.text.BadLocationException;
 
 import de.walware.ecommons.text.ILineInformation;
 
@@ -35,6 +36,11 @@ public class RdParser {
 		}
 		
 		@Override
+		public int getNumberOfLines() {
+			return fOffsets.size();
+		}
+		
+		@Override
 		public int getLineOfOffset(final int offset) {
 			if (fOffsets.size() == 0) {
 				return -1;
@@ -46,16 +52,20 @@ public class RdParser {
 				final int mid = (low + high) >> 1;
 				final int lineOffset = fOffsets.get(mid);
 				
-				if (lineOffset < offset)
+				if (lineOffset < offset) {
 					low = mid + 1;
-				else if (lineOffset > offset)
+				}
+				else if (lineOffset > offset) {
 					high = mid - 1;
-				else
+				}
+				else {
 					return mid;
+				}
 			}
 			return low-1;
 		}
 		
+		@Override
 		public int getLineOffset(final int line) {
 			if (line < 0 || line >= fOffsets.size()) {
 				return -1;
@@ -89,11 +99,13 @@ public class RdParser {
 	public void check() throws CoreException {
 		READ: for (; fCurrentOffset < fContent.length; fCurrentOffset++) {
 				
-			if (checkNewLine())
+			if (checkNewLine()) {
 				continue READ;
+			}
 			
-			if (checkBackslash())
+			if (checkBackslash()) {
 				continue READ;
+			}
 					
 			final char current = fContent[fCurrentOffset];
 			switch (current) {
@@ -106,8 +118,9 @@ public class RdParser {
 					CHECK_KEYS: for (int i = 0; i < PLATFORM_KEYWORDS.length; i++) {
 						int offset = fCurrentOffset+1;
 						CHECK_KEYCHARS: for (int j = 0; j < PLATFORM_KEYWORDS[i].length; j++) {
-							if (offset < fContent.length && PLATFORM_KEYWORDS[i][j] == fContent[offset++])
+							if (offset < fContent.length && PLATFORM_KEYWORDS[i][j] == fContent[offset++]) {
 								continue CHECK_KEYCHARS;
+							}
 							continue CHECK_KEYS;
 						}
 						readPlatformInstruction(PLATFORM_KEYWORDS[i]);
@@ -125,8 +138,9 @@ public class RdParser {
 		READ: for (fCurrentOffset++; fCurrentOffset < fContent.length; fCurrentOffset++) {
 			
 			end = fCurrentOffset;
-			if (checkNewLine())
+			if (checkNewLine()) {
 				break READ;
+			}
 		}
 	}
 	
@@ -141,7 +155,11 @@ public class RdParser {
 				break READ;
 			}
 		}
-		fMarkers.checkForTasks(new String(fContent, start, end-start+1), start, fLineStructure);
+		try {
+			fMarkers.checkForTasks(new String(fContent, start, end-start+1), start, fLineStructure);
+		}
+		catch (BadLocationException e) {
+		}
 	}
 	
 	private boolean checkNewLine() {

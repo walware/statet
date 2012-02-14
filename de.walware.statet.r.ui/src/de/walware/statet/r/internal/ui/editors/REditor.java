@@ -178,7 +178,7 @@ public class REditor extends SourceEditor1 implements IREditor {
 					final ITextSelection textSelection = (ITextSelection) orgSelection;
 					final int start = textSelection.getOffset();
 					final int stop = start + textSelection.getLength();
-					final List<RAstNode> comments = info.getAst().root.getComments();
+					final List<RAstNode> comments = info.getAst().getRootNode().getComments();
 					for (final RAstNode comment : comments) {
 						if (comment.getStopOffset() < start) {
 							continue;

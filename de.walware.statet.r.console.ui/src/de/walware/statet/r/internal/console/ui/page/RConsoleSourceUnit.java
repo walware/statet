@@ -24,7 +24,6 @@ import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
-import de.walware.ecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.nico.ui.console.GenericConsoleSourceUnit;
 import de.walware.statet.nico.ui.console.InputDocument;
@@ -70,7 +69,7 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit
 	}
 	
 	@Override
-	public AstInfo<? extends IAstNode> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
+	public AstInfo getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
 			if (ensureSync) {
 				RCore.getRModelManager().reconcile(this, IModelManager.AST, false, monitor);

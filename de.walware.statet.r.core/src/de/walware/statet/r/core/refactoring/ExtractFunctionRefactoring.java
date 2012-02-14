@@ -232,7 +232,9 @@ public class ExtractFunctionRefactoring extends Refactoring {
 						final IRegion region = fAdapter.trimToAstRegion(document, fSelectionRegion);
 						final RAstInfo ast = modelInfo.getAst();
 						if (ast != null) {
-							final AstSelection astSelection = AstSelection.search(ast.root, region.getOffset(), region.getOffset()+region.getLength(), AstSelection.MODE_COVERING_SAME_LAST);
+							final AstSelection astSelection = AstSelection.search(ast.getRootNode(),
+									region.getOffset(), region.getOffset()+region.getLength(),
+									AstSelection.MODE_COVERING_SAME_LAST );
 							final IAstNode covering = astSelection.getCovering();
 							if (covering instanceof RAstNode) {
 								final RAstNode rCovering = (RAstNode) covering;

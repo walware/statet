@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -418,7 +418,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 				return;
 			}
 			try {
-				ctx.fAst.root.acceptInR(new ElementFinder(ctx, fConfig));
+				ctx.fAst.getRootNode().acceptInR(new ElementFinder(ctx, fConfig));
 			}
 			catch (final InvocationTargetException e) {
 				return;

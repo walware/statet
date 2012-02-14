@@ -510,13 +510,13 @@ public class SourceAnalyzer extends RAstVisitor {
 		try {
 			init();
 			
-			final RSourceUnitElement fileElement = new RSourceUnitElement(fSourceUnit, fTopLevelEnvir, ast.root);
-			enterElement(fileElement, fTopLevelEnvir, ast.root);
-			ast.root.acceptInRChildren(this);
+			final RSourceUnitElement fileElement = new RSourceUnitElement(fSourceUnit, fTopLevelEnvir, ast.getRootNode());
+			enterElement(fileElement, fTopLevelEnvir, ast.getRootNode());
+			ast.getRootNode().acceptInRChildren(this);
 			leaveElement();
 			
 			finish();
-			final RAstInfo2 newAst = new RAstInfo2(RAst.LEVEL_MODEL_DEFAULT, ast);
+			final RAstInfoImpl newAst = new RAstInfoImpl(RAst.LEVEL_MODEL_DEFAULT, ast);
 			final RSourceInfo modelInfo = new RSourceInfo(newAst, fFrames, fTopLevelEnvir, fPackageRefs, fDependencyEnvironments, fileElement);
 			
 			fRoxygenExamples = false;

@@ -57,6 +57,7 @@ import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.core.rsource.RSourceIndenter;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
+import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RScanner;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.REditorOptions;
@@ -570,9 +571,9 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		// Compute indent
 		final RAstInfo ast = new RAstInfo(RAst.LEVEL_MINIMAL, 0);
 		final RScanner scanner = new RScanner(parseInput, ast);
-		ast.root = scanner.scanSourceUnit();
+		RAstNode rootNode = scanner.scanSourceUnit();
 		fIndenter.setup(fRCoreAccess);
-		final TextEdit edit = fIndenter.getIndentEdits(dummyDoc, ast, 0, dummyFirstLine, dummyLastLine);
+		final TextEdit edit = fIndenter.getIndentEdits(dummyDoc, rootNode, 0, dummyFirstLine, dummyLastLine);
 		
 		// Apply indent to temp doc
 		final Position cPos = new Position(dummyCoffset, c.text.length());

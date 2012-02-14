@@ -136,7 +136,8 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 			}
 			if (rStartLine <= rEndLine) {
 				fIndenter.setup((su instanceof IRSourceUnit) ? ((IRSourceUnit) su).getRCoreAccess() : RCore.getWorkbenchAccess());
-				final TextEdit rEdits = fIndenter.getIndentEdits(document, ast, range.getOffset(), rStartLine, rEndLine);
+				final TextEdit rEdits = fIndenter.getIndentEdits(document, ast.getRootNode(),
+						range.getOffset(), rStartLine, rEndLine );
 				if (rEdits.getChildrenSize() > 0) {
 					edits.addChild(rEdits);
 				}

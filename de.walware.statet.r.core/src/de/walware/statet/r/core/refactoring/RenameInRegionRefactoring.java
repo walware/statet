@@ -209,7 +209,9 @@ public class RenameInRegionRefactoring extends Refactoring {
 						final IRegion region = fAdapter.trimToAstRegion(document, fSelectionRegion);
 						final RAstInfo ast = modelInfo.getAst();
 						if (ast != null) {
-							rootNode = (RAstNode) AstSelection.search(ast.root, region.getOffset(), region.getOffset()+region.getLength(), AstSelection.MODE_COVERING_SAME_LAST).getCovering();
+							rootNode = (RAstNode) AstSelection.search(ast.getRootNode(),
+									region.getOffset(), region.getOffset()+region.getLength(),
+									AstSelection.MODE_COVERING_SAME_LAST ).getCovering();
 						}
 					}
 				}

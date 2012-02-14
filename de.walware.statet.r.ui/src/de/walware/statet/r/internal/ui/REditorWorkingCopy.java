@@ -29,7 +29,6 @@ import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
-import de.walware.statet.r.core.rsource.ast.SourceComponent;
 
 
 /**
@@ -81,7 +80,7 @@ public class REditorWorkingCopy extends GenericEditorWorkspaceSourceUnitWorkingC
 	}
 	
 	@Override
-	public AstInfo<SourceComponent> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
+	public AstInfo getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
 			if (ensureSync || fAst == null) {
 				RCore.getRModelManager().reconcile(this, IModelManager.AST, false, monitor);

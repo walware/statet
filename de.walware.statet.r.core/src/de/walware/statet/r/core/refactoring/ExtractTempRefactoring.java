@@ -157,7 +157,9 @@ public class ExtractTempRefactoring extends Refactoring {
 						final IRegion region = fAdapter.trimToAstRegion(document, fSelectionRegion);
 						final RAstInfo ast = modelInfo.getAst();
 						if (ast != null) {
-							fExpression = (RAstNode) AstSelection.search(ast.root, region.getOffset(), region.getOffset()+region.getLength(), AstSelection.MODE_COVERING_SAME_LAST).getCovering();
+							fExpression = (RAstNode) AstSelection.search(ast.getRootNode(),
+									region.getOffset(), region.getOffset()+region.getLength(),
+									AstSelection.MODE_COVERING_SAME_LAST ).getCovering();
 						}
 					}
 					

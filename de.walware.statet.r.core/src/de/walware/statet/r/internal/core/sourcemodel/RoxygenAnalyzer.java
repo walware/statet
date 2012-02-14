@@ -48,7 +48,7 @@ public class RoxygenAnalyzer implements IModelElement.Filter {
 	public void updateModel(IRoxygenAnalyzeContext context) {
 		fContext = context;
 		IRModelInfo model = context.getModelInfo();
-		fComments = model.getAst().root.getComments();
+		fComments = model.getAst().getRootNode().getComments();
 		if (fComments == null || fComments.isEmpty()) {
 			return;
 		}

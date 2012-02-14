@@ -11,28 +11,24 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
-import de.walware.ecommons.text.LineInformation;
-
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
 
 
-public class RAstInfo2 extends RAstInfo {
+public class RAstInfoImpl extends RAstInfo {
 	
 	
-	public RAstInfo2(final int level, final long stamp) {
+	public RAstInfoImpl(final int level, final long stamp) {
 		super(level, stamp);
 	}
 	
-	public RAstInfo2(final int level, final RAstInfo ast) {
+	public RAstInfoImpl(final int level, final RAstInfo ast) {
 		super(level, ast.stamp);
-		this.root = ast.root;
-		fLines = ast.getLineInformation();
+		fRoot = ast.getRootNode();
 	}
 	
-	void set(final SourceComponent root, final int[] lines) {
-		this.root = root;
-		fLines = new LineInformation(lines);
+	public void set(final SourceComponent root) {
+		fRoot = root;
 	}
 	
 }

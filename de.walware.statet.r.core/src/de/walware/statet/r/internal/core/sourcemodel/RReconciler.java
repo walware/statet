@@ -15,13 +15,14 @@ import com.ibm.icu.text.DecimalFormat;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.AbstractDocument;
-import org.eclipse.jface.text.ISynchronizable;
 
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.SourceContent;
+import de.walware.ecommons.ltk.SourceContentLines;
 import de.walware.ecommons.text.FixInterningStringCache;
 import de.walware.ecommons.text.IStringCache;
+import de.walware.ecommons.text.LineInformationCreator;
 import de.walware.ecommons.text.PartialStringParseInput;
 import de.walware.ecommons.text.SourceParseInput;
 import de.walware.ecommons.text.StringParseInput;
@@ -53,6 +54,8 @@ public class RReconciler {
 		public SourceParseInput parseInput;
 		public int parseOffset;
 		
+		private SourceContentLines contentLines;
+		
 		public RAstInfo ast;
 		
 		public IRModelInfo oldModel;
@@ -74,7 +77,11 @@ public class RReconciler {
 	
 	private final Object fModelLock = new Object();
 	private final SourceAnalyzer f2ScopeAnalyzer;
+	
+	
 	private final SyntaxProblemReporter f2SyntaxReporter;
+	
+	private final LineInformationCreator fLineInformationCreator = new LineInformationCreator();
 	
 	protected boolean fStop = false;
 	
@@ -87,6 +94,16 @@ public class RReconciler {
 		f2SyntaxReporter = new SyntaxProblemReporter();
 	}
 	
+	
+	protected SourceContentLines getContentLines(final Data data) {
+		if (data.contentLines == null) {
+			synchronized (fLineInformationCreator) {
+				data.contentLines = new SourceContentLines(data.content,
+						fLineInformationCreator.create(data.content.text) );
+			}
+		}
+		return data.contentLines;
+	}
 	
 	/** for editor reconciling */
 	public IRModelInfo reconcile(final IManagableRUnit su, final int level, final boolean reconciler, final IProgressMonitor monitor) {
@@ -134,14 +151,11 @@ public class RReconciler {
 			if (problemRequestor != null) {
 				AbstractDocument doc = su.getDocument(monitor);
 				if (doc != null) {
-					synchronized ((doc instanceof ISynchronizable) ?
-							((ISynchronizable) doc).getLockObject() : new Object()) {
-						problemRequestor.beginReportingSequence();
-						synchronized (f2SyntaxReporter) {
-							f2SyntaxReporter.run(su, doc, data.ast, problemRequestor);
-						}
-						problemRequestor.endReportingSequence();
+					problemRequestor.beginReportingSequence();
+					synchronized (f2SyntaxReporter) {
+						f2SyntaxReporter.run(su, getContentLines(data), data.ast, problemRequestor);
 					}
+					problemRequestor.endReportingSequence();
 				}
 			}
 		}
@@ -172,16 +186,16 @@ public class RReconciler {
 			startAst = System.nanoTime();
 			
 			initParseInput(data);
-			final RAstInfo2 ast = new RAstInfo2(RAst.LEVEL_MODEL_DEFAULT, data.content.stamp);
+			final RAstInfoImpl ast = new RAstInfoImpl(RAst.LEVEL_MODEL_DEFAULT, data.content.stamp);
 			final RScanner scanner = new RScanner(data.parseInput, ast, f1AstStringCache);
 			scanner.setCommentLevel(100);
 			final SourceComponent sourceComponent = scanner.scanSourceRange(null, data.parseOffset, data.content.text.length());
-			ast.set(sourceComponent, scanner.getLineOffsets());
+			ast.set(sourceComponent);
 			
 			stopAst = System.nanoTime();
 			
 			f1RoxygenScanner.init(data.parseInput);
-			f1RoxygenScanner.update(ast.root);
+			f1RoxygenScanner.update(ast.getRootNode());
 			
 			if (LOG_TIME) {
 				System.out.println(f1AstStringCache.toString());
