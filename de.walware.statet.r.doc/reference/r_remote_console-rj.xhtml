@@ -34,22 +34,56 @@ disable the authentication by setting it to the method <code>none</code>.  All m
 the package uses public key mechanism to encrypt the login data (but no host validation).</p>
 <p>The R exchanged data like user input and result output are not encrypted.</p>
 
-<h4>Requirements</h4>
+<h2>Requirements</h2>
 <p>Because the server is based on Java, it works theoretically on any platform fulfilling the 
 following requirements:</p>
 <ul>
 <li>Java: Java version &ge; 5.0, Standard Edition (SE) or greater</li>
 <li>R</li>
 <li>R package 'rj'</li>
+<li>R package 'rj.gd' for graphic support</li>
 </ul>
 <p>Note that the version of the parts of RJ in StatET, the console server and the R packages
 must be compatible (same major and minor version, if not published otherwise).</p>
 
 <h2>Setup / Startup</h2>
-<p>A server bundle containing all files is provided on the homepage.  Please look into the
-file <code>startup.sh</code>, how to use this script to start the server.  Besides this,
-it is a good example how to control the server in general.  Remember that the RMI registry
-must be running when starting the server.</p>
+<p>A server bundle containing all files is provided on the homepage.  The bundle contains all
+program files and startup scripts, but not the requirements listed above.</p>
+<p>The server requires a running Java RMI registry.  The program <code>rmiregistry</code> is usually 
+included in the Java distribution.  In most case a single RMI registry per computer is
+sufficient; sometimes it can be handy to use a registry per user.  For example you can setup a
+system job for the registry or insert a start command for the registry in the startup script.</p>
+
+<h4>Setup</h4>
+<ol>
+	<li>Make sure all requirements listed above are installed on the server.</li>
+	<li>Download the <i>consoleserver</i> file from the homepage and extract it into
+		a directory of your choice (default is '~/.RJServer/').</li>
+	<li>Read the instructions in the startup and set the required configuration variables.</li>
+	<li>Start the RMI registry, if not yet done, e.g.:
+		<code>${JAVA_HOME}/bin/rmiregistry &amp;</code> .</li>
+</ol>
+<h4>Startup</h4>
+<ol>
+	<li>Start a server session as shown in the instructions of the startup file, e.g.:
+		<code>startup.sh mysession</code> .</li>
+	<li>In StatET, <a href="r_remote_console-launch.xhtml">create a R Remote Console</a> for the 
+		server and finally start the R session.</li>
+</ol>
+
+<p>It is also possible to run the first step automatically when starting the session in StatET
+(second step) by using the launch type "Start over SSH" in the launch configuration of the R
+Remote Console.</p>
+
+
+<h4>Troubleshooting</h4>
+<ul>
+	<li>Check the log files, they are located in the directory specified by the configuration
+		variable <code>RJS_WORK</code> (by default '~/.RJServer/') of the startup script.</li>
+	<li>Enabled the debug mode by using the argument <code>-debug</code> for the startup script,
+		e.g.: <code >startup.sh mysession -debug</code>
+		(does not work in combination with the launch type "Start over SSH").</li>
+</ul>
 
 <br/>
 <p>
