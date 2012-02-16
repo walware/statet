@@ -35,7 +35,7 @@ public class RCorePreferenceInitializer extends AbstractPreferenceInitializer {
 		final DefaultScope defaultScope = new DefaultScope();
 		final Map<Preference, Object> defaults = new HashMap<Preference, Object>();
 		
-		new RCodeStyleSettings().deliverToPreferencesMap(defaults);
+		new RCodeStyleSettings(0).deliverToPreferencesMap(defaults);
 		
 		for (final Entry<Preference, Object> entry : defaults.entrySet()) {
 			PreferencesUtil.setPrefValue(defaultScope, entry.getKey(), entry.getValue());

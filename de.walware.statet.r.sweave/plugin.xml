@@ -22,7 +22,7 @@
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
-            id="de.walware.statet.r.contentTypes.RweaveTex"
+            id="de.walware.statet.r.contentTypes.LtxRweave"
             base-type="net.sourceforge.texlipse.contentTypes.Latex"
             name="%contentTypes_RweaveTex_name"
             file-extensions="Rnw,rnw,Snw,snw"
@@ -35,7 +35,7 @@
    <extension
          point="de.walware.ecommons.ltk.contentTypeActivation">
       <contentType
-            id="de.walware.statet.r.contentTypes.RweaveTex"
+            id="de.walware.statet.r.contentTypes.LtxRweave"
             secondaryId="de.walware.statet.r.contentTypes.R">
       </contentType>
    </extension>
@@ -53,29 +53,32 @@
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
-            contentTypeId="de.walware.statet.r.contentTypes.RweaveTex"
-            class="de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentSetupParticipant">
+            contentTypeId="de.walware.statet.r.contentTypes.LtxRweave"
+            class="de.walware.statet.r.internal.sweave.editors.LtxRweaveDocumentSetupParticipant">
       </participant>
    </extension>
    
    <extension
          point="de.walware.ecommons.ltk.workingContexts">
-      <unitType modelTypeId="rweave-tex"
+      <unitType modelTypeId="ltx-rweave"
             contextKey="persistence.default"
-            unitFactory="de.walware.statet.r.internal.sweave.RweaveTexPersistenceUnitFactory">
+            unitFactory="de.walware.statet.r.internal.sweave.LtxRweavePersistenceUnitFactory">
       </unitType>
-      <unitType modelTypeId="rweave-tex"
+      <unitType modelTypeId="ltx-rweave"
             contextKey="editor.default"
-            unitFactory="de.walware.statet.r.internal.sweave.RweaveTexEditorUnitFactory">
+            unitFactory="de.walware.statet.r.internal.sweave.LtxRweaveEditorUnitFactory">
       </unitType>
    </extension>
    <extension
          point="de.walware.ecommons.ltk.modelAdapters">
       <adapterFactory
-            modelTypeId="rweave-tex"
-            class="de.walware.statet.r.internal.sweave.RModelAdapterFactory">
+            modelTypeId="ltx-rweave"
+            class="de.walware.statet.r.internal.sweave.ModelAdapterFactory">
          <adapter
                type="de.walware.statet.r.core.rsource.RHeuristicTokenScanner">
+         </adapter>
+         <adapter
+               type="de.walware.docmlet.tex.core.text.LtxHeuristicTokenScanner">
          </adapter>
       </adapterFactory>
    </extension>
@@ -83,13 +86,13 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            id="de.walware.statet.r.editors.RweaveTex"
-            class="de.walware.statet.r.internal.sweave.editors.RweaveTexEditor"
-            contributorClass="net.sourceforge.texlipse.editor.TexEditorActionContributor"
+            id="de.walware.statet.r.editors.LtxRweave"
+            class="de.walware.statet.r.internal.sweave.editors.LtxRweaveEditor"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="true"
             icon="icons/obj_16/texsweave-file.png"
             name="%editors_RweaveTex_name">
-         <contentTypeBinding contentTypeId="de.walware.statet.r.contentTypes.RweaveTex"/>
+         <contentTypeBinding contentTypeId="de.walware.statet.r.contentTypes.LtxRweave"/>
       </editor>
    </extension>
    
@@ -106,7 +109,7 @@
       <actionSetPartAssociation
             targetID="de.walware.ecommons.ltk.contexts.EditSourceActionSet">
          <part
-               id="de.walware.statet.r.editors.RweaveTex">
+               id="de.walware.statet.r.editors.LtxRweave">
          </part>
       </actionSetPartAssociation>
    </extension>
@@ -119,13 +122,89 @@
             description="%contexts_RweaveSource_description">
       </context>
    </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            commandId="org.eclipse.jdt.ui.edit.text.java.toggleMarkOccurrences"
+            class="de.walware.statet.r.internal.sweave.editors.SweaveToggleMarkOccurrencesHandler">
+         <activeWhen>
+            <with
+                  variable="activeEditorId">
+               <equals
+                     value="de.walware.statet.r.editors.LtxRweave">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="org.eclipse.ui.edit.text.folding.toggle"
+            class="de.walware.docmlet.tex.ui.actions.TexToggleFoldingHandler">
+         <activeWhen>
+            <with variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.LtxRweave">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="org.eclipse.jdt.ui.edit.text.java.open.editor"
+            class="de.walware.statet.r.internal.sweave.editors.LtxRweaveOpenDeclarationHandler">
+         <activeWhen>
+            <with variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.LtxRweave">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:de.walware.statet.r.sweave.menus.LtxRweaveEditorContextMenu?after=group.edit">
+         <command
+               commandId="de.walware.ecommons.ltk.commands.ToggleComment"
+               id="de.walware.ecommons.ltk.commands.ToggleComment"
+               mnemonic="%menus_SweaveEditorContext_ToggleComment_mnemonic"
+               style="push">
+         </command>
+         <!--command
+               commandId="de.walware.ecommons.ltk.commands.CorrectIndent"
+               id="de.walware.ecommons.ltk.commands.CorrectIndent"
+               mnemonic="%menus_REditorContext_CorrectIndent_mnemonic"
+               style="push">
+         </command-->
+      </menuContribution>
+   </extension>
+      <extension
+         point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+            id="de.walware.statet.r.legacy.RweaveTexEditorRulerMenuCommonContribution"
+            targetID="de.walware.statet.r.sweave.menus.LtxRweaveEditorRulerMenu">
+         <action
+               id=".AddTask"
+               class="org.eclipse.ui.texteditor.TaskRulerAction"
+               label="AddTask"
+               menubarPath="add"
+               helpContextId="org.eclipse.ui.AddTask_action_context">
+         </action>
+         <action
+               id=".AddBookmark"
+               class="org.eclipse.ui.texteditor.BookmarkRulerAction"
+               label="AddBookmark"
+               menubarPath="add"
+               helpContextId="org.eclipse.ui.bookmark_action_context">
+         </action>
+      </viewerContribution>
+   </extension>
    
    <extension
          point="de.walware.statet.base.ui.codeGenerationTemplatesCategory">
       <category
             id="de.walware.statet.r.sweave.codegenerationCategory.RweaveTexCodeTemplates"
             name="%templatesCategory_RweaveTexCodeTemplates_name"
-            providerClass="de.walware.statet.r.internal.sweave.RweaveTexTemplatesProvider"/>
+            providerClass="de.walware.statet.r.internal.sweave.LtxRweaveTemplatesProvider"/>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -133,7 +212,7 @@
             id="de.walware.statet.r.newWizards.RweaveTexCreation"
             category="de.walware.statet.base.newWizards.StatetCategory"
             class="de.walware.statet.r.internal.sweave.NewSweaveFileCreationWizard"
-            icon="icons/tool_16/new_texsweave-file.png"
+            icon="icons/tool_16/new-ltxrweave_file.png"
             name="%wizards_NewRweaveTexFile_name"
             project="false">
          <description>
@@ -169,45 +248,50 @@
    <extension
          point="org.eclipse.compare.contentViewers">
       <viewer
-            class="de.walware.statet.r.internal.sweave.editors.RweaveTexTextViewerCreator"
-            id="de.walware.statet.r.compareContentViewer.RweaveTex">
+            id="de.walware.statet.r.compare.RweaveTexContentViewer"
+            class="de.walware.statet.r.internal.sweave.editors.LtxRweaveContentViewerCreator">
       </viewer>
       <contentTypeBinding
-            contentTypeId="de.walware.statet.r.contentTypes.RweaveTex"
-            contentViewerId="de.walware.statet.r.compareContentViewer.RweaveTex">
+            contentViewerId="de.walware.statet.r.compare.RweaveTexContentViewer"
+            contentTypeId="de.walware.statet.r.contentTypes.LtxRweave">
       </contentTypeBinding>
    </extension>
    <extension
          point="org.eclipse.compare.contentMergeViewers">
       <viewer
-            class="de.walware.statet.r.internal.sweave.editors.RweaveTexMergeViewerCreator"
-            id="de.walware.statet.r.compareContentMergeViewer.RweaveTex">
+            id="de.walware.statet.r.compare.LtxRweaveMergeViewer"
+            class="de.walware.statet.r.internal.sweave.editors.LtxRweaveMergeViewerCreator">
       </viewer>
       <contentTypeBinding
-            contentMergeViewerId="de.walware.statet.r.compareContentMergeViewer.RweaveTex"
-            contentTypeId="de.walware.statet.r.contentTypes.RweaveTex">
+            contentMergeViewerId="de.walware.statet.r.compare.LtxRweaveMergeViewer"
+            contentTypeId="de.walware.statet.r.contentTypes.LtxRweave">
       </contentTypeBinding>
    </extension>
+   
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            category="de.walware.statet.base.preferencePages.Editors"
-            class="de.walware.statet.r.internal.sweave.editors.SweaveEditorPreferencePage"
             id="de.walware.statet.r.preferencePages.SweaveEditor"
-            name="%preferencePages_SweaveEditor">
-         <keywordReference
-               id="de.walware.statet.base.keywords.Editor">
-         </keywordReference>
-         <keywordReference
-               id="de.walware.statet.base.keywords.SpellChecking">
-         </keywordReference>
+            category="de.walware.statet.base.preferencePages.Editors"
+            name="%preferencePages_SweaveEditorOptions"
+            class="de.walware.statet.r.internal.sweave.ui.preferences.SweaveEditorPreferencePage">
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceEditor"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceAppearance"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SpellChecking"/>
+      </page>
+      <page
+            id="de.walware.statet.r.preferencePages.SweaveDocTemplates"
+            category="de.walware.statet.base.preferencePages.CodeGenerationTemplates"
+            name="%preferencePages_SweaveDocTemplates"
+            class="de.walware.statet.r.internal.sweave.ui.preferences.SweaveDocTemplatesPreferencePage">
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceTemplates"/>
       </page>
    </extension>
    
    <extension
          point="de.walware.statet.r.ui.rCodeLaunchContentHandler">
       <contentHandler
-            contentTypeId="de.walware.statet.r.contentTypes.RweaveTex"
+            contentTypeId="de.walware.statet.r.contentTypes.LtxRweave"
             handler="de.walware.statet.r.internal.sweave.debug.RweaveContentHandler">
          <fileCommand
                defaultCommand="Sweave(&quot;${resource_loc}&quot;)"
@@ -239,7 +323,7 @@
                   <test
                         forcePluginActivation="true"
                         property="de.walware.ecommons.ltk.matchesActivatedContentType"
-                        value="de.walware.statet.r.contentTypes.RweaveTex">
+                        value="de.walware.statet.r.contentTypes.LtxRweave">
                   </test>
                </iterate>
             </with>
@@ -258,7 +342,7 @@
                      <test
                            forcePluginActivation="true"
                            property="de.walware.ecommons.ltk.matchesActivatedContentType"
-                           value="de.walware.statet.r.contentTypes.RweaveTex">
+                           value="de.walware.statet.r.contentTypes.LtxRweave">
                      </test>
                   </iterate>
                </with>
@@ -290,7 +374,7 @@
                   <test
                         forcePluginActivation="true"
                         property="de.walware.ecommons.ltk.matchesActivatedContentType"
-                        value="de.walware.statet.r.contentTypes.RweaveTex">
+                        value="de.walware.statet.r.contentTypes.LtxRweave">
                   </test>
                </iterate>
             </with>
@@ -315,7 +399,7 @@
                      <test
                            forcePluginActivation="true"
                            property="de.walware.ecommons.ltk.matchesActivatedContentType"
-                           value="de.walware.statet.r.contentTypes.RweaveTex">
+                           value="de.walware.statet.r.contentTypes.LtxRweave">
                      </test>
                   </or>
                </iterate>
@@ -332,7 +416,7 @@
                      <test
                            forcePluginActivation="true"
                            property="de.walware.ecommons.ltk.matchesActivatedContentType"
-                           value="de.walware.statet.r.contentTypes.RweaveTex">
+                           value="de.walware.statet.r.contentTypes.LtxRweave">
                      </test>
                   </iterate>
                </with>
@@ -346,11 +430,6 @@
    </extension>
    <extension
          point="org.eclipse.ui.commands">
-      <category
-            id="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            name="%categorys_Doc_name"
-            description="%categorys_Doc_description">
-      </category>
       <command
             id="de.walware.statet.r.launchShortcuts.RChunkDirect.run"
             categoryId="org.eclipse.debug.ui.category.run"
@@ -363,39 +442,58 @@
       </command>
       <command
             id="de.walware.statet.sweave.commands.ProcessWeaveDefault"
-            categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
+            categoryId="de.walware.docmlet.base.commands.EditDocsCategory"
             name="%commands_ProcessWeave_name"
             description="%commands_ProcessWeave_description"
             defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessWeave">
       </command>
-      <command
-            id="de.walware.statet.sweave.commands.ProcessTexDefault"
-            categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            name="%commands_ProcessTex_name"
-            description="%commands_ProcessTex_description"
-            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessTex">
-      </command>
-      <command
-            id="de.walware.statet.doc.commands.ProcessDocDefault"
-            categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            name="%commands_ProcessDocument_name"
-            description="%commands_ProcessDocument_description"
-            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessDoc">
-      </command>
-      <command
-            id="de.walware.statet.doc.commands.PreviewDocDefault"
-            categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            name="%commands_PreviewDocument_name"
-            description="%commands_PreviewDocument_description"
-            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$PreviewDoc">
-      </command>
-      <command
-            id="de.walware.statet.doc.commands.ProcessAndPreviewDefault"
-            categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            name="%commands_ProcessAndPreview_name"
-            description="%commands_ProcessAndPreview_description"
-            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessAndPreview">
-      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            commandId="de.walware.docmlet.tex.commands.ProcessTexDefault"
+            class="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessTex">
+         <activeWhen>
+            <with variable="activeEditorId">
+               <equals
+                     value="de.walware.statet.r.editors.LtxRweave">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="de.walware.docmlet.base.commands.ProcessDocDefault"
+            class="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessDoc">
+         <activeWhen>
+            <with variable="activeEditorId">
+               <equals
+                     value="de.walware.statet.r.editors.LtxRweave">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="de.walware.docmlet.base.commands.PreviewDocDefault"
+            class="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$PreviewDoc">
+         <activeWhen>
+            <with variable="activeEditorId">
+               <equals
+                     value="de.walware.statet.r.editors.LtxRweave">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="de.walware.docmlet.base.commands.ProcessAndPreviewDefault"
+            class="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessAndPreview">
+         <activeWhen>
+            <with variable="activeEditorId">
+               <equals
+                     value="de.walware.statet.r.editors.LtxRweave">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -416,30 +514,6 @@
             contextId="de.walware.statet.r.contexts.RweaveEditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+T 2">
-      </key>
-      <key
-            commandId="de.walware.statet.sweave.commands.ProcessTexDefault"
-            contextId="de.walware.statet.r.contexts.RweaveEditorScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+T 3">
-      </key>
-      <key
-            commandId="de.walware.statet.doc.commands.PreviewDocDefault"
-            contextId="de.walware.statet.r.contexts.RweaveEditorScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+T 4">
-      </key>
-      <key
-            commandId="de.walware.statet.doc.commands.ProcessDocDefault"
-            contextId="de.walware.statet.r.contexts.RweaveEditorScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+T 9">
-      </key>
-      <key
-            commandId="de.walware.statet.doc.commands.ProcessAndPreviewDefault"
-            contextId="de.walware.statet.r.contexts.RweaveEditorScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+T 0">
       </key>
    </extension>
    
@@ -483,45 +557,42 @@
             </separator>
             <command
                   id="de.walware.statet.doc.menus.ProcessDoc"
-                  commandId="de.walware.statet.doc.commands.ProcessDocDefault"
-                  icon="icons/tool_16/build.png"
+                  commandId="de.walware.docmlet.base.commands.ProcessDocDefault"
                   style="pulldown">
                <visibleWhen
                      checkEnabled="false">
                   <with
                         variable="activeEditorId">
                      <equals
-                           value="de.walware.statet.r.editors.RweaveTex">
+                           value="de.walware.statet.r.editors.LtxRweave">
                      </equals>
                   </with>
                </visibleWhen>
             </command>
             <command
                   id="de.walware.statet.doc.menus.PreviewDoc"
-                  commandId="de.walware.statet.doc.commands.PreviewDocDefault"
-                  icon="icons/tool_16/preview.png"
+                  commandId="de.walware.docmlet.base.commands.PreviewDocDefault"
                   style="push">
                <visibleWhen
                      checkEnabled="false">
                   <with
                         variable="activeEditorId">
                      <equals
-                           value="de.walware.statet.r.editors.RweaveTex">
+                           value="de.walware.statet.r.editors.LtxRweave">
                      </equals>
                   </with>
                </visibleWhen>
             </command>
             <command
                   id="de.walware.statet.doc.menus.ProcessAndPreview"
-                  commandId="de.walware.statet.doc.commands.ProcessAndPreviewDefault"
-                  icon="icons/tool_16/build_and_preview.png"
+                  commandId="de.walware.docmlet.base.commands.ProcessAndPreviewDefault"
                   style="push">
                <visibleWhen
                      checkEnabled="false">
                   <with
                         variable="activeEditorId">
                      <equals
-                           value="de.walware.statet.r.editors.RweaveTex">
+                           value="de.walware.statet.r.editors.LtxRweave">
                      </equals>
                   </with>
                </visibleWhen>
@@ -572,7 +643,7 @@
                <with
                      variable="activeEditorId">
                   <equals
-                        value="de.walware.statet.r.editors.RweaveTex">
+                        value="de.walware.statet.r.editors.LtxRweave">
                   </equals>
                </with>
             </visibleWhen>

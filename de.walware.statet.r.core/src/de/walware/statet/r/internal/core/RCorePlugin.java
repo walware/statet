@@ -74,9 +74,11 @@ public class RCorePlugin extends Plugin {
 		
 		private CoreAccess(final IPreferenceAccess prefs) {
 			fPrefs = prefs;
-			fRCodeStyle = new RCodeStyleSettings();
+			
+			fRCodeStyle = new RCodeStyleSettings(1);
 			fRCodeStyle.load(prefs);
 			fRCodeStyle.resetDirty();
+			
 			fListener = new PreferencesManageListener(fRCodeStyle, fPrefs, RCodeStyleSettings.ALL_GROUP_IDS);
 		}
 		

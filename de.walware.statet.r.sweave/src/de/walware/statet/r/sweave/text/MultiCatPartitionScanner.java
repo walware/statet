@@ -70,8 +70,8 @@ public class MultiCatPartitionScanner implements IPartitionTokenScanner, IPartit
 	private final ICatPartitionTokenScanner[] fCatScanners;
 	private int fCurrentCatScannerType;
 	private ICatPartitionTokenScanner fCurrentScanner;
-	private String[] fContentTypes;
-	private ICatPartitionTokenScanner[] fContentTypeScanners;
+	private final String[] fContentTypes;
+	private final ICatPartitionTokenScanner[] fContentTypeScanners;
 	
 	private IDocument fDocument;
 	private int fRangeOffset;

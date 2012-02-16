@@ -21,9 +21,9 @@ import org.eclipse.text.edits.TextEdit;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.templates.SourceEditorTemplateContext;
+import de.walware.ecommons.text.IndentUtil;
 import de.walware.ecommons.text.IndentUtil.IndentEditAction;
 
-import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.editors.REditor;
 
@@ -43,7 +43,7 @@ public class REditorContext extends SourceEditorTemplateContext {
 			try {
 				final IDocument valueDoc = new Document(value);
 				
-				final RIndentUtil util = new RIndentUtil(valueDoc, REditor.getRCoreAccess(getEditor()).getRCodeStyle());
+				final IndentUtil util = new IndentUtil(valueDoc, REditor.getRCoreAccess(getEditor()).getRCodeStyle());
 				final int column = util.getMultilineIndentColumn(0, valueDoc.getNumberOfLines()-1);
 				if (column > 0) {
 					final IndentEditAction action = new IndentEditAction(column) {

@@ -13,7 +13,7 @@ package de.walware.statet.r.internal.ui.editors;
 
 import org.eclipse.core.runtime.CoreException;
 
-import de.walware.ecommons.ltk.ui.sourceediting.AdvancedInfoHoverConfigurationBlock;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.AdvancedInfoHoverConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 
 import de.walware.statet.r.internal.ui.RUIPlugin;

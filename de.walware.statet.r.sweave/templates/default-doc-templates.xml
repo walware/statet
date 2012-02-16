@@ -16,18 +16,18 @@
 
 <!-- Rweave-Tex -->
 
-<template id="de.walware.statet.r.sweave.rweave_tex_templates.NewSweaveDoc"
-	context="rweavetex_NewSweaveDoc_context"
-	name="%rweavetex_NewSweaveDoc_name"
-	description="%rweavetex_NewSweaveDoc_description"
+<template id="de.walware.statet.r.sweave.templates.sweavedoc.SimpleArticle"
+	context="ltx-rweave_NewSweaveDoc"
+	name="ltx-rweave.NewDoc:Article"
+	description="%rweavetex_SweaveDoc_description"
 	>%tex_C 
 \documentclass[a4paper]{article}
-\usepackage[OT1]{fontenc}
 \usepackage{Sweave}
-\begin{document}
 
 \title{${selection_begin}${file_name}${selection_end}}
 \author{${user}}
+
+\begin{document}
 
 \maketitle
 
@@ -35,8 +35,36 @@
 \end{document}
 </template>
 
-<template id="de.walware.statet.r.sweave.rweave_tex_templates.NewRChunk" 
-	context="rweavetex_DocDefault_context"
+<template id="de.walware.statet.r.sweave.templates.sweavedoc.Beamer"
+	context="ltx-rweave_NewSweaveDoc"
+	name="ltx-rweave.NewDoc:Beamer"
+	description="%rweavetex_SweaveBeamer_description"
+	>%tex_C 
+\documentclass{beamer}
+\usepackage{Sweave}
+
+\title{${selection_begin}${file_name}${selection_end}}
+\author{${user}}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outline}
+  \tableofcontents
+\end{frame}
+
+
+\end{document}
+</template>
+
+
+<template id="de.walware.statet.r.sweave.rweave_tex_templates.NewRChunk"
+	context="ltx-rweave_DocDefault"
 	name="%rweavetex_NewRChunk_name"
 	description="%rweavetex_NewRChunk_description"
 	>&lt;&lt;${}&gt;&gt;=
@@ -44,8 +72,8 @@
 @
 </template>
 
-<template id="de.walware.statet.r.sweave.rweave_tex_templates.NewRChunkWithFig" 
-	context="rweavetex_DocDefault_context"
+<template id="de.walware.statet.r.sweave.rweave_tex_templates.NewRChunkWithFig"
+	context="ltx-rweave_DocDefault"
 	name="%rweavetex_NewRChunkWithFigure_name"
 	description="%rweavetex_NewRChunkWithFigure_description"
 	>&lt;&lt;fig=TRUE${}&gt;&gt;=

@@ -11,8 +11,7 @@
 
 package de.walware.statet.r.internal.console.ui.page;
 
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.commands.ActionHandler;
+import org.eclipse.core.commands.IHandler2;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -29,7 +28,7 @@ import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
 import de.walware.statet.r.console.core.ContinuePrompt;
 import de.walware.statet.r.console.core.IRBasicAdapter;
-import de.walware.statet.r.ui.editors.InsertAssignmentAction;
+import de.walware.statet.r.ui.sourceediting.InsertAssignmentHandler;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 
 
@@ -80,8 +79,8 @@ public class RInputGroup extends ConsolePageEditor implements ISettingsChangedHa
 		
 		contextService.activateContext("de.walware.statet.r.contexts.REditor"); //$NON-NLS-1$
 		
-		{	final IAction action = new InsertAssignmentAction(this);
-			handlerService.activateHandler(IStatetUICommandIds.INSERT_ASSIGNMENT, new ActionHandler(action));
+		{	final IHandler2 handler = new InsertAssignmentHandler(this);
+			handlerService.activateHandler(IStatetUICommandIds.INSERT_ASSIGNMENT, handler);
 		}
 	}
 	

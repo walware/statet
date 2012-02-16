@@ -33,6 +33,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.IUpdate;
 
+import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
@@ -42,9 +43,7 @@ import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
-import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.RSourceIndenter;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.internal.ui.RUIMessages;
 import de.walware.statet.r.ui.RUI;
 
@@ -109,9 +108,9 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 			throws Exception {
 		monitor.subTask(RUIMessages.CorrectIndent_task_UpdateStructure);
 		final AbstractDocument document = su.getDocument(monitor);
-		final RAstInfo ast = (RAstInfo) su.getAstInfo(RModel.TYPE_ID, true, monitor);
+		final AstInfo ast = su.getAstInfo(null, true, monitor);
 		
-		if (monitor.isCanceled()) {
+		if (ast == null || monitor.isCanceled() ) {
 			return;
 		}
 		
@@ -136,7 +135,7 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 			}
 			if (rStartLine <= rEndLine) {
 				fIndenter.setup((su instanceof IRSourceUnit) ? ((IRSourceUnit) su).getRCoreAccess() : RCore.getWorkbenchAccess());
-				final TextEdit rEdits = fIndenter.getIndentEdits(document, ast.getRootNode(),
+				final TextEdit rEdits = fIndenter.getIndentEdits(document, ast.root,
 						range.getOffset(), rStartLine, rEndLine );
 				if (rEdits.getChildrenSize() > 0) {
 					edits.addChild(rEdits);

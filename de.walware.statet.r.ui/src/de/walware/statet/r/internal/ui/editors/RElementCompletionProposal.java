@@ -18,7 +18,6 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.link.LinkedModeModel;
 import org.eclipse.jface.text.link.LinkedModeUI;
-import org.eclipse.jface.text.link.LinkedPosition;
 import org.eclipse.jface.text.link.LinkedPositionGroup;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.StyledString;
@@ -29,9 +28,9 @@ import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
-import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ltk.ui.sourceediting.ElementNameCompletionProposal;
-import de.walware.ecommons.text.ui.BracketLevel;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ElementNameCompletionProposal;
+import de.walware.ecommons.text.ui.BracketLevel.InBracketPosition;
 
 import de.walware.statet.nico.ui.console.InputSourceViewer;
 
@@ -119,6 +118,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 		private final AssistInvocationContext fContext;
 		private final SourceViewer fViewer;
 		private final IDocument fDocument;
+		
 		private RHeuristicTokenScanner fScanner;
 		
 		private IContextInformation fContextInformation;
@@ -153,6 +153,41 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 			return fContextInformation;
 		}
 		
+	}
+	
+	
+	private static final boolean isFollowedByOpeningBracket(final ApplyData util, final int forwardOffset) {
+		final RHeuristicTokenScanner scanner = util.getScanner();
+		scanner.configure(util.getDocument());
+		final int idx = scanner.findAnyNonBlankForward(forwardOffset, RHeuristicTokenScanner.UNBOUND, false);
+		return (idx >= 0
+				&&  scanner.getChar() == '(' );
+	}
+	
+	private static final boolean isClosedBracket(final ApplyData data, final int backwardOffset, final int forwardOffset) {
+		final int searchType = RHeuristicTokenScanner.ROUND_BRACKET_TYPE;
+		int[] balance = new int[3];
+		balance[searchType]++;
+		final RHeuristicTokenScanner scanner = data.getScanner();
+		scanner.configureDefaultParitions(data.getDocument());
+		balance = scanner.computeBracketBalance(backwardOffset, forwardOffset, balance, searchType);
+		return (balance[searchType] <= 0);
+	}
+	
+	private static final boolean isFollowedByEqualAssign(final ApplyData data, final int forwardOffset) {
+		final RHeuristicTokenScanner scanner = data.getScanner();
+		scanner.configure(data.getDocument());
+		final int idx = scanner.findAnyNonBlankForward(forwardOffset, RHeuristicTokenScanner.UNBOUND, false);
+		return (idx >= 0
+				&&  scanner.getChar() == '=' );
+	}
+	
+	private static final boolean isFollowedByAssign(final ApplyData util, final int forwardOffset) {
+		final RHeuristicTokenScanner scanner = util.getScanner();
+		scanner.configure(util.getDocument());
+		final int idx = scanner.findAnyNonBlankForward(forwardOffset, RHeuristicTokenScanner.UNBOUND, false);
+		return (idx >= 0
+				&& (scanner.getChar() == '=' || scanner.getChar() == '<') );
 	}
 	
 	
@@ -247,7 +282,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 			cursor += 2;
 		}
 		
-		int fmode = 0;
+		int mode = 0;
 		if (isArgumentName()) {
 			if (!isFollowedByEqualAssign(data, replacementOffset+replacementLength)) {
 				final RCodeStyleSettings codeStyle = getCodeStyleSettings();
@@ -257,38 +292,38 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 			}
 		}
 		else if (isFunction()) {
-			fmode = 1;
+			mode = 1;
 			final IRMethod rMethod = (IRMethod) fElement;
 			
 			if (replacementOffset+replacementLength < document.getLength()-1
 					&& document.getChar(replacementOffset+replacementLength) == '(') {
 				cursor ++;
-				fmode = 10;
+				mode = 10;
 			}
 			else if (!isFollowedByOpeningBracket(data, replacementOffset+replacementLength)) {
 				replacement.append('(');
 				cursor ++;
-				fmode = 11;
+				mode = 11;
 			}
-			if (fmode >= 10) {
-				if (fmode == 11
+			if (mode >= 10) {
+				if (mode == 11
 						&& !isClosedBracket(data, replacementOffset, replacementOffset+replacementLength)) {
 					replacement.append(')');
-					fmode = 101;
+					mode = 101;
 					
 					if (assignmentFunction && !isFollowedByAssign(data, replacementOffset+replacementLength)) {
 						replacement.append(" <- ");
-						fmode += 4;
+						mode += 4;
 					}
 				}
 				
 				final ArgsDefinition argsDef = rMethod.getArgsDefinition();
-				if (argsDef == null || argsDef.size() > 0 || fmode == 11) {
+				if (argsDef == null || argsDef.size() > 0 || mode == 11) {
 					data.setContextInformation(new RArgumentListContextInformation(replacementOffset + cursor, rMethod));
 				}
 				else {
 					cursor ++;
-					fmode = 200;
+					mode = 200;
 				}
 			}
 			
@@ -296,25 +331,26 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 		
 		document.replace(replacementOffset, replacementLength, replacement.toString());
 		setCursorPosition(replacementOffset + cursor);
-		if (fmode > 100 && fmode < 125) {
-			createLinkedMode(data, replacementOffset + cursor - 1, (fmode-100)).enter();
+		if (mode > 100 && mode < 200) {
+			createLinkedMode(data, replacementOffset + cursor - 1, (mode-100)).enter();
 		}
 	}
 	
-	private LinkedModeUI createLinkedMode(final ApplyData util, int offset, final int exitAddition) throws BadLocationException {
-		int pos = 0;
-		offset++;
-		final LinkedPositionGroup group1 = new LinkedPositionGroup();
-		final LinkedPosition position = new LinkedPosition(util.getDocument(), offset, pos++);
-		group1.addPosition(position);
-		
-		/* set up linked mode */
+	private LinkedModeUI createLinkedMode(final ApplyData util, final int offset, final int exitAddition) throws BadLocationException {
 		final LinkedModeModel model = new LinkedModeModel();
-		model.addGroup(group1);
+		int pos = 0;
+		
+		final LinkedPositionGroup group = new LinkedPositionGroup();
+		final InBracketPosition position = RBracketLevel.createPosition('(', util.getDocument(),
+				offset + 1, 0, pos++);
+		group.addPosition(position);
+		model.addGroup(group);
+		
 		model.forceInstall();
 		
-		final BracketLevel level = RBracketLevel.createBracketLevel('(', util.getDocument(), fContext.getEditor().getPartitioning(), 
-				position, (util.getViewer() instanceof InputSourceViewer));
+		final RBracketLevel level = new RBracketLevel(util.getDocument(),
+				fContext.getEditor().getPartitioning().getPartitioning(),
+				position, (util.getViewer() instanceof InputSourceViewer), true);
 		
 		/* create UI */
 		final LinkedModeUI ui = new LinkedModeUI(model, util.getViewer());
@@ -331,46 +367,6 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 	}
 	
 	protected boolean isArgumentName() {
-		return false;
-	}
-	
-	private final boolean isFollowedByOpeningBracket(final ApplyData util, final int forwardOffset) {
-		final RHeuristicTokenScanner scanner = util.getScanner();
-		scanner.configure(util.getDocument());
-		final int idx = scanner.findAnyNonBlankForward(forwardOffset, RHeuristicTokenScanner.UNBOUND, true);
-		if (idx >= 0) {
-			return (scanner.getChar() == '(');
-		}
-		return false;
-	}
-	
-	private final boolean isClosedBracket(final ApplyData util, final int backwardOffset, final int forwardOffset) {
-		final int searchType = 1;
-		int[] balance = new int[3];
-		balance[searchType]++;
-		final RHeuristicTokenScanner scanner = util.getScanner();
-		scanner.configureDefaultParitions(util.getDocument());
-		balance = scanner.computeBracketBalance(backwardOffset, forwardOffset, balance, searchType);
-		return (balance[searchType] <= 0);
-	}
-	
-	private final boolean isFollowedByEqualAssign(final ApplyData util, final int forwardOffset) {
-		final RHeuristicTokenScanner scanner = util.getScanner();
-		scanner.configure(util.getDocument());
-		final int idx = scanner.findAnyNonBlankForward(forwardOffset, RHeuristicTokenScanner.UNBOUND, true);
-		if (idx >= 0) {
-			return (scanner.getChar() == '=');
-		}
-		return false;
-	}
-	
-	private final boolean isFollowedByAssign(final ApplyData util, final int forwardOffset) {
-		final RHeuristicTokenScanner scanner = util.getScanner();
-		scanner.configure(util.getDocument());
-		final int idx = scanner.findAnyNonBlankForward(forwardOffset, RHeuristicTokenScanner.UNBOUND, true);
-		if (idx >= 0) {
-			return (scanner.getChar() == '=' || scanner.getChar() == '<');
-		}
 		return false;
 	}
 	

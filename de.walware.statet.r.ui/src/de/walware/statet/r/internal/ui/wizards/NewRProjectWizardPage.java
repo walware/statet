@@ -25,7 +25,7 @@ import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 public class NewRProjectWizardPage extends WizardNewProjectCreationPage {
 	
 	
-	private IStructuredSelection fSelection;
+	private final IStructuredSelection fSelection;
 	
 	
 	/**

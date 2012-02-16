@@ -75,7 +75,7 @@ public final class RScanner {
 		public ExprContext(final RAstNode node, final Expression expr, final byte eatLines) {
 			rootNode = lastNode = node;
 			rootExpr = openExpr = expr;
-			this.lineMode = eatLines;
+			lineMode = eatLines;
 		}
 		
 		final void update(final RAstNode lastNode, final Expression openExpr) {
@@ -135,7 +135,7 @@ public final class RScanner {
 	
 	
 	private final RLexer fLexer;
-	private final AstInfo fAst;
+	private final int fLevel;
 	
 	private RTerminal fNextType;
 	private boolean fWasLinebreak;
@@ -145,18 +145,18 @@ public final class RScanner {
 	private int fCommentsLevel;
 	
 	
-	public RScanner(final SourceParseInput input, final AstInfo ast) {
-		this(input, ast, null);
+	public RScanner(final SourceParseInput input, final int level) {
+		this(input, level, null);
 	}
 	
-	public RScanner(final SourceParseInput input, final AstInfo ast, final IStringCache stringCache) {
-		if (ast != null && (ast.level & AstInfo.DEFAULT_LEVEL_MASK) <= RAst.LEVEL_MINIMAL) {
+	public RScanner(final SourceParseInput input, final int level, final IStringCache stringCache) {
+		fLevel = level;
+		if ((level & AstInfo.DEFAULT_LEVEL_MASK) <= AstInfo.LEVEL_MINIMAL) {
 			fLexer = new RScannerLexer(input);
 		}
 		else {
 			fLexer = new RScannerDefaultLexer(input, stringCache);
 		}
-		fAst = ast;
 	}
 	
 	
@@ -168,6 +168,10 @@ public final class RScanner {
 				fRoxygen = new RoxygenCollector();
 			}
 		}
+	}
+	
+	public int getAstLevel() {
+		return fLevel;
 	}
 	
 	public SourceComponent scanSourceUnit() {

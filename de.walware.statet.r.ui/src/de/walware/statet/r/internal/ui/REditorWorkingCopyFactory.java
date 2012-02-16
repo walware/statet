@@ -13,9 +13,9 @@ package de.walware.statet.r.internal.ui;
 
 import org.eclipse.core.filesystem.IFileStore;
 
-import de.walware.ecommons.ltk.AbstractEditorSourceUnitFactory;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
+import de.walware.ecommons.ltk.core.impl.AbstractEditorSourceUnitFactory;
 import de.walware.ecommons.text.ISourceFragment;
 
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;

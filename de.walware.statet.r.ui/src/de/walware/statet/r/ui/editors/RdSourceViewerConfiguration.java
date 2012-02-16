@@ -30,7 +30,9 @@ import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
+import de.walware.ecommons.text.ICharPairMatcher;
 import de.walware.ecommons.text.PairMatcher;
 import de.walware.ecommons.text.ui.presentation.AbstractRuleBasedScanner;
 import de.walware.ecommons.text.ui.presentation.SingleTokenScanner;
@@ -62,22 +64,27 @@ public class RdSourceViewerConfiguration extends SourceEditorViewerConfiguration
 	private CommentScanner fCommentScanner;
 	private SingleTokenScanner fPlatformSpecifScanner;
 	
-	private PairMatcher fPairMatcher;
 	private RdDoubleClickStrategy fDoubleClickStrategy;
 	
 	private IRCoreAccess fRCoreAccess;
 	
 	
-	public RdSourceViewerConfiguration(final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
-		super(null);
+	public RdSourceViewerConfiguration(final IPreferenceStore preferenceStore, final ColorManager colorManager) {
+		this(null, null, preferenceStore, colorManager);
+	}
+	
+	public RdSourceViewerConfiguration(final ISourceEditor sourceEditor, final IRCoreAccess access,
+			final IPreferenceStore preferenceStore, final ColorManager colorManager) {
+		super(sourceEditor);
+		setCoreAccess(access);
 		setup(preferenceStore, colorManager,
 				IStatetUIPreferenceConstants.EDITING_DECO_PREFERENCES,
 				IStatetUIPreferenceConstants.EDITING_ASSIST_PREFERENCES );
-		fRCoreAccess = rCoreAccess;
-		if (fRCoreAccess == null) {
-			fRCoreAccess = RCore.getWorkbenchAccess();
-		}
 		setScanners(initializeScanners());
+	}
+	
+	protected void setCoreAccess(final IRCoreAccess access) {
+		fRCoreAccess = (access != null) ? access : RCore.getWorkbenchAccess();
 	}
 	
 	/**
@@ -107,20 +114,19 @@ public class RdSourceViewerConfiguration extends SourceEditorViewerConfiguration
 		return RDOC_DOCUMENT_PARTITIONING;
 	}
 	
+	
 	@Override
-	public PairMatcher getPairMatcher() {
-		if (fPairMatcher == null) {
-			fPairMatcher = new PairMatcher(BRACKETS,
+	public ICharPairMatcher getPairMatcher() {
+		return new PairMatcher(BRACKETS,
 					IRDocumentPartitions.RDOC_PARTITIONING_CONFIG,
 					new String[] { IRDocumentPartitions.RDOC_DEFAULT }, '\\');
-		}
-		return fPairMatcher;
 	}
 	
 	@Override
 	public ITextDoubleClickStrategy getDoubleClickStrategy(final ISourceViewer sourceViewer, final String contentType) {
 		return fDoubleClickStrategy;
 	}
+	
 	
 	@Override
 	public IPresentationReconciler getPresentationReconciler(final ISourceViewer sourceViewer) {

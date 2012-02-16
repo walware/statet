@@ -11,26 +11,17 @@
 
 package de.walware.statet.r.ui.sourceediting;
 
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
-import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
-import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
-import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.text.PartitioningConfiguration;
-import de.walware.ecommons.text.ui.presentation.ITextPresentationConstants;
-import de.walware.ecommons.ui.ISettingsChangedHandler;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 
@@ -39,7 +30,6 @@ import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
-import de.walware.statet.r.internal.ui.editors.REditor;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
 import de.walware.statet.r.ui.editors.REditorOptions;
 
@@ -51,27 +41,24 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		implements IRCoreAccess, PropertyChangeListener {
 	
 	
-	private static final Set<String> INPUT_CHANGE_GROUPS = new HashSet<String>(Arrays.asList(new String[] {
+	private static final Set<String> RESET_GROUP_IDS = new HashSet<String>(Arrays.asList(new String[] {
 			RCodeStyleSettings.INDENT_GROUP_ID,
 			TaskTagsPreferences.GROUP_ID,
 	}));
 	
 	
-	private REditor fRealEditor;
-	private SourceEditorViewerConfiguration fConfig;
-	
-	private final RCodeStyleSettings fRCodeStyleCopy;
 	private IRCoreAccess fSourceCoreAccess;
 	
-	protected boolean fUpdateCompleteConfig;
-	private boolean fUpdateTextPresentation;
-	private boolean fUpdateTabSize;
-	private boolean fUpdateIndent;
+	private final RCodeStyleSettings fRCodeStyleCopy;
 	
 	
-	public RSourceViewerConfigurator(final IRCoreAccess core) {
-		setSource(core);
-		fRCodeStyleCopy = new RCodeStyleSettings();
+	public RSourceViewerConfigurator(final IRCoreAccess coreAccess,
+			final RSourceViewerConfiguration config) {
+		super(config);
+		fRCodeStyleCopy = new RCodeStyleSettings(1);
+		config.setCoreAccess(this);
+		setSource(coreAccess);
+		
 		fRCodeStyleCopy.load(fSourceCoreAccess.getRCodeStyle());
 		fRCodeStyleCopy.resetDirty();
 		fRCodeStyleCopy.addPropertyChangeListener(this);
@@ -89,10 +76,10 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 	}
 	
 	@Override
-	public void setConfiguration(final SourceEditorViewerConfiguration config) {
-		fConfig = config;
-		super.setConfiguration(config);
+	protected Set<String> getResetGroupIds() {
+		return RESET_GROUP_IDS;
 	}
+	
 	
 	public void setSource(IRCoreAccess newAccess) {
 		if (newAccess == null) {
@@ -104,91 +91,28 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		}
 	}
 	
-	@Override
-	public void setTarget(final ISourceEditor sourceEditor) {
-		if (sourceEditor instanceof REditor) {
-			fRealEditor = (REditor) sourceEditor;
-		}
-		fUpdateIndent = true;
-		super.setTarget(sourceEditor);
-	}
-	
-	protected REditor getREditor() {
-		return fRealEditor;
-	}
 	
 	@Override
-	public void propertyChange(final PropertyChangeEvent event) {
-		final String name = event.getPropertyName();
-		if (name.equals(RCodeStyleSettings.PROP_TAB_SIZE)) {
-			fUpdateTabSize = true;
-			fUpdateIndent = true;
-			return;
-		}
-		if (name.equals(RCodeStyleSettings.PROP_INDENT_SPACES_COUNT)
-				|| name.equals(RCodeStyleSettings.PROP_REPLACE_TABS_WITH_SPACES)
-				|| name.equals(RCodeStyleSettings.PROP_INDENT_DEFAULT_TYPE)) {
-			fUpdateIndent = true;
-			return;
-		}
-	}
-	
-	@Override
-	public void handleSettingsChanged(Set<String> groupIds, Map<String, Object> options) {
-		final ISourceViewer viewer = getSourceViewer();
-		if (viewer == null || fConfig == null) {
-			return;
-		}
-		if (groupIds == null) {
-			groupIds = INPUT_CHANGE_GROUPS;
-		}
-		if (options == null) {
-			options = new HashMap<String, Object>();
-		}
-		final Point selectedRange = viewer.getSelectedRange();
+	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
+		super.handleSettingsChanged(groupIds, options);
 		
-		if (groupIds.contains(RCodeStyleSettings.INDENT_GROUP_ID) || groupIds.contains(RCodeStyleSettings.WS_GROUP_ID)) {
-			fRCodeStyleCopy.load(fSourceCoreAccess.getRCodeStyle());
-		}
-		if (groupIds.contains(REditorOptions.GROUP_ID) && fRealEditor != null) {
-			fUpdateCompleteConfig = true;
-			SpellingProblem.removeAllInActiveEditor(fRealEditor, null);
-		}
-		if (groupIds.contains(RUIPreferenceInitializer.REDITOR_HOVER_GROUP_ID)) {
-			updateConfiguredInfoHovers();
-		}
-		options.put(ISettingsChangedHandler.VIEWER_KEY, viewer);
-		fConfig.handleSettingsChanged(groupIds, options);
-		fUpdateTextPresentation = options.containsKey(ITextPresentationConstants.SETTINGSCHANGE_AFFECTSPRESENTATION_KEY);
-		
-		updateSourceViewer(viewer);
-		viewer.setSelectedRange(selectedRange.x, selectedRange.y);
 		fRCodeStyleCopy.resetDirty();
 	}
 	
-	protected void updateSourceViewer(final ISourceViewer viewer) {
-		if (!fIsConfigured) {
-			return;
-		}
-		if (fUpdateCompleteConfig) {
-			reconfigureSourceViewer();
-		}
-		else {
-			if (fUpdateTabSize) {
-				viewer.getTextWidget().setTabs(fConfig.getTabWidth(viewer));
-			}
-			if (fUpdateTextPresentation) {
-				viewer.invalidateTextPresentation();
-			}
-			if (fUpdateIndent && fRealEditor != null) {
-				fRealEditor.updateSettings(fUpdateIndent);
-			}
-		}
+	@Override
+	protected void checkSettingsChanges(final Set<String> groupIds, final Map<String, Object> options) {
+		super.checkSettingsChanges(groupIds, options);
 		
-		fUpdateCompleteConfig = false;
-		fUpdateTextPresentation = false;
-		fUpdateTabSize = false;
-		fUpdateIndent = false;
+		if (groupIds.contains(RCodeStyleSettings.INDENT_GROUP_ID)
+				|| groupIds.contains(RCodeStyleSettings.WS_GROUP_ID)) {
+			fRCodeStyleCopy.load(fSourceCoreAccess.getRCodeStyle());
+		}
+		if (groupIds.contains(REditorOptions.GROUP_ID)) {
+			fUpdateCompleteConfig = true;
+		}
+		if (groupIds.contains(RUIPreferenceInitializer.REDITOR_HOVER_GROUP_ID)) {
+			fUpdateInfoHovers = true;
+		}
 	}
 	
 	@Override

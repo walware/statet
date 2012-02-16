@@ -67,21 +67,22 @@ public class CatPartitioner extends Partitioner {
 	
 	@Override
 	public void connect(final IDocument document, final boolean delayInitialization) {
+		fUpdater.active = false;
+		assert (!document.containsPositionCategory(fId));
 		document.addPositionCategory(fId);
 		document.addPositionUpdater(fUpdater);
-		fUpdater.active = false;
+		
 		super.connect(document, delayInitialization);
 	}
 	
 	@Override
 	public void disconnect() {
-		if (fDocument != null) {
-			try {
-				fDocument.removePositionUpdater(fUpdater);
-				fDocument.removePositionCategory(fId);
-			} catch (final BadPositionCategoryException e) {
-			}
-		}
+		assert (fDocument.containsPositionCategory(fId));
+		try {
+			fDocument.removePositionUpdater(fUpdater);
+			fDocument.removePositionCategory(fId);
+		} catch (final BadPositionCategoryException e) {}
+		
 		super.disconnect();
 	}
 	

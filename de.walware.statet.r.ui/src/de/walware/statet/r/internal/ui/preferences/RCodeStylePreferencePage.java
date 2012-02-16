@@ -25,6 +25,7 @@ import de.walware.statet.r.core.RProject;
 public class RCodeStylePreferencePage extends PropertyAndPreferencePage<RCodeStylePreferenceBlock> {
 	
 	public static final String PREF_ID = "de.walware.statet.r.preferencePages.RCodeStyle"; //$NON-NLS-1$
+	public static final String PROP_ID = "de.walware.statet.r.propertyPages.RCodeStyle"; //$NON-NLS-1$
 	
 	
 	public RCodeStylePreferencePage() {
@@ -38,7 +39,7 @@ public class RCodeStylePreferencePage extends PropertyAndPreferencePage<RCodeSty
 	
 	@Override
 	protected String getPropertyPageID() {
-		return null;
+		return PROP_ID;
 	}
 	
 	@Override

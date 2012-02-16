@@ -33,8 +33,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import de.walware.ecommons.IDisposable;
-import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistComputerRegistry;
-import de.walware.ecommons.ltk.ui.sourceediting.InfoHoverRegistry;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistComputerRegistry;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverRegistry;
 import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesManageListener;
@@ -257,6 +257,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	public synchronized RDocumentProvider getRDocumentProvider() {
 		if (fRDocumentProvider == null) {
 			fRDocumentProvider = new RDocumentProvider();
+			fDisposables.add(fRDocumentProvider);
 		}
 		return fRDocumentProvider;
 	}
@@ -302,7 +303,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 				if (fConsoleSettings== null) {
 					fConsoleSettings = new REditorOptions(1);
 					fPrefUpdaters.add(new PreferencesManageListener(
-							fConsoleSettings, NicoCore.getInstanceConsolePreferences(), REditorOptions.GROUP_ID));
+							fConsoleSettings, NicoCore.getInstanceConsolePreferences(), REditorOptions.SMARTINSERT_GROUP_ID));
 				}
 				return fConsoleSettings;
 			}
@@ -310,7 +311,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 				if (fEditorSettings == null) {
 					fEditorSettings = new REditorOptions(1);
 					fPrefUpdaters.add(new PreferencesManageListener(
-							fEditorSettings, PreferencesUtil.getInstancePrefs(), REditorOptions.GROUP_ID));
+							fEditorSettings, PreferencesUtil.getInstancePrefs(), REditorOptions.SMARTINSERT_GROUP_ID));
 				}
 				return fEditorSettings;
 			}

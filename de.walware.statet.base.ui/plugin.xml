@@ -42,8 +42,8 @@
             category="de.walware.statet.base.preferencePages.StatetBase"
             class="de.walware.statet.base.internal.ui.preferences.EditorsPreferencePage"
             name="%preferencePages_Editors_name">
-         <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
-         <keywordReference id="de.walware.statet.base.keywords.Editor"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceAppearance"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceEditor"/>
       </page>
       <page
             id="de.walware.statet.base.preferencePages.RunDebug"
@@ -56,7 +56,7 @@
             category="de.walware.statet.base.preferencePages.StatetBase"
             class="de.walware.statet.base.internal.ui.preferences.CodeGenerationTemplatesPreferencePage"
             name="%preferencePages_CodeGenerationTemplates_name">
-         <keywordReference id="de.walware.statet.base.keywords.Template"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceTemplates"/>
          <keywordReference id="de.walware.statet.base.keywords.ProjectSpecific"/>
       </page>
       <page
@@ -64,7 +64,7 @@
             category="de.walware.statet.base.preferencePages.StatetBase"
             class="de.walware.statet.base.internal.ui.preferences.TaskTagsPreferencePage"
             name="%preferencePages_TaskTags_name">
-         <keywordReference id="de.walware.statet.base.keywords.TaskTag"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.TaskTags"/>
          <keywordReference id="de.walware.statet.base.keywords.ProjectSpecific"/>
       </page>
    </extension>
@@ -81,7 +81,7 @@
          <filter
                name="nature"
                value="de.walware.statet.base.StatetNature"/>
-         <keywordReference id="de.walware.statet.base.keywords.Template"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceTemplates"/>
          <keywordReference id="de.walware.statet.base.keywords.ProjectSpecific"/>
       </page>
       <page
@@ -95,7 +95,7 @@
          <filter
                name="nature"
                value="de.walware.statet.base.StatetNature"/>
-         <keywordReference id="de.walware.statet.base.keywords.TaskTag"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.TaskTags"/>
          <keywordReference id="de.walware.statet.base.keywords.ProjectSpecific"/>
       </page>
    </extension>
@@ -105,27 +105,8 @@
             id="de.walware.statet.base.keywords.StatetGeneral"
             label="%keywords_StatetGeneral"/>
       <keyword
-            id="de.walware.statet.base.keywords.Appearance"
-            label="%keywords_Appearance"/>
-      <keyword
-            id="de.walware.statet.base.keywords.Template"
-            label="%keywords_Template"/>
-      <keyword
-            id="de.walware.statet.base.keywords.Editor"
-            label="%keywords_Editor"/>
-      <keyword
-            id="de.walware.statet.base.keywords.TaskTag"
-            label="%keywords_TaskTag"/>
-      <keyword
             id="de.walware.statet.base.keywords.ProjectSpecific"
             label="%keywords_ProjectSpecific"/>
-      <keyword
-            id="de.walware.statet.base.keywords.Formatting"
-            label="%keywords_Formatting"/>
-      <keyword
-            id="de.walware.statet.base.keywords.SpellChecking"
-            label="%keywords_SpellChecking">
-      </keyword>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">

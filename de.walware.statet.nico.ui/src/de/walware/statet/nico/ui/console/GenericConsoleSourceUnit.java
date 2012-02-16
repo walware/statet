@@ -21,8 +21,8 @@ import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.SourceContent;
-import de.walware.ecommons.ltk.WorkingBuffer;
 import de.walware.ecommons.ltk.WorkingContext;
+import de.walware.ecommons.ltk.core.impl.WorkingBuffer;
 
 
 /**
@@ -154,6 +154,14 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	@Override
 	public AbstractDocument getDocument(final IProgressMonitor monitor) {
 		return fDocument;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long getContentStamp(final IProgressMonitor monitor) {
+		return fDocument.getModificationStamp();
 	}
 	
 	/**

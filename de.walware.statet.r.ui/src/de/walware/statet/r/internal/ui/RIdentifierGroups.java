@@ -54,8 +54,8 @@ public class RIdentifierGroups extends AbstractPreferencesModelObject {
 	}
 	
 	@Override
-	public void load(IPreferenceAccess prefs) {
-		RSymbolComparator comparator = new RSymbolComparator();
+	public void load(final IPreferenceAccess prefs) {
+		final RSymbolComparator comparator = new RSymbolComparator();
 		fIdentifiersItemsAssignment = loadValues(prefs, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_ASSIGNMENT_ITEMS);
 		Arrays.sort(fIdentifiersItemsAssignment, comparator);
 		fIdentifiersItemsLogical = loadValues(prefs, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_LOGICAL_ITEMS);
@@ -69,12 +69,12 @@ public class RIdentifierGroups extends AbstractPreferencesModelObject {
 	}
 	
 	@Override
-	public Map<Preference, Object> deliverToPreferencesMap(Map<Preference, Object> map) {
+	public Map<Preference, Object> deliverToPreferencesMap(final Map<Preference, Object> map) {
 		return map;
 	}
 	
-	private final String[] loadValues(IPreferenceAccess prefs, String key) {
-		Preference<String[]> pref = new StringArrayPref(RUI.PLUGIN_ID, key);
+	private final String[] loadValues(final IPreferenceAccess prefs, final String key) {
+		final Preference<String[]> pref = new StringArrayPref(RUI.PLUGIN_ID, key);
 		return prefs.getPreferenceValue(pref);
 	}
 	

@@ -70,7 +70,7 @@ public class RunEntireCommandRunnable implements IConsoleRunnable {
 	}
 	
 	@Override
-	public boolean isRunnableIn(ITool tool) {
+	public boolean isRunnableIn(final ITool tool) {
 		return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
 	}
 	

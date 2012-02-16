@@ -18,8 +18,8 @@ import org.eclipse.jface.text.IRegion;
 
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ast.AstSelection;
-import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ltk.ui.sourceediting.IInfoHover;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.IInfoHover;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRFrame;

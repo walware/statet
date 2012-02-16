@@ -91,9 +91,9 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 	
 	public static abstract class SpecialAddress {
 		
-		private String fPublicHost;
-		private String fPrivateHost;
-		private int fPort;
+		private final String fPublicHost;
+		private final String fPrivateHost;
+		private final int fPort;
 		
 		
 		public SpecialAddress(final String publicHost, final String privateHost, final int port) {
@@ -267,7 +267,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 	
 	private List<RemoteR> fRServerList;
 	
-	private boolean fFilterOnlyRunning;
+	private final boolean fFilterOnlyRunning;
 	
 	private String fUsername;
 	
@@ -311,7 +311,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 	
 	public void clearAdditionaAddress(final boolean specialOnly) {
 		if (specialOnly) {
-			for (Entry<String, ?> entry : fSpecialAddress.entrySet()) {
+			for (final Entry<String, ?> entry : fSpecialAddress.entrySet()) {
 				fAdditionalAddress.remove(entry.getKey());
 			}
 		}
@@ -498,7 +498,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		final String selectedAddress = fHostAddressControl.getText();
 		final List<String> list = new ArrayList<String>(fHistoryAddress.size() + fAdditionalAddress.size());
 		list.addAll(fHistoryAddress);
-		for (String address : fAdditionalAddress) {
+		for (final String address : fAdditionalAddress) {
 			if (!list.contains(address)) {
 				list.add(address);
 			}
@@ -568,7 +568,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			progress.setWorkRemaining((addresses.length-i)*2 +1);
 			
 			String address = addresses[i];
-			SpecialAddress special = fSpecialAddress.get(address);
+			final SpecialAddress special = fSpecialAddress.get(address);
 			if (special == null) {
 				if (address.startsWith("rmi:")) { //$NON-NLS-1$
 					address = address.substring(4);

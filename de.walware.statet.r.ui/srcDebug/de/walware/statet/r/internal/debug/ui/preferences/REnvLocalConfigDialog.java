@@ -77,6 +77,7 @@ import de.walware.ecommons.databinding.jface.DatabindingSupport;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.ProcessOutputCollector;
 import de.walware.ecommons.ui.components.ButtonGroup;
+import de.walware.ecommons.ui.components.DataAdapter;
 import de.walware.ecommons.ui.components.ExtensibleTextCellEditor;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
 import de.walware.ecommons.ui.util.DialogUtil;
@@ -424,47 +425,6 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			ViewerUtil.installDefaultEditBehaviour(treeComposite.viewer);
 			
 			fRLibrariesButtons = new ButtonGroup<IRLibraryLocation.WorkingCopy>(composite) {
-				private IRLibraryGroup.WorkingCopy getGroup(final Object element) {
-					if (element instanceof IRLibraryGroup.WorkingCopy) {
-						return (IRLibraryGroup.WorkingCopy) element;
-					}
-					else {
-						return ((RLibraryContainer) element).parent;
-					}
-				}
-				@Override
-				protected IRLibraryLocation.WorkingCopy getModelItem(final Object element) {
-					if (element instanceof RLibraryContainer) {
-						return ((RLibraryContainer) element).library;
-					}
-					return (IRLibraryLocation.WorkingCopy) element;
-				}
-				@Override
-				protected Object getViewerElement(final IRLibraryLocation.WorkingCopy item, final Object parent) {
-					return new RLibraryContainer((IRLibraryGroup.WorkingCopy.WorkingCopy) parent, item);
-				}
-				@Override
-				protected boolean isAddAllowed(final Object element) {
-					return !getGroup(element).getId().equals(IRLibraryGroup.R_DEFAULT);
-				}
-				@Override
-				protected boolean isModifyAllowed(final Object element) {
-					return ( element instanceof RLibraryContainer
-							&& !getGroup(element).getId().equals(IRLibraryGroup.R_DEFAULT) );
-				}
-				@Override
-				protected Object getAddParent(final Object element) {
-					return getGroup(element);
-				}
-				@Override
-				protected List<? super IRLibraryLocation.WorkingCopy> getChildContainer(final Object element) {
-					if (element instanceof IRLibraryGroup.WorkingCopy) {
-						return ((IRLibraryGroup.WorkingCopy) element).getLibraries();
-					}
-					else {
-						return ((RLibraryContainer) element).parent.getLibraries();
-					}
-				}
 				@Override
 				protected IRLibraryLocation.WorkingCopy edit1(final IRLibraryLocation.WorkingCopy item, final boolean newItem, final Object parent) {
 					if (newItem) {
@@ -475,7 +435,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				@Override
 				public void updateState() {
 					super.updateState();
-					if (isDirty()) {
+					if (getDataAdapter().isDirty()) {
 						fDatabinding.updateStatus();
 					}
 				}
@@ -487,7 +447,52 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 //			fRLibrariesButtons.addUpButton();
 //			fRLibrariesButtons.addDownButton();
 			
-			fRLibrariesButtons.connectTo(fRLibrariesViewer, null, null);
+			DataAdapter<IRLibraryLocation.WorkingCopy> adapter = new DataAdapter.ListAdapter<IRLibraryLocation.WorkingCopy>(
+					(ITreeContentProvider) fRLibrariesViewer.getContentProvider(),
+					null, null ) {
+				private IRLibraryGroup.WorkingCopy getGroup(final Object element) {
+					if (element instanceof IRLibraryGroup.WorkingCopy) {
+						return (IRLibraryGroup.WorkingCopy) element;
+					}
+					else {
+						return ((RLibraryContainer) element).parent;
+					}
+				}
+				@Override
+				public IRLibraryLocation.WorkingCopy getModelItem(final Object element) {
+					if (element instanceof RLibraryContainer) {
+						return ((RLibraryContainer) element).library;
+					}
+					return (IRLibraryLocation.WorkingCopy) element;
+				}
+				@Override
+				public Object getViewerElement(final IRLibraryLocation.WorkingCopy item, final Object parent) {
+					return new RLibraryContainer((IRLibraryGroup.WorkingCopy.WorkingCopy) parent, item);
+				}
+				@Override
+				public boolean isAddAllowed(final Object element) {
+					return !getGroup(element).getId().equals(IRLibraryGroup.R_DEFAULT);
+				}
+				@Override
+				public boolean isModifyAllowed(final Object element) {
+					return ( element instanceof RLibraryContainer
+							&& !getGroup(element).getId().equals(IRLibraryGroup.R_DEFAULT) );
+				}
+				@Override
+				public Object getAddParent(final Object element) {
+					return getGroup(element);
+				}
+				@Override
+				public List<? super IRLibraryLocation.WorkingCopy> getContainerFor(final Object element) {
+					if (element instanceof IRLibraryGroup.WorkingCopy) {
+						return ((IRLibraryGroup.WorkingCopy) element).getLibraries();
+					}
+					else {
+						return ((RLibraryContainer) element).parent.getLibraries();
+					}
+				}
+			};
+			fRLibrariesButtons.connectTo(fRLibrariesViewer, adapter);
 		}
 		
 		final Composite installGroup = createInstallDirGroup(dialogArea);
@@ -658,7 +663,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				fRArchControl.setItems(new String[0]);
 				return;
 			}
-			String oldArch = fRArchControl.getText();
+			final String oldArch = fRArchControl.getText();
 			fRArchControl.setItems(availableArchs.toArray(new String[availableArchs.size()]));
 			int idx = (oldArch.length() > 0) ? availableArchs.indexOf(oldArch) : -1;
 			if (idx >= 0) {

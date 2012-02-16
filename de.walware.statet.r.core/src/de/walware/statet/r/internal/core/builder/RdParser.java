@@ -158,7 +158,7 @@ public class RdParser {
 		try {
 			fMarkers.checkForTasks(new String(fContent, start, end-start+1), start, fLineStructure);
 		}
-		catch (BadLocationException e) {
+		catch (final BadLocationException e) {
 		}
 	}
 	

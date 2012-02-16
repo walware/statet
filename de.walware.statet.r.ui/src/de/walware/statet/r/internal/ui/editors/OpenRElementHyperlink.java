@@ -13,6 +13,7 @@ package de.walware.statet.r.internal.ui.editors;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IRegion;
@@ -30,6 +31,7 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAst;
+import de.walware.statet.r.ui.sourceediting.ROpenDeclaration;
 
 
 public class OpenRElementHyperlink implements IHyperlink {
@@ -73,9 +75,10 @@ public class OpenRElementHyperlink implements IHyperlink {
 	public void open() {
 		try {
 			final List<ISourceElement> list = RModel.searchDeclaration(fAccess, fSu);
-			final ISourceElement element = ROpenDeclarationHandler.selectElement(list, fEditor.getWorkbenchPart());
+			final ROpenDeclaration open = new ROpenDeclaration();
+			final ISourceElement element = open.selectElement(list, fEditor.getWorkbenchPart());
 			if (element != null) {
-				ROpenDeclarationHandler.open(element, true);
+				open.open(element, true);
 			}
 			else {
 				Display.getCurrent().beep();
@@ -85,6 +88,9 @@ public class OpenRElementHyperlink implements IHyperlink {
 			Display.getCurrent().beep();
 			StatusManager.getManager().handle(new Status(IStatus.INFO, SharedUIResources.PLUGIN_ID, -1,
 					NLS.bind("An error occurred when following the hyperlink and opening the editor for the declaration of ''{0}''", fAccess.getDisplayName()), e));
+		}
+		catch (final CoreException e) {
+			// cancelled
 		}
 	}
 	

@@ -700,6 +700,10 @@ public abstract class RElementName implements IElementName {
 	}
 	
 	
+	protected RElementName() {
+	}
+	
+	
 	public abstract RElementName getNamespace();
 	@Override
 	public abstract RElementName getNextSegment();
@@ -742,10 +746,10 @@ public abstract class RElementName implements IElementName {
 		return ((getType() == other.getType())
 				&& ((thisName != null) ? 
 						(thisName == otherName || (otherName != null && thisName.hashCode() == otherName.hashCode() && thisName.equals(otherName)) ) : 
-						(other.getSegmentName() == null) )
+						(null == other.getSegmentName()) )
 				&& ((getNextSegment() != null) ? 
 						(getNextSegment().equals(other.getNextSegment())) :
-						(other.getNextSegment() == null) ) );
+						(null == other.getNextSegment()) ) );
 	}
 	
 	@Override

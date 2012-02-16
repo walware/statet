@@ -21,7 +21,6 @@ import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
@@ -42,9 +41,8 @@ public class RMergeViewer extends CompareMergeTextViewer {
 	@Override
 	protected SourceEditorViewerConfigurator createConfigurator(final SourceViewer sourceViewer) {
 		final RSourceViewerConfigurator viewerConfigurator = new RSourceViewerConfigurator(
-				RCore.getWorkbenchAccess());
-		viewerConfigurator.setConfiguration(new RSourceViewerConfiguration(
-				viewerConfigurator, RUIPlugin.getDefault().getEditorPreferenceStore(), SharedUIResources.getColors()));
+				RCore.getWorkbenchAccess(), new RSourceViewerConfiguration(
+						null, SharedUIResources.getColors() ));
 		return viewerConfigurator;
 	}
 	

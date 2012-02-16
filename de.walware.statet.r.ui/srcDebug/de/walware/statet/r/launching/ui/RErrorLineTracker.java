@@ -54,9 +54,9 @@ public class RErrorLineTracker implements IPatternMatchListener {
 	
 	private static class SourceLink implements IHyperlink {
 		
-		private IFileStore fBase;
-		private String fFileName;
-		private int fLine;
+		private final IFileStore fBase;
+		private final String fFileName;
+		private final int fLine;
 		
 		public SourceLink(final IFileStore base, final String path, final int line) {
 			fBase = base;

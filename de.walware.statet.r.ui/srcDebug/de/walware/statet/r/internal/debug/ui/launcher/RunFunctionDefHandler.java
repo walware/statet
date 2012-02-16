@@ -52,7 +52,7 @@ public class RunFunctionDefHandler extends RunEntireCommandHandler {
 	
 	@Override
 	protected IStatus getRegions(final Data data) throws CoreException {
-		final RAstNode node = RAst.findLowestFDefAssignment(data.ast.getRootNode(),
+		final RAstNode node = RAst.findLowestFDefAssignment(data.ast.root,
 				data.selection.getOffset() );
 		if (node == null) {
 			return LaunchShortcutUtil.createUnsupported();

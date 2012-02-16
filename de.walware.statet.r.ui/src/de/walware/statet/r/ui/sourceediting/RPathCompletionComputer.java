@@ -31,11 +31,11 @@ import org.eclipse.jface.text.TextUtilities;
 
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
-import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ltk.ui.sourceediting.AssistProposalCollector;
-import de.walware.ecommons.ltk.ui.sourceediting.IAssistCompletionProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
-import de.walware.ecommons.ltk.ui.sourceediting.PathCompletionComputor;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistProposalCollector;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistCompletionProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.PathCompletionComputor;
 import de.walware.ecommons.net.resourcemapping.IResourceMapping;
 import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingOrder;
@@ -47,7 +47,6 @@ import de.walware.statet.nico.ui.console.ConsolePageEditor;
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.RUtil;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -121,8 +120,12 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	}
 	
 	@Override
-	protected IRegion getContentRange(final IDocument document, final int offset) throws BadLocationException {
-		final ITypedRegion partition = TextUtilities.getPartition(document, IRDocumentPartitions.R_PARTITIONING, offset, true);
+	protected IRegion getContentRange(final AssistInvocationContext context, final int mode)
+			throws BadLocationException {
+		final IDocument document = context.getSourceViewer().getDocument();
+		final int offset = context.getInvocationOffset();
+		final ITypedRegion partition = TextUtilities.getPartition(document,
+				getEditor().getPartitioning().getPartitioning(), offset, true);
 		int start = partition.getOffset();
 		int end = partition.getOffset() + partition.getLength();
 		if (start == end) {

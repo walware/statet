@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<!--
+ ###############################################################################
+ # Copyright (c) 2007-2012 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ ###############################################################################
+-->
+
+<plugin>
+
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="de.walware.statet.r.internal.sweave.editors.LtxRweaveEditor"
+            class="de.walware.statet.r.sweave.debug.internal.RetargettableActionAdapterFactory">
+         <adapter
+               type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget">
+         </adapter>
+      </factory>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+            id="de.walware.statet.r.sweave.legacy.RweaveTexEditorRulerMenuDebugContribution"
+            targetID="de.walware.statet.r.sweave.menus.RweaveTexEditorRulerMenu">
+         <action
+               id=".EnableDisableBreakpoint"
+               class="org.eclipse.debug.ui.actions.RulerEnableDisableBreakpointActionDelegate"
+               label="%menus_EnableDisableBreakpoint_label"
+               menubarPath="debug">
+         </action>
+         <action
+               id=".ToggleBreakpoint"
+               class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+               definitionId="org.eclipse.debug.ui.commands.ToggleBreakpoint"
+               icon="platform:/plugin/de.walware.statet.r.debug.ui/icons/obj_16/r_breakpoint.png"
+               label="%menus_ToggleBreakpoint_label"
+               menubarPath="debug">
+         </action>
+      </viewerContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            id="de.walware.statet.r.sweave.legacy.RweaveTexEditorRulerDebugActions"
+            targetID="de.walware.statet.r.editors.LtxRweave">
+         <action
+               id="org.eclipse.jdt.debug.ui.actions.ManageBreakpointRulerAction"
+               actionID="RulerDoubleClick"
+               class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+               label="ToggleBreakpoint">
+         </action>
+      </editorContribution>
+   </extension>
+   
+</plugin>

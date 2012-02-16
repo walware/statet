@@ -13,7 +13,7 @@ package de.walware.statet.r.internal.ui.editors;
 
 import de.walware.ecommons.ui.actions.TogglePreferenceEnablementHandler;
 
-import de.walware.statet.r.ui.editors.REditorOptions;
+import de.walware.statet.r.ui.editors.REditorBuild;
 
 
 /**
@@ -23,7 +23,7 @@ public class RToggleLiveReportProblemsHandler extends TogglePreferenceEnablement
 	
 	
 	public RToggleLiveReportProblemsHandler() {
-		super(	REditorOptions.PREF_PROBLEMCHECKING_ENABLED,
+		super(	REditorBuild.PROBLEMCHECKING_ENABLED_PREF,
 				"de.walware.ecommons.ltk.commands.ToggleLiveReportProblems"); //$NON-NLS-1$
 	}
 	

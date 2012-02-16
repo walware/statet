@@ -34,7 +34,7 @@ import java.lang.reflect.InvocationTargetException;
 		try {
 			node.acceptInR(this);
 		}
-		catch (InvocationTargetException e) {
+		catch (final InvocationTargetException e) {
 			// not used
 		}
 		if (fSyntaxError) {

@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.ui.editors;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
@@ -18,13 +19,14 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 
 import de.walware.ecommons.ltk.LTK;
-import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.EditorTextInfoHoverProxy;
-import de.walware.ecommons.ltk.ui.sourceediting.InfoHoverDescriptor;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverDescriptor;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
+import de.walware.statet.r.ui.sourceediting.RAssistInvocationContext;
 
 
 public class REditorTextHover extends EditorTextInfoHoverProxy {
@@ -70,9 +72,10 @@ public class REditorTextHover extends EditorTextInfoHoverProxy {
 	}
 	
 	@Override
-	protected AssistInvocationContext createContext(final IRegion region) {
+	protected AssistInvocationContext createContext(final IRegion region,
+			final IProgressMonitor monitor) {
 		// we are not in UI thread
-		final RAssistInvocationContext context = new RAssistInvocationContext(getEditor(), region);
+		final RAssistInvocationContext context = new RAssistInvocationContext(getEditor(), region, monitor);
 		if (context.getAstSelection() == null) {
 			return null;
 		}

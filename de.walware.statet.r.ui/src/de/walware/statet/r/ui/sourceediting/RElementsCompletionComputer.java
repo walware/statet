@@ -36,12 +36,12 @@ import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
-import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ltk.ui.sourceediting.AssistProposalCollector;
-import de.walware.ecommons.ltk.ui.sourceediting.IAssistCompletionProposal;
-import de.walware.ecommons.ltk.ui.sourceediting.IAssistInformationProposal;
-import de.walware.ecommons.ltk.ui.sourceediting.IContentAssistComputer;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistProposalCollector;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistCompletionProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistInformationProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.IContentAssistComputer;
 import de.walware.ecommons.text.IPartitionConstraint;
 import de.walware.ecommons.ts.ITool;
 
@@ -310,7 +310,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		final AstSelection astSelection = context.getInvocationAstSelection();
 		IAstNode node = astSelection.getCovering();
 		if (node == null) {
-			node = context.getAstInfo().getRootNode();
+			node = context.getAstInfo().root;
 		}
 		if (!(node instanceof RAstNode)) {
 			return null;
@@ -458,7 +458,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 					if (candidate != null
 							&& pattern.matches(candidate) 
 							&& !mainNames.contains(candidate)
-							&& !(candidate.equals(namePrefix) && (sframe.getAllAccessOfElement(candidate).size() <= 1)) ) {
+							&& !(candidate.equals(namePrefix) && (sframe.getAllAccessOf(candidate).size() <= 1)) ) {
 						final IAssistCompletionProposal proposal = createProposal(context, orgPrefix, candidate);
 						if (proposal != null) {
 							mainNames.add(candidate);
@@ -510,7 +510,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 						if (offset >= 2) {
 							final char c2 = document.getChar(offset - 2);
 							if ((offset == context.getInvocationOffset())
-									&& !RTokens.isRobustSeparator(c, false)) {
+									&& !RTokens.isRobustSeparator(c2, false)) {
 								offset -= 2;
 								continue SEARCH_START;
 							}
@@ -676,7 +676,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			final IRFrame envir = iter.next();
 			if (envir instanceof IRFrameInSource) {
 				final IRFrameInSource sframe = (IRFrameInSource) envir;
-				final List<? extends RElementAccess> allAccess = sframe.getAllAccessOfElement(prefixSegments.getSegmentName());
+				final List<? extends RElementAccess> allAccess = sframe.getAllAccessOf(prefixSegments.getSegmentName());
 				if (allAccess != null) {
 					ITER_ELEMENTS: for (final RElementAccess elementAccess : allAccess) {
 						IElementName elementSegment = elementAccess;
@@ -762,10 +762,10 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	
 	private FCallInfo searchFCallInfo(final AssistInvocationContext context, final int fcallOpen) {
 		final AstInfo astInfo = context.getAstInfo();
-		if (astInfo == null || astInfo.getRootNode() == null) {
+		if (astInfo == null || astInfo.root == null) {
 			return null;
 		}
-		final AstSelection selection = AstSelection.search(astInfo.getRootNode(),
+		final AstSelection selection = AstSelection.search(astInfo.root,
 				fcallOpen, fcallOpen+1, AstSelection.MODE_COVERING_SAME_LAST );
 		IAstNode node = selection.getCovering();
 		

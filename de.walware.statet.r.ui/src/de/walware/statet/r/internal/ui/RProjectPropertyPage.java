@@ -81,7 +81,7 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 	
 	private Text fPkgNameControl;
 	
-	private RProject fRProject;
+	private final RProject fRProject;
 	
 	
 	public RProjectConfigurationBlock(final IProject project, final IStatusChangeListener statusListener) {

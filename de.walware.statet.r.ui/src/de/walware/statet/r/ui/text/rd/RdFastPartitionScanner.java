@@ -214,14 +214,15 @@ public class RdFastPartitionScanner implements IPartitionTokenScanner {
 	}
 	
 	private static State getState(final String contentType) {
-		if (contentType == null)
+		if (contentType == null) {
 			return State.DEFAULT;
-		
-		else if (contentType.equals(RDOC_COMMENT))
+		}
+		else if (contentType.equals(RDOC_COMMENT)) {
 			return State.COMMENT;
-		
-		else if (contentType.equals(RDOC_PLATFORM_SPECIF))
+		}
+		else if (contentType.equals(RDOC_PLATFORM_SPECIF)) {
 			return State.PLATFORM;
+		}
 		
 		return State.DEFAULT;
 	}

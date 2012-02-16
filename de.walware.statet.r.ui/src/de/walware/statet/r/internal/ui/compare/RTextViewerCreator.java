@@ -20,7 +20,6 @@ import de.walware.ecommons.ltk.ui.compare.CompareTextViewer;
 import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 
@@ -30,9 +29,8 @@ public class RTextViewerCreator implements IViewerCreator {
 	@Override
 	public Viewer createViewer(final Composite parent, final CompareConfiguration config) {
 		final RSourceViewerConfigurator viewerConfigurator = new RSourceViewerConfigurator(
-				RCore.getWorkbenchAccess());
-		viewerConfigurator.setConfiguration(new RSourceViewerConfiguration(
-				viewerConfigurator, RUIPlugin.getDefault().getEditorPreferenceStore(), SharedUIResources.getColors()));
+				RCore.getWorkbenchAccess(), new RSourceViewerConfiguration(
+						null, SharedUIResources.getColors() ));
 		return new CompareTextViewer(parent, config, viewerConfigurator);
 	}
 	

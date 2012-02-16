@@ -51,11 +51,11 @@ import de.walware.ecommons.ltk.LTK;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
-import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
+import de.walware.statet.r.core.model.RSuModelContainer;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.builder.CompositeFrame;
 import de.walware.statet.r.internal.core.builder.RBuildReconciler;
@@ -409,9 +409,10 @@ public class RModelIndex {
 		fReconciler.init(rProject, status);
 		final HashMap<String, RBuildReconciler.Result> newItems = new HashMap<String, RBuildReconciler.Result>();
 		for (final IRWorkspaceSourceUnit su : update) {
-			if (su instanceof IManagableRUnit) {
+			final RSuModelContainer adapter = (RSuModelContainer) su.getAdapter(RSuModelContainer.class);
+			if (adapter != null) {
 				try {
-					final RBuildReconciler.Result buildResult = fReconciler.build((IManagableRUnit) su, progress);
+					final RBuildReconciler.Result buildResult = fReconciler.build(adapter, progress);
 					if (buildResult != null) {
 						newItems.put(su.getId(), buildResult);
 					}

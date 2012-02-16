@@ -19,6 +19,9 @@ public class Messages extends NLS {
 	public static String NewSweaveFileWizard_title;
 	public static String NewSweaveFileWizardPage_title;
 	public static String NewSweaveFileWizardPage_description;
+	public static String NewSweaveDocWizardPage_title;
+	public static String NewSweaveDocWizardPage_description;
+	public static String NewSweaveDocWizardPage_Template_group;
 	
 	public static String RChunkLaunch_error_message;
 	

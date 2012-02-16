@@ -19,7 +19,6 @@ import org.eclipse.jface.text.TextUtilities;
 import de.walware.ecommons.text.IPartitionConstraint;
 
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
-import de.walware.statet.r.internal.sweave.Rweave;
 
 
 /**
@@ -36,10 +35,8 @@ public class RweaveChunkHeuristicScanner extends RHeuristicTokenScanner {
 	@Override
 	protected int createForwardBound(final int start) throws BadLocationException {
 		final IPartitionConstraint matcher = getPartitionConstraint();
-		if (matcher.matches(IDocument.DEFAULT_CONTENT_TYPE)) {
-			return UNBOUND;
-		}
-		if (matcher.matches(Rweave.TEX_DEFAULT_CONTENT_TYPE)) {
+		assert (!matcher.matches(IDocument.DEFAULT_CONTENT_TYPE));
+		if (matcher.matches(Rweave.LTX_DEFAULT_CONTENT_TYPE)) {
 			final ITypedRegion cat = Rweave.R_TEX_CAT_UTIL.getCat(fDocument, start);
 			return cat.getOffset()+cat.getLength();
 		}
@@ -50,9 +47,7 @@ public class RweaveChunkHeuristicScanner extends RHeuristicTokenScanner {
 	@Override
 	protected int createBackwardBound(final int start) throws BadLocationException {
 		final IPartitionConstraint matcher = getPartitionConstraint();
-		if (matcher.matches(Rweave.TEX_DEFAULT_CONTENT_TYPE)) {
-			return -1;
-		}
+		assert (!matcher.matches(IDocument.DEFAULT_CONTENT_TYPE));
 		if (matcher.matches(Rweave.R_DEFAULT_CONTENT_TYPE)) {
 			final ITypedRegion cat = Rweave.R_TEX_CAT_UTIL.getCat(fDocument, start);
 			return cat.getOffset();

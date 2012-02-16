@@ -14,6 +14,8 @@ package de.walware.statet.r.internal.debug.ui.actions;
 import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTarget;
 
+import de.walware.statet.r.debug.ui.actions.RToggleBreakpointAdapter;
+
 
 /**
  * Creates adapters for retargettable actions in debug platform.
@@ -43,7 +45,7 @@ public class RetargettableActionAdapterFactory implements IAdapterFactory {
 		if (IToggleBreakpointsTarget.class.equals(adapterType)) {
 			synchronized (this) {
 				if (fBreakpointAdapter == null) {
-					fBreakpointAdapter = new ToggleBreakpointAdapter();
+					fBreakpointAdapter = new RToggleBreakpointAdapter();
 				}
 				return fBreakpointAdapter;
 			}

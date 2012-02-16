@@ -83,8 +83,9 @@ public class NewRdFileCreationWizard extends NewElementWizard {
 	@Override
 	protected ISchedulingRule getSchedulingRule() {
 		final ISchedulingRule rule = createRule(fNewRdFile.getFileHandle());
-		if (rule != null)
+		if (rule != null) {
 			return rule;
+		}
 		
 		return super.getSchedulingRule();
 	}

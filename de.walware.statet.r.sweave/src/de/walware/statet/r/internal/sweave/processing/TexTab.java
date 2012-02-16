@@ -65,7 +65,6 @@ import net.sourceforge.texlipse.builder.Builder;
 import net.sourceforge.texlipse.builder.BuilderChooser;
 import net.sourceforge.texlipse.builder.BuilderRegistry;
 
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
@@ -77,7 +76,7 @@ public class TexTab extends LaunchConfigTabWithDbc {
 	
 	private static class BuildChooserObservable extends AbstractObservableValue implements SelectionListener {
 		
-		private BuilderChooser fControl;
+		private final BuilderChooser fControl;
 		private Integer fCurrentBuilder;
 		
 		public BuildChooserObservable(final BuilderChooser control) {
@@ -289,7 +288,8 @@ public class TexTab extends LaunchConfigTabWithDbc {
 			fBuildTexFileRControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		}
 		{	final TemplateVariableProcessor templateVariableProcessor = new TemplateVariableProcessor();
-			final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(), templateVariableProcessor);
+			final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(
+					null, templateVariableProcessor );
 			fConsoleCommandEditor = new SnippetEditor(configurator, null, null, true) {
 				@Override
 				protected void fillToolMenu(final Menu menu) {

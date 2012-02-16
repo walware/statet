@@ -18,6 +18,9 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.viewers.ViewersObservables;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -30,6 +33,8 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.databinding.IntegerValidator;
+import de.walware.ecommons.ltk.ui.sourceediting.ISmartInsertSettings.TabAction;
+import de.walware.ecommons.ltk.ui.sourceediting.SmartInsertSettingsUI;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
@@ -37,6 +42,7 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
 import de.walware.statet.r.internal.ui.editors.DefaultRFoldingPreferences;
+import de.walware.statet.r.ui.editors.REditorBuild;
 import de.walware.statet.r.ui.editors.REditorOptions;
 
 
@@ -61,6 +67,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	
 	
 	private Button fSmartInsertControl;
+	private ComboViewer fSmartInsertTabActionControl;
 	private Button[] fSmartInsertOnPasteControl;
 	private Button[] fSmartInsertCloseCurlyBracketsControl;
 	private Button[] fSmartInsertCloseRoundBracketsControl;
@@ -87,19 +94,20 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	protected void createBlockArea(final Composite pageComposite) {
 		// Preferences
 		final Map<Preference, String> prefs = new HashMap<Preference, String>();
-		prefs.put(REditorOptions.PREF_SMARTINSERT_BYDEFAULT_ENABLED, REditorOptions.GROUP_ID);
-		prefs.put(REditorOptions.PREF_SMARTINSERT_ONPASTE_ENABLED, REditorOptions.GROUP_ID);
-		prefs.put(REditorOptions.PREF_SMARTINSERT_CLOSECURLY_ENABLED, REditorOptions.GROUP_ID);
-		prefs.put(REditorOptions.PREF_SMARTINSERT_CLOSEROUND_ENABLED, REditorOptions.GROUP_ID);
-		prefs.put(REditorOptions.PREF_SMARTINSERT_CLOSESQUARE_ENABLED, REditorOptions.GROUP_ID);
-		prefs.put(REditorOptions.PREF_SMARTINSERT_CLOSESPECIAL_ENABLED, REditorOptions.GROUP_ID);
-		prefs.put(REditorOptions.PREF_SMARTINSERT_CLOSESTRINGS_ENABLED, REditorOptions.GROUP_ID);
+		prefs.put(REditorOptions.SMARTINSERT_BYDEFAULT_ENABLED_PREF, REditorOptions.SMARTINSERT_GROUP_ID);
+		prefs.put(REditorOptions.SMARTINSERT_TAB_ACTION_PREF, REditorOptions.SMARTINSERT_GROUP_ID);
+		prefs.put(REditorOptions.SMARTINSERT_ONPASTE_ENABLED_PREF, REditorOptions.SMARTINSERT_GROUP_ID);
+		prefs.put(REditorOptions.SMARTINSERT_CLOSECURLY_ENABLED_PREF, REditorOptions.SMARTINSERT_GROUP_ID);
+		prefs.put(REditorOptions.SMARTINSERT_CLOSEROUND_ENABLED_PREF, REditorOptions.SMARTINSERT_GROUP_ID);
+		prefs.put(REditorOptions.SMARTINSERT_CLOSESQUARE_ENABLED_PREF, REditorOptions.SMARTINSERT_GROUP_ID);
+		prefs.put(REditorOptions.SMARTINSERT_CLOSESPECIAL_ENABLED_PREF, REditorOptions.SMARTINSERT_GROUP_ID);
+		prefs.put(REditorOptions.SMARTINSERT_CLOSESTRINGS_ENABLED_PREF, REditorOptions.SMARTINSERT_GROUP_ID);
 		
-		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED, REditorOptions.GROUP_ID);
-		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSEROUND_ENABLED, REditorOptions.GROUP_ID);
-		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESQUARE_ENABLED, REditorOptions.GROUP_ID);
-		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED, REditorOptions.GROUP_ID);
-		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED, REditorOptions.GROUP_ID);
+		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED, REditorOptions.SMARTINSERT_GROUP_ID);
+		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSEROUND_ENABLED, REditorOptions.SMARTINSERT_GROUP_ID);
+		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESQUARE_ENABLED, REditorOptions.SMARTINSERT_GROUP_ID);
+		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED, REditorOptions.SMARTINSERT_GROUP_ID);
+		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED, REditorOptions.SMARTINSERT_GROUP_ID);
 		
 		prefs.put(REditorOptions.PREF_FOLDING_ENABLED, null);
 		prefs.put(DefaultRFoldingPreferences.PREF_OTHERBLOCKS_ENABLED, DefaultRFoldingPreferences.GROUP_ID);
@@ -110,48 +118,16 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		
 		prefs.put(REditorOptions.PREF_MARKOCCURRENCES_ENABLED, null);
 		
-		prefs.put(REditorOptions.PREF_PROBLEMCHECKING_ENABLED, null);
+		prefs.put(REditorBuild.PROBLEMCHECKING_ENABLED_PREF, REditorBuild.GROUP_ID);
+		
 		prefs.put(REditorOptions.PREF_SPELLCHECKING_ENABLED, REditorOptions.GROUP_ID);
 		
 		setupPreferenceManager(prefs);
 		
 		// Controls
-		Group group;
-		int n;
-		
-		group = new Group(pageComposite, SWT.NONE);
-		group.setText(Messages.REditorOptions_SmartInsert_label+':');
-		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		n = 5;
-		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), n));
-		fSmartInsertControl = new Button(group, SWT.CHECK);
-		fSmartInsertControl.setText(Messages.REditorOptions_SmartInsert_AsDefault_label);
-		fSmartInsertControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, n, 1));
-		{	final Link link = addLinkControl(group, Messages.REditorOptions_SmartInsert_description);
-			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, n, 1);
-			gd.widthHint = 300;
-			link.setLayoutData(gd);
+		{	final Composite composite = createSmartInsertOptions(pageComposite);
+			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		}
-		
-		LayoutUtil.addGDDummy(group);
-		LayoutUtil.addGDDummy(group);
-		{	Label label = new Label(group, SWT.CENTER);
-			label.setText(Messages.REditorOptions_SmartInsert_ForEditor_header);
-			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-			label = new Label(group, SWT.CENTER);
-			label.setText(Messages.REditorOptions_SmartInsert_ForConsole_header);
-			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		}
-		final Label dummy = new Label(group, SWT.NONE);
-		dummy.setVisible(false);
-		dummy.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 7));
-		
-		fSmartInsertOnPasteControl = createOption(group, Messages.REditorOptions_SmartInsert_OnPaste_label, null, false);
-		fSmartInsertCloseCurlyBracketsControl = createOption(group, Messages.REditorOptions_SmartInsert_CloseAuto_label, Messages.REditorOptions_SmartInsert_CloseCurly_label, true);
-		fSmartInsertCloseRoundBracketsControl = createOption(group, null, Messages.REditorOptions_SmartInsert_CloseRound_label, true);
-		fSmartInsertCloseSquareBracketsControl = createOption(group, null, Messages.REditorOptions_SmartInsert_CloseSquare_label, true);
-		fSmartInsertCloseSpecialControl = createOption(group, null, Messages.REditorOptions_SmartInsert_ClosePercent_label, true);
-		fSmartInsertCloseStringsControl = createOption(group, null, Messages.REditorOptions_SmartInsert_CloseString_label, true);
 		
 		// Code Folding
 		LayoutUtil.addSmallFiller(pageComposite, false);
@@ -243,7 +219,64 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		updateControls();
 	}
 	
-	private Button[] createOption(final Composite composite, final String text1, final String text2, final boolean console) {
+	private Composite createSmartInsertOptions(final Composite pageComposite) {
+		final Group composite = new Group(pageComposite, SWT.NONE);
+		composite.setText(Messages.REditorOptions_SmartInsert_label+':');
+		final int n = 5;
+		composite.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), n));
+		fSmartInsertControl = new Button(composite, SWT.CHECK);
+		fSmartInsertControl.setText(Messages.REditorOptions_SmartInsert_AsDefault_label);
+		fSmartInsertControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, n, 1));
+		{	final Link link = addLinkControl(composite, Messages.REditorOptions_SmartInsert_description);
+			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, n, 1);
+			gd.widthHint = 300;
+			link.setLayoutData(gd);
+		}
+		{	final Label label = new Label(composite, SWT.NONE);
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			label.setText(Messages.REditorOptions_SmartInsert_TabAction_label);
+			fSmartInsertTabActionControl = new ComboViewer(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
+			fSmartInsertTabActionControl.getControl().setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, n-2, 1));
+			fSmartInsertTabActionControl.setContentProvider(new ArrayContentProvider());
+			fSmartInsertTabActionControl.setLabelProvider(new SmartInsertSettingsUI.SettingsLabelProvider());
+			fSmartInsertTabActionControl.setInput(new TabAction[] {
+					TabAction.INSERT_TAB_CHAR, TabAction.INSERT_INDENT_LEVEL,
+			});
+			LayoutUtil.addGDDummy(composite);
+		}
+		
+		LayoutUtil.addGDDummy(composite);
+		LayoutUtil.addGDDummy(composite);
+		{	Label label = new Label(composite, SWT.CENTER);
+			label.setText(Messages.REditorOptions_SmartInsert_ForEditor_header);
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			label = new Label(composite, SWT.CENTER);
+			label.setText(Messages.REditorOptions_SmartInsert_ForConsole_header);
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		}
+		{	final Label dummy = new Label(composite, SWT.NONE);
+			dummy.setVisible(false);
+			dummy.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 7));
+		}
+		fSmartInsertOnPasteControl = createSmartInsertOption(composite,
+				Messages.REditorOptions_SmartInsert_OnPaste_label,
+				null, false );
+		fSmartInsertCloseCurlyBracketsControl = createSmartInsertOption(composite,
+				Messages.REditorOptions_SmartInsert_CloseAuto_label,
+				Messages.REditorOptions_SmartInsert_CloseCurly_label, true );
+		fSmartInsertCloseRoundBracketsControl = createSmartInsertOption(composite, null,
+				Messages.REditorOptions_SmartInsert_CloseRound_label, true );
+		fSmartInsertCloseSquareBracketsControl = createSmartInsertOption(composite, null,
+				Messages.REditorOptions_SmartInsert_CloseSquare_label, true );
+		fSmartInsertCloseSpecialControl = createSmartInsertOption(composite, null,
+				Messages.REditorOptions_SmartInsert_ClosePercent_label, true );
+		fSmartInsertCloseStringsControl = createSmartInsertOption(composite, null,
+				Messages.REditorOptions_SmartInsert_CloseString_label, true );
+		
+		return composite;
+	}
+	
+	private Button[] createSmartInsertOption(final Composite composite, final String text1, final String text2, final boolean console) {
 		GridData gd;
 		if (text1 != null) {
 			final Label label = new Label(composite, SWT.NONE);
@@ -282,25 +315,31 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	@Override
 	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
 		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertControl),
-				createObservable(REditorOptions.PREF_SMARTINSERT_BYDEFAULT_ENABLED),
+				createObservable(REditorOptions.SMARTINSERT_BYDEFAULT_ENABLED_PREF),
+				null, null);
+		dbc.bindValue(ViewersObservables.observeSingleSelection(fSmartInsertTabActionControl),
+				createObservable(REditorOptions.SMARTINSERT_TAB_ACTION_PREF),
 				null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertOnPasteControl[0]),
-				createObservable(REditorOptions.PREF_SMARTINSERT_ONPASTE_ENABLED),
+				createObservable(REditorOptions.SMARTINSERT_ONPASTE_ENABLED_PREF),
+				null, null);
+		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertOnPasteControl[0]),
+				createObservable(REditorOptions.SMARTINSERT_ONPASTE_ENABLED_PREF),
 				null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseCurlyBracketsControl[0]),
-				createObservable(REditorOptions.PREF_SMARTINSERT_CLOSECURLY_ENABLED),
+				createObservable(REditorOptions.SMARTINSERT_CLOSECURLY_ENABLED_PREF),
 				null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseRoundBracketsControl[0]),
-				createObservable(REditorOptions.PREF_SMARTINSERT_CLOSEROUND_ENABLED),
+				createObservable(REditorOptions.SMARTINSERT_CLOSEROUND_ENABLED_PREF),
 				null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseSquareBracketsControl[0]),
-				createObservable(REditorOptions.PREF_SMARTINSERT_CLOSESQUARE_ENABLED),
+				createObservable(REditorOptions.SMARTINSERT_CLOSESQUARE_ENABLED_PREF),
 				null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseSpecialControl[0]),
-				createObservable(REditorOptions.PREF_SMARTINSERT_CLOSESPECIAL_ENABLED),
+				createObservable(REditorOptions.SMARTINSERT_CLOSESPECIAL_ENABLED_PREF),
 				null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseStringsControl[0]),
-				createObservable(REditorOptions.PREF_SMARTINSERT_CLOSESTRINGS_ENABLED),
+				createObservable(REditorOptions.SMARTINSERT_CLOSESTRINGS_ENABLED_PREF),
 				null, null);
 		
 		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseCurlyBracketsControl[1]),
@@ -343,7 +382,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 				null, null);
 		
 		dbc.bindValue(SWTObservables.observeSelection(fProblemsEnableControl),
-				createObservable(REditorOptions.PREF_PROBLEMCHECKING_ENABLED),
+				createObservable(REditorBuild.PROBLEMCHECKING_ENABLED_PREF),
 				null, null);
 		
 		dbc.bindValue(SWTObservables.observeSelection(fSpellEnableControl),

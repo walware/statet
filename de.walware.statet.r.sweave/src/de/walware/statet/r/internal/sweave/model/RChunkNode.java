@@ -16,7 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 
-import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.rsource.ast.FCall.Args;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
 
 
@@ -26,15 +26,16 @@ import de.walware.statet.r.core.rsource.ast.SourceComponent;
 public class RChunkNode implements IAstNode {
 	
 	
-	private SweaveDocElement fParent;
+	private final IAstNode fParent;
 	// start/stop control chunk
-	SourceComponent fRSource;
+	Args fWeaveArgs;
+	SourceComponent[] fRSources;
 	
 	int fStartOffset;
 	int fStopOffset;
 	
 	
-	RChunkNode(final SweaveDocElement parent) {
+	RChunkNode(final IAstNode parent) {
 		fParent = parent;
 	}
 	
@@ -63,25 +64,26 @@ public class RChunkNode implements IAstNode {
 	
 	@Override
 	public int getChildCount() {
-		return 1;
-	}
-	
-	public IAstNode[] getChildren() {
-		return new RAstNode[] { fRSource };
+		return fRSources.length+1;
 	}
 	
 	@Override
 	public IAstNode getChild(final int index) {
 		if (index == 0) {
-			return fRSource;
+			return fWeaveArgs;
 		}
-		throw new IndexOutOfBoundsException();
+		return fRSources[index-1];
 	}
 	
 	@Override
 	public int getChildIndex(final IAstNode element) {
-		if (element == fRSource) {
+		if (fWeaveArgs == element) {
 			return 0;
+		}
+		for (int i = 0; i < fRSources.length; i++) {
+			if (fRSources[i] == element) {
+				return i+1;
+			}
 		}
 		return -1;
 	}
@@ -94,7 +96,10 @@ public class RChunkNode implements IAstNode {
 	
 	@Override
 	public void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		visitor.visit(fRSource);
+		visitor.visit(fWeaveArgs);
+		for (final SourceComponent node : fRSources) {
+			visitor.visit(node);
+		}
 	}
 	
 	

@@ -33,7 +33,6 @@ import de.walware.ecommons.text.Partitioner;
 import de.walware.ecommons.text.ui.TextViewerEditorColorUpdater;
 import de.walware.ecommons.text.ui.TextViewerJFaceUpdater;
 
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
@@ -58,14 +57,10 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 		setContextTypeRegistry(RUIPlugin.getDefault().getREditorTemplateContextRegistry());
 		
 		fTemplateProcessor = new TemplateVariableProcessor();
-		fViewerConfigurator = new RTemplateSourceViewerConfigurator(
-				RCore.getWorkbenchAccess(),
-				fTemplateProcessor);
+		fViewerConfigurator = new RTemplateSourceViewerConfigurator(null, fTemplateProcessor);
 		
 		fDialogTemplateProcessor = new TemplateVariableProcessor();
-		fDialogViewerConfigurator = new RTemplateSourceViewerConfigurator(
-				RCore.getWorkbenchAccess(),
-				fDialogTemplateProcessor);
+		fDialogViewerConfigurator = new RTemplateSourceViewerConfigurator(null, fDialogTemplateProcessor);
 	}
 	
 	@Override
@@ -115,7 +110,8 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 	@Override
 	protected Template editTemplate(final Template template, final boolean edit, final boolean isNameModifiable) {
 		final de.walware.ecommons.ltk.ui.templates.EditTemplateDialog dialog = new de.walware.ecommons.ltk.ui.templates.EditTemplateDialog(
-				getShell(), template, edit, isNameModifiable, 
+				getShell(), template, edit,
+				de.walware.ecommons.ltk.ui.templates.EditTemplateDialog.EDITOR_TEMPLATE,
 				fDialogViewerConfigurator, fDialogTemplateProcessor, getContextTypeRegistry()) {
 			
 			@Override

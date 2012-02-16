@@ -29,7 +29,7 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 public class RReconcilingStrategy implements IReconcilingStrategy, IReconcilingStrategyExtension, ISourceUnitStrategy {
 	
 	
-	private RDocumentProvider fDocumentProvider;
+	private final RDocumentProvider fDocumentProvider;
 	private ISourceUnit fInput;
 	private IProgressMonitor fMonitor;
 	

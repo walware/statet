@@ -31,7 +31,28 @@
          unpack="false"/>
 
    <plugin
+         id="de.walware.statet.r.sweave.debug"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="de.walware.statet.r.sweave.doc"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="de.walware.docmlet.tex.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="de.walware.docmlet.tex.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"

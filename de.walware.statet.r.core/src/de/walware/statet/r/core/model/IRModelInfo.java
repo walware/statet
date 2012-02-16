@@ -15,8 +15,6 @@ import java.util.Map;
 
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
-
 
 /**
  * Container for model information of a R source unit
@@ -26,12 +24,10 @@ public interface IRModelInfo extends ISourceUnitModelInfo {
 	
 	@Override
 	IRLangSourceElement getSourceElement();
+	
 	Map<String, ? extends IRFrameInSource> getSourceFrames();
 	IRFrameInSource getTopFrame();
 	IPackageReferences getReferencedPackages();
 	Map<String, ? extends IRFrame> getReferencedFrames();
-	
-	@Override
-	RAstInfo getAst();
 	
 }

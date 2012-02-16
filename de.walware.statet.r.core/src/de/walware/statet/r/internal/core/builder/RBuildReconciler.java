@@ -26,20 +26,21 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 import de.walware.ecommons.text.ILineInformation;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
-import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRClass;
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRMethod;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
+import de.walware.statet.r.core.model.RSuModelContainer;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.rsource.ast.SourceComponent;
 import de.walware.statet.r.internal.core.sourcemodel.RModelIndex;
 import de.walware.statet.r.internal.core.sourcemodel.RModelManager;
 import de.walware.statet.r.internal.core.sourcemodel.RReconciler;
@@ -83,10 +84,8 @@ public class RBuildReconciler extends RReconciler {
 	/** for file build 
 	 * @throws CoreException
 	 **/
-	public Result build(final IManagableRUnit su, final IProgressMonitor monitor) {
-		if (!(su instanceof IWorkspaceSourceUnit)) {
-			return null;
-		}
+	public Result build(final RSuModelContainer adapter, final IProgressMonitor monitor) {
+		final IRSourceUnit su = adapter.getSourceUnit();
 		final int type = (su.getModelTypeId().equals(RModel.TYPE_ID) ? su.getElementType() : 0);
 		if (type == 0) {
 			return null;
@@ -95,7 +94,7 @@ public class RBuildReconciler extends RReconciler {
 			throw new OperationCanceledException();
 		}
 		
-		final Data data = new Data(su, monitor);
+		final Data data = new Data(adapter, monitor);
 		
 		if (fStop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
@@ -118,7 +117,7 @@ public class RBuildReconciler extends RReconciler {
 			initParseInput(data);
 //			problemRequestor.beginReportingSequence();
 			try {
-				final List<RAstNode> comments = data.ast.getRootNode().getComments();
+				final List<RAstNode> comments = ((SourceComponent) data.ast.root).getComments();
 				fTaskScanner.setup((IResource) su.getResource());
 				final ILineInformation lines = getContentLines(data).lines;
 				for (final RAstNode comment : comments) {
@@ -152,7 +151,7 @@ public class RBuildReconciler extends RReconciler {
 			return null;
 		}
 		final ArrayList<IRLangElement> exports = new ArrayList<IRLangElement>(children.size());
-		final RUnitElement root = new RUnitElement(data.su, exports);
+		final RUnitElement root = new RUnitElement(data.adapter.getSourceUnit(), exports);
 		for (final IRLangElement element : children) {
 			final int type = element.getElementType();
 			switch (type & IRElement.MASK_C1) {

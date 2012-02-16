@@ -41,7 +41,7 @@ public class OpenInEditorHandler extends AbstractHandler {
 	
 	
 	@Override
-	public void setEnabled(Object evaluationContext) {
+	public void setEnabled(final Object evaluationContext) {
 		final IWorkbenchPart activePart = WorkbenchUIUtil.getActivePart(evaluationContext);
 		if (activePart instanceof ObjectBrowserView) {
 			final ObjectBrowserView browser = (ObjectBrowserView) activePart;
@@ -56,23 +56,23 @@ public class OpenInEditorHandler extends AbstractHandler {
 	}
 	
 	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final IWorkbenchPart activePart = WorkbenchUIUtil.getActivePart(event.getApplicationContext());
 		if (activePart instanceof ObjectBrowserView) {
-			ObjectBrowserView browser = (ObjectBrowserView) activePart;
+			final ObjectBrowserView browser = (ObjectBrowserView) activePart;
 			
 			final ToolProcess tool = browser.getTool();
 			final ITreeSelection selection = browser.getSelection();
 			if (tool == null || selection == null || selection.size() != 1) {
 				return null;
 			}
-			RElementName elementName = browser.getElementName(selection.getPaths()[0]);
+			final RElementName elementName = browser.getElementName(selection.getPaths()[0]);
 			
 			try {
 				IDE.openEditor(browser.getSite().getPage(), new RLiveDataEditorInput(tool, elementName),
 						"de.walware.statet.r.editors.RData", true); //$NON-NLS-1$
 			}
-			catch (PartInitException e) {
+			catch (final PartInitException e) {
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID,
 						"Failed to open the selected element in the data viewer."));
 			}

@@ -1144,7 +1144,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		@Override
 		protected Object getHoverInformation(final Object element) {
 			if (element instanceof RElementName && fProcess != null) {
-				RElementInfoTask updater = new RElementInfoTask((RElementName) element);
+				final RElementInfoTask updater = new RElementInfoTask((RElementName) element);
 				return updater.load(fProcess, getSubjectControl());
 			}
 			return null;

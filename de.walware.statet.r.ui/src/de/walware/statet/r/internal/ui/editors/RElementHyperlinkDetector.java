@@ -23,6 +23,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
+import de.walware.statet.r.ui.sourceediting.ROpenDeclarationHandler;
 
 
 public class RElementHyperlinkDetector extends AbstractHyperlinkDetector {

@@ -38,10 +38,10 @@ import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.internal.sweave.Messages;
-import de.walware.statet.r.internal.sweave.Rweave;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
-import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentProvider;
+import de.walware.statet.r.internal.sweave.editors.LtxRweaveDocumentProvider;
 import de.walware.statet.r.launching.RCodeLaunching;
+import de.walware.statet.r.sweave.text.Rweave;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -102,7 +102,7 @@ public class RChunkDirectLaunchShortcut implements ILaunchShortcut {
 	
 	private void doLaunch(final IEditorInput editorInput, final ITextSelection selection, final IProgressMonitor monitor)
 			throws CoreException {
-		final RweaveTexDocumentProvider documentProvider = SweavePlugin.getDefault().getRTexDocumentProvider();
+		final LtxRweaveDocumentProvider documentProvider = SweavePlugin.getDefault().getRTexDocumentProvider();
 		documentProvider.connect(editorInput);
 		try {
 			final IDocument doc = documentProvider.getDocument(editorInput);

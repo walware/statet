@@ -39,6 +39,7 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.IElementComparer;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -69,6 +70,7 @@ import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.components.ButtonGroup;
+import de.walware.ecommons.ui.components.DataAdapter;
 import de.walware.ecommons.ui.components.DropDownButton;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
@@ -104,7 +106,8 @@ public class REnvPreferencePage extends ConfigurationBlockPreferencePage<REnvCon
 	
 }
 
-class REnvConfigurationBlock extends ManagedConfigurationBlock {
+class REnvConfigurationBlock extends ManagedConfigurationBlock
+		implements ButtonGroup.IActions<IREnvConfiguration.WorkingCopy> {
 	
 	
 	private final static int ADD_NEW_DEFAULT = ButtonGroup.ADD_NEW;
@@ -153,53 +156,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 				table.setLayoutData(gd);
 			}
 			
-			fListButtons = new ButtonGroup<IREnvConfiguration.WorkingCopy>(composite) {
-				@Override
-				protected IREnvConfiguration.WorkingCopy edit1(final int command,
-						final IREnvConfiguration.WorkingCopy config, final Object parent) {
-					final boolean newConfig = ((command & ButtonGroup.ADD_ANY) != 0);
-					final IREnvConfiguration.WorkingCopy editConfig;
-					if (newConfig) {
-						if (config != null) { // copy
-							editConfig = RCore.getREnvManager().newConfiguration(config.getType());
-							editConfig.load(config);
-						}
-						else { // add
-							if (command == ADD_NEW_REMOTE) {
-								editConfig = RCore.getREnvManager()
-										.newConfiguration(IREnvConfiguration.USER_REMOTE_TYPE);
-							}
-							else {
-								editConfig = RCore.getREnvManager()
-										.newConfiguration(IREnvConfiguration.USER_LOCAL_TYPE);
-							}
-						}
-					}
-					else {
-						editConfig = config.createWorkingCopy();
-					}
-					if (edit(editConfig, newConfig)) {
-						if (newConfig) {
-							return editConfig;
-						}
-						else {
-							config.load(editConfig);
-							return config;
-						}
-					}
-					return null;
-				}
-				@Override
-				protected boolean isModifyAllowed(final Object element) {
-					final IREnvConfiguration config = (IREnvConfiguration) element;
-					return config.isEditable();
-				}
-				@Override
-				public void updateState() {
-					super.updateState();
-					REnvConfigurationBlock.this.updateStatus();
-				}
-			};
+			fListButtons = new ButtonGroup<IREnvConfiguration.WorkingCopy>(composite, this, false);
 			fListButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, true));
 			final SelectionListener addDefaultListener = new SelectionAdapter() {
 				@Override
@@ -226,7 +183,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 				}
 			};
 			addButton.addSelectionListener(addDefaultListener);
-			addButton.setText(SharedMessages.CollectionEditing_AddItem_label);
+			addButton.setText(SharedMessages.CollectionEditing_AddItem_label + "...");
 			addButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			fListButtons.addCopyButton();
 			fListButtons.addEditButton();
@@ -234,7 +191,14 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 			fListButtons.addSeparator();
 			fListButtons.addDefaultButton();
 			
-			fListButtons.connectTo(fListViewer, fList, fDefault);
+			fListButtons.connectTo(fListViewer, new DataAdapter.ListAdapter<IREnvConfiguration.WorkingCopy>(
+					fList, fDefault ) {
+				@Override
+				public boolean isModifyAllowed(final Object element) {
+					final IREnvConfiguration config = (IREnvConfiguration) element;
+					return config.isEditable();
+				}
+			});
 			fListViewer.setComparer(new IElementComparer() {
 				@Override
 				public int hashCode(final Object element) {
@@ -287,7 +251,43 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 		fListButtons.refresh();
 	}
 	
-	private boolean edit(final IREnvConfiguration.WorkingCopy config, final boolean newConfig) {
+	@Override
+	public IREnvConfiguration.WorkingCopy edit(final int command,
+			final IREnvConfiguration.WorkingCopy config, final Object parent) {
+		final boolean newConfig = ((command & ButtonGroup.ADD_ANY) != 0);
+		final IREnvConfiguration.WorkingCopy editConfig;
+		if (newConfig) {
+			if (config != null) { // copy
+				editConfig = RCore.getREnvManager().newConfiguration(config.getType());
+				editConfig.load(config);
+			}
+			else { // add
+				if (command == ADD_NEW_REMOTE) {
+					editConfig = RCore.getREnvManager()
+							.newConfiguration(IREnvConfiguration.USER_REMOTE_TYPE);
+				}
+				else {
+					editConfig = RCore.getREnvManager()
+							.newConfiguration(IREnvConfiguration.USER_LOCAL_TYPE);
+				}
+			}
+		}
+		else {
+			editConfig = config.createWorkingCopy();
+		}
+		if (doEdit(editConfig, newConfig)) {
+			if (newConfig) {
+				return editConfig;
+			}
+			else {
+				config.load(editConfig);
+				return config;
+			}
+		}
+		return null;
+	}
+	
+	private boolean doEdit(final IREnvConfiguration.WorkingCopy config, final boolean newConfig) {
 		final List<IREnvConfiguration> existingConfigs = new ArrayList<IREnvConfiguration>(fList);
 		if (!newConfig) {
 			for (final Iterator<IREnvConfiguration> iter = existingConfigs.iterator(); iter.hasNext();) {
@@ -311,6 +311,11 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 			return false;
 		}
 		return (dialog.open() == Dialog.OK);
+	}
+	
+	@Override
+	public void updateState(final IStructuredSelection selection) {
+		REnvConfigurationBlock.this.updateStatus();
 	}
 	
 	private Composite createTable(final Composite parent) {
@@ -401,7 +406,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 		composite.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
 		composite.setText(Messages.REnv_Network_label);
 		
-		{	Composite line = new Composite(composite, SWT.NONE);
+		{	final Composite line = new Composite(composite, SWT.NONE);
 			line.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 			final GridLayout layout = LayoutUtil.applyCompositeDefaults(new GridLayout(), 2);
 			layout.horizontalSpacing = 0;
@@ -436,7 +441,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 	@Override
 	public boolean performOk() {
 		final boolean superOk = super.performOk();
-		if (fListButtons.isDirty()) {
+		if (fListButtons.getDataAdapter().isDirty()) {
 			return superOk | saveValues(false);
 		}
 		return superOk;

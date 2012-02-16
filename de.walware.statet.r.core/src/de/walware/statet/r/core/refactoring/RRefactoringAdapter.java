@@ -21,10 +21,13 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.TextEdit;
 
+import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringAdapter;
 import de.walware.ecommons.text.IPartitionConstraint;
 import de.walware.ecommons.text.IndentUtil;
+import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.text.SourceParseInput;
 import de.walware.ecommons.text.StringParseInput;
 
@@ -33,17 +36,15 @@ import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
+import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.IRSourceConstants;
 import de.walware.statet.r.core.rsource.RCodePartitionConstraint;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
-import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.core.rsource.RLexer;
 import de.walware.statet.r.core.rsource.RSourceIndenter;
 import de.walware.statet.r.core.rsource.ast.Assignment;
-import de.walware.statet.r.core.rsource.ast.RAst;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RScanner;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
@@ -60,7 +61,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 	
 	
 	public RRefactoringAdapter() {
-		super(new RHeuristicTokenScanner());
+		super(RModel.TYPE_ID);
 	}
 	
 	
@@ -70,20 +71,26 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 	}
 	
 	@Override
+	public RHeuristicTokenScanner getScanner(ISourceUnit su) {
+		return (RHeuristicTokenScanner) LTK.getModelAdapter(su.getModelTypeId(), RHeuristicTokenScanner.class);
+	}
+	
+	@Override
 	public boolean isCommentContent(final ITypedRegion partition) {
 		return (partition != null) && partition.getType().equals(IRDocumentPartitions.R_COMMENT);
 	}
 	
-	public IRegion trimToAstRegion(final AbstractDocument document, final IRegion region) {
-		fScanner.configure(document, new RCodePartitionConstraint(fPartitioning));
+	public IRegion trimToAstRegion(final AbstractDocument document, final IRegion region,
+			final RHeuristicTokenScanner scanner) {
+		scanner.configure(document, new RCodePartitionConstraint(scanner.getPartitioningConfig()));
 		int start = region.getOffset();
 		int stop = start+region.getLength();
 		int result;
 		
 		while (stop > start) {
-			result = fScanner.findNonBlankBackward(stop, start, true);
+			result = scanner.findNonBlankBackward(stop, start, true);
 			if (result >= 0) {
-				if (fScanner.getChar() == ';') {
+				if (scanner.getChar() == ';') {
 					stop = result;
 					continue;
 				}
@@ -99,9 +106,9 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		}
 		
 		while (start < stop) {
-			result = fScanner.findNonBlankForward(start, stop, true);
+			result = scanner.findNonBlankForward(start, stop, true);
 			if (result >= 0) {
-				if (fScanner.getChar() == ';') {
+				if (scanner.getChar() == ';') {
 					start = result + 1;
 					continue;
 				}
@@ -119,8 +126,9 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		return new Region(start, stop-start);
 	}
 	
-	public IRegion expandSelectionRegion(final AbstractDocument document, final IRegion region, final IRegion limit) {
-		fScanner.configure(document, new IPartitionConstraint() {
+	public IRegion expandSelectionRegion(final AbstractDocument document, final IRegion region,
+			final IRegion limit, final RHeuristicTokenScanner scanner) {
+		scanner.configure(document, new IPartitionConstraint() {
 			@Override
 			public boolean matches(final String partitionType) {
 				return (partitionType != IRDocumentPartitions.R_COMMENT);
@@ -132,11 +140,12 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		int stop = start+region.getLength();
 		int result;
 		
+		final PartitioningConfiguration partitioning = scanner.getPartitioningConfig();
 		while (start > min) {
-			result = fScanner.findNonBlankBackward(start, min, true);
+			result = scanner.findNonBlankBackward(start, min, true);
 			if (result >= 0) {
-				if (fPartitioning.getDefaultPartitionConstraint().matches(fScanner.getPartition(result).getType())
-						&& fScanner.getChar() == ';') {
+				if (partitioning.getDefaultPartitionConstraint().matches(scanner.getPartition(result).getType())
+						&& scanner.getChar() == ';') {
 					start = result;
 					continue;
 				}
@@ -152,10 +161,10 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		}
 		
 		while (stop < max) {
-			result = fScanner.findNonBlankForward(stop, max, true);
+			result = scanner.findNonBlankForward(stop, max, true);
 			if (result >= 0) {
-				if (fPartitioning.getDefaultPartitionConstraint().matches(fScanner.getPartition(result).getType())
-						&& fScanner.getChar() == ';') {
+				if (partitioning.getDefaultPartitionConstraint().matches(scanner.getPartition(result).getType())
+						&& scanner.getChar() == ';') {
 					stop = result + 1;
 					continue;
 				}
@@ -283,7 +292,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 			final ISourceUnit su) throws BadLocationException, CoreException {
 		final IRCoreAccess coreConfig = (su instanceof IRSourceUnit) ? ((IRSourceUnit) su).getRCoreAccess() : RCore.getWorkbenchAccess();
 		
-		final RIndentUtil indentUtil = new RIndentUtil(orgDoc, coreConfig.getRCodeStyle());
+		final IndentUtil indentUtil = new IndentUtil(orgDoc, coreConfig.getRCodeStyle());
 		final int column = indentUtil.getColumnAtOffset(offset);
 		final String initial = indentUtil.createIndentString(column);
 		final String prefix = initial+"1\n"; //$NON-NLS-1$
@@ -293,8 +302,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		final SourceParseInput parseInput = new StringParseInput(text);
 		text = null;
 		
-		final RAstInfo ast = new RAstInfo(RAst.LEVEL_MINIMAL, 0);
-		final RScanner scanner = new RScanner(parseInput, ast);
+		final RScanner scanner = new RScanner(parseInput, AstInfo.LEVEL_MINIMAL);
 		final SourceComponent rootNode = scanner.scanSourceUnit();
 		
 		final RSourceIndenter indenter = new RSourceIndenter(coreConfig);
@@ -321,7 +329,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 			final ISourceUnit su) throws BadLocationException, CoreException {
 		final IRCoreAccess coreConfig = (su instanceof IRSourceUnit) ? ((IRSourceUnit) su).getRCoreAccess() : RCore.getWorkbenchAccess();
 		
-		final RIndentUtil indentUtil = new RIndentUtil(orgDoc, coreConfig.getRCodeStyle());
+		final IndentUtil indentUtil = new IndentUtil(orgDoc, coreConfig.getRCodeStyle());
 		final int line = orgDoc.getLineOfOffset(offset);
 		final int[] lineIndent = indentUtil.getLineIndent(line, false);
 		if (lineIndent[IndentUtil.OFFSET_IDX] == offset) { // first char/command in line

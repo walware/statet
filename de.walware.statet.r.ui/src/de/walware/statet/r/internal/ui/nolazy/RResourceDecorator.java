@@ -52,7 +52,7 @@ public class RResourceDecorator extends BaseLabelProvider implements ILightweigh
 					decoration.addOverlay(getPackageProjectOverlay(), IDecoration.TOP_LEFT);
 				}
 			}
-			catch (CoreException e) {
+			catch (final CoreException e) {
 			}
 		}
 	}

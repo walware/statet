@@ -31,7 +31,6 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.debug.core.breakpoints.IRLineBreakpoint;
-import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 
@@ -70,9 +69,8 @@ public class RLineBreakpointDetailEditor extends AbstractBreakpointDetailEditor 
 		fConditionEnabledControl.setText(checkLabel("&Conditional / Expression:"));
 		
 		final RSourceViewerConfigurator viewerConfigurator = new RSourceViewerConfigurator(
-				RCore.getWorkbenchAccess() );
-		viewerConfigurator.setConfiguration(new RSourceViewerConfiguration(viewerConfigurator,
-				RUIPlugin.getDefault().getEditorPreferenceStore(), SharedUIResources.getColors() ));
+				RCore.getWorkbenchAccess(), new RSourceViewerConfiguration(
+						null, SharedUIResources.getColors() ));
 		fConditionCodeEditor = new SnippetEditor(viewerConfigurator);
 		fConditionCodeEditor.create(composite, SWT.BORDER | SWT.H_SCROLL | SWT.MULTI | SWT.LEFT_TO_RIGHT);
 		fConditionCodeEditor.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

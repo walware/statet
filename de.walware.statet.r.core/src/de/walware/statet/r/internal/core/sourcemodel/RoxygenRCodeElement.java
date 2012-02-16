@@ -17,12 +17,12 @@ import org.eclipse.jface.text.IRegion;
 
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceStructElement;
-import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRLangSourceElement;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
@@ -31,15 +31,15 @@ import de.walware.statet.r.core.rsource.ast.RAstNode;
 final class RoxygenRCodeElement implements IBuildSourceFrameElement {
 	
 	
-	private final ISourceStructElement fParent;
+	private final IRLangSourceElement fParent;
 	private final int fNumber;
 	
 	private final RAstNode fSourceNode;
-	private List<? extends IRLangSourceElement> fSourceChildrenProtected = RSourceElements.NO_R_SOURCE_CHILDREN;
+	private final List<? extends IRLangSourceElement> fSourceChildrenProtected = RSourceElements.NO_R_SOURCE_CHILDREN;
 	private BuildSourceFrame fEnvir;
 	
 	
-	public RoxygenRCodeElement(final ISourceStructElement parent, final int number, final BuildSourceFrame envir, final RAstNode node) {
+	public RoxygenRCodeElement(final IRLangSourceElement parent, final int number, final BuildSourceFrame envir, final RAstNode node) {
 		fParent = parent;
 		fNumber = number;
 		fSourceNode = node;
@@ -119,7 +119,7 @@ final class RoxygenRCodeElement implements IBuildSourceFrameElement {
 	}
 	
 	@Override
-	public ISourceUnit getSourceUnit() {
+	public IRSourceUnit getSourceUnit() {
 		return fParent.getSourceUnit();
 	}
 	

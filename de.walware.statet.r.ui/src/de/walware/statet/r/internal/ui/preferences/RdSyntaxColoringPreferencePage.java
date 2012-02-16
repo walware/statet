@@ -84,7 +84,7 @@ public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreference
 			@Override
 			protected SourceEditorViewerConfiguration getSourceViewerConfiguration(
 					final ColorManager colorManager, final IPreferenceStore store) {
-				return new RdSourceViewerConfiguration(RCore.getDefaultsAccess(),
+				return new RdSourceViewerConfiguration(null, RCore.getDefaultsAccess(),
 						CombinedPreferenceStore.createStore(
 								store,
 								StatetUIServices.getBaseUIPreferenceStore(),

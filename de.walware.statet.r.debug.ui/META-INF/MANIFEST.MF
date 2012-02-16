@@ -24,3 +24,4 @@ Import-Package: de.walware.ecommons,
  de.walware.ecommons.ts,
  de.walware.rj.server.dbg,
  org.apache.commons.collections.primitives;version="1.0.0"
+Export-Package: de.walware.statet.r.debug.ui.actions

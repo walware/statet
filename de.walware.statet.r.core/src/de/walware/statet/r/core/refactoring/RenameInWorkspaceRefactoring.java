@@ -35,6 +35,7 @@ import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.ReplaceEdit;
 
+import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitManager;
 import de.walware.ecommons.ltk.LTK;
@@ -58,9 +59,9 @@ import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rlang.RTerminal;
+import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAst;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.refactoring.Messages;
 
@@ -147,13 +148,16 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 				fSourceUnit.connect(progress.newChild(1));
 				try {
 					final AbstractDocument document = fSourceUnit.getDocument(monitor);
-					final IRegion region = fAdapter.trimToAstRegion(document, fSelectionRegion);
+					final RHeuristicTokenScanner scanner = fAdapter.getScanner(fSourceUnit);
+					
+					final IRegion region = fAdapter.trimToAstRegion(document,
+							fSelectionRegion, scanner );
 					
 					final IRModelInfo modelInfo = (IRModelInfo) fSourceUnit.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, progress.newChild(1));
 					if (modelInfo != null) {
-						final RAstInfo ast = modelInfo.getAst();
+						final AstInfo ast = modelInfo.getAst();
 						if (ast != null) {
-							node = (RAstNode) AstSelection.search(ast.getRootNode(),
+							node = (RAstNode) AstSelection.search(ast.root,
 									region.getOffset(), region.getOffset()+region.getLength(),
 									AstSelection.MODE_COVERING_SAME_LAST ).getCovering();
 						}
@@ -175,7 +179,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 				return RefactoringStatus.createFatalErrorStatus("The file is not in the workspace");
 			}
 			final RefactoringStatus result = new RefactoringStatus();
-			fAdapter.checkInitialForModification(result, fElementSet);
+			fAdapter.checkInitialToModify(result, fElementSet);
 			if (result.hasFatalError()) {
 				return result;
 			}
@@ -258,7 +262,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 			if (fMode == Mode.LOCAL) {
 				fChanges = createLocalChanges(progress.newChild(90));
 				
-				fAdapter.checkFinalForModification(status, fElementSet, progress.newChild(2));
+				fAdapter.checkFinalToModify(status, fElementSet, progress.newChild(2));
 			}
 			else {
 				final TextChangeManager manager = new TextChangeManager();
@@ -266,7 +270,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 				fChanges = manager.getAllChanges();
 				
 				final RefactoringElementSet elements = new RefactoringElementSet(manager.getAllSourceUnits());
-				fAdapter.checkFinalForModification(status, elements, progress.newChild(2));
+				fAdapter.checkFinalToModify(status, elements, progress.newChild(2));
 			}
 			
 			return status;
@@ -560,7 +564,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 				frame = modelInfo.getReferencedFrames().get(specificPackage);
 			}
 			if (frame instanceof IRFrameInSource) {
-				final List<? extends RElementAccess> allAccess = ((IRFrameInSource) frame).getAllAccessOfElement(fName.getSegmentName());
+				final List<? extends RElementAccess> allAccess = ((IRFrameInSource) frame).getAllAccessOf(fName.getSegmentName());
 				if (allAccess != null) {
 					for (final RElementAccess access : allAccess) {
 						if (access.isWriteAccess() && access.getNextSegment() == null) {
@@ -613,7 +617,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 					frame = modelInfo.getReferencedFrames().get(packageId);
 				}
 				if (frame instanceof IRFrameInSource) {
-					final List<? extends RElementAccess> allAccess = ((IRFrameInSource) frame).getAllAccessOfElement(fName.getSegmentName());
+					final List<? extends RElementAccess> allAccess = ((IRFrameInSource) frame).getAllAccessOf(fName.getSegmentName());
 					if (allAccess != null && allAccess.size() > 0) {
 						allFrameAccess.add(allAccess);
 					}

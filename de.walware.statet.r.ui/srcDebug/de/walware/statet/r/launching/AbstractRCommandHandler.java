@@ -54,7 +54,7 @@ public abstract class AbstractRCommandHandler extends AbstractHandler {
 	}
 	
 	
-	private String fName;
+	private final String fName;
 	
 	
 	protected AbstractRCommandHandler(final String commandName) {

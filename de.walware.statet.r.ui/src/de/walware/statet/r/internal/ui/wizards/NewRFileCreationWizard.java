@@ -88,8 +88,9 @@ public class NewRFileCreationWizard extends NewElementWizard {
 	@Override
 	protected ISchedulingRule getSchedulingRule() {
 		final ISchedulingRule rule = createRule(fNewRFile.getFileHandle());
-		if (rule != null)
+		if (rule != null) {
 			return rule;
+		}
 		
 		return super.getSchedulingRule();
 	}

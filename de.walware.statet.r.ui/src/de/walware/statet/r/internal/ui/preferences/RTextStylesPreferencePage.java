@@ -21,8 +21,8 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
 import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.Preference.StringArrayPref;
+import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.text.ui.presentation.AbstractTextStylesConfigurationBlock;
@@ -178,7 +178,8 @@ class RTextStylesPreferenceBlock extends AbstractTextStylesConfigurationBlock {
 	@Override
 	protected SourceEditorViewerConfiguration getSourceViewerConfiguration(
 			final ColorManager colorManager, final IPreferenceStore store) {
-		return new RSourceViewerConfiguration(RCore.getDefaultsAccess(),
+		return new RSourceViewerConfiguration(null,
+				RCore.getDefaultsAccess(),
 				CombinedPreferenceStore.createStore(
 						store,
 						StatetUIServices.getBaseUIPreferenceStore(),

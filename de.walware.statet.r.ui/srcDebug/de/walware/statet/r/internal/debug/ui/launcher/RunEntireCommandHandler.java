@@ -186,10 +186,10 @@ public class RunEntireCommandHandler extends AbstractHandler {
 	
 	protected IStatus getRegions(final Data data)
 			throws CoreException {
-		final RAstNode[] nodes = RAst.findDeepestCommands(data.ast.getRootNode(),
+		final RAstNode[] nodes = RAst.findDeepestCommands(data.ast.root,
 				data.selection.getOffset(), data.selection.getOffset()+data.selection.getLength() );
 		if (nodes == null || nodes.length == 0) {
-			final RAstNode next = RAst.findNextCommands(data.ast.getRootNode(),
+			final RAstNode next = RAst.findNextCommands(data.ast.root,
 					data.selection.getOffset()+data.selection.getLength() );
 			if (next != null) {
 				UIAccess.getDisplay().asyncExec(new Runnable() {

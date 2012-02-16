@@ -13,6 +13,7 @@ package de.walware.statet.r.internal.sweave;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import de.walware.ecommons.preferences.PreferencesUtil;
 
@@ -29,7 +30,11 @@ public class SweavePreferenceInitializer extends AbstractPreferenceInitializer {
 	@Override
 	public void initializeDefaultPreferences() {
 		final DefaultScope defaults = new DefaultScope();
-		PreferencesUtil.setPrefValue(defaults, SweaveEditorOptions.PREF_SPELLCHECKING_ENABLED, false);
+		PreferencesUtil.setPrefValue(defaults, SweaveEditorOptions.MARKOCCURRENCES_ENABLED_PREF, Boolean.TRUE);
+		PreferencesUtil.setPrefValue(defaults, SweaveEditorOptions.PREF_SPELLCHECKING_ENABLED, Boolean.FALSE);
+		
+		final IEclipsePreferences node = defaults.getNode(NewSweaveDocGenerateWizardPage.PREF_QUALIFIER);
+		node.put(NewSweaveDocGenerateWizardPage.DEFAULT_NEWDOC_KEY, "ltx-rweave.NewDoc:Article"); //$NON-NLS-1$
 	}
 	
 }

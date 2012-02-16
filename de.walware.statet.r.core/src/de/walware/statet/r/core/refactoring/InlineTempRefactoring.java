@@ -33,6 +33,7 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
+import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringDescriptor;
@@ -50,10 +51,10 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
+import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.Assignment;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAst;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.refactoring.Messages;
 
@@ -109,13 +110,15 @@ public class InlineTempRefactoring extends Refactoring {
 				fSourceUnit.connect(progress.newChild(1));
 				try {
 					final AbstractDocument document = fSourceUnit.getDocument(monitor);
-					final IRegion region = fAdapter.trimToAstRegion(document, fSelectionRegion);
+					final RHeuristicTokenScanner scanner = fAdapter.getScanner(fSourceUnit);
+					final IRegion region = fAdapter.trimToAstRegion(document,
+							fSelectionRegion, scanner );
 					
 					final IRModelInfo modelInfo = (IRModelInfo) fSourceUnit.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, progress.newChild(1));
 					if (modelInfo != null) {
-						final RAstInfo ast = modelInfo.getAst();
+						final AstInfo ast = modelInfo.getAst();
 						if (ast != null) {
-							node = (RAstNode) AstSelection.search(ast.getRootNode(),
+							node = (RAstNode) AstSelection.search(ast.root,
 									region.getOffset(), region.getOffset()+region.getLength(),
 									AstSelection.MODE_COVERING_SAME_LAST ).getCovering();
 						}
@@ -133,7 +136,7 @@ public class InlineTempRefactoring extends Refactoring {
 				return RefactoringStatus.createFatalErrorStatus(Messages.InlineTemp_error_InvalidSelection_message);
 			}
 			final RefactoringStatus result = new RefactoringStatus();
-			fAdapter.checkInitialForModification(result, fElementSet);
+			fAdapter.checkInitialToModify(result, fElementSet);
 			if (result.hasFatalError()) {
 				return result;
 			}
@@ -233,7 +236,7 @@ public class InlineTempRefactoring extends Refactoring {
 		final SubMonitor progress = SubMonitor.convert(monitor, RefactoringMessages.Common_FinalCheck_label, 100);
 		try {
 			final RefactoringStatus status = new RefactoringStatus();
-			fAdapter.checkFinalForModification(status, fElementSet, progress.newChild(2));
+			fAdapter.checkFinalToModify(status, fElementSet, progress.newChild(2));
 			return status;
 		}
 		finally {
@@ -285,7 +288,8 @@ public class InlineTempRefactoring extends Refactoring {
 			// Check parent
 			final RAstNode parent = fAssignmentNode.getRParent();
 			if (parent.getNodeType() == NodeType.BLOCK || parent.getNodeType() == NodeType.SOURCELINES) {
-				final IRegion assignmentRegion = fAdapter.expandWhitespaceBlock(doc, fAssignmentNode);
+				final RHeuristicTokenScanner scanner = fAdapter.getScanner(fSourceUnit);
+				final IRegion assignmentRegion = fAdapter.expandWhitespaceBlock(doc, fAssignmentNode, scanner);
 				TextChangeCompatibility.addTextEdit(change, Messages.InlineTemp_Changes_DeleteAssignment_name,
 						new DeleteEdit(assignmentRegion.getOffset(), assignmentRegion.getLength()));
 			}

@@ -364,7 +364,8 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 	
 	public void doEdit(final TemplateItem item) {
 		final EditTemplateDialog dialog = new EditTemplateDialog(
-				getShell(), item.fData.getTemplate(), true, false,
+				getShell(), item.fData.getTemplate(), true,
+				EditTemplateDialog.FIX_TEMPLATE,
 				fCategoryProvider[item.getCategoryIndex()].getEditTemplateDialogConfiguator(fEditTemplateProcessor, fProject),
 				fEditTemplateProcessor,
 				fCategoryProvider[item.getCategoryIndex()].getContextTypeRegistry());

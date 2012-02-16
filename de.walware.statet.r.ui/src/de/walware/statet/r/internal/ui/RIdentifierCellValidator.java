@@ -19,7 +19,7 @@ import de.walware.statet.r.core.refactoring.RRefactoringAdapter;
 public class RIdentifierCellValidator implements ICellEditorValidator {
 	
 	
-	private RRefactoringAdapter fAdapter = new RRefactoringAdapter();
+	private final RRefactoringAdapter fAdapter = new RRefactoringAdapter();
 	
 	
 	@Override
@@ -29,10 +29,6 @@ public class RIdentifierCellValidator implements ICellEditorValidator {
 		if (message != null) {
 			return message;
 		}
-		return isValidInContext(s);
-	}
-	
-	protected String isValidInContext(final String value) {
 		return null;
 	}
 	

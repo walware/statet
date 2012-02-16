@@ -10,16 +10,19 @@ Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: de.walware.statet.base.ui;bundle-version="[3.0.0,3.1.0)",
  org.eclipse.jface.databinding,
+ org.eclipse.ltk.core.refactoring,
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.views,
  org.eclipse.ui.ide,
  org.eclipse.compare,
+ de.walware.ecommons.ltk.core;visibility:=reexport,
+ de.walware.ecommons.ltk.ui,
  de.walware.statet.nico.ui,
  de.walware.statet.r.ui,
  de.walware.statet.r.console.ui,
- de.walware.ecommons.ltk.ui,
- net.sourceforge.texlipse;bundle-version="10400.6.0"
+ de.walware.docmlet.tex.core;bundle-version="1.0.0";visibility:=reexport,
+ de.walware.docmlet.tex.ui;bundle-version="1.0.0"
 Import-Package: com.ibm.icu.text;version="4.0.1",
  de.walware.ecommons,
  de.walware.ecommons.collections,
@@ -27,4 +30,10 @@ Import-Package: com.ibm.icu.text;version="4.0.1",
  de.walware.ecommons.io,
  de.walware.ecommons.preferences,
  de.walware.ecommons.ts,
- de.walware.ecommons.variables.core
+ de.walware.ecommons.variables.core,
+ de.walware.rj.services,
+ net.sourceforge.texlipse,
+ net.sourceforge.texlipse.builder,
+ net.sourceforge.texlipse.viewer
+Export-Package: de.walware.statet.r.sweave,
+ de.walware.statet.r.sweave.text

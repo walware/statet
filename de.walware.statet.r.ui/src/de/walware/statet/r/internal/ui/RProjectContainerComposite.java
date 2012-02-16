@@ -81,7 +81,7 @@ public class RProjectContainerComposite extends Composite {
 	
 	private class RLabelProvider extends LabelProvider {
 		
-		private WorkbenchLabelProvider fSuper;
+		private final WorkbenchLabelProvider fSuper;
 		
 		public RLabelProvider() {
 			fSuper = new WorkbenchLabelProvider();
@@ -108,7 +108,7 @@ public class RProjectContainerComposite extends Composite {
 	private static final int SIZING_SELECTION_PANE_HEIGHT = 300;
 	
 	
-	private IProject fProject;
+	private final IProject fProject;
 	private IContainer fBaseContainer;
 	
 	private TreeViewer fTreeViewer;
@@ -204,12 +204,15 @@ public class RProjectContainerComposite extends Composite {
 				final ISelection selection = event.getSelection();
 				if (selection instanceof IStructuredSelection) {
 					final Object item = ((IStructuredSelection) selection).getFirstElement();
-					if(item == null)
+					if(item == null) {
 						return;
-					if (fTreeViewer.getExpandedState(item))
+					}
+					if (fTreeViewer.getExpandedState(item)) {
 						fTreeViewer.collapseToLevel(item, 1);
-					else
+					}
+					else {
 						fTreeViewer.expandToLevel(item, 1);
+					}
 				}
 			}
 		});

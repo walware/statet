@@ -17,8 +17,8 @@ import org.eclipse.jface.text.Region;
 
 import de.walware.ecommons.ltk.ui.refactoring.RefactoringSaveHelper;
 import de.walware.ecommons.ltk.ui.refactoring.RefactoringWizardExecutionHelper;
-import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ltk.ui.sourceediting.CommandAssistProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.CommandAssistProposal;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.refactoring.RenameInRegionRefactoring;
@@ -33,7 +33,6 @@ public class RenameInRegionAssistProposal extends CommandAssistProposal {
 		super(invocationContext, "de.walware.ecommons.ltk.commands.RefactorRenameInSelectedRegion"); //$NON-NLS-1$
 		fLabel = RUIMessages.Proposal_RenameInRegion_label;
 		fDescription = RUIMessages.Proposal_RenameInRegion_description;
-		fRelevance = 8;
 	}
 	
 	

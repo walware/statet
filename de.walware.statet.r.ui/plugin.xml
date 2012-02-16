@@ -121,7 +121,7 @@
             name="%contentAssist_ResourceCategory_name">
       </category>
       <computer
-            id="de.walware.statet.r.contentAssistComputers.PathCompletion"
+            id="de.walware.statet.r.contentAssistComputers.RPathCompletion"
             contentTypeId="de.walware.statet.r.contentTypes.R"
             categoryId="paths"
             class="de.walware.statet.r.ui.sourceediting.RPathCompletionComputer">
@@ -177,7 +177,7 @@
             id="de.walware.statet.r.contentInfoHover.RCombinedHover"
             contentTypeId="de.walware.statet.r.contentTypes.R"
             name="Combined Hover"
-            class="de.walware.ecommons.ltk.ui.sourceediting.CombinedHover">
+            class="de.walware.ecommons.ltk.ui.sourceediting.assist.CombinedHover">
       </hover>
       <hover
             id="de.walware.statet.r.contentInfoHover.RHelpHover"
@@ -405,7 +405,7 @@
          point="org.eclipse.ui.handlers">
       <handler
             commandId="org.eclipse.jdt.ui.edit.text.java.open.editor"
-            class="de.walware.statet.r.internal.ui.editors.ROpenDeclarationHandler">
+            class="de.walware.statet.r.ui.sourceediting.ROpenDeclarationHandler">
          <activeWhen>
             <with variable="activePartId">
                <equals
@@ -415,8 +415,8 @@
          </activeWhen>
       </handler>
       <handler
-            class="de.walware.statet.r.internal.ui.editors.RToggleMarkOccurrencesHandler"
-            commandId="org.eclipse.jdt.ui.edit.text.java.toggleMarkOccurrences">
+            commandId="org.eclipse.jdt.ui.edit.text.java.toggleMarkOccurrences"
+            class="de.walware.statet.r.internal.ui.editors.RToggleMarkOccurrencesHandler">
          <activeWhen>
             <with variable="activePartId">
                <equals
@@ -426,8 +426,8 @@
          </activeWhen>
       </handler>
       <handler
-            class="de.walware.statet.r.internal.ui.editors.RToggleFoldingHandler"
-            commandId="org.eclipse.ui.edit.text.folding.toggle">
+            commandId="org.eclipse.ui.edit.text.folding.toggle"
+            class="de.walware.statet.r.internal.ui.editors.RToggleFoldingHandler">
          <activeWhen>
             <with variable="activePartId">
                <equals
@@ -437,8 +437,8 @@
          </activeWhen>
       </handler>
       <handler
-            class="de.walware.statet.r.internal.ui.editors.RToggleLiveReportProblemsHandler"
-            commandId="de.walware.ecommons.ltk.commands.ToggleLiveReportProblems">
+            commandId="de.walware.ecommons.ltk.commands.ToggleLiveReportProblems"
+            class="de.walware.statet.r.internal.ui.editors.RToggleLiveReportProblemsHandler">
          <activeWhen>
             <with variable="activePartId">
                <equals
@@ -547,53 +547,50 @@
             category="de.walware.statet.base.preferencePages.StatetBase"
             name="%preferencePages.RCodeStyle.name"
             class="de.walware.statet.r.internal.ui.preferences.RCodeStylePreferencePage">
-         <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
-         <keywordReference id="de.walware.statet.base.keywords.Formatting"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceAppearance"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceFormatting"/>
       </page>
       <page
             id="de.walware.statet.r.preferencePages.REditorOptionsPage"
             category="de.walware.statet.base.preferencePages.Editors"
             name="%preferencePages.REditorOptions.name"
             class="de.walware.statet.r.internal.ui.preferences.REditorPreferencePage">
-         <keywordReference id="de.walware.statet.base.keywords.Editor"/>
-         <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
-         <keywordReference id="de.walware.statet.base.keywords.Formatting"/>
-         <keywordReference
-               id="de.walware.statet.base.keywords.SpellChecking">
-         </keywordReference>
-      </page>
-      <page
-            id="de.walware.statet.r.preferencePages.RIdentifierGroupsPage"
-            category="de.walware.statet.base.preferencePages.Editors"
-            name="%preferencePages.RIdentifierGroups.name"
-            class="de.walware.statet.r.internal.ui.preferences.RIdentifiersPreferencePage">
-         <keywordReference
-               id="de.walware.statet.base.keywords.Editor">
-         </keywordReference>
-         <keywordReference
-               id="de.walware.statet.base.keywords.Appearance">
-         </keywordReference>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceEditor"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceAppearance"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceFormatting"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SpellChecking"/>
       </page>
       <page
             id="de.walware.statet.r.preferencePages.RTextStylesPage"
             category="de.walware.statet.base.preferencePages.Editors"
             name="%preferencePages.RSyntaxColoring.name"
             class="de.walware.statet.r.internal.ui.preferences.RTextStylesPreferencePage">
-         <keywordReference id="de.walware.statet.base.keywords.Editor"/>
-         <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceEditor"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceAppearance"/>
+      </page>
+      <page
+            id="de.walware.statet.r.preferencePages.RIdentifierGroupsPage"
+            category="de.walware.statet.r.preferencePages.RTextStylesPage"
+            name="%preferencePages.RIdentifierGroups.name"
+            class="de.walware.statet.r.internal.ui.preferences.RIdentifiersPreferencePage">
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceEditor"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceAppearance"/>
       </page>
       <page
             id="de.walware.statet.r.preferencePages.REditorTemplates"
             category="de.walware.statet.base.preferencePages.Editors"
             name="%preferencePages.REditorTemplates.name"
             class="de.walware.statet.r.internal.ui.preferences.REditorTemplatePreferencePage">
-         <keywordReference id="de.walware.statet.base.keywords.Editor"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceEditor"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceTemplates"/>
       </page>
       <page
             id="de.walware.statet.r.preferencePages.REditorAdvancedContentAssistPage"
             category="de.walware.statet.base.preferencePages.Editors"
             name="R Editor Content Assist"
             class="de.walware.statet.r.internal.ui.editors.AdvancedContentAssistConfigurationPage">
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceEditor"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceContentAssist"/>
       </page>
       <page
             id="de.walware.statet.r.preferencePages.REditorAdvancedInfoHoverPage"
@@ -606,16 +603,30 @@
             category="de.walware.statet.base.preferencePages.Editors"
             name="%preferencePages.RdSyntaxColoring.name"
             class="de.walware.statet.r.internal.ui.preferences.RdSyntaxColoringPreferencePage">
-         <keywordReference id="de.walware.statet.base.keywords.Editor"/>
-         <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceEditor"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceAppearance"/>
       </page>
    </extension>
    <extension
          point="org.eclipse.ui.propertyPages">
       <page
             id="de.walware.statet.r.propertyPages.RProject"
-            name="%propertyPages.RProject.name"
+            name="%propertyPages_RProject_name"
             class="de.walware.statet.r.internal.ui.RProjectPropertyPage">
+         <filter
+               name="nature"
+               value="de.walware.statet.r.RNature">
+         </filter>
+         <enabledWhen>
+            <instanceof
+                  value="org.eclipse.core.resources.IProject">
+            </instanceof>
+         </enabledWhen>
+      </page>
+      <page
+            id="de.walware.statet.r.propertyPages.RCodeStyle"
+            class="de.walware.statet.r.internal.ui.preferences.RCodeStylePreferencePage"
+            name="%propertyPages_RCodeStyle_name">
          <filter
                name="nature"
                value="de.walware.statet.r.RNature">
@@ -1672,7 +1683,7 @@
             category="de.walware.statet.base.preferencePages.StatetBase"
             name="%preferencePages_RGraphicsPage_name"
             class="de.walware.rj.eclient.graphics.RGraphicsPreferencePage">
-         <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.SourceAppearance"/>
       </page>
    </extension>
    <extension

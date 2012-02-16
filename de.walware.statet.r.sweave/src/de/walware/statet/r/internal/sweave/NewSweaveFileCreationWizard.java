@@ -19,6 +19,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.jface.text.templates.Template;
+import org.eclipse.swt.widgets.Composite;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.ltk.ui.templates.TemplatesUtil.EvaluatedTemplate;
@@ -36,27 +38,34 @@ public class NewSweaveFileCreationWizard extends NewElementWizard {
 	
 	private static class NewRweaveFileCreator extends NewFileCreator {
 		
-		public NewRweaveFileCreator(final IPath containerPath, final String resourceName) {
+		private Template fTemplate;
+		
+		public NewRweaveFileCreator(final IPath containerPath, final String resourceName,
+				final Template template) {
 			super(containerPath, resourceName);
+			fTemplate = template;
 		}
 		
 		@Override
 		public String getContentType(final IFile newFileHandle) {
-			return Sweave.R_TEX_CONTENT_ID;
+			return Sweave.LTX_R_CONTENT_ID;
 		}
 		
 		@Override
 		protected String getInitialFileContent(final IFile newFileHandle) {
 			final String lineDelimiter = TextUtil.getLineDelimiter(newFileHandle.getProject());
 			try {
-				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, Sweave.R_TEX_MODEL_TYPE_ID);
-				final EvaluatedTemplate data = CodeGeneration.getNewRweaveTexDocContent(rcu, lineDelimiter);
+				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, Sweave.LTX_R_MODEL_TYPE_ID);
+				final EvaluatedTemplate data = CodeGeneration.getNewSweaveDocContent(rcu,
+						lineDelimiter, fTemplate );
 				if (data != null) {
 					fInitialSelection = data.getRegionToSelect();
 					return data.getContent();
 				}
-			} catch (final CoreException e) {
-				SweavePlugin.logError(ICommonStatusConstants.INTERNAL_TEMPLATE, "An error occured when applying template to new Sweave file.", e); //$NON-NLS-1$
+			}
+			catch (final CoreException e) {
+				SweavePlugin.logError(ICommonStatusConstants.INTERNAL_TEMPLATE,
+						"An error occured when applying template to new Sweave file.", e ); //$NON-NLS-1$
 			}
 			return null;
 		}
@@ -65,10 +74,13 @@ public class NewSweaveFileCreationWizard extends NewElementWizard {
 	
 	private NewSweaveFileCreationWizardPage fFirstPage;
 	private NewFileCreator fNewSweaveFile;
+	private NewSweaveDocGenerateWizardPage fTemplatePage;
 	
 	
 	public NewSweaveFileCreationWizard() {
 		setDialogSettings(DialogUtil.getDialogSettings(SweavePlugin.getDefault(), "NewElementWizard")); //$NON-NLS-1$
+		setDefaultPageImageDescriptor(SweavePlugin.getDefault().getImageRegistry().getDescriptor(
+				SweavePlugin.IMG_WIZBAN_NEW_LTXRWEAVE_FILE ));
 		setWindowTitle(Messages.NewSweaveFileWizard_title);
 	}
 	
@@ -78,13 +90,21 @@ public class NewSweaveFileCreationWizard extends NewElementWizard {
 		super.addPages();
 		fFirstPage = new NewSweaveFileCreationWizardPage(getSelection());
 		addPage(fFirstPage);
+		fTemplatePage = new NewSweaveDocGenerateWizardPage();
+		addPage(fTemplatePage);
+	}
+	
+	@Override // for lazy loading
+	public void createPageControls(Composite pageContainer) {
+		fFirstPage.createControl(pageContainer);
 	}
 	
 	@Override
 	protected ISchedulingRule getSchedulingRule() {
 		final ISchedulingRule rule = createRule(fNewSweaveFile.getFileHandle());
-		if (rule != null)
+		if (rule != null) {
 			return rule;
+		}
 		
 		return super.getSchedulingRule();
 	}
@@ -94,7 +114,8 @@ public class NewSweaveFileCreationWizard extends NewElementWizard {
 		// befor super, so it can be used in getSchedulingRule
 		fNewSweaveFile = new NewRweaveFileCreator(
 				fFirstPage.fResourceGroup.getContainerFullPath(),
-				fFirstPage.fResourceGroup.getResourceName() );
+				fFirstPage.fResourceGroup.getResourceName(),
+				fTemplatePage.getTemplate() );
 		
 		final boolean result = super.performFinish();
 		

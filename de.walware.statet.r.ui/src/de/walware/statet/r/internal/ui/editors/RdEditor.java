@@ -43,11 +43,9 @@ public class RdEditor extends SourceEditor1 {
 	protected SourceEditorViewerConfigurator createConfiguration() {
 		setDocumentProvider(RUIPlugin.getDefault().getRdDocumentProvider());
 		
-		fRdConfig = new RdSourceViewerConfigurator(null);
-		fRdConfig.setConfiguration(new RdSourceViewerConfiguration(
-				fRdConfig,
+		fRdConfig = new RdSourceViewerConfigurator(null, new RdSourceViewerConfiguration(
 				RUIPlugin.getDefault().getEditorPreferenceStore(),
-				SharedUIResources.getColors()));
+				SharedUIResources.getColors()) );
 		return fRdConfig;
 	}
 	

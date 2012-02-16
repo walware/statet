@@ -20,8 +20,8 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
 
-import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistComputerRegistry;
-import de.walware.ecommons.ltk.ui.sourceediting.InfoHoverRegistry;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistComputerRegistry;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverRegistry;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
@@ -34,6 +34,7 @@ import de.walware.statet.r.internal.ui.rhelp.RHelpPreferences;
 import de.walware.statet.r.launching.RRunDebugPreferenceConstants;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
+import de.walware.statet.r.ui.editors.REditorBuild;
 import de.walware.statet.r.ui.editors.REditorOptions;
 
 
@@ -78,10 +79,10 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		PreferencesUtil.setPrefValue(defaultScope, CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED, true);
 		PreferencesUtil.setPrefValue(defaultScope, CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED, true);
 		
-		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_PROBLEMCHECKING_ENABLED, true);
-		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_SPELLCHECKING_ENABLED, false);
-		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_MARKOCCURRENCES_ENABLED, true);
 		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_FOLDING_ENABLED, true);
+		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_MARKOCCURRENCES_ENABLED, true);
+		PreferencesUtil.setPrefValue(defaultScope, REditorBuild.PROBLEMCHECKING_ENABLED_PREF, true);
+		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_SPELLCHECKING_ENABLED, false);
 		DefaultRFoldingPreferences.initializeDefaultValues(defaultScope);
 		
 		defaultScope.getNode(REDITOR_NODE).put(ContentAssistComputerRegistry.CIRCLING_ORDERED, "r-elements:false,templates:true,r-elements.runtime:true"); //$NON-NLS-1$

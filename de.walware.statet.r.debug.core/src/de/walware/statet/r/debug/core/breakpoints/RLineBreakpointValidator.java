@@ -342,7 +342,7 @@ public class RLineBreakpointValidator {
 	}
 	
 	private RAstNode searchSuspendAstNode(final int offset, final IProgressMonitor monitor) {
-		final IAstNode astNode = AstSelection.search(getModelInfo(monitor).getAst().getRootNode(),
+		final IAstNode astNode = AstSelection.search(getModelInfo(monitor).getAst().root,
 				offset, offset, AstSelection.MODE_COVERING_SAME_FIRST).getCovering();
 		if (astNode instanceof RAstNode) {
 			RAstNode rNode = (RAstNode) astNode;

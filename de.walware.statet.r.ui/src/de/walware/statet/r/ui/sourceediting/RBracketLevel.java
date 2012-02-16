@@ -11,146 +11,101 @@
 
 package de.walware.statet.r.ui.sourceediting;
 
+import java.util.List;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.link.LinkedPosition;
 
-import de.walware.ecommons.text.PartitioningConfiguration;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.text.ui.BracketLevel;
-import de.walware.ecommons.text.ui.BracketLevel.DefaultBracketLevel;
-
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 
 
-public final class RBracketLevel {
+public final class RBracketLevel extends BracketLevel {
 	
-	public static final class CurlyBracketLevel extends DefaultBracketLevel {
+	
+	public static final class CurlyBracketPosition extends InBracketPosition {
 		
-		public CurlyBracketLevel(final IDocument doc, final PartitioningConfiguration partitioning, final LinkedPosition position, final boolean consoleMode) {
-			super(doc, partitioning, position, consoleMode);
+		public CurlyBracketPosition(final IDocument doc, final int offset, final int length,
+				final int sequence) {
+			super(doc, offset, length, sequence);
 		}
 		
 		@Override
-		protected int getCloseChar() {
+		public char getOpenChar() {
+			return '{';
+		}
+		
+		@Override
+		public char getCloseChar() {
 			return '}';
 		}
 		
 	}
 	
-	public static final class RoundBracketLevel extends DefaultBracketLevel {
+	public static final class RoundBracketPosition extends InBracketPosition {
 		
-		public RoundBracketLevel(final IDocument doc, final PartitioningConfiguration partitioning, final LinkedPosition position, final boolean consoleMode) {
-			super(doc, partitioning, position, consoleMode);
+		public RoundBracketPosition(final IDocument doc, final int offset, final int length,
+				final int sequence) {
+			super(doc, offset, length, sequence);
 		}
 		
 		@Override
-		protected int getCloseChar() {
+		public char getOpenChar() {
+			return '(';
+		}
+		
+		@Override
+		public char getCloseChar() {
 			return ')';
 		}
 		
 	}
 	
-	public static final class SquareBracketLevel extends DefaultBracketLevel {
+	public static final class SquareBracketPosition extends InBracketPosition {
 		
-		public SquareBracketLevel(final IDocument doc, final PartitioningConfiguration partitioning, final LinkedPosition position, final boolean consoleMode) {
-			super(doc, partitioning, position, consoleMode);
+		public SquareBracketPosition(final IDocument doc, final int offset, final int length,
+				final int sequence) {
+			super(doc, offset, length, sequence);
 		}
 		
 		@Override
-		protected int getCloseChar() {
+		public char getOpenChar() {
+			return '[';
+		}
+		
+		@Override
+		public char getCloseChar() {
 			return ']';
 		}
 		
 	}
 	
-	private static abstract class AbstractStringLevel extends BracketLevel {
-		
-		public AbstractStringLevel(final IDocument doc, final PartitioningConfiguration partitioning, final LinkedPosition position, final boolean consoleMode) {
-			super(doc, partitioning, position, consoleMode);
+	
+	private static boolean isEscaped(final IDocument document, int offset)
+			throws BadLocationException {
+		boolean escaped = false;
+		while (offset > 0 && document.getChar(--offset) == '\\') {
+			escaped = !escaped;
 		}
-		
-		protected abstract int getSpeparatorChar();
-		
-		protected abstract String getExpectedPartitionType();
-		
-		@Override
-		public boolean insertCR(final int charOffset) {
-			return false;
-		}
-		
-		@Override
-		public boolean matchesEnd(final char c, int charOffset) throws BadLocationException {
-			if (c == getSpeparatorChar() && getPartitionType(charOffset) == getExpectedPartitionType()) {
-				int count = -1;
-				do {
-					count++;
-					charOffset--;
-				} while (fDocument.getChar(charOffset) == '\\');
-				return ((count % 2) == 0);
-			}
-			return false;
-		}
-		
+		return escaped;
 	}
 	
-	public final static class StringDLevel extends AbstractStringLevel {
+	public final static class StringDPosition extends InBracketPosition {
 		
-		public StringDLevel(final IDocument doc, final PartitioningConfiguration partitioning, final LinkedPosition position, final boolean consoleMode) {
-			super(doc, partitioning, position, consoleMode);
+		public StringDPosition(final IDocument doc, final int offset, final int length,
+				final int sequence) {
+			super(doc, offset, length, sequence);
 		}
 		
 		@Override
-		protected int getSpeparatorChar() {
+		public char getOpenChar() {
 			return '"';
 		}
 		
 		@Override
-		protected String getExpectedPartitionType() {
-			return IRDocumentPartitions.R_STRING;
-		}
-		
-	}
-	
-	public final static class StringSLevel extends AbstractStringLevel {
-		
-		public StringSLevel(final IDocument doc, final PartitioningConfiguration partitioning, final LinkedPosition position, final boolean consoleMode) {
-			super(doc, partitioning, position, consoleMode);
-		}
-		
-		@Override
-		protected int getSpeparatorChar() {
-			return '\'';
-		}
-		
-		@Override
-		protected String getExpectedPartitionType() {
-			return IRDocumentPartitions.R_STRING;
-		}
-		
-	}
-	
-	public final static class QuotedLevel extends AbstractStringLevel {
-		
-		public QuotedLevel(final IDocument doc, final PartitioningConfiguration partitioning, final LinkedPosition position, final boolean consoleMode) {
-			super(doc, partitioning, position, consoleMode);
-		}
-		
-		@Override
-		protected int getSpeparatorChar() {
-			return '`';
-		}
-		
-		@Override
-		protected String getExpectedPartitionType() {
-			return IRDocumentPartitions.R_QUOTED_SYMBOL;
-		}
-		
-	}
-	
-	public final static class InfixLevel extends BracketLevel {
-		
-		public InfixLevel(final IDocument doc, final PartitioningConfiguration partitioning, final LinkedPosition position, final boolean consoleMode) {
-			super(doc, partitioning, position, consoleMode);
+		public char getCloseChar() {
+			return '"';
 		}
 		
 		@Override
@@ -159,32 +114,131 @@ public final class RBracketLevel {
 		}
 		
 		@Override
-		public boolean matchesEnd(final char c, final int charOffset) throws BadLocationException {
-			return (c == '%');
+		protected boolean isEscaped(final int offset) throws BadLocationException {
+			return RBracketLevel.isEscaped(getDocument(), offset);
+		}
+		
+	}
+	
+	public final static class StringSPosition extends InBracketPosition {
+		
+		public StringSPosition(final IDocument doc, final int offset, final int length,
+				final int sequence) {
+			super(doc, offset, length, sequence);
+		}
+		
+		@Override
+		public char getOpenChar() {
+			return '\'';
+		}
+		
+		@Override
+		public char getCloseChar() {
+			return '\'';
+		}
+		
+		@Override
+		public boolean insertCR(final int charOffset) {
+			return false;
+		}
+		
+		@Override
+		protected boolean isEscaped(final int offset) throws BadLocationException {
+			return RBracketLevel.isEscaped(getDocument(), offset);
+		}
+		
+	}
+	
+	public final static class QuotedPosition extends InBracketPosition {
+		
+		public QuotedPosition(final IDocument doc, final int offset, final int length,
+				final int sequence) {
+			super(doc, offset, length, sequence);
+		}
+		
+		@Override
+		public char getOpenChar() {
+			return '`';
+		}
+		
+		@Override
+		public char getCloseChar() {
+			return '`';
+		}
+		
+		@Override
+		public boolean insertCR(final int charOffset) {
+			return false;
+		}
+		
+		@Override
+		protected boolean isEscaped(final int offset) throws BadLocationException {
+			return RBracketLevel.isEscaped(getDocument(), offset);
+		}
+		
+	}
+	
+	public final static class InfixLevel extends InBracketPosition {
+		
+		public InfixLevel(final IDocument doc, final int offset, final int length,
+				final int sequence) {
+			super(doc, offset, length, sequence);
+		}
+		
+		@Override
+		public char getOpenChar() {
+			return '%';
+		}
+		
+		@Override
+		public char getCloseChar() {
+			return '%';
+		}
+		
+		@Override
+		public boolean insertCR(final int charOffset) {
+			return false;
+		}
+		
+		@Override
+		public boolean matchesClose(final BracketLevel level, final int offset, final char character) {
+			return (getOffset() + getLength() == offset && getCloseChar() == character);
 		}
 		
 	}
 	
 	
-	public static final BracketLevel createBracketLevel(final char c,
-			final IDocument doc, final PartitioningConfiguration partitioning, final LinkedPosition position, final boolean consoleMode) {
+	public static final InBracketPosition createPosition(final char c,
+			final IDocument document, final int offset, final int length, final int sequence) {
 		switch (c) {
 		case '"':
-			return new StringDLevel(doc, partitioning, position, consoleMode);
+			return new StringDPosition(document, offset, length, sequence);
 		case '\'':
-			return new StringSLevel(doc, partitioning, position, consoleMode);
+			return new StringSPosition(document, offset, length, sequence);
 		case '`':
-			return new QuotedLevel(doc, partitioning, position, consoleMode);
+			return new QuotedPosition(document, offset, length, sequence);
 		case '{':
-			return new CurlyBracketLevel(doc, partitioning, position, consoleMode);
+			return new CurlyBracketPosition(document, offset, length, sequence);
 		case '(':
-			return new RoundBracketLevel(doc, partitioning, position, consoleMode);
+			return new RoundBracketPosition(document, offset, length, sequence);
 		case '[':
-			return new SquareBracketLevel(doc, partitioning, position, consoleMode);
+			return new SquareBracketPosition(document, offset, length, sequence);
 		case '%':
-			return new InfixLevel(doc, partitioning, position, consoleMode);
+			return new InfixLevel(document, offset, length, sequence);
 		}
 		throw new IllegalArgumentException();
+	}
+	
+	
+	public RBracketLevel(final IDocument document, final String partitioning, final InBracketPosition position,
+			final boolean consoleMode, final boolean autoDelete) {
+		this(document, partitioning, new ConstList<LinkedPosition>(position),
+				((consoleMode) ? CONSOLE_MODE : 0) | ((autoDelete) ? AUTODELETE : 0));
+	}
+	
+	public RBracketLevel(final IDocument document, final String partitioning, final List<LinkedPosition> positions,
+			final int mode) {
+		super(document, partitioning, positions, mode);
 	}
 	
 }

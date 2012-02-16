@@ -44,9 +44,7 @@ public class RdCodeTemplatesProvider implements ICodeGenerationTemplatesCategory
 		public RdTemplateConfigurator(
 				final IRCoreAccess rCoreAccess,
 				final TemplateVariableProcessor processor) {
-			super(rCoreAccess);
-			setConfiguration(new RdSourceViewerConfiguration(
-					this,
+			super(rCoreAccess, new RdSourceViewerConfiguration(
 					RUIPlugin.getDefault().getEditorPreferenceStore(),
 					SharedUIResources.getColors()) {
 				

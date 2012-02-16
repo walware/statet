@@ -20,70 +20,62 @@ import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
 import de.walware.ecommons.preferences.Preference.EnumPref;
 import de.walware.ecommons.preferences.Preference.IntPref;
+import de.walware.ecommons.text.IIndentSettings;
 
 
 /**
  * Settings for style of R code.
  */
-public class RCodeStyleSettings extends AbstractPreferencesModelObject {
+public class RCodeStyleSettings extends AbstractPreferencesModelObject
+		implements IIndentSettings {
 	
-	public static final String INDENT_GROUP_ID = "r.codestyle.indent"; //$NON-NLS-1$
-	public static final String WS_GROUP_ID = "r.codestyle.ws"; //$NON-NLS-1$
+	public static final String INDENT_GROUP_ID = "r/r.codestyle/indent"; //$NON-NLS-1$
+	public static final String WS_GROUP_ID = "r/r.codestyle/ws"; //$NON-NLS-1$
 	
 	public static final String[] ALL_GROUP_IDS = new String[] { INDENT_GROUP_ID, WS_GROUP_ID };
 	
 	
-	public static enum IndentationType {
-		TAB, SPACES,
-	}
-	
-	public static final IntPref PREF_TAB_SIZE = new IntPref(
+	public static final IntPref TAB_SIZE_PREF = new IntPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "tab.size"); //$NON-NLS-1$
-	public static final String PROP_TAB_SIZE = "tabSize"; //$NON-NLS-1$
 	
-	public static final EnumPref<IndentationType> PREF_INDENT_DEFAULT_TYPE = new EnumPref<IndentationType>(
+	public static final EnumPref<IndentationType> INDENT_DEFAULT_TYPE_PREF = new EnumPref<IndentationType>(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.default.type", IndentationType.class); //$NON-NLS-1$
-	public static final String PROP_INDENT_DEFAULT_TYPE = "indentDefaultType"; //$NON-NLS-1$
 	
-	public static final IntPref PREF_INDENT_SPACES_COUNT = new IntPref(
+	public static final IntPref INDENT_SPACES_COUNT_PREF = new IntPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.spaces.count"); //$NON-NLS-1$
-	public static final String PROP_INDENT_SPACES_COUNT = "indentSpacesCount"; //$NON-NLS-1$
 	
-	public static final BooleanPref PREF_REPLACE_TABS_WITH_SPACES = new BooleanPref(
+	public static final BooleanPref REPLACE_TABS_WITH_SPACES_PREF = new BooleanPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.replace_tabs.enable"); //$NON-NLS-1$
-	public static final String PROP_REPLACE_TABS_WITH_SPACES = "replaceOtherTabsWithSpaces"; //$NON-NLS-1$
 	
-	public static final BooleanPref PREF_REPLACE_CONVERSATIVE = new BooleanPref(
+	public static final BooleanPref REPLACE_CONVERSATIVE_PREF = new BooleanPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.replace_strategy"); //$NON-NLS-1$
-	public static final String PROP_REPLACE_CONVERSATIVE = "replaceConservative"; //$NON-NLS-1$
 	
-	public static final IntPref PREF_INDENT_BLOCK_DEPTH = new IntPref(
+	
+	public static final IntPref INDENT_BLOCK_DEPTH_PREF = new IntPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.block.depth"); //$NON-NLS-1$
-	public static final String PROP_INDENT_BLOCK_DEPTH = "indentBlockDepth"; //$NON-NLS-1$
+	public static final String INDENT_BLOCK_DEPTH_PROP = "indentBlockDepth"; //$NON-NLS-1$
 	
-	public static final IntPref PREF_INDENT_GROUP_DEPTH = new IntPref(
+	public static final IntPref INDENT_GROUP_DEPTH_PREF = new IntPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.group.depth"); //$NON-NLS-1$
-	public static final String PROP_INDENT_GROUP_DEPTH = "indentGroupDepth"; //$NON-NLS-1$
+	public static final String INDENT_GROUP_DEPTH_PROP = "indentGroupDepth"; //$NON-NLS-1$
 	
-	public static final IntPref PREF_INDENT_WRAPPED_COMMAND_DEPTH = new IntPref(
+	public static final IntPref INDENT_WRAPPED_COMMAND_DEPTH_PREF = new IntPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.wrapped_command.depth"); //$NON-NLS-1$
-	public static final String PROP_INDENT_WRAPPED_COMMAND_DEPTH = "indentWrappedCommandDepth"; //$NON-NLS-1$
+	public static final String INDENT_WRAPPED_COMMAND_DEPTH_PROP = "indentWrappedCommandDepth"; //$NON-NLS-1$
 	
 	
-	public static final BooleanPref PREF_WS_ARGASSIGN_BEFORE = new BooleanPref(
+	public static final BooleanPref WS_ARGASSIGN_BEFORE_PREF = new BooleanPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "ws.arg_assign.before"); //$NON-NLS-1$
-	public static final String PROP_WS_ARGASSIGN_BEFORE = "whitespaceArgAssignBefore"; //$NON-NLS-1$
+	public static final String WS_ARGASSIGN_BEFORE_PROP = "whitespaceArgAssignBefore"; //$NON-NLS-1$
 	
-	public static final BooleanPref PREF_WS_ARGASSIGN_BEHIND = new BooleanPref(
+	public static final BooleanPref WS_ARGASSIGN_BEHIND_PREF = new BooleanPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "ws.arg_assign.behind"); //$NON-NLS-1$
-	public static final String PROP_WS_ARGASSIGN_BEHIND = "whitespaceArgAssignBehind"; //$NON-NLS-1$
+	public static final String WS_ARGASSIGN_BEHIND_PROP = "whitespaceArgAssignBehind"; //$NON-NLS-1$
 	
-	public static final BooleanPref PREF_NL_FDEF_BODYBLOCK_BEFORE = new BooleanPref(
+	public static final BooleanPref NL_FDEF_BODYBLOCK_BEFORE_PREF = new BooleanPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "nl.fdef_bodyblock.before"); //$NON-NLS-1$
-	public static final String PROP_NL_FDEF_BODYBLOCK_BEFORE = "newlineFDefBodyBlockBefore"; //$NON-NLS-1$
+	public static final String NL_FDEF_BODYBLOCK_BEFOREP_PROP = "newlineFDefBodyBlockBefore"; //$NON-NLS-1$
 	
-	
-	private boolean fEditMode;
 	
 	private int fTabSize;
 	private IndentationType fIndentDefaultType;
@@ -102,20 +94,12 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	/**
 	 * Creates an instance with default settings.
 	 */
-	public RCodeStyleSettings(final boolean editMode) {
-		fEditMode = editMode;
-		if (!fEditMode) {
+	public RCodeStyleSettings(final int mode) {
+		if (mode >= 1) {
 			installLock();
 		}
 		loadDefaults();
 		resetDirty();
-	}
-	
-	/**
-	 * Creates an instance with default settings.
-	 */
-	public RCodeStyleSettings() {
-		this(false);
 	}
 	
 	
@@ -142,18 +126,18 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	
 	@Override
 	public void load(final IPreferenceAccess prefs) {
-		setTabSize(prefs.getPreferenceValue(PREF_TAB_SIZE));
-		setIndentDefaultType(prefs.getPreferenceValue(PREF_INDENT_DEFAULT_TYPE));
-		setIndentSpacesCount(prefs.getPreferenceValue(PREF_INDENT_SPACES_COUNT));
-		setReplaceOtherTabsWithSpaces(prefs.getPreferenceValue(PREF_REPLACE_TABS_WITH_SPACES));
-		setIndentBlockDepth(prefs.getPreferenceValue(PREF_INDENT_BLOCK_DEPTH));
-		setIndentGroupDepth(prefs.getPreferenceValue(PREF_INDENT_GROUP_DEPTH));
-		setIndentWrappedCommandDepth(prefs.getPreferenceValue(PREF_INDENT_WRAPPED_COMMAND_DEPTH));
-		setReplaceConservative(prefs.getPreferenceValue(PREF_REPLACE_CONVERSATIVE));
+		setTabSize(prefs.getPreferenceValue(TAB_SIZE_PREF));
+		setIndentDefaultType(prefs.getPreferenceValue(INDENT_DEFAULT_TYPE_PREF));
+		setIndentSpacesCount(prefs.getPreferenceValue(INDENT_SPACES_COUNT_PREF));
+		setReplaceOtherTabsWithSpaces(prefs.getPreferenceValue(REPLACE_TABS_WITH_SPACES_PREF));
+		setIndentBlockDepth(prefs.getPreferenceValue(INDENT_BLOCK_DEPTH_PREF));
+		setIndentGroupDepth(prefs.getPreferenceValue(INDENT_GROUP_DEPTH_PREF));
+		setIndentWrappedCommandDepth(prefs.getPreferenceValue(INDENT_WRAPPED_COMMAND_DEPTH_PREF));
+		setReplaceConservative(prefs.getPreferenceValue(REPLACE_CONVERSATIVE_PREF));
 		
-		setWhitespaceArgAssignBefore(prefs.getPreferenceValue(PREF_WS_ARGASSIGN_BEFORE));
-		setWhitespaceArgAssignBehind(prefs.getPreferenceValue(PREF_WS_ARGASSIGN_BEHIND));
-		setNewlineFDefBodyBlockBefore(prefs.getPreferenceValue(PREF_NL_FDEF_BODYBLOCK_BEFORE));
+		setWhitespaceArgAssignBefore(prefs.getPreferenceValue(WS_ARGASSIGN_BEFORE_PREF));
+		setWhitespaceArgAssignBehind(prefs.getPreferenceValue(WS_ARGASSIGN_BEHIND_PREF));
+		setNewlineFDefBodyBlockBefore(prefs.getPreferenceValue(NL_FDEF_BODYBLOCK_BEFORE_PREF));
 	}
 	
 	public void load(final RCodeStyleSettings source) {
@@ -184,18 +168,18 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	
 	@Override
 	public Map<Preference, Object> deliverToPreferencesMap(final Map<Preference, Object> map) {
-		map.put(PREF_TAB_SIZE, getTabSize());
-		map.put(PREF_INDENT_DEFAULT_TYPE, getIndentDefaultType());
-		map.put(PREF_INDENT_SPACES_COUNT, getIndentSpacesCount());
-		map.put(PREF_REPLACE_TABS_WITH_SPACES, getReplaceOtherTabsWithSpaces());
-		map.put(PREF_INDENT_BLOCK_DEPTH, getIndentBlockDepth());
-		map.put(PREF_INDENT_GROUP_DEPTH, getIndentGroupDepth());
-		map.put(PREF_INDENT_WRAPPED_COMMAND_DEPTH, getIndentWrappedCommandDepth());
-		map.put(PREF_REPLACE_CONVERSATIVE, getReplaceConservative());
+		map.put(TAB_SIZE_PREF, getTabSize());
+		map.put(INDENT_DEFAULT_TYPE_PREF, getIndentDefaultType());
+		map.put(INDENT_SPACES_COUNT_PREF, getIndentSpacesCount());
+		map.put(REPLACE_TABS_WITH_SPACES_PREF, getReplaceOtherTabsWithSpaces());
+		map.put(INDENT_BLOCK_DEPTH_PREF, getIndentBlockDepth());
+		map.put(INDENT_GROUP_DEPTH_PREF, getIndentGroupDepth());
+		map.put(INDENT_WRAPPED_COMMAND_DEPTH_PREF, getIndentWrappedCommandDepth());
+		map.put(REPLACE_CONVERSATIVE_PREF, getReplaceConservative());
 		
-		map.put(PREF_WS_ARGASSIGN_BEFORE, getWhitespaceArgAssignBefore());
-		map.put(PREF_WS_ARGASSIGN_BEHIND, getWhitespaceArgAssignBehind());
-		map.put(PREF_NL_FDEF_BODYBLOCK_BEFORE, getNewlineFDefBodyBlockBefore());
+		map.put(WS_ARGASSIGN_BEFORE_PREF, getWhitespaceArgAssignBefore());
+		map.put(WS_ARGASSIGN_BEHIND_PREF, getWhitespaceArgAssignBehind());
+		map.put(NL_FDEF_BODYBLOCK_BEFORE_PREF, getNewlineFDefBodyBlockBefore());
 		return map;
 	}
 	
@@ -205,8 +189,9 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public void setTabSize(final int size) {
 		final int oldValue = fTabSize;
 		fTabSize = size;
-		firePropertyChange(PROP_TAB_SIZE, oldValue, size);
+		firePropertyChange(TAB_SIZE_PROP, oldValue, size);
 	}
+	@Override
 	public int getTabSize() {
 		return fTabSize;
 	}
@@ -214,8 +199,9 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public void setIndentDefaultType(final IndentationType type) {
 		final IndentationType oldValue = fIndentDefaultType;
 		fIndentDefaultType = type;
-		firePropertyChange(PROP_INDENT_DEFAULT_TYPE, oldValue, type);
+		firePropertyChange(INDENT_DEFAULT_TYPE_PROP, oldValue, type);
 	}
+	@Override
 	public IndentationType getIndentDefaultType() {
 		return fIndentDefaultType;
 	}
@@ -223,8 +209,9 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public void setIndentSpacesCount(final int count) {
 		final int oldValue = fIndentSpacesCount;
 		fIndentSpacesCount = count;
-		firePropertyChange(PROP_INDENT_SPACES_COUNT, oldValue, count);
+		firePropertyChange(INDENT_SPACES_COUNT_PROP, oldValue, count);
 	}
+	@Override
 	public int getIndentSpacesCount() {
 		return fIndentSpacesCount;
 	}
@@ -232,7 +219,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public final void setIndentBlockDepth(final int depth) {
 		final int oldValue = fIndentBlockDepth;
 		fIndentBlockDepth = depth;
-		firePropertyChange(PROP_INDENT_BLOCK_DEPTH, oldValue, depth);
+		firePropertyChange(INDENT_BLOCK_DEPTH_PROP, oldValue, depth);
 	}
 	public final int getIndentBlockDepth() {
 		return fIndentBlockDepth;
@@ -241,7 +228,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public final void setIndentGroupDepth(final int depth) {
 		final int oldValue = fIndentGroupDepth;
 		fIndentGroupDepth = depth;
-		firePropertyChange(PROP_INDENT_GROUP_DEPTH, oldValue, depth);
+		firePropertyChange(INDENT_GROUP_DEPTH_PROP, oldValue, depth);
 	}
 	public final int getIndentGroupDepth() {
 		return fIndentGroupDepth;
@@ -250,7 +237,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public final void setIndentWrappedCommandDepth(final int depth) {
 		final int oldValue = fIndentWrappedCommandDepth;
 		fIndentWrappedCommandDepth = depth;
-		firePropertyChange(PROP_INDENT_WRAPPED_COMMAND_DEPTH, oldValue, depth);
+		firePropertyChange(INDENT_WRAPPED_COMMAND_DEPTH_PROP, oldValue, depth);
 	}
 	public final int getIndentWrappedCommandDepth() {
 		return fIndentWrappedCommandDepth;
@@ -259,29 +246,34 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public void setReplaceOtherTabsWithSpaces(final boolean enable) {
 		final boolean oldValue = fReplaceOtherTabsWithSpaces;
 		fReplaceOtherTabsWithSpaces = enable;
-		firePropertyChange(PROP_REPLACE_TABS_WITH_SPACES, oldValue, getReplaceOtherTabsWithSpaces());
+		firePropertyChange(REPLACE_TABS_WITH_SPACES_PROP, oldValue, getReplaceOtherTabsWithSpaces());
 	}
+	@Override
 	public boolean getReplaceOtherTabsWithSpaces() {
-		if (fEditMode) {
-			return fReplaceOtherTabsWithSpaces;
-		}
-		return (fIndentDefaultType == IndentationType.SPACES) && fReplaceOtherTabsWithSpaces;
+		return fReplaceOtherTabsWithSpaces;
 	}
 	
 	public void setReplaceConservative(final boolean enable) {
 		final boolean oldValue = fReplaceConservative;
 		fReplaceConservative = enable;
-		firePropertyChange(PROP_REPLACE_CONVERSATIVE, oldValue, enable);
+		firePropertyChange(REPLACE_CONSERVATIVE_PROP, oldValue, enable);
 	}
+	@Override
 	public boolean getReplaceConservative() {
 		return fReplaceConservative;
+	}
+	
+	
+	@Override
+	public int getLineWidth() {
+		return -1;
 	}
 	
 	
 	public void setWhitespaceArgAssignBefore(final boolean enable) {
 		final boolean oldValue = fWSArgAssignBefore;
 		fWSArgAssignBefore = enable;
-		firePropertyChange(PROP_WS_ARGASSIGN_BEFORE, oldValue, enable);
+		firePropertyChange(WS_ARGASSIGN_BEFORE_PROP, oldValue, enable);
 	}
 	public boolean getWhitespaceArgAssignBefore() {
 		return fWSArgAssignBefore;
@@ -290,7 +282,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public void setWhitespaceArgAssignBehind(final boolean enable) {
 		final boolean oldValue = fWSArgAssignBehind;
 		fWSArgAssignBehind = enable;
-		firePropertyChange(PROP_WS_ARGASSIGN_BEFORE, oldValue, enable);
+		firePropertyChange(WS_ARGASSIGN_BEFORE_PROP, oldValue, enable);
 	}
 	public boolean getWhitespaceArgAssignBehind() {
 		return fWSArgAssignBehind;
@@ -299,7 +291,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public void setNewlineFDefBodyBlockBefore(final boolean enable) {
 		final boolean oldValue = fNLFDefBodyBlockBefore;
 		fNLFDefBodyBlockBefore = enable;
-		firePropertyChange(PROP_NL_FDEF_BODYBLOCK_BEFORE, oldValue, enable);
+		firePropertyChange(NL_FDEF_BODYBLOCK_BEFOREP_PROP, oldValue, enable);
 	}
 	public boolean getNewlineFDefBodyBlockBefore() {
 		return fNLFDefBodyBlockBefore;

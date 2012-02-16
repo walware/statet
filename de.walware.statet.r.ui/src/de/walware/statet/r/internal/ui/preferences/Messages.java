@@ -18,9 +18,6 @@ public class Messages extends NLS {
 	
 	public static String RIdentifiers_GroupsList_label;
 	public static String RIdentifiers_IdentifiersList_label;
-	public static String RIdentifiers_AddAction_label;
-	public static String RIdentifiers_EditAction_label;
-	public static String RIdentifiers_RemoveAction_label;
 	public static String RIdentifiers_Identifier_error_AlreadyExistingInSameGroup_message;
 	public static String RIdentifiers_Identifier_error_AlreadyExistingInOtherGroup_message;
 	
@@ -102,23 +99,12 @@ public class Messages extends NLS {
 	public static String RdSyntaxColoring_TaskTag_label;
 	public static String RdSyntaxColoring_TaskTag_description;
 	
-	public static String RCodeStyle_TabSize_label;
-	public static String RCodeStyle_TabSize_error_message;
-	public static String RCodeStyle_Indent_group;
-	public static String RCodeStyle_Indent_DefaultType_label;
-	public static String RCodeStyle_Indent_Type_UseTabs_name;
-	public static String RCodeStyle_Indent_Type_UseSpaces_name;
-	public static String RCodeStyle_Indent_ConserveExisting_label;
-	public static String RCodeStyle_Indent_NumOfSpaces_label;
-	public static String RCodeStyle_Indent_NumOfSpaces_error_message;
-	public static String RCodeStyle_Indent_ReplaceOtherTabs_label;
 	public static String RCodeStyle_Indent_IndentInBlocks_label;
 	public static String RCodeStyle_Indent_IndentInBlocks_error_message;
 	public static String RCodeStyle_Indent_IndentInGroups_label;
 	public static String RCodeStyle_Indent_IndentInGroups_error_message;
 	public static String RCodeStyle_Indent_IndentOfWrappedCommands_label;
 	public static String RCodeStyle_Indent_IndentOfWrappedCommands_error_message;
-	public static String RCodeStyle_Indent_Strategy_Levels_label;
 	
 	public static String RCodeStyle_Whitespace_ArgAssign_Before_message;
 	public static String RCodeStyle_Whitespace_ArgAssign_Behind_message;
@@ -129,6 +115,7 @@ public class Messages extends NLS {
 	public static String REditorOptions_SmartInsert_label;
 	public static String REditorOptions_SmartInsert_description;
 	public static String REditorOptions_SmartInsert_AsDefault_label;
+	public static String REditorOptions_SmartInsert_TabAction_label;
 	public static String REditorOptions_SmartInsert_OnPaste_label;
 	public static String REditorOptions_SmartInsert_ForEditor_header;
 	public static String REditorOptions_SmartInsert_ForConsole_header;

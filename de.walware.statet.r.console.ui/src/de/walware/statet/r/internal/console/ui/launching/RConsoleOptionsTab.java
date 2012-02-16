@@ -65,7 +65,6 @@ import de.walware.statet.nico.ui.util.TrackingConfigurationComposite;
 import de.walware.statet.nico.ui.util.TrackingConfigurationDialog;
 
 import de.walware.statet.r.console.ui.launching.RConsoleLaunching;
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
@@ -206,8 +205,8 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		
 		fTrackingButtons = new ButtonGroup<TrackingConfiguration>(group) {
 			@Override
-			protected List<? extends Object> getItemsToDelete(final IStructuredSelection selection) {
-				final List<? extends Object> list = super.getItemsToDelete(selection);
+			protected List<? extends Object> getElementsToDelete(final IStructuredSelection selection) {
+				final List<? extends Object> list = super.getElementsToDelete(selection);
 				if (list != null) {
 					for (final Object obj : list) {
 						final String id = ((TrackingConfiguration) obj).getId();
@@ -271,7 +270,8 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		container.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 1));
 		
 		final TemplateVariableProcessor templateVariableProcessor = new TemplateVariableProcessor();
-		final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(), templateVariableProcessor);
+		final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(
+				null, templateVariableProcessor );
 		fStartupSnippetEditor = new SnippetEditor(configurator);
 		fStartupSnippetEditor.create(container, SnippetEditor.DEFAULT_MULTI_LINE_STYLE);
 		final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);

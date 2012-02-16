@@ -63,6 +63,7 @@ import de.walware.ecommons.ui.mpbv.PageBookBrowserView;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.renv.IREnv;
@@ -352,7 +353,8 @@ public class RHelpView extends PageBookBrowserView
 	}
 	
 	private boolean show(final LTKInputData state, final boolean explicite) {
-		if (state.getInputElement().getModelTypeId() == RModel.TYPE_ID) {
+		if (state.getInputElement().getModelTypeId() == RModel.TYPE_ID
+				|| state.getInputElement() instanceof IRSourceUnit) {
 			final AstSelection astSelection = state.getAstSelection();
 			final ISelection selection = state.getSelection();
 			if (astSelection != null && selection instanceof ITextSelection) {

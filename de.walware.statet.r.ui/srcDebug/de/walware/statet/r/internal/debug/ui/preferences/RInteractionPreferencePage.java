@@ -41,7 +41,6 @@ import de.walware.ecommons.ui.dialogs.groups.Layouter;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.ContentHandler.FileCommand;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -186,7 +185,8 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 			label.setText(fFileCommands[i].getLabel() + ":"); //$NON-NLS-1$
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
-			final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(), templateVariableProcessor);
+			final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(
+					null, templateVariableProcessor );
 			fCommandEditors[i] = new SnippetEditor(configurator, fFileCommands[i].getCurrentCommand(), PlatformUI.getWorkbench());
 			fCommandEditors[i].create(group, SnippetEditor.DEFAULT_SINGLE_LINE_STYLE);
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);

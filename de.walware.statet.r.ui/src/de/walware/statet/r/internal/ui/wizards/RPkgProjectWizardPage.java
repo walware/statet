@@ -38,7 +38,7 @@ import de.walware.statet.r.core.rlang.RPkgNameValidator;
 public class RPkgProjectWizardPage extends WizardPage {
 	
 	
-	private NewRProjectWizardPage fProjectPage;
+	private final NewRProjectWizardPage fProjectPage;
 	
 	private Text fPkgNameControl;
 	
@@ -108,7 +108,7 @@ public class RPkgProjectWizardPage extends WizardPage {
 	}
 	
 	@Override
-	public void setVisible(boolean visible) {
+	public void setVisible(final boolean visible) {
 		super.setVisible(visible);
 		if (visible) {
 			final boolean firstTime = !fWasVisible;

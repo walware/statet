@@ -51,7 +51,7 @@ public abstract class RweaveTexProfileDefaultHandler extends AbstractHandler imp
 	
 	public static class ProcessTex extends RweaveTexProfileDefaultHandler {
 		
-		public static final String COMMAND_ID = "de.walware.statet.sweave.commands.ProcessTexDefault"; //$NON-NLS-1$
+		public static final String COMMAND_ID = "de.walware.docmlet.tex.commands.ProcessTexDefault"; //$NON-NLS-1$
 		
 		public ProcessTex() {
 			super(COMMAND_ID, STEP_TEX);
@@ -61,7 +61,7 @@ public abstract class RweaveTexProfileDefaultHandler extends AbstractHandler imp
 	
 	public static class ProcessDoc extends RweaveTexProfileDefaultHandler {
 		
-		public static final String COMMAND_ID = "de.walware.statet.doc.commands.ProcessDocDefault"; //$NON-NLS-1$
+		public static final String COMMAND_ID = "de.walware.docmlet.base.commands.ProcessDocDefault"; //$NON-NLS-1$
 		
 		public ProcessDoc() {
 			super(COMMAND_ID, STEP_WEAVE | STEP_TEX);
@@ -71,7 +71,7 @@ public abstract class RweaveTexProfileDefaultHandler extends AbstractHandler imp
 	
 	public static class ProcessAndPreview extends RweaveTexProfileDefaultHandler {
 		
-		public static final String COMMAND_ID = "de.walware.statet.doc.commands.ProcessAndPreviewDefault"; //$NON-NLS-1$
+		public static final String COMMAND_ID = "de.walware.docmlet.base.commands.ProcessAndPreviewDefault"; //$NON-NLS-1$
 		
 		public ProcessAndPreview() {
 			super(COMMAND_ID, 0);
@@ -82,7 +82,7 @@ public abstract class RweaveTexProfileDefaultHandler extends AbstractHandler imp
 	
 	public static class PreviewDoc extends RweaveTexProfileDefaultHandler {
 		
-		public static final String COMMAND_ID = "de.walware.statet.doc.commands.PreviewDocDefault"; //$NON-NLS-1$
+		public static final String COMMAND_ID = "de.walware.docmlet.base.commands.PreviewDocDefault"; //$NON-NLS-1$
 		
 		public PreviewDoc() {
 			super(COMMAND_ID, STEP_PREVIEW);
@@ -91,8 +91,8 @@ public abstract class RweaveTexProfileDefaultHandler extends AbstractHandler imp
 	}
 	
 	
-	private String fCommandId;
-	private int fLaunchFlags;
+	private final String fCommandId;
+	private final int fLaunchFlags;
 	private SweaveProcessing fSweaveManager;
 	private String fTooltip;
 	

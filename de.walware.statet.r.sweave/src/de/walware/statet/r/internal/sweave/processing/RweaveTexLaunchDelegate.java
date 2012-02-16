@@ -252,7 +252,7 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 			}
 		}
 		
-		launch.addProcess(thread);
+//		launch.addProcess(thread);
 		final Job job = thread.createJob();
 		{	ImageDescriptor icon;
 			switch (buildFlags & 0xf) {

@@ -68,7 +68,7 @@ public class RFastPartitionScanner implements IPartitionTokenScanner, IPartition
 	
 	private IDocument fDocument;
 	
-	private boolean fIsRoxygenEnabled;
+	private final boolean fIsRoxygenEnabled;
 	
 	private IToken fToken;
 	/** The offset of the last returned token. */
@@ -372,7 +372,9 @@ public class RFastPartitionScanner implements IPartitionTokenScanner, IPartition
 			fTokenLength ++;
 			return true;
 		}
-		if (c >= 0) fScanner.unread();
+		if (c >= 0) {
+			fScanner.unread();
+		}
 		return false;
 	}
 	

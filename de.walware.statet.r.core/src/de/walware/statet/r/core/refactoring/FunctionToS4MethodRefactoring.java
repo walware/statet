@@ -57,6 +57,7 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rlang.RTerminal;
+import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAst;
@@ -184,11 +185,14 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 				fSourceUnit.connect(progress.newChild(1));
 				try {
 					final AbstractDocument document = fSourceUnit.getDocument(monitor);
+					final RHeuristicTokenScanner scanner = fAdapter.getScanner(fSourceUnit);
 					
 					final IRModelInfo modelInfo = (IRModelInfo) fSourceUnit.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, progress.newChild(1));
 					if (modelInfo != null) {
-						final IRegion region = fAdapter.trimToAstRegion(document, fSelectionRegion);
-						ISourceStructElement element = LTKUtil.getCoveringSourceElement(modelInfo.getSourceElement(), region);
+						final IRegion region = fAdapter.trimToAstRegion(document, fSelectionRegion,
+								scanner );
+						ISourceStructElement element = LTKUtil.getCoveringSourceElement(
+								modelInfo.getSourceElement(), region );
 						while (element != null) {
 							if (element instanceof IRMethod) {
 								fFunction = (IRMethod) element;
@@ -200,7 +204,8 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 					
 					if (fFunction != null) {
 						final ISourceStructElement source = (ISourceStructElement) fFunction;
-						fOperationRegion = fAdapter.expandSelectionRegion(document, source.getSourceRange(), fSelectionRegion);
+						fOperationRegion = fAdapter.expandSelectionRegion(document,
+								source.getSourceRange(), fSelectionRegion, scanner );
 					}
 				}
 				finally {
@@ -212,7 +217,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 				return RefactoringStatus.createFatalErrorStatus(Messages.FunctionToS4Method_error_InvalidSelection_message);
 			}
 			final RefactoringStatus result = new RefactoringStatus();
-			fAdapter.checkInitialForModification(result, fElementSet);
+			fAdapter.checkInitialToModify(result, fElementSet);
 			progress.worked(1);
 			
 			if (result.hasFatalError()) {
@@ -281,7 +286,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 		final SubMonitor progress = SubMonitor.convert(monitor, RefactoringMessages.Common_FinalCheck_label, 100);
 		try {
 			final RefactoringStatus status = checkFunctionName(fFunctionName);
-			fAdapter.checkFinalForModification(status, fElementSet, progress.newChild(2));
+			fAdapter.checkFinalToModify(status, fElementSet, progress.newChild(2));
 			return status;
 		}
 		finally {
@@ -326,6 +331,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 		fSourceUnit.connect(progress.newChild(1));
 		try {
 			final AbstractDocument document = fSourceUnit.getDocument(progress.newChild(1));
+			final RHeuristicTokenScanner scanner = fAdapter.getScanner(fSourceUnit);
 			final RCodeStyleSettings codeStyle = RRefactoringAdapter.getCodeStyle(fSourceUnit);
 			
 			RAstNode firstParentChild = (RAstNode) fFunction.getAdapter(IAstNode.class);
@@ -338,12 +344,16 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 				firstParentChild = parent;
 			}
 			
-			final IRegion region = fAdapter.expandWhitespaceBlock(document, fOperationRegion);
+			final IRegion region = fAdapter.expandWhitespaceBlock(document, fOperationRegion, scanner);
 			final int insertOffset = fAdapter.expandWhitespaceBlock(document, 
-					fAdapter.expandSelectionRegion(document, new Region(firstParentChild.getOffset(), 0), fOperationRegion)).getOffset();
+					fAdapter.expandSelectionRegion(document,
+							new Region(firstParentChild.getOffset(), 0), fOperationRegion, scanner ),
+					scanner ).getOffset();
 			final FDef fdefNode = (FDef) fFunction.getAdapter(FDef.class);
 			final IRegion fbodyRegion = fAdapter.expandWhitespaceBlock(document,
-					fAdapter.expandSelectionRegion(document, fdefNode.getContChild(), fOperationRegion));
+					fAdapter.expandSelectionRegion(document,
+							fdefNode.getContChild(), fOperationRegion, scanner ),
+					scanner );
 			
 			TextChangeCompatibility.addTextEdit(change, Messages.FunctionToS4Method_Changes_DeleteOld_name,
 					new DeleteEdit(region.getOffset(), region.getLength()));

@@ -14,6 +14,7 @@ package de.walware.statet.r.internal.core.sourcemodel;
 import org.eclipse.osgi.util.NLS;
 
 
+
 /**
  * {@link SyntaxProblemReporter}
  */

@@ -63,13 +63,13 @@ public class RweaveTexProfilesDropdownContribution extends CompoundContributionI
 	
 	private class ItemAction extends Action {
 		
-		private ILaunchConfiguration fConfiguration;
+		private final ILaunchConfiguration fConfiguration;
 		
 		public ItemAction(final ILaunchConfiguration configuration, final int accelerator) {
 			fConfiguration = configuration;
 			final boolean isActiveProfile = (fSweaveManager.getActiveProfile() == configuration);
 			setText(RweaveTexProfilesMenuContribution.createLabel(configuration, accelerator));
-			setImageDescriptor(SweavePlugin.getDefault().getImageRegistry().getDescriptor(isActiveProfile ? SweavePlugin.IMG_OBJ_RWEAVETEX_ACTIVE : SweavePlugin.IMG_OBJ_RWEAVETEX));
+			setImageDescriptor(SweavePlugin.getDefault().getImageRegistry().getDescriptor(isActiveProfile ? SweavePlugin.IMG_OBJ_LTXRWEAVE_ACTIVE : SweavePlugin.IMG_OBJ_LTXRWEAVE));
 		}
 		
 		@Override
@@ -81,7 +81,7 @@ public class RweaveTexProfilesDropdownContribution extends CompoundContributionI
 	
 	
 	private SweaveProcessing fSweaveManager;
-	private int fLaunchFlags;
+	private final int fLaunchFlags;
 	
 	
 	public RweaveTexProfilesDropdownContribution(final int flags) {

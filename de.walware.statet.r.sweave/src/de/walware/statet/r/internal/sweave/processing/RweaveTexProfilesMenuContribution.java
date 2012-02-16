@@ -22,16 +22,16 @@ import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.bindings.TriggerSequence;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MenuEvent;
-import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.CompoundContributionItem;
 import org.eclipse.ui.keys.IBindingService;
 
+import de.walware.ecommons.ui.actions.SubMenuContributionItem;
 import de.walware.ecommons.ui.util.MessageUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -68,11 +68,8 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 	final static String EDIT = "edit"; //$NON-NLS-1$
 	
 	
-	private class ProfileContribution extends ContributionItem implements MenuListener, SelectionListener {
+	private class ProfileContribution extends SubMenuContributionItem implements SelectionListener {
 		
-		private MenuItem fMenuItem;
-		private Menu fMenu;
-		private boolean fIsMenuInitialized;
 		
 		private final int fNum;
 		private final ILaunchConfiguration fConfig;
@@ -87,55 +84,18 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 		
 		
 		@Override
-		public void dispose() {
-			if (menuExist()) {
-				fMenu.dispose();
-				fMenu = null;
-			}
-			
-			if (fMenuItem != null) {
-				fMenuItem.dispose();
-				fMenuItem = null;
-			}
-		}
-		
-		/**
-		 * Returns whether the menu control is created
-		 * and not disposed.
-		 * 
-		 * @return <code>true</code> if the control is created
-		 *     and not disposed, <code>false</code> otherwise
-		 */
-		private boolean menuExist() {
-			return fMenu != null && !fMenu.isDisposed();
+		protected Image getImage() {
+			final boolean isActiveProfile = (fSweaveManager.getActiveProfile() == fConfig);
+			return SweavePlugin.getDefault().getImageRegistry().get(isActiveProfile ? SweavePlugin.IMG_OBJ_LTXRWEAVE_ACTIVE : SweavePlugin.IMG_OBJ_LTXRWEAVE);
 		}
 		
 		@Override
-		public void fill(final Menu parent, final int index) {
-			if (fMenuItem == null || fMenuItem.isDisposed()) {
-				if (index >= 0) {
-					fMenuItem = new MenuItem(parent, SWT.CASCADE, index);
-				} else {
-					fMenuItem = new MenuItem(parent, SWT.CASCADE);
-				}
-				
-				final boolean isActiveProfile = (fSweaveManager.getActiveProfile() == fConfig);
-				fMenuItem.setText(createLabel(fConfig, fNum));
-				fMenuItem.setImage(SweavePlugin.getDefault().getImageRegistry().get(isActiveProfile ? SweavePlugin.IMG_OBJ_RWEAVETEX_ACTIVE : SweavePlugin.IMG_OBJ_RWEAVETEX));
-				
-				if (!menuExist()) {
-					fMenu = new Menu(parent);
-					fMenu.addMenuListener(this);
-				}
-				
-				fMenuItem.setMenu(fMenu);
-			}
+		protected String getLabel() {
+			return createLabel(fConfig, fNum);
 		}
 		
-		private void fillMenu() {
-			fIsMenuInitialized = true;
-			MenuItem item;
-			
+		@Override
+		protected void fillMenu(final Menu menu) {
 			final boolean isActiveProfile = (fSweaveManager.getActiveProfile() == fConfig);
 			final StringBuilder detailComplete = new StringBuilder(Messages.ProcessingAction_BuildAndPreview_label);
 			boolean showBuild = false;
@@ -147,7 +107,7 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 			final StringBuilder detailPreview = new StringBuilder(Messages.ProcessingAction_Preview_label);
 			try {
 				final String attribute = fConfig.getAttribute(RweaveTab.ATTR_SWEAVE_ID, (String) null);
-				if (attribute != null && attribute.length() > 0) {
+				if (attribute != null && !attribute.isEmpty()) {
 					detailSweave.append("  (Rnw > TeX)"); //$NON-NLS-1$
 				}
 				else {
@@ -204,68 +164,58 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 				}
 			}
 			
-			item = new MenuItem(fMenu, SWT.PUSH);
-			item.setText(detailComplete.toString());
-			item.setImage(SweavePlugin.getDefault().getImageRegistry().get(SweavePlugin.IMG_TOOL_BUILDANDPREVIEW));
-			item.setData(RUN);
-			item.addSelectionListener(this);
-			
+			{	final MenuItem item = new MenuItem(menu, SWT.PUSH);
+				item.setText(detailComplete.toString());
+				item.setImage(SweavePlugin.getDefault().getImageRegistry().get(SweavePlugin.IMG_TOOL_BUILDANDPREVIEW));
+				item.setData(RUN);
+				item.addSelectionListener(this);
+			}
 			if (showBuild) {
-				item = new MenuItem(fMenu, SWT.PUSH);
+				final MenuItem item = new MenuItem(menu, SWT.PUSH);
 				item.setText(detailBuild.toString());
 				item.setImage(SweavePlugin.getDefault().getImageRegistry().get(SweavePlugin.IMG_TOOL_BUILD));
 				item.setData(BUILD);
 				item.addSelectionListener(this);
 				item.setEnabled(!disableTex);
 			}
-			item = new MenuItem(fMenu, SWT.SEPARATOR);
+			new MenuItem(menu, SWT.SEPARATOR);
 			
-			item = new MenuItem(fMenu, SWT.PUSH);
-			item.setText(detailSweave.toString());
-			item.setImage(SweavePlugin.getDefault().getImageRegistry().get(SweavePlugin.IMG_TOOL_RWEAVE));
-			item.setData(RWEAVE);
-			item.addSelectionListener(this);
-			item.setEnabled(!disableSweave);
+			{	final MenuItem item = new MenuItem(menu, SWT.PUSH);
+				item.setText(detailSweave.toString());
+				item.setImage(SweavePlugin.getDefault().getImageRegistry().get(SweavePlugin.IMG_TOOL_RWEAVE));
+				item.setData(RWEAVE);
+				item.addSelectionListener(this);
+				item.setEnabled(!disableSweave);
+			}
+			{	final MenuItem item = new MenuItem(menu, SWT.PUSH);
+				item.setText(detailTex.toString());
+				item.setImage(SweavePlugin.getDefault().getImageRegistry().get(SweavePlugin.IMG_TOOL_BUILDTEX));
+				item.setData(TEX);
+				item.addSelectionListener(this);
+				item.setEnabled(!disableTex);
+			}
+			{	final MenuItem item = new MenuItem(menu, SWT.PUSH);
+				item.setText(detailPreview.toString());
+				item.setImage(SweavePlugin.getDefault().getImageRegistry().get(SweavePlugin.IMG_TOOL_PREVIEW));
+				item.setData(PREVIEW);
+				item.addSelectionListener(this);
+				item.setEnabled(!disableTex);
+			}
+			new MenuItem(menu, SWT.SEPARATOR);
 			
-			item = new MenuItem(fMenu, SWT.PUSH);
-			item.setText(detailTex.toString());
-			item.setImage(SweavePlugin.getDefault().getImageRegistry().get(SweavePlugin.IMG_TOOL_BUILDTEX));
-			item.setData(TEX);
-			item.addSelectionListener(this);
-			item.setEnabled(!disableTex);
-			
-			item = new MenuItem(fMenu, SWT.PUSH);
-			item.setText(detailPreview.toString());
-			item.setImage(SweavePlugin.getDefault().getImageRegistry().get(SweavePlugin.IMG_TOOL_PREVIEW));
-			item.setData(PREVIEW);
-			item.addSelectionListener(this);
-			item.setEnabled(!disableTex);
-			
-			item = new MenuItem(fMenu, SWT.SEPARATOR);
-			
-			item = new MenuItem(fMenu, SWT.RADIO);
-			item.setText(Messages.ProcessingAction_ActivateProfile_label);
-			item.setData(SELECT);
-			item.addSelectionListener(this);
-			item.setSelection(isActiveProfile);
-			
-			item = new MenuItem(fMenu, SWT.PUSH);
-			item.setText(Messages.ProcessingAction_EditProfile_label);
-			item.setData(EDIT);
-			item.addSelectionListener(this);
-		}
-		
-		
-		@Override
-		public void menuShown(final MenuEvent e) {
-			if (!fIsMenuInitialized) {
-				fillMenu();
+			{	final MenuItem item = new MenuItem(menu, SWT.RADIO);
+				item.setText(Messages.ProcessingAction_ActivateProfile_label);
+				item.setData(SELECT);
+				item.addSelectionListener(this);
+				item.setSelection(isActiveProfile);
+			}
+			{	final MenuItem item = new MenuItem(menu, SWT.PUSH);
+				item.setText(Messages.ProcessingAction_EditProfile_label);
+				item.setData(EDIT);
+				item.addSelectionListener(this);
 			}
 		}
 		
-		@Override
-		public void menuHidden(final MenuEvent e) {
-		}
 		
 		@Override
 		public void widgetDefaultSelected(final SelectionEvent e) {

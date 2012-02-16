@@ -54,6 +54,7 @@ import de.walware.ecommons.ltk.ui.templates.TemplatesUtil;
 import de.walware.ecommons.ltk.ui.templates.TemplatesUtil.EvaluatedTemplate;
 import de.walware.ecommons.ltk.ui.util.LTKSelectionUtil;
 import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.text.IndentUtil;
 
 import de.walware.statet.r.codegeneration.CodeGeneration;
 import de.walware.statet.r.core.model.IRClass;
@@ -62,7 +63,6 @@ import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.refactoring.RRefactoring;
-import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.ui.RUIMessages;
 
 
@@ -138,7 +138,7 @@ public class GenerateRoxygenElementComment extends AbstractHandler implements IE
 			final AbstractDocument doc = su.getDocument(null);
 			final EvaluatedTemplate[] templates = new EvaluatedTemplate[elements.length];
 			final String lineDelimiter = doc.getDefaultLineDelimiter();
-			Arrays.sort(elements, RRefactoring.getFactory().createAdapter().getModelElementComparator());
+			Arrays.sort(elements, RRefactoring.getFactory().createAdapter(elements).getModelElementComparator());
 			ITER_ELEMENTS: for (int i = 0; i < elements.length; i++) {
 				switch (elements[i].getElementType() & IRElement.MASK_C1) {
 				case IRElement.C1_CLASS:
@@ -156,7 +156,7 @@ public class GenerateRoxygenElementComment extends AbstractHandler implements IE
 				}
 			}
 			
-			final RIndentUtil indentUtil = new RIndentUtil(doc, rsu.getRCoreAccess().getRCodeStyle());
+			final IndentUtil indentUtil = new IndentUtil(doc, rsu.getRCoreAccess().getRCodeStyle());
 			final MultiTextEdit multi = new MultiTextEdit();
 			int selectionStart = 0;
 			int selectionLength = 0;

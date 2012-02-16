@@ -11,12 +11,12 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
+import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelElementDelta;
 import de.walware.ecommons.ltk.IModelManager;
 
 import de.walware.statet.r.core.model.IRModelInfo;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
 
 
 /**
@@ -28,9 +28,9 @@ public class ModelDelta implements IModelElementDelta {
 	private final int fLevel;
 	private final IModelElement fElement;
 	private final IRModelInfo fOldInfo;
-	private final RAstInfo fOldAst;
+	private final AstInfo fOldAst;
 	private final IRModelInfo fNewInfo;
-	private final RAstInfo fNewAst;
+	private final AstInfo fNewAst;
 	
 	
 	public ModelDelta(final IModelElement element,
@@ -50,12 +50,12 @@ public class ModelDelta implements IModelElementDelta {
 	}
 	
 	@Override
-	public RAstInfo getOldAst() {
+	public AstInfo getOldAst() {
 		return fOldAst;
 	}
 	
 	@Override
-	public RAstInfo getNewAst() {
+	public AstInfo getNewAst() {
 		return fNewAst;
 	}
 	

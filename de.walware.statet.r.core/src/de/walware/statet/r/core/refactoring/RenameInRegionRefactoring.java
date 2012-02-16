@@ -37,6 +37,7 @@ import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.ReplaceEdit;
 
+import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringDescriptor;
@@ -56,10 +57,10 @@ import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rlang.RTerminal;
+import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.GenericVisitor;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAst;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.refactoring.Messages;
 
@@ -203,13 +204,15 @@ public class RenameInRegionRefactoring extends Refactoring {
 				fSourceUnit.connect(progress.newChild(1));
 				try {
 					final AbstractDocument document = fSourceUnit.getDocument(monitor);
+					final RHeuristicTokenScanner scanner = fAdapter.getScanner(fSourceUnit);
 					
 					final IRModelInfo modelInfo = (IRModelInfo) fSourceUnit.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, progress.newChild(1));
 					if (modelInfo != null) {
-						final IRegion region = fAdapter.trimToAstRegion(document, fSelectionRegion);
-						final RAstInfo ast = modelInfo.getAst();
+						final IRegion region = fAdapter.trimToAstRegion(document,
+								fSelectionRegion, scanner );
+						final AstInfo ast = modelInfo.getAst();
 						if (ast != null) {
-							rootNode = (RAstNode) AstSelection.search(ast.getRootNode(),
+							rootNode = (RAstNode) AstSelection.search(ast.root,
 									region.getOffset(), region.getOffset()+region.getLength(),
 									AstSelection.MODE_COVERING_SAME_LAST ).getCovering();
 						}
@@ -224,7 +227,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 				return RefactoringStatus.createFatalErrorStatus(Messages.ExtractTemp_error_InvalidSelection_message);
 			}
 			final RefactoringStatus result = new RefactoringStatus();
-			fAdapter.checkInitialForModification(result, fElementSet);
+			fAdapter.checkInitialToModify(result, fElementSet);
 			progress.worked(1);
 			
 			if (result.hasFatalError()) {
@@ -255,7 +258,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 		final SubMonitor progress = SubMonitor.convert(monitor, RefactoringMessages.Common_FinalCheck_label, 100);
 		try {
 			final RefactoringStatus status = new RefactoringStatus();
-			fAdapter.checkFinalForModification(status, fElementSet, progress.newChild(2));
+			fAdapter.checkFinalToModify(status, fElementSet, progress.newChild(2));
 			return status;
 		}
 		finally {

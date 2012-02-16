@@ -19,7 +19,6 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.internal.sweave.Rweave;
 import de.walware.statet.r.ui.text.r.RFastPartitionScanner;
 
 

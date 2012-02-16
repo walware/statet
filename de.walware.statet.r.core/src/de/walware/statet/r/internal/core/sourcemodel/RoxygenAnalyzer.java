@@ -24,6 +24,7 @@ import de.walware.statet.r.core.rsource.ast.DocuComment;
 import de.walware.statet.r.core.rsource.ast.DocuTag;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.rsource.ast.SourceComponent;
 import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAccess.RClass;
 import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAccess.RMethod;
 import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAccess.RVariable;
@@ -45,10 +46,10 @@ public class RoxygenAnalyzer implements IModelElement.Filter {
 	}
 	
 	
-	public void updateModel(IRoxygenAnalyzeContext context) {
+	public void updateModel(final IRoxygenAnalyzeContext context) {
 		fContext = context;
-		IRModelInfo model = context.getModelInfo();
-		fComments = model.getAst().getRootNode().getComments();
+		final IRModelInfo model = context.getModelInfo();
+		fComments = ((SourceComponent) model.getAst().root).getComments();
 		if (fComments == null || fComments.isEmpty()) {
 			return;
 		}

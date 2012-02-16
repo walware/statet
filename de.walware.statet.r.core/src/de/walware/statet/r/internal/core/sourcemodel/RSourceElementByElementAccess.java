@@ -20,7 +20,6 @@ import org.eclipse.jface.text.Region;
 
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceStructElement;
-import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
@@ -32,6 +31,7 @@ import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRPackageLoad;
 import de.walware.statet.r.core.model.IRSlot;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
@@ -457,7 +457,7 @@ abstract class RSourceElementByElementAccess
 	}
 	
 	
-	private final ISourceStructElement fParent;
+	private final IRLangSourceElement fParent;
 	private ElementAccess fAccess;
 	int fType;
 	int fOccurrenceCount;
@@ -508,7 +508,7 @@ abstract class RSourceElementByElementAccess
 	}
 	
 	@Override
-	public final ISourceUnit getSourceUnit() {
+	public final IRSourceUnit getSourceUnit() {
 		return fParent.getSourceUnit();
 	}
 	

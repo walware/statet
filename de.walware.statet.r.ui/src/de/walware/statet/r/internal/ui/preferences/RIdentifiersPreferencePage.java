@@ -13,12 +13,11 @@ package de.walware.statet.r.internal.ui.preferences;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
+import org.eclipse.core.databinding.observable.set.IObservableSet;
+import org.eclipse.core.databinding.observable.set.WritableSet;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -34,12 +33,9 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 
@@ -48,6 +44,7 @@ import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.StringArrayPref;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
+import de.walware.ecommons.ui.components.EditableTextList;
 import de.walware.ecommons.ui.util.ComparatorViewerComparator;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
@@ -85,7 +82,7 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 		
 		String fLabel;
 		StringArrayPref fPref;
-		Set<String> fSet = new HashSet<String>();
+		IObservableSet fSet = new WritableSet();
 		
 		public Category(final String label, final String prefKey) {
 			fLabel = label;
@@ -101,7 +98,7 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 		}
 		
 		void save() {
-			setPrefValue(fPref, fSet.toArray(new String[fSet.size()]));
+			setPrefValue(fPref, (String[]) fSet.toArray(new String[fSet.size()]));
 		}
 		
 		@Override
@@ -113,22 +110,16 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 	
 	private class WordEditing extends EditingSupport {
 		
-		private TextCellEditor fCellEditor;
+		private final TextCellEditor fCellEditor;
+		
+		private final EditableTextList fList;
+		
 		private Object fLast;
 		
-		public WordEditing() {
-			super(fWordList);
-			fCellEditor = new TextCellEditor(fWordList.getTable()) {
-				@Override
-				public void deactivate() {
-					super.deactivate();
-					if (fLast == "") { //$NON-NLS-1$
-						fWordList.remove(""); //$NON-NLS-1$
-						fWordListComposite.layout(false);
-					}
-					fLast = null;
-				}
-			};
+		public WordEditing(final EditableTextList list) {
+			super(list.getViewer());
+			fList = list;
+			fCellEditor = new TextCellEditor(list.getViewer().getTable());
 			fCellEditor.addListener(new ICellEditorListener() {
 				@Override
 				public void editorValueChanged(final boolean oldValidState, final boolean newValidState) {
@@ -141,25 +132,32 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 				}
 				@Override
 				public void applyEditorValue() {
+					fLast = null;
 					fStatusListener.statusChanged(Status.OK_STATUS);
 				}
 				@Override
 				public void cancelEditor() {
+					if (fLast == "") { //$NON-NLS-1$
+						fList.applyChange("", null); //$NON-NLS-1$
+					}
 					fStatusListener.statusChanged(Status.OK_STATUS);
 				}
 			});
 			fCellEditor.setValidator(new RIdentifierCellValidator() {
 				@Override
-				protected String isValidInContext(final String value) {
-					if (!value.equals(fLast) && fActiveCategory.fSet.contains(value)) {
-						return Messages.RIdentifiers_Identifier_error_AlreadyExistingInSameGroup_message;
-					}
-					for (int i = 0; i < fCategories.length; i++) {
-						if (fCategories[i] != fActiveCategory && fCategories[i].fSet.contains(value)) {
-							return NLS.bind(Messages.RIdentifiers_Identifier_error_AlreadyExistingInOtherGroup_message, fCategories[i].fLabel);
+				public String isValid(final Object value) {
+					final String valid = super.isValid(value);
+					if (valid == null) {
+						if (!value.equals(fLast) && fActiveCategory.fSet.contains(value)) {
+							return Messages.RIdentifiers_Identifier_error_AlreadyExistingInSameGroup_message;
+						}
+						for (int i = 0; i < fCategories.length; i++) {
+							if (fCategories[i] != fActiveCategory && fCategories[i].fSet.contains(value)) {
+								return NLS.bind(Messages.RIdentifiers_Identifier_error_AlreadyExistingInOtherGroup_message, fCategories[i].fLabel);
+							}
 						}
 					}
-					return null;
+					return valid;
 				}
 			});
 		}
@@ -183,21 +181,19 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 		@Override
 		protected void setValue(final Object element, final Object value) {
 			if (value != null) {
-				editWord(element, value);
+				fList.applyChange(element, (value != "") ? value : null); //$NON-NLS-1$
 			}
 		}
 		
 	}
 	
-	
 	private TableViewer fCategoryList;
-	private TableViewer fWordList;
-	private ViewerUtil.TableComposite fWordListComposite;
+	private EditableTextList fWordList;
 	
 	private Category[] fCategories;
 	private Category fActiveCategory;
 	
-	private IStatusChangeListener fStatusListener;
+	private final IStatusChangeListener fStatusListener;
 	
 	
 	public RIdentifiersBlock(final IStatusChangeListener statusListener) {
@@ -246,80 +242,12 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 		label.setText(Messages.RIdentifiers_IdentifiersList_label);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
-		final Composite wordComposite = new Composite(pageComposite, SWT.NONE);
-		wordComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		wordComposite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(),2));
-		
-		fWordListComposite = new ViewerUtil.TableComposite(wordComposite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.FULL_SELECTION);
-		fWordListComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		fWordList = fWordListComposite.viewer;
-		fWordList.setContentProvider(new ArrayContentProvider());
-		fWordList.setComparator(new ComparatorViewerComparator(new RSymbolComparator()));
-		fWordListComposite.table.setFont(JFaceResources.getTextFont());
-		fWordListComposite.table.setLinesVisible(true);
-		
-		column = new TableViewerColumn(fWordList, SWT.NONE);
-		column.setLabelProvider(new ColumnLabelProvider());
-		column.setEditingSupport(new WordEditing());
-		fWordListComposite.layout.setColumnData(column.getColumn(), new ColumnWeightData(100));
-		
-		final Composite buttonComposite = new Composite(wordComposite, SWT.NONE);
-		buttonComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
-		buttonComposite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(),1));
-		
-		Button button = new Button(buttonComposite, SWT.PUSH);
-		gd = new GridData(SWT.FILL, SWT.TOP, true, false);
-		gd.widthHint = LayoutUtil.hintWidth(button);
-		button.setLayoutData(gd);
-		
-		button.setText(Messages.RIdentifiers_AddAction_label);
-		button.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetDefaultSelected(final SelectionEvent e) {
-			}
-			@Override
-			public void widgetSelected(final SelectionEvent e) {
-				addNewWord();
-			}
-		});
-		
-		button = new Button(buttonComposite, SWT.PUSH);
-		gd = new GridData(SWT.FILL, SWT.TOP, true, false);
-		gd.widthHint = LayoutUtil.hintWidth(button);
-		button.setLayoutData(gd);
-		
-		button.setText(Messages.RIdentifiers_EditAction_label);
-		button.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetDefaultSelected(final SelectionEvent e) {
-			}
-			@Override
-			public void widgetSelected(final SelectionEvent e) {
-				final IStructuredSelection selection = (IStructuredSelection) fWordList.getSelection();
-				if (selection.size() == 1) {
-					fWordList.setSelection(selection, true);
-					fWordList.editElement(selection.getFirstElement(), 0);
-				}
-			}
-		});
-		
-		button = new Button(buttonComposite, SWT.PUSH);
-		gd = new GridData(SWT.FILL, SWT.TOP, true, false);
-		gd.widthHint = LayoutUtil.hintWidth(button);
-		button.setLayoutData(gd);
-		
-		button.setText(Messages.RIdentifiers_RemoveAction_label);
-		button.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetDefaultSelected(final SelectionEvent e) {
-			}
-			@Override
-			public void widgetSelected(final SelectionEvent e) {
-				final IStructuredSelection selection = (IStructuredSelection) fWordList.getSelection();
-				deleteWords(selection.toArray());
-			}
-		});
-		
+		fWordList = new EditableTextList();
+		{	final Control control = fWordList.create(pageComposite,
+					new ComparatorViewerComparator(new RSymbolComparator()) );
+			control.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		}
+		fWordList.getColumn().setEditingSupport(new WordEditing(fWordList));
 		
 		// Binding
 		fCategoryList.setInput(fCategories);
@@ -329,7 +257,6 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 				final Category cat = (Category) ((IStructuredSelection) event.getSelection()).getFirstElement();
 				fWordList.setInput(cat.fSet);
 				fActiveCategory = cat;
-				fWordListComposite.layout(false);
 			}
 		});
 		
@@ -347,31 +274,6 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 	}
 	
 	
-	void addNewWord() {
-		fWordList.add(""); //$NON-NLS-1$
-		fWordList.setSelection(new StructuredSelection(""), true); //$NON-NLS-1$
-		fWordList.editElement("", 0); //$NON-NLS-1$
-		fWordListComposite.layout(false);
-	}
-	
-	void deleteWords(final Object[] words) {
-		fActiveCategory.fSet.removeAll(Arrays.asList(words));
-		fWordList.remove(words);
-		fWordListComposite.layout(false);
-	}
-	
-	void editWord(final Object old, final Object word) {
-		if (old.equals(word)) {
-			return;
-		}
-		fActiveCategory.fSet.remove(old);
-		fWordList.remove(old);
-		fActiveCategory.fSet.add((String) word);
-		fWordList.add(word);
-		fWordList.setSelection(new StructuredSelection(word), true);
-	}
-	
-	
 	@Override
 	public void updatePreferences() {
 		for (int i = 0; i < fCategories.length; i++) {
@@ -385,8 +287,7 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 		for (int i = 0; i < fCategories.length; i++) {
 			fCategories[i].load();
 		}
-		fWordList.refresh(false);
-		fWordListComposite.layout(false);
+		fWordList.refresh();
 	}
 	
 }

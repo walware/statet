@@ -50,6 +50,7 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.ltk.ui.refactoring.RefactoringBasedStatus;
 import de.walware.ecommons.ui.components.ButtonGroup;
+import de.walware.ecommons.ui.components.DataAdapter;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.CheckTableComposite;
@@ -249,22 +250,7 @@ public class FunctionToS4MethodWizard extends RefactoringWizard {
 			ViewerUtil.installDefaultEditBehaviour(fArgumentsViewer);
 			fArgumentsViewer.setContentProvider(new ArrayContentProvider());
 			
-			fArgumentsButtons = new ButtonGroup<Variable>(composite) {
-				@Override
-				protected void move1(final int oldIdx, final int newIdx) {
-					final Object upperElement = fArgumentsViewer.getElementAt(Math.min(oldIdx, newIdx));
-					final Object lowerElement = fArgumentsViewer.getElementAt(Math.max(oldIdx, newIdx));
-					super.move1(oldIdx, newIdx);
-					if ((upperElement instanceof Variable)
-							&& !((Variable) upperElement).getName().equals("...") //$NON-NLS-1$
-							&& (lowerElement instanceof Variable)
-							&& !((Variable) lowerElement).getName().equals("...")) { //$NON-NLS-1$
-						final boolean checked = fArgumentsViewer.getChecked(upperElement);
-						((Variable) lowerElement).setUseAsGenericArgument(checked);
-						fArgumentsViewer.setChecked(lowerElement, checked);
-					}
-				}
-			};
+			fArgumentsButtons = new ButtonGroup<Variable>(composite);
 			fArgumentsButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, true));
 			fArgumentsButtons.addUpButton();
 			fArgumentsButtons.addDownButton();
@@ -342,7 +328,23 @@ public class FunctionToS4MethodWizard extends RefactoringWizard {
 				}
 			});
 			fArgumentsViewer.setInput(argumentsList);
-			fArgumentsButtons.connectTo(fArgumentsViewer, argumentsList, null);
+			fArgumentsButtons.connectTo(fArgumentsViewer, new DataAdapter.ListAdapter<FunctionToS4MethodRefactoring.Variable>(
+					argumentsList, null ) {
+				@Override
+				protected void moveByIdx(final int oldIdx, final int newIdx) {
+					final Object upperElement = fArgumentsViewer.getElementAt(Math.min(oldIdx, newIdx));
+					final Object lowerElement = fArgumentsViewer.getElementAt(Math.max(oldIdx, newIdx));
+					super.moveByIdx(oldIdx, newIdx);
+					if ((upperElement instanceof Variable)
+							&& !((Variable) upperElement).getName().equals("...") //$NON-NLS-1$
+							&& (lowerElement instanceof Variable)
+							&& !((Variable) lowerElement).getName().equals("...")) { //$NON-NLS-1$
+						final boolean checked = fArgumentsViewer.getChecked(upperElement);
+						((Variable) lowerElement).setUseAsGenericArgument(checked);
+						fArgumentsViewer.setChecked(lowerElement, checked);
+					}
+				}
+			});
 			
 			dbc.bindValue(SWTObservables.observeSelection(fGenerateGenericControl), 
 					PojoObservables.observeValue(realm, getRefactoring(), "generateGeneric"), null, null); //$NON-NLS-1$

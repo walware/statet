@@ -24,7 +24,9 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 
 import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.text.IStringCache;
+import de.walware.ecommons.text.NoStringCache;
 import de.walware.ecommons.text.SourceParseInput;
 import de.walware.ecommons.text.StringRegionParseInput;
 
@@ -48,7 +50,7 @@ public class RoxygenScanner {
 	
 	
 	public RoxygenScanner(final IStringCache cache) {
-		fStringCache = cache;
+		fStringCache = (cache != null) ? cache : NoStringCache.INSTANCE;
 	}
 	
 	
@@ -102,7 +104,9 @@ public class RoxygenScanner {
 		case SCAN_MODE_RCODE:
 			if (!fCodeRegions.isEmpty()) {
 				try {
-					final RScanner scanner = new RScanner(new StringRegionParseInput(fInput, fCodeRegions.toArray(new IRegion[fCodeRegions.size()])), null, fStringCache);
+					final RScanner scanner = new RScanner(new StringRegionParseInput(
+							fInput, fCodeRegions.toArray(new IRegion[fCodeRegions.size()]) ),
+							AstInfo.LEVEL_MODEL_DEFAULT, fStringCache );
 					final SourceComponent node = scanner.scanSourceRange(fCurrentTag, 0, fInput.getStopIndex());
 					if (node != null) {
 						fCurrentTagFragments.add(node);
@@ -234,7 +238,7 @@ public class RoxygenScanner {
 					}
 					num--;
 					symbol = new Symbol.Std();
-					symbol.fText = fInput.substring(1, num);
+					symbol.fText = fInput.substring(1, num, fStringCache);
 					symbol.fStartOffset = fInput.getIndex();
 					symbol.fStopOffset = symbol.fStartOffset+num;
 					addSymbol(symbol);
@@ -265,7 +269,7 @@ public class RoxygenScanner {
 				continue LOOP;
 			case '`':
 				symbol = new Symbol.G();
-				symbol.fText = fInput.substring(2, num-2);
+				symbol.fText = fInput.substring(2, num-2, fStringCache);
 				symbol.fStartOffset = fInput.getIndex();
 				symbol.fStopOffset = symbol.fStartOffset+num;
 				addSymbol(symbol);
@@ -276,7 +280,7 @@ public class RoxygenScanner {
 			case '\n':
 				num--;
 				symbol = new Symbol.G();
-				symbol.fText = fInput.substring(2, num-1);
+				symbol.fText = fInput.substring(2, num-1, fStringCache);
 				symbol.fStatus = STATUS2_SYNTAX_TOKEN_NOT_CLOSED;
 				symbol.fStartOffset = fInput.getIndex();
 				symbol.fStopOffset = symbol.fStartOffset+num;
@@ -290,9 +294,6 @@ public class RoxygenScanner {
 	}
 	
 	private void addSymbol(final Symbol symbol) {
-		if (fStringCache != null && symbol.fText != null && symbol.fText.length() <= 20) {
-			symbol.fText = fStringCache.get(symbol.fText);
-		}
 		symbol.fRParent = fCurrentTag;
 		fCurrentTagFragments.add(symbol);
 		if (fCurrentTagType != null) {

@@ -11,16 +11,15 @@
 
 package de.walware.statet.r.internal.console.ui.page;
 
-import de.walware.ecommons.ltk.ui.sourceediting.ContentAssist;
-import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistComputerRegistry;
-import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistProcessor;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistComputerRegistry;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistProcessor;
 import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.nico.ui.console.NIConsolePage;
 
 import de.walware.statet.r.console.ui.RConsole;
-import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.sourceediting.RContentAssistProcessor;
@@ -31,12 +30,10 @@ import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 public class RInputConfigurator extends RSourceViewerConfigurator {
 	
 	
-	private static class RConsoleConfiguration extends RSourceViewerConfiguration {
+	private static class ThisConfiguration extends RSourceViewerConfiguration {
 		
-		public RConsoleConfiguration(final ISourceEditor sourceEditor, final IRCoreAccess coreAccess) {
-			super(sourceEditor, coreAccess,
-					RUIPlugin.getDefault().getEditorPreferenceStore(),
-					SharedUIResources.getColors() );
+		public ThisConfiguration(final ISourceEditor sourceEditor) {
+			super(sourceEditor, null, null, SharedUIResources.getColors() );
 		}
 		
 		@Override
@@ -65,9 +62,8 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 	
 	
 	public RInputConfigurator(final NIConsolePage page, final ISourceEditor inputEditor) {
-		super((RConsole) page.getConsole());
+		super((RConsole) page.getConsole(), new ThisConfiguration(inputEditor));
 		fPage = page;
-		setConfiguration(new RConsoleConfiguration(inputEditor, this));
 	}
 	
 }

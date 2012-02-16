@@ -51,66 +51,86 @@ public class RFileHyperlinkDetector extends AbstractHyperlinkDetector {
 	public IHyperlink[] detectHyperlinks(final ITextViewer textViewer,
 			final IRegion region, final boolean canShowMultipleHyperlinks) {
 		try {
+			final ISourceEditor editor = (ISourceEditor) getAdapter(ISourceEditor.class);
+			if (editor == null) {
+				return null;
+			}
+			
 			final List<IHyperlink> hyperlinks = new ArrayList<IHyperlink>();
 			final IDocument document = textViewer.getDocument();
 			int start = 0;
-			final ITypedRegion partition = TextUtilities.getPartition(document, IRDocumentPartitions.R_PARTITIONING, region.getOffset(), false);
+			int stop = 0;
+			
+			final ITypedRegion partition = TextUtilities.getPartition(document,
+					editor.getPartitioning().getPartitioning(), region.getOffset(), false );
 			if (partition != null && partition.getLength() > 3) {
-				String string = null;
-				if (partition.getType().equals(IRDocumentPartitions.R_COMMENT) || partition.getType().equals(IRDocumentPartitions.R_ROXYGEN)) {
+				if (partition.getType().equals(IRDocumentPartitions.R_COMMENT)
+						|| partition.getType().equals(IRDocumentPartitions.R_ROXYGEN) ) {
+					boolean quote = false;
 					start = region.getOffset();
-					final int bound = partition.getOffset()+1;
-					{	final char c = document.getChar(start-1);
-						if (c <= 34 || c == '>' || c == '<') {
-							return null;
+					{	final int bound = partition.getOffset()+1;
+						{	final char c = document.getChar(start);
+							if (c <= 0x22 || c == '>' || c == '<') {
+								return null;
+							}
+						}
+						while (start > bound) {
+							final char c = document.getChar(start-1);
+							if (c <= 0x22 || c == '>' || c == '<') {
+								if (c == '"') {
+									quote = true;
+								}
+								break;
+							}
+							start--;
 						}
 					}
-					while (start > bound) {
-						final char c = document.getChar(start-1);
-						if (c <= 34 || c == '>' || c == '<') {
-							break;
+					{	final int bound = partition.getOffset()+partition.getLength();
+						stop = region.getOffset()+1;
+						while (stop < bound) {
+							final char c = document.getChar(stop);
+							if (c <= 0x22 || c == '>' || c == '<') {
+								if (quote || c != '"') {
+									break;
+								}
+							}
+							stop++;
 						}
-						start--;
 					}
-					string = document.get(start, partition.getOffset()+partition.getLength()-start).trim();
 				}
 				else if (partition.getType().equals(IRDocumentPartitions.R_STRING)) {
 					start = partition.getOffset()+1;
-					int stop = 0;
 					stop = partition.getOffset()+partition.getLength();
 					if (document.getChar(stop-1) == document.getChar(partition.getOffset())) {
 						stop--;
 					}
-					string = document.get(start, stop-start);
 				}
 				
-				if (string == null || string.isEmpty()) {
+				if (start >= stop) {
 					return null;
 				}
 				IContainer relativeBase = null;
 				
-				final Object adapter = getAdapter(ISourceEditor.class);
-				if (adapter instanceof ISourceEditor) {
-					final ISourceUnit su = ((ISourceEditor) adapter).getSourceUnit();
-					if (su instanceof IWorkspaceSourceUnit) {
-						final IResource resource = ((IWorkspaceSourceUnit) su).getResource();
-						final IProject project = resource.getProject();
-						if (project != null) {
-							final RProject rProject = RProject.getRProject(project);
-							if (rProject != null) {
-								relativeBase = rProject.getBaseContainer();
-							}
-						}
-						if (relativeBase == null) {
-							relativeBase = resource.getParent();
+				final ISourceUnit su = editor.getSourceUnit();
+				if (su instanceof IWorkspaceSourceUnit) {
+					final IResource resource = ((IWorkspaceSourceUnit) su).getResource();
+					final IProject project = resource.getProject();
+					if (project != null) {
+						final RProject rProject = RProject.getRProject(project);
+						if (rProject != null) {
+							relativeBase = rProject.getBaseContainer();
 						}
 					}
+					if (relativeBase == null) {
+						relativeBase = resource.getParent();
+					}
 				}
-				final IFileStore store = FileUtil.getLocalFileStore(string, relativeBase);
+				final IFileStore store = FileUtil.getLocalFileStore(
+						document.get(start, stop-start), relativeBase );
 				if (store != null) {
 					final IFileInfo info = store.fetchInfo();
 					if (info.exists() && !store.fetchInfo().isDirectory()) {
-						hyperlinks.add(new OpenFileHyperlink(new Region(start, string.length()), store));
+						hyperlinks.add(new OpenFileHyperlink(new Region(start, stop-start), store));
 					}
 				}
 			}

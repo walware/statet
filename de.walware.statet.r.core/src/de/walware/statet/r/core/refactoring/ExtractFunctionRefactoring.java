@@ -38,6 +38,7 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 
+import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
@@ -58,13 +59,13 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
+import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.Assignment;
 import de.walware.statet.r.core.rsource.ast.Block;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.GenericVisitor;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAst;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.refactoring.Messages;
 
@@ -226,13 +227,14 @@ public class ExtractFunctionRefactoring extends Refactoring {
 				fSourceUnit.connect(progress.newChild(1));
 				try {
 					final AbstractDocument document = fSourceUnit.getDocument(monitor);
+					final RHeuristicTokenScanner scanner = fAdapter.getScanner(fSourceUnit);
 					
 					final IRModelInfo modelInfo = (IRModelInfo) fSourceUnit.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, progress.newChild(1));
 					if (modelInfo != null) {
-						final IRegion region = fAdapter.trimToAstRegion(document, fSelectionRegion);
-						final RAstInfo ast = modelInfo.getAst();
+						final IRegion region = fAdapter.trimToAstRegion(document, fSelectionRegion, scanner);
+						final AstInfo ast = modelInfo.getAst();
 						if (ast != null) {
-							final AstSelection astSelection = AstSelection.search(ast.getRootNode(),
+							final AstSelection astSelection = AstSelection.search(ast.root,
 									region.getOffset(), region.getOffset()+region.getLength(),
 									AstSelection.MODE_COVERING_SAME_LAST );
 							final IAstNode covering = astSelection.getCovering();
@@ -269,7 +271,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 					
 					if (fExpressions != null) {
 						final IRegion region = new Region(fExpressions[0].getOffset(), fExpressions[fExpressions.length-1].getStopOffset()-fExpressions[0].getOffset());
-						fOperationRegion = fAdapter.expandSelectionRegion(document, region, fSelectionRegion);
+						fOperationRegion = fAdapter.expandSelectionRegion(document, region, fSelectionRegion, scanner);
 					}
 				}
 				finally {
@@ -281,7 +283,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 				return RefactoringStatus.createFatalErrorStatus(Messages.ExtractFunction_error_InvalidSelection_message);
 			}
 			final RefactoringStatus result = new RefactoringStatus();
-			fAdapter.checkInitialForModification(result, fElementSet);
+			fAdapter.checkInitialToModify(result, fElementSet);
 			progress.worked(1);
 			
 			if (result.hasFatalError()) {
@@ -340,7 +342,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 		final SubMonitor progress = SubMonitor.convert(monitor, RefactoringMessages.Common_FinalCheck_label, 100);
 		try {
 			final RefactoringStatus status = checkFunctionName(fFunctionName);
-			fAdapter.checkFinalForModification(status, fElementSet, progress.newChild(2));
+			fAdapter.checkFinalToModify(status, fElementSet, progress.newChild(2));
 			return status;
 		}
 		finally {
@@ -385,6 +387,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 		fSourceUnit.connect(progress.newChild(1));
 		try {
 			final AbstractDocument document = fSourceUnit.getDocument(progress.newChild(1));
+			final RHeuristicTokenScanner scanner = fAdapter.getScanner(fSourceUnit);
 			final RCodeStyleSettings codeStyle = RRefactoringAdapter.getCodeStyle(fSourceUnit);
 			
 			final String nl = document.getDefaultLineDelimiter();
@@ -454,9 +457,11 @@ public class ExtractFunctionRefactoring extends Refactoring {
 			sb.append(nl);
 			final String fdef = RRefactoringAdapter.indent(sb, document, firstParentChild.getOffset(), fSourceUnit);
 			
-			final IRegion region = fAdapter.expandWhitespaceBlock(document, fOperationRegion);
+			final IRegion region = fAdapter.expandWhitespaceBlock(document, fOperationRegion, scanner);
 			final int insertOffset = fAdapter.expandWhitespaceBlock(document, 
-					fAdapter.expandSelectionRegion(document, new Region(firstParentChild.getOffset(), 0), fOperationRegion)).getOffset();
+					fAdapter.expandSelectionRegion(document,
+							new Region(firstParentChild.getOffset(), 0), fOperationRegion, scanner ),
+					scanner ).getOffset();
 			if (insertOffset == region.getOffset()) {
 				TextChangeCompatibility.addTextEdit(change, Messages.ExtractFunction_Changes_ReplaceOldWithFunctionDef_name,
 						new ReplaceEdit(insertOffset, region.getLength(), fdef) );

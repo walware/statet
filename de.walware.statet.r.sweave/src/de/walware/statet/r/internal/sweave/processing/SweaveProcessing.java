@@ -78,9 +78,9 @@ public class SweaveProcessing implements ILaunchConfigurationListener, IDisposab
 	}
 	
 	
-	private FastList<IProcessingListener> fListenerList = new FastList<IProcessingListener>(IProcessingListener.class);
+	private final FastList<IProcessingListener> fListenerList = new FastList<IProcessingListener>(IProcessingListener.class);
 	
-	private ILaunchConfigurationType fConfigType;
+	private final ILaunchConfigurationType fConfigType;
 	private ILaunchConfiguration[] fCurrentConfigs;
 	private ILaunchConfiguration fActiveSweaveConfig;
 	
@@ -92,7 +92,7 @@ public class SweaveProcessing implements ILaunchConfigurationListener, IDisposab
 		
 		final IDialogSettings settings = DialogUtil.getDialogSettings(SweavePlugin.getDefault(), fConfigType.getIdentifier());
 		final String s = settings.get("activeProfile"); //$NON-NLS-1$
-		if (s != null && s.length() > 0) {
+		if (s != null && !s.isEmpty()) {
 			final ILaunchConfiguration[] configs = getAvailableProfiles();
 			for (int i = 0; i < configs.length; i++) {
 				if (s.equals(configs[i].getName())) {

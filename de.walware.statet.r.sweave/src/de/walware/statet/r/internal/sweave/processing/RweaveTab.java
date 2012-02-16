@@ -66,7 +66,6 @@ import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.r.cmd.ui.launching.RCmdLaunching;
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
@@ -255,7 +254,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		mainComposite.setLayout(LayoutUtil.applyTabDefaults(new GridLayout(), 1));
+		mainComposite.setLayout(new GridLayout());
 		
 		{	final Label label = new Label(mainComposite, SWT.NONE);
 			label.setText(Messages.RweaveTab_label);
@@ -320,7 +319,8 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		fConsoleSelectControl.setText(Messages.RweaveTab_InConsole_label);
 		
 		final TemplateVariableProcessor templateVariableProcessor = new TemplateVariableProcessor();
-		final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(), templateVariableProcessor);
+		final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(
+				null, templateVariableProcessor );
 		fConsoleCommandEditor = new SnippetEditor(configurator);
 		fConsoleCommandEditor.create(group, SnippetEditor.DEFAULT_MULTI_LINE_STYLE);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);

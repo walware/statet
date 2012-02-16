@@ -52,8 +52,9 @@ public class RdDoubleClickStrategy implements ITextDoubleClickStrategy {
 	public void doubleClicked(final ITextViewer textViewer) {
 		final int offset = textViewer.getSelectedRange().x;
 		
-		if (offset < 0)
+		if (offset < 0) {
 			return;
+		}
 		
 		final IDocument document = textViewer.getDocument();
 		try {
@@ -95,8 +96,9 @@ public class RdDoubleClickStrategy implements ITextDoubleClickStrategy {
 			
 			while (offset >= 0) {
 				c = document.getChar(offset);
-				if (!Character.isLetterOrDigit(c))
+				if (!Character.isLetterOrDigit(c)) {
 					break;
+				}
 				--offset;
 			}
 			
@@ -107,15 +109,17 @@ public class RdDoubleClickStrategy implements ITextDoubleClickStrategy {
 			
 			while (offset < length) {
 				c = document.getChar(offset);
-				if (!Character.isLetterOrDigit(c))
+				if (!Character.isLetterOrDigit(c)) {
 					break;
+				}
 				++offset;
 			}
 			
 			final int end = offset;
 			
-			if (start < end)
+			if (start < end) {
 				return new Region (start + 1, end - start - 1);
+			}
 			
 		} catch (final BadLocationException x) {
 		}

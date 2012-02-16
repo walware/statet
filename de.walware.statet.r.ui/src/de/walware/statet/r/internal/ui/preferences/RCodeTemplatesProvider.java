@@ -51,7 +51,7 @@ public class RCodeTemplatesProvider implements ICodeGenerationTemplatesCategory 
 	}
 	
 	@Override
-	public SourceEditorViewerConfigurator getEditTemplateDialogConfiguator(TemplateVariableProcessor processor, IProject project) {
+	public SourceEditorViewerConfigurator getEditTemplateDialogConfiguator(final TemplateVariableProcessor processor, final IProject project) {
 		return new RTemplateSourceViewerConfigurator(RProject.getRProject(project), processor);
 	}
 	

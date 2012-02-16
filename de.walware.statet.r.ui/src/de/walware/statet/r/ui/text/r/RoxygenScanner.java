@@ -36,8 +36,8 @@ public class RoxygenScanner extends CommentScanner {
 	
 	private static class RoxygenTagRule implements IPredicateRule {
 		
-		private IToken fTagToken;
-		private IToken fDefaultToken;
+		private final IToken fTagToken;
+		private final IToken fDefaultToken;
 		
 		public RoxygenTagRule(final IToken tagToken, final IToken defaultToken) {
 			fTagToken = tagToken;

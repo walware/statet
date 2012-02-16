@@ -20,7 +20,7 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 
-import de.walware.ecommons.text.PairMatcher;
+import de.walware.ecommons.text.ICharPairMatcher;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
@@ -36,19 +36,22 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 	
 	
 	private final String fPartitioning;
-	private PairMatcher fPairMatcher;
-	private RHeuristicTokenScanner fScanner;
+	private final ICharPairMatcher fPairMatcher;
+	private final RHeuristicTokenScanner fScanner;
 	
 	
 	public RDoubleClickStrategy() {
-		this(IRDocumentPartitions.R_PARTITIONING);
-	}
-	
-	public RDoubleClickStrategy(final String partitioning) {
 		super();
 		fScanner = new RHeuristicTokenScanner();
+		fPartitioning = IRDocumentPartitions.R_PARTITIONING;
 		fPairMatcher = new RBracketPairMatcher(fScanner);
-		fPartitioning = partitioning;
+	}
+	
+	public RDoubleClickStrategy(final RHeuristicTokenScanner scanner, final ICharPairMatcher pairMatcher) {
+		super();
+		fScanner = scanner;
+		fPartitioning = scanner.getPartitioningConfig().getPartitioning();
+		fPairMatcher = pairMatcher;
 	}
 	
 	
@@ -57,8 +60,9 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 		
 		final int offset = textViewer.getSelectedRange().x;
 		
-		if (offset < 0)
+		if (offset < 0) {
 			return;
+		}
 		
 		final IDocument document = textViewer.getDocument();
 		try {

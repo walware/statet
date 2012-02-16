@@ -13,8 +13,8 @@ package de.walware.statet.r.internal.ui.editors;
 
 import org.eclipse.swt.graphics.Image;
 
-import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ltk.ui.sourceediting.SimpleCompletionProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.SimpleCompletionProposal;
 
 import de.walware.statet.r.ui.RUI;
 

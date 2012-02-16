@@ -20,7 +20,6 @@ import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
-import org.eclipse.jface.text.information.IInformationProvider;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
@@ -34,18 +33,21 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
-import de.walware.ecommons.ltk.ui.sourceediting.ContentAssist;
-import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistComputerRegistry;
-import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistProcessor;
 import de.walware.ecommons.ltk.ui.sourceediting.EcoReconciler2;
+import de.walware.ecommons.ltk.ui.sourceediting.EditorInformationProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
-import de.walware.ecommons.ltk.ui.sourceediting.InfoHoverDescriptor;
-import de.walware.ecommons.ltk.ui.sourceediting.InfoHoverRegistry;
-import de.walware.ecommons.ltk.ui.sourceediting.InfoHoverRegistry.EffectiveHovers;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
-import de.walware.ecommons.text.PairMatcher;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistComputerRegistry;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistProcessor;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverDescriptor;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverRegistry;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverRegistry.EffectiveHovers;
+import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.text.ICharPairMatcher;
+import de.walware.ecommons.text.IIndentSettings;
 import de.walware.ecommons.text.ui.presentation.SingleTokenScanner;
 import de.walware.ecommons.ui.ColorManager;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
@@ -56,16 +58,12 @@ import de.walware.statet.ext.ui.text.CommentScanner;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
 import de.walware.statet.r.core.IRCoreAccess;
-import de.walware.statet.r.core.RCodeStyleSettings;
-import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.editors.REditor;
 import de.walware.statet.r.internal.ui.editors.REditorInformationProvider;
 import de.walware.statet.r.internal.ui.editors.REditorTextHover;
-import de.walware.statet.r.internal.ui.editors.RQuickAssistProcessor;
 import de.walware.statet.r.internal.ui.editors.RReconcilingStrategy;
 import de.walware.statet.r.ui.editors.REditorOptions;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
@@ -89,9 +87,8 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	protected CommentScanner fCommentScanner;
 	protected CommentScanner fRoxygenScanner;
 	
-	private PairMatcher fPairMatcher;
 	private RDoubleClickStrategy fDoubleClickStrategy;
-	private RAutoEditStrategy fRAutoEditStrategy;
+	private RAutoEditStrategy fAutoEditStrategy;
 	
 	private final REditor fEditor;
 	private IRCoreAccess fRCoreAccess;
@@ -100,35 +97,25 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	
 	
 	public RSourceViewerConfiguration(
-			final IRCoreAccess rCoreAccess, final IPreferenceStore store, final ColorManager colorManager) {
-		this(null, null, rCoreAccess, store, colorManager);
+			final IPreferenceStore store, final ColorManager colorManager) {
+		this(null, null, store, colorManager);
 	}
 	
-	public RSourceViewerConfiguration(final ISourceEditor sourceEditor,
-			final IRCoreAccess rCoreAccess, final IPreferenceStore store, final ColorManager colorManager) {
-		this(sourceEditor, null, rCoreAccess, store, colorManager);
-	}
-	
-	public RSourceViewerConfiguration(final REditor editor,
-			final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
-		this((ISourceEditor) editor.getAdapter(ISourceEditor.class), editor,
-				rCoreAccess, preferenceStore, colorManager);
-	}
-	
-	protected RSourceViewerConfiguration(
-			final ISourceEditor sourceEditor, final REditor editor, 
-			final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
+	public RSourceViewerConfiguration(final ISourceEditor sourceEditor, final IRCoreAccess access,
+			final IPreferenceStore preferenceStore, final ColorManager colorManager) {
 		super(sourceEditor);
-		fRCoreAccess = rCoreAccess;
-		if (fRCoreAccess == null) {
-			fRCoreAccess = RCore.getWorkbenchAccess();
-		}
-		fEditor = editor;
+		setCoreAccess(access);
+		fEditor = ((sourceEditor instanceof REditor) ? (REditor) sourceEditor : null);
 		fHandleDefaultContentType = true;
-		setup(preferenceStore, colorManager,
+		setup((preferenceStore != null) ? preferenceStore : RUIPlugin.getDefault().getEditorPreferenceStore(),
+				colorManager,
 				IStatetUIPreferenceConstants.EDITING_DECO_PREFERENCES,
 				IStatetUIPreferenceConstants.EDITING_ASSIST_PREFERENCES );
 		setScanners(createScanners());
+	}
+	
+	protected void setCoreAccess(final IRCoreAccess access) {
+		fRCoreAccess = (access != null) ? access : RCore.getWorkbenchAccess();
 	}
 	
 	protected ITokenScanner[] createScanners() {
@@ -167,8 +154,8 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	@Override
 	public List<ISourceEditorAddon> getAddOns() {
 		final List<ISourceEditorAddon> addons = super.getAddOns();
-		if (fRAutoEditStrategy != null) {
-			addons.add(fRAutoEditStrategy);
+		if (fAutoEditStrategy != null) {
+			addons.add(fAutoEditStrategy);
 		}
 		return addons;
 	}
@@ -190,12 +177,10 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		return IRDocumentPartitions.R_PARTITIONS;
 	}
 	
+	
 	@Override
-	public PairMatcher getPairMatcher() {
-		if (fPairMatcher == null) {
-			fPairMatcher = new RBracketPairMatcher();
-		}
-		return fPairMatcher;
+	public ICharPairMatcher createPairMatcher() {
+		return new RBracketPairMatcher();
 	}
 	
 	@Override
@@ -205,6 +190,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		}
 		return fDoubleClickStrategy;
 	}
+	
 	
 	@Override
 	public IPresentationReconciler getPresentationReconciler(final ISourceViewer sourceViewer) {
@@ -247,26 +233,28 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	}
 	
 	@Override
-	public int getTabWidth(final ISourceViewer sourceViewer) {
-		return fRCoreAccess.getRCodeStyle().getTabSize();
-	}
-	
-	@Override
 	public String[] getDefaultPrefixes(final ISourceViewer sourceViewer, final String contentType) {
 		return new String[] { "#", "" }; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	@Override
-	public String[] getIndentPrefixes(final ISourceViewer sourceViewer, final String contentType) {
-		final String[] prefixes = getIndentPrefixesForTab(getTabWidth(sourceViewer));
-		final RCodeStyleSettings codeStyle = fRCoreAccess.getRCodeStyle();
-		if (codeStyle.getIndentDefaultType() == IndentationType.SPACES) {
-			for (int i = prefixes.length-2; i > 0; i--) {
-				prefixes[i] = prefixes[i-1];
-			}
-			prefixes[0] = new String(RIndentUtil.repeat(' ', codeStyle.getIndentSpacesCount()));
+	protected IIndentSettings getIndentSettings() {
+		return fRCoreAccess.getRCodeStyle();
+	}
+	
+	@Override
+	public IAutoEditStrategy[] getAutoEditStrategies(final ISourceViewer sourceViewer, final String contentType) {
+		if (getSourceEditor() == null) {
+			return super.getAutoEditStrategies(sourceViewer, contentType);
 		}
-		return prefixes;
+		if (fAutoEditStrategy == null) {
+			fAutoEditStrategy = createRAutoEditStrategy();
+		}
+		return new IAutoEditStrategy[] { fAutoEditStrategy };
+	}
+	
+	protected RAutoEditStrategy createRAutoEditStrategy() {
+		return new RAutoEditStrategy(fRCoreAccess, getSourceEditor());
 	}
 	
 	
@@ -300,21 +288,6 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 			return null;
 		}
 		return new SpellingReconcileStrategy(sourceViewer, spellingService);
-	}
-	
-	@Override
-	public IAutoEditStrategy[] getAutoEditStrategies(final ISourceViewer sourceViewer, final String contentType) {
-		if (getSourceEditor() == null) {
-			return super.getAutoEditStrategies(sourceViewer, contentType);
-		}
-		if (fRAutoEditStrategy == null) {
-			fRAutoEditStrategy = createRAutoEditStrategy();
-		}
-		return new IAutoEditStrategy[] { fRAutoEditStrategy };
-	}
-	
-	protected RAutoEditStrategy createRAutoEditStrategy() {
-		return new RAutoEditStrategy(fRCoreAccess, getSourceEditor());
 	}
 	
 	@Override
@@ -373,7 +346,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	}
 	
 	@Override
-	protected IInformationProvider getInformationProvider() {
+	protected EditorInformationProvider getInformationProvider() {
 		final ISourceEditor editor = getSourceEditor();
 		if (editor != null) {
 			return new REditorInformationProvider(editor);
@@ -403,6 +376,12 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	@Override
 	public boolean isSmartInsertSupported() {
 		return true;
+	}
+	
+	@Override
+	public boolean isSmartInsertByDefault() {
+		return PreferencesUtil.getInstancePrefs().getPreferenceValue(
+				REditorOptions.SMARTINSERT_BYDEFAULT_ENABLED_PREF );
 	}
 	
 }

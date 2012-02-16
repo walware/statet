@@ -21,14 +21,15 @@ import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 
+import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.text.PartialStringParseInput;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.rsource.ast.FCall;
-import de.walware.statet.r.core.rsource.ast.RAst;
-import de.walware.statet.r.core.rsource.ast.RScanner;
 import de.walware.statet.r.core.rsource.ast.FCall.Args;
+import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAst.ReadedFCallArgs;
+import de.walware.statet.r.core.rsource.ast.RScanner;
 
 
 public class RContextInformationValidator implements IContextInformationValidator, IContextInformationPresenter {
@@ -123,7 +124,8 @@ public class RContextInformationValidator implements IContextInformationValidato
 		if (fScannedArgs == null || fScannedArgsStamp != stamp) {
 			try {
 				final String text = document.get(fStartOffset, Math.min(1000, document.getLength()-fStartOffset));
-				final RScanner scanner = new RScanner(new PartialStringParseInput(text, fStartOffset), null);
+				final RScanner scanner = new RScanner(new PartialStringParseInput(text, fStartOffset),
+						AstInfo.LEVEL_MODEL_DEFAULT );
 				fScannedArgs = scanner.scanFCallArgs(fStartOffset, text.length(), true);
 				fScannedArgsStamp = stamp;
 			}

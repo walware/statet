@@ -136,8 +136,8 @@ public class RCodeLaunchRegistry {
 		private final FileCommand[] fFileCommands;
 		
 		public ContentHandler(final IConfigurationElement config) {
-			this.fContentTypeId = config.getAttribute(ATT_CONTENT_TYPE);
-			this.fConfigurationElement = config;
+			fContentTypeId = config.getAttribute(ATT_CONTENT_TYPE);
+			fConfigurationElement = config;
 			
 			final IConfigurationElement[] fileCommandConfigs = config.getChildren(CONTENT_FILECOMMAND_ELEMENT);
 			fFileCommands = new FileCommand[fileCommandConfigs.length];

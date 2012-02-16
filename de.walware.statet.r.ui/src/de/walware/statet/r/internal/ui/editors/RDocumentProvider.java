@@ -12,13 +12,11 @@
 package de.walware.statet.r.internal.ui.editors;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jface.text.source.IAnnotationModel;
-import org.eclipse.ui.part.FileEditorInput;
 
 import de.walware.ecommons.IDisposable;
 import de.walware.ecommons.ltk.IProblem;
@@ -27,30 +25,24 @@ import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceAnnotationModel;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceDocumentProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceProblemAnnotation;
-import de.walware.ecommons.ltk.ui.sourceediting.SourceProblemAnnotation.PresentationConfig;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.SettingsChangeNotifier;
+import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
-import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
-import de.walware.statet.r.ui.editors.REditorOptions;
+import de.walware.statet.r.ui.editors.REditorBuild;
 
 
 public class RDocumentProvider extends SourceDocumentProvider<IRSourceUnit> implements IDisposable {
 	
-	public static final PresentationConfig PROBLEM = new PresentationConfig(1, ""); //$NON-NLS-1$
 	
-	public static final String R_ERROR_ANNOTATION_TYPE = "de.walware.statet.r.ui.error"; //$NON-NLS-1$
-	public static final String R_WARNING_ANNOTATION_TYPE = "de.walware.statet.r.ui.warning"; //$NON-NLS-1$
-	public static final String R_INFO_ANNOTATION_TYPE = "de.walware.statet.r.ui.info"; //$NON-NLS-1$
-	
-	
-	private class RAnnotationModel extends SourceAnnotationModel {
+	private class ThisAnnotationModel extends SourceAnnotationModel {
 		
-		public RAnnotationModel(final IResource resource) {
+		public ThisAnnotationModel(final IResource resource) {
 			super(resource);
 		}
 		
@@ -61,64 +53,70 @@ public class RDocumentProvider extends SourceDocumentProvider<IRSourceUnit> impl
 		
 		@Override
 		protected SourceProblemAnnotation createAnnotation(final IProblem problem) {
-			switch (problem.getSeverity()) {
-			case IProblem.SEVERITY_ERROR:
-				return new SourceProblemAnnotation(R_ERROR_ANNOTATION_TYPE, problem, SourceProblemAnnotation.ERROR_CONFIG);
-			case IProblem.SEVERITY_WARNING:
-				return new SourceProblemAnnotation(R_WARNING_ANNOTATION_TYPE, problem, SourceProblemAnnotation.WARNING_CONFIG);
-			default:
-				return new SourceProblemAnnotation(R_INFO_ANNOTATION_TYPE, problem, SourceProblemAnnotation.INFO_CONFIG);
+			if (problem.getCategoryId() == RModel.TYPE_ID) {
+				switch (problem.getSeverity()) {
+				case IProblem.SEVERITY_ERROR:
+					return new SourceProblemAnnotation(REditorBuild.ERROR_ANNOTATION_TYPE, problem,
+							SourceProblemAnnotation.ERROR_CONFIG );
+				case IProblem.SEVERITY_WARNING:
+					return new SourceProblemAnnotation(REditorBuild.WARNING_ANNOTATION_TYPE, problem,
+							SourceProblemAnnotation.WARNING_CONFIG );
+				default:
+					return new SourceProblemAnnotation(REditorBuild.INFO_ANNOTATION_TYPE, problem,
+							SourceProblemAnnotation.INFO_CONFIG );
+				}
 			}
+			return null;
 		}
 		
 	}
 	
 	
-	private IEclipsePreferences.IPreferenceChangeListener fEditorPrefListener;
+	private ChangeListener fEditorPrefListener;
+	
 	private boolean fHandleTemporaryProblems;
 	
 	
 	public RDocumentProvider() {
 		super(RModel.TYPE_ID, new RDocumentSetupParticipant());
 		
-		final IPreferenceAccess access = PreferencesUtil.getInstancePrefs();
-		RUIPlugin.getDefault().registerPluginDisposable(this);
-		fEditorPrefListener = new IEclipsePreferences.IPreferenceChangeListener() {
+		fEditorPrefListener = new SettingsChangeNotifier.ChangeListener() {
 			@Override
-			public void preferenceChange(final PreferenceChangeEvent event) {
-				if (event.getKey().equals(REditorOptions.PREF_PROBLEMCHECKING_ENABLED.getKey())) {
+			public void settingsChanged(final Set<String> groupIds) {
+				if (groupIds.contains(REditorBuild.GROUP_ID)) {
 					updateEditorPrefs();
 				}
 			}
 		};
-		access.addPreferenceNodeListener(REditorOptions.PREF_PROBLEMCHECKING_ENABLED.getQualifier(), fEditorPrefListener);
-		fHandleTemporaryProblems = access.getPreferenceValue(REditorOptions.PREF_PROBLEMCHECKING_ENABLED);
+		PreferencesUtil.getSettingsChangeNotifier().addChangeListener(fEditorPrefListener);
+		final IPreferenceAccess access = PreferencesUtil.getInstancePrefs();
+		fHandleTemporaryProblems = access.getPreferenceValue(REditorBuild.PROBLEMCHECKING_ENABLED_PREF);
 	}
 	
 	
 	@Override
 	public void dispose() {
 		if (fEditorPrefListener != null) {
-			final IPreferenceAccess access = PreferencesUtil.getInstancePrefs();
-			access.removePreferenceNodeListener(REditorOptions.PREF_PROBLEMCHECKING_ENABLED.getQualifier(), fEditorPrefListener);
+			PreferencesUtil.getSettingsChangeNotifier().removeChangeListener(fEditorPrefListener);
 			fEditorPrefListener = null;
 		}
 	}
 	
 	private void updateEditorPrefs() {
 		final IPreferenceAccess access = PreferencesUtil.getInstancePrefs();
-		final boolean newHandleTemporaryProblems = access.getPreferenceValue(REditorOptions.PREF_PROBLEMCHECKING_ENABLED);
+		final boolean newHandleTemporaryProblems = access.getPreferenceValue(REditorBuild.PROBLEMCHECKING_ENABLED_PREF);
 		if (fHandleTemporaryProblems != newHandleTemporaryProblems) {
 			fHandleTemporaryProblems = newHandleTemporaryProblems;
 			if (fHandleTemporaryProblems) {
 				RCore.getRModelManager().refresh(LTK.EDITOR_CONTEXT);
 			}
 			else {
-				final List<? extends ISourceUnit> sus = LTK.getSourceUnitManager().getOpenSourceUnits(RModel.TYPE_ID, LTK.EDITOR_CONTEXT);
+				final List<? extends ISourceUnit> sus = LTK.getSourceUnitManager().getOpenSourceUnits(
+						RModel.TYPE_ID, LTK.EDITOR_CONTEXT );
 				for (final ISourceUnit su : sus) {
 					final IAnnotationModel model = getAnnotationModel(su);
-					if (model instanceof RAnnotationModel) {
-						((RAnnotationModel) model).clearProblems(RModel.TYPE_ID);
+					if (model instanceof ThisAnnotationModel) {
+						((ThisAnnotationModel) model).clearProblems(null);
 					}
 				}
 			}
@@ -127,15 +125,7 @@ public class RDocumentProvider extends SourceDocumentProvider<IRSourceUnit> impl
 	
 	@Override
 	protected IAnnotationModel createAnnotationModel(final IFile file) {
-		return new RAnnotationModel(file);
-	}
-	
-	@Override
-	public IAnnotationModel getAnnotationModel(Object element) {
-		if (element instanceof ISourceUnit) {
-			element = new FileEditorInput((IFile) ((ISourceUnit) element).getResource());
-		}
-		return super.getAnnotationModel(element);
+		return new ThisAnnotationModel(file);
 	}
 	
 }

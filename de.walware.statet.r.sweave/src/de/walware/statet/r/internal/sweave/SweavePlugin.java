@@ -33,15 +33,16 @@ import org.osgi.framework.BundleContext;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.IDisposable;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistComputerRegistry;
 import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.ImageRegistryUtil;
 
+import de.walware.docmlet.tex.ui.sourceediting.LtxViewerConfiguration;
+
 import de.walware.statet.base.ui.StatetUIServices;
 
-import net.sourceforge.texlipse.TexlipsePlugin;
-
-import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentProvider;
+import de.walware.statet.r.internal.sweave.editors.LtxRweaveDocumentProvider;
 import de.walware.statet.r.internal.sweave.processing.SweaveProcessing;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.sweave.Sweave;
@@ -57,10 +58,11 @@ public class SweavePlugin extends AbstractUIPlugin {
 	 */
 	public static final String PLUGIN_ID = "de.walware.statet.r.sweave"; //$NON-NLS-1$
 	
-	private static final String RWEAVETEX_TEMPLATES_KEY = "de.walware.statet.r.sweave.rweave_tex_templates"; //$NON-NLS-1$
+	public static final String IMG_OBJ_LTXRWEAVE = PLUGIN_ID + "/image/obj/rweavetex"; //$NON-NLS-1$
+	public static final String IMG_OBJ_LTXRWEAVE_ACTIVE = PLUGIN_ID + "/image/obj/rweavetex-active"; //$NON-NLS-1$
+	public static final String IMG_OBJ_RCHUNK = PLUGIN_ID + "/image/obj/rchunk"; //$NON-NLS-1$
 	
-	public static final String IMG_OBJ_RWEAVETEX = PLUGIN_ID + "/image/obj/rweavetex"; //$NON-NLS-1$
-	public static final String IMG_OBJ_RWEAVETEX_ACTIVE = PLUGIN_ID + "/image/obj/rweavetex-active"; //$NON-NLS-1$
+	public static final String IMG_TOOL_NEW_LTXRWEAVE = PLUGIN_ID + "/image/tool/new-ltxrweave"; //$NON-NLS-1$
 	
 	public static final String IMG_TOOL_BUILD = PLUGIN_ID + "/image/tool/build"; //$NON-NLS-1$
 	public static final String IMG_TOOL_BUILDANDPREVIEW = PLUGIN_ID + "/image/tool/buildandpreview"; //$NON-NLS-1$
@@ -68,9 +70,14 @@ public class SweavePlugin extends AbstractUIPlugin {
 	public static final String IMG_TOOL_RWEAVE = PLUGIN_ID + "/image/tool/rweave"; //$NON-NLS-1$
 	public static final String IMG_TOOL_BUILDTEX = PLUGIN_ID + "/image/tool/build-tex"; //$NON-NLS-1$
 	
+	public static final String IMG_LOCTOOL_FILTERCHUNKS = PLUGIN_ID + "/image/loctool/filter-r_chunks"; //$NON-NLS-1$
+	
+	public static final String IMG_WIZBAN_NEW_LTXRWEAVE_FILE = PLUGIN_ID + "/image/wizban/new-ltxrweave_file"; //$NON-NLS-1$
+	
 	public static final String RWEAVETEX_EDITOR_NODE = PLUGIN_ID + "/rweavetex.editor/options"; //$NON-NLS-1$
 	
 	public static final String RWEAVETEX_EDITOR_ASSIST_GROUP_ID = "sweave/rweavetex.editor/assist"; //$NON-NLS-1$
+	
 	
 	
 	// The shared instance
@@ -94,14 +101,19 @@ public class SweavePlugin extends AbstractUIPlugin {
 	
 	private final List<IDisposable> fDisposables = new ArrayList<IDisposable>();
 	
-	private RweaveTexDocumentProvider fRTexDocumentProvider;
+	private LtxRweaveDocumentProvider fRTexDocumentProvider;
 	
 	private IPreferenceStore fEditorRTexPreferenceStore;
 	
+	private ContextTypeRegistry fSweaveDocTemplatesContextTypeRegistry;
+	private TemplateStore fSweaveDocTemplatesStore;
+	
 	private ContextTypeRegistry fRweaveTexTemplatesContextTypeRegistry;
 	private TemplateStore fRweaveTexTemplatesStore;
+	private ContentAssistComputerRegistry fRweaveTexEditorContentAssistRegistry;
 	
 	private SweaveProcessing fRweaveTexProcessingManager;
+	
 	
 	
 	/**
@@ -132,6 +144,7 @@ public class SweavePlugin extends AbstractUIPlugin {
 				
 				fRweaveTexTemplatesStore = null;
 				fRweaveTexTemplatesContextTypeRegistry = null;
+				fRweaveTexEditorContentAssistRegistry = null;
 				
 				fRweaveTexProcessingManager = null;
 			}
@@ -157,44 +170,93 @@ public class SweavePlugin extends AbstractUIPlugin {
 	protected void initializeImageRegistry(final ImageRegistry reg) {
 		final ImageRegistryUtil util = new ImageRegistryUtil(this);
 		
-		util.register(IMG_OBJ_RWEAVETEX, ImageRegistryUtil.T_OBJ, "texsweave-file.png"); //$NON-NLS-1$
-		final Image baseImage = reg.get(IMG_OBJ_RWEAVETEX);
-		reg.put(IMG_OBJ_RWEAVETEX_ACTIVE, new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
+		util.register(IMG_OBJ_LTXRWEAVE, ImageRegistryUtil.T_OBJ, "texsweave-file.png"); //$NON-NLS-1$
+		final Image baseImage = reg.get(IMG_OBJ_LTXRWEAVE);
+		reg.put(IMG_OBJ_LTXRWEAVE_ACTIVE, new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
 				null, null, null, SharedUIResources.getImages().getDescriptor(SharedUIResources.OVR_DEFAULT_MARKER_IMAGE_ID), null},
 				new Point(baseImage.getBounds().width, baseImage.getBounds().height)));
+		util.register(IMG_OBJ_RCHUNK, ImageRegistryUtil.T_OBJ, "r_chunk.png"); //$NON-NLS-1$
 		
+		util.register(IMG_TOOL_NEW_LTXRWEAVE, ImageRegistryUtil.T_TOOL, "new-ltxrweave_file.png"); //$NON-NLS-1$
 		util.register(IMG_TOOL_BUILD, ImageRegistryUtil.T_TOOL, "build.png"); //$NON-NLS-1$
 		util.register(IMG_TOOL_BUILDANDPREVIEW, ImageRegistryUtil.T_TOOL, "build_and_preview.png"); //$NON-NLS-1$
 		util.register(IMG_TOOL_PREVIEW, ImageRegistryUtil.T_TOOL, "preview.png"); //$NON-NLS-1$
 		util.register(IMG_TOOL_RWEAVE, ImageRegistryUtil.T_TOOL, "rweave.png"); //$NON-NLS-1$
 		util.register(IMG_TOOL_BUILDTEX, ImageRegistryUtil.T_TOOL, "build-tex.png"); //$NON-NLS-1$
+		
+		util.register(IMG_LOCTOOL_FILTERCHUNKS, ImageRegistryUtil.T_LOCTOOL, "filter-r_chunks.png"); //$NON-NLS-1$
+		
+		util.register(IMG_WIZBAN_NEW_LTXRWEAVE_FILE, ImageRegistryUtil.T_WIZBAN, "new-ltxrweave_file.png"); //$NON-NLS-1$
 	}
 	
 	
-	public synchronized RweaveTexDocumentProvider getRTexDocumentProvider() {
+	public synchronized LtxRweaveDocumentProvider getRTexDocumentProvider() {
 		if (fRTexDocumentProvider == null) {
 			if (!fStarted) {
 				throw new IllegalStateException("Plug-in is not started.");
 			}
-			fRTexDocumentProvider = new RweaveTexDocumentProvider();
+			fRTexDocumentProvider = new LtxRweaveDocumentProvider();
+			fDisposables.add(fRTexDocumentProvider);
 		}
 		return fRTexDocumentProvider;
 	}
 	
-	public synchronized IPreferenceStore getEditorRTexPreferenceStore() {
+	public synchronized IPreferenceStore getEditorTexRPreferenceStore() {
 		if (fEditorRTexPreferenceStore == null) {
 			if (!fStarted) {
 				throw new IllegalStateException("Plug-in is not started.");
 			}
 			fEditorRTexPreferenceStore = CombinedPreferenceStore.createStore(
 					getPreferenceStore(),
-					TexlipsePlugin.getDefault().getPreferenceStore(),
+					LtxViewerConfiguration.getTexPreferenceStore(),
 					RUIPlugin.getDefault().getPreferenceStore(),
 					StatetUIServices.getBaseUIPreferenceStore(),
 					EditorsUI.getPreferenceStore() );
 		}
 		return fEditorRTexPreferenceStore;
 	}
+	
+	
+	/**
+	 * Returns the template context type registry for the new documents.
+	 * 
+	 * @return the template context type registry
+	 */
+	public synchronized ContextTypeRegistry getSweaveDocTemplateContextRegistry() {
+		if (fSweaveDocTemplatesContextTypeRegistry == null) {
+			if (!fStarted) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
+			fSweaveDocTemplatesContextTypeRegistry = new ContributionContextTypeRegistry();
+			fSweaveDocTemplatesContextTypeRegistry.addContextType(new LtxRweaveTemplatesContextType(
+					LtxRweaveTemplatesContextType.NEW_RWEAVETEX_CONTEXTTYPE ));
+		}
+		return fSweaveDocTemplatesContextTypeRegistry;
+	}
+	
+	/**
+	 * Returns the template store for the new documents.
+	 * 
+	 * @return the template store
+	 */
+	public synchronized TemplateStore getSweaveDocTemplateStore() {
+		if (fSweaveDocTemplatesStore == null) {
+			if (!fStarted) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
+			fSweaveDocTemplatesStore = new ContributionTemplateStore(
+					getSweaveDocTemplateContextRegistry(), getPreferenceStore(),
+					LtxRweaveTemplatesContextType.SWEAVEDOC_TEMPLATES_KEY );
+			try {
+				fSweaveDocTemplatesStore.load();
+			}
+			catch (final IOException e) {
+				logError(-1, "Error occured when loading 'Sweave document' template store.", e); //$NON-NLS-1$
+			}
+		}
+		return fSweaveDocTemplatesStore;
+	}
+	
 	
 	/**
 	 * Returns the template context type registry for the code generation
@@ -208,7 +270,7 @@ public class SweavePlugin extends AbstractUIPlugin {
 				throw new IllegalStateException("Plug-in is not started.");
 			}
 			fRweaveTexTemplatesContextTypeRegistry = new ContributionContextTypeRegistry();
-			RweaveTexTemplatesContextType.registerContextTypes(fRweaveTexTemplatesContextTypeRegistry);
+			LtxRweaveTemplatesContextType.registerContextTypes(fRweaveTexTemplatesContextTypeRegistry);
 		}
 		return fRweaveTexTemplatesContextTypeRegistry;
 	}
@@ -224,7 +286,8 @@ public class SweavePlugin extends AbstractUIPlugin {
 				throw new IllegalStateException("Plug-in is not started.");
 			}
 			fRweaveTexTemplatesStore = new ContributionTemplateStore(
-					getRweaveTexGenerationTemplateContextRegistry(), getPreferenceStore(), RWEAVETEX_TEMPLATES_KEY);
+					getRweaveTexGenerationTemplateContextRegistry(), getPreferenceStore(),
+					LtxRweaveTemplatesContextType.LTXRWEAVE_TEMPLATES_KEY );
 			try {
 				fRweaveTexTemplatesStore.load();
 			}
@@ -233,6 +296,18 @@ public class SweavePlugin extends AbstractUIPlugin {
 			}
 		}
 		return fRweaveTexTemplatesStore;
+	}
+	
+	public synchronized ContentAssistComputerRegistry getTexEditorContentAssistRegistry() {
+		if (fRweaveTexEditorContentAssistRegistry == null) {
+			if (!fStarted) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
+			fRweaveTexEditorContentAssistRegistry = new ContentAssistComputerRegistry("de.walware.docmlet.tex.contentTypes.Ltx", 
+					RWEAVETEX_EDITOR_NODE, RWEAVETEX_EDITOR_ASSIST_GROUP_ID); 
+			fDisposables.add(fRweaveTexEditorContentAssistRegistry);
+		}
+		return fRweaveTexEditorContentAssistRegistry;
 	}
 	
 	public synchronized SweaveProcessing getRweaveTexProcessingManager() {

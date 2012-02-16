@@ -36,8 +36,8 @@ import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ltk.ui.sourceediting.TemplateProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.ViewerSourceEditorAdapter;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.TemplateProposal;
 import de.walware.ecommons.preferences.ui.SettingsUpdater;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.text.ui.TextViewerEditorColorUpdater;
@@ -134,8 +134,9 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 	@Override
 	protected void updatePatternViewer(final Template template) {
 		final SourceViewer patternViewer = getPatternViewer();
-		if (patternViewer == null || !(UIAccess.isOkToUse(patternViewer.getControl())) )
+		if (patternViewer == null || !(UIAccess.isOkToUse(patternViewer.getControl())) ) {
 			return;
+		}
 		
 		if (template != null) {
 			final SourceEditorViewerConfigurator configurator = getTemplatePreviewConfig(template, fPreviewTemplateProcessor);
@@ -180,7 +181,8 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 	protected Template editTemplate(final Template template, final boolean edit, final boolean isNameModifiable) {
 		final SourceEditorViewerConfigurator configurator = getTemplateEditConfig(template, fEditTemplateProcessor);
 		final de.walware.ecommons.ltk.ui.templates.EditTemplateDialog dialog = new de.walware.ecommons.ltk.ui.templates.EditTemplateDialog(
-				getSite().getShell(), template, edit, isNameModifiable, 
+				getSite().getShell(), template, edit,
+				de.walware.ecommons.ltk.ui.templates.EditTemplateDialog.EDITOR_TEMPLATE,
 				configurator, fEditTemplateProcessor, getContextTypeRegistry()) {
 			
 			@Override

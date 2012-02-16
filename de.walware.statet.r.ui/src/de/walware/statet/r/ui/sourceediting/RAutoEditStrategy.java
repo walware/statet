@@ -11,7 +11,14 @@
 
 package de.walware.statet.r.ui.sourceediting;
 
+import static de.walware.ecommons.text.ui.BracketLevel.AUTODELETE;
+import static de.walware.statet.r.core.rsource.RHeuristicTokenScanner.CURLY_BRACKET_TYPE;
+import static de.walware.statet.r.core.rsource.RHeuristicTokenScanner.ROUND_BRACKET_TYPE;
+import static de.walware.statet.r.core.rsource.RHeuristicTokenScanner.SQUARE_BRACKET_TYPE;
+
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
@@ -34,32 +41,34 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.text.edits.TextEdit;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
 
+import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.ui.sourceediting.ISmartInsertSettings;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.text.ITokenScanner;
+import de.walware.ecommons.text.IndentUtil;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.text.StringParseInput;
 import de.walware.ecommons.text.TextUtil;
-import de.walware.ecommons.text.ui.BracketLevel;
+import de.walware.ecommons.text.ui.BracketLevel.InBracketPosition;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.ui.console.InputSourceViewer;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
-import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
-import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.core.rsource.RSourceIndenter;
-import de.walware.statet.r.core.rsource.ast.RAst;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RScanner;
 import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.editors.REditorOptions;
 
 
@@ -106,26 +115,28 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					event.doit = !customizeKeyPressed('\n');
 				}
 				return;
+			default:
+				return;
 			}
 		}
 	};
 	
 	
-	private final RealTypeListener fMyListener;
 	private final ISourceEditor fEditor;
 	private final ITextEditorExtension3 fEditor3;
 	private final SourceViewer fViewer;
-	private final IRCoreAccess fRCoreAccess;
+	private final RealTypeListener fMyListener;
 	
+	private final IRCoreAccess fRCoreAccess;
+	private final REditorOptions fOptions;
+	
+	private AbstractDocument fDocument;
 	private IRegion fValidRange;
 	private RHeuristicTokenScanner fScanner;
-	private PartitioningConfiguration fPartitioning;
+	private RCodeStyleSettings fRCodeStyle;
 	private RSourceIndenter fIndenter;
 	
-	private RCodeStyleSettings fRCodeStyle;
-	private AbstractDocument fDocument;
 	private boolean fIgnoreCommands = false;
-	private REditorOptions fOptions;
 	
 	
 	public RAutoEditStrategy(final IRCoreAccess rCoreAccess, final ISourceEditor editor) {
@@ -158,8 +169,6 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		assert(fDocument != null);
 		if (fScanner == null) {
 			fScanner = createScanner();
-			fPartitioning = fScanner.getPartitioningConfig();
-			fIndenter = new RSourceIndenter();
 		}
 		fRCodeStyle = fRCoreAccess.getRCodeStyle();
 		fValidRange = getValidRange(offset, c);
@@ -185,9 +194,9 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	
 	
 	private final boolean isSmartInsertEnabled() {
-		return ((fEditor3 == null && fOptions.isSmartModeByDefaultEnabled())
-				|| (fEditor3 != null && fEditor3.getInsertMode() == ITextEditorExtension3.SMART_INSERT)
-				);
+		return ((fEditor3 != null) ?
+				(fEditor3.getInsertMode() == ITextEditorExtension3.SMART_INSERT) :
+				fOptions.isSmartModeByDefaultEnabled() );
 	}
 	
 	private final boolean isClosedString(int offset, final int end, final boolean endVirtual, final char sep) {
@@ -237,8 +246,9 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		final int line = fDocument.getLineOfOffset(offset);
 		if (line > 0 && fScanner.findAnyNonBlankBackward(offset, fDocument.getLineOffset(line)-1, false) == ITokenScanner.NOT_FOUND) {
 			final IRegion prevLineInfo = fDocument.getLineInformation(line-1);
-			if (prevLineInfo.getLength() > 0 && TextUtilities.getPartition(fDocument, fPartitioning.getPartitioning(),
-						prevLineInfo.getOffset()+prevLineInfo.getLength()-1, false).getType() == IRDocumentPartitions.R_ROXYGEN) {
+			if (prevLineInfo.getLength() > 0 && TextUtilities.getPartition(fDocument,
+					fScanner.getPartitioningConfig().getPartitioning(),
+					prevLineInfo.getOffset()+prevLineInfo.getLength()-1, false).getType() == IRDocumentPartitions.R_ROXYGEN) {
 				return true;
 			}
 		}
@@ -253,6 +263,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		return count;
 	}
 	
+	
 	@Override
 	public void customizeDocumentCommand(final IDocument d, final DocumentCommand c) {
 		if (fIgnoreCommands || c.doit == false || c.text == null) {
@@ -262,14 +273,15 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			super.customizeDocumentCommand(d, c);
 			return;
 		}
-		
 		fDocument = (AbstractDocument) d;
 		if (!initCustomization(c.offset, -1)) {
+			quitCustomization();
 			return;
 		}
 		try {
-			final String partitionType = fDocument.getPartition(fPartitioning.getPartitioning(), c.offset, true).getType();
-			if (fPartitioning.getDefaultPartitionConstraint().matches(partitionType)) {
+			final PartitioningConfiguration partitioning = fScanner.getPartitioningConfig();
+			final String partitionType = fDocument.getPartition(partitioning.getPartitioning(), c.offset, true).getType();
+			if (partitioning.getDefaultPartitionConstraint().matches(partitionType)) {
 				if (c.length == 0 && TextUtilities.equals(d.getLegalLineDelimiters(), c.text) != -1) {
 					smartIndentOnNewLine(c);
 				}
@@ -279,7 +291,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			}
 		}
 		catch (final Exception e) {
-			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "An error occurred while customize a command in R auto edit strategy.", e); //$NON-NLS-1$
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
+					"An error occurred when customizing action for document command in LaTeX auto edit strategy.", e )); //$NON-NLS-1$
 		}
 		finally {
 			quitCustomization();
@@ -295,12 +308,13 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		if (!isSmartInsertEnabled() || !UIAccess.isOkToUse(fViewer)) {
 			return false;
 		}
-		fIgnoreCommands = true;
 		fDocument = (AbstractDocument) fViewer.getDocument();
 		ITextSelection selection = (ITextSelection) fViewer.getSelection();
 		if (!initCustomization(selection.getOffset(), c)) {
+			quitCustomization();
 			return false;
 		}
+		fIgnoreCommands = true;
 		try {
 			final DocumentCommand command = new DocumentCommand() {};
 			command.offset = selection.getOffset();
@@ -312,128 +326,144 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			int linkedModeOffset = -1;
 			final int cEnd = command.offset+command.length;
 			
-			final String partitionType = fDocument.getPartition(fPartitioning.getPartitioning(), command.offset, true).getType();
-			switch (c) {
+			final PartitioningConfiguration partitioning = fScanner.getPartitioningConfig();
+			final String partitionType = fDocument.getPartition(partitioning.getPartitioning(), command.offset, true).getType();
+			KEY: switch (c) {
 			case '\t':
-				if (fPartitioning.getDefaultPartitionConstraint().matches(partitionType)
-						// must not span multiple lines
-						&& (command.length == 0 || fDocument.getLineOfOffset(command.offset) == fDocument.getLineOfOffset(cEnd))
-						) {
-					command.text = "\t"; //$NON-NLS-1$
-					smartIndentOnTab(command);
-					break;
+				if (partitioning.getDefaultPartitionConstraint().matches(partitionType)
+						|| partitionType == IRDocumentPartitions.R_COMMENT
+						|| partitionType == IRDocumentPartitions.R_ROXYGEN ) {
+					if (command.length == 0 || fDocument.getLineOfOffset(command.offset) == fDocument.getLineOfOffset(cEnd)) {
+						command.text = "\t"; //$NON-NLS-1$
+						switch (smartIndentOnTab(command)) {
+						case -1:
+							return false;
+						case 0:
+							break;
+						case 1:
+							break KEY;
+						}
+					}
+					if (fRCodeStyle.getReplaceOtherTabsWithSpaces()) {
+						final IndentUtil indentation = new IndentUtil(fDocument, fRCodeStyle);
+						command.text = indentation.createTabSpacesCompletionString(indentation.getColumnAtOffset(command.offset));
+						break KEY;
+					}
 				}
 				return false;
 			case '}':
-				if (fPartitioning.getDefaultPartitionConstraint().matches(partitionType)) {
+				if (partitioning.getDefaultPartitionConstraint().matches(partitionType)) {
 					command.text = "}"; //$NON-NLS-1$
 					smartIndentOnClosingBracket(command);
-					break;
+					break KEY;
 				}
 				return false;
 			case '{':
-				if (fPartitioning.getDefaultPartitionConstraint().matches(partitionType)) {
+				if (partitioning.getDefaultPartitionConstraint().matches(partitionType)) {
 					command.text = "{"; //$NON-NLS-1$
 					if (fOptions.isSmartCurlyBracketsEnabled() && !isValueChar(cEnd)) {
-						if (!isClosedBracket(command.offset, cEnd, 0)) {
+						if (!isClosedBracket(command.offset, cEnd, CURLY_BRACKET_TYPE)) {
 							command.text = "{}"; //$NON-NLS-1$
-							linkedModeType = 1;
+							linkedModeType = 1 | AUTODELETE;
 						}
 						else if (isCharAt(cEnd, '}')) {
 							linkedModeType = 1;
 						}
 					}
 					linkedModeOffset = smartIndentOnFirstLineCharDefault2(command);
-					break;
+					break KEY;
 				}
 				return false;
 			case '(':
-				if (fPartitioning.getDefaultPartitionConstraint().matches(partitionType)) {
+				if (partitioning.getDefaultPartitionConstraint().matches(partitionType)) {
 					command.text = "("; //$NON-NLS-1$
 					if (fOptions.isSmartRoundBracketsEnabled() && !isValueChar(cEnd)) {
-						if (!isClosedBracket(command.offset, cEnd, 1)) {
+						if (!isClosedBracket(command.offset, cEnd, ROUND_BRACKET_TYPE)) {
 							command.text = "()"; //$NON-NLS-1$
-							linkedModeType = 1;
+							linkedModeType = 2 | AUTODELETE;
 						}
 						else if (isCharAt(cEnd, ')')) {
-							linkedModeType = 1;
+							linkedModeType = 2;
 						}
 					}
-					break;
+					break KEY;
 				}
 				return false;
 			case ')':
-				if (fPartitioning.getDefaultPartitionConstraint().matches(partitionType)) {
+				if (partitioning.getDefaultPartitionConstraint().matches(partitionType)) {
 					command.text = ")"; //$NON-NLS-1$
 					smartIndentOnFirstLineCharDefault2(command); // required?
-					break;
+					break KEY;
 				}
 				return false;
 			case '[':
-				if (fPartitioning.getDefaultPartitionConstraint().matches(partitionType)) {
+				if (partitioning.getDefaultPartitionConstraint().matches(partitionType)) {
 					command.text = "["; //$NON-NLS-1$
 					if (fOptions.isSmartSquareBracketsEnabled() && !isValueChar(cEnd)) {
-						if (!isClosedBracket(command.offset, cEnd, 2)) {
+						if (!isClosedBracket(command.offset, cEnd, SQUARE_BRACKET_TYPE)) {
 							command.text = "[]"; //$NON-NLS-1$
 							if (countBackward('[', command.offset) % 2 == 1 && isCharAt(cEnd, ']')) {
-								linkedModeType = 2;
+								linkedModeType = 3 | AUTODELETE;
 							}
 							else {
-								linkedModeType = 1;
+								linkedModeType = 2 | AUTODELETE;
 							}
 						}
 						else if (isCharAt(cEnd, ']')) {
-							linkedModeType = 1;
+							linkedModeType = 2;
 						}
 					}
-					break;
+					break KEY;
 				}
 				return false;
 			case '%':
-				if (fPartitioning.getDefaultPartitionConstraint().matches(partitionType)
+				if (partitioning.getDefaultPartitionConstraint().matches(partitionType)
 						&& fOptions.isSmartSpecialPercentEnabled()) {
 					final IRegion line = fDocument.getLineInformationOfOffset(cEnd);
 					fScanner.configure(fDocument, IRDocumentPartitions.R_INFIX_OPERATOR);
 					if (fScanner.count(cEnd, line.getOffset()+line.getLength(), '%') % 2 == 0) {
 						command.text = "%%"; //$NON-NLS-1$
-						linkedModeType = 1;
-						break;
+						linkedModeType = 2 | AUTODELETE;
+						break KEY;
 					}
 				}
 				return false;
 			case '"':
 			case '\'':
 			case '`':
-				if (fPartitioning.getDefaultPartitionConstraint().matches(partitionType)
+				if (partitioning.getDefaultPartitionConstraint().matches(partitionType)
 						&& fOptions.isSmartStringsEnabled()) {
 					final IRegion line = fDocument.getLineInformationOfOffset(cEnd);
 					if (!isValueChar(cEnd) && !isValueChar(command.offset-1)
 							&& !isClosedString(cEnd, line.getOffset()+line.getLength(), false, c)) {
 						command.text = new String(new char[] { c, c });
-						linkedModeType = 1;
-						break;
+						linkedModeType = 2 | AUTODELETE;
+						break KEY;
 					}
 				}
 				return false;
 			case '\n':
-				if (fPartitioning.getDefaultPartitionConstraint().matches(partitionType)
+				if (partitioning.getDefaultPartitionConstraint().matches(partitionType)
 						|| partitionType == IRDocumentPartitions.R_COMMENT) {
 					command.text = TextUtilities.getDefaultLineDelimiter(fDocument);
 					smartIndentOnNewLine(command);
-					break;
+					break KEY;
 				}
 				else if (partitionType == IRDocumentPartitions.R_ROXYGEN) {
 					command.text = TextUtilities.getDefaultLineDelimiter(fDocument);
 					smartIndentAfterNewLine1(command);
-					break;
+					break KEY;
 				}
 				return false;
 			case '#':
- 				if (fPartitioning.getDefaultPartitionConstraint().matches(partitionType)
+ 				if (partitioning.getDefaultPartitionConstraint().matches(partitionType)
 						&& isAfterRoxygen(command.offset)) {
 					command.text = "#' "; //$NON-NLS-1$
-					break;
+					break KEY;
 				}
+				return false;
+			default:
+				assert (false);
 				return false;
 			}
 			
@@ -460,7 +490,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			return true;
 		}
 		catch (final Exception e) {
-			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "An error occurred while customize key pressed in R auto edit strategy.", e); //$NON-NLS-1$
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
+					"An error occurred when customizing action for pressed key in R auto edit strategy.", e )); //$NON-NLS-1$
 		}
 		finally {
 			fIgnoreCommands = false;
@@ -519,11 +550,12 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			return tracePos;
 		}
 		if (c.offset > 2500) {
-			final int line = fDocument.getLineOfOffset(c.offset)-30;
-			if (line >= 5) {
+			final int line = fDocument.getLineOfOffset(c.offset) - 40;
+			if (line >= 10) {
 				shift = fDocument.getLineOffset(line);
-				final ITypedRegion partition = fDocument.getPartition(fPartitioning.getPartitioning(), shift, true);
-				if (!fPartitioning.getDefaultPartitionConstraint().matches(partition.getType())) {
+				final PartitioningConfiguration partitioning = fScanner.getPartitioningConfig();
+				final ITypedRegion partition = fDocument.getPartition(partitioning.getPartitioning(), shift, true);
+				if (!partitioning.getDefaultPartitionConstraint().matches(partition.getType())) {
 					shift = partition.getOffset();
 				}
 			}
@@ -569,9 +601,11 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		}
 		
 		// Compute indent
-		final RAstInfo ast = new RAstInfo(RAst.LEVEL_MINIMAL, 0);
-		final RScanner scanner = new RScanner(parseInput, ast);
-		RAstNode rootNode = scanner.scanSourceUnit();
+		final RScanner scanner = new RScanner(parseInput, AstInfo.LEVEL_MINIMAL);
+		final RAstNode rootNode = scanner.scanSourceUnit();
+		if (fIndenter == null) {
+			fIndenter = new RSourceIndenter();
+		}
 		fIndenter.setup(fRCoreAccess);
 		final TextEdit edit = fIndenter.getIndentEdits(dummyDoc, rootNode, 0, dummyFirstLine, dummyLastLine);
 		
@@ -649,7 +683,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		final int line = fDocument.getLineOfOffset(c.offset);
 		int checkOffset = Math.max(0, c.offset);
 		String append = "";
-		final ITypedRegion partition = fDocument.getPartition(fPartitioning.getPartitioning(), checkOffset, true);
+		final ITypedRegion partition = fDocument.getPartition(
+				fScanner.getPartitioningConfig().getPartitioning(), checkOffset, true);
 		if (partition.getType() == IRDocumentPartitions.R_COMMENT) {
 			checkOffset = partition.getOffset();
 		}
@@ -665,8 +700,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			}
 			fScanner.configure(fDocument);
 		}
-		final RIndentUtil util = new RIndentUtil(fDocument, fRCodeStyle);
-		int column = util.getLineIndent(line, false)[RIndentUtil.COLUMN_IDX];
+		final IndentUtil util = new IndentUtil(fDocument, fRCodeStyle);
+		int column = util.getLineIndent(line, false)[IndentUtil.COLUMN_IDX];
 		if (checkOffset > 0) {
 			// new block?:
 			fScanner.configure(fDocument);
@@ -678,19 +713,33 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		c.text += util.createIndentString(column) + append;
 	}
 	
-	private void smartIndentOnTab(final DocumentCommand c) throws BadLocationException {
-		if (fRCodeStyle.getIndentDefaultType() != IndentationType.SPACES) {
-			return;
-		}
-		final int lineOffset = fDocument.getLineOffset(fDocument.getLineOfOffset(c.offset));
+	private int smartIndentOnTab(final DocumentCommand c) throws BadLocationException {
+		final IRegion line = fDocument.getLineInformation(fDocument.getLineOfOffset(c.offset));
+		int first;
 		fScanner.configure(fDocument);
-		if (fScanner.findAnyNonBlankBackward(c.offset, lineOffset-1, false) != ITokenScanner.NOT_FOUND // not first char
-				&& !fRCodeStyle.getReplaceOtherTabsWithSpaces() ) {
-			return;
+		first = fScanner.findAnyNonBlankBackward(c.offset, line.getOffset()-1, false);
+		if (first != ITokenScanner.NOT_FOUND) { // not first char
+			return 0;
 		}
-		final RIndentUtil indentation = new RIndentUtil(fDocument, fRCodeStyle);
+//		first = fScanner.findAnyNonBlankForward(c.offset, line.getOffset()+line.getLength(), false);
+//		if (c.offset == line.getOffset() || c.offset != first) {
+//			try {
+//				final Position cursorPos = new Position(first, 0);
+//				smartIndentLine2(c, true, 0, new Position[] { cursorPos });
+//				c.caretOffset = cursorPos.getOffset();
+//				return 1;
+//			}
+//			catch (final Exception e) {
+//				RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "An error occurred while customize a command in R auto edit strategy (algorithm 2).", e); //$NON-NLS-1$
+//				return -1;
+//			}
+//		}
+		final IndentUtil indentation = new IndentUtil(fDocument, fRCodeStyle);
 		final int column = indentation.getColumnAtOffset(c.offset);
-		c.text = indentation.createIndentCompletionString(column);
+		if (fOptions.getSmartTabAction() != ISmartInsertSettings.TabAction.INSERT_TAB_CHAR) {
+			c.text = indentation.createIndentCompletionString(column);
+		}
+		return 1;
 	}
 	
 	private void smartIndentOnClosingBracket(final DocumentCommand c) throws BadLocationException {
@@ -719,8 +768,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		if (blockStart == ITokenScanner.NOT_FOUND) {
 			return;
 		}
-		final RIndentUtil util = new RIndentUtil(fDocument, fRCodeStyle);
-		final int column = util.getLineIndent(fDocument.getLineOfOffset(blockStart), false)[RIndentUtil.COLUMN_IDX];
+		final IndentUtil util = new IndentUtil(fDocument, fRCodeStyle);
+		final int column = util.getLineIndent(fDocument.getLineOfOffset(blockStart), false)[IndentUtil.COLUMN_IDX];
 		c.text = util.createIndentString(column) + c.text;
 		c.length += c.offset - lineOffset;
 		c.offset = lineOffset;
@@ -758,24 +807,29 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	}
 	
 	
-	private LinkedModeUI createLinkedMode(int offset, final char type, final int stopChars) throws BadLocationException {
-		int pos = 0;
-		offset++;
-		final LinkedPositionGroup group1 = new LinkedPositionGroup();
-		final LinkedPosition position = new LinkedPosition(fDocument, offset, pos++);
-		group1.addPosition(position);
-		
-		/* set up linked mode */
+	private LinkedModeUI createLinkedMode(final int offset, final char type, final int mode)
+			throws BadLocationException {
 		final LinkedModeModel model = new LinkedModeModel();
-		model.addGroup(group1);
+		int pos = 0;
+		
+		final LinkedPositionGroup group = new LinkedPositionGroup();
+		final InBracketPosition position = RBracketLevel.createPosition(type, fDocument,
+				offset +1, 0, pos++);
+		group.addPosition(position);
+		model.addGroup(group);
+		
 		model.forceInstall();
 		
-		final BracketLevel level = RBracketLevel.createBracketLevel(type, fDocument, fPartitioning, position, (fViewer instanceof InputSourceViewer));
+		final RBracketLevel level = new RBracketLevel(fDocument,
+				fScanner.getPartitioningConfig().getPartitioning(),
+				new ConstList<LinkedPosition>(position),
+				((fViewer instanceof InputSourceViewer) ? RBracketLevel.CONSOLE_MODE : 0)
+						| (mode & 0xffff0000) );
 		
 		/* create UI */
 		final LinkedModeUI ui = new LinkedModeUI(model, fViewer);
 		ui.setCyclingMode(LinkedModeUI.CYCLE_NEVER);
-		ui.setExitPosition(fViewer, offset+stopChars, 0, pos);
+		ui.setExitPosition(fViewer, offset + (mode & 0xff), 0, pos);
 		ui.setSimpleMode(true);
 		ui.setExitPolicy(level);
 		return ui;

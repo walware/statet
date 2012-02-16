@@ -19,6 +19,7 @@ import org.eclipse.jface.text.templates.TemplateBuffer;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ui.templates.CodeGenerationTemplateContext;
 import de.walware.ecommons.ltk.ui.templates.TemplatesUtil;
 import de.walware.ecommons.ltk.ui.templates.TemplatesUtil.EvaluatedTemplate;
 import de.walware.ecommons.templates.TemplateMessages;
@@ -40,14 +41,16 @@ public class CodeGeneration {
 	 * @return the new content or <code>null</code> if the template is undefined or empty.
 	 * @throws CoreException thrown when the evaluation of the code template fails.
 	 */
-	public static EvaluatedTemplate getNewRweaveTexDocContent(final ISourceUnit su, final String lineDelimiter) throws CoreException {
-		final Template template = SweavePlugin.getDefault().getRweaveTexGenerationTemplateStore().findTemplateById(RweaveTexTemplatesContextType.NEW_SWEAVEDOC_ID);
+	public static EvaluatedTemplate getNewSweaveDocContent(final ISourceUnit su, final String lineDelimiter,
+			final Template template) throws CoreException {
 		if (template == null) {
 			return null;
 		}
 		
-		final RweaveTexTemplatesContext context = new RweaveTexTemplatesContext(
-				RweaveTexTemplatesContextType.NEW_RWEAVETEX_CONTEXTTYPE, su, lineDelimiter);
+		final CodeGenerationTemplateContext context = new CodeGenerationTemplateContext(
+				SweavePlugin.getDefault().getSweaveDocTemplateContextRegistry().getContextType(
+						LtxRweaveTemplatesContextType.NEW_RWEAVETEX_CONTEXTTYPE ),
+				lineDelimiter );
 		
 		try {
 			final TemplateBuffer buffer = context.evaluate(template);

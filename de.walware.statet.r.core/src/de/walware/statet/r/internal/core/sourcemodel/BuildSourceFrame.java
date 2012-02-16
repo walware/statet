@@ -373,7 +373,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 	}
 	
 	@Override
-	public List<? extends RElementAccess> getAllAccessOfElement(final String name) {
+	public List<? extends RElementAccess> getAllAccessOf(final String name) {
 		final ElementAccessList list = fData.get(name);
 		if (list == null) {
 			return null;

@@ -39,7 +39,7 @@ public class RPkgNameValidator implements IValidator {
 		fRequired = isRequired;
 	}
 	
-	public void setBackwardCompatible(int errorVersion) {
+	public void setBackwardCompatible(final int errorVersion) {
 		fErrorVersion = errorVersion;
 	}
 	
@@ -65,7 +65,7 @@ public class RPkgNameValidator implements IValidator {
 						NLS.bind(Messages.RPkgName_Validation_error_InvalidNoAscii_message, c) );
 			}
 		}
-		boolean translation = name.startsWith(TRANSLATION_PREFIX);
+		final boolean translation = name.startsWith(TRANSLATION_PREFIX);
 		for (int i = translation ? TRANSLATION_PREFIX_LENGTH : 1; i < name.length(); i++) {
 			final char c = name.charAt(i);
 			if (!(Character.isLetterOrDigit(c) || c == '.')) {

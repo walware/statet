@@ -24,6 +24,7 @@ import org.eclipse.text.edits.TextEdit;
 
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
+import de.walware.ecommons.text.IndentUtil;
 import de.walware.ecommons.text.IndentUtil.IndentEditAction;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -51,12 +52,12 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 public class RSourceIndenter {
 	
 	
-	private RIndentUtil fUtil;
-	private RHeuristicTokenScanner fScanner;
-	private ComputeIndentVisitor fComputeVisitor;
+	private IndentUtil fUtil;
+	private final RHeuristicTokenScanner fScanner;
+	private final ComputeIndentVisitor fComputeVisitor;
 	
 	private AbstractDocument fDocument;
-	private RAstNode fRootNode;
+	private IAstNode fRootNode;
 	private RCodeStyleSettings fCodeStyle;
 	
 	private int fRefLine;
@@ -440,22 +441,6 @@ public class RSourceIndenter {
 	}
 	
 	
-	public int getNewIndentColumn(final int line) throws BadLocationException {
-		final int lineOffset = fDocument.getLineOffset(line);
-		if (getDocumentChar(lineOffset) == '#' && getDocumentChar(lineOffset+1) != '#') {
-			return 0;
-		}
-		return fLineLevels[line];
-	}
-	
-	public int getNewIndentOffset(final int line) {
-		try {
-			return fUtil.getIndentedOffsetAt(line, fLineLevels[line]);
-		} catch (final BadLocationException e) {
-			return -1;
-		}
-	}
-	
 //	public void indent(final AbstractDocument document, final AstInfo<RAstNode> ast, final int firstLine, final int lastLine,
 //			final IRCoreAccess access, final WorkingContext context) throws CoreException {
 //		try {
@@ -519,11 +504,32 @@ public class RSourceIndenter {
 		fLineLevels = null;
 	}
 	
-	public TextEdit getIndentEdits(final AbstractDocument document, final RAstNode rootNode,
+	
+	public int getNewIndentColumn(final int line) throws BadLocationException {
+		return getNewIndentColumn(line, fDocument.getLineOffset(line));
+	}
+	
+	private int getNewIndentColumn(final int line, final int lineOffset) throws BadLocationException {
+		if (getDocumentChar(lineOffset) == '#' && getDocumentChar(lineOffset+1) != '#') {
+			return 0;
+		}
+		return fLineLevels[line];
+	}
+	
+	public int getNewIndentOffset(final int line) {
+		try {
+			return fUtil.getIndentedOffsetAt(line, fLineLevels[line]);
+		} catch (final BadLocationException e) {
+			return -1;
+		}
+	}
+	
+	
+	public TextEdit getIndentEdits(final AbstractDocument document, final IAstNode root,
 			final int codeOffset, final int firstLine, final int lastLine) throws CoreException {
 		try {
 			fDocument = document;
-			fRootNode = rootNode;
+			fRootNode = root;
 			computeIndent(codeOffset, firstLine, lastLine);
 			return createEdits();
 		}
@@ -535,7 +541,7 @@ public class RSourceIndenter {
 	protected void computeIndent(final int codeOffset, final int firstLine, final int lastLine) throws BadLocationException {
 		try {
 			fCodeStyle.getReadLock().lock();
-			fUtil = new RIndentUtil(fDocument, fCodeStyle);
+			fUtil = new IndentUtil(fDocument, fCodeStyle);
 			fFirstLine = firstLine;
 			fLastLine = lastLine;
 			
@@ -595,7 +601,7 @@ public class RSourceIndenter {
 		int shift = 0;
 		if (fRefLine >= 0) {
 			fLineLevels[fRefLine] = fLineLevels[fRefLine];
-			shift = fUtil.getLineIndent(fRefLine, false)[RIndentUtil.COLUMN_IDX]-fLineLevels[fRefLine];
+			shift = fUtil.getLineIndent(fRefLine, false)[IndentUtil.COLUMN_IDX]-fLineLevels[fRefLine];
 			fLineLevels[fRefLine] += shift;
 		}
 		else {
@@ -632,10 +638,7 @@ public class RSourceIndenter {
 		final IndentEditAction action = new IndentEditAction() {
 			@Override
 			public int getIndentColumn(final int line, final int lineOffset) throws BadLocationException {
-				if (getDocumentChar(lineOffset) == '#' && getDocumentChar(lineOffset+1) != '#') {
-					return -1;
-				}
-				return fLineLevels[line];
+				return getNewIndentColumn(line, lineOffset);
 			}
 			@Override
 			public void doEdit(final int line, final int offset, final int length, final StringBuilder text)
@@ -659,6 +662,7 @@ public class RSourceIndenter {
 	protected CoreException createFailedException(final Throwable e) {
 		return new CoreException(new Status(Status.ERROR, RCore.PLUGIN_ID, -1, "Indentation failed", e));
 	}
+	
 }
 
 
@@ -694,12 +698,12 @@ class ScopeFactory {
 	private final Scope[] fPool = new Scope[POOL_SIZE];
 	private int fPoolPointer = 0;
 	
-	private RIndentUtil fUtil;
-	private RCodeStyleSettings fStyle;
-	private AbstractDocument fDoc;
+	private final IndentUtil fUtil;
+	private final RCodeStyleSettings fStyle;
+	private final AbstractDocument fDoc;
 	
 	
-	public ScopeFactory(final RIndentUtil util, final RCodeStyleSettings style, final AbstractDocument doc) {
+	public ScopeFactory(final IndentUtil util, final RCodeStyleSettings style, final AbstractDocument doc) {
 		fUtil = util;
 		fStyle = style;
 		fDoc = doc;

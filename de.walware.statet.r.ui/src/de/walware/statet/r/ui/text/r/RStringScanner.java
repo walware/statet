@@ -25,7 +25,7 @@ import de.walware.statet.r.ui.RUIPreferenceConstants;
 public class RStringScanner extends SingleTokenScanner {
 	
 	
-	public RStringScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
+	public RStringScanner(final ColorManager colorManager, final IPreferenceStore preferenceStore) {
 		super(colorManager, preferenceStore, 
 				RUIPreferenceConstants.R.TS_GROUP_ID, IRTextTokens.STRING_KEY);
 	}

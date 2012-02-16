@@ -19,7 +19,7 @@ public interface IRFrameInSource extends IRFrame {
 	
 	
 	Set<String> getAllAccessNames();
-	List<? extends RElementAccess> getAllAccessOfElement(final String name);
+	List<? extends RElementAccess> getAllAccessOf(final String name);
 	boolean isResolved(String name);
 	
 }

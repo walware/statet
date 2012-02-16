@@ -26,6 +26,7 @@ import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPart;
 
+import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
@@ -40,7 +41,6 @@ import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.ast.NodeType;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.debug.core.IRStackFrame;
 import de.walware.statet.r.internal.debug.ui.RDebugUIUtils;
@@ -53,7 +53,8 @@ public class StepIntoSelectionHandler extends AbstractHandler {
 	public static RElementAccess searchAccess(final ISourceEditor editor, final IRegion region) {
 		try {
 			final IDocument document = editor.getViewer().getDocument();
-			final ITypedRegion partition = TextUtilities.getPartition(document, IRDocumentPartitions.R_PARTITIONING, region.getOffset(), false);
+			final ITypedRegion partition = TextUtilities.getPartition(document,
+					editor.getPartitioning().getPartitioning(), region.getOffset(), false );
 			final ISourceUnit su = editor.getSourceUnit();
 			if (su instanceof IRSourceUnit && region.getOffset() < document.getLength()
 					&& ( (editor.getPartitioning().getDefaultPartitionConstraint().matches(partition.getType())
@@ -63,8 +64,8 @@ public class StepIntoSelectionHandler extends AbstractHandler {
 				
 				final IRModelInfo info = (IRModelInfo) su.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, new NullProgressMonitor());
 				if (info != null) {
-					final RAstInfo astInfo = info.getAst();
-					final AstSelection selection = AstSelection.search(astInfo.getRootNode(),
+					final AstInfo astInfo = info.getAst();
+					final AstSelection selection = AstSelection.search(astInfo.root,
 							region.getOffset(), region.getOffset()+region.getLength(),
 							AstSelection.MODE_COVERING_SAME_LAST );
 					final IAstNode covering = selection.getCovering();

@@ -14,29 +14,23 @@ package de.walware.statet.r.internal.core.sourcemodel;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import de.walware.ecommons.ltk.IModelManager;
+import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
-import de.walware.ecommons.ltk.SourceContent;
 
 import de.walware.statet.r.core.RResourceUnit;
-import de.walware.statet.r.core.model.IManagableRUnit;
-import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RModel;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
-import de.walware.statet.r.internal.core.RCorePlugin;
+import de.walware.statet.r.core.model.RSuModelContainer;
 
 
 /**
  * Source unit implementation for R script files in workspace ("default R file").
  */
-public final class RSourceUnit extends RResourceUnit
-		implements IRWorkspaceSourceUnit, IManagableRUnit {
+public final class RSourceUnit extends RResourceUnit implements IRWorkspaceSourceUnit {
 	
 	
-	private final Object fModelLock = new Object();
-	private IRModelInfo fModelInfo;
+	private final RSuModelContainer fModel = new RSuModelContainer(this);
 	
 	
 	public RSourceUnit(final String id, final IFile file) {
@@ -47,8 +41,8 @@ public final class RSourceUnit extends RResourceUnit
 	@Override
 	protected void unregister() {
 		super.unregister();
-		synchronized (fModelLock) {
-			fModelInfo = null;
+		synchronized (fModel) {
+			fModel.clear();
 		}
 	}
 	
@@ -64,8 +58,8 @@ public final class RSourceUnit extends RResourceUnit
 	
 	
 	@Override
-	public RAstInfo getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
-		final RAstInfo ast = getCurrentRAst();
+	public AstInfo getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
+		final AstInfo ast = fModel.getCurrentAst();
 		final long stamp = getResource().getModificationStamp();
 		if (ast != null && ast.stamp == stamp) {
 			return ast;
@@ -77,15 +71,7 @@ public final class RSourceUnit extends RResourceUnit
 	@Override
 	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
-			final IRModelInfo model = getCurrentRModel();
-			final long stamp = getResource().getModificationStamp();
-			if (model != null && model.getStamp() == stamp) {
-				return model;
-			}
-			final RCorePlugin plugin = RCorePlugin.getDefault();
-			if (plugin != null && syncLevel > IModelManager.NONE) {
-				return plugin.getRModelManager().reconcile2(this, syncLevel, false, monitor);
-			}
+			return fModel.getModelInfo(syncLevel, monitor);
 		}
 		return null;
 	}
@@ -96,36 +82,11 @@ public final class RSourceUnit extends RResourceUnit
 	
 	
 	@Override
-	public Object getModelLockObject() {
-		return fModelLock;
-	}
-	
-	@Override
-	public SourceContent getParseContent(final IProgressMonitor monitor) {
-		return getContent(monitor);
-	}
-	
-	@Override
-	public void setRAst(final RAstInfo ast) {
-	}
-	
-	@Override
-	public RAstInfo getCurrentRAst() {
-		final IRModelInfo model = getCurrentRModel();
-		if (model != null) {
-			return model.getAst();
+	public Object getAdapter(final Class required) {
+		if (RSuModelContainer.class.equals(required)) {
+			return fModel;
 		}
-		return null;
-	}
-	
-	@Override
-	public void setRModel(final IRModelInfo model) {
-//		fModelInfo = model;
-	}
-	
-	@Override
-	public IRModelInfo getCurrentRModel() {
-		return fModelInfo;
+		return super.getAdapter(required);
 	}
 	
 }

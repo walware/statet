@@ -16,9 +16,6 @@ import de.walware.ecommons.preferences.Preference.BooleanPref;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 
 
-/**
- * 
- */
 public class SweaveEditorOptions {
 	
 	
@@ -27,7 +24,11 @@ public class SweaveEditorOptions {
 	public static final String SWEAVEEDITOR_NODE = SweavePlugin.PLUGIN_ID + "/editor.sweave/options"; //$NON-NLS-1$
 	
 	
+	public static final BooleanPref MARKOCCURRENCES_ENABLED_PREF = new BooleanPref(
+			SWEAVEEDITOR_NODE, "MarkOccurrences.enabled"); //$NON-NLS-1$
+	
+	
 	public static final BooleanPref PREF_SPELLCHECKING_ENABLED = new BooleanPref(
-			SWEAVEEDITOR_NODE, "spellcheck.enabled"); //$NON-NLS-1$
+			SWEAVEEDITOR_NODE, "SpellCheck.enabled"); //$NON-NLS-1$
 	
 }

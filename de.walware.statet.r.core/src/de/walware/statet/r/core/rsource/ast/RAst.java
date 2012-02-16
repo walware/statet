@@ -38,16 +38,6 @@ import de.walware.statet.r.core.rsource.IRSourceConstants;
  */
 public class RAst {
 	
-	/**
-	 * AST without any text informations.
-	 */
-	public static final int LEVEL_MINIMAL = 1;
-	
-	/**
-	 * AST ready for model processing.
-	 */
-	public static final int LEVEL_MODEL_DEFAULT = 2;
-	
 	
 	private static class LowestFDefAssignmentSearchVisitor extends GenericVisitor implements ICommonAstVisitor {
 		

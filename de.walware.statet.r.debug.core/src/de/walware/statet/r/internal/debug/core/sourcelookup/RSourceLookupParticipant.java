@@ -58,7 +58,6 @@ import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAst.AssignExpr;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.debug.core.sourcelookup.IRSourceContainer;
 import de.walware.statet.r.debug.core.sourcelookup.IRSourceLookupMatch;
@@ -787,8 +786,8 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 					fDef = (FDef) modelElement.getAdapter(FDef.class);
 				}
 			}
-			if (fDef == null) {
-				final RAstNode node = ((RAstInfo) modelInfo.getAst()).getRootNode().getChild(0);
+			if (fDef == null && (modelInfo.getAst().root instanceof RAstNode)) {
+				final RAstNode node = ((RAstNode) modelInfo.getAst().root).getChild(0);
 				if (node.getNodeType() == NodeType.F_DEF) {
 					fDef = (FDef) node;
 				}

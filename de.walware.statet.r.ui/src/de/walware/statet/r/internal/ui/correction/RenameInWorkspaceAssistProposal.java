@@ -12,12 +12,11 @@
 package de.walware.statet.r.internal.ui.correction;
 
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.swt.graphics.Image;
 
 import de.walware.ecommons.ltk.ui.refactoring.RefactoringSaveHelper;
 import de.walware.ecommons.ltk.ui.refactoring.RefactoringWizardExecutionHelper;
-import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ltk.ui.sourceediting.CommandAssistProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.CommandAssistProposal;
 
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.refactoring.RenameInWorkspaceRefactoring;
@@ -37,7 +36,6 @@ public class RenameInWorkspaceAssistProposal extends CommandAssistProposal {
 		super(invocationContext, "de.walware.ecommons.ltk.commands.RefactorRenameInWorkspace"); //$NON-NLS-1$
 		fLabel = RUIMessages.Proposal_RenameInWorkspace_label;
 		fDescription = RUIMessages.Proposal_RenameInWorkspace_description;
-		fRelevance = 8;
 		
 		fNameNode = nameNode;
 	}
@@ -54,11 +52,6 @@ public class RenameInWorkspaceAssistProposal extends CommandAssistProposal {
 					new RenameInWorkspaceWizard(refactoring), RefactoringSaveHelper.SAVE_REFACTORING | RefactoringSaveHelper.EXCLUDE_ACTIVE_EDITOR, true);
 			executionHelper.perform(viewer.getTextWidget().getShell());
 		}
-	}
-	
-	@Override
-	public Image getImage() {
-		return null;
 	}
 	
 }

@@ -112,7 +112,7 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 	@Override
 	public void setProject(final IProject project) {
 		super.setProject(project);
-		fRCodeStyle = new RCodeStyleSettings();
+		fRCodeStyle = new RCodeStyleSettings(1);
 		fPreferenceListener = new PreferencesManageListener(fRCodeStyle, getPrefs(), RCodeStyleSettings.ALL_GROUP_IDS);
 		
 		fRPackageName = getPrefs().getPreferenceValue(PREF_PACKAGE_NAME);
@@ -121,7 +121,7 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 				checkPackageNature(project);
 			}
 		}
-		catch (CoreException e) {
+		catch (final CoreException e) {
 		}
 	}
 	
@@ -235,7 +235,7 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 	private void checkPackageNature(final IProject project) {
 		final WorkspaceJob job = new WorkspaceJob("Update R Project") {
 			@Override
-			public IStatus runInWorkspace(IProgressMonitor monitor)
+			public IStatus runInWorkspace(final IProgressMonitor monitor)
 					throws CoreException {
 				final boolean hasPackageNature = project.hasNature(RPkgProject.NATURE_ID);
 				if ((fRPackageName != null) != hasPackageNature) {

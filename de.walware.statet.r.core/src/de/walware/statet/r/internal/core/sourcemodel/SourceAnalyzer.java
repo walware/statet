@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 import org.eclipse.core.runtime.OperationCanceledException;
 
 import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
@@ -62,7 +63,6 @@ import de.walware.statet.r.core.rsource.ast.NumberConst;
 import de.walware.statet.r.core.rsource.ast.Power;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAst.ReadedFCallArgs;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RAstVisitor;
 import de.walware.statet.r.core.rsource.ast.Relational;
@@ -110,7 +110,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	private static final int[] PROTOTYPE_REQUEST = {
 		REG_CLASS_PROTOTYPE };
 	
-	private static final Integer ONE = 1;
+	private static final Integer FIRST = Integer.valueOf(0);
 	
 	
 	private static final Comparator<ISourceStructElement> SOURCEELEMENT_SORTER = new Comparator<ISourceStructElement>() {
@@ -178,7 +178,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	private class RoxygenAdapter implements IRoxygenAnalyzeContext {
 		
 		
-		private RSourceInfo fModelInfo;
+		private RSourceModelInfo fModelInfo;
 		private int fCounter;
 		
 		
@@ -330,7 +330,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			catch (final InvocationTargetException unused) {}
 		}
 		
-		public void update(final RSourceInfo modelInfo) {
+		public void update(final RSourceModelInfo modelInfo) {
 			fModelInfo = modelInfo;
 			fRoxygenAnalyzer.updateModel(fRoxygenAdapter);
 		}
@@ -339,6 +339,9 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	
 	private IRSourceUnit fSourceUnit;
+	private List<RChunkBuildElement> fChunkElements;
+	private AstInfo fAst;
+	
 	private int fAnonymCount;
 	private final ArrayList<String> fIdComponents = new ArrayList<String>(32);
 	private LinkedHashMap<String, BuildSourceFrame> fFrames;
@@ -372,6 +375,10 @@ public class SourceAnalyzer extends RAstVisitor {
 	private final RoxygenAnalyzer fRoxygenAnalyzer;
 	private final RoxygenAdapter fRoxygenAdapter;
 	private boolean fRoxygenExamples;
+	
+	private final HashMap<String, Integer> fCommonNames = new HashMap<String, Integer>();
+	private final HashMap<String, Integer> fClassNames = new HashMap<String, Integer>();
+	private final HashMap<String, Integer> fImportNames = new HashMap<String, Integer>();
 	
 	
 	public SourceAnalyzer() {
@@ -503,21 +510,26 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	
-	public IRModelInfo createModel(final IRSourceUnit u, final RAstInfo ast) {
+	public IRModelInfo createModel(final IRSourceUnit u, final AstInfo ast) {
+		if (!(ast.root instanceof SourceComponent)) {
+			throw new IllegalArgumentException("ast");
+		}
+		final SourceComponent root = (SourceComponent) ast.root;
 		fAnonymCount = 0;
 		fSourceUnit = u;
 		
 		try {
 			init();
 			
-			final RSourceUnitElement fileElement = new RSourceUnitElement(fSourceUnit, fTopLevelEnvir, ast.getRootNode());
-			enterElement(fileElement, fTopLevelEnvir, ast.getRootNode());
-			ast.getRootNode().acceptInRChildren(this);
+			final RSourceUnitElement fileElement = new RSourceUnitElement(fSourceUnit, fTopLevelEnvir, root);
+			enterElement(fileElement, fTopLevelEnvir, root);
+			root.acceptInRChildren(this);
 			leaveElement();
 			
 			finish();
-			final RAstInfoImpl newAst = new RAstInfoImpl(RAst.LEVEL_MODEL_DEFAULT, ast);
-			final RSourceInfo modelInfo = new RSourceInfo(newAst, fFrames, fTopLevelEnvir, fPackageRefs, fDependencyEnvironments, fileElement);
+			fAst = new AstInfo(AstInfo.LEVEL_MODEL_DEFAULT, ast);
+			final RSourceModelInfo modelInfo = new RSourceModelInfo(fAst, fFrames, fTopLevelEnvir,
+					fPackageRefs, fDependencyEnvironments, fileElement );
 			
 			fRoxygenExamples = false;
 			fRoxygenAdapter.update(modelInfo);
@@ -575,6 +587,49 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	
+	public void beginChunkSession(final IRSourceUnit su, final AstInfo ast) {
+		fAnonymCount = 0;
+		fSourceUnit = su;
+		fAst = ast;
+		if (fChunkElements == null) {
+			fChunkElements = new ArrayList<RChunkBuildElement>();
+		}
+		
+		init();
+	}
+	
+	public void processChunk(final RChunkBuildElement element,
+			final SourceComponent[] rootNodes) {
+		try {
+			fChunkElements.add(element);
+			for (int i = 0; i < rootNodes.length; i++) {
+				element.fEnvir = fTopLevelEnvir;
+				enterElement(element, fTopLevelEnvir, rootNodes[i]);
+				rootNodes[i].acceptInRChildren(this);
+				leaveElement();
+			}
+		}
+		catch (final OperationCanceledException e) {}
+		catch (final InvocationTargetException e) {}
+	}
+	
+	public IRModelInfo stopChunkSession() {
+		try {
+			finish();
+			
+			final RSourceModelInfo modelInfo = new RSourceModelInfo(fAst, fFrames, fTopLevelEnvir,
+					fPackageRefs, fDependencyEnvironments, new RSourceCompositeElement(
+							fSourceUnit, fTopLevelEnvir, fChunkElements, fAst.root) );
+			return modelInfo;
+		}
+		finally {
+			cleanup();
+			fSourceUnit = null;
+			fChunkElements.clear();
+		}
+	}
+	
+	
 	private void init() {
 		fFrames = new LinkedHashMap<String, BuildSourceFrame>();
 		fDependencyEnvironments = new HashMap<String, BuildSourceFrame>();
@@ -601,53 +656,73 @@ public class SourceAnalyzer extends RAstVisitor {
 			si.runLateResolve(false);
 		}
 		
-		final HashMap<String, Integer> commonNames = new HashMap<String, Integer>();
-		final HashMap<String, Integer> classNames = new HashMap<String, Integer>();
-		final HashMap<String, Integer> importNames = new HashMap<String, Integer>();
-		for (final SourceElementBuilder seb : fSourceContainerBuilders) {
-			for (final RSourceElementByElementAccess element : seb.children) {
-				final String name = element.getElementName().getDisplayName();
-				final HashMap<String, Integer> names;
-				switch (element.fType & IModelElement.MASK_C1) {
-				case IModelElement.C1_CLASS:
-					names = classNames;
-					break;
-				case IModelElement.C1_IMPORT:
-					names = importNames;
-					break;
-				default:
-					names = commonNames;
-					break;
-				}
-				final Integer occ = names.get(name);
-				if (occ == null) {
-					names.put(name, ONE);
-				}
-				else {
-					names.put(name, Integer.valueOf(
-							(element.fOccurrenceCount = occ + 1) ));
-				}
-			}
-			for (final ElementAccess access : seb.toCheck) {
-				if (seb.envir == access.getFrame()) {
-					if (commonNames.containsKey(access.getSegmentName())) {
-						continue;
+		final HashMap<String, Integer> commonNames = fCommonNames;
+		final HashMap<String, Integer> classNames = fClassNames;
+		final HashMap<String, Integer> importNames = fImportNames;
+		try {
+			for (final SourceElementBuilder seb : fSourceContainerBuilders) {
+				for (final RSourceElementByElementAccess element : seb.children) {
+					final String name = element.getElementName().getDisplayName();
+					final HashMap<String, Integer> names;
+					switch (element.fType & IModelElement.MASK_C1) {
+					case IModelElement.C1_CLASS:
+						names = classNames;
+						break;
+					case IModelElement.C1_IMPORT:
+						names = importNames;
+						break;
+					default:
+						names = commonNames;
+						break;
 					}
-					commonNames.put(access.getSegmentName(), null);
-					seb.children.add(new RSourceElementByElementAccess.RVariable(seb.element,
-							(seb.envir != fTopLevelEnvir) ? IRElement.R_GENERAL_LOCAL_VARIABLE : IRElement.R_GENERAL_VARIABLE, access));
+					final Integer occ = names.get(name);
+					if (occ == null) {
+						names.put(name, FIRST);
+					}
+					else {
+						names.put(name, Integer.valueOf(
+								(element.fOccurrenceCount = occ + 1) ));
+					}
 				}
-				else {
-//					seb.children.add(new RSourceElementFromElementAccess.RVariable(seb.element,
-//							IRLangElement.R_COMMON_VARIABLE, access));
+				for (final ElementAccess access : seb.toCheck) {
+					if (seb.envir == access.getFrame()) {
+						if (commonNames.containsKey(access.getSegmentName())) {
+							continue;
+						}
+						commonNames.put(access.getSegmentName(), null);
+						seb.children.add(new RSourceElementByElementAccess.RVariable(seb.element,
+								(seb.envir != fTopLevelEnvir) ? IRElement.R_GENERAL_LOCAL_VARIABLE : IRElement.R_GENERAL_VARIABLE, access));
+					}
+					else {
+	//					seb.children.add(new RSourceElementFromElementAccess.RVariable(seb.element,
+	//							IRLangElement.R_COMMON_VARIABLE, access));
+					}
+				}
+				
+				final RSourceElementByElementAccess[] finalChildren = seb.children.toArray(new RSourceElementByElementAccess[seb.children.size()]);
+				Arrays.sort(finalChildren, SOURCEELEMENT_SORTER);
+				if (finalChildren.length > 0) {
+					seb.element.setSourceChildren(new ConstList<IRLangSourceElement>(finalChildren));
 				}
 			}
 			
-			final RSourceElementByElementAccess[] finalChildren = seb.children.toArray(new RSourceElementByElementAccess[seb.children.size()]);
-			Arrays.sort(finalChildren, SOURCEELEMENT_SORTER);
-			if (finalChildren.length > 0) {
-				seb.element.setSourceChildren(new ConstList<IRLangSourceElement>(finalChildren));
+			if (fChunkElements != null && !fChunkElements.isEmpty()) {
+				final HashMap<String, Integer> names = commonNames;
+				names.clear();
+				for (final RChunkBuildElement element : fChunkElements) {
+					final String name = element.getElementName().getDisplayName();
+					final Integer occ = names.get(name);
+					if (occ == null) {
+						names.put(name, FIRST);
+					}
+					else {
+						names.put(name, Integer.valueOf(
+								(element.fOccurrenceCount = occ + 1) ));
+					}
+				}
 			}
+		}
+		finally {
 			commonNames.clear();
 			classNames.clear();
 			importNames.clear();
@@ -660,6 +735,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		fArgValueToIgnore.clear();
 		clean(fSourceContainerBuilders);
 		
+		fAst = null;
 		fGenericDefaultEnvir = null;
 		fGlobalEnvir = null;
 		fPackageRefs = null;

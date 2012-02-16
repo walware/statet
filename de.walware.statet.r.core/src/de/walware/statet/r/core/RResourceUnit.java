@@ -15,9 +15,9 @@ import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
 
-import de.walware.ecommons.ltk.AbstractFilePersistenceSourceUnitFactory;
-import de.walware.ecommons.ltk.GenericResourceSourceUnit;
 import de.walware.ecommons.ltk.IElementName;
+import de.walware.ecommons.ltk.core.impl.AbstractFilePersistenceSourceUnitFactory;
+import de.walware.ecommons.ltk.core.impl.GenericResourceSourceUnit;
 
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.renv.IREnv;

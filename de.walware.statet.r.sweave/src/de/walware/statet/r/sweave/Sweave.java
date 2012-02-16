@@ -20,12 +20,12 @@ public interface Sweave {
 	/**
 	 * Content type id for Sweave (R/LaTeX) sources
 	 */
-	public static final String R_TEX_CONTENT_ID = "de.walware.statet.r.contentTypes.RweaveTex"; //$NON-NLS-1$
+	public static final String LTX_R_CONTENT_ID = "de.walware.statet.r.contentTypes.LtxRweave"; //$NON-NLS-1$
 	
 	/**
 	 * Model type id for Sweave (R/LaTeX) documents
 	 */
-	public static final String R_TEX_MODEL_TYPE_ID = "rweave-tex"; //$NON-NLS-1$
+	public static final String LTX_R_MODEL_TYPE_ID = "ltx-rweave"; //$NON-NLS-1$
 	
 	public static final String RWEAVETEX_DOC_PROCESSING_LAUNCHCONFIGURATION_ID = "de.walware.statet.r.launchConfigurationTypes.RweaveTexCreation"; //$NON-NLS-1$
 	

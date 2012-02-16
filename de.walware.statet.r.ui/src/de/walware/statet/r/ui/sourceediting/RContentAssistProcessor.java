@@ -11,23 +11,23 @@
 
 package de.walware.statet.r.ui.sourceediting;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 
 import de.walware.ecommons.ltk.LTK;
-import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ltk.ui.sourceediting.ContentAssist;
-import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistComputerRegistry;
-import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistProcessor;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistComputerRegistry;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistProcessor;
 import de.walware.ecommons.text.IPartitionConstraint;
 
 import de.walware.statet.nico.ui.console.InputDocument;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
-import de.walware.statet.r.internal.ui.editors.RAssistInvocationContext;
 import de.walware.statet.r.internal.ui.editors.RContextInformationValidator;
 
 
@@ -53,13 +53,15 @@ public class RContentAssistProcessor extends ContentAssistProcessor {
 	
 	
 	@Override
-	protected AssistInvocationContext createCompletionProposalContext(final int offset) {
-		return new RAssistInvocationContext(getEditor(), offset, true);
+	protected AssistInvocationContext createCompletionProposalContext(final int offset,
+			final IProgressMonitor monitor) {
+		return new RAssistInvocationContext(getEditor(), offset, true, monitor);
 	}
 	
 	@Override
-	protected AssistInvocationContext createContextInformationContext(final int offset) {
-		return new RAssistInvocationContext(getEditor(), offset, false);
+	protected AssistInvocationContext createContextInformationContext(final int offset,
+			final IProgressMonitor monitor) {
+		return new RAssistInvocationContext(getEditor(), offset, false, monitor);
 	}
 	
 	@Override

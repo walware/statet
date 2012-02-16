@@ -25,6 +25,27 @@ import de.walware.statet.r.core.rlang.RTokens;
 public class RHeuristicTokenScanner extends BasicHeuristicTokenScanner {
 	
 	
+	public static final int CURLY_BRACKET_TYPE = 0;
+	public static final int ROUND_BRACKET_TYPE = 1;
+	public static final int SQUARE_BRACKET_TYPE = 2;
+	
+	public static int getBracketType(final char c) {
+		switch (c) {
+		case '{':
+		case '}':
+			return CURLY_BRACKET_TYPE;
+		case '(':
+		case ')':
+			return ROUND_BRACKET_TYPE;
+		case '[':
+		case ']':
+			return SQUARE_BRACKET_TYPE;
+		default:
+			throw new IllegalArgumentException();
+		}
+	}
+	
+	
 	/**
 	 * 
 	 */
@@ -56,28 +77,28 @@ public class RHeuristicTokenScanner extends BasicHeuristicTokenScanner {
 		protected boolean matchesChar() {
 			switch (fChar) {
 			case '{':
-				type = 0;
+				type = CURLY_BRACKET_TYPE;
 				open = true;
 				return true;
 			case '}':
-				type = 0;
+				type = CURLY_BRACKET_TYPE;
 				open = false;
 				return true;
 			case '(':
-				type = 1;
+				type = ROUND_BRACKET_TYPE;
 				open = true;
 				return true;
 			case ')':
-				type = 1;
+				type = ROUND_BRACKET_TYPE;
 				open = false;
 				open = false;
 				return true;
 			case '[':
-				type = 2;
+				type = SQUARE_BRACKET_TYPE;
 				open = true;
 				return true;
 			case ']':
-				type = 2;
+				type = SQUARE_BRACKET_TYPE;
 				open = false;
 				return true;
 			}
@@ -87,15 +108,14 @@ public class RHeuristicTokenScanner extends BasicHeuristicTokenScanner {
 	};
 	
 	/**
+	 * Computes bracket balance
 	 * 
 	 * @param backwardOffset searching backward before this offset
 	 * @param forwardOffset searching forward after (including) this offset
 	 * @param initial initial balance (e.g. known or not yet inserted between backward and forward offset)
-	 * @param searchType
-	 *     0 = { }
-	 *     1 = ( )
-	 *     2 = [ ]
+	 * @param searchType interesting bracket type
 	 * @return
+	 * @see #getBracketType(char)
 	 */
 	public int[] computeBracketBalance(int backwardOffset, int forwardOffset, final int[] initial, final int searchType) {
 		final int[] compute = new int[3];

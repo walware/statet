@@ -39,6 +39,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.text.IndentUtil;
 import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
@@ -57,7 +58,6 @@ import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RUtil;
-import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.ui.RUI;
 
@@ -233,7 +233,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 			
 			try {
 				final IRCoreAccess rCore = (IRCoreAccess) fEditor.getAdapter(IRCoreAccess.class);
-				final RIndentUtil util = new RIndentUtil(fDocument, rCore.getRCodeStyle());
+				final IndentUtil util = new IndentUtil(fDocument, rCore.getRCodeStyle());
 				
 				final int indent = util.getMultilineIndentColumn(fDocument.getLineOfOffset(fPosition.getOffset()),
 						fDocument.getLineOfOffset(fPosition.getOffset() + fPosition.getLength()));

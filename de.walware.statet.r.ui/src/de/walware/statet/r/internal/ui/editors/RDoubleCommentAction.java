@@ -23,14 +23,14 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.texteditor.IUpdate;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
-import de.walware.ecommons.text.TextUtil;
+import de.walware.ecommons.text.IndentUtil;
 import de.walware.ecommons.text.IndentUtil.IndentEditAction;
+import de.walware.ecommons.text.TextUtil;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
-import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
@@ -42,8 +42,8 @@ public class RDoubleCommentAction extends Action implements IUpdate {
 	public static final String ACTION_ID = "de.walware.statet.r.actions.AddDoubleComment"; //$NON-NLS-1$
 	
 	
-	private ISourceEditor fEditor;
-	private IRCoreAccess fCore;
+	private final ISourceEditor fEditor;
+	private final IRCoreAccess fCore;
 	
 	
 	public RDoubleCommentAction(final ISourceEditor editor, final IRCoreAccess core) {
@@ -89,7 +89,7 @@ public class RDoubleCommentAction extends Action implements IUpdate {
 		}
 		
 		final IRegion textBlock = TextUtil.getBlock(document, selection.getOffset(), selection.getOffset()+selection.getLength());
-		final RIndentUtil util = new RIndentUtil(document, fCore.getRCodeStyle());
+		final IndentUtil util = new IndentUtil(document, fCore.getRCodeStyle());
 		IDocumentExtension4 doc4 = null;
 		DocumentRewriteSession rewriteSession = null;
 		try {

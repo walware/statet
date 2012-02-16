@@ -94,7 +94,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.actions.GotoPreviousWordHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.SelectNextWordHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.SelectPreviousWordHandler;
 import de.walware.ecommons.preferences.PreferencesUtil;
-import de.walware.ecommons.text.PairMatcher;
+import de.walware.ecommons.text.ICharPairMatcher;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.text.ui.InformationDispatchHandler;
 import de.walware.ecommons.text.ui.TextHandlerUtil;
@@ -651,7 +651,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		
 		contextService.activateContext("de.walware.statet.base.contexts.ConsoleEditor"); //$NON-NLS-1$
 		
-		final PairMatcher matcher = fConfigurator.getSourceViewerConfiguration().getPairMatcher();
+		final ICharPairMatcher matcher = fConfigurator.getSourceViewerConfiguration().getPairMatcher();
 		if (matcher != null) {
 			final IHandler2 handler = new GotoMatchingBracketHandler(matcher, this);
 			handlers.add(ISourceEditorCommandIds.GOTO_MATCHING_BRACKET, handler);

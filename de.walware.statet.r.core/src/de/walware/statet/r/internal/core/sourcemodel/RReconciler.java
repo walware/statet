@@ -11,13 +11,16 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
+import java.util.List;
+
 import com.ibm.icu.text.DecimalFormat;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.text.AbstractDocument;
 
+import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
+import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.SourceContentLines;
 import de.walware.ecommons.text.FixInterningStringCache;
@@ -27,12 +30,14 @@ import de.walware.ecommons.text.PartialStringParseInput;
 import de.walware.ecommons.text.SourceParseInput;
 import de.walware.ecommons.text.StringParseInput;
 
-import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRModelInfo;
+import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.RChunkElement;
 import de.walware.statet.r.core.model.RModel;
+import de.walware.statet.r.core.model.RProblemReporter;
+import de.walware.statet.r.core.model.RSuModelContainer;
 import de.walware.statet.r.core.model.SpecialParseContent;
-import de.walware.statet.r.core.rsource.ast.RAst;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
+import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RScanner;
 import de.walware.statet.r.core.rsource.ast.RoxygenScanner;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
@@ -48,7 +53,7 @@ public class RReconciler {
 	
 	protected static class Data {
 		
-		public final IManagableRUnit su;
+		public final RSuModelContainer adapter;
 		public final SourceContent content;
 		
 		public SourceParseInput parseInput;
@@ -56,42 +61,41 @@ public class RReconciler {
 		
 		private SourceContentLines contentLines;
 		
-		public RAstInfo ast;
+		public AstInfo ast;
 		
 		public IRModelInfo oldModel;
 		public IRModelInfo newModel;
 		
-		public Data(final IManagableRUnit su, final IProgressMonitor monitor) {
-			this.su = su;
-			this.content = su.getParseContent(monitor);
+		public Data(final RSuModelContainer adapter, final IProgressMonitor monitor) {
+			this.adapter = adapter;
+			this.content = adapter.getParseContent(monitor);
 		}
 		
 	}
 	
 	
 	private final RModelManager fManager;
-	
-	private final Object fAstLock = new Object();
-	private final IStringCache f1AstStringCache;
-	private final RoxygenScanner f1RoxygenScanner;
-	
-	private final Object fModelLock = new Object();
-	private final SourceAnalyzer f2ScopeAnalyzer;
-	
-	
-	private final SyntaxProblemReporter f2SyntaxReporter;
+	protected boolean fStop = false;
 	
 	private final LineInformationCreator fLineInformationCreator = new LineInformationCreator();
 	
-	protected boolean fStop = false;
+	private final Object f1AstLock = new Object();
+	private final IStringCache f1AstStringCache;
+	private final RoxygenScanner f1RoxygenScanner;
+	
+	private final Object f2ModelLock = new Object();
+	private final SourceAnalyzer f2ScopeAnalyzer;
+	
+	private final Object f3ReportLock = new Object();
+	private final RProblemReporter f3ProblemReporter;
 	
 	
 	public RReconciler(final RModelManager manager) {
 		fManager = manager;
-		f1AstStringCache = new FixInterningStringCache();
+		f1AstStringCache = new FixInterningStringCache(24);
 		f1RoxygenScanner = new RoxygenScanner(f1AstStringCache);
 		f2ScopeAnalyzer = new SourceAnalyzer();
-		f2SyntaxReporter = new SyntaxProblemReporter();
+		f3ProblemReporter = new RProblemReporter();
 	}
 	
 	
@@ -106,27 +110,31 @@ public class RReconciler {
 	}
 	
 	/** for editor reconciling */
-	public IRModelInfo reconcile(final IManagableRUnit su, final int level, final boolean reconciler, final IProgressMonitor monitor) {
+	public IRModelInfo reconcile(final RSuModelContainer adapter,
+			final int level, final IProgressMonitor monitor) {
+		final IRSourceUnit su = adapter.getSourceUnit();
 		final int type = (su.getModelTypeId().equals(RModel.TYPE_ID) ? su.getElementType() : 0);
 		if (type == 0) {
 			return null;
 		}
-		final Data data = new Data(su, monitor);
+		final Data data = new Data(adapter, monitor);
 		if (data.content == null) {
 			return null;
 		}
-		synchronized (fAstLock) {
-			if (fStop) {
+		synchronized (f1AstLock) {
+			if (fStop || monitor.isCanceled()) {
 				return null;
 			}
 			updateAst(data, monitor);
 		}
-		if (level <= IModelManager.AST) {
+		
+		if (fStop || monitor.isCanceled()
+				|| (level & 0xf) < IModelManager.MODEL_FILE) {
 			return null;
 		}
 		
-		synchronized (fModelLock) {
-			if (fStop) {
+		synchronized (f2ModelLock) {
+			if (fStop || monitor.isCanceled()) {
 				return null;
 			}
 			final boolean updated = updateModel(data);
@@ -136,31 +144,41 @@ public class RReconciler {
 			}
 			
 			// Throw event
-			if (updated && data.newModel != null && (data.oldModel == null || data.oldModel.getStamp() != data.newModel.getStamp())) {
+			if (updated) {
 				fManager.getEventJob().addUpdate(su, data.oldModel, data.newModel);
 			}
 		}
 		
-		if (reconciler) {
-			if (fStop) {
+		if ((level & IModelManager.RECONCILER) != 0 && data.newModel != null) {
+			if (fStop || monitor.isCanceled()) {
 				return null;
 			}
 			
-			// Report problems
-			final IProblemRequestor problemRequestor = su.getProblemRequestor();
-			if (problemRequestor != null) {
-				AbstractDocument doc = su.getDocument(monitor);
-				if (doc != null) {
-					problemRequestor.beginReportingSequence();
-					synchronized (f2SyntaxReporter) {
-						f2SyntaxReporter.run(su, getContentLines(data), data.ast, problemRequestor);
+			IProblemRequestor problemRequestor = null;
+			synchronized (f3ReportLock) {
+				if (!fStop && !monitor.isCanceled()
+						&& data.newModel == adapter.getCurrentModel() ) {
+					problemRequestor = adapter.createProblemRequestor(data.ast.stamp);
+					if (problemRequestor != null) {
+						f3ProblemReporter.run(su, getContentLines(data),
+								(RAstNode) data.ast.root, problemRequestor );
 					}
-					problemRequestor.endReportingSequence();
 				}
+			}
+			if (problemRequestor != null) {
+				problemRequestor.finish();
 			}
 		}
 		
 		return data.newModel;
+	}
+	
+	public IRModelInfo reconcile(final IRSourceUnit su, final ISourceUnitModelInfo modelInfo,
+			final List<? extends RChunkElement> chunks,
+			final int level, final IProgressMonitor monitor) {
+		synchronized (f2ModelLock) {
+			return updateModel(su, modelInfo, chunks);
+		}
 	}
 	
 	protected void initParseInput(final Data data) {
@@ -178,52 +196,48 @@ public class RReconciler {
 	}
 	
 	protected final void updateAst(final Data data, final IProgressMonitor monitor) {
-		final RAstInfo old = data.su.getCurrentRAst();
+		data.ast = data.adapter.getCurrentAst(data.content.stamp);
 		
-		if (old == null || old.stamp != data.content.stamp) {
+		if (data.ast == null) {
 			final long startAst;
 			final long stopAst;
 			startAst = System.nanoTime();
 			
 			initParseInput(data);
-			final RAstInfoImpl ast = new RAstInfoImpl(RAst.LEVEL_MODEL_DEFAULT, data.content.stamp);
-			final RScanner scanner = new RScanner(data.parseInput, ast, f1AstStringCache);
+			final RScanner scanner = new RScanner(data.parseInput, AstInfo.LEVEL_MODEL_DEFAULT,
+					f1AstStringCache );
 			scanner.setCommentLevel(100);
-			final SourceComponent sourceComponent = scanner.scanSourceRange(null, data.parseOffset, data.content.text.length());
-			ast.set(sourceComponent);
+			final SourceComponent sourceComponent = scanner.scanSourceRange(null,
+					data.parseOffset, data.content.text.length() );
+			final AstInfo ast = new AstInfo(scanner.getAstLevel(), data.content.stamp, sourceComponent);
 			
 			stopAst = System.nanoTime();
 			
 			f1RoxygenScanner.init(data.parseInput);
-			f1RoxygenScanner.update(ast.getRootNode());
+			f1RoxygenScanner.update(sourceComponent);
 			
 			if (LOG_TIME) {
 				System.out.println(f1AstStringCache.toString());
 				System.out.println("RReconciler/createAST   : " + DecimalFormat.getInstance().format(stopAst-startAst)); //$NON-NLS-1$
 			}
 			
-			synchronized (data.su.getModelLockObject()) {
-				data.su.setRAst(ast);
+			synchronized (data.adapter) {
+				data.adapter.setAst(ast);
 			}
 			data.ast = ast;
-		}
-		else {
-			data.ast = old;
 		}
 	}
 	
 	protected final boolean updateModel(final Data data) {
 		// Update Model
-		boolean updated = false;
-		IRModelInfo oldModel = null;
-		IRModelInfo newModel = isUpToDate(data.su, data.ast.stamp);
-		if (newModel == null) {
+		data.newModel = data.adapter.getCurrentModel(data.ast.stamp);
+		if (data.newModel == null) {
 			final long startModel;
 			final long stopModel;
 			startModel = System.nanoTime();
 			
-			newModel = f2ScopeAnalyzer.createModel(data.su, data.ast);
-			final boolean isOK = (newModel != null);
+			final IRModelInfo model = f2ScopeAnalyzer.createModel(data.adapter.getSourceUnit(), data.ast);
+			final boolean isOK = (model != null);
 			
 			stopModel = System.nanoTime();
 			
@@ -231,30 +245,45 @@ public class RReconciler {
 				System.out.println("RReconciler/createMODEL : " + DecimalFormat.getInstance().format(stopModel-startModel)); 
 			}
 			
-			synchronized (data.su.getModelLockObject()) {
-				if (isOK) {
-					oldModel = data.su.getCurrentRModel();
-					final RAstInfo oldAst = data.su.getCurrentRAst();
-					if (oldAst == null || oldAst.stamp == newModel.getStamp()) {
-						// otherwise, the ast is probably newer
-						data.su.setRAst(newModel.getAst());
-					}
-					data.su.setRModel(newModel);
+			if (isOK) {
+				synchronized (data.adapter) {
+					data.oldModel = data.adapter.getCurrentModel();
+					data.adapter.setModel(model);
 				}
+				data.newModel = model;
+				return true;
 			}
-			updated = true;
 		}
-		data.oldModel = oldModel;
-		data.newModel = newModel;
-		return updated;
+		return false;
 	}
 	
-	private IRModelInfo isUpToDate(final IManagableRUnit u, final long stamp) {
-		final IRModelInfo currentInfo = u.getCurrentRModel();
-		if (currentInfo != null && currentInfo.getStamp() == stamp) {
-			return currentInfo;
+	private IRModelInfo updateModel(final IRSourceUnit su, final ISourceUnitModelInfo modelInfo,
+			final List<? extends RChunkElement> chunks) {
+		IRModelInfo model;
+		try {
+			final AstInfo ast = modelInfo.getAst();
+			f2ScopeAnalyzer.beginChunkSession(su, ast);
+			for (int i = 0; i < chunks.size(); i++) {
+				final RChunkElement element = chunks.get(i);
+				final SourceComponent[] rootNodes;
+				{	final Object source = element.getAdapter(SourceComponent.class);
+					if (source instanceof SourceComponent) {
+						rootNodes = new SourceComponent[] { (SourceComponent) source };
+					}
+					else if (source instanceof SourceComponent[]) {
+						rootNodes = (SourceComponent[]) source;
+					}
+					else {
+						continue;
+					}
+				}
+				f2ScopeAnalyzer.processChunk(element, rootNodes);
+			}
 		}
-		return null;
+		finally {
+			model = f2ScopeAnalyzer.stopChunkSession();
+		}
+		return model;
 	}
 	
 	void stop() {

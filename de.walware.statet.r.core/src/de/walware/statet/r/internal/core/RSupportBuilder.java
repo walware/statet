@@ -44,12 +44,13 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	
 	static class ExceptionCollector {
 		
-		private ArrayList<IStatus> fExceptionList = new ArrayList<IStatus>(20);
+		private final ArrayList<IStatus> fExceptionList = new ArrayList<IStatus>(20);
 		
 		public void reset() {
 			fExceptionList.clear();
-			if (fExceptionList.size() > 20)
+			if (fExceptionList.size() > 20) {
 				fExceptionList.trimToSize();
+			}
 		}
 		
 		private void add(final IStatus e) {
@@ -124,10 +125,11 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	}
 	
 	private void init() throws CoreException {
-		if (!fStartupSuccessfull)
+		if (!fStartupSuccessfull) {
 			throw new CoreException(new Status(
 					IStatus.ERROR, RCore.PLUGIN_ID,	ICommonStatusConstants.BUILD_ERROR,
 					Messages.Builder_error_OnStartup_message, null));
+		}
 		
 		fExceptions = new ExceptionCollector();
 		
@@ -137,8 +139,9 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected IProject[] build(final int kind, final Map args, final IProgressMonitor monitor)
 			throws CoreException {
-		if (!fInitialized)
+		if (!fInitialized) {
 			init();
+		}
 		
 		if (kind == IncrementalProjectBuilder.FULL_BUILD) {
 			doFullBuild(monitor);

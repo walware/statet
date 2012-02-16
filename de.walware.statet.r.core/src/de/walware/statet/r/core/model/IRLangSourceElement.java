@@ -21,6 +21,9 @@ public interface IRLangSourceElement extends IRLangElement, ISourceStructElement
 	
 	
 	@Override
+	public IRSourceUnit getSourceUnit();
+	
+	@Override
 	boolean hasModelChildren(IModelElement.Filter filter);
 	@Override
 	List<? extends IRLangSourceElement> getModelChildren(IModelElement.Filter filter);

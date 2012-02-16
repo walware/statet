@@ -23,18 +23,28 @@ public class RBracketPairMatcher extends PairMatcher {
 	
 	public static final char[][] BRACKETS = { {'{', '}'}, {'(', ')'}, {'[', ']'} };
 	
+	private static final String[] DEFAULT_SET = new String[] {
+		IRDocumentPartitions.R_DEFAULT,
+		IRDocumentPartitions.R_DEFAULT_EXPL
+	};
+	
+	private static final String[] EXPL_SET = new String[] {
+		IRDocumentPartitions.R_DEFAULT_EXPL
+	};
+	
 	
 	public RBracketPairMatcher() {
 		this(new RHeuristicTokenScanner());
 	}
 	
-	public RBracketPairMatcher(final ITokenScanner scanner) {
-		this(scanner, IRDocumentPartitions.R_PARTITIONING,
-				new String[] { IRDocumentPartitions.R_DEFAULT, IRDocumentPartitions.R_DEFAULT_EXPL }
-		);
+	public RBracketPairMatcher(final RHeuristicTokenScanner scanner) {
+		this(scanner, scanner.getPartitioningConfig().getPartitioning(),
+				scanner.getPartitioningConfig().getDefaultPartitionConstraint().matches(IRDocumentPartitions.R_DEFAULT) ?
+						DEFAULT_SET : EXPL_SET );
 	}
 	
-	public RBracketPairMatcher(final ITokenScanner scanner, final String partitioning, final String[] partitions) {
+	public RBracketPairMatcher(final ITokenScanner scanner, final String partitioning,
+			final String[] partitions) {
 		super(BRACKETS,
 				partitioning,
 				partitions,

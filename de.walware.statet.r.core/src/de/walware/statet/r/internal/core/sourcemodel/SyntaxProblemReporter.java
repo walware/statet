@@ -55,9 +55,9 @@ import de.walware.ecommons.MessageBuilder;
 import de.walware.ecommons.ltk.IProblem;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ltk.Problem;
 import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.SourceContentLines;
+import de.walware.ecommons.ltk.core.impl.Problem;
 import de.walware.ecommons.text.ILineInformation;
 
 import de.walware.statet.r.core.RCore;
@@ -84,7 +84,6 @@ import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.NullConst;
 import de.walware.statet.r.core.rsource.ast.NumberConst;
 import de.walware.statet.r.core.rsource.ast.Power;
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RAstVisitor;
 import de.walware.statet.r.core.rsource.ast.Relational;
@@ -132,16 +131,16 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	}
 	
 	
-	public void run(final IRSourceUnit unit, final SourceContentLines content,
-			final RAstInfo ast, final IProblemRequestor problemRequestor) {
+	public void run(final IRSourceUnit su, final SourceContentLines content,
+			final RAstNode node, final IProblemRequestor problemRequestor) {
 		try {
-			fCurrentUnit = unit;
+			fCurrentUnit = su;
 			fCurrentContent = content;
 			fCurrentLines = content.lines;
 //			fCurrentDoc = unit.getDocument(null);
 //			fMaxOffset = fCurrentDoc.getLength();
 			fCurrentRequestor = problemRequestor;
-			ast.getRootNode().acceptInR(this);
+			node.acceptInR(this);
 			if (fProblemBuffer.size() > 0) {
 				fCurrentRequestor.acceptProblems(RModel.TYPE_ID, fProblemBuffer);
 			}
@@ -1125,7 +1124,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		if (stopOffset > fCurrentContent.text.length()) {
 			stopOffset = fCurrentContent.text.length();
 		}
-		fProblemBuffer.add(new Problem(severity, code, message, fCurrentUnit,
+		fProblemBuffer.add(new Problem(RModel.TYPE_ID, severity, code, message, fCurrentUnit,
 				startOffset, stopOffset ));
 		if (fProblemBuffer.size() >= BUFFER_SIZE) {
 			fCurrentRequestor.acceptProblems(RModel.TYPE_ID, fProblemBuffer);

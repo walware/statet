@@ -34,7 +34,7 @@ public class RModelAdapterFactory implements IAdapterFactory {
 	}
 	
 	@Override
-	public Object getAdapter(Object adaptableObject, Class adapterType) {
+	public Object getAdapter(final Object adaptableObject, final Class adapterType) {
 		if (RHeuristicTokenScanner.class.equals(adapterType)) {
 			return new RHeuristicTokenScanner();
 		}

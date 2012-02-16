@@ -16,7 +16,7 @@ import org.apache.commons.collections.primitives.IntList;
 import org.eclipse.jface.text.contentassist.IContextInformationExtension;
 import org.eclipse.swt.graphics.Image;
 
-import de.walware.ecommons.ltk.ui.sourceediting.IAssistInformationProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistInformationProposal;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IRMethod;
@@ -27,11 +27,11 @@ public class RArgumentListContextInformation implements IAssistInformationPropos
 		IContextInformationExtension {
 	
 	
-	private int fOffset;
-	private ArgsDefinition fArgs;
+	private final int fOffset;
+	private final ArgsDefinition fArgs;
 	
-	private String fInformation;
-	private int[] fInformationIndexes;
+	private final String fInformation;
+	private final int[] fInformationIndexes;
 	
 	
 	public RArgumentListContextInformation(final int offset, final IRMethod method) {
