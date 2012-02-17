@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -868,7 +869,12 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		if (!fCompleteRuntimeMode) {
 			final ISourceUnit su = fEditor.getSourceUnit();
 			if ((su instanceof IRSourceUnit)) {
-				fEnvirList[WS_ENVIR] = RModel.createProjectFrameList(null, (IRSourceUnit) su, fEnvirListPackages);
+				try {
+					fEnvirList[WS_ENVIR] = RModel.createProjectFrameList(null, (IRSourceUnit) su, fEnvirListPackages);
+				}
+				catch (CoreException e) {
+					// CANCELLED possible?
+				}
 				if (fEnvirList[WS_ENVIR] != null && !fEnvirList[WS_ENVIR].isEmpty()) {
 					fEnvirList[LOCAL_ENVIR].add(fEnvirList[WS_ENVIR].remove(0));
 				}

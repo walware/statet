@@ -586,7 +586,8 @@ public class RModelIndex {
 		}
 	}
 	
-	private CompositeFrame getFrame(final IProject project, final Proj proj, RProject rProject, Connection connection, final IProgressMonitor monitor) throws SQLException {
+	private CompositeFrame getFrame(final IProject project, final Proj proj, RProject rProject,
+			Connection connection, final IProgressMonitor monitor) throws SQLException, CoreException {
 		CompositeFrame frame = fElementsList.get(proj);
 		if (frame == null && project.isOpen()) {
 			if (rProject == null) {
@@ -624,7 +625,10 @@ public class RModelIndex {
 								elements.put(su.getId(), unitElement);
 							}
 						}
-						catch (final Exception e) {
+						catch (final IOException e) {
+							onDbReadError(e);
+						}
+						catch (final ClassNotFoundException e) {
 							onDbReadError(e);
 						}
 						finally {
@@ -911,12 +915,18 @@ public class RModelIndex {
 		}
 	}
 	
-	private void onDbReadError(final Exception e) {
+	private void onDbReadError(final Exception e) throws CoreException {
+		if (e instanceof SQLException) {
+			if ("08000".equals(((SQLException) e).getSQLState())) {
+				RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1, "Thread was interrupted when searching index in DB.", e));
+				throw new CoreException(Status.CANCEL_STATUS);
+			}
+		}
 		RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "An error occurred when searching index in DB.", e));
 	}
 	
 	
-	public IRFrame getProjectFrame(final IProject project) {
+	public IRFrame getProjectFrame(final IProject project) throws CoreException {
 		final Proj proj = fProjectIds.get(project.getName());
 		if (proj != null) {
 			fLock.readLock().lock();
@@ -933,7 +943,8 @@ public class RModelIndex {
 		return null;
 	}
 	
-	public List<String> findReferencingSourceUnits(final IProject project, final RElementName name) {
+	public List<String> findReferencingSourceUnits(final IProject project, final RElementName name)
+			throws CoreException {
 		if (name.getNextSegment() != null || name.getType() != RElementName.MAIN_DEFAULT || name.getSegmentName() == null) {
 			throw new UnsupportedOperationException("Only common top level names are supported.");
 		}

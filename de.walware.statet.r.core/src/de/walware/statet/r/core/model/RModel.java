@@ -65,7 +65,8 @@ public class RModel {
 		return list;
 	}
 	
-	public static List<IRFrame> createProjectFrameList(RProject project1, final IRSourceUnit exclude, Set<String> packages) {
+	public static List<IRFrame> createProjectFrameList(RProject project1,
+			final IRSourceUnit exclude, Set<String> packages) throws CoreException {
 		final ArrayList<IRFrame> list = new ArrayList<IRFrame>();
 		final IRModelManager manager = RCore.getRModelManager();
 		if (project1 == null && exclude instanceof IWorkspaceSourceUnit) {
@@ -119,7 +120,8 @@ public class RModel {
 		return list;
 	}
 	
-	public static List<ISourceElement> searchDeclaration(final RElementAccess access, final IRSourceUnit su) {
+	public static List<ISourceElement> searchDeclaration(final RElementAccess access,
+			final IRSourceUnit su) throws CoreException {
 		assert (access != null);
 		final List<ISourceElement> list = new ArrayList<ISourceElement>();
 		

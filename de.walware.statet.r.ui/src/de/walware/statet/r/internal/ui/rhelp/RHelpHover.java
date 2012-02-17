@@ -13,6 +13,7 @@ package de.walware.statet.r.internal.ui.rhelp;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
 
@@ -123,10 +124,15 @@ public class RHelpHover implements IInfoHover {
 						helpObject = searchFrames(topics, RModel.createDirectFrameList(frame));
 						final ISourceUnit su = context.getSourceUnit();
 						if (helpObject == null && su instanceof IRSourceUnit) {
-							helpObject = searchFrames(topics, RModel.createProjectFrameList(null, (IRSourceUnit) su, null));
+							helpObject = searchFrames(topics,
+									RModel.createProjectFrameList(null, (IRSourceUnit) su, null) );
 						}
 					}
 				}
+			}
+			catch (final CoreException e) {
+				// CANCELLED
+				return null;
 			}
 			finally {
 				help.unlock();
