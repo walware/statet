@@ -23,7 +23,6 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.model.IBreakpoint;
 
-import de.walware.statet.r.debug.core.breakpoints.IRBreakpoint;
 import de.walware.statet.r.debug.core.breakpoints.IRLineBreakpoint;
 import de.walware.statet.r.debug.core.breakpoints.IRMethodBreakpoint;
 import de.walware.statet.r.internal.debug.core.RDebugTarget;
@@ -178,15 +177,6 @@ public class RDebugModel {
 //		}
 //		return (matches != null) ? matches : NO_R_LINE_BREAKPOINTS;
 //	}
-	
-	/**
-	 * Removes the specified breakpoint.
-	 * 
-	 * @param breakpoint the breakpoint to remove
-	 */
-	public static void removeRBreakpoint(final IRBreakpoint breakpoint) throws CoreException {
-		DebugPlugin.getDefault().getBreakpointManager().removeBreakpoint(breakpoint, true);
-	}
 	
 	
 	/**

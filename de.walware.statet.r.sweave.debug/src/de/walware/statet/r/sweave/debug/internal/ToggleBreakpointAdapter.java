@@ -12,6 +12,7 @@
 package de.walware.statet.r.sweave.debug.internal;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTargetExtension;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
@@ -58,7 +59,7 @@ public class ToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 				fRAdapter.toggleLineBreakpoints(part, selection);
 			}
 			else {
-				fRAdapter.removeBreakpoints(part, selection);
+				fRAdapter.removeBreakpoints(part, selection, new NullProgressMonitor());
 			}
 		}
 	}
@@ -79,7 +80,7 @@ public class ToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 				fRAdapter.toggleMethodBreakpoints(part, selection);
 			}
 			else {
-				fRAdapter.removeBreakpoints(part, selection);
+				fRAdapter.removeBreakpoints(part, selection, new NullProgressMonitor());
 			}
 		}
 	}
@@ -111,7 +112,7 @@ public class ToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 				fRAdapter.toggleBreakpoints(part, selection);
 			}
 			else {
-				fRAdapter.removeBreakpoints(part, selection);
+				fRAdapter.removeBreakpoints(part, selection, new NullProgressMonitor());
 			}
 		}
 	}

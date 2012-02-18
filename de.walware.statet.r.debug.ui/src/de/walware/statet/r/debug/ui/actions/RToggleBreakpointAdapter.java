@@ -19,6 +19,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.model.IBreakpoint;
+import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTargetExtension;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.AbstractDocument;
@@ -27,6 +29,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -223,14 +226,18 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 		catch (final InterruptedException e) {}
 	}
 	
-	public boolean removeBreakpoints(final IWorkbenchPart part, final ISelection selection) throws CoreException {
+	public boolean removeBreakpoints(final IWorkbenchPart part, final ISelection selection,
+			final IProgressMonitor monitor) throws CoreException {
 		final Data data = createData(getREditor(part, selection));
+		if (data == null) {
+			return false;
+		}
 		if (selection instanceof ITextSelection) {
 			try {
 				data.init2(null);
 				if (selection instanceof ITextSelection) {
 					final ITextSelection textSelection = (ITextSelection) selection;
-					return checkSelectedLine(data, textSelection.getOffset(), null);
+					return checkSelectedLine(data, textSelection.getOffset(), null, monitor);
 				}
 			}
 			catch (final BadLocationException e) {}
@@ -244,12 +251,12 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 	
 	private void doToggleLineBreakpoint(final Data data, final int offset, final IProgressMonitor monitor)
 			throws BadLocationException, CoreException {
-		if (checkSelectedLine(data, offset, RDebugModel.R_LINE_BREAKPOINT_TYPE_ID)) {
+		if (checkSelectedLine(data, offset, RDebugModel.R_LINE_BREAKPOINT_TYPE_ID, monitor)) {
 			return;
 		}
 		final RLineBreakpointValidator validator = new RLineBreakpointValidator(data.getSourceUnit(),
 				RDebugModel.R_LINE_BREAKPOINT_TYPE_ID, offset, monitor );
-		if (checkNewLine(data, validator, RDebugModel.R_LINE_BREAKPOINT_TYPE_ID)) {
+		if (checkNewLine(data, validator, RDebugModel.R_LINE_BREAKPOINT_TYPE_ID, monitor)) {
 			return;
 		}
 		createNew(validator, monitor);
@@ -257,12 +264,12 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 	
 	private void doToggleMethodBreakpoint(final Data data, final int offset, final IProgressMonitor monitor)
 			throws BadLocationException, CoreException {
-		if (checkSelectedLine(data, offset, RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID)) {
+		if (checkSelectedLine(data, offset, RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID, monitor)) {
 			return;
 		}
 		final RLineBreakpointValidator validator = new RLineBreakpointValidator(data.getSourceUnit(),
 				RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID, offset, monitor );
-		if (checkNewLine(data, validator, RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID)) {
+		if (checkNewLine(data, validator, RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID, monitor)) {
 			return;
 		}
 		createNew(validator, monitor);
@@ -270,29 +277,32 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 	
 	private void doToggleBestBreakpoint(final Data data, final int offset, final IProgressMonitor monitor)
 			throws BadLocationException, CoreException {
-		if (checkSelectedLine(data, offset, null)) {
+		if (checkSelectedLine(data, offset, null, monitor)) {
 			return;
 		}
 		final RLineBreakpointValidator validator = new RLineBreakpointValidator(data.getSourceUnit(),
 				null, offset, monitor);
-		if (checkNewLine(data, validator, null)) {
+		if (checkNewLine(data, validator, null, monitor)) {
 			return;
 		}
 		createNew(validator, monitor);
 	}
 	
-	private boolean checkSelectedLine(final Data data, final int offset, final String type)
+	private boolean checkSelectedLine(final Data data, final int offset, final String type,
+			final IProgressMonitor monitor)
 			throws BadLocationException, CoreException {
 		final int lineNumber = data.getDocument().getLineOfOffset(offset) + 1;
 		final IRLineBreakpoint breakpoint = findFirst(data, lineNumber, type);
 		if (breakpoint != null) {
-			RDebugModel.removeRBreakpoint(breakpoint);
+			DebugUITools.deleteBreakpoints(new IBreakpoint[] { breakpoint },
+					getShell(data), monitor);
 			return true;
 		}
 		return false;
 	}
 	
-	private boolean checkNewLine(final Data data, final RLineBreakpointValidator validator, final String type)
+	private boolean checkNewLine(final Data data, final RLineBreakpointValidator validator, final String type,
+			final IProgressMonitor monitor)
 			throws CoreException {
 		if (validator.getLineNumber() >= 0) {
 			final int lineCorr = Math.abs(validator.getLineNumber() - validator.getOriginalLineNumber());
@@ -302,7 +312,8 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 					if (breakpoint == fLastBreakpoint 
 							|| type == RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID
 							|| lineCorr <= 2) {
-						RDebugModel.removeRBreakpoint(breakpoint);
+						DebugUITools.deleteBreakpoints(new IBreakpoint[] { breakpoint },
+								getShell(data), monitor);
 					}
 					return true;
 				}
@@ -383,6 +394,15 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 		StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, 0,
 				NLS.bind("An error occurred when toggling an R method breakpoint in ''{0}''.",
 						data.getSourceUnit().getElementName().getDisplayName() ), e ));
+	}
+	
+	private Shell getShell(final Data data) {
+		{	IWorkbenchPart part = data.getEditor().getWorkbenchPart();
+			if (part != null) {
+				return part.getSite().getShell();
+			}
+		}
+		return null;
 	}
 	
 }
