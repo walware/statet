@@ -288,11 +288,6 @@ public class RjsUtil {
 			}
 			status = execChannel.getExitStatus();
 		}
-		catch (final NullPointerException e) {
-			// TODO: Should be fixed in newer version / https://bugs.eclipse.org/bugs/show_bug.cgi?id=232416
-			error = new JSchException("Probably: The SSH connection was closed unexpected by timeout or a failure.", e);
-			status = -11111113;
-		}
 		catch (final JSchException e) {
 			error = e;
 			status = -11111114;
@@ -348,11 +343,6 @@ public class RjsUtil {
 				}
 			}
 			status = execChannel.getExitStatus();
-		}
-		catch (final NullPointerException e) {
-			// TODO: Should be fixed in newer version / https://bugs.eclipse.org/bugs/show_bug.cgi?id=232416
-			error = new JSchException("Probably: The SSH connection was closed unexpected by timeout or a failure.", e);
-			status = -11111113;
 		}
 		catch (final JSchException e) {
 			error = e;

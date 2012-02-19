@@ -40,7 +40,6 @@ import org.apache.lucene.util.Version;
  *   <li>{@link StopFilter}, using a list of English stop words.</li>
  */
 public final class StandardAnalyzer extends Analyzer {
-	// TODO update to Lucene 3.1 mode with better Unicode support
 	
 	/**
 	 * An unmodifiable set containing some common English words that are usually not useful for searching.
