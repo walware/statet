@@ -162,6 +162,22 @@
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
+            locationURI="menu:navigate?after=open.ext">
+         <command
+               commandId="org.eclipse.ui.edit.text.open.hyperlink"
+               mnemonic="%menus_Navigate_OpenHyperlink_mnemonic"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with variable="activePartId">
+                  <equals
+                        value="de.walware.statet.r.editors.LtxRweave">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
             locationURI="popup:de.walware.statet.r.sweave.menus.LtxRweaveEditorContextMenu?after=group.edit">
          <command
                commandId="de.walware.ecommons.ltk.commands.ToggleComment"

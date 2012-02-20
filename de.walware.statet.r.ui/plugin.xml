@@ -365,6 +365,22 @@
                visible="false">
          </separator>
       </menuContribution>
+      <menuContribution
+            locationURI="menu:navigate?after=open.ext">
+         <command
+               commandId="org.eclipse.ui.edit.text.open.hyperlink"
+               mnemonic="%menus_Navigate_OpenHyperlink_mnemonic"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with variable="activePartId">
+                  <equals
+                        value="de.walware.statet.r.editors.R">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.popupMenus">

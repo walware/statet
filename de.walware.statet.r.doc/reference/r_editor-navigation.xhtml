@@ -28,7 +28,7 @@ the Eclipse workspace.</p>
 <tr><th colspan="4">Expand selection
 		<p>This commands provides syntax aware code selection including a selection history.
 		The menu items can be found in the submenu
-		<span class="uisequence">Edit &gt; Expand Selection To</span>.</p></th></tr>
+		<span class="uisequence" style="white-space: nowrap;">Edit &gt; Expand Selection To</span>.</p></th></tr>
 <tr>
 	<td></td>
 	<td><span class="uilabel">Select Enclosing Element</span></td>
@@ -87,6 +87,13 @@ the Eclipse workspace.</p>
 		Local&nbsp;command<br/>
 		<kbd>Ctrl+Shift+P</kbd></td>
 </tr>
+<tr>
+	<td></td>
+	<td><span class="uilabel">Open Hyperlink</span></td>
+	<td><p>Opens the <a href="#links">hyperlink</a> for the caret location</p></td>
+	<td>Main&nbsp;menu (Navigate)<br/>
+		Local&nbsp;command</td>
+</tr>
 </table>
 
 <h2 id="links">Hyperlinks</h2>
@@ -117,6 +124,10 @@ mouse position, the link is shown in the editor and can be triggered by a mouse 
 </tr>
 </table>
 
+<p>If more than one hyperlink actions are available for the current position, a chooser is opened
+and the user can selected the desired target.</p>
+
+
 <h4>Configuration</h4>
 
 <p>The different kinds of hyperlinks can be configured in the preferences 
@@ -124,8 +135,8 @@ mouse position, the link is shown in the editor and can be triggered by a mouse 
 <span class="uisequence indent">General &gt; Editors &gt; Text Editors &gt; Hyperlinking</span>
 
 Only items listed as <span class="uilabel">Available In</span> "R Source" in the table are relevant 
-for R code.
-</p>
+for R code.</p>
+
 
 <!-- Double Click? -->
 
