@@ -25,8 +25,11 @@ public class ToolEventHandlerUtil {
 	@SuppressWarnings("unchecked")
 	public static <C> C getCheckedData(final Map<String, Object> data, final String name, final Class<C> clazz, final boolean required) {
 		final Object obj = data.get(name);
-		if (required && obj == null) {
-			throw new IllegalArgumentException("missing data entry: '" + name + '"');
+		if (obj == null) {
+			if (required) {
+				throw new IllegalArgumentException("missing data entry: '" + name + '"');
+			}
+			return null;
 		}
 		if (!clazz.isInstance(obj)) {
 			throw new IllegalArgumentException("incompatible data entry: '" + name + "' (" + obj.getClass().getName() + ")");
