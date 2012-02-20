@@ -104,7 +104,10 @@ public class RTermController extends AbstractRController implements IRequireSync
 							n = s.length();
 							if (n >= 2 && s.charAt(--n) == ' ' && (s.charAt(--n) == '>' || s.charAt(n) == '+')) {
 								hasNoOutput++;
-								getControllerThread().interrupt();
+								final Thread thread = getControllerThread();
+								if (thread != null) {
+									thread.interrupt();
+								}
 							}
 							continue;
 						}
@@ -281,12 +284,8 @@ public class RTermController extends AbstractRController implements IRequireSync
 	}
 	
 	@Override
-	protected void interruptTool(final int hardness) {
+	protected void interruptTool() {
 		runSendCtrlC();
-		if (hardness == 0) {
-			return;
-		}
-		getControllerThread().interrupt();
 	}
 	
 	@Override
@@ -304,7 +303,6 @@ public class RTermController extends AbstractRController implements IRequireSync
 			p.destroy();
 			fProcess = null;
 		}
-		markAsTerminated();
 	}
 	
 	@Override

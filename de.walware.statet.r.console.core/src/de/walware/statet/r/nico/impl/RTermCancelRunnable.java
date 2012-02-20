@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 
 import de.walware.ecommons.ts.ITool;
@@ -27,6 +28,7 @@ import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
 
 import de.walware.statet.r.console.core.IRBasicAdapter;
+import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.console.core.RConsoleCorePlugin;
 import de.walware.statet.r.internal.nico.RNicoMessages;
 
@@ -65,13 +67,22 @@ class RTermCancelRunnable implements IToolRunnable {
 	public void run(final IToolService service,
 			final IProgressMonitor monitor) throws CoreException {
 		final IRBasicAdapter r = (IRBasicAdapter) service;
-		final URL dir = RConsoleCorePlugin.getDefault().getBundle().getEntry("/win32/SendSignal.exe"); //$NON-NLS-1$
+		final IREnvConfiguration config = (IREnvConfiguration) r.getTool().getAdapter(IREnvConfiguration.class);
+		String arch = config.getSubArch();
+		if (arch == null) {
+			arch = Platform.getOSArch();
+		}
 		try {
 			monitor.beginTask(RNicoMessages.RTerm_CancelTask_SendSignal_label, 10);
-			final String local = FileLocator.toFileURL(dir).getPath();
-			final File file = new File(local);
+			URL url = RConsoleCorePlugin.getDefault().getBundle().getEntry(
+					"/win32/" + arch + "/sendsignal.exe"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (url == null) {
+				throw new IOException("Missing 'sendsignal' tool for arch '" +  arch + "'."); //$NON-NLS-1$
+			}
+			url = FileLocator.toFileURL(url);
+			final File file = new File(url.getPath());
 			if (!file.exists()) {
-				throw new IOException("Missing File '"+file.getAbsolutePath() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new IOException("Missing file '"+url.toExternalForm()+ "'."); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			monitor.worked(1);
 			final RTermController controller = (RTermController) r.getController();
@@ -91,7 +102,7 @@ class RTermCancelRunnable implements IToolRunnable {
 				try {
 					final int code = process.exitValue();
 					if (code != 0) {
-						final StringBuffer detail = new StringBuffer();
+						final StringBuilder detail = new StringBuilder("Command failed:"); //$NON-NLS-1$
 						detail.append("\n command = "); //$NON-NLS-1$
 						detail.append(Arrays.toString(cmd));
 						detail.append("\n os.name = "); //$NON-NLS-1$
@@ -100,7 +111,11 @@ class RTermCancelRunnable implements IToolRunnable {
 						detail.append(System.getProperty("os.version")); //$NON-NLS-1$
 						detail.append("\n os.arch = "); //$NON-NLS-1$
 						detail.append(System.getProperty("os.arch")); //$NON-NLS-1$
-						throw new IOException("Command failed: " + detail); //$NON-NLS-1$
+						detail.append("\n r.arch = "); //$NON-NLS-1$
+						detail.append(arch); //$NON-NLS-1$
+						detail.append("\n exit.code = 0x"); //$NON-NLS-1$
+						detail.append(Integer.toHexString(code));
+						throw new IOException(detail.toString());
 					}
 					break;
 				}

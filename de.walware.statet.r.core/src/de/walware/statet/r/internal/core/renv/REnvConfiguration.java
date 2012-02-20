@@ -256,12 +256,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 			if (arch == null || arch.isEmpty()) {
 				arch = Platform.getOSArch();
 			}
-			if (arch.equals(Platform.ARCH_X86)) {
-				setSubArch("i386"); //$NON-NLS-1$
-			}
-			else {
-				setSubArch(arch);
-			}
+			setSubArch(arch);
 		}
 		fRBits = (Platform.ARCH_X86.equals(setup.getOSArch())) ? 32 : 64;
 		setRHome(setup.getRHome());
@@ -593,8 +588,13 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 				return null;
 			}
 		}
-		if (LOCAL_PLATFORM == LOCAL_WIN && arch.equals("x64")) { //$NON-NLS-1$
-			return "x86_64"; //$NON-NLS-1$
+		if (LOCAL_PLATFORM == LOCAL_WIN) { //$NON-NLS-1$
+			if (arch.equals("x64")) {
+				return "x86_64"; //$NON-NLS-1$
+			}
+			if (arch.equals("i386")) { //$NON-NLS-1$
+				return "x86"; //$NON-NLS-1$
+			}
 		}
 		return arch;
 	}
@@ -610,7 +610,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 			if (arch.equals("/x86_64")) { //$NON-NLS-1$
 				return "/x64"; //$NON-NLS-1$
 			}
-			else if (arch.equals("/x86")) { // not used at moment
+			if (arch.equals("/x86")) {
 				return "/i386"; //$NON-NLS-1$
 			}
 		}

@@ -55,7 +55,8 @@ public class QuitHandler implements IToolEventHandler {
 		@Override
 		public void run() {
 			final IWorkbenchWindow window = UIAccess.getActiveWorkbenchWindow(true);
-			final MessageDialog dialog = new MessageDialog(window.getShell(), fDialogTitle, null, fDialogMessage, MessageDialog.QUESTION, fDialogOptions, 0);
+			final MessageDialog dialog = new MessageDialog(window.getShell(), fDialogTitle, null,
+					fDialogMessage, MessageDialog.QUESTION, fDialogOptions, 0 );
 			fResult = dialog.open();
 			
 			if (fResult == 1) {
@@ -84,7 +85,8 @@ public class QuitHandler implements IToolEventHandler {
 	}
 	
 	@Override
-	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data,
+			final IProgressMonitor monitor) {
 		if (PlatformUI.getWorkbench().isClosing()) {
 			final ToolController controller = tools.getController();
 			if (controller != null) {
@@ -114,7 +116,11 @@ public class QuitHandler implements IToolEventHandler {
 		final ToolProcess process = runner.fController.getTool();
 		runner.fDialogTitle = NLS.bind(Messages.TerminatingMonitor_title, process.getLabel(ITool.DEFAULT_LABEL));
 		runner.fDialogMessage = NLS.bind(Messages.TerminatingMonitor_message, process.getLabel(ITool.LONG_LABEL));
-		runner.fDialogOptions = new String[] { Messages.TerminatingMonitor_WaitButton_label, Messages.TerminatingMonitor_ForceButton_label, Messages.TerminatingMonitor_CancelButton_label };
+		runner.fDialogOptions = new String[] {
+				Messages.TerminatingMonitor_WaitButton_label,
+				Messages.TerminatingMonitor_ForceButton_label,
+				Messages.TerminatingMonitor_CancelButton_label
+		};
 		
 		UIAccess.getDisplay().syncExec(runner);
 		if (runner.fResult == 2) {

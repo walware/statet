@@ -679,6 +679,16 @@ public final class Queue implements IQueue {
 		return fList;
 	}
 	
+	List<IToolRunnable> internalGetCurrentList() {
+		internalCheck();
+		if (fInsertIndex >= 0) {
+			return fList.subList(0, fInsertIndex);
+		}
+		else {
+			return fList;
+		}
+	}
+	
 	void dispose() {
 		checkIOCache();
 		if (!fList.isEmpty()) {

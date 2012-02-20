@@ -751,13 +751,8 @@ public class RjsController extends AbstractRDbgController
 	
 	
 	@Override
-	protected void interruptTool(final int hardness) throws UnsupportedOperationException {
-		if (hardness < 10) {
-			fRjs.runAsyncInterrupt();
-		}
-		if (hardness > 6) {
-			super.interruptTool(hardness);
-		}
+	protected void interruptTool() throws UnsupportedOperationException {
+		fRjs.runAsyncInterrupt();
 	}
 	
 	@Override
@@ -783,15 +778,6 @@ public class RjsController extends AbstractRDbgController
 	
 	@Override
 	protected void killTool(final IProgressMonitor monitor) {
-		if (getControllerThread() == null) {
-			markAsTerminated();
-			return;
-		}
-		interruptTool(9);
-		synchronized (fQueue) {
-			fQueue.notifyAll();
-		}
-		
 		fRjs.setClosed(true);
 		final ToolProcess consoleProcess = getTool();
 		// TODO: kill remote command?
@@ -805,8 +791,6 @@ public class RjsController extends AbstractRDbgController
 				}
 			}
 		}
-		interruptTool(10);
-		markAsTerminated();
 	}
 	
 	@Override

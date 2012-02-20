@@ -580,8 +580,10 @@ public abstract class ToolController implements IConsoleService {
 					fIsTerminated = true;
 				}
 				loopChangeStatus(ToolStatus.TERMINATED, null);
+				fQueue.notifyAll();
 			}
 			clear();
+			fControllerThread = null;
 		}
 	}
 	
@@ -711,7 +713,7 @@ public abstract class ToolController implements IConsoleService {
 		}
 		
 		try {
-			interruptTool(0);
+			interruptTool();
 			return true;
 		}
 		catch (final UnsupportedOperationException e) {
@@ -823,7 +825,7 @@ public abstract class ToolController implements IConsoleService {
 		if (current != null && current.getTypeId() == QUIT_TYPE_ID) {
 			quit.add(current);
 		}
-		final List<IToolRunnable> list = fQueue.internalGetList();
+		final List<IToolRunnable> list = fQueue.internalGetCurrentList();
 		for (final IToolRunnable runnable : list) {
 			if (runnable.getTypeId() == QUIT_TYPE_ID) {
 				quit.add(runnable);
@@ -833,9 +835,25 @@ public abstract class ToolController implements IConsoleService {
 	}
 	
 	public final void kill(final IProgressMonitor monitor) throws CoreException {
+		Thread thread = getControllerThread();
 		killTool(monitor);
-		synchronized (fQueue) {
-			fQueue.notifyAll();
+		if (thread != null) {
+			for (int i = 0; i < 3; i++) {
+				if (isTerminated()) {
+					return;
+				}
+				synchronized (fQueue) {
+					fQueue.notifyAll();
+					try {
+						fQueue.wait(10);
+					}
+					catch (Exception e) {}
+				}
+				thread.interrupt();
+			}
+		}
+		if (!isTerminated()) {
+			markAsTerminated();
 		}
 	}
 	
@@ -1584,16 +1602,13 @@ public abstract class ToolController implements IConsoleService {
 	protected abstract boolean isToolAlive();
 	
 	/**
-	 * Interrupts the tool. This methods is called async.
-	 * 
-	 * Predefined degree of hardness:
-	 *   0    - while cancelation
-	 *   5..9 - while forced termination
-	 * 
-	 * @param hardness degree of hardness
+	 * Interrupts the tool. This methods can be called async.
 	 */
-	protected void interruptTool(final int hardness) throws UnsupportedOperationException {
-		getControllerThread().interrupt();
+	protected void interruptTool() throws UnsupportedOperationException {
+		Thread thread = getControllerThread();
+		if (thread != null) {
+			thread.interrupt();
+		}
 	}
 	
 	/**
