@@ -68,8 +68,16 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 		"listObject",
 		"attributeObject",
 		"environmentObject",
-		"source",
-		"format",
+		"rdname", // 2.0
+		"template", // 2.0
+		"section", // 2.0
+		"description", // 2.0
+		"details", // 2.0
+		"family", // 2.0
+		"inheritParams", // 2.0
+		"format", // 2.0
+		"source", // 2.1
+		"encoding", // 2.2
 	};
 	
 	private static final List<String> TAG_COMMANDS;

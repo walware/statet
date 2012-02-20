@@ -55,6 +55,7 @@ public class RUIMessages extends NLS {
 	public static String Templates_Variable_ElementName_description;
 	public static String Templates_Variable_RoxygenParamTags_description;
 	public static String Templates_Variable_RoxygenSlotTags_description;
+	public static String Templates_Variable_RoxygenSigList_description;
 	
 	
 	static {

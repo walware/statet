@@ -32,6 +32,7 @@ import de.walware.ecommons.templates.TemplateMessages;
 
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.ArgsDefinition;
+import de.walware.statet.r.core.model.ArgsDefinition.Arg;
 import de.walware.statet.r.core.model.IRClass;
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRMethod;
@@ -225,30 +226,72 @@ public class CodeGeneration {
 			final EvaluatedTemplate data = new EvaluatedTemplate(buffer, lineDelimiter);
 			
 			final AbstractDocument content = data.startPostEdit();
-			final StringBuilder tagBuffer = new StringBuilder(64);
-			final TemplateVariable paramVariable = TemplatesUtil.findVariable(buffer, RCodeTemplatesContextType.ROXYGEN_PARAM_TAGS_VARIABLE);
-			final Position[] paramPositions = new Position[(paramVariable != null) ? paramVariable.getOffsets().length : 0];
-			for (int i = 0; i < paramPositions.length; i++) {
-				paramPositions[i] = new Position(paramVariable.getOffsets()[i], paramVariable.getLength());
-				content.addPosition(paramPositions[i]);
-			}
+			final StringBuilder sb = new StringBuilder(64);
 			
-			if (paramPositions.length > 0) {
-				String[] tags = null;
-				final ArgsDefinition args = rMethod.getArgsDefinition();
-				if (args != null) {
-					final int count = args.size();
-					tags = new String[count];
-					for (int i = 0; i < count; i++) {
-						tagBuffer.append("@param "); //$NON-NLS-1$
-						tagBuffer.append(args.get(i).name);
-						tagBuffer.append(" "); //$NON-NLS-1$
-						tags[i] = tagBuffer.toString();
-						tagBuffer.setLength(0);
+			final Position[] sigPositions;
+			String sigText = null;
+			{	final TemplateVariable variable = TemplatesUtil.findVariable(buffer,
+						RCodeTemplatesContextType.ROXYGEN_SIG_LIST_VARIABLE );
+				sigPositions = new Position[(variable != null) ? variable.getOffsets().length : 0];
+				for (int i = 0; i < sigPositions.length; i++) {
+					sigPositions[i] = new Position(variable.getOffsets()[i], variable.getLength());
+					content.addPosition(sigPositions[i]);
+				}
+				
+				if (sigPositions.length > 0) {
+					final ArgsDefinition args = rMethod.getArgsDefinition();
+					if (args != null) {
+						final int count = args.size();
+						for (int i = 0; i < count; i++) {
+							final Arg arg = args.get(i);
+							if (arg.className == null || arg.className.equals("ANY")) { //$NON-NLS-1$
+								break;
+							}
+							sb.append(arg.className);
+							sb.append(","); //$NON-NLS-1$
+						}
+						if (sb.length() > 0) {
+							sigText = sb.substring(0, sb.length()-1);
+							sb.setLength(0);
+						}
 					}
 				}
+			}
+			final Position[] paramPositions;
+			String[] paramTags = null;
+			{	final TemplateVariable variable = TemplatesUtil.findVariable(buffer,
+						RCodeTemplatesContextType.ROXYGEN_PARAM_TAGS_VARIABLE );
+				paramPositions = new Position[(variable != null) ? variable.getOffsets().length : 0];
+				for (int i = 0; i < paramPositions.length; i++) {
+					paramPositions[i] = new Position(variable.getOffsets()[i], variable.getLength());
+					content.addPosition(paramPositions[i]);
+				}
+				
+				if (paramPositions.length > 0) {
+					String list = null;
+					final ArgsDefinition args = rMethod.getArgsDefinition();
+					if (args != null) {
+						final int count = args.size();
+						paramTags = new String[count];
+						for (int i = 0; i < count; i++) {
+							sb.append("@param "); //$NON-NLS-1$
+							sb.append(args.get(i).name);
+							sb.append(" "); //$NON-NLS-1$
+							paramTags[i] = sb.toString();
+							sb.setLength(0);
+						}
+					}
+				}
+			}
+			
+			if (sigPositions != null) {
+				for (final Position pos : sigPositions) {
+					insertRoxygen(content, pos, sigText);
+				}
+			}
+			if (paramPositions != null) {
 				for (final Position pos : paramPositions) {
-					insertRoxygen(content, pos, tags);
+					insertRoxygen(content, pos, paramTags);
 				}
 			}
 			
@@ -320,6 +363,10 @@ public class CodeGeneration {
 			sb.append(tags[i]);
 		}
 		doc.replace(pos.getOffset(), pos.getLength(), sb.toString());
+	}
+	
+	private static void insertRoxygen(final AbstractDocument doc, final Position pos, final String s) throws BadLocationException {
+		doc.replace(pos.getOffset(), pos.getLength(), (s != null) ? s : ""); //$NON-NLS-1$
 	}
 	
 	private static boolean onlyWhitespace(final String s) {

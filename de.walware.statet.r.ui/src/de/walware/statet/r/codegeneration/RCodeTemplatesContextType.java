@@ -42,6 +42,7 @@ public class RCodeTemplatesContextType extends StatextCodeTemplatesContextType {
 	
 	public static final String ROXYGEN_PARAM_TAGS_VARIABLE = "param_tags"; //$NON-NLS-1$
 	public static final String ROXYGEN_SLOT_TAGS_VARIABLE = "slot_tags"; //$NON-NLS-1$
+	public static final String ROXYGEN_SIG_LIST_VARIABLE = "sig_list"; //$NON-NLS-1$
 	
 	
 	public static void registerContextTypes(final ContextTypeRegistry registry) {
@@ -77,6 +78,18 @@ public class RCodeTemplatesContextType extends StatextCodeTemplatesContextType {
 		}
 	}
 	
+	private static class RoxygenSigListVariableResolver extends TemplateVariableResolver {
+		
+		public RoxygenSigListVariableResolver() {
+			super(ROXYGEN_SIG_LIST_VARIABLE, RUIMessages.Templates_Variable_RoxygenSigList_description); 
+		}
+		
+		@Override
+		protected String resolve(final TemplateContext context) {
+			return ""; //$NON-NLS-1$
+		}
+	}
+	
 	private static class RElementNameVariableResolver extends TemplateVariableResolver {
 		
 		protected RElementNameVariableResolver() {
@@ -107,6 +120,7 @@ public class RCodeTemplatesContextType extends StatextCodeTemplatesContextType {
 			addSourceUnitGenerationVariables();
 			addResolver(new RElementNameVariableResolver());
 			addResolver(new RoxygenParamTagsVariableResolver()); 
+			addResolver(new RoxygenSigListVariableResolver()); 
 		}
 	}
 	

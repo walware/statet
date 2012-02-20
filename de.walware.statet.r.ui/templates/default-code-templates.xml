@@ -37,6 +37,7 @@ ${selection_begin}
 #' ${param_tags}
 #' @returnType 
 #' @return 
+#' 
 #' @author ${user}
 #' @export
 </template>
@@ -47,6 +48,7 @@ ${selection_begin}
 	description="%roxygen_S4ClassDef_description" 
 	>#' ${selection_begin}
 #' ${slot_tags}
+#' 
 #' @author ${user}
 #' @export
 </template>
@@ -56,10 +58,15 @@ ${selection_begin}
 	name="roxygen_S4MethodDef"
 	description="%roxygen_S4MethodDef_description" 
 	>#' ${selection_begin}
+#' @name ${element_name}
+#' @alias ${element_name},${sig_list}-method
+#' 
 #' ${param_tags}
 #' @returnType 
 #' @return 
+#' 
 #' @author ${user}
+#' @docType methods
 #' @export
 </template>
 
