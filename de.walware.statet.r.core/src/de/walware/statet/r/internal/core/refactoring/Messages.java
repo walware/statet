@@ -28,6 +28,7 @@ public class Messages extends NLS {
 	public static String RenameInRegion_Descriptor_description;
 	public static String RenameInRegion_Changes_VariableGroup_name;
 	public static String RenameInRegion_Changes_ReplaceOccurrence_name;
+	public static String RenameInRegion_Changes_ReplaceOccurrenceOf_name;
 	
 	public static String InlineTemp_label;
 	public static String InlineTemp_Descriptor_description;

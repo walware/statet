@@ -14,6 +14,7 @@ package de.walware.statet.r.core.refactoring;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -108,7 +109,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 			final String name = access.getSegmentName();
 			Variable variable = map.get(name);
 			if (variable == null) {
-				variable = new Variable(name);
+				variable = new Variable(frame, name);
 				map.put(name, variable);
 			}
 			variable.fAccessList.add(access);
@@ -118,18 +119,25 @@ public class RenameInRegionRefactoring extends Refactoring {
 	
 	public class Variable {
 		
+		
+		private final Object fParent;
+		
 		private final String fName;
 		private String fNewName;
+		
 		private final List<RElementAccess> fAccessList;
 		
-		public Variable(final String name) {
+		private Map<String, Variable> fSubVariables = Collections.emptyMap();
+		
+		public Variable(final Object parent, final String name) {
+			fParent = parent;
 			fName = name;
 			fAccessList = new ArrayList<RElementAccess>();
 		}
 		
 		
-		public IRFrameInSource getFrame() {
-			return (IRFrameInSource) fAccessList.get(0).getFrame();
+		public Object getParent() {
+			return fParent;
 		}
 		
 		public String getName() {
@@ -151,6 +159,11 @@ public class RenameInRegionRefactoring extends Refactoring {
 		
 		public int getOccurrencesCount() {
 			return fAccessList.size();
+		}
+		
+		
+		public Map<String, Variable> getSubVariables() {
+			return fSubVariables;
 		}
 		
 	}
@@ -250,6 +263,36 @@ public class RenameInRegionRefactoring extends Refactoring {
 			rootNode.acceptInR(searcher);
 		}
 		catch (final InvocationTargetException e) {}
+		for (final Map<String, Variable> map : fVariablesList.values()) {
+			for (final Variable var : map.values()) {
+				checkVariables(var);
+			}
+		}
+	}
+	
+	private void checkVariables(final Variable var) {
+		Map<String, RenameInRegionRefactoring.Variable> map = null;
+		for (final RElementAccess access : var.fAccessList) {
+			final RElementAccess next = access.getNextSegment();
+			if (next != null && next.getSegmentName() != null
+					&& (next.getType() == RElementName.SUB_NAMEDPART
+							|| next.getType() == RElementName.SUB_NAMEDSLOT )) {
+				if (map == null) {
+					map = new HashMap<String, RenameInRegionRefactoring.Variable>();
+				}
+				Variable sub = map.get(next.getSegmentName());
+				if (sub == null) {
+					sub = new Variable(var, next.getSegmentName());
+					map.put(next.getSegmentName(), sub);
+				}
+				next.getSegmentName();
+				next.getFrame();
+				sub.fAccessList.add(next);
+			}
+		}
+		if (map != null) {
+			var.fSubVariables = map;
+		}
 	}
 	
 	
@@ -301,39 +344,83 @@ public class RenameInRegionRefactoring extends Refactoring {
 	
 	private List<String> createChanges(final TextFileChange change, final SubMonitor progress) throws BadLocationException {
 		final List<String> names = new ArrayList<String>();
-		fSourceUnit.connect(progress.newChild(1));
+		int remaining = fVariablesList.size() + 3;
+		progress.setWorkRemaining(remaining); remaining -= 3;
+		fSourceUnit.connect(progress.newChild(2));
 		try {
 			for (final Map<String, Variable> frameList : fVariablesList.values()) {
-				for (final Variable variable : frameList.values()) {
-					if (variable.fNewName == null) {
-						continue;
-					}
-					final String unquoted = RRefactoringAdapter.getUnquotedIdentifier(variable.fNewName);
-					final String quoted = RRefactoringAdapter.getQuotedIdentifier(variable.fNewName);
-					final boolean isQuoted = (variable.fNewName.charAt(0) == '`');
-					final GroupCategorySet set = new GroupCategorySet(new GroupCategory(
-							variable.getFrame().getFrameId()+variable.fName,
-							NLS.bind(Messages.RenameInRegion_Changes_VariableGroup_name, quoted), "")); //$NON-NLS-1$
-					final String message = NLS.bind(Messages.RenameInRegion_Changes_ReplaceOccurrence_name,
-							RRefactoringAdapter.getQuotedIdentifier(variable.fName) , quoted);
-					for (final RElementAccess access : variable.fAccessList) {
-						final RAstNode nameNode = access.getNameNode();
-						if (nameNode == null) {
-							continue;
-						}
-						final String text = (isQuoted && nameNode.getNodeType() == NodeType.SYMBOL && nameNode.getOperator(0) == RTerminal.SYMBOL) ?
-								variable.fNewName : unquoted;
-						final IRegion nameRegion = RAst.getElementNameRegion(nameNode);
-						TextChangeCompatibility.addTextEdit(change, message,
-								new ReplaceEdit(nameRegion.getOffset(), nameRegion.getLength(), text), set);
-					}
-					names.add(quoted);
-				}
+				progress.setWorkRemaining(remaining--);
+				createMainChanges(frameList, change, names);
 			}
 			return names;
 		}
 		finally {
 			fSourceUnit.disconnect(progress.newChild(1));
+		}
+	}
+	
+	private void createMainChanges(final Map<String, Variable> frameList,
+			final TextFileChange change, final List<String> names) {
+		for (final Variable variable : frameList.values()) {
+			if (variable.fNewName != null) {
+				final RElementName oldName = RElementName.create(RElementName.MAIN_DEFAULT,
+						RRefactoringAdapter.getUnquotedIdentifier(variable.fName) );
+				final String oldDisplay = oldName.getDisplayName();
+				final boolean isQuoted = (variable.fNewName.charAt(0) == '`');
+				final GroupCategorySet set = new GroupCategorySet(new GroupCategory(
+						((IRFrameInSource) variable.getParent()).getFrameId() + '$' + variable.fName,
+						NLS.bind(Messages.RenameInRegion_Changes_VariableGroup_name, oldDisplay), "")); //$NON-NLS-1$
+				final String message = NLS.bind(Messages.RenameInRegion_Changes_ReplaceOccurrence_name,
+						oldDisplay);
+				
+				for (final RElementAccess access : variable.fAccessList) {
+					final RAstNode nameNode = access.getNameNode();
+					if (nameNode == null) {
+						continue;
+					}
+					final String text = (isQuoted && nameNode.getNodeType() == NodeType.SYMBOL && nameNode.getOperator(0) == RTerminal.SYMBOL) ?
+							variable.fNewName : RRefactoringAdapter.getUnquotedIdentifier(variable.fNewName);
+					final IRegion nameRegion = RAst.getElementNameRegion(nameNode);
+					TextChangeCompatibility.addTextEdit(change, message,
+							new ReplaceEdit(nameRegion.getOffset(), nameRegion.getLength(), text), set);
+					
+				}
+				names.add(oldDisplay);
+			}
+			if (!variable.fSubVariables.isEmpty()) {
+				createSubChanges(variable, change, names);
+			}
+		}
+	}
+	
+	private void createSubChanges(final Variable parent, final TextFileChange change, final List<String> names) {
+		final String parentDisplay = RElementName.create(RElementName.MAIN_DEFAULT,
+				RRefactoringAdapter.getUnquotedIdentifier(parent.fName) ).getDisplayName() ;
+		for (final Variable variable : parent.fSubVariables.values()) {
+			if (variable.fNewName != null) {
+				final RElementName oldName = RElementName.create(RElementName.MAIN_DEFAULT,
+						RRefactoringAdapter.getUnquotedIdentifier(variable.fName) );
+				final String oldDisplay = oldName.getDisplayName();
+				final boolean isQuoted = (variable.fNewName.charAt(0) == '`');
+				final GroupCategorySet set = new GroupCategorySet(new GroupCategory(
+						((IRFrameInSource) parent.getParent()).getFrameId() + '$' + parent.fName,
+						NLS.bind(Messages.RenameInRegion_Changes_VariableGroup_name, parentDisplay), "")); //$NON-NLS-1$
+				final String message = NLS.bind(Messages.RenameInRegion_Changes_ReplaceOccurrenceOf_name,
+						oldDisplay, parentDisplay );
+				
+				for (final RElementAccess access : variable.fAccessList) {
+					final RAstNode nameNode = access.getNameNode();
+					if (nameNode == null) {
+						continue;
+					}
+					final String text = (isQuoted && nameNode.getNodeType() == NodeType.SYMBOL && nameNode.getOperator(0) == RTerminal.SYMBOL) ?
+							variable.fNewName : RRefactoringAdapter.getUnquotedIdentifier(variable.fNewName);
+					final IRegion nameRegion = RAst.getElementNameRegion(nameNode);
+					TextChangeCompatibility.addTextEdit(change, message,
+							new ReplaceEdit(nameRegion.getOffset(), nameRegion.getLength(), text), set);
+				}
+				names.add(oldDisplay);
+			}
 		}
 	}
 	
