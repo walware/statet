@@ -122,7 +122,7 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 		}
 		
 		@Override
-		protected void setCoreAccess(IRCoreAccess access) {
+		protected void setCoreAccess(final IRCoreAccess access) {
 			super.setCoreAccess(access);
 		}
 		
@@ -160,7 +160,7 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 		}
 		
 		@Override
-		protected void setCoreAccess(ITexCoreAccess access) {
+		protected void setCoreAccess(final ITexCoreAccess access) {
 			super.setCoreAccess(access);
 		}
 		

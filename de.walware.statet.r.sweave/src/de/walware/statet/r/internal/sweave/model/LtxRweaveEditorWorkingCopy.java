@@ -18,18 +18,15 @@ import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ui.GenericEditorWorkspaceSourceUnitWorkingCopy;
 
-import de.walware.docmlet.tex.core.ITexCoreAccess;
-import de.walware.docmlet.tex.core.TexCore;
 import de.walware.docmlet.tex.core.model.LtxSuModelContainer;
 import de.walware.docmlet.tex.core.model.TexModel;
 
-import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.sweave.ILtxRweaveSourceUnit;
+import de.walware.statet.r.sweave.ITexRweaveCoreAccess;
 import de.walware.statet.r.sweave.Sweave;
 
 
@@ -46,8 +43,8 @@ public class LtxRweaveEditorWorkingCopy extends GenericEditorWorkspaceSourceUnit
 	
 	
 	@Override
-	public IRCoreAccess getRCoreAccess() {
-		return ((IRSourceUnit) fFrom).getRCoreAccess();
+	public ITexRweaveCoreAccess getRCoreAccess() {
+		return ((ILtxRweaveSourceUnit) fFrom).getRCoreAccess();
 	}
 	
 	@Override
@@ -56,8 +53,8 @@ public class LtxRweaveEditorWorkingCopy extends GenericEditorWorkspaceSourceUnit
 	}
 	
 	@Override
-	public ITexCoreAccess getTexCoreAccess() {
-		return TexCore.getWorkbenchAccess();
+	public ITexRweaveCoreAccess getTexCoreAccess() {
+		return ((ILtxRweaveSourceUnit) fFrom).getTexCoreAccess();
 	}
 	
 	

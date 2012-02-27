@@ -67,7 +67,6 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.sweave.ILtxRweaveEditor;
 import de.walware.statet.r.sweave.ILtxRweaveSourceUnit;
 import de.walware.statet.r.sweave.Sweave;
-import de.walware.statet.r.sweave.TexRweaveCoreAccess;
 import de.walware.statet.r.sweave.text.Rweave;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.editors.DefaultRFoldingProvider;
@@ -249,8 +248,7 @@ public class LtxRweaveEditor extends SourceEditor1 implements ILtxRweaveEditor {
 		super.setupConfiguration(newInput);
 		final ILtxRweaveSourceUnit su = getSourceUnit();
 		fModelProvider.setInput(su);
-		fCombinedConfig.setSource((su != null) ? new TexRweaveCoreAccess(
-				su.getTexCoreAccess(), su.getRCoreAccess() ) : null );
+		fCombinedConfig.setSource(su.getTexCoreAccess());
 	}
 	
 	

@@ -18,4 +18,10 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 
 public interface ILtxRweaveSourceUnit extends IRSourceUnit, ILtxSourceUnit {
 	
+	
+	@Override
+	public ITexRweaveCoreAccess getRCoreAccess();
+	@Override
+	public ITexRweaveCoreAccess getTexCoreAccess();
+	
 }

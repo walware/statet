@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.core.impl.GenericResourceSourceUnit;
 
-import de.walware.docmlet.tex.core.ITexCoreAccess;
 import de.walware.docmlet.tex.core.TexCore;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -26,11 +25,16 @@ import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.sweave.ILtxRweaveSourceUnit;
+import de.walware.statet.r.sweave.ITexRweaveCoreAccess;
 import de.walware.statet.r.sweave.Sweave;
+import de.walware.statet.r.sweave.TexRweaveCoreAccess;
 
 
 public class LtxRweaveDocUnit extends GenericResourceSourceUnit 
 		implements ILtxRweaveSourceUnit, IRWorkspaceSourceUnit {
+	
+	
+	private ITexRweaveCoreAccess fCoreAccess;
 	
 	
 	public LtxRweaveDocUnit(final String id, final IFile file) {
@@ -45,12 +49,19 @@ public class LtxRweaveDocUnit extends GenericResourceSourceUnit
 	
 	
 	@Override
-	public IRCoreAccess getRCoreAccess() {
-		final RProject project = RProject.getRProject(getResource().getProject());
-		if (project != null) {
-			return project;
+	public ITexRweaveCoreAccess getRCoreAccess() {
+		ITexRweaveCoreAccess coreAccess = fCoreAccess;
+		if (coreAccess == null) {
+			final RProject rProject = RProject.getRProject(getResource().getProject());
+			coreAccess = new TexRweaveCoreAccess(TexCore.getWorkbenchAccess(),
+					(rProject != null) ? rProject : RCore.getWorkbenchAccess() );
+			synchronized (this) {
+				if (isConnected()) {
+					fCoreAccess = coreAccess;
+				}
+			}
 		}
-		return RCore.getWorkbenchAccess();
+		return coreAccess;
 	}
 	
 	@Override
@@ -59,8 +70,8 @@ public class LtxRweaveDocUnit extends GenericResourceSourceUnit
 	}
 	
 	@Override
-	public ITexCoreAccess getTexCoreAccess() {
-		return TexCore.getWorkbenchAccess();
+	public ITexRweaveCoreAccess getTexCoreAccess() {
+		return getRCoreAccess();
 	}
 	
 	
@@ -75,6 +86,7 @@ public class LtxRweaveDocUnit extends GenericResourceSourceUnit
 	
 	@Override
 	protected void unregister() {
+		fCoreAccess = null;
 		final IModelManager rManager = RCore.getRModelManager();
 		if (rManager != null) {
 			rManager.deregisterDependentUnit(this);
