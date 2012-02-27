@@ -38,7 +38,7 @@ public class NewSweaveFileCreationWizard extends NewElementWizard {
 	
 	private static class NewRweaveFileCreator extends NewFileCreator {
 		
-		private Template fTemplate;
+		private final Template fTemplate;
 		
 		public NewRweaveFileCreator(final IPath containerPath, final String resourceName,
 				final Template template) {
@@ -95,7 +95,7 @@ public class NewSweaveFileCreationWizard extends NewElementWizard {
 	}
 	
 	@Override // for lazy loading
-	public void createPageControls(Composite pageContainer) {
+	public void createPageControls(final Composite pageContainer) {
 		fFirstPage.createControl(pageContainer);
 	}
 	

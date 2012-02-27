@@ -44,8 +44,8 @@ public class NewSweaveDocGenerateWizardPage extends WizardPage {
 	
 	private TemplateSelectionComposite fTemplateSelectComposite;
 	
-	private ContextTypeRegistry fContextRegistry;
-	private TemplateStore fTemplateStore;
+	private final ContextTypeRegistry fContextRegistry;
+	private final TemplateStore fTemplateStore;
 	
 	
 	protected NewSweaveDocGenerateWizardPage() {
@@ -73,7 +73,7 @@ public class NewSweaveDocGenerateWizardPage extends WizardPage {
 	}
 	
 	@Override
-	public void createControl(Composite parent) {
+	public void createControl(final Composite parent) {
 		final Group group = new Group(parent, SWT.NONE);
 		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 1));
 		group.setText(Messages.NewSweaveDocWizardPage_Template_group);
