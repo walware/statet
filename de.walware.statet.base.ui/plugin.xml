@@ -197,7 +197,7 @@
          point="org.eclipse.ui.commandImages">
       <image
             commandId="org.eclipse.debug.ui.commands.ToggleBreakpoint"
-            icon="icons/obj_16/breakpoint.png">
+            icon="icons/tool_16/breakpoint.png">
       </image>
    </extension>
 
