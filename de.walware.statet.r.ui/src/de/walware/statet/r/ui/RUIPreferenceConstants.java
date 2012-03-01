@@ -11,9 +11,13 @@
 
 package de.walware.statet.r.ui;
 
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 
 import de.walware.ecommons.text.ui.presentation.ITextPresentationConstants;
+
+import de.walware.workbench.ui.IWaThemeConstants;
+import de.walware.workbench.ui.util.ThemeUtil;
 
 import de.walware.statet.r.ui.text.r.IRTextTokens;
 import de.walware.statet.r.ui.text.rd.IRdTextTokens;
@@ -321,15 +325,23 @@ public class RUIPreferenceConstants {
 	/**
 	 * Initializes the given preference store with the default values.
 	 * 
-	 * @param store the preference store to be initialized
+	 * @param scope the preference scope to be initialized
 	 */
-	public static void initializeDefaultValues(final IPreferenceStore store) {
+	public static void initializeDefaultValues(final IScopeContext scope) {
+		final IEclipsePreferences pref = scope.getNode(RUI.PLUGIN_ID);
+		final ThemeUtil theme = new ThemeUtil();
 		
-		store.setDefault(R.TS_DEFAULT_COLOR, "0,0,0"); //$NON-NLS-1$
-		store.setDefault(R.TS_DEFAULT_BOLD, false);
-		store.setDefault(R.TS_DEFAULT_ITALIC, false);
-		store.setDefault(R.TS_DEFAULT_UNDERLINE, false);
-		store.setDefault(R.TS_DEFAULT_STRIKETHROUGH, false);
+		final String defaultColor = theme.getColorPrefValue(IWaThemeConstants.CODE_DEFAULT_COLOR);
+		final String commentColor = theme.getColorPrefValue(IWaThemeConstants.CODE_COMMENT_COLOR);
+		final String commentTasktagColor = theme.getColorPrefValue(IWaThemeConstants.CODE_COMMENT_TASKTAG_COLOR);
+		final String keywordColor = theme.getColorPrefValue(IWaThemeConstants.CODE_KEYWORD_COLOR);
+		String color;
+		
+		pref.put(R.TS_DEFAULT_COLOR, defaultColor);
+		pref.putBoolean(R.TS_DEFAULT_BOLD, false);
+		pref.putBoolean(R.TS_DEFAULT_ITALIC, false);
+		pref.putBoolean(R.TS_DEFAULT_UNDERLINE, false);
+		pref.putBoolean(R.TS_DEFAULT_STRIKETHROUGH, false);
 		
 		final String[] identifierSubs = new String[] {
 				R.TS_IDENTIFIER_SUB_ASSIGNMENT_ROOT,
@@ -339,215 +351,216 @@ public class RUIPreferenceConstants {
 				R.TS_IDENTIFIER_SUB_CUSTOM2_ROOT,
 		};
 		for (final String root : identifierSubs) {
-			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_USE_SUFFIX, R.TS_DEFAULT_ROOT);
-			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_COLOR_SUFFIX, "0,0,0"); //$NON-NLS-1$
-			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_BOLD_SUFFIX, false);
-			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_ITALIC_SUFFIX, false);
-			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_UNDERLINE_SUFFIX, false);
-			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_STRIKETHROUGH_SUFFIX, false);
+			pref.put(root + ITextPresentationConstants.TEXTSTYLE_USE_SUFFIX, R.TS_DEFAULT_ROOT);
+			pref.put(root + ITextPresentationConstants.TEXTSTYLE_COLOR_SUFFIX, defaultColor);
+			pref.putBoolean(root + ITextPresentationConstants.TEXTSTYLE_BOLD_SUFFIX, false);
+			pref.putBoolean(root + ITextPresentationConstants.TEXTSTYLE_ITALIC_SUFFIX, false);
+			pref.putBoolean(root + ITextPresentationConstants.TEXTSTYLE_UNDERLINE_SUFFIX, false);
+			pref.putBoolean(root + ITextPresentationConstants.TEXTSTYLE_STRIKETHROUGH_SUFFIX, false);
 		}
-		store.setDefault(R.TS_IDENTIFIER_SUB_ASSIGNMENT_ITEMS, "assign,rm,remove,setMethod,setGeneric,setGroupGeneric,setClass,setClassUnion,setIs,setAs,setValidity,removeClass,removeGeneric,removeMethod,removeMethods,attach,detach,source"); //$NON-NLS-1$
-		store.setDefault(R.TS_IDENTIFIER_SUB_LOGICAL_ITEMS, "xor,any,all"); //$NON-NLS-1$
-		store.setDefault(R.TS_IDENTIFIER_SUB_FLOWCONTROL_ITEMS, "return,switch,ifelse,stop,warning,try,tryCatch"); //$NON-NLS-1$
-		store.setDefault(R.TS_IDENTIFIER_SUB_CUSTOM1_ITEMS, ""); //$NON-NLS-1$
-		store.setDefault(R.TS_IDENTIFIER_SUB_CUSTOM2_ITEMS, ""); //$NON-NLS-1$
+		pref.put(R.TS_IDENTIFIER_SUB_ASSIGNMENT_ITEMS, "assign,rm,remove,setMethod,setGeneric,setGroupGeneric,setClass,setClassUnion,setIs,setAs,setValidity,removeClass,removeGeneric,removeMethod,removeMethods,attach,detach,source"); //$NON-NLS-1$
+		pref.put(R.TS_IDENTIFIER_SUB_LOGICAL_ITEMS, "xor,any,all"); //$NON-NLS-1$
+		pref.put(R.TS_IDENTIFIER_SUB_FLOWCONTROL_ITEMS, "return,switch,ifelse,stop,warning,try,tryCatch"); //$NON-NLS-1$
+		pref.put(R.TS_IDENTIFIER_SUB_CUSTOM1_ITEMS, ""); //$NON-NLS-1$
+		pref.put(R.TS_IDENTIFIER_SUB_CUSTOM2_ITEMS, ""); //$NON-NLS-1$
 		
-		store.setDefault(R.TS_UNDEFINED_COLOR, "223,63,127"); //$NON-NLS-1$
-		store.setDefault(R.TS_UNDEFINED_BOLD, true);
-		store.setDefault(R.TS_UNDEFINED_ITALIC, false);
-		store.setDefault(R.TS_UNDEFINED_UNDERLINE, false);
-		store.setDefault(R.TS_UNDEFINED_STRIKETHROUGH, false);
+		pref.put(R.TS_UNDEFINED_COLOR, theme.getColorPrefValue(IWaThemeConstants.CODE_UNDEFINED_COLOR));
+		pref.putBoolean(R.TS_UNDEFINED_BOLD, true);
+		pref.putBoolean(R.TS_UNDEFINED_ITALIC, false);
+		pref.putBoolean(R.TS_UNDEFINED_UNDERLINE, false);
+		pref.putBoolean(R.TS_UNDEFINED_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_COMMENT_COLOR, "63,127,79"); //$NON-NLS-1$
-		store.setDefault(R.TS_COMMENT_BOLD, false);
-		store.setDefault(R.TS_COMMENT_ITALIC, false);
-		store.setDefault(R.TS_COMMENT_UNDERLINE, false);
-		store.setDefault(R.TS_COMMENT_STRIKETHROUGH, false);
+		pref.put(R.TS_COMMENT_COLOR, commentColor);
+		pref.putBoolean(R.TS_COMMENT_BOLD, false);
+		pref.putBoolean(R.TS_COMMENT_ITALIC, false);
+		pref.putBoolean(R.TS_COMMENT_UNDERLINE, false);
+		pref.putBoolean(R.TS_COMMENT_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_TASK_TAG_COLOR, "63,127,95"); //$NON-NLS-1$
-		store.setDefault(R.TS_TASK_TAG_BOLD, true);
-		store.setDefault(R.TS_TASK_TAG_ITALIC, false);
-		store.setDefault(R.TS_TASK_TAG_UNDERLINE, false);
-		store.setDefault(R.TS_TASK_TAG_STRIKETHROUGH, false);
+		pref.put(R.TS_TASK_TAG_COLOR, commentTasktagColor);
+		pref.putBoolean(R.TS_TASK_TAG_BOLD, true);
+		pref.putBoolean(R.TS_TASK_TAG_ITALIC, false);
+		pref.putBoolean(R.TS_TASK_TAG_UNDERLINE, false);
+		pref.putBoolean(R.TS_TASK_TAG_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_ROXYGEN_COLOR, "15,127,159"); //$NON-NLS-1$
-		store.setDefault(R.TS_ROXYGEN_BOLD, false);
-		store.setDefault(R.TS_ROXYGEN_ITALIC, false);
-		store.setDefault(R.TS_ROXYGEN_UNDERLINE, false);
-		store.setDefault(R.TS_ROXYGEN_STRIKETHROUGH, false);
+		pref.put(R.TS_ROXYGEN_COLOR, theme.getColorPrefValue(IWaThemeConstants.CODE_DOCU_COLOR));
+		pref.putBoolean(R.TS_ROXYGEN_BOLD, false);
+		pref.putBoolean(R.TS_ROXYGEN_ITALIC, false);
+		pref.putBoolean(R.TS_ROXYGEN_UNDERLINE, false);
+		pref.putBoolean(R.TS_ROXYGEN_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_ROXYGEN_TAG_COLOR, "135,159,175"); //$NON-NLS-1$
-		store.setDefault(R.TS_ROXYGEN_TAG_BOLD, true);
-		store.setDefault(R.TS_ROXYGEN_TAG_ITALIC, false);
-		store.setDefault(R.TS_ROXYGEN_TAG_UNDERLINE, false);
-		store.setDefault(R.TS_ROXYGEN_TAG_STRIKETHROUGH, false);
+		pref.put(R.TS_ROXYGEN_TAG_COLOR, theme.getColorPrefValue(IWaThemeConstants.CODE_DOCU_TAG_COLOR));
+		pref.putBoolean(R.TS_ROXYGEN_TAG_BOLD, true);
+		pref.putBoolean(R.TS_ROXYGEN_TAG_ITALIC, false);
+		pref.putBoolean(R.TS_ROXYGEN_TAG_UNDERLINE, false);
+		pref.putBoolean(R.TS_ROXYGEN_TAG_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_STRING_COLOR, "63,63,175"); //$NON-NLS-1$
-		store.setDefault(R.TS_STRING_BOLD, false);
-		store.setDefault(R.TS_STRING_ITALIC, false);
-		store.setDefault(R.TS_STRING_UNDERLINE, false);
-		store.setDefault(R.TS_STRING_STRIKETHROUGH, false);
+		pref.put(R.TS_STRING_COLOR, theme.getColorPrefValue(IWaThemeConstants.CODE_STRING_COLOR));
+		pref.putBoolean(R.TS_STRING_BOLD, false);
+		pref.putBoolean(R.TS_STRING_ITALIC, false);
+		pref.putBoolean(R.TS_STRING_UNDERLINE, false);
+		pref.putBoolean(R.TS_STRING_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_NUMBERS_COLOR, "0,0,127"); //$NON-NLS-1$
-		store.setDefault(R.TS_NUMBERS_BOLD, false);
-		store.setDefault(R.TS_NUMBERS_ITALIC, false);
-		store.setDefault(R.TS_NUMBERS_UNDERLINE, false);
-		store.setDefault(R.TS_NUMBERS_STRIKETHROUGH, false);
+		color = theme.getColorPrefValue(IWaThemeConstants.CODE_NUMBER_COLOR);
+		pref.put(R.TS_NUMBERS_COLOR, color);
+		pref.putBoolean(R.TS_NUMBERS_BOLD, false);
+		pref.putBoolean(R.TS_NUMBERS_ITALIC, false);
+		pref.putBoolean(R.TS_NUMBERS_UNDERLINE, false);
+		pref.putBoolean(R.TS_NUMBERS_STRIKETHROUGH, false);
 		
 		final String[] numberSubs = new String[] {
 				R.TS_NUMBERS_SUB_INT_ROOT,
 				R.TS_NUMBERS_SUB_CPLX_ROOT,
 		};
 		for (final String root : numberSubs) {
-			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_USE_SUFFIX, R.TS_NUMBERS_ROOT);
-			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_COLOR_SUFFIX, "0,0,127"); //$NON-NLS-1$
-			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_BOLD_SUFFIX, false);
-			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_ITALIC_SUFFIX, false);
-			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_UNDERLINE_SUFFIX, false);
-			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_STRIKETHROUGH_SUFFIX, false);
+			pref.put(root + ITextPresentationConstants.TEXTSTYLE_USE_SUFFIX, R.TS_NUMBERS_ROOT);
+			pref.put(root + ITextPresentationConstants.TEXTSTYLE_COLOR_SUFFIX, color);
+			pref.putBoolean(root + ITextPresentationConstants.TEXTSTYLE_BOLD_SUFFIX, false);
+			pref.putBoolean(root + ITextPresentationConstants.TEXTSTYLE_ITALIC_SUFFIX, false);
+			pref.putBoolean(root + ITextPresentationConstants.TEXTSTYLE_UNDERLINE_SUFFIX, false);
+			pref.putBoolean(root + ITextPresentationConstants.TEXTSTYLE_STRIKETHROUGH_SUFFIX, false);
 		}
 		
-		store.setDefault(R.TS_SPECIAL_CONSTANTS_COLOR, "127,0,127"); //$NON-NLS-1$
-		store.setDefault(R.TS_SPECIAL_CONSTANTS_BOLD, false);
-		store.setDefault(R.TS_SPECIAL_CONSTANTS_ITALIC, false);
-		store.setDefault(R.TS_SPECIAL_CONSTANTS_UNDERLINE, false);
-		store.setDefault(R.TS_SPECIAL_CONSTANTS_STRIKETHROUGH, false);
+		color = theme.getColorPrefValue(IWaThemeConstants.CODE_CONST_COLOR);
+		pref.put(R.TS_SPECIAL_CONSTANTS_COLOR, color);
+		pref.putBoolean(R.TS_SPECIAL_CONSTANTS_BOLD, false);
+		pref.putBoolean(R.TS_SPECIAL_CONSTANTS_ITALIC, false);
+		pref.putBoolean(R.TS_SPECIAL_CONSTANTS_UNDERLINE, false);
+		pref.putBoolean(R.TS_SPECIAL_CONSTANTS_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_LOGICAL_CONSTANTS_COLOR, "127,0,127"); //$NON-NLS-1$
-		store.setDefault(R.TS_LOGICAL_CONSTANTS_BOLD, false);
-		store.setDefault(R.TS_LOGICAL_CONSTANTS_ITALIC, false);
-		store.setDefault(R.TS_LOGICAL_CONSTANTS_UNDERLINE, false);
-		store.setDefault(R.TS_LOGICAL_CONSTANTS_STRIKETHROUGH, false);
+		pref.put(R.TS_LOGICAL_CONSTANTS_COLOR, color);
+		pref.putBoolean(R.TS_LOGICAL_CONSTANTS_BOLD, false);
+		pref.putBoolean(R.TS_LOGICAL_CONSTANTS_ITALIC, false);
+		pref.putBoolean(R.TS_LOGICAL_CONSTANTS_UNDERLINE, false);
+		pref.putBoolean(R.TS_LOGICAL_CONSTANTS_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_FLOWCONTROL_COLOR, "127,0,95"); //$NON-NLS-1$
-		store.setDefault(R.TS_FLOWCONTROL_BOLD, true);
-		store.setDefault(R.TS_FLOWCONTROL_ITALIC, false);
-		store.setDefault(R.TS_FLOWCONTROL_UNDERLINE, false);
-		store.setDefault(R.TS_FLOWCONTROL_STRIKETHROUGH, false);
+		pref.put(R.TS_FLOWCONTROL_COLOR, keywordColor);
+		pref.putBoolean(R.TS_FLOWCONTROL_BOLD, true);
+		pref.putBoolean(R.TS_FLOWCONTROL_ITALIC, false);
+		pref.putBoolean(R.TS_FLOWCONTROL_UNDERLINE, false);
+		pref.putBoolean(R.TS_FLOWCONTROL_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_SEPARATORS_COLOR, "0,0,0"); //$NON-NLS-1$
-		store.setDefault(R.TS_SEPARATORS_BOLD, false);
-		store.setDefault(R.TS_SEPARATORS_ITALIC, false);
-		store.setDefault(R.TS_SEPARATORS_UNDERLINE, false);
-		store.setDefault(R.TS_SEPARATORS_STRIKETHROUGH, false);
+		pref.put(R.TS_SEPARATORS_COLOR, defaultColor);
+		pref.putBoolean(R.TS_SEPARATORS_BOLD, false);
+		pref.putBoolean(R.TS_SEPARATORS_ITALIC, false);
+		pref.putBoolean(R.TS_SEPARATORS_UNDERLINE, false);
+		pref.putBoolean(R.TS_SEPARATORS_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_ASSIGNMENT_COLOR, "0,0,0"); //$NON-NLS-1$
-		store.setDefault(R.TS_ASSIGNMENT_BOLD, true);
-		store.setDefault(R.TS_ASSIGNMENT_ITALIC, false);
-		store.setDefault(R.TS_ASSIGNMENT_UNDERLINE, false);
-		store.setDefault(R.TS_ASSIGNMENT_STRIKETHROUGH, false);
+		pref.put(R.TS_ASSIGNMENT_COLOR, defaultColor);
+		pref.putBoolean(R.TS_ASSIGNMENT_BOLD, true);
+		pref.putBoolean(R.TS_ASSIGNMENT_ITALIC, false);
+		pref.putBoolean(R.TS_ASSIGNMENT_UNDERLINE, false);
+		pref.putBoolean(R.TS_ASSIGNMENT_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_USE, ""); //$NON-NLS-1$
-		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_COLOR, "0,0,0"); //$NON-NLS-1$
-		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_BOLD, false);
-		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_ITALIC, false);
-		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_UNDERLINE, false);
-		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_STRIKETHROUGH, false);
+		pref.put(R.TS_ASSIGNMENT_SUB_EQUALSIGN_USE, ""); //$NON-NLS-1$
+		pref.put(R.TS_ASSIGNMENT_SUB_EQUALSIGN_COLOR, defaultColor);
+		pref.putBoolean(R.TS_ASSIGNMENT_SUB_EQUALSIGN_BOLD, false);
+		pref.putBoolean(R.TS_ASSIGNMENT_SUB_EQUALSIGN_ITALIC, false);
+		pref.putBoolean(R.TS_ASSIGNMENT_SUB_EQUALSIGN_UNDERLINE, false);
+		pref.putBoolean(R.TS_ASSIGNMENT_SUB_EQUALSIGN_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_OTHER_OPERATORS_COLOR, "159,63,127"); //$NON-NLS-1$
-		store.setDefault(R.TS_OTHER_OPERATORS_BOLD, false);
-		store.setDefault(R.TS_OTHER_OPERATORS_ITALIC, false);
-		store.setDefault(R.TS_OTHER_OPERATORS_UNDERLINE, false);
-		store.setDefault(R.TS_OTHER_OPERATORS_STRIKETHROUGH, false);
+		color = theme.getColorPrefValue(IWaThemeConstants.CODE_OPERATOR_COLOR);
+		pref.put(R.TS_OTHER_OPERATORS_COLOR, color);
+		pref.putBoolean(R.TS_OTHER_OPERATORS_BOLD, false);
+		pref.putBoolean(R.TS_OTHER_OPERATORS_ITALIC, false);
+		pref.putBoolean(R.TS_OTHER_OPERATORS_UNDERLINE, false);
+		pref.putBoolean(R.TS_OTHER_OPERATORS_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_USE, R.TS_OTHER_OPERATORS_ROOT);
-		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_COLOR, "159,63,127"); //$NON-NLS-1$
-		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_BOLD, false);
-		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_ITALIC, false);
-		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_UNDERLINE, false);
-		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_STRIKETHROUGH, false);
+		pref.put(R.TS_OPERATORS_SUB_LOGICAL_USE, R.TS_OTHER_OPERATORS_ROOT);
+		pref.put(R.TS_OPERATORS_SUB_LOGICAL_COLOR, color);
+		pref.putBoolean(R.TS_OPERATORS_SUB_LOGICAL_BOLD, false);
+		pref.putBoolean(R.TS_OPERATORS_SUB_LOGICAL_ITALIC, false);
+		pref.putBoolean(R.TS_OPERATORS_SUB_LOGICAL_UNDERLINE, false);
+		pref.putBoolean(R.TS_OPERATORS_SUB_LOGICAL_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_USE, R.TS_OTHER_OPERATORS_ROOT);
-		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_COLOR, "159,63,127"); //$NON-NLS-1$
-		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_BOLD, false);
-		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_ITALIC, false);
-		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_UNDERLINE, false);
-		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_STRIKETHROUGH, false);
+		pref.put(R.TS_OPERATORS_SUB_RELATIONAL_USE, R.TS_OTHER_OPERATORS_ROOT);
+		pref.put(R.TS_OPERATORS_SUB_RELATIONAL_COLOR, color);
+		pref.putBoolean(R.TS_OPERATORS_SUB_RELATIONAL_BOLD, false);
+		pref.putBoolean(R.TS_OPERATORS_SUB_RELATIONAL_ITALIC, false);
+		pref.putBoolean(R.TS_OPERATORS_SUB_RELATIONAL_UNDERLINE, false);
+		pref.putBoolean(R.TS_OPERATORS_SUB_RELATIONAL_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_USE, R.TS_OTHER_OPERATORS_ROOT);
-		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_COLOR, "159,63,127"); //$NON-NLS-1$
-		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_BOLD, false);
-		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_ITALIC, false);
-		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_UNDERLINE, false);
-		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_STRIKETHROUGH, false);
+		pref.put(R.TS_OPERATORS_SUB_USERDEFINED_USE, R.TS_OTHER_OPERATORS_ROOT);
+		pref.put(R.TS_OPERATORS_SUB_USERDEFINED_COLOR, color);
+		pref.putBoolean(R.TS_OPERATORS_SUB_USERDEFINED_BOLD, false);
+		pref.putBoolean(R.TS_OPERATORS_SUB_USERDEFINED_ITALIC, false);
+		pref.putBoolean(R.TS_OPERATORS_SUB_USERDEFINED_UNDERLINE, false);
+		pref.putBoolean(R.TS_OPERATORS_SUB_USERDEFINED_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_GROUPING_COLOR, "0,0,0"); //$NON-NLS-1$
-		store.setDefault(R.TS_GROUPING_BOLD, false);
-		store.setDefault(R.TS_GROUPING_ITALIC, false);
-		store.setDefault(R.TS_GROUPING_UNDERLINE, false);
-		store.setDefault(R.TS_GROUPING_STRIKETHROUGH, false);
+		pref.put(R.TS_GROUPING_COLOR, defaultColor);
+		pref.putBoolean(R.TS_GROUPING_BOLD, false);
+		pref.putBoolean(R.TS_GROUPING_ITALIC, false);
+		pref.putBoolean(R.TS_GROUPING_UNDERLINE, false);
+		pref.putBoolean(R.TS_GROUPING_STRIKETHROUGH, false);
 		
-		store.setDefault(R.TS_INDEXING_COLOR, "63,95,95"); //$NON-NLS-1$
-		store.setDefault(R.TS_INDEXING_BOLD, false);
-		store.setDefault(R.TS_INDEXING_ITALIC, false);
-		store.setDefault(R.TS_INDEXING_UNDERLINE, false);
-		store.setDefault(R.TS_INDEXING_STRIKETHROUGH, false);
+		pref.put(R.TS_INDEXING_COLOR, theme.getColorPrefValue(IWaThemeConstants.CODE_SUB_COLOR));
+		pref.putBoolean(R.TS_INDEXING_BOLD, false);
+		pref.putBoolean(R.TS_INDEXING_ITALIC, false);
+		pref.putBoolean(R.TS_INDEXING_UNDERLINE, false);
+		pref.putBoolean(R.TS_INDEXING_STRIKETHROUGH, false);
 		
 		
 		// RdEditorPreferences
-		store.setDefault(Rd.TS_DEFAULT_COLOR, "0,0,0"); //$NON-NLS-1$
-		store.setDefault(Rd.TS_DEFAULT_BOLD, false);
-		store.setDefault(Rd.TS_DEFAULT_ITALIC, true);
-		store.setDefault(Rd.TS_DEFAULT_UNDERLINE, false);
-		store.setDefault(Rd.TS_DEFAULT_STRIKETHROUGH, false);
+		pref.put(Rd.TS_DEFAULT_COLOR, defaultColor);
+		pref.putBoolean(Rd.TS_DEFAULT_BOLD, false);
+		pref.putBoolean(Rd.TS_DEFAULT_ITALIC, true);
+		pref.putBoolean(Rd.TS_DEFAULT_UNDERLINE, false);
+		pref.putBoolean(Rd.TS_DEFAULT_STRIKETHROUGH, false);
 		
-		store.setDefault(Rd.TS_VERBATIM_COLOR, "31,31,31"); //$NON-NLS-1$
-		store.setDefault(Rd.TS_VERBATIM_BOLD, false);
-		store.setDefault(Rd.TS_VERBATIM_ITALIC, false);
-		store.setDefault(Rd.TS_VERBATIM_UNDERLINE, false);
-		store.setDefault(Rd.TS_VERBATIM_STRIKETHROUGH, false);
+		pref.put(Rd.TS_VERBATIM_COLOR, theme.getColorPrefValue(IWaThemeConstants.CODE_VERBATIM_COLOR));
+		pref.putBoolean(Rd.TS_VERBATIM_BOLD, false);
+		pref.putBoolean(Rd.TS_VERBATIM_ITALIC, false);
+		pref.putBoolean(Rd.TS_VERBATIM_UNDERLINE, false);
+		pref.putBoolean(Rd.TS_VERBATIM_STRIKETHROUGH, false);
 		
-		store.setDefault(Rd.TS_COMMENT_COLOR, "63,127,95"); //$NON-NLS-1$
-		store.setDefault(Rd.TS_COMMENT_BOLD, false);
-		store.setDefault(Rd.TS_COMMENT_ITALIC, false);
-		store.setDefault(Rd.TS_COMMENT_UNDERLINE, false);
-		store.setDefault(Rd.TS_COMMENT_STRIKETHROUGH, false);
+		pref.put(Rd.TS_COMMENT_COLOR, commentColor);
+		pref.putBoolean(Rd.TS_COMMENT_BOLD, false);
+		pref.putBoolean(Rd.TS_COMMENT_ITALIC, false);
+		pref.putBoolean(Rd.TS_COMMENT_UNDERLINE, false);
+		pref.putBoolean(Rd.TS_COMMENT_STRIKETHROUGH, false);
 		
-		store.setDefault(Rd.TS_TASK_TAG_COLOR, "63,127,95"); //$NON-NLS-1$
-		store.setDefault(Rd.TS_TASK_TAG_BOLD, true);
-		store.setDefault(Rd.TS_TASK_TAG_ITALIC, false);
-		store.setDefault(Rd.TS_TASK_TAG_UNDERLINE, false);
-		store.setDefault(Rd.TS_TASK_TAG_STRIKETHROUGH, false);
+		pref.put(Rd.TS_TASK_TAG_COLOR, commentTasktagColor);
+		pref.putBoolean(Rd.TS_TASK_TAG_BOLD, true);
+		pref.putBoolean(Rd.TS_TASK_TAG_ITALIC, false);
+		pref.putBoolean(Rd.TS_TASK_TAG_UNDERLINE, false);
+		pref.putBoolean(Rd.TS_TASK_TAG_STRIKETHROUGH, false);
 		
-		store.setDefault(Rd.TS_PLATFORM_SPECIF_COLOR, "95,95,255"); //$NON-NLS-1$
-		store.setDefault(Rd.TS_PLATFORM_SPECIF_BOLD, false);
-		store.setDefault(Rd.TS_PLATFORM_SPECIF_ITALIC, false);
-		store.setDefault(Rd.TS_PLATFORM_SPECIF_UNDERLINE, false);
-		store.setDefault(Rd.TS_PLATFORM_SPECIF_STRIKETHROUGH, false);
+		pref.put(Rd.TS_PLATFORM_SPECIF_COLOR, theme.getColorPrefValue(IWaThemeConstants.CODE_PREPROCESSOR_COLOR));
+		pref.putBoolean(Rd.TS_PLATFORM_SPECIF_BOLD, false);
+		pref.putBoolean(Rd.TS_PLATFORM_SPECIF_ITALIC, false);
+		pref.putBoolean(Rd.TS_PLATFORM_SPECIF_UNDERLINE, false);
+		pref.putBoolean(Rd.TS_PLATFORM_SPECIF_STRIKETHROUGH, false);
 		
-		store.setDefault(Rd.TS_SECTION_TAG_COLOR, "127,0,95"); //$NON-NLS-1$
-		store.setDefault(Rd.TS_SECTION_TAG_BOLD, true);
-		store.setDefault(Rd.TS_SECTION_TAG_ITALIC, false);
-		store.setDefault(Rd.TS_SECTION_TAG_UNDERLINE, false);
-		store.setDefault(Rd.TS_SECTION_TAG_STRIKETHROUGH, false);
+		color = theme.getColorPrefValue(IWaThemeConstants.CODE_DOC_COMMAND_COLOR);
+		pref.put(Rd.TS_SECTION_TAG_COLOR, color);
+		pref.putBoolean(Rd.TS_SECTION_TAG_BOLD, true);
+		pref.putBoolean(Rd.TS_SECTION_TAG_ITALIC, false);
+		pref.putBoolean(Rd.TS_SECTION_TAG_UNDERLINE, false);
+		pref.putBoolean(Rd.TS_SECTION_TAG_STRIKETHROUGH, false);
 		
-		store.setDefault(Rd.TS_SUBSECTION_TAG_COLOR, "127,0,95"); //$NON-NLS-1$
-		store.setDefault(Rd.TS_SUBSECTION_TAG_BOLD, false);
-		store.setDefault(Rd.TS_SUBSECTION_TAG_ITALIC, false);
-		store.setDefault(Rd.TS_SUBSECTION_TAG_UNDERLINE, false);
-		store.setDefault(Rd.TS_SUBSECTION_TAG_STRIKETHROUGH, false);
+		pref.put(Rd.TS_SUBSECTION_TAG_COLOR, color);
+		pref.putBoolean(Rd.TS_SUBSECTION_TAG_BOLD, false);
+		pref.putBoolean(Rd.TS_SUBSECTION_TAG_ITALIC, false);
+		pref.putBoolean(Rd.TS_SUBSECTION_TAG_UNDERLINE, false);
+		pref.putBoolean(Rd.TS_SUBSECTION_TAG_STRIKETHROUGH, false);
 		
-		store.setDefault(Rd.TS_OTHER_TAG_COLOR, "63,0,127"); //$NON-NLS-1$
-		store.setDefault(Rd.TS_OTHER_TAG_BOLD, false);
-		store.setDefault(Rd.TS_OTHER_TAG_ITALIC, true);
-		store.setDefault(Rd.TS_OTHER_TAG_UNDERLINE, false);
-		store.setDefault(Rd.TS_OTHER_TAG_STRIKETHROUGH, false);
+		pref.put(Rd.TS_OTHER_TAG_COLOR, theme.getColorPrefValue(IWaThemeConstants.CODE_DOC_COMMAND_SPECIAL_COLOR));
+		pref.putBoolean(Rd.TS_OTHER_TAG_BOLD, false);
+		pref.putBoolean(Rd.TS_OTHER_TAG_ITALIC, true);
+		pref.putBoolean(Rd.TS_OTHER_TAG_UNDERLINE, false);
+		pref.putBoolean(Rd.TS_OTHER_TAG_STRIKETHROUGH, false);
 		
-		store.setDefault(Rd.TS_UNLISTED_TAG_COLOR, "95,95,127"); //$NON-NLS-1$
-		store.setDefault(Rd.TS_UNLISTED_TAG_BOLD, false);
-		store.setDefault(Rd.TS_UNLISTED_TAG_ITALIC, true);
-		store.setDefault(Rd.TS_UNLISTED_TAG_UNDERLINE, false);
-		store.setDefault(Rd.TS_UNLISTED_TAG_STRIKETHROUGH, false);
+		pref.put(Rd.TS_UNLISTED_TAG_COLOR, theme.getColorPrefValue(IWaThemeConstants.CODE_DOC_2ND_COMMAND_COLOR));
+		pref.putBoolean(Rd.TS_UNLISTED_TAG_BOLD, false);
+		pref.putBoolean(Rd.TS_UNLISTED_TAG_ITALIC, true);
+		pref.putBoolean(Rd.TS_UNLISTED_TAG_UNDERLINE, false);
+		pref.putBoolean(Rd.TS_UNLISTED_TAG_STRIKETHROUGH, false);
 		
-		store.setDefault(Rd.TS_BRACKETS_COLOR, "0,0,0"); //$NON-NLS-1$
-		store.setDefault(Rd.TS_BRACKETS_BOLD, false);
-		store.setDefault(Rd.TS_BRACKETS_ITALIC, false);
-		store.setDefault(Rd.TS_BRACKETS_UNDERLINE, false);
-		store.setDefault(Rd.TS_BRACKETS_STRIKETHROUGH, false);
+		pref.put(Rd.TS_BRACKETS_COLOR, defaultColor);
+		pref.putBoolean(Rd.TS_BRACKETS_BOLD, false);
+		pref.putBoolean(Rd.TS_BRACKETS_ITALIC, false);
+		pref.putBoolean(Rd.TS_BRACKETS_UNDERLINE, false);
+		pref.putBoolean(Rd.TS_BRACKETS_STRIKETHROUGH, false);
 		
-	}
-	
-	private RUIPreferenceConstants() {
 	}
 	
 }

@@ -120,14 +120,6 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		fCodeAssistDelayPref = assistPreferences.getAutoActivationDelayPref();
 		prefs.put(fCodeAssistDelayPref, assistPreferences.getGroupId());
 		
-		color = new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsForegroundColor,
-				assistPreferences.getProposalsForegroundPref());
-		colors.add(color);
-		prefs.put(color.pref, assistPreferences.getGroupId());
-		color = new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsBackgroundColor,
-				assistPreferences.getProposalsBackgroundPref());
-		colors.add(color);
-		prefs.put(color.pref, assistPreferences.getGroupId());
 		color = new AppearanceColorsItem(Messages.Editors_CodeAssistParametersForegrondColor,
 				assistPreferences.getInformationForegroundPref());
 		colors.add(color);

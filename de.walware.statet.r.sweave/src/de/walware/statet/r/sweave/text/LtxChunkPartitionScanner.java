@@ -12,8 +12,14 @@
 package de.walware.statet.r.sweave.text;
 
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.rules.IToken;
+import org.eclipse.jface.text.rules.Token;
+
+import de.walware.ecommons.collections.IntMap;
 
 import de.walware.docmlet.tex.ui.text.LtxFastPartitionScanner;
+
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 
 
 /**
@@ -22,6 +28,14 @@ import de.walware.docmlet.tex.ui.text.LtxFastPartitionScanner;
 public class LtxChunkPartitionScanner extends LtxFastPartitionScanner
 		implements ICatPartitionTokenScanner {
 	
+	
+	private static final int S_SEXPR = 12;
+	
+	private static final char[] SEQ_Sexpr = "Sexpr".toCharArray();
+	
+	private final static IToken T_RCODE = new Token(IRDocumentPartitions.R_DEFAULT_EXPL);
+	
+	private int fSavedLineState;
 	
 	private boolean fIsInChunk;
 	
@@ -34,6 +48,22 @@ public class LtxChunkPartitionScanner extends LtxFastPartitionScanner
 		super(Rweave.LTX_R_PARTITIONING, templateMode);
 	}
 	
+	
+	@Override
+	protected void initTokens(final IntMap<IToken> states) {
+		super.initTokens(states);
+		states.put(S_SEXPR, T_RCODE);
+	}
+	
+	
+	@Override
+	public void setParent(final MultiCatPartitionScanner parent) {
+	}
+	
+	@Override
+	public String[] getContentTypes() {
+		return Rweave.LTX_PARTITION_TYPES;
+	}
 	
 	@Override
 	public void setPartialRange(final IDocument document, final int offset, final int length, final String contentType, final int partitionOffset) {
@@ -78,17 +108,37 @@ public class LtxChunkPartitionScanner extends LtxFastPartitionScanner
 	}
 	
 	@Override
-	public void setParent(final MultiCatPartitionScanner parent) {
-	}
-	
-	@Override
-	public String[] getContentTypes() {
-		return Rweave.LTX_PARTITION_TYPES;
-	}
-	
-	@Override
 	public boolean isInCat() {
 		return fIsInChunk;
+	}
+	
+	
+	@Override
+	protected int getExtState(final String contentType) {
+		return S_SEXPR;
+	}
+	
+	@Override
+	protected boolean searchExtCommand(final int c) {
+		if (c == 'S' && readSeq2Consuming(SEQ_Sexpr)) {
+			readWhitespaceConsuming();
+			if (readChar('{')) {
+				fSavedLineState = getState();
+				newState(S_SEXPR);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	protected void searchExtState(final int state) {
+		if (state == S_SEXPR) {
+			searchVerbatimLine('}', fSavedLineState);
+		}
+		else {
+			super.searchExtState(state);
+		}
 	}
 	
 }

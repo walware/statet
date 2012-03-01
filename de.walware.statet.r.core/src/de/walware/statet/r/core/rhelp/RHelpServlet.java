@@ -309,7 +309,7 @@ public abstract class RHelpServlet extends HttpServlet {
 				"span.pkg { font-weight: bold }\n" + //$NON-NLS-1$
 				"span.samp { font-family: monospace }"); //$NON-NLS-1$
 		
-		writer.println("body { line-height: 125%; margin: 1em; padding: 0; }"); //$NON-NLS-1$
+		writer.println("body { line-height: 125%; margin: 1em; padding: 0; color: black; }"); //$NON-NLS-1$
 		writer.println("table { margin: 0.4em 0 0.4em 0; border-collapse:collapse; border:0px; font-size: 100% }"); //$NON-NLS-1$
 		writer.println("td { padding: 0.2em 0.8em 0.2em 0; border:0px; }"); //$NON-NLS-1$
 		writer.println("h2 { font-size: 120%; font-weight: bold; margin: 0 0 0.6em 0; }"); //$NON-NLS-1$

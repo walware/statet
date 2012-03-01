@@ -66,9 +66,10 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		final IPreferenceStore store = RUIPlugin.getDefault().getPreferenceStore();
 		EditorsUI.useAnnotationsPreferencePage(store);
 		EditorsUI.useQuickDiffPreferencePage(store);
-		RUIPreferenceConstants.initializeDefaultValues(store);
 		
 		final DefaultScope defaultScope = new DefaultScope();
+		RUIPreferenceConstants.initializeDefaultValues(defaultScope);
+		
 		final Map<Preference, Object> defaults = new HashMap<Preference, Object>();
 		new REditorOptions(0).deliverToPreferencesMap(defaults);
 		PreferencesUtil.setPrefValues(defaultScope, defaults);

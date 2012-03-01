@@ -25,8 +25,6 @@ public class Messages extends NLS {
 	public static String Editors_AppearanceColors;
 	public static String Editors_Color;
 	public static String Editors_MatchingBracketsHighlightColor;
-	public static String Editors_CodeAssistProposalsForegroundColor;
-	public static String Editors_CodeAssistProposalsBackgroundColor;
 	public static String Editors_CodeAssistParametersForegrondColor;
 	public static String Editors_CodeAssistParametersBackgroundColor;
 	public static String Editors_CodeAssistReplacementForegroundColor;
