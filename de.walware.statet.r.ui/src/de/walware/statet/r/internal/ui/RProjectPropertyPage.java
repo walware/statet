@@ -93,8 +93,10 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
+		
 		prefs.put(PREF_BASE_FOLDER, null);
+		
 		setupPreferenceManager(prefs);
 		
 		final Composite composite = new Composite(pageComposite, SWT.NONE);

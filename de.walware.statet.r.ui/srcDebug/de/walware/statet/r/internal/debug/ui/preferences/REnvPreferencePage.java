@@ -137,8 +137,10 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
+		
 		prefs.put(RRunDebugPreferenceConstants.PREF_RENV_CHECK_UPDATE, null);
+		
 		setupPreferenceManager(prefs);
 		
 		final Label label = new Label(pageComposite, SWT.LEFT);

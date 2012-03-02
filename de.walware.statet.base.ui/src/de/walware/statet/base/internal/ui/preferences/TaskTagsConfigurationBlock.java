@@ -110,11 +110,11 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
 		
 		prefs.put(TaskTagsPreferences.PREF_TAGS, TaskTagsPreferences.GROUP_ID);
 		prefs.put(TaskTagsPreferences.PREF_PRIORITIES, TaskTagsPreferences.GROUP_ID);
-		
+		 
 		setupPreferenceManager(prefs);
 		
 		createImages();

@@ -67,40 +67,41 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		EditorsUI.useAnnotationsPreferencePage(store);
 		EditorsUI.useQuickDiffPreferencePage(store);
 		
-		final DefaultScope defaultScope = new DefaultScope();
-		RUIPreferenceConstants.initializeDefaultValues(defaultScope);
+		final DefaultScope scope = new DefaultScope();
+		final Map<Preference<?>, Object> map = new HashMap<Preference<?>, Object>();
+		RUIPreferenceConstants.initializeDefaultValues(scope);
 		
-		final Map<Preference, Object> defaults = new HashMap<Preference, Object>();
-		new REditorOptions(0).deliverToPreferencesMap(defaults);
-		PreferencesUtil.setPrefValues(defaultScope, defaults);
+		new REditorOptions(0).deliverToPreferencesMap(map);
 		
-		PreferencesUtil.setPrefValue(defaultScope, CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED, false);
-		PreferencesUtil.setPrefValue(defaultScope, CONSOLE_SMARTINSERT_CLOSEROUND_ENABLED, true);
-		PreferencesUtil.setPrefValue(defaultScope, CONSOLE_SMARTINSERT_CLOSESQUARE_ENABLED, true);
-		PreferencesUtil.setPrefValue(defaultScope, CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED, true);
-		PreferencesUtil.setPrefValue(defaultScope, CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED, true);
+		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED, false);
+		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSEROUND_ENABLED, true);
+		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSESQUARE_ENABLED, true);
+		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED, true);
+		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED, true);
 		
-		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_FOLDING_ENABLED, true);
-		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_MARKOCCURRENCES_ENABLED, true);
-		PreferencesUtil.setPrefValue(defaultScope, REditorBuild.PROBLEMCHECKING_ENABLED_PREF, true);
-		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_SPELLCHECKING_ENABLED, false);
-		DefaultRFoldingPreferences.initializeDefaultValues(defaultScope);
+		PreferencesUtil.setPrefValue(scope, REditorOptions.PREF_FOLDING_ENABLED, true);
+		PreferencesUtil.setPrefValue(scope, REditorOptions.PREF_MARKOCCURRENCES_ENABLED, true);
+		PreferencesUtil.setPrefValue(scope, REditorBuild.PROBLEMCHECKING_ENABLED_PREF, true);
+		PreferencesUtil.setPrefValue(scope, REditorOptions.PREF_SPELLCHECKING_ENABLED, false);
+		DefaultRFoldingPreferences.initializeDefaultValues(scope);
 		
-		defaultScope.getNode(REDITOR_NODE).put(ContentAssistComputerRegistry.CIRCLING_ORDERED, "r-elements:false,templates:true,r-elements.runtime:true"); //$NON-NLS-1$
-		defaultScope.getNode(REDITOR_NODE).put(ContentAssistComputerRegistry.DEFAULT_DISABLED, "r-elements.runtime"); //$NON-NLS-1$
-		defaultScope.getNode(RCONSOLE_NODE).put(ContentAssistComputerRegistry.CIRCLING_ORDERED, "r-elements:false,templates:true"); //$NON-NLS-1$
+		scope.getNode(REDITOR_NODE).put(ContentAssistComputerRegistry.CIRCLING_ORDERED, "r-elements:false,templates:true,r-elements.runtime:true"); //$NON-NLS-1$
+		scope.getNode(REDITOR_NODE).put(ContentAssistComputerRegistry.DEFAULT_DISABLED, "r-elements.runtime"); //$NON-NLS-1$
+		scope.getNode(RCONSOLE_NODE).put(ContentAssistComputerRegistry.CIRCLING_ORDERED, "r-elements:false,templates:true"); //$NON-NLS-1$
 		
-		defaultScope.getNode(REDITOR_NODE).put(InfoHoverRegistry.TYPE_SETTINGS,
+		scope.getNode(REDITOR_NODE).put(InfoHoverRegistry.TYPE_SETTINGS,
 				"de.walware.statet.r.contentInfoHover.RCombinedHover:true;," + //$NON-NLS-1$
 				"de.walware.statet.r.contentInfoHover.RHelpHover:false;," + //$NON-NLS-1$
 				"de.walware.statet.r.contentInfoHover.RDebugHover:true;M2"); //$NON-NLS-1$
 		
-		final IEclipsePreferences rHelp = defaultScope.getNode(RHelpPreferences.RHELP_QUALIFIER);
+		final IEclipsePreferences rHelp = scope.getNode(RHelpPreferences.RHELP_QUALIFIER);
 		rHelp.put(RHelpPreferences.HOMEPAGE_URL_KEY, IRHelpManager.PORTABLE_DEFAULT_RENV_BROWSE_URL);
 		rHelp.putBoolean(RHelpPreferences.SEARCH_REUSE_PAGE_ENABLED_KEY, true);
 		rHelp.putInt(RHelpPreferences.SEARCH_PREVIEW_FRAGMENTS_MAX_KEY, 10);
 		
-		RRunDebugPreferenceConstants.initializeDefaultValues(defaultScope);
+		RRunDebugPreferenceConstants.initializeDefaultValues(scope);
+		
+		PreferencesUtil.setPrefValues(scope, map);
 	}
 	
 }

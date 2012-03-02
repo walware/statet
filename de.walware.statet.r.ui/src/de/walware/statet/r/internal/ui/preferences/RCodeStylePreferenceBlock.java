@@ -68,7 +68,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
 		
 		prefs.put(RCodeStyleSettings.INDENT_DEFAULT_TYPE_PREF, RCodeStyleSettings.INDENT_GROUP_ID);
 		prefs.put(RCodeStyleSettings.TAB_SIZE_PREF, RCodeStyleSettings.INDENT_GROUP_ID);

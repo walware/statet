@@ -13,7 +13,6 @@ package de.walware.statet.r.internal.core;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
@@ -32,14 +31,12 @@ public class RCorePreferenceInitializer extends AbstractPreferenceInitializer {
 	
 	@Override
 	public void initializeDefaultPreferences() {
-		final DefaultScope defaultScope = new DefaultScope();
-		final Map<Preference, Object> defaults = new HashMap<Preference, Object>();
+		final DefaultScope scope = new DefaultScope();
+		final Map<Preference<?>, Object> map = new HashMap<Preference<?>, Object>();
 		
-		new RCodeStyleSettings(0).deliverToPreferencesMap(defaults);
+		new RCodeStyleSettings(0).deliverToPreferencesMap(map);
 		
-		for (final Entry<Preference, Object> entry : defaults.entrySet()) {
-			PreferencesUtil.setPrefValue(defaultScope, entry.getKey(), entry.getValue());
-		}
+		PreferencesUtil.setPrefValues(scope, map);
 	}
 	
 }

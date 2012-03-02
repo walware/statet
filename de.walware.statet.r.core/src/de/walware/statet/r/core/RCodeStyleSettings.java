@@ -167,7 +167,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject
 	}
 	
 	@Override
-	public Map<Preference, Object> deliverToPreferencesMap(final Map<Preference, Object> map) {
+	public Map<Preference<?>, Object> deliverToPreferencesMap(final Map<Preference<?>, Object> map) {
 		map.put(TAB_SIZE_PREF, getTabSize());
 		map.put(INDENT_DEFAULT_TYPE_PREF, getIndentDefaultType());
 		map.put(INDENT_SPACES_COUNT_PREF, getIndentSpacesCount());

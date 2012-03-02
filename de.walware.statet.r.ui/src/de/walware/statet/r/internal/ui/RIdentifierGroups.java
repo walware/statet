@@ -69,7 +69,7 @@ public class RIdentifierGroups extends AbstractPreferencesModelObject {
 	}
 	
 	@Override
-	public Map<Preference, Object> deliverToPreferencesMap(final Map<Preference, Object> map) {
+	public Map<Preference<?>, Object> deliverToPreferencesMap(final Map<Preference<?>, Object> map) {
 		return map;
 	}
 	

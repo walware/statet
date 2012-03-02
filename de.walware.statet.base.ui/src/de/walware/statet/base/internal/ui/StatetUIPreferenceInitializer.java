@@ -40,20 +40,20 @@ public class StatetUIPreferenceInitializer extends AbstractPreferenceInitializer
 	private static void initializeTextEditiongPreferences(final IPreferenceStore store) {
 //		// set the default values from ExtendedTextEditor
 //		store.setValue(AbstractDecoratedTextEditorPreferenceConstants.USE_QUICK_DIFF_PREFERENCE_PAGE, true);
-		final DefaultScope defaults = new DefaultScope();
-		final IEclipsePreferences prefs = defaults.getNode(StatetUIPlugin.PLUGIN_ID);
+		final DefaultScope scope = new DefaultScope();
+		final IEclipsePreferences prefs = scope.getNode(StatetUIPlugin.PLUGIN_ID);
 		final ThemeUtil theme = new ThemeUtil();
 		
 		// EditorPreferences
 		prefs.putBoolean(DecorationPreferences.MATCHING_BRACKET_ENABLED_KEY, true);
 		prefs.put(DecorationPreferences.MATCHING_BRACKET_COLOR_KEY, theme.getColorPrefValue(IWaThemeConstants.MATCHING_BRACKET_COLOR));
 		
-		{	final IEclipsePreferences node = defaults.getNode(IStatetUIPreferenceConstants.CAT_EDITOR_OPTIONS_QUALIFIER);
+		{	final IEclipsePreferences node = scope.getNode(IStatetUIPreferenceConstants.CAT_EDITOR_OPTIONS_QUALIFIER);
 			final AssistPreferences assistPrefs = IStatetUIPreferenceConstants.EDITING_ASSIST_PREFERENCES;
-			PreferencesUtil.setPrefValue(defaults, assistPrefs.getAutoActivationEnabledPref(), Boolean.TRUE);
-			PreferencesUtil.setPrefValue(defaults, assistPrefs.getAutoActivationDelayPref(), 200);
-			PreferencesUtil.setPrefValue(defaults, assistPrefs.getAutoInsertSinglePref(), Boolean.FALSE);
-			PreferencesUtil.setPrefValue(defaults, assistPrefs.getAutoInsertPrefixPref(), Boolean.FALSE);
+			PreferencesUtil.setPrefValue(scope, assistPrefs.getAutoActivationEnabledPref(), Boolean.TRUE);
+			PreferencesUtil.setPrefValue(scope, assistPrefs.getAutoActivationDelayPref(), 200);
+			PreferencesUtil.setPrefValue(scope, assistPrefs.getAutoInsertSinglePref(), Boolean.FALSE);
+			PreferencesUtil.setPrefValue(scope, assistPrefs.getAutoInsertPrefixPref(), Boolean.FALSE);
 			node.put("Parameters.background", theme.getColorPrefValue(IWaThemeConstants.INFORMATION_BACKGROUND_COLOR)); //$NON-NLS-1$
 			node.put("Parameters.foreground", theme.getColorPrefValue(IWaThemeConstants.INFORMATION_COLOR)); //$NON-NLS-1$
 		}

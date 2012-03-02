@@ -114,7 +114,7 @@ public class REditorOptions extends AbstractPreferencesModelObject
 	}
 	
 	@Override
-	public Map<Preference, Object> deliverToPreferencesMap(final Map<Preference, Object> map) {
+	public Map<Preference<?>, Object> deliverToPreferencesMap(final Map<Preference<?>, Object> map) {
 		map.put(SMARTINSERT_BYDEFAULT_ENABLED_PREF, fIsSmartByDefaultEnabled);
 		map.put(SMARTINSERT_TAB_ACTION_PREF, fSmartTabAction);
 		map.put(SMARTINSERT_CLOSECURLY_ENABLED_PREF, fIsSmartCurlyBracketsEnabled);

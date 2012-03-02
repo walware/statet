@@ -471,8 +471,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	}
 	
 	@Override
-	public Map<Preference, Object> deliverToPreferencesMap(
-			final Map<Preference, Object> map) {
+	public Map<Preference<?>, Object> deliverToPreferencesMap(final Map<Preference<?>, Object> map) {
 		if (fType == EPLUGIN_LOCAL_TYPE) {
 			return map;
 		}

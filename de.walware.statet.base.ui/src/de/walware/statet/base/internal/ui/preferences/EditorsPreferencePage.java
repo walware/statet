@@ -107,8 +107,10 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
+		
 		final List<AppearanceColorsItem> colors = new ArrayList<AppearanceColorsItem>();
+		
 		AppearanceColorsItem color;
 		
 		// Content Assist

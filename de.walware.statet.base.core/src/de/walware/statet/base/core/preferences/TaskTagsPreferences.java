@@ -118,7 +118,7 @@ public class TaskTagsPreferences {
 	 * 
 	 * <p>Note: Intended to usage in preference/property page only.</p>
 	 */
-	public Map<Preference, Object> addPreferencesToMap(final Map<Preference, Object> map) {
+	public Map<Preference<?>, Object> addPreferencesToMap(final Map<Preference<?>, Object> map) {
 		map.put(PREF_TAGS, fTags);
 		map.put(PREF_PRIORITIES, new ConstList<TaskPriority>(fPrios));
 		return map;
@@ -129,8 +129,8 @@ public class TaskTagsPreferences {
 	 * 
 	 * <p>Note: Intended to usage in preference/property page only.</p>
 	 */
-	public Map<Preference, Object> getPreferencesMap() {
-		return addPreferencesToMap(new HashMap<Preference, Object>(2));
+	public Map<Preference<?>, Object> getPreferencesMap() {
+		return addPreferencesToMap(new HashMap<Preference<?>, Object>(2));
 	}
 	
 }

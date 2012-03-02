@@ -60,8 +60,7 @@ class SweaveEditorConfigurationBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	public void createBlockArea(final Composite pageComposite) {
-		// Preferences
-		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
 		
 		prefs.put(SweaveEditorOptions.MARKOCCURRENCES_ENABLED_PREF, null);
 		
