@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.debug.ui;
 
+import org.eclipse.jface.resource.CompositeImageDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
