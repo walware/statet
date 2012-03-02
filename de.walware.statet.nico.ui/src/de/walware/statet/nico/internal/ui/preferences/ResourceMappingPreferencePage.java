@@ -284,6 +284,9 @@ class EditMappingDialog extends ExtStatusDialog {
 			fRemoteControl = new Text(composite, SWT.BORDER | SWT.SINGLE);
 			fRemoteControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		}
+		
+		applyDialogFont(dialogArea);
+		
 		return dialogArea;
 	}
 	

@@ -28,6 +28,7 @@ import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstall3;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.VMStandin;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -127,6 +128,8 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 		final Label note = new Label(group, SWT.WRAP);
 		note.setText(fVmArgsControl.getNoteText());
 		note.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+		
+		Dialog.applyDialogFont(extComposite);
 	}
 	
 	@Override

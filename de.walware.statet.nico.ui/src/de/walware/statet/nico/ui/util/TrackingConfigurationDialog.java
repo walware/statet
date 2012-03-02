@@ -11,6 +11,7 @@
 
 package de.walware.statet.nico.ui.util;
 
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -55,6 +56,8 @@ public class TrackingConfigurationDialog extends ExtStatusDialog {
 		final DatabindingSupport databinding = new DatabindingSupport(dialogArea);
 		fConfigComposite.addBindings(databinding.getContext(), databinding.getRealm());
 		databinding.installStatusListener(new StatusUpdater());
+		
+		Dialog.applyDialogFont(dialogArea);
 		
 		return dialogArea;
 	}
