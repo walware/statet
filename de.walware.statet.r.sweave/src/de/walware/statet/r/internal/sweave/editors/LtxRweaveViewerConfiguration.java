@@ -37,9 +37,11 @@ import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.ltk.ui.sourceediting.EcoReconciler2;
 import de.walware.ecommons.ltk.ui.sourceediting.EditorInformationProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistCategory;
@@ -422,7 +424,18 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 	
 	@Override
 	public IReconciler getReconciler(final ISourceViewer sourceViewer) {
-		return fTexConfig.getReconciler(sourceViewer);
+		final ISourceEditor editor = getSourceEditor();
+		if (!(editor instanceof SourceEditor1)) {
+			return null;
+		}
+		final EcoReconciler2 reconciler = (EcoReconciler2) fTexConfig.getReconciler(sourceViewer);
+		if (reconciler != null) {
+			final IReconcilingStrategy spellingStrategy = getSpellingStrategy(sourceViewer);
+			if (spellingStrategy != null) {
+				reconciler.addReconcilingStrategy(spellingStrategy);
+			}
+		}
+		return reconciler;
 	}
 	
 	@Override
