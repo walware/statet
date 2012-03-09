@@ -441,8 +441,8 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				}
 			};
 			fRLibrariesButtons.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
-			fRLibrariesButtons.addAddButton();
-			fRLibrariesButtons.addDeleteButton();
+			fRLibrariesButtons.addAddButton(null);
+			fRLibrariesButtons.addDeleteButton(null);
 //			fRLibrariesButtons.addSeparator();
 //			fRLibrariesButtons.addUpButton();
 //			fRLibrariesButtons.addDownButton();

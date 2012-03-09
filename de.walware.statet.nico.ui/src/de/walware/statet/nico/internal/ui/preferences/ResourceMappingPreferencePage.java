@@ -117,10 +117,10 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 				}
 			};
 			fListButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, true));
-			fListButtons.addAddButton();
-			fListButtons.addCopyButton();
-			fListButtons.addEditButton();
-			fListButtons.addDeleteButton();
+			fListButtons.addAddButton(null);
+			fListButtons.addCopyButton(null);
+			fListButtons.addEditButton(null);
+			fListButtons.addDeleteButton(null);
 			
 			fListButtons.connectTo(fListViewer, fList, null);
 			fListViewer.setInput(fList);
@@ -296,7 +296,7 @@ class EditMappingDialog extends ExtStatusDialog {
 				new UpdateValueStrategy().setAfterGetValidator(fLocalControl.getValidator()), null);
 		db.getContext().bindValue(SWTObservables.observeText(fHostControl, SWT.Modify), fHostValue,
 				new UpdateValueStrategy().setAfterGetValidator(new NotEmptyValidator(
-						"Missing host must be specified by its hostname or IP number.")), null);
+						"Missing host; it must be specified by its hostname or IP number.")), null);
 		db.getContext().bindValue(SWTObservables.observeText(fRemoteControl, SWT.Modify), fRemoteValue,
 				new UpdateValueStrategy().setAfterGetValidator(new NotEmptyValidator(
 						"Missing remote path.")), null);

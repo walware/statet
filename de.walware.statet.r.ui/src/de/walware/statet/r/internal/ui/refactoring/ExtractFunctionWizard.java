@@ -201,8 +201,8 @@ public class ExtractFunctionWizard extends RefactoringWizard {
 			
 			fArgumentsButtons = new ButtonGroup<Variable>(composite);
 			fArgumentsButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, true));
-			fArgumentsButtons.addUpButton();
-			fArgumentsButtons.addDownButton();
+			fArgumentsButtons.addUpButton(null);
+			fArgumentsButtons.addDownButton(null);
 			
 			return composite;
 		}

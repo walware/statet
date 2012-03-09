@@ -187,11 +187,11 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 			addButton.addSelectionListener(addDefaultListener);
 			addButton.setText(SharedMessages.CollectionEditing_AddItem_label + "...");
 			addButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			fListButtons.addCopyButton();
-			fListButtons.addEditButton();
-			fListButtons.addDeleteButton();
+			fListButtons.addCopyButton(null);
+			fListButtons.addEditButton(null);
+			fListButtons.addDeleteButton(null);
 			fListButtons.addSeparator();
-			fListButtons.addDefaultButton();
+			fListButtons.addDefaultButton(null);
 			
 			fListButtons.connectTo(fListViewer, new DataAdapter.ListAdapter<IREnvConfiguration.WorkingCopy>(
 					fList, fDefault ) {

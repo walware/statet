@@ -143,12 +143,12 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 				}
 			};
 			fListButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, true));
-			fListButtons.addAddButton();
-			fListButtons.addCopyButton();
-			fListButtons.addEditButton();
-			fListButtons.addDeleteButton();
+			fListButtons.addAddButton(null);
+			fListButtons.addCopyButton(null);
+			fListButtons.addEditButton(null);
+			fListButtons.addDeleteButton(null);
 			fListButtons.addSeparator();
-			fListButtons.addDefaultButton();
+			fListButtons.addDefaultButton(null);
 			
 			fListButtons.connectTo(fListViewer, fList, fDefault);
 			fListViewer.setInput(fList);
