@@ -142,4 +142,24 @@
       </adapterFactory>
    </extension>
    
+   <extension
+         point="org.eclipse.ltk.core.refactoring.deleteParticipants">
+      <deleteParticipant
+            id="de.walware.statet.r.refactoring.RModelDeleteParticipant"
+            class="de.walware.statet.r.internal.core.refactoring.RModelDeleteParticipant"
+            name="%refactoring_RModelDeleteParticipant_name">
+         <enablement>
+            <with
+                  variable="affectedNatures">
+               <iterate
+                     operator="or">
+                  <equals
+                        value="de.walware.statet.r.RNature">
+                  </equals>
+               </iterate>
+            </with>
+         </enablement>
+      </deleteParticipant>
+   </extension>
+   
 </plugin>

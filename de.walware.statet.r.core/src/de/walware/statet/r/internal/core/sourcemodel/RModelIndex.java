@@ -568,8 +568,10 @@ public class RModelIndex {
 						remove.remove(suId);
 					}
 				}
-				for (final String suId : remove) {
-					frame.removeModelElement(suId);
+				if (remove != null && !remove.isEmpty()) {
+					for (final String suId : remove) {
+						frame.removeModelElement(suId);
+					}
 				}
 			}
 		}
@@ -786,7 +788,8 @@ public class RModelIndex {
 			while (resultSet.next()) {
 				final String name = resultSet.getString(1);
 				final int id = resultSet.getInt(2);
-				if (root.getProject(name) != null) {
+				final IProject project = root.getProject(name);
+				if (project != null && project.isOpen()) {
 					final Proj proj = new Proj(id);
 					fProjectIds.put(name, proj);
 				}
@@ -816,6 +819,23 @@ public class RModelIndex {
 		}
 	}
 	
+	private void removeProject(IProject project) {
+		final Proj proj = fProjectIds.remove(project.getName());
+		if (proj != null) {
+			proj.removed = true;
+			if (fDBInitialized == 1) {
+				try {
+					final DbTools dbTools = getDbTools();
+					dbTools.removeProj(proj.id);
+					dbTools.connection.commit();
+				}
+				catch (final SQLException e) {
+					onDbToolsError(e);
+				}
+			}
+		}
+	}
+	
 	public void updateProjectConfig(final RProject rProject, final String packageName) {
 		final IProject project = rProject.getProject();
 		final Proj projectId = fProjectIds.get(project.getName());
@@ -836,20 +856,7 @@ public class RModelIndex {
 	public void updateProjectConfigRemoved(final IProject project) {
 		fLock.writeLock().lock();
 		try {
-			final Proj proj = fProjectIds.remove(project.getName());
-			if (proj != null) {
-				proj.removed = true;
-				if (fDBInitialized == 1) {
-					try {
-						final DbTools dbTools = getDbTools();
-						dbTools.removeProj(proj.id);
-						dbTools.connection.commit();
-					}
-					catch (final SQLException e) {
-						onDbToolsError(e);
-					}
-				}
-			}
+			removeProject(project);
 		}
 		finally {
 			fLock.writeLock().unlock();
@@ -859,7 +866,8 @@ public class RModelIndex {
 	public void updateProjectConfigClosed(final IProject project) {
 		fLock.writeLock().lock();
 		try {
-			fProjectIds.remove(project.getName());
+			removeProject(project);
+//			fProjectIds.remove(project.getName());
 		}
 		finally {
 			fLock.writeLock().unlock();

@@ -76,6 +76,9 @@ public class Messages extends NLS {
 	public static String RIdentifiers_error_Invalid_message;
 	public static String RIdentifiers_error_InvalidFor_message;
 	
+	public static String RModel_DeleteParticipant_name;
+	public static String RModel_DeleteProject_name;
+	
 	
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);
