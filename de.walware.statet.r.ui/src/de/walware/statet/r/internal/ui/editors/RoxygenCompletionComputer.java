@@ -68,6 +68,7 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 		"listObject",
 		"attributeObject",
 		"environmentObject",
+		"noRd",
 		"rdname", // 2.0
 		"template", // 2.0
 		"section", // 2.0
