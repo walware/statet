@@ -321,14 +321,9 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 					final StringBuilder sb = new StringBuilder();
 					sb.append("Launching the R Console was cancelled, because it seems starting the R engine failed. \n");
 					sb.append("Please make sure that R package ");
-					if (ServerUtil.RJ_VERSION[0] > 0 || ServerUtil.RJ_VERSION[1] > 5 || ServerUtil.RJ_VERSION[2] >= 5) {
-						sb.append("'rj' ("); //$NON-NLS-1$;
-						ServerUtil.prettyPrintVersion(ServerUtil.RJ_VERSION, sb);
-						sb.append(" or compatible)"); //$NON-NLS-1$
-					}
-					else {
-						sb.append("'rJava' (with JRI)"); //$NON-NLS-1$
-					}
+					sb.append("'rj' ("); //$NON-NLS-1$;
+					sb.append(ServerUtil.RJ_VERSION[0]).append('.').append(ServerUtil.RJ_VERSION[1]);
+					sb.append(" or compatible)"); //$NON-NLS-1$
 					sb.append(" is installed and that the R library paths are set correctly for the R environment configuration '");
 					sb.append(rEnv.getName());
 					sb.append("'.");
