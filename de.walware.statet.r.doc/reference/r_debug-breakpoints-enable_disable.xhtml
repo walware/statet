@@ -23,21 +23,27 @@ R code, the breakpoint must be removed.</p>
 
 <h4>Changing the Settings</h4>
 
-<p>The enablement state of a breakpoint can be changed in different ways:
-</p>
+<p>The enablement state of a breakpoint can be changed in different ways.</p>
+
+<p>In the <a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-breakpoints_view.htm"
+>Breakpoint view</a>:</p>
 <ul>
 	<li>Directly by the checkbox in list of the Breakpoints view. A checked checkbox means, that
-	the breakpoint is enabled, if the checkbox unchecked, the breakpoint is disabled.
-	</li>
+		the breakpoint is enabled, if the checkbox unchecked, the breakpoint is disabled.</li>
 	<li>By using the actions <span class="uisequence"><a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-enable_contextaction.htm"
-	>Enable</a></span> and <span class="uisequence"><a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-disable_contextaction.htm"
-	>Disable</a></span> in the context menu of items in the Breakpoint view. The actions 
-	affects all selected breakpoint and so allows to change the state of multiple breakpoints 
-	all at once.
-	</li>
-	<li>By using the action <span class="uisequence">Enable / Disable Breakpoint</span> in the 
-	context menu of the editor ruler in the line of the breakpoint.
-	</li>
+		>Enable</a></span> and <span class="uisequence"><a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-disable_contextaction.htm"
+		>Disable</a></span> in the context menu of items in the Breakpoint view. The actions 
+		affects all selected breakpoint and so allows to change the state of multiple breakpoints 
+		all at once.</li>
+</ul>
+<p>In the source editor:</p>
+<ul>
+	<li>The action <span class="uisequence">Enable / Disable Breakpoint</span> in the context menu 
+		of the editor ruler in the line of the breakpoint toggles its enablement state.</li>
+</ul>
+<ul>
+	<li>The same action is executed when holding the <kbd>Shift</kbd> key and <b>double-clicking</b> in 
+		the editor ruler in the line of the breakpoint.</li>
 </ul>
 
 <h3 id="skip_all">Skip All Breakpoints</h3>

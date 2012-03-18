@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTargetExtension;
+import org.eclipse.debug.ui.actions.IToggleBreakpointsTargetExtension2;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
@@ -29,6 +30,8 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.progress.IProgressService;
@@ -55,7 +58,8 @@ import de.walware.statet.r.ui.editors.IREditor;
 /**
  * Toggles a line breakpoint in a R editor.
  */
-public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtension {
+public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtension,
+		IToggleBreakpointsTargetExtension2 {
 	
 	
 	private static class Data {
@@ -226,6 +230,44 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 		catch (final InterruptedException e) {}
 	}
 	
+	
+	@Override
+	public boolean canToggleBreakpointsWithEvent(final IWorkbenchPart part,
+			final ISelection selection, final Event event) {
+		return canToggleBreakpoints(part, selection);
+	}
+	
+	@Override
+	public void toggleBreakpointsWithEvent(final IWorkbenchPart part,
+			final ISelection selection, final Event event) throws CoreException {
+		if (event != null) {
+			if ((event.stateMask & SWT.MOD2) > 0) {
+				final IREditor rEditor = getREditor(part, selection);
+				if (rEditor != null && selection instanceof ITextSelection) {
+					try {
+						final Data data = createData(rEditor);
+						if (data == null) {
+							return;
+						}
+						final ITextSelection textSelection = (ITextSelection) selection;
+						data.init2(null);
+						final int lineNumber = data.getDocument()
+								.getLineOfOffset(textSelection.getOffset()) + 1;
+						final IRLineBreakpoint breakpoint = findFirst(data, lineNumber, null, null);
+						if (breakpoint != null) {
+							breakpoint.setEnabled(!breakpoint.isEnabled());
+						}
+					}
+					catch (final BadLocationException e) {
+					}
+					return;
+				}
+			}
+		}
+		toggleBreakpoints(part, selection);
+	}
+	
+	
 	public boolean removeBreakpoints(final IWorkbenchPart part, final ISelection selection,
 			final IProgressMonitor monitor) throws CoreException {
 		final Data data = createData(getREditor(part, selection));
@@ -292,7 +334,8 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 			final IProgressMonitor monitor)
 			throws BadLocationException, CoreException {
 		final int lineNumber = data.getDocument().getLineOfOffset(offset) + 1;
-		final IRLineBreakpoint breakpoint = findFirst(data, lineNumber, type);
+		final IRLineBreakpoint breakpoint = findFirst(data, lineNumber,
+				type, fLastBreakpoint);
 		if (breakpoint != null) {
 			DebugUITools.deleteBreakpoints(new IBreakpoint[] { breakpoint },
 					getShell(data), monitor);
@@ -307,7 +350,8 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 		if (validator.getLineNumber() >= 0) {
 			final int lineCorr = Math.abs(validator.getLineNumber() - validator.getOriginalLineNumber());
 			if (lineCorr > 0) {
-				final IRLineBreakpoint breakpoint = findFirst(data, validator.getLineNumber(), type);
+				final IRLineBreakpoint breakpoint = findFirst(data, validator.getLineNumber(),
+						type, fLastBreakpoint);
 				if (breakpoint != null) {
 					if (breakpoint == fLastBreakpoint 
 							|| type == RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID
@@ -322,7 +366,8 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 		return false;
 	}
 	
-	private IRLineBreakpoint findFirst(final Data data, final int lineNumber, final String type)
+	private IRLineBreakpoint findFirst(final Data data, final int lineNumber, final String type,
+			final IRBreakpoint last)
 			throws CoreException {
 		final List<IRLineBreakpoint> breakpoints = RDebugModel.getRLineBreakpoints(
 				(IFile) data.getSourceUnit().getResource() );
@@ -330,10 +375,10 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 			return null;
 		}
 		final IMarkerPositionResolver resolver = getMarkerPositionResolver(data);
-		if (fLastBreakpoint != null
-				&& (type == null || fLastBreakpoint.getBreakpointType() == type) ) {
+		if (last != null
+				&& (type == null || last.getBreakpointType() == type) ) {
 			for (final IRLineBreakpoint breakpoint : breakpoints) {
-				if (breakpoint == fLastBreakpoint
+				if (breakpoint == last
 						&& ((resolver != null) ? resolver.getLine(breakpoint.getMarker()) : breakpoint.getLineNumber()) == lineNumber ) {
 					return breakpoint;
 				}
@@ -397,7 +442,7 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 	}
 	
 	private Shell getShell(final Data data) {
-		{	IWorkbenchPart part = data.getEditor().getWorkbenchPart();
+		{	final IWorkbenchPart part = data.getEditor().getWorkbenchPart();
 			if (part != null) {
 				return part.getSite().getShell();
 			}
