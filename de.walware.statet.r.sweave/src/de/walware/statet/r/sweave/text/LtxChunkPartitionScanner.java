@@ -17,13 +17,14 @@ import org.eclipse.jface.text.rules.Token;
 
 import de.walware.ecommons.collections.IntMap;
 
+import de.walware.docmlet.tex.core.text.ITexDocumentConstants;
 import de.walware.docmlet.tex.ui.text.LtxFastPartitionScanner;
-
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 
 
 /**
- * Paritition scanner for LaTeX chunks (stops if find '&lt;&lt;' at column 0).
+ * Paritition scanner for LaTeX chunks.
+ * 
+ * Stops if find '&lt;&lt;' at column 0 and handles 'Sexpr' control word.
  */
 public class LtxChunkPartitionScanner extends LtxFastPartitionScanner
 		implements ICatPartitionTokenScanner {
@@ -33,7 +34,8 @@ public class LtxChunkPartitionScanner extends LtxFastPartitionScanner
 	
 	private static final char[] SEQ_Sexpr = "Sexpr".toCharArray();
 	
-	private final static IToken T_RCODE = new Token(IRDocumentPartitions.R_DEFAULT_EXPL);
+//	private final static IToken T_RCODE = new Token(IRDocumentPartitions.R_DEFAULT_EXPL);
+	private final static IToken T_RCODE = new Token(ITexDocumentConstants.LTX_VERBATIM_CONTENT_TYPE);
 	
 	private int fSavedLineState;
 	

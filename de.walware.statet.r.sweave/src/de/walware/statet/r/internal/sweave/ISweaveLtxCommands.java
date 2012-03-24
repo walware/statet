@@ -15,6 +15,9 @@ import de.walware.ecommons.collections.ConstList;
 
 import de.walware.docmlet.tex.core.commands.Argument;
 import de.walware.docmlet.tex.core.commands.TexCommand;
+import de.walware.docmlet.tex.core.commands.TexEmbedCommand;
+
+import de.walware.statet.r.core.model.RModel;
 
 
 public interface ISweaveLtxCommands {
@@ -25,9 +28,9 @@ public interface ISweaveLtxCommands {
 					new Argument("options", Argument.REQUIRED, Argument.NONE)
 			), "Modifies the Sweave options for the rest of the document");
 	
-	public static final TexCommand SWEAVE_Sexpr_COMMANDS = new TexCommand(0,
+	public static final TexEmbedCommand SWEAVE_Sexpr_COMMANDS = new TexEmbedCommand(0, RModel.TYPE_ID,
 			"Sexpr", false, new ConstList<Argument>( //$NON-NLS-1$
-					new Argument("expression", Argument.REQUIRED, Argument.NONE)
+					new Argument("expression", Argument.REQUIRED, Argument.EMBEDDED)
 			), "Prints the value of a scalar in R");
 	
 }
