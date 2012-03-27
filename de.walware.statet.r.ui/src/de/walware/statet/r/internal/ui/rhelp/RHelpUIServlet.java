@@ -231,6 +231,7 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 		
 		EditorsUI.getPreferenceStore().addPropertyChangeListener(this);
 		JFaceResources.getFontRegistry().addListener(this);
+		JFaceResources.getColorRegistry().addListener(this);
 		PreferencesUtil.getSettingsChangeNotifier().addChangeListener(this);
 		updateStyles();
 	}
@@ -268,6 +269,7 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 			preferenceStore.removePropertyChangeListener(this);
 		}
 		JFaceResources.getFontRegistry().removeListener(this);
+		JFaceResources.getColorRegistry().removeListener(this);
 		PreferencesUtil.getSettingsChangeNotifier().removeChangeListener(this);
 	}
 	

@@ -50,6 +50,7 @@ import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -179,10 +180,10 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	
 	private static class RLibraryContainer {
 		
-		IRLibraryGroup.WorkingCopy.WorkingCopy parent;
+		IRLibraryGroup.WorkingCopy parent;
 		IRLibraryLocation.WorkingCopy library;
 		
-		RLibraryContainer(final IRLibraryGroup.WorkingCopy.WorkingCopy parent, final IRLibraryLocation.WorkingCopy library) {
+		RLibraryContainer(final IRLibraryGroup.WorkingCopy parent, final IRLibraryLocation.WorkingCopy library) {
 			this.parent = parent;
 			this.library = library;
 		}
@@ -509,6 +510,14 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		fRLibrariesButtons.updateState();
 		
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(getShell(), IRUIHelpContextIds.R_ENV);
+		
+		dialogArea.getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				fRLibrariesViewer.setSelection(new StructuredSelection(
+						fConfigModel.getRLibraryGroups().get(0)));
+			}
+		});
 		
 		return dialogArea;
 	}

@@ -154,7 +154,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 			
 			final Composite table = createTable(composite);
 			{	final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-				gd.heightHint = LayoutUtil.hintHeight(fListViewer.getTable(), 10);
+				gd.heightHint = LayoutUtil.hintHeight(fListViewer.getTable(), 12, false);
 				table.setLayoutData(gd);
 			}
 			
