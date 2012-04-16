@@ -153,7 +153,7 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 	@Override
 	public void createControl(final Composite parent) {
 		final Composite composite = new Composite(parent, SWT.NONE);
-		composite.setLayout(LayoutUtil.applyTabDefaults(new GridLayout(), 1));
+		composite.setLayout(LayoutUtil.createTabGrid(1));
 		
 		final Label label = new Label(composite, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));

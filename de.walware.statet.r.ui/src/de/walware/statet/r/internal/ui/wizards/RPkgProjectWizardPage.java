@@ -23,7 +23,6 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -64,7 +63,7 @@ public class RPkgProjectWizardPage extends WizardPage {
 		initializeDialogUnits(parent);
 		
 		final Composite composite = new Composite(parent, SWT.NONE);
-		composite.setLayout(LayoutUtil.applyContentDefaults(new GridLayout(), 1));
+		composite.setLayout(LayoutUtil.createContentGrid(1));
 		
 		{	final Composite group = createRPkgGroup(composite);
 			group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -81,7 +80,7 @@ public class RPkgProjectWizardPage extends WizardPage {
 	
 	protected Composite createRPkgGroup(final Composite parent) {
 		final Group composite = new Group(parent, SWT.NONE);
-		composite.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
+		composite.setLayout(LayoutUtil.createGroupGrid(2));
 		composite.setText("R Package");
 		
 		final Label label = new Label(composite, SWT.NONE);

@@ -22,7 +22,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import de.walware.ecommons.io.FileValidator;
@@ -68,7 +67,7 @@ public abstract class AbstractHistoryPage extends WizardPage {
 		
 		final Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		composite.setLayout(LayoutUtil.applyContentDefaults(new GridLayout(), 1));
+		composite.setLayout(LayoutUtil.createContentGrid(1));
 		
 		fLocationGroup = createResourceInputComposite(composite);
 		fLocationGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -100,10 +99,6 @@ public abstract class AbstractHistoryPage extends WizardPage {
 		validate();
 		setErrorMessage(null);
 		setMessage(null);
-	}
-	
-	protected Composite createOptions(final Composite parent) {
-		return fLocationGroup;
 	}
 	
 	protected abstract ResourceInputComposite createResourceInputComposite(Composite composite);
