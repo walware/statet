@@ -105,6 +105,11 @@ abstract class RSourceElementByElementAccess
 			fArgs = args;
 		}
 		
+		void complete(final AnonymousAccess defAccess, final ArgsDefinition args) {
+			setAccess(defAccess);
+			fArgs = args;
+		}
+		
 		
 		public RMethod(final IRLangSourceElement parent, final int type, final ElementAccess access, final BuildSourceFrame envir) {
 			super(parent, type, access);
@@ -458,7 +463,7 @@ abstract class RSourceElementByElementAccess
 	
 	
 	private final IRLangSourceElement fParent;
-	private ElementAccess fAccess;
+	private RElementAccess fAccess;
 	int fType;
 	int fOccurrenceCount;
 	
@@ -469,6 +474,12 @@ abstract class RSourceElementByElementAccess
 		setAccess(defAccess);
 	}
 	
+	
+	protected void setAccess(final AnonymousAccess access) {
+		if (access != null) {
+			fAccess = access;
+		}
+	}
 	
 	protected void setAccess(final ElementAccess access) {
 		if (access != null) {
@@ -482,7 +493,7 @@ abstract class RSourceElementByElementAccess
 		return RModel.TYPE_ID;
 	}
 	
-	public final ElementAccess getAccess() {
+	public final RElementAccess getAccess() {
 		return fAccess;
 	}
 	

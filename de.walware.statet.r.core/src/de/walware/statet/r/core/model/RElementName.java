@@ -51,6 +51,7 @@ public abstract class RElementName implements IElementName {
 	public static final int SUB_NAMEDPART =   0x01b;
 	public static final int SUB_INDEXED_S =   0x01d;
 	public static final int SUB_INDEXED_D =   0x01e;
+	public static final int ANONYMOUS =       0x020;
 	
 	public static final int DISPLAY_NS_PREFIX = 0x1;
 	public static final int DISPLAY_EXACT = 0x2;
@@ -136,16 +137,22 @@ public abstract class RElementName implements IElementName {
 				if (firstName != null) {
 					return "package:"+firstName;
 				}
-				else {
+				else if ((options & DISPLAY_EXACT) == 0) {
 					return "package:<unknown>";
+				}
+				else {
+					return null;
 				}
 			case MAIN_PROJECT:
 				firstName = a.getSegmentName();
 				if (firstName != null) {
 					return "project:"+firstName;
 				}
-				else {
+				else if ((options & DISPLAY_EXACT) == 0) {
 					return "project:<unknown>";
+				}
+				else {
+					return null;
 				}
 			case SUB_INDEXED_D:
 				if (a instanceof DefaultImpl) {
@@ -159,6 +166,11 @@ public abstract class RElementName implements IElementName {
 			case RESOURCE:
 			case MAIN_OTHER:
 				return a.getSegmentName();
+			case ANONYMOUS:
+				if ((options & DISPLAY_EXACT) == 0) {
+					return "<anonymous>";
+				}
+				return null;
 			default:
 				return null;
 			}
@@ -193,6 +205,9 @@ public abstract class RElementName implements IElementName {
 				a = a.getNextSegment();
 				continue APPEND_SUB;
 			case SUB_INDEXED_S:
+				if (((options & DISPLAY_EXACT) != 0)) {
+					return null;
+				}
 				sb.append("[…]"); //$NON-NLS-1$
 				break APPEND_SUB;
 			case SUB_INDEXED_D:
@@ -203,11 +218,19 @@ public abstract class RElementName implements IElementName {
 					a = a.getNextSegment();
 					continue APPEND_SUB;
 				}
-				sb.append("[[…]]"); //$NON-NLS-1$
-				break APPEND_SUB;
+				else if ((options & DISPLAY_EXACT) == 0) {
+					sb.append("[[…]]"); //$NON-NLS-1$
+					continue APPEND_SUB;
+				}
+				else {
+					return null;
+				}
 			default:
-				sb.append(" …"); //$NON-NLS-1$
-				break APPEND_SUB;
+				if (((options & DISPLAY_EXACT) == 0)) {
+					sb.append(" …"); //$NON-NLS-1$
+					break APPEND_SUB;
+				}
+				return null;
 			}
 		}
 		return sb.toString();
