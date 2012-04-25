@@ -38,19 +38,23 @@ public abstract class ToolDialog extends TitleAreaDialog {
 	private final Image fDialogImage;
 	
 	private final ToolProcess fTool;
+	private final int fToolInfoFlags;
 	
 	
-	/**
-	 * @param parentShell
-	 */
 	public ToolDialog(final ToolProcess tool, final Shell parentShell,
 			final Image dialogImage, final String dialogTitle) {
+		this(tool, parentShell, dialogImage, dialogTitle, 0);
+	}
+	
+	public ToolDialog(final ToolProcess tool, final Shell parentShell,
+			final Image dialogImage, final String dialogTitle, int toolInfoFlags) {
 		super(parentShell);
 		
 		fDialogImage = dialogImage;
 		fDialogTitle = dialogTitle;
 		
 		fTool = tool;
+		fToolInfoFlags = toolInfoFlags;
 	}
 	
 	
@@ -86,33 +90,27 @@ public abstract class ToolDialog extends TitleAreaDialog {
 	
 	@Override
 	protected Control createDialogArea(final Composite parent) {
-		final Control dialogArea = super.createDialogArea(parent);
+		final Composite dialogArea = (Composite) super.createDialogArea(parent);
 		
-		final Composite composite = new Composite(parent, SWT.NONE);
+		final Composite composite = new Composite(dialogArea, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		composite.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 1));
 		
 		final Control content = createDialogContent(composite);
 		content.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
-		final Control customArea = createCustomArea(composite);
-		if (customArea != null) {
-			customArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		}
+		addToolInfo(composite);
 		
 		return dialogArea;
 	}
 	
 	protected abstract Control createDialogContent(Composite parent);
 	
-	protected Control createCustomArea(final Composite parent) {
-		LayoutUtil.addSmallFiller(parent, true);
+	protected void addToolInfo(final Composite parent) {
+		LayoutUtil.addSmallFiller(parent, false);
 		
-		final ToolInfoGroup info = new ToolInfoGroup(parent, fTool);
+		final ToolInfoGroup info = new ToolInfoGroup(parent, fToolInfoFlags, fTool);
 		info.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		
-		applyDialogFont(parent);
-		return parent;
 	}
 	
 }
