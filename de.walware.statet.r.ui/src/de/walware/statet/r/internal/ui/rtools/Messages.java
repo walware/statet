@@ -19,6 +19,13 @@ public class Messages extends NLS {
 	public static String HelpCommand_name;
 	public static String PrintCommand_name;
 	
+	public static String Variable_error_EmptySelection_message;
+	public static String Variable_error_InvalidProject_NotExists_message;
+	public static String Variable_error_InvalidProject_NoRProject_message;
+	public static String Variable_error_NoSingleRElement_message;
+	public static String Variable_error_InvalidObject_QualifiedName_message;
+	public static String Variable_error_InvalidProject_NoPkgName_message;
+	
 	
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);

@@ -52,6 +52,21 @@
       </decorator>
    </extension>
    <extension
+         point="org.eclipse.core.variables.dynamicVariables">
+      <variable
+            name="r_pkg_base_path"
+            description="%variables_RPkgBasePath_description"
+            supportsArgument="true"
+            resolver="de.walware.statet.r.ui.rtool.RProjectVariableResolver">
+      </variable>
+      <variable
+            name="r_pkg_name"
+            description="%variables_RPkgName_description"
+            supportsArgument="true"
+            resolver="de.walware.statet.r.ui.rtool.RProjectVariableResolver">
+      </variable>
+   </extension>
+   <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
             class="de.walware.statet.r.ui.editors.RDocumentSetupParticipant"
@@ -762,7 +777,7 @@
                      type="org.eclipse.core.resources.IProject">
                   <test
                         property="org.eclipse.core.resources.projectNature"
-                        value="de.walware.statet.r.core.RPackageProject">
+                        value="de.walware.statet.r.RPkgNature">
                   </test>
                </adapt>
             </or>
@@ -1171,6 +1186,12 @@
                </iterate>
             </with>
          </enablement>
+      </shortcut>
+      <shortcut
+            class="de.walware.statet.r.ui.LaunchShortcut1"
+            id="de.walware.statet.r.ui.shortcut1"
+            label="label"
+            modes="de.walware.statet.r.ui.shortcut1">
       </shortcut>
    </extension>
    <extension
@@ -1734,6 +1755,16 @@
                type="org.eclipse.search.ui.ISearchPageScoreComputer">
          </adapter>
       </factory>
+   </extension>
+   
+   <extension
+         point="org.eclipse.core.variables.dynamicVariables">
+      <variable
+            name="r_object_name"
+            description="%variables_RObjectName_description"
+            supportsArgument="false"
+            resolver="de.walware.statet.r.ui.rtool.RElementNameVariableResolver">
+      </variable>
    </extension>
    
 </plugin>

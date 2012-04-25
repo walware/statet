@@ -13,14 +13,21 @@ package de.walware.statet.r.internal.console.ui;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import de.walware.ecommons.ui.util.ImageRegistryUtil;
+
+import de.walware.statet.r.internal.console.ui.snippets.RSnippets;
 
 
 public class RConsoleUIPlugin extends AbstractUIPlugin {
 	
 	
 	public static final String PLUGIN_ID = "de.walware.statet.r.console.ui"; //$NON-NLS-1$
+	
+	public static final String IMG_OBJ_SNIPPETS = PLUGIN_ID + "/image/obj/snippets"; //$NON-NLS-1$
 	
 	
 	/** The shared instance */
@@ -44,6 +51,9 @@ public class RConsoleUIPlugin extends AbstractUIPlugin {
 	
 	
 	private boolean fStarted;
+	
+	
+	private RSnippets fRSnippets;
 	
 	
 	/** Created via framework */
@@ -70,6 +80,25 @@ public class RConsoleUIPlugin extends AbstractUIPlugin {
 			gPlugin = null;
 			super.stop(context);
 		}
+	}
+	
+	
+	@Override
+	protected void initializeImageRegistry(ImageRegistry reg) {
+		final ImageRegistryUtil util = new ImageRegistryUtil(this);
+		
+		util.register(IMG_OBJ_SNIPPETS, ImageRegistryUtil.T_OBJ, "snippets.png"); //$NON-NLS-1$
+	}
+	
+	
+	public synchronized RSnippets getRSnippets() {
+		if (fRSnippets == null) {
+			if (!fStarted) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
+			fRSnippets = new RSnippets();
+		}
+		return fRSnippets;
 	}
 	
 }

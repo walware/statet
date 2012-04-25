@@ -351,4 +351,126 @@
       </handler>
    </extension>
    
+<!-- R Snippet -->
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <include
+            file="templates/default-snippet-templates.xml"
+            translations="templates/default-templates.properties">
+      </include>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            id="de.walware.statet.r.preferencePages.RSnippets"
+            category="de.walware.statet.base.preferencePages.RunDebug"
+            name="%preferencePages_RSnippet_name"
+            class="de.walware.statet.r.internal.console.ui.snippets.RSnippetPreferencePage">
+      </page>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="de.walware.statet.r.commands.RunRSnippet"
+            categoryId="de.walware.statet.nico.commands.ConsoleCategory"
+            name="%commands_RunRSnippet_name"
+            description="%commands_RunRSnippet_description"
+            defaultHandler="de.walware.statet.r.internal.console.ui.snippets.RunRSnippetHandler">
+         <commandParameter
+               id="snippet"
+               name="%commands_RunRSnippet_SnippetPar_name"
+               optional="false"
+               values="de.walware.statet.r.internal.console.ui.snippets.RunRSnippetParameterValues">
+         </commandParameter>
+      </command>
+      <command
+            id="de.walware.statet.r.commands.RunLastRSnippet"
+            categoryId="de.walware.statet.nico.commands.ConsoleCategory"
+            name="%commands_RunLastRSnippet_name"
+            description="%commands_RunLastRSnippet_description"
+            defaultHandler="de.walware.statet.r.internal.console.ui.snippets.RunLastRSnippetHandler">
+      </command>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?before=additions">
+         <separator
+               name="run.stat">
+         </separator>
+      </menuContribution>
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?endof=run.stat">
+         <menu
+               id="de.walware.statet.r.menus.RunRSnippetMenu"
+               label="Run Code Snippet in R"
+               mnemonic="o"
+               icon="icons/tool_16/submit-r_snippet.png">
+            <visibleWhen
+                  checkEnabled="false">
+               <or>
+                  <iterate operator="or">
+                     <adapt
+                           type="org.eclipse.core.resources.IResource">
+                        <test
+                              property="org.eclipse.core.resources.projectNature"
+                              value="de.walware.statet.r.RNature">
+                        </test>
+                     </adapt>
+                  </iterate>
+                  <with
+                        variable="activeMenuSelection">
+                  <test
+                        property="de.walware.ecommons.ltk.isElementSelection"
+                        value="r*">
+                  </test>
+                  </with>
+                  <with
+                        variable="activePart">
+                     <instanceof
+                           value="de.walware.statet.r.ui.editors.IREditor">
+                     </instanceof>
+                  </with>
+               </or>
+            </visibleWhen>
+            <dynamic
+                  id="de.walware.statet.r.menus.RunRSnippetList"
+                  class="de.walware.statet.r.internal.console.ui.snippets.RunRSnippetsContributionItem">
+            </dynamic>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:de.walware.statet.r.menus.RunToolbar">
+         <command
+               id="de.walware.statet.r.menus.RunRSnippetMain"
+               commandId="de.walware.statet.r.commands.RunLastRSnippet"
+               style="pulldown"
+               icon="icons/tool_16/submit-r_snippet.png">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="menu:de.walware.statet.r.menus.RunRSnippetMain">
+         <dynamic
+               id="de.walware.statet.r.menus.RunRSnippetList"
+               class="de.walware.statet.r.internal.console.ui.snippets.RunRSnippetsContributionItem">
+         </dynamic>
+         <separator
+               name="additions"
+               visible="true">
+         </separator>
+         <command
+               commandId="org.eclipse.ui.window.preferences"
+               label="%menus_RSnippets_Preferences_name"
+               mnemonic="%menus_RSnippets_Preferences_mnemonics">
+            <parameter
+                  name="preferencePageId"
+                  value="de.walware.statet.r.preferencePages.RSnippets">
+            </parameter>
+         </command>
+      </menuContribution>
+   </extension>
+   
 </plugin>

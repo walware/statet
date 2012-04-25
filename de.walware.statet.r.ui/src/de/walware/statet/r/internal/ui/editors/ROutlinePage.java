@@ -181,7 +181,10 @@ public class ROutlinePage extends SourceEditor2OutlinePage {
 		super.contextMenuAboutToShow(m);
 		final IPageSite site = getSite();
 		
-		m.insertBefore(SharedUIResources.ADDITIONS_MENU_ID, new Separator(IStatetUIMenuIds.GROUP_RUN_STAT_ID));
+		if (m.find(IStatetUIMenuIds.GROUP_RUN_STAT_ID) == null) {
+			m.insertBefore(SharedUIResources.ADDITIONS_MENU_ID,
+					new Separator(IStatetUIMenuIds.GROUP_RUN_STAT_ID) );
+		}
 		
 		m.appendToGroup(IStatetUIMenuIds.GROUP_RUN_STAT_ID, 
 				new CommandContributionItem(new CommandContributionItemParameter(

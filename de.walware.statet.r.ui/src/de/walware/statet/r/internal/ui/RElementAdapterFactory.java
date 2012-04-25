@@ -18,7 +18,6 @@ import org.eclipse.search.ui.ISearchPageScoreComputer;
 import org.eclipse.ui.IContributorResourceAdapter;
 
 import de.walware.ecommons.ltk.ISourceElement;
-import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 
@@ -87,19 +86,19 @@ public class RElementAdapterFactory implements IAdapterFactory, IContributorReso
 	
 	private IResource getResource(final IRElement element) {
 		switch (element.getElementType() & IRElement.MASK_C1) {
-		case IRElement.C1_CLASS:
-		case IRElement.C1_METHOD:
-			// top level types behave like the CU
-			if (element instanceof ISourceStructElement) {
-				final ISourceStructElement parent = ((ISourceStructElement)element).getSourceParent();
-				if ((parent.getElementType() & IRElement.MASK_C1) == IRElement.C1_SOURCE) {
-					final ISourceUnit su = parent.getSourceUnit();
-					if (su instanceof IWorkspaceSourceUnit) {
-						return ((IWorkspaceSourceUnit) su).getResource();
-					}
-				}
-			}
-			return null;
+//		case IRElement.C1_CLASS:
+//		case IRElement.C1_METHOD:
+//			// top level types behave like the CU
+//			if (element instanceof ISourceStructElement) {
+//				final ISourceStructElement parent = ((ISourceStructElement)element).getSourceParent();
+//				if ((parent.getElementType() & IRElement.MASK_C1) == IRElement.C1_SOURCE) {
+//					final ISourceUnit su = parent.getSourceUnit();
+//					if (su instanceof IWorkspaceSourceUnit) {
+//						return ((IWorkspaceSourceUnit) su).getResource();
+//					}
+//				}
+//			}
+//			return null;
 		case IRElement.C1_SOURCE:
 			if (element instanceof ISourceElement) {
 				final ISourceUnit su = ((ISourceElement) element).getSourceUnit();

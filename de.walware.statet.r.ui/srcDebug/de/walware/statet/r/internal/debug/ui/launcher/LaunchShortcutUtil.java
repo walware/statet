@@ -46,12 +46,10 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
-import de.walware.ecommons.preferences.Preference.BooleanPref;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.ICodeLaunchContentHandler;
 import de.walware.statet.r.launching.RCodeLaunching;
-import de.walware.statet.r.launching.RRunDebugPreferenceConstants;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -59,10 +57,6 @@ public class LaunchShortcutUtil {
 	
 	
 	public static final String TOGGLE_ECHO_COMMAND_ID = "de.walware.statet.r.commands.ToggleRunEcho"; //$NON-NLS-1$
-	
-	public static final BooleanPref ECHO_ENABLED_PREF = new BooleanPref(
-			RRunDebugPreferenceConstants.ROOT_QUALIFIER + "/codelaunch", "echo.enabled" );
-	
 	
 	public static String getContentTypeId(final IFile file) {
 		try {

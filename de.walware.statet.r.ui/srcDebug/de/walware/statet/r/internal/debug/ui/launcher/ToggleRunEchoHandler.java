@@ -14,14 +14,16 @@ package de.walware.statet.r.internal.debug.ui.launcher;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.actions.TogglePreferenceEnablementHandler;
 
+import de.walware.statet.r.launching.RCodeLaunching;
+
 
 public class ToggleRunEchoHandler extends TogglePreferenceEnablementHandler {
 	
 	
 	/** Created via extension point */
 	public ToggleRunEchoHandler() {
-		super(LaunchShortcutUtil.ECHO_ENABLED_PREF, PreferencesUtil.getInstancePrefs(),
-				LaunchShortcutUtil.TOGGLE_ECHO_COMMAND_ID);
+		super(RCodeLaunching.ECHO_ENABLED_PREF, PreferencesUtil.getInstancePrefs(),
+				LaunchShortcutUtil.TOGGLE_ECHO_COMMAND_ID );
 	}
 	
 	

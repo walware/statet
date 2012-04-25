@@ -91,9 +91,11 @@ import de.walware.ecommons.FastList;
 import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.ui.IElementNameProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
+import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.actions.HandlerContributionItem;
 import de.walware.ecommons.ui.actions.SearchContributionItem;
 import de.walware.ecommons.ui.util.ColumnHoverManager;
@@ -103,6 +105,8 @@ import de.walware.ecommons.ui.util.DNDUtil;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.InformationDispatchHandler;
 import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.PostSelectionProviderProxy;
+import de.walware.ecommons.ui.util.TreeSelectionProxy;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.StatetImages;
@@ -1122,6 +1126,36 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 	}
 	
+	
+	private class TreeElementSelection extends TreeSelectionProxy implements IElementNameProvider {
+		
+		public TreeElementSelection(ITreeSelection selection) {
+			super(selection);
+		}
+		
+		@Override
+		public IElementName getElementName(Object selectionElement) {
+			if (selectionElement instanceof TreePath) { 
+				return ObjectBrowserView.this.getElementName((TreePath) selectionElement);
+			}
+			return null;
+		}
+		
+	}
+	
+	private class TreeSelectionProvider extends PostSelectionProviderProxy {
+		
+		public TreeSelectionProvider() {
+			super(fTreeViewer);
+		}
+		
+		@Override
+		protected ISelection getSelection(ISelection originalSelection) {
+			return new TreeElementSelection((ITreeSelection) originalSelection);
+		}
+		
+	}
+	
 	private class HoverManager extends ColumnHoverManager {
 		
 		HoverManager() {
@@ -1201,6 +1235,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	
 	private TreeViewer fTreeViewer;
+	private TreeSelectionProvider fTreeSelectionProvider;
 	private ColumnWidgetTokenOwner fTokenOwner;
 	private Clipboard fClipboard;
 	private final StatusLine fStatusLine = new StatusLine();
@@ -1276,6 +1311,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		fTreeViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 3));
 		fTreeViewer.setUseHashlookup(true);
 		
+		fTreeSelectionProvider = new TreeSelectionProvider();
+		
 		fTreeViewer.setLabelProvider(new RLabelProvider(RLabelProvider.COUNT) {
 			@Override
 			protected String getEnvCountInfo(final ICombinedREnvironment envir) {
@@ -1316,7 +1353,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				}
 			}
 		});
-		fTreeViewer.addPostSelectionChangedListener(new ISelectionChangedListener() {
+		fTreeSelectionProvider.addPostSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(final SelectionChangedEvent event) {
 				updateSelectionInfo((ITreeSelection) event.getSelection());
@@ -1333,7 +1370,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 		createActions();
 		hookContextMenu();
-		getSite().setSelectionProvider(fTreeViewer);
+		getSite().setSelectionProvider(fTreeSelectionProvider);
 		
 		// listen on console changes
 		final IToolRegistry toolRegistry = NicoUI.getToolRegistry();
@@ -1551,6 +1588,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				null, null, null,
 				HandlerContributionItem.STYLE_PUSH, null, false),
 				fPrintElementHandler));
+		
+		m.add(new Separator(SharedUIResources.ADDITIONS_MENU_ID));
 	}
 	
 	/** May only be called in UI thread */

@@ -41,6 +41,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
+import de.walware.ecommons.preferences.Preference.BooleanPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ts.IToolRunnable;
@@ -60,7 +61,6 @@ import de.walware.statet.r.core.rsource.ast.GenericVisitor;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.debug.ui.RControllerCodeLaunchConnector;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
-import de.walware.statet.r.internal.debug.ui.launcher.LaunchShortcutUtil;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.ContentHandler.FileCommand;
 import de.walware.statet.r.nico.AbstractRController;
@@ -398,7 +398,7 @@ public final class RCodeLaunching {
 			@Override
 			public String getValue(final String argument) throws CoreException {
 				final Boolean echo = PreferencesUtil.getInstancePrefs().getPreferenceValue(
-						LaunchShortcutUtil.ECHO_ENABLED_PREF);
+						RCodeLaunching.ECHO_ENABLED_PREF);
 				return (echo != null && echo.booleanValue()) ?
 						"TRUE" : "FALSE";
 			}
@@ -556,5 +556,8 @@ public final class RCodeLaunching {
 		}
 		return sb.toString();
 	}
+
+	public static final BooleanPref ECHO_ENABLED_PREF = new BooleanPref(
+	RRunDebugPreferenceConstants.ROOT_QUALIFIER + "/codelaunch", "echo.enabled" );
 	
 }
