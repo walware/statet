@@ -244,7 +244,8 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 							positions = getPendingElementPositions(monitor);
 						}
 						installElementTracepoints(new ElementTracepointInstallationRequest(
-								(positions != null) ? positions : (List<Element>) Collections.EMPTY_LIST ), monitor );
+								(positions != null) ? positions : Collections.<Element>emptyList() ),
+								monitor );
 					}
 					{	final List<TracepointState> states;
 						synchronized (fStateUpdatesLock) {
@@ -271,13 +272,13 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 					List<String> newPackages = null;
 					for (final ICombinedREnvironment environment : environments) {
 						if (environment.getSpecialType() == REnvironment.ENVTYPE_PACKAGE) {
-							final String name = environment.getElementName().getSegmentName();
-							packages.add(name);
-							if (fKnownPackages != null && !fKnownPackages.contains(name)) {
+							final String pkgName = environment.getElementName().getSegmentName();
+							packages.add(pkgName);
+							if (fKnownPackages != null && !fKnownPackages.contains(pkgName)) {
 								if (newPackages == null) {
 									newPackages = new ArrayList<String>(4);
 								}
-								newPackages.add(name);
+								newPackages.add(pkgName);
 							}
 						}
 					}
@@ -297,16 +298,16 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 									continue;
 								}
 								final IProject project = marker.getResource().getProject();
-								RProject rProject;
-								if (rProjects.containsKey(project)) {
-									rProject = rProjects.get(project);
-								}
-								else {
+								RProject rProject = rProjects.get(project);
+								if (rProject == null) {
 									rProject = RProject.getRProject(project);
+									if (rProject == null) {
+										continue; // ?
+									}
 									rProjects.put(project, rProject);
 								}
-								final String projectPackage = rProject.getPackageName();
-								if (newPackages.contains(projectPackage)) {
+								final String pkgName = rProject.getPackageName();
+								if (newPackages.contains(pkgName)) {
 									schedulePositionUpdate(lineBreakpoint);
 								}
 							}

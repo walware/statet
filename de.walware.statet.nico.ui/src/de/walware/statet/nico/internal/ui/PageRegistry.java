@@ -12,6 +12,7 @@
 package de.walware.statet.nico.internal.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -206,7 +207,8 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 				UIAccess.getDisplay(fPage.getWorkbenchWindow().getShell()).syncExec(new Runnable() {
 					@Override
 					public void run() {
-						ref.set(searchConsole(exclude));
+						ref.set(searchConsole((exclude != null) ?
+								exclude : Collections.<ToolProcess>emptyList() ));
 					}
 				});
 				console = ref.get();
