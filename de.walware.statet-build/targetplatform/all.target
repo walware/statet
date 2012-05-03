@@ -5,11 +5,11 @@
 	<locations>
 		<location includeAllPlatforms="true" includeMode="slicer" includeSource="false"
 				type="InstallableUnit">
-			<repository location="http://download.eclipse.org/releases/indigo"/>
+			<repository location="http://download.eclipse.org/eclipse/updates/3.8"/>
 			<unit id="org.eclipse.platform.feature.group"
-					version="3.7.1.r37x_v20110729-9gF7UHOxFtniV7mI3T556iZN9AU8bEZ1lHMcVK"/>
+					version="3.8.0.v20120607-071945-9gF7jI7nG5qByXMVdkhRMWBQlF4PnDCLybDCPQ"/>
 			<unit id="org.eclipse.jdt.feature.group"
-					version="3.7.1.r371_v20110810-0800-7z8gFcoFMLfTabvKsR5Qm9rBGEBK"/>
+					version="3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXJdG0GW83"/>
 		</location>
 	</locations>
 </target>
