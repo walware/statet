@@ -21,6 +21,7 @@ import de.walware.rj.data.RObject;
 
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.RElementName;
+import de.walware.statet.r.core.model.RModel;
 
 
 public abstract class CombinedElement implements ICombinedRElement {
@@ -38,7 +39,7 @@ public abstract class CombinedElement implements ICombinedRElement {
 	
 	@Override
 	public String getModelTypeId() {
-		return null;
+		return RModel.TYPE_ID;
 	}
 	
 	@Override

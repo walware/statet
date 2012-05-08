@@ -18,7 +18,6 @@ import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -120,7 +119,7 @@ public abstract class AbstractBreakpointDetailPane implements IDetailPane3 {
 	@Override
 	public Control createControl(final Composite parent) {
 		fComposite = new Composite(parent, SWT.NONE);
-		fComposite.setLayout(LayoutUtil.applyContentDefaults(new GridLayout(), 1));
+		fComposite.setLayout(LayoutUtil.createContentGrid(1));
 		fComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		fEditor = createEditor(fComposite);
 		final Control editorControl = fEditor.createControl(fComposite);

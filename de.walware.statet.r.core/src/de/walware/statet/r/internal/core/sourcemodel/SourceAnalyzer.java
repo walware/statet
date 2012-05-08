@@ -40,6 +40,7 @@ import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RCoreFunctions;
+import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.IRSourceConstants;
@@ -193,13 +194,12 @@ public class SourceAnalyzer extends RAstVisitor {
 			if (text == null) {
 				return;
 			}
-			final ElementAccess elementAccess = ((RSourceElementByElementAccess) element).getAccess();
-			if (elementAccess == null) {
-				return;
-			}
-			if (text.equals(elementAccess.getSegmentName()) && elementAccess.getNextSegment() == null) {
+			final RElementAccess elementAccess = ((RSourceElementByElementAccess) element).getAccess();
+			if (elementAccess != null
+					&& text.equals(elementAccess.getSegmentName())
+					&& elementAccess.getNextSegment() == null ) {
 				final ElementAccess access = new ElementAccess.Default(symbol.getRParent(), symbol);
-				elementAccess.fShared.postAdd(access);
+				((ElementAccess) elementAccess).fShared.postAdd(access);
 				return;
 			}
 		}
@@ -659,8 +659,15 @@ public class SourceAnalyzer extends RAstVisitor {
 		final HashMap<String, Integer> commonNames = fCommonNames;
 		final HashMap<String, Integer> classNames = fClassNames;
 		final HashMap<String, Integer> importNames = fImportNames;
+		int anonymous = 0;
 		try {
 			for (final SourceElementBuilder seb : fSourceContainerBuilders) {
+				if (seb.element.getElementName() == null
+						&& seb.element instanceof RSourceElementByElementAccess.RMethod) {
+					final RSourceElementByElementAccess.RMethod element = (RSourceElementByElementAccess.RMethod) seb.element;
+					element.fOccurrenceCount = anonymous++;
+					registerAnonFunctionElement(element, seb.envir);
+				}
 				for (final RSourceElementByElementAccess element : seb.children) {
 					final String name = element.getElementName().getDisplayName();
 					final HashMap<String, Integer> names;
@@ -826,6 +833,12 @@ public class SourceAnalyzer extends RAstVisitor {
 			fCurrentSourceContainerBuilder.toCheck.add(access);
 		}
 		return value;
+	}
+	
+	private void registerAnonFunctionElement(final RMethod rMethod, final IRFrame frame) {
+		final AnonymousAccess access = new AnonymousAccess(rMethod.getFDefNode(), frame);
+		rMethod.complete(access, createMethodArgDef(rMethod.getFDefNode(), null));
+		access.getNode().addAttachment(rMethod);
 	}
 	
 	private void registerFunctionElement(final RMethod rMethod, int type,

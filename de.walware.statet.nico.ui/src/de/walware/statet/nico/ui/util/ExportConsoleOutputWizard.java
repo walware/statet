@@ -104,7 +104,7 @@ public class ExportConsoleOutputWizard extends Wizard {
 			initializeDialogUnits(parent);
 			
 			final Composite composite = new Composite(parent, SWT.NONE);
-			composite.setLayout(LayoutUtil.applyContentDefaults(new GridLayout(), 1));
+			composite.setLayout(LayoutUtil.createContentGrid(1));
 			
 			fConfigControl = createTrackingControl(composite);
 			fConfigControl.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));

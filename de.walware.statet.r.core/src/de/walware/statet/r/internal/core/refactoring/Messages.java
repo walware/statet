@@ -28,6 +28,7 @@ public class Messages extends NLS {
 	public static String RenameInRegion_Descriptor_description;
 	public static String RenameInRegion_Changes_VariableGroup_name;
 	public static String RenameInRegion_Changes_ReplaceOccurrence_name;
+	public static String RenameInRegion_Changes_ReplaceOccurrenceOf_name;
 	
 	public static String InlineTemp_label;
 	public static String InlineTemp_Descriptor_description;
@@ -74,6 +75,9 @@ public class Messages extends NLS {
 	public static String RIdentifiers_error_EmptyFor_message;
 	public static String RIdentifiers_error_Invalid_message;
 	public static String RIdentifiers_error_InvalidFor_message;
+	
+	public static String RModel_DeleteParticipant_name;
+	public static String RModel_DeleteProject_name;
 	
 	
 	static {

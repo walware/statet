@@ -46,7 +46,7 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 	
 	public static final String NATURE_ID = "de.walware.statet.r.RNature"; //$NON-NLS-1$
 	
-	private static final String RPROJECT_QUALIFIER = "de.walware.r.core/RProjectBuild";
+	private static final String RPROJECT_QUALIFIER = "de.walware.r.core/RProjectBuild"; //$NON-NLS-1$
 	private static final String BASE_FOLDER_KEY = "BaseFolder.path"; //$NON-NLS-1$
 	
 	public static final StringPref2 PREF_BASE_FOLDER = new StringPref2(RPROJECT_QUALIFIER, BASE_FOLDER_KEY);
@@ -112,6 +112,7 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 	@Override
 	public void setProject(final IProject project) {
 		super.setProject(project);
+		
 		fRCodeStyle = new RCodeStyleSettings(1);
 		fPreferenceListener = new PreferencesManageListener(fRCodeStyle, getPrefs(), RCodeStyleSettings.ALL_GROUP_IDS);
 		
@@ -123,16 +124,17 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 		}
 		catch (final CoreException e) {
 		}
+		
+		RCorePlugin.getDefault().getResourceTracker().register(project, this);
 	}
 	
-	@Override
-	protected void dispose() {
+	public void dispose() {
 		if (fPreferenceListener != null) {
 			fPreferenceListener.dispose();
 			fPreferenceListener = null;
+			
+			RCorePlugin.getDefault().getResourceTracker().unregister(getProject());
 		}
-		RCorePlugin.getDefault().getRModelManager().getIndex().updateProjectConfigClosed(fProject);
-		super.dispose();
 	}
 	
 	@Override
@@ -142,7 +144,7 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 	
 	@Override
 	public void deconfigure() throws CoreException {
-		super.deconfigure();
+		dispose();
 		removeBuilders();
 		RCorePlugin.getDefault().getRModelManager().getIndex().updateProjectConfigRemoved(fProject);
 	}

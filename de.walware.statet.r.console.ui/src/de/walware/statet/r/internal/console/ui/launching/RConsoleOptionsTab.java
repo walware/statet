@@ -35,7 +35,6 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
@@ -55,6 +54,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditorObservable;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.components.ButtonGroup;
+import de.walware.ecommons.ui.components.DataAdapter;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 
@@ -205,19 +205,6 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		
 		fTrackingButtons = new ButtonGroup<TrackingConfiguration>(group) {
 			@Override
-			protected List<? extends Object> getElementsToDelete(final IStructuredSelection selection) {
-				final List<? extends Object> list = super.getElementsToDelete(selection);
-				if (list != null) {
-					for (final Object obj : list) {
-						final String id = ((TrackingConfiguration) obj).getId();
-						if (!id.startsWith(CUSTOM_TRACKING_ID_PREFIX)) {
-							return null;
-						}
-					}
-				}
-				return list;
-			}
-			@Override
 			protected TrackingConfiguration edit1(TrackingConfiguration item, final boolean newItem, final Object parent) {
 				TrackingConfigurationDialog dialog;
 				if (!newItem && item != null && item.getId().equals(HistoryTrackingConfiguration.HISTORY_TRACKING_ID)) {
@@ -258,9 +245,9 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 				return null;
 			}
 		};
-		fTrackingButtons.addAddButton();
-		fTrackingButtons.addDeleteButton();
-		fTrackingButtons.addEditButton();
+		fTrackingButtons.addAddButton(null);
+		fTrackingButtons.addDeleteButton(null);
+		fTrackingButtons.addEditButton(null);
 		fTrackingButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
 		
 		return group;
@@ -370,7 +357,14 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 						fObjectDBAutoEnabledControl, fObjectDBEnvsChildrenControl, fObjectDBListsChildrenControl,
 				}, null), dbObs, null, null);
 		
-		fTrackingButtons.connectTo(fTrackingTable, fTrackingList, null);
+		fTrackingButtons.connectTo(fTrackingTable,
+				new DataAdapter.ListAdapter<TrackingConfiguration>(fTrackingList, null) {
+			@Override
+			public boolean isDeleteAllowed(Object element) {
+				return (super.isDeleteAllowed(element)
+						&& ((TrackingConfiguration) element).getId().startsWith(CUSTOM_TRACKING_ID_PREFIX) );
+			}
+		});
 		
 		fTrackingEnabledSet = new WritableSet(realm, new HashSet<Object>(), TrackingConfiguration.class);
 		fTrackingButtons.setCheckedModel(fTrackingEnabledSet);

@@ -120,8 +120,10 @@ public class RenameInRegionWizard extends RefactoringWizard {
 				public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
 					if (element instanceof Variable) {
 						final Variable variable = (Variable) element;
-						final IRFrameInSource frame = variable.getFrame();
-						return frame.isResolved(variable.getName());
+						if (variable.getParent() instanceof IRFrameInSource) {
+							final IRFrameInSource frame = (IRFrameInSource) variable.getParent();
+							return frame.isResolved(variable.getName());
+						}
 					}
 					return true;
 				}
@@ -150,8 +152,6 @@ public class RenameInRegionWizard extends RefactoringWizard {
 			setControl(composite);
 			composite.setFont(JFaceResources.getDialogFont());
 			initializeDialogUnits(composite);
-			
-			final Map<IRFrame, Map<String, Variable>> variables = getRefactoring().getVariables();
 			
 			{	final Label label = new Label(composite, SWT.NONE);
 				label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
@@ -215,7 +215,7 @@ public class RenameInRegionWizard extends RefactoringWizard {
 			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
 			gd.heightHint = LayoutUtil.hintHeight(table.tree, 12);
 			table.setLayoutData(gd);
-			table.viewer.setAutoExpandLevel(TreeViewer.ALL_LEVELS);
+			table.viewer.setAutoExpandLevel(2);
 			fVariablesViewer = table.viewer;
 			
 			{	final TreeViewerColumn column = new TreeViewerColumn(table.viewer, SWT.NONE);
@@ -228,11 +228,13 @@ public class RenameInRegionWizard extends RefactoringWizard {
 						cell.setBackground(null);
 						final Object element = cell.getElement();
 						if (element instanceof IRFrame) {
-							cell.setFont(JFaceResources.getDialogFont());
+							cell.setFont(null);
 							final IRFrame frame = (IRFrame) element;
 							final List<? extends IRElement> modelElements = frame.getModelElements();
+							cell.setImage(null);
 							if (modelElements.size() > 0) {
 								fFrameLabelProvider.update(cell, modelElements.get(0));
+								cell.setText(cell.getText() + "    "); //$NON-NLS-1$
 								return;
 							}
 //							final IElementName elementName = frame.getElementName();
@@ -240,17 +242,16 @@ public class RenameInRegionWizard extends RefactoringWizard {
 //								cell.setText(elementName.getDisplayName());
 //								return;
 //							}
-							cell.setImage(null);
-							cell.setText(frame.getFrameId());
+							cell.setText(frame.getFrameId() + "    "); //$NON-NLS-1$
 							cell.setStyleRanges(null);
 							return;
 						}
 						if (element instanceof Variable) {
-							cell.setFont(JFaceResources.getDialogFont());
+							cell.setFont(null);
 							final Variable variable = (Variable) element;
 							final String name = variable.getName();
 							cell.setImage(null);
-							cell.setText(name);
+							cell.setText(name + "    "); //$NON-NLS-1$
 							cell.setStyleRanges(null);
 							return;
 						}
@@ -300,7 +301,7 @@ public class RenameInRegionWizard extends RefactoringWizard {
 					@Override
 					public void update(final ViewerCell cell) {
 						cell.setBackground(null);
-						cell.setFont(JFaceResources.getDialogFont());
+						cell.setFont(null);
 						final Object element = cell.getElement();
 						if (element instanceof Variable) {
 							final Variable variable = (Variable) element;
@@ -329,7 +330,7 @@ public class RenameInRegionWizard extends RefactoringWizard {
 				@Override
 				public Object getParent(final Object element) {
 					if (element instanceof Variable) {
-						return ((Variable) element).getFrame();
+						return ((Variable) element).getParent();
 					}
 					return null;
 				}
@@ -338,12 +339,18 @@ public class RenameInRegionWizard extends RefactoringWizard {
 					if (element instanceof IRFrame) {
 						return true;
 					}
+					if (element instanceof Variable) {
+						return !((Variable) element).getSubVariables().isEmpty();
+					}
 					return false;
 				}
 				@Override
 				public Object[] getChildren(final Object parentElement) {
 					if (parentElement instanceof IRFrame) {
 						return fVariables.get(parentElement).values().toArray();
+					}
+					if (parentElement instanceof Variable) {
+						return ((Variable) parentElement).getSubVariables().values().toArray();
 					}
 					return null;
 				}

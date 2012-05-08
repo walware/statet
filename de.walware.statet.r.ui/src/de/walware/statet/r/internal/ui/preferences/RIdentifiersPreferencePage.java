@@ -204,8 +204,6 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		// Preferences
-		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		fCategories = new Category[] {
 				new Category(Messages.RSyntaxColoring_Identifier_Assignment_label, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_ASSIGNMENT_ITEMS),
 				new Category(Messages.RSyntaxColoring_Identifier_Flowcontrol_label, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_FLOWCONTROL_ITEMS),
@@ -213,9 +211,13 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 				new Category(Messages.RSyntaxColoring_Identifier_Custom1_label, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_CUSTOM1_ITEMS),
 				new Category(Messages.RSyntaxColoring_Identifier_Custom2_label, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_CUSTOM2_ITEMS),
 		};
+		
+		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
+		
 		for (int i = 0; i < fCategories.length; i++) {
 			prefs.put(fCategories[i].fPref, RIdentifierGroups.GROUP_ID);
 		}
+		
 		setupPreferenceManager(prefs);
 		
 		// Controls

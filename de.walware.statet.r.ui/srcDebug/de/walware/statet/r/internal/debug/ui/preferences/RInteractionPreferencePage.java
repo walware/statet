@@ -82,8 +82,10 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
 		fConnectors = RCodeLaunchRegistry.getAvailableConnectors();
-		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
+		
 		prefs.put(RRunDebugPreferenceConstants.PREF_R_CONNECTOR, null);
+		
 		setupPreferenceManager(prefs);
 		
 		LayoutUtil.addSmallFiller(pageComposite, false);

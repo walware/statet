@@ -137,8 +137,10 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
+		
 		prefs.put(RRunDebugPreferenceConstants.PREF_RENV_CHECK_UPDATE, null);
+		
 		setupPreferenceManager(prefs);
 		
 		final Label label = new Label(pageComposite, SWT.LEFT);
@@ -152,7 +154,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 			
 			final Composite table = createTable(composite);
 			{	final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-				gd.heightHint = LayoutUtil.hintHeight(fListViewer.getTable(), 10);
+				gd.heightHint = LayoutUtil.hintHeight(fListViewer.getTable(), 12, false);
 				table.setLayoutData(gd);
 			}
 			
@@ -185,11 +187,11 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 			addButton.addSelectionListener(addDefaultListener);
 			addButton.setText(SharedMessages.CollectionEditing_AddItem_label + "...");
 			addButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			fListButtons.addCopyButton();
-			fListButtons.addEditButton();
-			fListButtons.addDeleteButton();
+			fListButtons.addCopyButton(null);
+			fListButtons.addEditButton(null);
+			fListButtons.addDeleteButton(null);
 			fListButtons.addSeparator();
-			fListButtons.addDefaultButton();
+			fListButtons.addDefaultButton(null);
 			
 			fListButtons.connectTo(fListViewer, new DataAdapter.ListAdapter<IREnvConfiguration.WorkingCopy>(
 					fList, fDefault ) {

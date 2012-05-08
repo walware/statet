@@ -61,7 +61,7 @@ public class SweaveDocTemplatesPreferencePage extends ConfigurationBlockPreferen
 		}
 		
 		@Override
-		public TemplatePersistenceData[] getTemplates(String groupId) {
+		public TemplatePersistenceData[] getTemplates(final String groupId) {
 			if (groupId == LTK_RWEAVE_NEWDOC_GROUP_ID) {
 				return super.getTemplates(groupId);
 			}
@@ -69,13 +69,13 @@ public class SweaveDocTemplatesPreferencePage extends ConfigurationBlockPreferen
 		}
 		
 		@Override
-		public String getViewerConfiguraterId(TemplatePersistenceData data) {
+		public String getViewerConfiguraterId(final TemplatePersistenceData data) {
 			return LTK_RWEAVE_NEWDOC_GROUP_ID;
 		}
 		
 		@Override
-		public SourceEditorViewerConfigurator createViewerConfiguator(TemplatePersistenceData data,
-				TemplateVariableProcessor templateProcessor, IProject project) {
+		public SourceEditorViewerConfigurator createViewerConfiguator(final TemplatePersistenceData data,
+				final TemplateVariableProcessor templateProcessor, final IProject project) {
 			final RProject rProject = RProject.getRProject(project);
 			return new LtxRweaveTemplateConfigurator(new TexRweaveCoreAccess(
 							TexCore.getWorkbenchAccess(),

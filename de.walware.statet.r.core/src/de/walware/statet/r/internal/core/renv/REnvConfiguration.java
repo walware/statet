@@ -471,8 +471,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	}
 	
 	@Override
-	public Map<Preference, Object> deliverToPreferencesMap(
-			final Map<Preference, Object> map) {
+	public Map<Preference<?>, Object> deliverToPreferencesMap(final Map<Preference<?>, Object> map) {
 		if (fType == EPLUGIN_LOCAL_TYPE) {
 			return map;
 		}
@@ -566,12 +565,14 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 					final List<String> archs = new ArrayList<String>();
 					for (final IFileStore subDir : subDirs) {
 						if (subDir.getChild(name).fetchInfo().exists()) {
-							archs.add(checkArchForStatet(subDir.getName()));
+							final String arch = checkArchForStatet(subDir.getName());
+							if (arch != null) {
+								archs.add(arch);
+							}
 						}
 					}
 					return archs;
 				}
-				
 			}
 			catch (final CoreException e) {}
 		}
@@ -587,6 +588,9 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 			if (arch.isEmpty()) {
 				return null;
 			}
+		}
+		if ((arch.equals("exec"))) { //$NON-NLS-1$
+			return null;
 		}
 		if (LOCAL_PLATFORM == LOCAL_WIN) { //$NON-NLS-1$
 			if (arch.equals("x64")) {
@@ -773,18 +777,20 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 			if (LOCAL_PLATFORM == LOCAL_WIN) {
 				exe = getExisting(binDirs, "Rcmd.exe"); //$NON-NLS-1$
 			}
-			else {
+			if (exe == null) {
 				commandLine.add("CMD"); //$NON-NLS-1$
 			}
 			break;
 		default:
-			if (LOCAL_PLATFORM == LOCAL_WIN) {
-				exe = getExisting(binDirs, "R.exe"); //$NON-NLS-1$
-			}
 			break;
 		}
 		if (exe == null) {
-			exe = getExisting(binDirs, "R"); //$NON-NLS-1$
+			if (LOCAL_PLATFORM == LOCAL_WIN) {
+				exe = getExisting(binDirs, "R.exe"); //$NON-NLS-1$
+			}
+			else {
+				exe = getExisting(binDirs, "R"); //$NON-NLS-1$
+			}
 		}
 		
 		commandLine.add(0, URIUtil.toPath(exe.toURI()).toOSString());

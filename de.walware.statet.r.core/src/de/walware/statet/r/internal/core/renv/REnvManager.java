@@ -288,7 +288,7 @@ public class REnvManager implements IREnvManager {
 				node.node(name).removeNode();
 			}
 		}
-		final Map<Preference, Object>map = new HashMap<Preference, Object>();
+		final Map<Preference<?>, Object>map = new HashMap<Preference<?>, Object>();
 		for (final IREnvConfiguration config : fIdMap.values()) {
 			if (config instanceof AbstractPreferencesModelObject) {
 				((AbstractPreferencesModelObject) config).deliverToPreferencesMap(map);

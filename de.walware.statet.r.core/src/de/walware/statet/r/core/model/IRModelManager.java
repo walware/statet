@@ -14,6 +14,7 @@ package de.walware.statet.r.core.model;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.ecommons.ltk.IModelManager;
@@ -25,12 +26,12 @@ import de.walware.statet.r.core.RProject;
 public interface IRModelManager extends IModelManager {
 	
 	
-	IRFrame getProjectFrame(RProject project);
+	IRFrame getProjectFrame(RProject project) throws CoreException;
 	
 	IRModelInfo reconcile(IRSourceUnit su, ISourceUnitModelInfo modelInfo,
 			List<? extends RChunkElement> chunks,
 			int level, IProgressMonitor monitor);
 	
-	List<String> findReferencingSourceUnits(IProject project, RElementName name);
+	List<String> findReferencingSourceUnits(IProject project, RElementName name) throws CoreException;
 	
 }

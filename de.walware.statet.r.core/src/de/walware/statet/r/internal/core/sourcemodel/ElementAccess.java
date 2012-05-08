@@ -34,7 +34,6 @@ public abstract class ElementAccess extends RElementAccess {
 	public static final int A_ARG =                         0x000020;
 	
 	
-	
 	public final static class Default extends ElementAccess {
 		
 		public Default(final RAstNode fullNode) {

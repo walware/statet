@@ -13,8 +13,6 @@ package de.walware.statet.base.core;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.runtime.CoreException;
 
 import de.walware.statet.base.internal.core.BaseCorePlugin;
@@ -41,32 +39,11 @@ public abstract class StatetExtNature implements IProjectNature {
 	@Override
 	public void setProject(final IProject project) {
 		fProject = project;
-		project.getWorkspace().addResourceChangeListener(new IResourceChangeListener() {
-			@Override
-			public void resourceChanged(final IResourceChangeEvent event) {
-				if (event.getResource() == fProject) {
-					fProject.getWorkspace().removeResourceChangeListener(this);
-					dispose();
-				}
-			}
-		}, IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.PRE_DELETE);
 	}
 	
 	@Override
 	public IProject getProject() {
 		return fProject;
-	}
-	
-	@Override
-	public void configure() throws CoreException {
-	}
-	
-	@Override
-	public void deconfigure() throws CoreException {
-		dispose();
-	}
-	
-	protected void dispose() {
 	}
 	
 	

@@ -29,11 +29,11 @@ public class SweavePreferenceInitializer extends AbstractPreferenceInitializer {
 	
 	@Override
 	public void initializeDefaultPreferences() {
-		final DefaultScope defaults = new DefaultScope();
-		PreferencesUtil.setPrefValue(defaults, SweaveEditorOptions.MARKOCCURRENCES_ENABLED_PREF, Boolean.TRUE);
-		PreferencesUtil.setPrefValue(defaults, SweaveEditorOptions.PREF_SPELLCHECKING_ENABLED, Boolean.FALSE);
+		final DefaultScope scope = new DefaultScope();
+		PreferencesUtil.setPrefValue(scope, SweaveEditorOptions.MARKOCCURRENCES_ENABLED_PREF, Boolean.TRUE);
+		PreferencesUtil.setPrefValue(scope, SweaveEditorOptions.PREF_SPELLCHECKING_ENABLED, Boolean.FALSE);
 		
-		final IEclipsePreferences node = defaults.getNode(NewSweaveDocGenerateWizardPage.PREF_QUALIFIER);
+		final IEclipsePreferences node = scope.getNode(NewSweaveDocGenerateWizardPage.PREF_QUALIFIER);
 		node.put(NewSweaveDocGenerateWizardPage.DEFAULT_NEWDOC_KEY, "ltx-rweave.NewDoc:Article"); //$NON-NLS-1$
 	}
 	

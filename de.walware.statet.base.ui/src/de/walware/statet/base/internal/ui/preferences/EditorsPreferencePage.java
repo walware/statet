@@ -107,8 +107,10 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
+		
 		final List<AppearanceColorsItem> colors = new ArrayList<AppearanceColorsItem>();
+		
 		AppearanceColorsItem color;
 		
 		// Content Assist
@@ -120,14 +122,6 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		fCodeAssistDelayPref = assistPreferences.getAutoActivationDelayPref();
 		prefs.put(fCodeAssistDelayPref, assistPreferences.getGroupId());
 		
-		color = new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsForegroundColor,
-				assistPreferences.getProposalsForegroundPref());
-		colors.add(color);
-		prefs.put(color.pref, assistPreferences.getGroupId());
-		color = new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsBackgroundColor,
-				assistPreferences.getProposalsBackgroundPref());
-		colors.add(color);
-		prefs.put(color.pref, assistPreferences.getGroupId());
 		color = new AppearanceColorsItem(Messages.Editors_CodeAssistParametersForegrondColor,
 				assistPreferences.getInformationForegroundPref());
 		colors.add(color);

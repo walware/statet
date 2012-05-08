@@ -115,12 +115,13 @@ public class REnvIndexChecker {
 		
 		try {
 			if (!fREnvConfig.equals(fREnvConfig.getReference().getConfig())
-					|| IndexWriter.isLocked(fIndexDirectory)) {
+					|| IndexWriter.isLocked(fIndexDirectory) ) {
 				finalCheck();
 				return false;
 			}
 		}
 		catch (final IOException e) {
+			return false;
 		}
 		return true;
 	}

@@ -295,7 +295,7 @@ public class PreviewTab extends LaunchConfigTabWithDbc {
 		fLaunchConfigTable = new TableViewer(group, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
 		gd.horizontalIndent = LayoutUtil.defaultIndent();
-		gd.heightHint = LayoutUtil.hintHeight(fLaunchConfigTable.getTable(), 6);
+		gd.heightHint = LayoutUtil.hintHeight(fLaunchConfigTable.getTable(), 5);
 		fLaunchConfigTable.getControl().setLayoutData(gd);
 		fLaunchConfigTable.setLabelProvider(new LabelProvider() {
 			@Override

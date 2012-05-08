@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.RGB;
 
@@ -28,6 +29,9 @@ import de.walware.ecommons.preferences.Preference.EnumSetPref;
 import de.walware.ecommons.preferences.Preference.IntPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.ui.RGBPref;
+
+import de.walware.workbench.ui.IWaThemeConstants;
+import de.walware.workbench.ui.util.ThemeUtil;
 
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.ui.NicoUIPreferenceNodes;
@@ -119,7 +123,7 @@ public class ConsolePreferences extends AbstractPreferenceInitializer {
 		 * 
 		 * <p>Note: Intended to usage in preference/property page only.</p>
 		 */
-		public Map<Preference, Object> addPreferencesToMap(final Map<Preference, Object> map) {
+		public Map<Preference<?>, Object> addPreferencesToMap(final Map<Preference<?>, Object> map) {
 			map.put(PREF_FILTER_SUBMIT_TYPES, fSubmitTypes);
 			map.put(PREF_FILTER_SHOW_ALL_ERRORS, fShowAllErrors);
 			return map;
@@ -130,8 +134,8 @@ public class ConsolePreferences extends AbstractPreferenceInitializer {
 		 * 
 		 * <p>Note: Intended to usage in preference/property page only.</p>
 		 */
-		public Map<Preference, Object> getPreferencesMap() {
-			return addPreferencesToMap(new HashMap<Preference, Object>(2));
+		public Map<Preference<?>, Object> getPreferencesMap() {
+			return addPreferencesToMap(new HashMap<Preference<?>, Object>(2));
 		}
 		
 		public EnumSet<SubmitType> getSelectedTypes() {
@@ -165,19 +169,21 @@ public class ConsolePreferences extends AbstractPreferenceInitializer {
 	
 	@Override
 	public void initializeDefaultPreferences() {
-		final DefaultScope defaultScope = new DefaultScope();
+		final DefaultScope scope = new DefaultScope();
+		final IEclipsePreferences consolePrefs = scope.getNode(NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER);
+		final ThemeUtil theme = new ThemeUtil();
 		
-		PreferencesUtil.setPrefValue(defaultScope, PREF_FILTER_SUBMIT_TYPES, SubmitType.getDefaultSet());
-		PreferencesUtil.setPrefValue(defaultScope, PREF_FILTER_SHOW_ALL_ERRORS, false);
+		PreferencesUtil.setPrefValue(scope, PREF_FILTER_SUBMIT_TYPES, SubmitType.getDefaultSet());
+		PreferencesUtil.setPrefValue(scope, PREF_FILTER_SHOW_ALL_ERRORS, false);
 		
-		PreferencesUtil.setPrefValue(defaultScope, PREF_CHARLIMIT, 500000);
+		PreferencesUtil.setPrefValue(scope, PREF_CHARLIMIT, 500000);
 		
-		PreferencesUtil.setPrefValue(defaultScope, PREF_COLOR_INFO, new RGB(31, 79, 175));
-		PreferencesUtil.setPrefValue(defaultScope, PREF_COLOR_INPUT, new RGB(31, 167, 111));
-		PreferencesUtil.setPrefValue(defaultScope, PREF_COLOR_OUTPUT, new RGB(0, 0, 0));
-		PreferencesUtil.setPrefValue(defaultScope, PREF_COLOR_ERROR, new RGB(255, 0, 8));
+		consolePrefs.put(PREF_COLOR_INFO.getKey(), theme.getColorPrefValue(IWaThemeConstants.CONSOLE_INFO_COLOR));
+		consolePrefs.put(PREF_COLOR_INPUT.getKey(), theme.getColorPrefValue(IWaThemeConstants.CONSOLE_INPUT_COLOR));
+		consolePrefs.put(PREF_COLOR_OUTPUT.getKey(), theme.getColorPrefValue(IWaThemeConstants.CONSOLE_OUTPUT_COLOR));
+		consolePrefs.put(PREF_COLOR_ERROR.getKey(), theme.getColorPrefValue(IWaThemeConstants.CONSOLE_ERROR_COLOR));
 		
-		PreferencesUtil.setPrefValue(defaultScope, PREF_HISTORYNAVIGATION_SUBMIT_TYPES, EnumSet.of(SubmitType.CONSOLE));
+		PreferencesUtil.setPrefValue(scope, PREF_HISTORYNAVIGATION_SUBMIT_TYPES, EnumSet.of(SubmitType.CONSOLE));
 	}
 	
 }

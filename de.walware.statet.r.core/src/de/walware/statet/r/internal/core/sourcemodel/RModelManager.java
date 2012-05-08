@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.ecommons.ltk.IModelManager;
@@ -148,12 +149,12 @@ public class RModelManager extends AbstractModelManager implements IRModelManage
 	
 	
 	@Override
-	public IRFrame getProjectFrame(final RProject project) {
+	public IRFrame getProjectFrame(final RProject project) throws CoreException {
 		return fIndex.getProjectFrame(project.getProject());
 	}
 	
 	@Override
-	public List<String> findReferencingSourceUnits(final IProject project, final RElementName name) {
+	public List<String> findReferencingSourceUnits(final IProject project, final RElementName name) throws CoreException {
 		return fIndex.findReferencingSourceUnits(project, name);
 	}
 	

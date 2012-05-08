@@ -68,7 +68,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
 		
 		prefs.put(RCodeStyleSettings.INDENT_DEFAULT_TYPE_PREF, RCodeStyleSettings.INDENT_GROUP_ID);
 		prefs.put(RCodeStyleSettings.TAB_SIZE_PREF, RCodeStyleSettings.INDENT_GROUP_ID);
@@ -111,7 +111,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	
 	private Control createIndentControls(final Composite parent) {
 		final Composite composite = new Composite(parent, SWT.NONE);
-		composite.setLayout(LayoutUtil.applyTabDefaults(new GridLayout(), 2));
+		composite.setLayout(LayoutUtil.createTabGrid(2));
 		
 		fStdIndentSettings.createControls(composite);
 		LayoutUtil.addSmallFiller(composite, false);
@@ -142,7 +142,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	
 	private Control createMoreControls(final Composite parent) {
 		final Composite composite = new Composite(parent, SWT.NONE);
-		composite.setLayout(LayoutUtil.applyTabDefaults(new GridLayout(), 2));
+		composite.setLayout(LayoutUtil.createTabGrid(2));
 		
 		fWSArgAssignBefore = new Button(composite, SWT.CHECK);
 		fWSArgAssignBefore.setText(Messages.RCodeStyle_Whitespace_ArgAssign_Before_message);

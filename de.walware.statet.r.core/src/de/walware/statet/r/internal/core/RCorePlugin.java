@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.net.proxy.IProxyService;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
@@ -106,9 +108,12 @@ public class RCorePlugin extends Plugin {
 	private CoreAccess fDefaultsCoreAccess;
 	private REnvManager fREnvManager;
 	private RModelManager fRModelManager;
+	private ResourceTracker fResourceTracker;
+	
 	private RHelpManager fRHelpManager;
 	
 	private ServiceTracker fProxyService;
+	
 	
 	
 	/**
@@ -129,6 +134,10 @@ public class RCorePlugin extends Plugin {
 		fREnvManager = new REnvManager(PreferencesUtil.getSettingsChangeNotifier());
 		fWorkspaceCoreAccess = new CoreAccess(PreferencesUtil.getInstancePrefs());
 		fRModelManager = new RModelManager();
+		fResourceTracker = new ResourceTracker(fRModelManager);
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(fResourceTracker,
+				IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.PRE_DELETE );
+		
 		fRHelpManager = new RHelpManager();
 		fDisposables.add(fRHelpManager);
 		
@@ -144,6 +153,14 @@ public class RCorePlugin extends Plugin {
 			synchronized (this) {
 				fStarted = false;
 			}
+			if (fResourceTracker != null) {
+				try {
+					ResourcesPlugin.getWorkspace().removeResourceChangeListener(fResourceTracker);
+				}
+				catch (final Exception e) {}
+				fResourceTracker = null;
+			}
+			
 			if (fRModelManager != null) {
 				fRModelManager.dispose();
 				fRModelManager = null;
@@ -184,6 +201,11 @@ public class RCorePlugin extends Plugin {
 	public RModelManager getRModelManager() {
 		return fRModelManager;
 	}
+	
+	public ResourceTracker getResourceTracker() {
+		return fResourceTracker;
+	}
+	
 	
 	public RHelpManager getRHelpManager() {
 		return fRHelpManager;

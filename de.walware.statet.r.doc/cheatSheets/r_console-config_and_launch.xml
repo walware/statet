@@ -19,25 +19,12 @@
          R console from within Eclipse.
          <br/><br/>
          Note that the R console in StatET requires the R package 'rj'. Please check
-         the homepage for more information and instructions.
+         the homepage for more information and installation instructions.
          <br/><br/>
          In StatET you have to create a configuration for the R environment and the
          R console as shown here. 
       </description>
    </intro>
-   <item title="Specify Connector" dialog="true" skip="true">
-      <description>
-         If you didn't change the default value, you can skip this step.
-         <br/><br/>
-         Go to &apos;Window &gt; Preferences... &gt; StatET &gt; Run/Debug &gt; 
-         R Interaction&apos; and choose the R interaction mode
-         &apos;R Console inside Eclipse&apos; allowing to interact with
-         the integrated Console.
-      </description>
-      <command
-            required="false"
-            serialization="org.eclipse.ui.window.preferences(preferencePageId=de.walware.statet.r.preferencePages.RInteractionPage)"/>
-   </item>
    <item
          title="Add R Environment"
          dialog="true"

@@ -34,13 +34,23 @@ import de.walware.statet.nico.ui.NicoUITools;
 public class ToolInfoGroup {
 	
 	
+	public static int WIDE =                                0x00000001;
+	
+	
 	private final ToolProcess fProcess;
 	
 	private ViewForm fForm;
 	
+	private int fFlags;
+	
 	
 	public ToolInfoGroup(final Composite parent, final ToolProcess process) {
+		this(parent, 0, process);
+	}
+	
+	public ToolInfoGroup(final Composite parent, int flags, final ToolProcess process) {
 		fProcess = process;
+		fFlags = flags;
 		createControls(parent);
 	}
 	
@@ -49,8 +59,8 @@ public class ToolInfoGroup {
 		fForm = new ViewForm(parent, SWT.BORDER | SWT.FLAT);
 		final Composite info = new Composite(fForm, SWT.NONE);
 		final GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
-		layout.verticalSpacing = 2;
+		layout.numColumns = ((fFlags & WIDE) != 0) ? 3 : 2;
+		layout.verticalSpacing = ((fFlags & WIDE) != 0) ? 1 : 2;
 		info.setLayout(layout);
 		fForm.setContent(info);
 		
@@ -73,7 +83,7 @@ public class ToolInfoGroup {
 		
 		final ShortedLabel detail2 = new ShortedLabel(info, SWT.NONE);
 		final String wd = FileUtil.toString(fProcess.getWorkspaceData().getWorkspaceDir());
-		detail2.setText((wd != null) ? wd : "");
+		detail2.setText((wd != null) ? (" ∙  " + wd) : "                                                  ");
 		detail2.getControl().setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 	}
 	

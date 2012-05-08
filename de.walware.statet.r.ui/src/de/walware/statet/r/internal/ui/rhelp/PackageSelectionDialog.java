@@ -34,9 +34,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.internal.IWorkbenchHelpContextIds;
 
-import de.walware.ecommons.ui.components.FilteredTableController;
 import de.walware.ecommons.ui.components.SearchText;
+import de.walware.ecommons.ui.content.SearchTextBinding;
+import de.walware.ecommons.ui.content.TableFilterController;
+import de.walware.ecommons.ui.content.TextFilterProvider;
 import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.CheckboxTableComposite;
 
 import de.walware.statet.r.core.rhelp.IRPackageHelp;
@@ -49,7 +52,7 @@ public class PackageSelectionDialog extends SelectionDialog {
 	
 	private SearchText fFilterText;
 	private CheckboxTableViewer fViewer;
-	private FilteredTableController fFilterController;
+	private TableFilterController fFilterController;
 	
 	private final List<IRPackageHelp> fSelection;
 	
@@ -87,7 +90,7 @@ public class PackageSelectionDialog extends SelectionDialog {
 		fFilterText.setToolTipText("Filter");
 		
 		final CheckboxTableComposite tableComposite = new CheckboxTableComposite(composite,
-				SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL);
+				SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.VIRTUAL);
 		final GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
 		data.heightHint = LayoutUtil.hintHeight(tableComposite.table, 10);
 		data.widthHint = LayoutUtil.hintWidth(tableComposite.table, 40);
@@ -98,6 +101,18 @@ public class PackageSelectionDialog extends SelectionDialog {
 		column.setLabelProvider(new RHelpLabelProvider());
 		ColumnViewerToolTipSupport.enableFor(tableComposite.viewer);
 		
+		fViewer.addCheckStateListener(new ICheckStateListener() {
+			@Override
+			public void checkStateChanged(final CheckStateChangedEvent event) {
+				final Object element = event.getElement();
+				if (element instanceof IRPackageHelp) {
+					final IRPackageHelp pkg = (IRPackageHelp) element;
+					if (!fSelection.remove(pkg)) {
+						fSelection.add(pkg);
+					}
+				}
+			}
+		});
 		fViewer.setCheckStateProvider(new ICheckStateProvider() {
 			@Override
 			public boolean isGrayed(final Object element) {
@@ -108,26 +123,16 @@ public class PackageSelectionDialog extends SelectionDialog {
 				return fSelection.contains(element);
 			}
 		});
-		fViewer.addCheckStateListener(new ICheckStateListener() {
-			@Override
-			public void checkStateChanged(final CheckStateChangedEvent event) {
-				final Object element = event.getElement();
-				if (element instanceof IRPackageHelp) {
-					if (event.getChecked()) {
-						if (!fSelection.contains(element)) {
-							fSelection.add((IRPackageHelp) element);
-						}
-						return;
-					}
-					else {
-						fSelection.remove(element);
-					}
-				}
-			}
-		});
 		
-		fFilterController = new FilteredTableController(fViewer, fFilterText);
+		fFilterController = new TableFilterController(fViewer);
+		
+		{	final TextFilterProvider filter = new TextFilterProvider();
+			fFilterController.setFilter(0, filter);
+			new SearchTextBinding(fFilterText, fFilterController, filter);
+		}
 		fFilterController.setInput(fInput);
+		
+		ViewerUtil.addSearchTextNavigation(fViewer, fFilterText, true);
 		
 		final Button clearAllControl = new Button(composite, SWT.PUSH);
 		final GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);

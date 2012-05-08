@@ -29,6 +29,7 @@ public class RConsoleMessages extends NLS {
 	public static String RConsole_OptionsTab_name;
 	
 	public static String JavaJRE_RCompatibility_error_DifferentBits_message;
+	public static String JavaJRE_Tab_VMConfig_group;
 	public static String JavaJRE_Tab_VMArguments_label;
 	
 	public static String RRemoteConsoleSelectionDialog_title;

@@ -21,6 +21,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
@@ -28,7 +29,6 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
@@ -68,25 +68,6 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 	};
 	private static final String[] COLORED_POST_TAGS = { "</span>" }; //$NON-NLS-1$
 	
-	public static void appendCssColor(final StringBuilder sb, final Color color) {
-		sb.append('#');
-		String s = Integer.toHexString(color.getRed());
-		if (s.length() == 1) {
-			sb.append('0');
-		}
-		sb.append(s);
-		s = Integer.toHexString(color.getGreen());
-		if (s.length() == 1) {
-			sb.append('0');
-		}
-		sb.append(s);
-		s = Integer.toHexString(color.getBlue());
-		if (s.length() == 1) {
-			sb.append('0');
-		}
-		sb.append(s);
-	}
-	
 	public static void appendCssColor(final StringBuilder sb, final RGB color) {
 		sb.append('#');
 		String s = Integer.toHexString(color.red);
@@ -106,6 +87,22 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 		sb.append(s);
 	}
 	
+	private static void appendELinkColors(final StringBuilder sb, final RGB foregroundColor) {
+		final RGB hyperlinkColor = JFaceResources.getColorRegistry().getRGB(JFacePreferences.HYPERLINK_COLOR);
+		sb.append("a { color: ");
+				appendCssColor(sb, hyperlinkColor);
+				sb.append("; }\n");//$NON-NLS-1$
+		sb.append("a:hover, a:active, a:focus { color: "); //$NON-NLS-1$
+				appendCssColor(sb, JFaceResources.getColorRegistry().getRGB(JFacePreferences.ACTIVE_HYPERLINK_COLOR));
+				sb.append("; }\n"); //$NON-NLS-1$
+		sb.append("a:visited { color: "); //$NON-NLS-1$
+		appendCssColor(sb, new RGB(
+				(hyperlinkColor.red + ((hyperlinkColor.red <= 127) ? +64 : -64)),
+				(hyperlinkColor.green + foregroundColor.green) / 2,
+				(hyperlinkColor.blue + ((hyperlinkColor.blue > 32) ? -32 : +32) + foregroundColor.blue ) / 2 ));
+				sb.append("; }\n"); //$NON-NLS-1$
+	}
+	
 	
 	public static class Browse extends RHelpUIServlet {
 		
@@ -113,31 +110,49 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 		
 		@Override
 		protected void collectCss(final StringBuilder sb) {
-			final FontDescriptor docFontDescr = JFaceResources.getFontDescriptor("de.walware.statet.base.themes.DocViewFont"); //$NON-NLS-1$
-			final FontData fontData = docFontDescr.getFontData()[0];
-			final RGB docBackgroundColor = JFaceResources.getColorRegistry().getRGB("de.walware.statet.base.themes.DocViewBackgroundColor"); //$NON-NLS-1$
-			final Color borderColor = Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW);
-			sb.append("body { font-family: '"); //$NON-NLS-1$
-			sb.append(fontData.getName());
-			sb.append("'; font-size: "); //$NON-NLS-1$
-			sb.append(fontData.getHeight());
-			sb.append("pt; background: "); //$NON-NLS-1$
-			appendCssColor(sb, docBackgroundColor);
-			sb.append("; }\n" + //$NON-NLS-1$
-					"@media screen {\n" + //$NON-NLS-1$
-					"body { margin: "); //$NON-NLS-1$
-			sb.append(LayoutUtil.defaultVSpacing());
-			sb.append("px "); //$NON-NLS-1$
-			sb.append(LayoutUtil.defaultHSpacing());
-			sb.append("px; }\n" + //$NON-NLS-1$
-					"div.toc { display: inline; float: right; border: 1px solid "); //$NON-NLS-1$
-			appendCssColor(sb, borderColor);
-			sb.append("; }\n"); //$NON-NLS-1$
-			sb.append("span.mnemonic, div.toc a.mnemonic { text-decoration: underline; }\n" + //$NON-NLS-1$
-					"hr { border: 0; height: 1px; background: " ); //$NON-NLS-1$
-			appendCssColor(sb, borderColor);
-			sb.append("; }\n" + //$NON-NLS-1$
-					"}\n" ); // @media //$NON-NLS-1$
+			final RGB foregroundColor = JFaceResources.getColorRegistry().getRGB("de.walware.workbench.themes.DocViewColor"); //$NON-NLS-1$
+			final RGB docBackgroundColor = JFaceResources.getColorRegistry().getRGB("de.walware.workbench.themes.DocViewBackgroundColor"); //$NON-NLS-1$
+			final RGB borderColor = Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW).getRGB();
+			
+			{	final FontDescriptor docFontDescr = JFaceResources.getFontDescriptor("de.walware.workbench.themes.DocViewFont"); //$NON-NLS-1$
+				final FontData fontData = docFontDescr.getFontData()[0];
+				
+				sb.append("body { font-family: '"); //$NON-NLS-1$
+						sb.append(fontData.getName());
+						sb.append("'; font-size:"); //$NON-NLS-1$
+						sb.append(fontData.getHeight());
+						sb.append("pt; color:"); //$NON-NLS-1$
+						appendCssColor(sb, foregroundColor);
+						sb.append("; background:"); //$NON-NLS-1$
+						appendCssColor(sb, docBackgroundColor);
+						sb.append("; }\n"); //$NON-NLS-1$
+			}
+			
+			appendELinkColors(sb, foregroundColor);
+			
+			sb.append("div.toc a, div.toc a:visited { color: "); //$NON-NLS-1$
+					appendCssColor(sb, foregroundColor);
+					sb.append("; }\n"); //$NON-NLS-1$
+			
+			sb.append("@media screen {\n"); //$NON-NLS-1$
+			
+			sb.append("body { margin: "); //$NON-NLS-1$
+					sb.append(LayoutUtil.defaultVSpacing());
+					sb.append("px "); //$NON-NLS-1$
+					sb.append(LayoutUtil.defaultHSpacing());
+					sb.append("px; }\n"); //$NON-NLS-1$
+			
+			sb.append("div.toc { display: inline; float: right; border: 1px solid "); //$NON-NLS-1$
+					appendCssColor(sb, borderColor);
+					sb.append("; }\n"); //$NON-NLS-1$
+			
+			sb.append("span.mnemonic, div.toc a.mnemonic { text-decoration: underline; }\n"); //$NON-NLS-1$
+			sb.append("hr { border: 0; height: 1px; background: " ); //$NON-NLS-1$
+					appendCssColor(sb, borderColor);
+					sb.append("; }\n"); //$NON-NLS-1$
+			
+			sb.append("}\n" ); // @media //$NON-NLS-1$
+			
 			super.collectCss(sb);
 			
 			updateSearchTags();
@@ -164,29 +179,35 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 		@Override
 		protected void collectCss(final StringBuilder sb) {
 			final Display display = Display.getCurrent();
-			final FontDescriptor docFontDescr = JFaceResources.getDialogFontDescriptor();
-			final FontData fontData = docFontDescr.getFontData()[0];
-			final Color infoForegroundColor = display.getSystemColor(SWT.COLOR_INFO_FOREGROUND);
-			final Color infoBackgroundColor = display.getSystemColor(SWT.COLOR_INFO_BACKGROUND);
+			final RGB infoForegroundColor = display.getSystemColor(SWT.COLOR_INFO_FOREGROUND).getRGB();
+			final RGB infoBackgroundColor = display.getSystemColor(SWT.COLOR_INFO_BACKGROUND).getRGB();
 			final int vIndent = Math.max(1, LayoutUtil.defaultVSpacing() / 4);
 			final int hIndent = Math.max(3, LayoutUtil.defaultHSpacing() / 2);
-			sb.append("body { font-family: '"); //$NON-NLS-1$
-			sb.append(fontData.getName());
-			sb.append("'; font-size: "); //$NON-NLS-1$
-			sb.append(fontData.getHeight());
-			sb.append("pt; color: "); //$NON-NLS-1$
-			appendCssColor(sb, infoForegroundColor);
-			sb.append("; background: "); //$NON-NLS-1$
-			appendCssColor(sb, infoBackgroundColor);
-			sb.append("; margin: 0 "); //$NON-NLS-1$
-			sb.append(hIndent);
-			sb.append("px "); //$NON-NLS-1$
-			sb.append(vIndent);
-			sb.append("px; }\n" + //$NON-NLS-1$
-					"hr { visibility:hidden; }\n" + //$NON-NLS-1$
-					"h2, h3#description { display: none; }\n" + //$NON-NLS-1$
-					"h3 { font-size: 90%; margin-bottom: 0.4em; }\n" + //$NON-NLS-1$
-					"p, pre { margin-top: 0.4em; margin-bottom: 0.4em; }\n" ); //$NON-NLS-1$
+			
+			{	final FontDescriptor docFontDescr = JFaceResources.getDialogFontDescriptor();
+				final FontData fontData = docFontDescr.getFontData()[0];
+				sb.append("body { font-family: '"); //$NON-NLS-1$
+						sb.append(fontData.getName());
+						sb.append("'; font-size: "); //$NON-NLS-1$
+						sb.append(fontData.getHeight());
+						sb.append("pt; color: "); //$NON-NLS-1$
+						appendCssColor(sb, infoForegroundColor);
+						sb.append("; background: "); //$NON-NLS-1$
+						appendCssColor(sb, infoBackgroundColor);
+						sb.append("; margin: 0 "); //$NON-NLS-1$
+						sb.append(hIndent);
+						sb.append("px "); //$NON-NLS-1$
+						sb.append(vIndent);
+						sb.append("px; }\n"); //$NON-NLS-1$
+			}
+			appendELinkColors(sb, infoForegroundColor);
+			
+			sb.append("h2, h3#description { display: none; }\n"); //$NON-NLS-1$
+			sb.append("h3 { font-size: 90%; margin-bottom: 0.4em; }\n"); //$NON-NLS-1$
+			sb.append("p, pre { margin-top: 0.4em; margin-bottom: 0.4em; }\n" ); //$NON-NLS-1$
+			
+			sb.append("hr { visibility: hidden; }\n"); //$NON-NLS-1$
+			
 			super.collectCss(sb);
 		}
 		
@@ -210,15 +231,19 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 		
 		EditorsUI.getPreferenceStore().addPropertyChangeListener(this);
 		JFaceResources.getFontRegistry().addListener(this);
+		JFaceResources.getColorRegistry().addListener(this);
 		PreferencesUtil.getSettingsChangeNotifier().addChangeListener(this);
 		updateStyles();
 	}
 	
 	@Override
 	public void propertyChange(final PropertyChangeEvent event) {
-		if (event.getProperty().equals("de.walware.statet.base.themes.DocViewFont") //$NON-NLS-1$
-				|| event.getProperty().equals("de.walware.statet.base.themes.DocViewBackgroundColor") //$NON-NLS-1$
+		if (event.getProperty().equals("de.walware.workbench.themes.DocViewFont") //$NON-NLS-1$
+				|| event.getProperty().equals("de.walware.workbench.themes.DocViewBackgroundColor") //$NON-NLS-1$
+				|| event.getProperty().equals("de.walware.workbench.themes.DocViewColor") //$NON-NLS-1$
 				|| event.getProperty().equals(JFaceResources.DIALOG_FONT)
+				|| event.getProperty().equals(JFacePreferences.HYPERLINK_COLOR)
+				|| event.getProperty().equals(JFacePreferences.ACTIVE_HYPERLINK_COLOR)
 				|| event.getProperty().equals("searchResultIndicationColor") ) { //$NON-NLS-1$
 			updateStyles();
 		}
@@ -244,6 +269,7 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 			preferenceStore.removePropertyChangeListener(this);
 		}
 		JFaceResources.getFontRegistry().removeListener(this);
+		JFaceResources.getColorRegistry().removeListener(this);
 		PreferencesUtil.getSettingsChangeNotifier().removeChangeListener(this);
 	}
 	

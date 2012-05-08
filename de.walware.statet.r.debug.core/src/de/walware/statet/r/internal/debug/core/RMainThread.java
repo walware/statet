@@ -34,6 +34,7 @@ import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 import de.walware.statet.nico.core.runtime.ToolStatus;
 
 import de.walware.rj.server.dbg.CallStack;
+import de.walware.rj.server.dbg.CallStack.Frame;
 
 import de.walware.statet.r.debug.core.IRDebugTarget;
 import de.walware.statet.r.debug.core.IRStackFrame;
@@ -188,21 +189,31 @@ public class RMainThread extends RDebugElement implements IRThread,
 						else if (dbgFrame.getCall() != null) {
 							call = dbgFrame.getCall();
 							if (special && i+2 < l) {
-								switch (dbgFrame.getFlags() & 0xff) {
+								int flag = (dbgFrame.getFlags() & 0xff);
+								switch (flag) {
 								case CallStack.FLAG_SOURCE:
-									i = i+2;
-									dbgFrame = stack.getFrames().get(i); 
 									call = "[Sourcing Script]";
 //									dbgFrame.addFlags(CallStack.FLAG_NOSTEPPING);
 									break;
 								case CallStack.FLAG_COMMAND:
-									i = i+2;
-									dbgFrame = stack.getFrames().get(i);
 									call = "[Running Command]";
-									if (frameStack.size() == 1) {
+									break;
+								default:
+									flag = 0;
+								}
+								if (flag != 0) {
+									while (i + 1 < l) {
+										Frame nextFrame = stack.getFrames().get(i + 1);
+										if ((nextFrame.getFlags() & 0xff) != ++flag) {
+											break;
+										}
+										dbgFrame = nextFrame;
+										i++;
+									}
+									if ((flag & 0xf0) == CallStack.FLAG_COMMAND
+											&& frameStack.size() == 1) {
 										frameStack.remove(0);
 									}
-									break;
 								}
 							}
 						}

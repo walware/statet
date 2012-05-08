@@ -217,10 +217,12 @@ class RHelpConfigurationBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
+		
 		prefs.put(RHelpPreferences.HOMEPAGE_URL_PREF, null);
 		prefs.put(RHelpPreferences.SEARCH_REUSE_PAGE_ENABLED_PREF, null);
 		prefs.put(RHelpPreferences.SEARCH_PREVIEW_FRAGMENTS_MAX_PREF, null);
+		
 		setupPreferenceManager(prefs);
 		
 		final Composite appearanceOptions = createAppearanceOptions(pageComposite);

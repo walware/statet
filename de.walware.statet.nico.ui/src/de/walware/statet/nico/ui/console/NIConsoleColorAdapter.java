@@ -86,7 +86,8 @@ public class NIConsoleColorAdapter {
 				for (final String streamId : STREAM_IDS) {
 					final NIConsoleOutputStream stream = console.getStream(streamId);
 					if (stream != null) {
-						stream.setColor(getColor(streamId));
+						final RGB rgb = getRGB(streamId);
+						stream.setColor(SharedUIResources.getColors().getColor(rgb));
 					}
 				}
 			}
@@ -98,14 +99,17 @@ public class NIConsoleColorAdapter {
 	}
 	
 	
-	public Color getColor(final String streamIdentifer) {
-		final Preference<RGB> colorPref = getColorPref(streamIdentifer);
+	public Color getColor(final String streamId) {
+		final RGB rgb = getRGB(streamId);
+		return (rgb != null) ? UIAccess.getColor(SharedUIResources.getColors(), rgb) : null;
+	}
+	
+	private RGB getRGB(final String streamId) {
+		final Preference<RGB> colorPref = getColorPref(streamId);
 		if (colorPref == null) {
 			return null;
 		}
-		
-		final RGB rgb = PreferencesUtil.getInstancePrefs().getPreferenceValue(colorPref);
-		return UIAccess.getColor(SharedUIResources.getColors(), rgb);
+		return PreferencesUtil.getInstancePrefs().getPreferenceValue(colorPref);
 	}
 	
 	protected Preference<RGB> getColorPref(final String streamId) {

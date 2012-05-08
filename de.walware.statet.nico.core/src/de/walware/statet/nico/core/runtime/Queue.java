@@ -705,6 +705,14 @@ public final class Queue implements IQueue {
 			for (int i = 0; i < array.length; i++) {
 				array[i].changed(IToolRunnable.BEING_ABANDONED, fProcess);
 			}
+			fHotList.clear();
+		}
+		if (!fOnIdleList.isEmpty()){
+			final RankedItem[] array = fOnIdleList.toArray(new RankedItem[fOnIdleList.size()]);
+			for (int i = 0; i < array.length; i++) {
+				array[i].runnable.changed(IToolRunnable.BEING_ABANDONED, fProcess);
+			}
+			fOnIdleList.clear();
 		}
 		fireEvents();
 	}

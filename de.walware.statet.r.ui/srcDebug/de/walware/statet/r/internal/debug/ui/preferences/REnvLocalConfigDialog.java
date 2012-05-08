@@ -50,6 +50,7 @@ import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -179,10 +180,10 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	
 	private static class RLibraryContainer {
 		
-		IRLibraryGroup.WorkingCopy.WorkingCopy parent;
+		IRLibraryGroup.WorkingCopy parent;
 		IRLibraryLocation.WorkingCopy library;
 		
-		RLibraryContainer(final IRLibraryGroup.WorkingCopy.WorkingCopy parent, final IRLibraryLocation.WorkingCopy library) {
+		RLibraryContainer(final IRLibraryGroup.WorkingCopy parent, final IRLibraryLocation.WorkingCopy library) {
 			this.parent = parent;
 			this.library = library;
 		}
@@ -441,8 +442,8 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				}
 			};
 			fRLibrariesButtons.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
-			fRLibrariesButtons.addAddButton();
-			fRLibrariesButtons.addDeleteButton();
+			fRLibrariesButtons.addAddButton(null);
+			fRLibrariesButtons.addDeleteButton(null);
 //			fRLibrariesButtons.addSeparator();
 //			fRLibrariesButtons.addUpButton();
 //			fRLibrariesButtons.addDownButton();
@@ -509,6 +510,14 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		fRLibrariesButtons.updateState();
 		
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(getShell(), IRUIHelpContextIds.R_ENV);
+		
+		dialogArea.getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				fRLibrariesViewer.setSelection(new StructuredSelection(
+						fConfigModel.getRLibraryGroups().get(0)));
+			}
+		});
 		
 		return dialogArea;
 	}
@@ -638,8 +647,10 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			}
 			else {
 				final String[] defLocations = new String[] {
-						"/usr/lib/R", //$NON-NLS-1$
+						"/usr/local/lib64/R", //$NON-NLS-1$
 						"/usr/lib64/R", //$NON-NLS-1$
+						"/usr/local/lib/R", //$NON-NLS-1$
+						"/usr/lib/R", //$NON-NLS-1$
 				};
 				for (int i = 0; i < defLocations.length; i++) {
 					loc = defLocations[i];
