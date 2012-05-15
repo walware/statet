@@ -3,11 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET R Sweave
 Bundle-SymbolicName: de.walware.statet.r.sweave.debug;singleton:=true
-Bundle-Version: 3.0.0.qualifier
+Bundle-Version: 3.1.0.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: de.walware.statet.base.ui;bundle-version="[3.0.0,3.1.0)",
+Require-Bundle: de.walware.statet.base.ui;bundle-version="[3.1.0,3.2.0)",
  de.walware.ecommons.ltk.ui,
  de.walware.statet.nico.ui,
  de.walware.statet.r.ui,

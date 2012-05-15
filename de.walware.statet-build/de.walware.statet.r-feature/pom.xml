@@ -12,7 +12,7 @@
 	
 	<groupId>de.walware.statet-packaging</groupId>
 	<artifactId>de.walware.statet.r</artifactId>
-	<version>3.0.1-SNAPSHOT</version>
+	<version>3.1.0-SNAPSHOT</version>
 	<packaging>eclipse-feature</packaging>
 	<name>Eclipse Feature: StatET for R</name>
 	
