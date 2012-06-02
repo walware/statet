@@ -124,7 +124,7 @@ public class TexTab extends LaunchConfigTabWithDbc {
 	/** @Deprecated replaced by {@link #ATTR_BUILDTEX_TYPE} */
 	public static final String ATTR_BUILDTEX_ENABLED = NS + "BuildTex.enabled"; //$NON-NLS-1$
 	public static final String ATTR_BUILDTEX_TYPE = NS + "BuildTex.type"; //$NON-NLS-1$
-	public static final String ATTR_BUILDTEX_CLIPSE_BUILDERID = NS + "BuildTex.builderId"; //$NON-NLS-1$
+	public static final String ATTR_BUILDTEX_ECLIPSE_BUILDERID = NS + "BuildTex.builderId"; //$NON-NLS-1$
 	public static final String ATTR_BUILDTEX_R_COMMANDS = NS + "BuildTex.rCommands"; //$NON-NLS-1$
 	public static final String ATTR_BUILDTEX_FORMAT = NS + "BuildTex.format"; //$NON-NLS-1$
 	public static final String ATTR_BUILDTEX_OUTPUTDIR = NS + "BuildTex.outputDir"; //$NON-NLS-1$
@@ -434,7 +434,7 @@ public class TexTab extends LaunchConfigTabWithDbc {
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(ATTR_OPENTEX_ENABLED, OPEN_OFF);
 		configuration.setAttribute(ATTR_BUILDTEX_TYPE, RweaveTexLaunchDelegate.DEFAULT_BUILDTEX_TYPE);
-		configuration.setAttribute(ATTR_BUILDTEX_CLIPSE_BUILDERID, 0);
+		configuration.setAttribute(ATTR_BUILDTEX_ECLIPSE_BUILDERID, 0);
 		configuration.setAttribute(ATTR_BUILDTEX_OUTPUTDIR, ""); //$NON-NLS-1$
 	}
 	
@@ -458,7 +458,9 @@ public class TexTab extends LaunchConfigTabWithDbc {
 		}
 		if (buildType == -2) {
 			try {
-				buildType = configuration.getAttribute(ATTR_BUILDTEX_ENABLED, false) ? RweaveTexLaunchDelegate.BUILDTEX_TYPE_ECLIPSE : RweaveTexLaunchDelegate.BUILDTEX_TYPE_DISABLED;
+				buildType = configuration.getAttribute(ATTR_BUILDTEX_ENABLED, false) ?
+						RweaveTexLaunchDelegate.BUILDTEX_TYPE_ECLIPSE :
+						RweaveTexLaunchDelegate.BUILDTEX_TYPE_DISABLED;
 			}
 			catch (final CoreException e) {
 				logReadingError(e);
@@ -468,7 +470,7 @@ public class TexTab extends LaunchConfigTabWithDbc {
 		
 		int texBuilderId = 0;
 		try {
-			texBuilderId = configuration.getAttribute(ATTR_BUILDTEX_CLIPSE_BUILDERID, texBuilderId);
+			texBuilderId = configuration.getAttribute(ATTR_BUILDTEX_ECLIPSE_BUILDERID, texBuilderId);
 		}
 		catch (final CoreException e) {
 			logReadingError(e);
@@ -522,10 +524,10 @@ public class TexTab extends LaunchConfigTabWithDbc {
 		final Integer texBuilderId = (Integer) fBuildTexBuilderIdValue.getValue();
 		if (texBuilderId != null
 				&& (buildType == RweaveTexLaunchDelegate.BUILDTEX_TYPE_ECLIPSE || texBuilderId.intValue() != 0) ) {
-			configuration.setAttribute(ATTR_BUILDTEX_CLIPSE_BUILDERID, texBuilderId.intValue());
+			configuration.setAttribute(ATTR_BUILDTEX_ECLIPSE_BUILDERID, texBuilderId.intValue());
 		}
 		else {
-			configuration.removeAttribute(ATTR_BUILDTEX_CLIPSE_BUILDERID);
+			configuration.removeAttribute(ATTR_BUILDTEX_ECLIPSE_BUILDERID);
 		}
 		
 		final String rCommands = (String) fBuildTexRCommandsValue.getValue();

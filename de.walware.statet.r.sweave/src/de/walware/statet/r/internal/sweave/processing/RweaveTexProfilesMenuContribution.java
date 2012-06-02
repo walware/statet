@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.sweave.processing;
 
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.BUILDTEX_TYPE_DISABLED;
 import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_PREVIEW;
 import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_TEX;
 import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_WEAVE;
@@ -34,9 +35,6 @@ import org.eclipse.ui.keys.IBindingService;
 import de.walware.ecommons.ui.actions.SubMenuContributionItem;
 import de.walware.ecommons.ui.util.MessageUtil;
 import de.walware.ecommons.ui.util.UIAccess;
-
-import net.sourceforge.texlipse.builder.Builder;
-import net.sourceforge.texlipse.builder.BuilderRegistry;
 
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
@@ -114,11 +112,9 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 					disableSweave = true;
 				}
 				
-				if (fConfig.getAttribute(TexTab.ATTR_BUILDTEX_ENABLED, false)) {
-					final int id = fConfig.getAttribute(TexTab.ATTR_BUILDTEX_CLIPSE_BUILDERID, 0);
-					final Builder builder = BuilderRegistry.get(id);
-					if (builder != null) {
-						final String format = builder.getOutputFormat().toUpperCase();
+				if (fConfig.getAttribute(TexTab.ATTR_BUILDTEX_TYPE, -2) > BUILDTEX_TYPE_DISABLED) {
+					String format = fConfig.getAttribute(TexTab.ATTR_BUILDTEX_FORMAT, (String) null);
+					if (format != null) {
 						detailTex.append("  (TeX > "+ format + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (!disableSweave) {
 							showBuild = true;
