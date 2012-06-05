@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>Execution Control for the R Debugger</title>
+	<meta name="copyright" content="Copyright (c) 2011-2012 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1 class="Head">Execution Control for the R Debugger</h1>
+
+
+<h4>Commands</h4>
+
+<p>Note that most listed commands depends on the selection like the debug target (R engine),
+	thread or stack frame of the Debug view in the currently active workbench window.</p>
+
+<table class="style1">
+<thead><tr>
+	<th></th>
+	<th>Name</th>
+	<th>Description</th>
+	<th>Availability</th>
+</tr></thead>
+<tr>
+	<td><img alt="Icon" src="../icons/loctool/debug-resume.gif" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Resume</span></td>
+	<td><p>Resumes the execution of the currently suspended selected debug target or thread.</p>
+	</td>
+	<td class="accesslist">Main menu (<span class="uisequence">Run</span>)<br/>
+		View/Main toolbar (Debug)<sup><a href="#t1">1)</a></sup><br/>
+		Global command<br/>
+		<kbd>F8</kbd></td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/loctool/debug-suspend.gif" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Suspend</span></td>
+	<td><p>Suspends the execution of the currently selected debug target or thread.</p>
+		<p>Note: this command does not work in all situations and R versions.</p>
+	</td>
+	<td class="accesslist">Main menu (<span class="uisequence">Run</span>)<br/>
+		View/Main toolbar (Debug)<sup><a href="#t1">1)</a></sup><br/>
+		Global command</td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/loctool/debug-stepinto.gif" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Step Into</span></td>
+	<td><p>Note: this command does not work for R, use <a class="uilabel" href="#stepintoselection">Step Into Selection</a> instead.</p>
+	</td>
+	<td class="accesslist">Main menu (<span class="uisequence">Run</span>)<br/>
+		View/Main toolbar (Debug)<sup><a href="#t1">1)</a></sup><br/>
+		Global command<br/>
+		<kbd>F5</kbd></td>
+</tr>
+<tr>
+	<td></td>
+	<td><span class="uilabel" id="stepintoselection">Step Into Selection</span></td>
+	<td><p>Steps into the function call which is currently selected in the R editor.</p>
+		<p>The R editor must be active. The selected function is marked to debug and the execution 
+			resumes until the method is invoked.</p>
+		<p>The same action can be triggered using the editor 
+			<a href="r_editor-navigation.xhtml#links">hyperlink</a> action "Step Into Selection"
+			with the default modifier <kbd>Ctrl+Alt</kbd>.</p>
+	</td>
+	<td class="accesslist">Main menu (<span class="uisequence">Run</span>)<br/>
+		Global command<br/>
+		<kbd>Ctrl+F5</kbd></td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/loctool/debug-stepover.gif" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Step Over</span></td>
+	<td><p>Steps over the current statement.</p>
+		<p>The execution resumes with the current statement in the selected stack frame and will 
+			suspend at the next statement in the same function.</p>
+	</td>
+	<td class="accesslist">Main menu (<span class="uisequence">Run</span>)<br/>
+		View/Main toolbar (Debug)<sup><a href="#t1">1)</a></sup><br/>
+		Global command<br/>
+		<kbd>F6</kbd></td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/loctool/debug-stepreturn.gif" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Step Return</span></td>
+	<td><p>Steps out of the current function.</p>
+		<p>The execution resumes the current function of the selected stack frame and will suspend 
+			after exiting the function in the stack frame below.</p>
+	</td>
+	<td class="accesslist">Main menu (<span class="uisequence">Run</span>)<br/>
+		View/Main toolbar (Debug)<sup><a href="#t1">1)</a></sup><br/>
+		Global command<br/>
+		<kbd>F7</kbd></td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/loctool/terminate.gif" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Terminate</span></td>
+	<td><p>Terminates the selected element (debug target/R engine, process, ...).</p>
+		<p>If the R thread is suspend, the terminate action for the R engine/R thread exits the
+			current debugging state and execution, but does not quit R. Trigger the terminate 
+			command repeatedly to finally quit R.</p>
+		<p>Note: For some elements types the command simply kills the R process. It is more 
+			safe to use the Terminate command in the Console View!</p>
+	</td>
+	<td class="accesslist">Main menu (<span class="uisequence">Run</span>)<br/>
+		View/Main toolbar (Debug)<sup><a href="#t1">1)</a></sup><br/>
+		Context menu (Debug View)<br/>
+		Global command<br/>
+		<kbd>Ctrl+F2</kbd></td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/loctool/disconnect.gif" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Disconnect</span></td>
+	<td><p>Disconnects the console from the remote R engine like the disconnect command in
+		the Console View.</p>
+	</td>
+	<td class="accesslist">Main menu (<span class="uisequence">Run</span>)<br/>
+		Context menu (Debug View)<br/>
+		Global command</td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/loctool/debug-terminate_restart.gif" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Terminate and Relaunch</span></td>
+	<td><p>Terminates the selected debug target and relaunches it.</p>
+		<p>Note: This command simply kills the local R process and is not recommend for
+		local R debug targets!</p></td>
+	<td class="accesslist">Context menu (Debug View)<br/>
+		Global command</td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/loctool/debug-terminate_remove.gif" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Terminate and Remove</span></td>
+	<td><p>Terminates the selected debug target and removes it from list of launches.</p>
+		<p>Note: This command simply kills the local R process and is not recommend for
+		local R debug targets!</p></td>
+	<td class="accesslist">Context menu (Debug View)</td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/loctool/debug-terminate-all.gif" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Terminate/Disconnect All</span></td>
+	<td><p>Terminates all active launches.</p> 
+		<p>Note: This command simply kills the local R process and is not recommend for
+		local R debug targets!</p></td>
+	<td class="accesslist">Context menu (Debug View)</td>
+</tr>
+</table>
+
+<p id="t1" class="fnf">1) Since Eclipse 3.8 the Debug toolbar is by default in main toolbar instead 
+	in the Debug view.  The toolbar items in the Debug view can be re-enabled in the view menu, 
+	the main toolbar can be configured as usual using <span class="uilabel">Customize Perspective...</span>.</p>
+
+</body>
+</html>
