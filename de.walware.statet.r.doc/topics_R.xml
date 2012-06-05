@@ -44,6 +44,8 @@
          <topic href="reference/r_remote_console-resourcemapping.xhtml" label="Resource Mapping">
          </topic>
       </topic>
+      <topic href="reference/r_console-snippets.xhtml" label="R Code Snippets">
+      </topic>
    </topic>
    <topic href="reference/r_debug.xhtml" label="R Visual Debugger">
       <topic href="reference/r_debug-breakpoints.xhtml" label="R Breakpoints">

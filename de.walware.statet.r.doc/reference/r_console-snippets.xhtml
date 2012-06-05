@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Code Snippets</title>
+	<meta name="copyright" content="Copyright (c) 2012 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1>R Code Snippets</h1>
+
+<p>R code snippets are predefined script templates that can be submitted to a running R console.
+The script template supports Eclipse variables which are substituted by their concrete value
+before the code is submitted to the console.</p>
+
+
+<h3>Define Snippets</h3>
+
+<p>R code snippets can be configured in <span class="uisequence">Window &gt; Preferences</span> at
+<span class="uisequence indent">StatET &gt; Run/Debug &gt; R Snippets</span>
+</p>
+<p>The user can add, edit and delete the R snippets using the buttons at the right side.
+It is also possible to exchange templates between workspaces using the export and import buttons.</p>
+
+<p>In the edit dialog the user can change the description and pattern of the R snippet.
+The content assist (<kbd>Ctrl + Space</kbd>) and the button "Insert variable..." helps adding
+variables to the template pattern.</p>
+
+<h4>Key bindings</h4>
+
+<p>The preference page
+<span class="uisequence indent">General &gt; Keys</span>
+allows to assign keyboard bindings to the <a href="#command">submit command</a> for each R snippet.
+</p>
+<p>Note that if the command for a newly created R snippet is missing on this page, it is required to 
+close and reopen the preferences dialog.</p>
+
+
+<h3>Run Snippets</h3>
+
+<h4 id="commands">Commands</h4>
+
+<table class="style1">
+<thead><tr>
+	<th></th>
+	<th>Name</th>
+	<th>Description</th>
+	<th>Availability</th>
+</tr></thead>
+<tr>
+	<td><img alt="Icon" src="../icons/tool/submit-r_snippet.png" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Run R Snippet (...)</span></td>
+	<td><p>Submits a specific code snippet to the currently active R console.</p>
+		<p>Note: the pull down/sub menu shows only the R snippets which are valid at the 
+		current context (e.g. view and selection).</p>
+	</td>
+	<td class="accesslist">Main&nbsp;toolbar (pull down menu)<br/>
+		Context menu (sub menu)<br/>
+		Global&nbsp;command</td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/tool/submit-r_snippet.png" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Run Last R Snippet</span></td>
+	<td><p>Submits a the last submitted code snippet to the currently active R console again.</p></td>
+	<td class="accesslist">Main&nbsp;toolbar<br/>
+		Global&nbsp;command</td>
+</tr>
+</table>
+
+
+</body>
+</html>
