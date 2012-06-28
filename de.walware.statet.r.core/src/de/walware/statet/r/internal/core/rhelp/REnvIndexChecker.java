@@ -182,12 +182,14 @@ public class REnvIndexChecker {
 		}
 		
 		fFoundPrevious.clear();
-		if (fREnvHelp != null) {
-			fREnvHelp.unlock();
-		}
+		unlock();
 	}
 	
 	public void finalCheck() {
+		unlock();
+	}
+	
+	private void unlock() {
 		if (fREnvHelpLock) {
 			fREnvHelpLock = false;
 			fREnvHelp.unlock();
