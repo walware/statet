@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET Nico UI
 Bundle-SymbolicName: de.walware.statet.nico.ui;singleton:=true
-Bundle-Version: 3.0.0.qualifier
+Bundle-Version: 3.0.1.qualifier
 Bundle-Activator: de.walware.statet.nico.internal.ui.NicoUIPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin

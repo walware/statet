@@ -167,7 +167,7 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 			}
 			switch (texType) {
 			case BUILDTEX_TYPE_ECLIPSE:
-				final Builder builder = BuilderRegistry.get(configuration.getAttribute(TexTab.ATTR_BUILDTEX_CLIPSE_BUILDERID, -1));
+				final Builder builder = BuilderRegistry.get(configuration.getAttribute(TexTab.ATTR_BUILDTEX_ECLIPSE_BUILDERID, -1));
 				thread.setBuildTex(builder);
 				outputFormat = (builder != null) ? builder.getOutputFormat() : null;
 				break;

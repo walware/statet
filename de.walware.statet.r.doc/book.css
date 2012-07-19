@@ -59,6 +59,10 @@ table.style1 thead th {
 sup {
 	font-size: 75%;
 }
+.fnf {
+	padding-left: 1.2em;
+	text-indent: -1.2em;
+}
 .uisequence {
 	font-family: monospace;
 }
@@ -72,5 +76,8 @@ sup {
 	padding-left: 2em;
 }
 kbd {
+	white-space: nowrap;
+}
+.accesslist {
 	white-space: nowrap;
 }

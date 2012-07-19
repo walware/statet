@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
+import org.eclipse.equinox.http.jetty.JettyConstants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 
@@ -54,16 +55,18 @@ public class JettyServer {
 	public void startServer() throws Exception {
 		final Bundle bundle = Platform.getBundle("org.eclipse.equinox.http.registry"); //$NON-NLS-1$
 		if (bundle == null) {
-			throw new IllegalStateException("bundle 'org.eclipse.equinox.http.registry' is missing.");
+			throw new IllegalStateException("bundle 'org.eclipse.equinox.http.registry' is missing."); //$NON-NLS-1$
 		}
 		
 		final Dictionary<String, Object> dict = new Hashtable<String, Object>();
-		dict.put("http.host", fHost);
-		dict.put("http.port", Integer.valueOf((fPort == -1) ? 0 : fPort)); //$NON-NLS-1$
+		dict.put(JettyConstants.HTTP_HOST, fHost);
+		dict.put(JettyConstants.HTTP_PORT, Integer.valueOf((fPort == -1) ? 0 : fPort)); //$NON-NLS-1$
 		
 		// set the base URL
-		dict.put("context.path", "/rhelp"); //$NON-NLS-1$ //$NON-NLS-2$
-		dict.put("other.info", OTHER_INFO); //$NON-NLS-1$ 
+		dict.put(JettyConstants.CONTEXT_PATH, "/rhelp"); //$NON-NLS-1$
+		dict.put(JettyConstants.OTHER_INFO, OTHER_INFO);
+		
+		dict.put(JettyConstants.CONTEXT_SESSIONINACTIVEINTERVAL, Integer.valueOf(30 * 60)); // 30 minutes
 		
 		// suppress Jetty INFO/DEBUG messages to stderr
 		Logger.getLogger("org.mortbay").setLevel(Level.WARNING); //$NON-NLS-1$	
@@ -76,8 +79,8 @@ public class JettyServer {
 		if (fPort == -1) {
 			// Jetty selected a port number for us
 			final ServiceReference[] reference = bundle.getBundleContext().getServiceReferences(
-					"org.osgi.service.http.HttpService", "(other.info="+OTHER_INFO+")"); //$NON-NLS-1$ //$NON-NLS-2$
-			final Object assignedPort = reference[0].getProperty("http.port"); //$NON-NLS-1$
+					"org.osgi.service.http.HttpService", "("+JettyConstants.OTHER_INFO+"="+OTHER_INFO+")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			final Object assignedPort = reference[0].getProperty(JettyConstants.HTTP_PORT);
 			fPort = Integer.parseInt((String)assignedPort);
 		}
 	}

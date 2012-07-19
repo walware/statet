@@ -220,6 +220,7 @@ public abstract class RElementName implements IElementName {
 				}
 				else if ((options & DISPLAY_EXACT) == 0) {
 					sb.append("[[…]]"); //$NON-NLS-1$
+					a = a.getNextSegment();
 					continue APPEND_SUB;
 				}
 				else {

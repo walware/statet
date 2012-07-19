@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.console.ui.tools;
 
+import static de.walware.statet.r.launching.RRunDebugPreferenceConstants.ASK;
 import static de.walware.statet.r.launching.RRunDebugPreferenceConstants.AUTO;
 import static de.walware.statet.r.launching.RRunDebugPreferenceConstants.DISABLED;
 import static de.walware.statet.r.launching.RRunDebugPreferenceConstants.PREF_RENV_CHECK_UPDATE;
@@ -229,7 +230,7 @@ public class REnvIndexAutoUpdater {
 				final String global = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_RENV_CHECK_UPDATE).intern();
 				
 				if (global == DISABLED
-						|| (global == AUTO && fSessionSetting == DISABLED)
+						|| (global == ASK && fSessionSetting == DISABLED)
 						|| fChecker == null) {
 					return;
 				}
