@@ -343,11 +343,12 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 						case 1:
 							break KEY;
 						}
-					}
-					if (fRCodeStyle.getReplaceOtherTabsWithSpaces()) {
-						final IndentUtil indentation = new IndentUtil(fDocument, fRCodeStyle);
-						command.text = indentation.createTabSpacesCompletionString(indentation.getColumnAtOffset(command.offset));
-						break KEY;
+						
+						if (fRCodeStyle.getReplaceOtherTabsWithSpaces()) {
+							final IndentUtil indentation = new IndentUtil(fDocument, fRCodeStyle);
+							command.text = indentation.createTabSpacesCompletionString(indentation.getColumnAtOffset(command.offset));
+							break KEY;
+						}
 					}
 				}
 				return false;

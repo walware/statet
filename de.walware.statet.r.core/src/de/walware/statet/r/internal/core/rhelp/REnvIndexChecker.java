@@ -92,7 +92,12 @@ public class REnvIndexChecker {
 			}
 		}
 		final File file = new File(directory, "test"+System.nanoTime()); //$NON-NLS-1$
-		if (!file.createNewFile() || !file.delete()) {
+		try {
+			if (!file.createNewFile() || !file.delete()) {
+				return false;
+			}
+		}
+		catch (final IOException e) {
 			return false;
 		}
 		return true;
@@ -177,12 +182,14 @@ public class REnvIndexChecker {
 		}
 		
 		fFoundPrevious.clear();
-		if (fREnvHelp != null) {
-			fREnvHelp.unlock();
-		}
+		unlock();
 	}
 	
 	public void finalCheck() {
+		unlock();
+	}
+	
+	private void unlock() {
 		if (fREnvHelpLock) {
 			fREnvHelpLock = false;
 			fREnvHelp.unlock();

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Debugger</title>
+	<meta name="copyright" content="Copyright (c) 2011-2012 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1 class="Head">Visual Debugger for R Code</h1>
+
+<h3 class="NavListTitle">Contents</h3>
+<ul class="NavList">
+<li><a href="#intro">Quick Start Guide</a></li>
+<li><a href="r_debug-breakpoints.xhtml">R Breakpoints</a></li>
+<li><a href="r_debug-notes.xhtml">Important Notes</a></li>
+</ul>
+
+<hr/>
+
+<h3 id="intro">Quick Start Guide</h3>
+<ol>
+	<li>Launch the R Console in <a href="r_console-launch.xhtml#debug">Debug mode</a>
+		(<img src="../icons/tool/debug.png" alt="Debug Icon" title="Icon"/>)</li>
+	<li><a href="r_debug-breakpoints-add_remove.xhtml">Set</a> <a href="r_debug-breakpoints.xhtml">breakpoints</a> in your functions</li>
+	<li>Submit your functions by <a href="r_debug-notes.xhtml#submit">using a command supporting the debugger</a></li>
+	<li>Invoce the code</li>
+	<li>If R hit a breakpoint, the Debug Perspective will be opened with <ul>
+		<li>the Debug View showing the call stack (<a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/debug/ref-debug_view.htm">help by JDT</a>),</li>
+		<li>the Variables View showing the variables in the selected stack frame (<a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/variables/ref-variables_view.htm">help by JDT</a>),</li>
+		<li>the Breakpoints View (<a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-breakpoints_view.htm">help by JDT</a>),</li>
+		<li>the known <a href="console_view.xhtml">Console View</a></li>
+		<li>and more...,</li>
+		</ul>
+		and you can step through your code using the
+		<a href="r_debug-execution_control.xhtml#commands">execution control commands</a>.</li>
+</ol>
+
+<h2 id="related">—</h2>
+
+</body>
+</html>
