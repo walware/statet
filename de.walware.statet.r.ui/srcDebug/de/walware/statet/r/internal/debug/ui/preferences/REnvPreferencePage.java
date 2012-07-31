@@ -150,7 +150,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 		{	// Table area
 			final Composite composite = new Composite(pageComposite, SWT.NONE);
 			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+			composite.setLayout(LayoutUtil.createCompositeGrid(2));
 			
 			final Composite table = createTable(composite);
 			{	final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -166,24 +166,21 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 					fListButtons.editElement(ADD_NEW_DEFAULT, null);
 				}
 			};
-			final DropDownButton addButton = new DropDownButton(fListButtons) {
-				@Override
-				protected void fillDropDownMenu(final Menu menu) {
-					{	final MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
-						menuItem.setText(Messages.REnv_Add_Local_label);
-						menuItem.addSelectionListener(addDefaultListener);
+			final DropDownButton addButton = new DropDownButton(fListButtons);
+			final Menu addMenu = addButton.getDropDownMenu();
+			{	final MenuItem menuItem = new MenuItem(addMenu, SWT.PUSH);
+				menuItem.setText(Messages.REnv_Add_Local_label);
+				menuItem.addSelectionListener(addDefaultListener);
+			}
+			{	final MenuItem menuItem = new MenuItem(addMenu, SWT.PUSH);
+				menuItem.setText(Messages.REnv_Add_Remote_label);
+				menuItem.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(final SelectionEvent e) {
+						fListButtons.editElement(ADD_NEW_REMOTE, null);
 					}
-					{	final MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
-						menuItem.setText(Messages.REnv_Add_Remote_label);
-						menuItem.addSelectionListener(new SelectionAdapter() {
-							@Override
-							public void widgetSelected(final SelectionEvent e) {
-								fListButtons.editElement(ADD_NEW_REMOTE, null);
-							}
-						});
-					}
-				}
-			};
+				});
+			}
 			addButton.addSelectionListener(addDefaultListener);
 			addButton.setText(SharedMessages.CollectionEditing_AddItem_label + "...");
 			addButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -368,7 +365,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 	
 	private Composite createIndexOptions(final Composite parent) {
 		final Group composite = new Group(parent, SWT.NONE);
-		composite.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
+		composite.setLayout(LayoutUtil.createGroupGrid(2));
 		composite.setText(Messages.REnv_Index_label);
 		
 		final Label label = new Label(composite, SWT.NONE);
@@ -405,12 +402,12 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 	
 	private Composite createNetworkOptions(final Composite parent) {
 		final Group composite = new Group(parent, SWT.NONE);
-		composite.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
+		composite.setLayout(LayoutUtil.createGroupGrid(2));
 		composite.setText(Messages.REnv_Network_label);
 		
 		{	final Composite line = new Composite(composite, SWT.NONE);
 			line.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-			final GridLayout layout = LayoutUtil.applyCompositeDefaults(new GridLayout(), 2);
+			final GridLayout layout = LayoutUtil.createCompositeGrid(2);
 			layout.horizontalSpacing = 0;
 			line.setLayout(layout);
 			

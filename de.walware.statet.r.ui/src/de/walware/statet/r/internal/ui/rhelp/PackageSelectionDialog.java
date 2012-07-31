@@ -132,7 +132,7 @@ public class PackageSelectionDialog extends SelectionDialog {
 		}
 		fFilterController.setInput(fInput);
 		
-		ViewerUtil.addSearchTextNavigation(fViewer, fFilterText, true);
+		ViewerUtil.installSearchTextNavigation(fViewer, fFilterText, true);
 		
 		final Button clearAllControl = new Button(composite, SWT.PUSH);
 		final GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
