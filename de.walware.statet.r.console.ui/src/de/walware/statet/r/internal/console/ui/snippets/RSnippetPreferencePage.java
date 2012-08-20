@@ -151,7 +151,7 @@ public class RSnippetPreferencePage
 		public SnippetConfigurationBlock() throws CoreException {
 			super(Messages.SnippetTemplates_title, true, null);
 			
-			fSnippets = new RSnippets();
+			fSnippets = RConsoleUIPlugin.getDefault().getRSnippets();
 			init(new TemplateGroup[] {
 					new TemplateGroup(R_SNIPPET_GROUP_ID,
 							RConsoleUIPlugin.getDefault().getImageRegistry().get(RConsoleUIPlugin.IMG_OBJ_SNIPPETS),
