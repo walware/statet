@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET R Console Core
 Bundle-SymbolicName: de.walware.statet.r.console.core;singleton:=true
-Bundle-Version: 3.1.0.qualifier
+Bundle-Version: 3.1.2.qualifier
 Bundle-Activator: de.walware.statet.r.internal.console.core.RConsoleCorePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin

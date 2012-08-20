@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET R Sweave
 Bundle-SymbolicName: de.walware.statet.r.sweave;singleton:=true
-Bundle-Version: 3.1.0.qualifier
+Bundle-Version: 3.1.2.qualifier
 Bundle-Activator: de.walware.statet.r.internal.sweave.SweavePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
@@ -22,7 +22,7 @@ Require-Bundle: de.walware.statet.base.ui;bundle-version="[3.1.0,3.2.0)",
  de.walware.statet.r.ui,
  de.walware.statet.r.console.ui,
  de.walware.docmlet.tex.core;bundle-version="1.0.0";visibility:=reexport,
- de.walware.docmlet.tex.ui;bundle-version="1.0.0"
+ de.walware.docmlet.tex.ui;bundle-version="1.0.2"
 Import-Package: com.ibm.icu.text;version="4.4.2",
  de.walware.ecommons,
  de.walware.ecommons.collections,
