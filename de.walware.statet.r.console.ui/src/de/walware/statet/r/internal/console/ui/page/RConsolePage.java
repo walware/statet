@@ -193,7 +193,7 @@ public class RConsolePage extends NIConsolePage {
 	protected void collectContextMenuPreferencePages(final List<String> pageIds) {
 		super.collectContextMenuPreferencePages(pageIds);
 		pageIds.add("de.walware.statet.r.preferencePages.REditorOptions"); //$NON-NLS-1$
-		pageIds.add("de.walware.statet.r.preferencePages.RTextStylesPage"); //$NON-NLS-1$
+		pageIds.add("de.walware.statet.r.preferencePages.RTextStyles"); //$NON-NLS-1$
 	}
 	
 }

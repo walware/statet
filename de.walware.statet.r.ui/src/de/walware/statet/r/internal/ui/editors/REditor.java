@@ -237,7 +237,7 @@ public class REditor extends SourceEditor1 implements IREditor {
 	protected void collectContextMenuPreferencePages(final List<String> pageIds) {
 		super.collectContextMenuPreferencePages(pageIds);
 		pageIds.add("de.walware.statet.r.preferencePages.REditorOptions"); //$NON-NLS-1$
-		pageIds.add("de.walware.statet.r.preferencePages.RTextStylesPage"); //$NON-NLS-1$
+		pageIds.add("de.walware.statet.r.preferencePages.RTextStyles"); //$NON-NLS-1$
 		pageIds.add("de.walware.statet.r.preferencePages.REditorTemplates"); //$NON-NLS-1$
 		pageIds.add("de.walware.statet.r.preferencePages.RCodeStyle"); //$NON-NLS-1$
 	}

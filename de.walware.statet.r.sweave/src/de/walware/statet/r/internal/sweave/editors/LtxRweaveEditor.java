@@ -277,10 +277,13 @@ public class LtxRweaveEditor extends SourceEditor1 implements ILtxRweaveEditor {
 	@Override
 	protected void collectContextMenuPreferencePages(final List<String> pageIds) {
 		super.collectContextMenuPreferencePages(pageIds);
-		pageIds.add("de.walware.docmlet.tex.preferencePages.LtxTextStylesPage"); //$NON-NLS-1$
-		pageIds.add("de.walware.docmlet.tex.preferencePages.LtxEditorTemplatesPage"); //$NON-NLS-1$
+		pageIds.add("de.walware.statet.r.preferencePages.SweaveEditor"); //$NON-NLS-1$
+		pageIds.add("de.walware.docmlet.tex.preferencePages.TexEditor"); //$NON-NLS-1$
+		pageIds.add("de.walware.docmlet.tex.preferencePages.LtxTextStyles"); //$NON-NLS-1$
+		pageIds.add("de.walware.docmlet.tex.preferencePages.LtxEditorTemplates"); //$NON-NLS-1$
+		pageIds.add("de.walware.docmlet.tex.preferencePages.TexCodeStyle"); //$NON-NLS-1$
 		pageIds.add("de.walware.statet.r.preferencePages.REditorOptions"); //$NON-NLS-1$
-		pageIds.add("de.walware.statet.r.preferencePages.RTextStylesPage"); //$NON-NLS-1$
+		pageIds.add("de.walware.statet.r.preferencePages.RTextStyles"); //$NON-NLS-1$
 		pageIds.add("de.walware.statet.r.preferencePages.REditorTemplates"); //$NON-NLS-1$
 		pageIds.add("de.walware.statet.r.preferencePages.RCodeStyle"); //$NON-NLS-1$
 	}

@@ -574,7 +574,7 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            id="de.walware.statet.r.preferencePages.RCodeStylePage"
+            id="de.walware.statet.r.preferencePages.RCodeStyle"
             category="de.walware.statet.base.preferencePages.StatetBase"
             name="%preferencePages.RCodeStyle.name"
             class="de.walware.statet.r.internal.ui.preferences.RCodeStylePreferencePage">
@@ -582,7 +582,7 @@
          <keywordReference id="de.walware.ecommons.ltk.keywords.SourceFormatting"/>
       </page>
       <page
-            id="de.walware.statet.r.preferencePages.REditorOptionsPage"
+            id="de.walware.statet.r.preferencePages.REditorOptions"
             category="de.walware.statet.base.preferencePages.Editors"
             name="%preferencePages.REditorOptions.name"
             class="de.walware.statet.r.internal.ui.preferences.REditorPreferencePage">
@@ -590,9 +590,11 @@
          <keywordReference id="de.walware.ecommons.ltk.keywords.SourceAppearance"/>
          <keywordReference id="de.walware.ecommons.ltk.keywords.SourceFormatting"/>
          <keywordReference id="de.walware.ecommons.ltk.keywords.SpellChecking"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.AutoBracket"/>
+         <keywordReference id="de.walware.ecommons.ltk.keywords.AutoIndent"/>
       </page>
       <page
-            id="de.walware.statet.r.preferencePages.RTextStylesPage"
+            id="de.walware.statet.r.preferencePages.RTextStyles"
             category="de.walware.statet.base.preferencePages.Editors"
             name="%preferencePages.RSyntaxColoring.name"
             class="de.walware.statet.r.internal.ui.preferences.RTextStylesPreferencePage">
@@ -601,7 +603,7 @@
       </page>
       <page
             id="de.walware.statet.r.preferencePages.RIdentifierGroupsPage"
-            category="de.walware.statet.r.preferencePages.RTextStylesPage"
+            category="de.walware.statet.r.preferencePages.RTextStyles"
             name="%preferencePages.RIdentifierGroups.name"
             class="de.walware.statet.r.internal.ui.preferences.RIdentifiersPreferencePage">
          <keywordReference id="de.walware.ecommons.ltk.keywords.SourceEditor"/>
