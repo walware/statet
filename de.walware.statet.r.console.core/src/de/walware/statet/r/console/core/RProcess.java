@@ -66,7 +66,7 @@ public class RProcess extends ToolProcess {
 	@Override
 	public Object getAdapter(final Class required) {
 		if (required.equals(IREnv.class)) {
-			return fREnvConfig.getReference();
+			return (fREnvConfig != null) ? fREnvConfig.getReference() : null;
 		}
 		if (required.equals(IREnvConfiguration.class)) {
 			return fREnvConfig;
