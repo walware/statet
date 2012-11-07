@@ -1189,12 +1189,6 @@
             </with>
          </enablement>
       </shortcut>
-      <shortcut
-            class="de.walware.statet.r.ui.LaunchShortcut1"
-            id="de.walware.statet.r.ui.shortcut1"
-            label="label"
-            modes="de.walware.statet.r.ui.shortcut1">
-      </shortcut>
    </extension>
    <extension
          point="org.eclipse.ui.actionSets">
