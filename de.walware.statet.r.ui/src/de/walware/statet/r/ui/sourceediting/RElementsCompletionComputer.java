@@ -50,6 +50,7 @@ import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 import de.walware.statet.nico.ui.console.InputDocument;
 
+import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
 
 import de.walware.statet.r.console.core.RProcess;
@@ -342,6 +343,16 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		return null;
 	}
 	
+	protected List<? extends IModelElement> getChildren(IModelElement e) {
+		if (e instanceof RReference) {
+			final RObject rObject = ((RReference) e).getResolvedRObject();
+			if (rObject instanceof ICombinedRElement) {
+				e = (ICombinedRElement) rObject;
+			}
+		}
+		return e.getModelChildren(null);
+	}
+	
 	protected void doComputeArgumentProposals(final AssistInvocationContext context,
 			final String orgPrefix, final IElementName prefixName,
 			final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
@@ -603,7 +614,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 					IElementName elementSegment = elementName;
 					ITER_SEGMENTS: for (int i = 0; i < count-1; i++) {
 						if (elementSegment == null) {
-							final List<? extends IModelElement> children = element.getModelChildren(null);
+							final List<? extends IModelElement> children = getChildren(element);
 							for (final IModelElement child : children) {
 								elementSegment = child.getElementName();
 								if (isCompletable(elementSegment)
@@ -631,13 +642,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 					final List<? extends IModelElement> children;
 					if (elementSegment == null) {
 						childMode = true;
-						if (element instanceof RReference) {
-							element = (ICombinedRElement) ((RReference) element).getResolvedRObject();
-							if (element == null) {
-								continue;
-							}
-						}
-						children = element.getModelChildren(null);
+						children = getChildren(element);
 					}
 					else {
 						childMode = false;
