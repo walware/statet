@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
@@ -53,13 +53,16 @@ public class TrackingConfigurationDialog extends ExtStatusDialog {
 		
 		fConfigComposite.setInput(fConfig);
 		
-		final DatabindingSupport databinding = new DatabindingSupport(dialogArea);
-		fConfigComposite.addBindings(databinding.getContext(), databinding.getRealm());
-		databinding.installStatusListener(new StatusUpdater());
+		initBindings();
 		
 		Dialog.applyDialogFont(dialogArea);
 		
 		return dialogArea;
+	}
+	
+	@Override
+	protected void addBindings(final DataBindingSupport db) {
+		fConfigComposite.addBindings(db);
 	}
 	
 	protected TrackingConfigurationComposite createConfigComposite(final Composite parent) {

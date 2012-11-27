@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -117,7 +117,7 @@ public class InstallPkgFileWizard extends Wizard {
 			Dialog.applyDialogFont(composite);
 			setControl(composite);
 			
-			final DatabindingSupport databinding = new DatabindingSupport(composite);
+			final DataBindingSupport databinding = new DataBindingSupport(composite);
 			addBindings(databinding);
 			
 			validateType();
@@ -125,7 +125,7 @@ public class InstallPkgFileWizard extends Wizard {
 			WizardPageSupport.create(this, databinding.getContext());
 		}
 		
-		protected void addBindings(final DatabindingSupport databinding) {
+		protected void addBindings(final DataBindingSupport databinding) {
 			fFileValue = new WritableValue(databinding.getRealm(), String.class);
 			fFileControl.getValidator().setOnNotLocal(IStatus.OK);
 			fFileControl.getValidator().setFileStoreValidator(new IValidator() {

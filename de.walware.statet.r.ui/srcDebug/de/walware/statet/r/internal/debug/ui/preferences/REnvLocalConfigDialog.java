@@ -26,7 +26,6 @@ import com.ibm.icu.text.Collator;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.IValueChangeListener;
 import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.databinding.validation.IValidator;
@@ -73,7 +72,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.ProcessOutputCollector;
 import de.walware.ecommons.ui.components.ButtonGroup;
@@ -202,8 +201,6 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	private final IREnvConfiguration.WorkingCopy fConfigModel;
 	private final boolean fIsNewConfig;
 	private final Set<String> fExistingNames;
-	
-	private DatabindingSupport fDatabinding;
 	
 	private Text fNameControl;
 	private ResourceInputComposite fRHomeControl;
@@ -398,7 +395,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 					container.library.setDirectoryPath((String) value);
 					
 					getViewer().refresh(container, true);
-					fDatabinding.updateStatus();
+					getDataBinding().updateStatus();
 				}
 				@Override
 				protected Object getValue(final Object element) {
@@ -447,7 +444,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				public void updateState() {
 					super.updateState();
 					if (getDataAdapter().isDirty()) {
-						fDatabinding.updateStatus();
+						getDataBinding().updateStatus();
 					}
 				}
 			};
@@ -458,7 +455,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 //			fRLibrariesButtons.addUpButton();
 //			fRLibrariesButtons.addDownButton();
 			
-			DataAdapter<IRLibraryLocation.WorkingCopy> adapter = new DataAdapter.ListAdapter<IRLibraryLocation.WorkingCopy>(
+			final DataAdapter<IRLibraryLocation.WorkingCopy> adapter = new DataAdapter.ListAdapter<IRLibraryLocation.WorkingCopy>(
 					(ITreeContentProvider) fRLibrariesViewer.getContentProvider(),
 					null, null ) {
 				private IRLibraryGroup.WorkingCopy getGroup(final Object element) {
@@ -515,9 +512,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		LayoutUtil.addSmallFiller(dialogArea, true);
 		applyDialogFont(dialogArea);
 		
-		fDatabinding = new DatabindingSupport(dialogArea);
-		addBindings(fDatabinding, fDatabinding.getRealm());
-		fDatabinding.installStatusListener(new StatusUpdater());
+		initBindings();
 		fRLibrariesButtons.updateState();
 		
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(getShell(), IRUIHelpContextIds.R_ENV);
@@ -570,7 +565,8 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		return composite;
 	}
 	
-	protected void addBindings(final DatabindingSupport db, final Realm realm) {
+	@Override
+	protected void addBindings(final DataBindingSupport db) {
 		db.getContext().bindValue(SWTObservables.observeText(fNameControl, SWT.Modify), 
 				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_NAME), 
 				new UpdateValueStrategy().setAfterGetValidator(new IValidator() {

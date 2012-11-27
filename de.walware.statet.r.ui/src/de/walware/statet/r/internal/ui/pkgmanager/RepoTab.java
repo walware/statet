@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.TabItem;
 
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.CheckboxTableComposite;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
@@ -168,17 +168,17 @@ public class RepoTab extends Composite {
 		return fAvailableRepos;
 	}
 	
-	void addBindings(final DatabindingSupport databinding) {
-		fSelectedRepos = new WritableSet(databinding.getRealm(), Collections.EMPTY_SET, RRepo.class);
-		fSelectedCRAN = new WritableValue(databinding.getRealm(), null, RRepo.class);
-		fSelectedBioC = new WritableValue(databinding.getRealm(), null, RRepo.class);
+	void addBindings(final DataBindingSupport db) {
+		fSelectedRepos = new WritableSet(db.getRealm(), Collections.EMPTY_SET, RRepo.class);
+		fSelectedCRAN = new WritableValue(db.getRealm(), null, RRepo.class);
+		fSelectedBioC = new WritableValue(db.getRealm(), null, RRepo.class);
 		
-		databinding.getContext().bindSet(
+		db.getContext().bindSet(
 				ViewersObservables.observeCheckedElements(fRepoTable, RRepo.class),
 				fSelectedRepos );
-		databinding.getContext().bindValue(ViewersObservables.observeSingleSelection(fCRANTable),
+		db.getContext().bindValue(ViewersObservables.observeSingleSelection(fCRANTable),
 				fSelectedCRAN );
-		databinding.getContext().bindValue(ViewersObservables.observeSingleSelection(fBioCTable),
+		db.getContext().bindValue(ViewersObservables.observeSingleSelection(fBioCTable),
 				fSelectedBioC );
 		
 		fSelectedRepos.addChangeListener(fDialog);

@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ts.util.ToolCommandHandlerUtil;
 import de.walware.ecommons.ui.dialogs.TitleAreaStatusUpdater;
 import de.walware.ecommons.ui.util.DialogUtil;
@@ -102,7 +102,7 @@ public class ChooseFileHandler extends AbstractConsoleCommandHandler {
 			final String[] history = getDialogSettings().getArray(fHistoryId);
 			fLocationGroup.setHistory(history);
 			
-			final DatabindingSupport databinding = new DatabindingSupport(composite);
+			final DataBindingSupport databinding = new DataBindingSupport(composite);
 			addBindings(databinding);
 			
 			fNewLocationString.setValue((history != null && history.length > 0) ? history[0] : ""); //$NON-NLS-1$
@@ -112,7 +112,7 @@ public class ChooseFileHandler extends AbstractConsoleCommandHandler {
 			return composite;
 		}
 		
-		protected void addBindings(final DatabindingSupport db) {
+		protected void addBindings(final DataBindingSupport db) {
 			final IFileStore current = getTool().getWorkspaceData().getWorkspaceDir();
 			String dir = ""; //$NON-NLS-1$
 			if (current != null) {

@@ -14,9 +14,7 @@ package de.walware.statet.r.internal.ui.preferences;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -33,6 +31,7 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.databinding.IntegerValidator;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ltk.ui.sourceediting.ISmartInsertSettings.TabAction;
 import de.walware.ecommons.ltk.ui.sourceediting.SmartInsertSettingsUI;
 import de.walware.ecommons.preferences.Preference;
@@ -313,81 +312,85 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
-	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertControl),
-				createObservable(REditorOptions.SMARTINSERT_BYDEFAULT_ENABLED_PREF),
-				null, null);
-		dbc.bindValue(ViewersObservables.observeSingleSelection(fSmartInsertTabActionControl),
-				createObservable(REditorOptions.SMARTINSERT_TAB_ACTION_PREF),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertOnPasteControl[0]),
-				createObservable(REditorOptions.SMARTINSERT_ONPASTE_ENABLED_PREF),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertOnPasteControl[0]),
-				createObservable(REditorOptions.SMARTINSERT_ONPASTE_ENABLED_PREF),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseCurlyBracketsControl[0]),
-				createObservable(REditorOptions.SMARTINSERT_CLOSECURLY_ENABLED_PREF),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseRoundBracketsControl[0]),
-				createObservable(REditorOptions.SMARTINSERT_CLOSEROUND_ENABLED_PREF),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseSquareBracketsControl[0]),
-				createObservable(REditorOptions.SMARTINSERT_CLOSESQUARE_ENABLED_PREF),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseSpecialControl[0]),
-				createObservable(REditorOptions.SMARTINSERT_CLOSESPECIAL_ENABLED_PREF),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseStringsControl[0]),
-				createObservable(REditorOptions.SMARTINSERT_CLOSESTRINGS_ENABLED_PREF),
-				null, null);
+	protected void addBindings(final DataBindingSupport db) {
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSmartInsertControl),
+				createObservable(REditorOptions.SMARTINSERT_BYDEFAULT_ENABLED_PREF) );
+		db.getContext().bindValue(
+				ViewersObservables.observeSingleSelection(fSmartInsertTabActionControl),
+				createObservable(REditorOptions.SMARTINSERT_TAB_ACTION_PREF) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSmartInsertOnPasteControl[0]),
+				createObservable(REditorOptions.SMARTINSERT_ONPASTE_ENABLED_PREF) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSmartInsertOnPasteControl[0]),
+				createObservable(REditorOptions.SMARTINSERT_ONPASTE_ENABLED_PREF) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSmartInsertCloseCurlyBracketsControl[0]),
+				createObservable(REditorOptions.SMARTINSERT_CLOSECURLY_ENABLED_PREF) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSmartInsertCloseRoundBracketsControl[0]),
+				createObservable(REditorOptions.SMARTINSERT_CLOSEROUND_ENABLED_PREF) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSmartInsertCloseSquareBracketsControl[0]),
+				createObservable(REditorOptions.SMARTINSERT_CLOSESQUARE_ENABLED_PREF) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSmartInsertCloseSpecialControl[0]),
+				createObservable(REditorOptions.SMARTINSERT_CLOSESPECIAL_ENABLED_PREF) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSmartInsertCloseStringsControl[0]),
+				createObservable(REditorOptions.SMARTINSERT_CLOSESTRINGS_ENABLED_PREF) );
 		
-		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseCurlyBracketsControl[1]),
-				createObservable(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseRoundBracketsControl[1]),
-				createObservable(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSEROUND_ENABLED),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseSquareBracketsControl[1]),
-				createObservable(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESQUARE_ENABLED),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseSpecialControl[1]),
-				createObservable(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseStringsControl[1]),
-				createObservable(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED),
-				null, null);
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSmartInsertCloseCurlyBracketsControl[1]),
+				createObservable(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSmartInsertCloseRoundBracketsControl[1]),
+				createObservable(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSEROUND_ENABLED) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSmartInsertCloseSquareBracketsControl[1]),
+				createObservable(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESQUARE_ENABLED) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSmartInsertCloseSpecialControl[1]),
+				createObservable(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSmartInsertCloseStringsControl[1]),
+				createObservable(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED) );
 		
-		dbc.bindValue(SWTObservables.observeSelection(fFoldingEnableControl),
-				createObservable(REditorOptions.PREF_FOLDING_ENABLED),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fFoldingDefaultAllBlocksControl),
-				createObservable(DefaultRFoldingPreferences.PREF_OTHERBLOCKS_ENABLED),
-				null, null);
-		dbc.bindValue(SWTObservables.observeText(fFoldingDefaultMinLines, SWT.Modify),
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fFoldingEnableControl),
+				createObservable(REditorOptions.PREF_FOLDING_ENABLED) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fFoldingDefaultAllBlocksControl),
+				createObservable(DefaultRFoldingPreferences.PREF_OTHERBLOCKS_ENABLED) );
+		db.getContext().bindValue(
+				SWTObservables.observeText(fFoldingDefaultMinLines, SWT.Modify),
 				createObservable(DefaultRFoldingPreferences.PREF_MINLINES_NUM),
-				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(2, 1000, Messages.REditorOptions_Folding_MinNumOfLines_error_message)), null);
-		dbc.bindValue(SWTObservables.observeSelection(fFoldingDefaultRoxygenControl),
-				createObservable(DefaultRFoldingPreferences.PREF_ROXYGEN_ENABLED),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fFoldingDefaultRoxygenInitiallyControl),
-				createObservable(DefaultRFoldingPreferences.PREF_ROXYGEN_COLLAPSE_INITIALLY_ENABLED),
-				null, null);
-		dbc.bindValue(SWTObservables.observeText(fFoldingDefaultRoxygenMinLines, SWT.Modify),
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(2, 1000, Messages.REditorOptions_Folding_MinNumOfLines_error_message)),
+				null );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fFoldingDefaultRoxygenControl),
+				createObservable(DefaultRFoldingPreferences.PREF_ROXYGEN_ENABLED) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fFoldingDefaultRoxygenInitiallyControl),
+				createObservable(DefaultRFoldingPreferences.PREF_ROXYGEN_COLLAPSE_INITIALLY_ENABLED) );
+		db.getContext().bindValue(
+				SWTObservables.observeText(fFoldingDefaultRoxygenMinLines, SWT.Modify),
 				createObservable(DefaultRFoldingPreferences.PREF_ROXYGEN_MINLINES_NUM),
-				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(2, 1000, Messages.REditorOptions_Folding_MinNumOfLines_error_message)), null);
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(2, 1000, Messages.REditorOptions_Folding_MinNumOfLines_error_message)),
+				null );
 		
-		dbc.bindValue(SWTObservables.observeSelection(fMarkOccurrencesControl),
-				createObservable(REditorOptions.PREF_MARKOCCURRENCES_ENABLED),
-				null, null);
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fMarkOccurrencesControl),
+				createObservable(REditorOptions.PREF_MARKOCCURRENCES_ENABLED) );
 		
-		dbc.bindValue(SWTObservables.observeSelection(fProblemsEnableControl),
-				createObservable(REditorBuild.PROBLEMCHECKING_ENABLED_PREF),
-				null, null);
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fProblemsEnableControl),
+				createObservable(REditorBuild.PROBLEMCHECKING_ENABLED_PREF) );
 		
-		dbc.bindValue(SWTObservables.observeSelection(fSpellEnableControl),
-				createObservable(REditorOptions.PREF_SPELLCHECKING_ENABLED),
-				null, null);
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSpellEnableControl),
+				createObservable(REditorOptions.PREF_SPELLCHECKING_ENABLED) );
 	}
 	
 }

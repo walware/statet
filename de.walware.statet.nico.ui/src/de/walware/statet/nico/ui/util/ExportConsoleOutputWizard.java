@@ -19,7 +19,6 @@ import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.core.filesystem.IFileStore;
@@ -51,6 +50,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -85,7 +85,7 @@ public class ExportConsoleOutputWizard extends Wizard {
 		private TrackingConfigurationComposite fConfigControl;
 		private Button fOpenControl;
 		
-		private DataBindingContext fDbc;
+		private DataBindingSupport fDataBinding;
 		
 		
 		
@@ -127,9 +127,9 @@ public class ExportConsoleOutputWizard extends Wizard {
 			
 			fConfigControl.getPathInput().setHistory(getDialogSettings().getArray(FILE_HISTORY_SETTINGSKEY));
 			final Realm realm = Realm.getDefault();
-			fDbc = new DataBindingContext(realm);
-			addBindings(fDbc, realm);
-			WizardPageSupport.create(this, fDbc);
+			fDataBinding = new DataBindingSupport(composite);
+			addBindings(fDataBinding);
+			WizardPageSupport.create(this, fDataBinding.getContext());
 		}
 		
 		protected TrackingConfigurationComposite createTrackingControl(final Composite parent) {
@@ -157,10 +157,12 @@ public class ExportConsoleOutputWizard extends Wizard {
 			return composite;
 		}
 		
-		protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-			fConfigControl.addBindings(dbc, realm);
+		protected void addBindings(final DataBindingSupport db) {
+			fConfigControl.addBindings(db);
 			
-			dbc.bindValue(SWTObservables.observeSelection(fOpenControl), fOpenValue);
+			db.getContext().bindValue(
+					SWTObservables.observeSelection(fOpenControl),
+					fOpenValue );
 		}
 		
 		public boolean getOpenInEditor() {
@@ -170,15 +172,6 @@ public class ExportConsoleOutputWizard extends Wizard {
 		protected void saveSettings() {
 			final IDialogSettings settings = getDialogSettings();
 			DialogUtil.saveHistorySettings(settings, FILE_HISTORY_SETTINGSKEY, fConfig.getFilePath());
-		}
-		
-		@Override
-		public void dispose() {
-			if (fDbc != null) {
-				fDbc.dispose();
-				fDbc = null;
-			}
-			super.dispose();
 		}
 		
 	}

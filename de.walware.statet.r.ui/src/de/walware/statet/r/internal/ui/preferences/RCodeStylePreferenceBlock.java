@@ -14,10 +14,8 @@ package de.walware.statet.r.internal.ui.preferences;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.SWT;
@@ -33,6 +31,7 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.databinding.IntegerValidator;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.text.ui.settings.IndentSettingsUI;
@@ -162,38 +161,41 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
-	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-		fStdIndentSettings.addBindings(dbc, realm, fModel);
+	protected void addBindings(final DataBindingSupport db) {
+		fStdIndentSettings.addBindings(db, fModel);
 		
-		dbc.bindValue(SWTObservables.observeText(fIndentBlockDepth, SWT.Modify),
-				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.INDENT_BLOCK_DEPTH_PROP),
+		db.getContext().bindValue(
+				SWTObservables.observeText(fIndentBlockDepth, SWT.Modify),
+				BeansObservables.observeValue(db.getRealm(), fModel, RCodeStyleSettings.INDENT_BLOCK_DEPTH_PROP),
 				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(1, 10, Messages.RCodeStyle_Indent_IndentInBlocks_error_message)),
-				null);
-		dbc.bindValue(SWTObservables.observeText(fIndentGroupDepth, SWT.Modify),
-				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.INDENT_GROUP_DEPTH_PROP),
+				null );
+		db.getContext().bindValue(
+				SWTObservables.observeText(fIndentGroupDepth, SWT.Modify),
+				BeansObservables.observeValue(db.getRealm(), fModel, RCodeStyleSettings.INDENT_GROUP_DEPTH_PROP),
 				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(1, 10, Messages.RCodeStyle_Indent_IndentInGroups_error_message)),
-				null);
-		dbc.bindValue(SWTObservables.observeText(fIndentWrappedCommandDepth, SWT.Modify),
-				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.INDENT_WRAPPED_COMMAND_DEPTH_PROP),
+				null );
+		db.getContext().bindValue(
+				SWTObservables.observeText(fIndentWrappedCommandDepth, SWT.Modify),
+				BeansObservables.observeValue(db.getRealm(), fModel, RCodeStyleSettings.INDENT_WRAPPED_COMMAND_DEPTH_PROP),
 				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(1, 10, Messages.RCodeStyle_Indent_IndentOfWrappedCommands_error_message)),
-				null);
+				null );
 		
-		dbc.bindValue(SWTObservables.observeSelection(fWSArgAssignBefore),
-				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.WS_ARGASSIGN_BEFORE_PROP),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fWSArgAssignBehind),
-				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.WS_ARGASSIGN_BEHIND_PROP),
-				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fNLFDefBodyBlockBefore),
-				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.NL_FDEF_BODYBLOCK_BEFOREP_PROP),
-				null, null);
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fWSArgAssignBefore),
+				BeansObservables.observeValue(db.getRealm(), fModel, RCodeStyleSettings.WS_ARGASSIGN_BEFORE_PROP) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fWSArgAssignBehind),
+				BeansObservables.observeValue(db.getRealm(), fModel, RCodeStyleSettings.WS_ARGASSIGN_BEHIND_PROP) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fNLFDefBodyBlockBefore),
+				BeansObservables.observeValue(db.getRealm(), fModel, RCodeStyleSettings.NL_FDEF_BODYBLOCK_BEFOREP_PROP) );
 	}
 	
 	@Override
 	protected void updateControls() {
 		fModel.load(this);
 		fModel.resetDirty();
-		getDbc().updateTargets();  // required for invalid target values
+		getDataBinding().getContext().updateTargets();  // required for invalid target values
 	}
 	
 	@Override

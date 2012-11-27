@@ -11,9 +11,7 @@
 
 package de.walware.statet.r.internal.console.ui.launching;
 
-import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeansObservables;
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -22,6 +20,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.nico.core.NicoVariables;
@@ -65,10 +64,12 @@ public class RHistoryConfigurationComposite extends RTrackingConfigurationCompos
 	}
 	
 	@Override
-	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-		super.addBindings(dbc, realm);
+	protected void addBindings(final DataBindingSupport db) {
+		super.addBindings(db);
 		
-		dbc.bindValue(SWTObservables.observeSelection(fAutoloadControl), BeansObservables.observeValue(getInput(), "loadHistory"));
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fAutoloadControl),
+				BeansObservables.observeValue(getInput(), "loadHistory") );
 	}
 	
 }

@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.services.IServiceLocator;
 
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.components.WaScale;
 import de.walware.ecommons.ui.content.IntValue2Double2TextBinding;
 import de.walware.ecommons.ui.content.IntValue2TextBinding;
@@ -95,7 +95,7 @@ public class IntervalClient extends FilterClient {
 	}
 	
 	@Override
-	protected void addBindings(final DatabindingSupport databinding) {
+	protected void addBindings(final DataBindingSupport db) {
 		if (fFilter.getColumn().getDataStore().getStoreType() == RStore.NUMERIC) {
 			final IConverter text2value = new Text2NumConverter();
 			final IConverter value2text = new Num2TextConverter();
@@ -109,10 +109,10 @@ public class IntervalClient extends FilterClient {
 //			}
 			final IntValue2Double2TextBinding.LowerUpperGroup group = new IntValue2Double2TextBinding.LowerUpperGroup(
 					fScaleControl, fLowerBoundControl, fUpperBoundControl,
-					databinding.getRealm(), value2text, text2value );
-			databinding.getContext().bindValue(group.getLower(),
+					db.getRealm(), value2text, text2value );
+			db.getContext().bindValue(group.getLower(),
 					fFilter.getSelectedLowerValue() );
-			databinding.getContext().bindValue(group.getUpper(),
+			db.getContext().bindValue(group.getUpper(),
 					fFilter.getSelectedUpperValue() );
 			fLowerUpperGroup = group;
 		}
@@ -121,14 +121,14 @@ public class IntervalClient extends FilterClient {
 			final IConverter value2text = new Int2TextConverter();
 			final IntValue2TextBinding.LowerUpperGroup group = new IntValue2TextBinding.LowerUpperGroup(
 					fScaleControl, fLowerBoundControl, fUpperBoundControl,
-					databinding.getRealm(), value2text, text2value );
-			databinding.getContext().bindValue(group.getLower(),
+					db.getRealm(), value2text, text2value );
+			db.getContext().bindValue(group.getLower(),
 					fFilter.getSelectedLowerValue() );
-			databinding.getContext().bindValue(group.getUpper(),
+			db.getContext().bindValue(group.getUpper(),
 					fFilter.getSelectedUpperValue() );
 			fLowerUpperGroup = group;
 		}
-		databinding.getContext().bindValue(SWTObservables.observeSelection(fNAControl),
+		db.getContext().bindValue(SWTObservables.observeSelection(fNAControl),
 				fFilter.getSelectedNA() );
 	}
 	

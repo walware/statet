@@ -26,7 +26,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -86,7 +86,7 @@ public class RLibrarySourceContainerBrowser extends
 		}
 		
 		@Override
-		protected void addBindings(final DatabindingSupport db) {
+		protected void addBindings(final DataBindingSupport db) {
 			db.getContext().bindValue(fResourceControl.getObservable(), fResourceValue,
 					new UpdateValueStrategy().setAfterGetValidator(fResourceControl.getValidator()), null);
 		}

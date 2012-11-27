@@ -14,9 +14,7 @@ package de.walware.statet.nico.internal.ui.preferences;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.preference.ColorSelector;
@@ -30,6 +28,7 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.databinding.IntegerValidator;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.ui.ColorSelectorObservableValue;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
@@ -157,15 +156,28 @@ class ConsolePreferenceBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
-	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-		dbc.bindValue(fSubmitTypeControl.getObservable(), createObservable(ConsolePreferences.PREF_HISTORYNAVIGATION_SUBMIT_TYPES));
+	protected void addBindings(final DataBindingSupport db) {
+		db.getContext().bindValue(
+				fSubmitTypeControl.getObservable(),
+				createObservable(ConsolePreferences.PREF_HISTORYNAVIGATION_SUBMIT_TYPES) );
 		
-		dbc.bindValue(SWTObservables.observeText(fCharLimitControl, SWT.Modify), createObservable(ConsolePreferences.PREF_CHARLIMIT),
-				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(10000, 1000000000, "Invalid char limit specified (10000-1000000000).")), null);
-		dbc.bindValue(new ColorSelectorObservableValue(fColorInfoControl), createObservable(ConsolePreferences.PREF_COLOR_INFO));
-		dbc.bindValue(new ColorSelectorObservableValue(fColorInputControl), createObservable(ConsolePreferences.PREF_COLOR_INPUT));
-		dbc.bindValue(new ColorSelectorObservableValue(fColorOutputControl), createObservable(ConsolePreferences.PREF_COLOR_OUTPUT));
-		dbc.bindValue(new ColorSelectorObservableValue(fColorErrorControl), createObservable(ConsolePreferences.PREF_COLOR_ERROR));
+		db.getContext().bindValue(
+				SWTObservables.observeText(fCharLimitControl, SWT.Modify),
+				createObservable(ConsolePreferences.PREF_CHARLIMIT),
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(10000, 1000000000, "Invalid char limit specified (10000-1000000000).")),
+				null );
+		db.getContext().bindValue(
+				new ColorSelectorObservableValue(fColorInfoControl),
+				createObservable(ConsolePreferences.PREF_COLOR_INFO) );
+		db.getContext().bindValue(
+				new ColorSelectorObservableValue(fColorInputControl),
+				createObservable(ConsolePreferences.PREF_COLOR_INPUT) );
+		db.getContext().bindValue(
+				new ColorSelectorObservableValue(fColorOutputControl),
+				createObservable(ConsolePreferences.PREF_COLOR_OUTPUT) );
+		db.getContext().bindValue(
+				new ColorSelectorObservableValue(fColorErrorControl),
+				createObservable(ConsolePreferences.PREF_COLOR_ERROR) );
 	}
 	
 }

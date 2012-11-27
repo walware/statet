@@ -17,7 +17,6 @@ import java.util.Set;
 
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.validation.IValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.IStatus;
@@ -31,7 +30,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -114,16 +113,15 @@ public class REnvRemoteConfigDialog extends ExtStatusDialog {
 		LayoutUtil.addSmallFiller(dialogArea, true);
 		applyDialogFont(dialogArea);
 		
-		final DatabindingSupport databinding = new DatabindingSupport(dialogArea);
-		addBindings(databinding, databinding.getRealm());
-		databinding.installStatusListener(new StatusUpdater());
+		initBindings();
 		
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(getShell(), IRUIHelpContextIds.R_ENV);
 		
 		return dialogArea;
 	}
 	
-	protected void addBindings(final DatabindingSupport db, final Realm realm) {
+	@Override
+	protected void addBindings(final DataBindingSupport db) {
 		db.getContext().bindValue(SWTObservables.observeText(fNameControl, SWT.Modify), 
 				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_NAME), 
 				new UpdateValueStrategy().setAfterGetValidator(new IValidator() {

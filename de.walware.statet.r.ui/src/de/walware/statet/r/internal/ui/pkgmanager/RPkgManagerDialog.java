@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.components.StatusInfo;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -163,7 +163,7 @@ public class RPkgManagerDialog extends ToolDialog implements IChangeListener, IR
 		
 		applyDialogFont(composite);
 		
-		final DatabindingSupport databinding = new DatabindingSupport(parent);
+		final DataBindingSupport databinding = new DataBindingSupport(parent);
 		addBindings(databinding);
 		
 		fUpdateRepos = fUpdatePkgs = fUpdateState = true;
@@ -236,10 +236,10 @@ public class RPkgManagerDialog extends ToolDialog implements IChangeListener, IR
 	}
 	
 	
-	protected void addBindings(final DatabindingSupport databinding) {
-		fRepoTab.addBindings(databinding);
+	protected void addBindings(final DataBindingSupport db) {
+		fRepoTab.addBindings(db);
 		
-		fPkgTab.addBinding(databinding);
+		fPkgTab.addBinding(db);
 	}
 	
 	private void update() {

@@ -16,10 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.IObservable;
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.masterdetail.IObservableFactory;
 import org.eclipse.core.databinding.observable.masterdetail.MasterDetailObservables;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -42,6 +40,7 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.databinding.IntegerValidator;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
 import de.walware.ecommons.preferences.Preference.IntPref;
@@ -237,12 +236,12 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
-	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-		dbc.bindValue(SWTObservables.observeSelection(fMatchingBracketsControl),
+	protected void addBindings(final DataBindingSupport db) {
+		db.getContext().bindValue(SWTObservables.observeSelection(fMatchingBracketsControl),
 				createObservable(fMatchingBracketsPref),
 				null, null);
 		final IObservableValue colorItem = ViewersObservables.observeSingleSelection(fColorList);
-		dbc.bindValue(new ColorSelectorObservableValue(fColorEditor),
+		db.getContext().bindValue(new ColorSelectorObservableValue(fColorEditor),
 				MasterDetailObservables.detailValue(colorItem, new IObservableFactory() {
 					@Override
 					public IObservable createObservable(final Object target) {
@@ -251,13 +250,13 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 					}
 				}, RGB.class),
 				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fCodeAssistAutoSingleControl),
+		db.getContext().bindValue(SWTObservables.observeSelection(fCodeAssistAutoSingleControl),
 				createObservable(fCodeAssistAutoSinglePref),
 				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fCodeAssistAutoCommonControl),
+		db.getContext().bindValue(SWTObservables.observeSelection(fCodeAssistAutoCommonControl),
 				createObservable(fCodeAssistAutoCommonPref),
 				null, null);
-		dbc.bindValue(SWTObservables.observeText(fCodeAssistDelayControl, SWT.Modify),
+		db.getContext().bindValue(SWTObservables.observeText(fCodeAssistDelayControl, SWT.Modify),
 				createObservable(fCodeAssistDelayPref),
 				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(10, 2000, Messages.Editors_CodeAssist_AutoTriggerDelay_error_message)), null);
 	}

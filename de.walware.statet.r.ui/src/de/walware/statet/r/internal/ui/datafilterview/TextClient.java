@@ -43,7 +43,7 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.menus.UIElement;
 import org.eclipse.ui.services.IServiceLocator;
 
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.actions.ControlServicesUtil;
 import de.walware.ecommons.ui.actions.HandlerCollection;
 import de.walware.ecommons.ui.actions.HandlerContributionItem;
@@ -275,8 +275,8 @@ public class TextClient extends FilterClient {
 	}
 	
 	@Override
-	protected void addBindings(final DatabindingSupport databinding) {
-		databinding.getContext().bindSet(
+	protected void addBindings(final DataBindingSupport db) {
+		db.getContext().bindSet(
 				ViewersObservables.observeCheckedElements(fValueListViewer, Object.class),
 				fSelectedValueSet,
 				new UpdateSetStrategy().setConverter(UI2RStoreConverter.INSTANCE),

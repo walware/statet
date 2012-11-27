@@ -14,7 +14,6 @@ package de.walware.statet.r.internal.ui.rhelp;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Diffs;
 import org.eclipse.core.databinding.observable.Realm;
@@ -37,6 +36,7 @@ import org.eclipse.swt.widgets.Text;
 import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.databinding.IntegerValidator;
 import de.walware.ecommons.databinding.jface.AbstractSWTObservableValue;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
@@ -304,15 +304,19 @@ class RHelpConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
-	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-		dbc.bindValue( new HomeObservable(realm),
+	protected void addBindings(final DataBindingSupport db) {
+		db.getContext().bindValue(
+				new HomeObservable(db.getRealm()),
 				createObservable(RHelpPreferences.HOMEPAGE_URL_PREF) );
-		dbc.bindValue( SWTObservables.observeSelection(fSearchReusePageControl),
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSearchReusePageControl),
 				createObservable(RHelpPreferences.SEARCH_REUSE_PAGE_ENABLED_PREF) );
-		dbc.bindValue( SWTObservables.observeText(fSearchMaxFragmentsControl, SWT.Modify),
+		db.getContext().bindValue(
+				SWTObservables.observeText(fSearchMaxFragmentsControl, SWT.Modify),
 				createObservable(RHelpPreferences.SEARCH_PREVIEW_FRAGMENTS_MAX_PREF),
 				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(1, 1000,
-						"Invalid maximum for preview fragments specified (1-1000).")), null);
+						"Invalid maximum for preview fragments specified (1-1000).")),
+				null );
 	}
 	
 }

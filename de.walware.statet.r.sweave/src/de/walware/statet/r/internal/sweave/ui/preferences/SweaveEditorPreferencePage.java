@@ -14,8 +14,6 @@ package de.walware.statet.r.internal.sweave.ui.preferences;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -24,6 +22,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
 
 import de.walware.ecommons.IStatusChangeListener;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
@@ -118,14 +117,14 @@ class SweaveEditorConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
-	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-		dbc.bindValue(SWTObservables.observeSelection(fMarkOccurrencesControl),
-				createObservable(SweaveEditorOptions.MARKOCCURRENCES_ENABLED_PREF),
-				null, null);
+	protected void addBindings(final DataBindingSupport db) {
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fMarkOccurrencesControl),
+				createObservable(SweaveEditorOptions.MARKOCCURRENCES_ENABLED_PREF) );
 		
-		dbc.bindValue(SWTObservables.observeSelection(fSpellEnableControl),
-				createObservable(SweaveEditorOptions.PREF_SPELLCHECKING_ENABLED),
-				null, null);
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fSpellEnableControl),
+				createObservable(SweaveEditorOptions.PREF_SPELLCHECKING_ENABLED) );
 	}
 	
 }

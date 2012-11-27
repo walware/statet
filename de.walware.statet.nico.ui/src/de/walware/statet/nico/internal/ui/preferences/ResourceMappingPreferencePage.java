@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.databinding.NotEmptyValidator;
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.net.resourcemapping.IResourceMapping;
 import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
@@ -291,7 +291,7 @@ class EditMappingDialog extends ExtStatusDialog {
 	}
 	
 	@Override
-	protected void addBindings(final DatabindingSupport db) {
+	protected void addBindings(final DataBindingSupport db) {
 		db.getContext().bindValue(fLocalControl.getObservable(), fLocalValue,
 				new UpdateValueStrategy().setAfterGetValidator(fLocalControl.getValidator()), null);
 		db.getContext().bindValue(SWTObservables.observeText(fHostControl, SWT.Modify), fHostValue,

@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.dialogs.AbstractCheckboxSelectionDialog;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
@@ -77,8 +77,8 @@ public class ProjectSelectionDialog extends AbstractCheckboxSelectionDialog {
 	}
 	
 	@Override
-	protected void addBindings(final DatabindingSupport databinding) {
-		super.addBindings(databinding);
+	protected void addBindings(final DataBindingSupport db) {
+		super.addBindings(db);
 		
 		final MultiValidator notEmptyValidator = new MultiValidator() {
 			@Override
@@ -89,7 +89,7 @@ public class ProjectSelectionDialog extends AbstractCheckboxSelectionDialog {
 				return ValidationStatus.ok();
 			}
 		};
-		databinding.getContext().addValidationStatusProvider(notEmptyValidator);
+		db.getContext().addValidationStatusProvider(notEmptyValidator);
 	}
 	
 }

@@ -14,10 +14,8 @@ package de.walware.statet.nico.ui.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.jface.databinding.swt.SWTObservables;
@@ -38,6 +36,7 @@ import org.eclipse.swt.widgets.Text;
 import de.walware.ecommons.databinding.ComputedOnChangeValue;
 import de.walware.ecommons.databinding.IntegerValidator;
 import de.walware.ecommons.databinding.NotEmptyValidator;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
@@ -289,31 +288,31 @@ public class TrackingConfigurationComposite extends Composite {
 		return fPrependTimestampControl;
 	}
 	
-	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
+	protected void addBindings(final DataBindingSupport db) {
 		if (fNameControl != null) {
-			dbc.bindValue(SWTObservables.observeText(fNameControl, SWT.Modify), BeansObservables.observeValue(fInput, "name"), //$NON-NLS-1$
+			db.getContext().bindValue(SWTObservables.observeText(fNameControl, SWT.Modify), BeansObservables.observeValue(fInput, "name"), //$NON-NLS-1$
 					new UpdateValueStrategy().setAfterGetValidator(new NotEmptyValidator(Messages.Tracking_Name_error_Missing_message)), null);
 		}
 		
 		final IObservableValue infoUIObs = SWTObservables.observeSelection(fStreamInfoControl);
-		dbc.bindValue(infoUIObs, BeansObservables.observeValue(fInput, "trackStreamInfo")); //$NON-NLS-1$
+		db.getContext().bindValue(infoUIObs, BeansObservables.observeValue(fInput, "trackStreamInfo")); //$NON-NLS-1$
 		
 		final IObservableValue inputUIObs = SWTObservables.observeSelection(fStreamInputControl);
-		dbc.bindValue(inputUIObs, BeansObservables.observeValue(fInput, "trackStreamInput")); //$NON-NLS-1$
+		db.getContext().bindValue(inputUIObs, BeansObservables.observeValue(fInput, "trackStreamInput")); //$NON-NLS-1$
 		if (fStreamInputHistoryOnlyControl != null) {
-			dbc.bindValue(SWTObservables.observeEnabled(fStreamInputHistoryOnlyControl), inputUIObs);
-			dbc.bindValue(SWTObservables.observeSelection(fStreamInputHistoryOnlyControl), BeansObservables.observeValue(fInput, "trackStreamInputHistoryOnly")); //$NON-NLS-1$
+			db.getContext().bindValue(SWTObservables.observeEnabled(fStreamInputHistoryOnlyControl), inputUIObs);
+			db.getContext().bindValue(SWTObservables.observeSelection(fStreamInputHistoryOnlyControl), BeansObservables.observeValue(fInput, "trackStreamInputHistoryOnly")); //$NON-NLS-1$
 		}
 		
 		final IObservableValue outputUIObs = SWTObservables.observeSelection(fStreamOutputErrorControl);
 		final IObservableValue outputModelObs = BeansObservables.observeValue(fInput, "trackStreamOutput"); //$NON-NLS-1$
-		dbc.bindValue(outputUIObs, outputModelObs);
+		db.getContext().bindValue(outputUIObs, outputModelObs);
 		if (fStreamOutputErrorTruncateControl != null) {
 			final IObservableValue outputTruncateUIObs = SWTObservables.observeSelection(fStreamOutputErrorTruncateControl);
 			final IObservableValue outputTruncateModelObs = BeansObservables.observeValue(fInput, "trackStreamOutputTruncate"); //$NON-NLS-1$
-			dbc.bindValue(SWTObservables.observeEnabled(fStreamOutputErrorTruncateControl), outputUIObs);
-			dbc.bindValue(outputTruncateUIObs, outputTruncateModelObs);
-			dbc.bindValue(SWTObservables.observeEnabled(fStreamOutputErrorTruncateLinesControl), new ComputedOnChangeValue(
+			db.getContext().bindValue(SWTObservables.observeEnabled(fStreamOutputErrorTruncateControl), outputUIObs);
+			db.getContext().bindValue(outputTruncateUIObs, outputTruncateModelObs);
+			db.getContext().bindValue(SWTObservables.observeEnabled(fStreamOutputErrorTruncateLinesControl), new ComputedOnChangeValue(
 					Boolean.class, outputModelObs, outputTruncateModelObs) {
 				@Override
 				protected Object calculate() {
@@ -322,18 +321,18 @@ public class TrackingConfigurationComposite extends Composite {
 					return Boolean.valueOf(one.booleanValue() && two.booleanValue());
 				}
 			});
-			dbc.bindValue(SWTObservables.observeText(fStreamOutputErrorTruncateLinesControl, SWT.Modify), BeansObservables.observeValue(fInput, "trackStreamOutputTruncateLines"), //$NON-NLS-1$
+			db.getContext().bindValue(SWTObservables.observeText(fStreamOutputErrorTruncateLinesControl, SWT.Modify), BeansObservables.observeValue(fInput, "trackStreamOutputTruncateLines"), //$NON-NLS-1$
 					new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(2, 1000000, Messages.Tracking_OutputStream_TruncateLines_error_Invalid_message)), null);
 		}
 		
 		if (fSubmitTypeControl != null) {
-			dbc.bindValue(fSubmitTypeControl.getObservable(), BeansObservables.observeValue(fInput, "submitTypes")); //$NON-NLS-1$
+			db.getContext().bindValue(fSubmitTypeControl.getObservable(), BeansObservables.observeValue(fInput, "submitTypes")); //$NON-NLS-1$
 		}
 		
-		dbc.bindValue(fFilePathControl.getObservable(), BeansObservables.observeValue(fInput, "filePath"), //$NON-NLS-1$
+		db.getContext().bindValue(fFilePathControl.getObservable(), BeansObservables.observeValue(fInput, "filePath"), //$NON-NLS-1$
 				new UpdateValueStrategy().setAfterGetValidator(fFilePathControl.getValidator()), null);
 		final IObservableValue fileModeModelObs = BeansObservables.observeValue(fInput, "fileMode"); //$NON-NLS-1$
-		dbc.bindValue(SWTObservables.observeSelection(fFileAppendControl), new ComputedOnChangeValue(Boolean.class, fileModeModelObs) {
+		db.getContext().bindValue(SWTObservables.observeSelection(fFileAppendControl), new ComputedOnChangeValue(Boolean.class, fileModeModelObs) {
 			@Override
 			protected Object calculate() {
 				final Integer mode = (Integer) fileModeModelObs.getValue();
@@ -345,7 +344,7 @@ public class TrackingConfigurationComposite extends Composite {
 				fileModeModelObs.setValue(selected.booleanValue() ? EFS.APPEND : EFS.NONE);
 			}
 		});
-		dbc.bindValue(SWTObservables.observeSelection(fFileOverwriteControl), new ComputedOnChangeValue(Boolean.class, fileModeModelObs) {
+		db.getContext().bindValue(SWTObservables.observeSelection(fFileOverwriteControl), new ComputedOnChangeValue(Boolean.class, fileModeModelObs) {
 			@Override
 			protected Object calculate() {
 				final Integer mode = (Integer) fileModeModelObs.getValue();
@@ -359,7 +358,7 @@ public class TrackingConfigurationComposite extends Composite {
 		});
 		
 		if (fPrependTimestampControl != null) {
-			dbc.bindValue(SWTObservables.observeSelection(fPrependTimestampControl), BeansObservables.observeValue(fInput, "prependTimestamp")); //$NON-NLS-1$
+			db.getContext().bindValue(SWTObservables.observeSelection(fPrependTimestampControl), BeansObservables.observeValue(fInput, "prependTimestamp")); //$NON-NLS-1$
 		}
 	}
 	

@@ -82,7 +82,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.actions.HandlerContributionItem;
 import de.walware.ecommons.ui.components.DropDownButton;
 import de.walware.ecommons.ui.components.History;
@@ -808,15 +808,15 @@ public class PkgTab extends Composite {
 		return fTab;
 	}
 	
-	void addBinding(final DatabindingSupport databinding) {
-		fFilterPrioritySet = new WritableSet(databinding.getRealm(), Collections.EMPTY_SET, String.class);
-		databinding.getContext().bindSet(
+	void addBinding(final DataBindingSupport db) {
+		fFilterPrioritySet = new WritableSet(db.getRealm(), Collections.EMPTY_SET, String.class);
+		db.getContext().bindSet(
 				ViewersObservables.observeCheckedElements(fFilterPriorityTable, String.class),
 				fFilterPrioritySet );
 		new AutoCheckController(fFilterPriorityTable, fFilterPrioritySet);
 		
-		fFilterRViewsSet = new WritableSet(databinding.getRealm(), Collections.EMPTY_SET, IRView.class);
-		databinding.getContext().bindSet(
+		fFilterRViewsSet = new WritableSet(db.getRealm(), Collections.EMPTY_SET, IRView.class);
+		db.getContext().bindSet(
 				ViewersObservables.observeCheckedElements(fFilterRViewsTable, IRView.class),
 				fFilterRViewsSet );
 		new AutoCheckController(fFilterRViewsTable, fFilterRViewsSet);

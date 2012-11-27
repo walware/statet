@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.services.IServiceLocator;
 
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.r.internal.ui.datafilter.IFilterListener;
@@ -40,7 +40,7 @@ public abstract class FilterClient extends Composite implements IFilterListener 
 	protected static final String REMOVE_UNCHECKED_HANDLER_ID = "RemoveUnchecked"; //$NON-NLS-1$
 	
 	
-	private DatabindingSupport fDatabinding;
+	private DataBindingSupport fDataBinding;
 	
 	private Listener fResizeListener;
 	
@@ -92,16 +92,16 @@ public abstract class FilterClient extends Composite implements IFilterListener 
 	protected abstract void updateInput();
 	
 	protected void initBindings() {
-		fDatabinding = new DatabindingSupport(this);
-		addBindings(fDatabinding);
-		fDatabinding.getContext().updateTargets();
+		fDataBinding = new DataBindingSupport(this);
+		addBindings(fDataBinding);
+		fDataBinding.getContext().updateTargets();
 	}
 	
-	protected void addBindings(final DatabindingSupport databinding) {
+	protected void addBindings(final DataBindingSupport db) {
 	}
 	
-	protected DatabindingSupport getDatabinding() {
-		return fDatabinding;
+	protected DataBindingSupport getDataBinding() {
+		return fDataBinding;
 	}
 	
 	

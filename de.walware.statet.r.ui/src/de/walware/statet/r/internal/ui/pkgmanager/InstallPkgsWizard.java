@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -101,14 +101,14 @@ public class InstallPkgsWizard extends Wizard {
 			Dialog.applyDialogFont(composite);
 			setControl(composite);
 			
-			final DatabindingSupport databinding = new DatabindingSupport(composite);
+			final DataBindingSupport databinding = new DataBindingSupport(composite);
 			addBindings(databinding);
 			
 			fTargetLibraryValue.setValue(RPkgUtil.getDefaultInstallLocation(rLibPaths));
 			WizardPageSupport.create(this, databinding.getContext());
 		}
 		
-		protected void addBindings(final DatabindingSupport databinding) {
+		protected void addBindings(final DataBindingSupport databinding) {
 			if (fSameTargetControl != null) {
 				fSameTargetValue = new WritableValue(databinding.getRealm(), Boolean.FALSE, Boolean.class);
 				databinding.getContext().bindValue(

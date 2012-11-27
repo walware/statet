@@ -24,7 +24,6 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.PojoObservables;
 import org.eclipse.core.databinding.conversion.Converter;
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.databinding.swt.SWTObservables;
@@ -48,7 +47,7 @@ import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.databinding.NotEmptyValidator;
 import de.walware.ecommons.databinding.URLValidator;
-import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
@@ -161,7 +160,7 @@ class EditRepoDialog extends ExtStatusDialog {
 	}
 	
 	@Override
-	protected void addBindings(final DatabindingSupport databinding) {
+	protected void addBindings(final DataBindingSupport databinding) {
 		final DataBindingContext dbc = databinding.getContext();
 		dbc.bindValue(SWTObservables.observeText(fNameControl, SWT.Modify),
 				PojoObservables.observeValue(fRepo, "name"), //$NON-NLS-1$
@@ -259,9 +258,9 @@ class RRepoConfigurationBlock extends ManagedConfigurationBlock implements IActi
 	}
 	
 	@Override
-	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
+	protected void addBindings(final DataBindingSupport db) {
 		for (int i = 0; i < R_SIZE; i++) {
-			fLists[i] = new WritableList(realm, new ArrayList<RRepo>(), RRepo.class);
+			fLists[i] = new WritableList(db.getRealm(), new ArrayList<RRepo>(), RRepo.class);
 			fTables[i].viewer.setContentProvider(new ArrayContentProvider());
 			fTables[i].viewer.setInput(fLists[i]);
 			fButtonsGroups[i].connectTo(fTables[i].viewer, fLists[i], null);

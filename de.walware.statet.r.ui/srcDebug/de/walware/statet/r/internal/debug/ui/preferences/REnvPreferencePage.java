@@ -21,7 +21,6 @@ import java.util.Map;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.ValidationStatusProvider;
 import org.eclipse.core.databinding.observable.Observables;
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -62,6 +61,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.IStatusChangeListener;
+import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
@@ -228,19 +228,21 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 		
 		initBindings();
 		updateStatus();
-		getDbc().addValidationStatusProvider(new ValidationStatusProvider() {
+		
+		final DataBindingContext dbc = getDataBinding().getContext();
+		dbc.addValidationStatusProvider(new ValidationStatusProvider() {
 			@Override
 			public IObservableValue getValidationStatus() {
 				return fListStatus;
 			}
 			@Override
 			public IObservableList getModels() {
-				return Observables.staticObservableList(getDbc().getValidationRealm(),
+				return Observables.staticObservableList(dbc.getValidationRealm(),
 						Collections.emptyList());
 			}
 			@Override
 			public IObservableList getTargets() {
-				return Observables.staticObservableList(getDbc().getValidationRealm(),
+				return Observables.staticObservableList(dbc.getValidationRealm(),
 						Collections.emptyList());
 			}
 		});
@@ -421,13 +423,13 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 	}
 	
 	@Override
-	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-		dbc.bindValue(ViewersObservables.observeSingleSelection(fIndexConsoleViewer),
-				createObservable(RRunDebugPreferenceConstants.PREF_RENV_CHECK_UPDATE),
-				null, null );
-		dbc.bindValue(SWTObservables.observeSelection(fNetworkEclipseControl),
-				createObservable(RCorePreferenceNodes.PREF_RENV_NETWORK_USE_ECLIPSE),
-				null, null );
+	protected void addBindings(final DataBindingSupport db) {
+		db.getContext().bindValue(
+				ViewersObservables.observeSingleSelection(fIndexConsoleViewer),
+				createObservable(RRunDebugPreferenceConstants.PREF_RENV_CHECK_UPDATE) );
+		db.getContext().bindValue(
+				SWTObservables.observeSelection(fNetworkEclipseControl),
+				createObservable(RCorePreferenceNodes.PREF_RENV_NETWORK_USE_ECLIPSE) );
 	}
 	
 	
