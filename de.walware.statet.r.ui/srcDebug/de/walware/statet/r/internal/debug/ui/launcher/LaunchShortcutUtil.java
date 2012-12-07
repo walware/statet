@@ -45,7 +45,8 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
-import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.ltk.ui.util.LTKWorkbenchUIUtil;
+import de.walware.ecommons.workbench.ui.WorkbenchUIUtil;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.ICodeLaunchContentHandler;
@@ -211,17 +212,17 @@ public class LaunchShortcutUtil {
 	}
 	
 	public static void handleUnsupportedExecution(final ExecutionEvent executionEvent) {
-		WorkbenchUIUtil.indicateStatus(createUnsupported(), executionEvent);
+		LTKWorkbenchUIUtil.indicateStatus(createUnsupported(), executionEvent);
 	}
 	
 	public static void handleRLaunchException(final Throwable e, final String defaultMessage, final ExecutionEvent executionEvent) {
 		final Status status = new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHING, defaultMessage, e);
 		StatusManager.getManager().handle(status);
 		if (e instanceof CoreException) {
-			WorkbenchUIUtil.indicateStatus(((CoreException) e).getStatus(), executionEvent);
+			LTKWorkbenchUIUtil.indicateStatus(((CoreException) e).getStatus(), executionEvent);
 		}
 		else {
-			WorkbenchUIUtil.indicateStatus(status, executionEvent);
+			LTKWorkbenchUIUtil.indicateStatus(status, executionEvent);
 		}
 	}
 	

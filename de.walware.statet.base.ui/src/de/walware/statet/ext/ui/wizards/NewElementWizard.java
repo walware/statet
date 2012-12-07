@@ -54,7 +54,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
-import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.ltk.ui.util.LTKWorkbenchUIUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
@@ -490,7 +490,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 	protected void openResource(final IFile resource) {
 		final IWorkbenchPage activePage = UIAccess.getActiveWorkbenchPage(true);
 		if (activePage != null) {
-			WorkbenchUIUtil.openEditor(activePage, resource, null);
+			LTKWorkbenchUIUtil.openEditor(activePage, resource, null);
 		}
 	}
 	
@@ -500,7 +500,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 		}
 		final IWorkbenchPage activePage = UIAccess.getActiveWorkbenchPage(true);
 		if (activePage != null) {
-			WorkbenchUIUtil.openEditor(activePage, file.getFileHandle(), file.getInitialSelection());
+			LTKWorkbenchUIUtil.openEditor(activePage, file.getFileHandle(), file.getInitialSelection());
 		}
 	}
 	

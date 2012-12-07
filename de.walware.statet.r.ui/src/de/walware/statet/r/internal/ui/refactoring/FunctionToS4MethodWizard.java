@@ -53,7 +53,7 @@ import de.walware.ecommons.ui.components.ButtonGroup;
 import de.walware.ecommons.ui.components.DataAdapter;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
-import de.walware.ecommons.ui.util.ViewerUtil.CheckTableComposite;
+import de.walware.ecommons.ui.util.ViewerUtil.CheckboxTableComposite;
 
 import de.walware.statet.r.core.refactoring.FunctionToS4MethodRefactoring;
 import de.walware.statet.r.core.refactoring.FunctionToS4MethodRefactoring.Variable;
@@ -202,7 +202,7 @@ public class FunctionToS4MethodWizard extends RefactoringWizard {
 				});
 			}
 			
-			final CheckTableComposite table = new CheckTableComposite(composite, SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION);
+			final CheckboxTableComposite table = new CheckboxTableComposite(composite, SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION);
 			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 			gd.heightHint = LayoutUtil.hintHeight(table.table, 12);
 			table.setLayoutData(gd);

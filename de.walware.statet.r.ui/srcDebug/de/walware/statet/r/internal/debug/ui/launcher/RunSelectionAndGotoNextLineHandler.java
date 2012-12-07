@@ -24,7 +24,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.workbench.ui.WorkbenchUIUtil;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.ui.RUIPlugin;

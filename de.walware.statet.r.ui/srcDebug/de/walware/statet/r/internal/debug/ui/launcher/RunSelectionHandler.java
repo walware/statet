@@ -26,7 +26,7 @@ import org.eclipse.ui.menus.UIElement;
 
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ui.util.LTKSelectionUtil;
-import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.workbench.ui.WorkbenchUIUtil;
 
 import de.walware.statet.r.core.refactoring.RRefactoringAdapter;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;

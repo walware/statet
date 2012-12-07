@@ -31,7 +31,7 @@ import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
-import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.workbench.ui.WorkbenchUIUtil;
 
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRModelManager;
@@ -117,10 +117,10 @@ public class StepIntoSelectionHandler extends AbstractHandler {
 			case SYMBOL:
 				code = access.getSegmentName();
 				if (access.getNode().getNodeType() == NodeType.F_CALL) {
-					code = "`" + code + "`";
+					code = "`" + code + "`"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				else {
-					code = "get('" + code + "')";
+					code = "get('" + code + "')"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				break;
 			default:

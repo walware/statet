@@ -37,7 +37,7 @@ import org.eclipse.ui.progress.IProgressService;
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
-import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.ltk.ui.util.LTKWorkbenchUIUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.core.model.IRModelInfo;
@@ -129,7 +129,7 @@ public class RunEntireCommandHandler extends AbstractHandler {
 		final IStatus status = success.get();
 		if (status != null
 				&& status.getSeverity() != IStatus.OK && status.getSeverity() != IStatus.CANCEL) {
-			WorkbenchUIUtil.indicateStatus(status, event);
+			LTKWorkbenchUIUtil.indicateStatus(status, event);
 		}
 		return null;
 	}

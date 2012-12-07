@@ -38,7 +38,7 @@ import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
-import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.ltk.ui.util.LTKWorkbenchUIUtil;
 import de.walware.ecommons.text.IndentUtil;
 import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ts.ITool;
@@ -316,7 +316,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 		if (r != null) {
 			r.dispose();
 		}
-		WorkbenchUIUtil.indicateStatus(status, executionEvent);
+		LTKWorkbenchUIUtil.indicateStatus(status, executionEvent);
 	}
 	
 }

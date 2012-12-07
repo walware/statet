@@ -35,7 +35,7 @@ import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.ltk.ui.util.LTKWorkbenchUIUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.workbench.ResourceVariablesUtil;
 import de.walware.ecommons.variables.core.DynamicVariable;
@@ -256,7 +256,7 @@ public class RSnippets {
 					RConsoleUIPlugin.PLUGIN_ID, 0,
 					"An error occurred while submitting code snippet to R.\n" +
 					"Template pattern:\n" + template.getPattern(), e ));
-			WorkbenchUIUtil.indicateStatus(e.getStatus(), event);
+			LTKWorkbenchUIUtil.indicateStatus(e.getStatus(), event);
 		}
 	}
 	

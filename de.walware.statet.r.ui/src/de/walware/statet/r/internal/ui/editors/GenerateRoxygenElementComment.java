@@ -53,8 +53,9 @@ import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAssociated;
 import de.walware.ecommons.ltk.ui.templates.TemplatesUtil;
 import de.walware.ecommons.ltk.ui.templates.TemplatesUtil.EvaluatedTemplate;
 import de.walware.ecommons.ltk.ui.util.LTKSelectionUtil;
-import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.ltk.ui.util.LTKWorkbenchUIUtil;
 import de.walware.ecommons.text.IndentUtil;
+import de.walware.ecommons.workbench.ui.WorkbenchUIUtil;
 
 import de.walware.statet.r.codegeneration.CodeGeneration;
 import de.walware.statet.r.core.model.IRClass;
@@ -204,7 +205,7 @@ public class GenerateRoxygenElementComment extends AbstractHandler implements IE
 							editor.getViewer().setSelectedRange(initialSelection.getOffset(), initialSelection.getLength());
 						}
 						else if (resource != null) {
-							WorkbenchUIUtil.openEditor(workbenchWindow.getActivePage(), resource, initialSelection);
+							LTKWorkbenchUIUtil.openEditor(workbenchWindow.getActivePage(), resource, initialSelection);
 						}
 					}
 					catch (final MalformedTreeException e) {
