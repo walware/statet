@@ -20,13 +20,14 @@ import de.walware.ecommons.ts.ITool;
 import de.walware.rj.data.RObject;
 
 import de.walware.statet.r.core.model.RElementName;
+import de.walware.statet.r.ui.dataeditor.IRDataTableVariable;
 import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
 
 
 public final class RDataTableContentDescription {
 	
 	
-	private static final RDataTableColumn[] NO_COLUMNS_ARRAY = new RDataTableColumn[0];
+	private static final IRDataTableVariable[] NO_COLUMNS_ARRAY = new IRDataTableVariable[0];
 	
 	
 	private final RElementName fElementName;
@@ -40,7 +41,7 @@ public final class RDataTableContentDescription {
 	private List<RDataTableColumn> fRowHeaderColumns = Collections.emptyList();
 	
 	private List<RDataTableColumn> fDataColumns = Collections.emptyList();
-	private RDataTableColumn[] fDataColumnsArray = NO_COLUMNS_ARRAY;
+	private IRDataTableVariable[] fDataVariables = NO_COLUMNS_ARRAY;
 	
 	private RDataFormatter fDefaultDataFormat;
 	
@@ -87,7 +88,10 @@ public final class RDataTableContentDescription {
 	
 	void setDataColumns(final RDataTableColumn... dataColumns) {
 		fDataColumns = new ConstList<RDataTableColumn>(dataColumns);
-		fDataColumnsArray = dataColumns;
+	}
+	
+	void setVariables(final IRDataTableVariable... variables) {
+		fDataVariables = variables;
 	}
 	
 	void setDefaultDataFormat(final RDataFormatter format) {
@@ -107,8 +111,8 @@ public final class RDataTableContentDescription {
 		return fDataColumns;
 	}
 	
-	RDataTableColumn[] getDataColumnsArray() {
-		return fDataColumnsArray;
+	IRDataTableVariable[] getVariables() {
+		return fDataVariables;
 	}
 	
 	

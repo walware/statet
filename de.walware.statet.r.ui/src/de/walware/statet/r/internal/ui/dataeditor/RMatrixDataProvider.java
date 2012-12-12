@@ -104,7 +104,7 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 						template.getVarType(), template.getDataStore(), template.getClassNames(),
 						template.getDefaultFormat());
 			}
-			description.setDataColumns(dataColumns);
+			description.setVariables(dataColumns);
 		}
 		
 		description.setDefaultDataFormat(template.getDefaultFormat());

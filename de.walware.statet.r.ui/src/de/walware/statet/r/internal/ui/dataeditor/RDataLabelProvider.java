@@ -24,7 +24,7 @@ import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RObject;
 
 import de.walware.statet.r.core.data.ICombinedRElement;
-import de.walware.statet.r.internal.ui.dataeditor.RDataEditorOutlinePage.ColumnPropertyItem;
+import de.walware.statet.r.internal.ui.dataeditor.RDataEditorOutlinePage.VariablePropertyItem;
 import de.walware.statet.r.ui.RLabelProvider;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.dataeditor.IRDataTableVariable;
@@ -42,7 +42,7 @@ public class RDataLabelProvider extends StyledCellLabelProvider {
 	}
 	
 	
-	public Image getImage(final RDataTableColumn element) {
+	public Image getImage(final IRDataTableVariable element) {
 		switch (element.getVarType()) {
 		case IRDataTableVariable.LOGI:
 			return RUI.getImage(RUI.IMG_OBJ_COL_LOGI);
@@ -95,33 +95,36 @@ public class RDataLabelProvider extends StyledCellLabelProvider {
 			}
 			text.append(description.getElementName().toString());
 		}
-		else if (element instanceof RDataTableColumn) {
-			final RDataTableColumn column = (RDataTableColumn) element;
-			image = getImage(column);
-			text.append(column.getName());
+		else if (element instanceof IRDataTableVariable) {
+			final IRDataTableVariable variable = (IRDataTableVariable) element;
+			image = getImage(variable);
+			text.append(variable.getName());
 			
-			text.append(" : ", StyledString.DECORATIONS_STYLER);
-			final List<String> classNames = column.getClassNames();
-			text.append(classNames.get(0), StyledString.DECORATIONS_STYLER);
-			for (int i = 1; i < classNames.size(); i++) {
-				text.append(", ", StyledString.DECORATIONS_STYLER);
-				text.append(classNames.get(i), StyledString.DECORATIONS_STYLER);
-			}
-			if (!classNames.contains(RDataUtil.getStoreClass(column.getDataStore()))) {
-				text.append(" (", StyledString.DECORATIONS_STYLER);
-				text.append(RDataUtil.getStoreAbbr(column.getDataStore()), StyledString.DECORATIONS_STYLER);
-				text.append(")", StyledString.DECORATIONS_STYLER);
+			if (element instanceof RDataTableColumn) {
+				final RDataTableColumn column = (RDataTableColumn) variable;
+				text.append(" : ", StyledString.DECORATIONS_STYLER); //$NON-NLS-1$
+				final List<String> classNames = column.getClassNames();
+				text.append(classNames.get(0), StyledString.DECORATIONS_STYLER);
+				for (int i = 1; i < classNames.size(); i++) {
+					text.append(", ", StyledString.DECORATIONS_STYLER); //$NON-NLS-1$
+					text.append(classNames.get(i), StyledString.DECORATIONS_STYLER);
+				}
+				if (!classNames.contains(RDataUtil.getStoreClass(column.getDataStore()))) {
+					text.append(" (", StyledString.DECORATIONS_STYLER); //$NON-NLS-1$
+					text.append(RDataUtil.getStoreAbbr(column.getDataStore()), StyledString.DECORATIONS_STYLER);
+					text.append(")", StyledString.DECORATIONS_STYLER); //$NON-NLS-1$
+				}
 			}
 		}
-		else if (element instanceof ColumnPropertyItem) {
-			final ColumnPropertyItem item = (ColumnPropertyItem) element;
+		else if (element instanceof VariablePropertyItem) {
+			final VariablePropertyItem item = (VariablePropertyItem) element;
 			image = null;
 			text.append(item.getName());
 			final int count = item.getCount();
 			if (count >= 0) {
-				text.append(" (", StyledString.COUNTER_STYLER);
+				text.append(" (", StyledString.COUNTER_STYLER); //$NON-NLS-1$
 				text.append(Integer.toString(count), StyledString.COUNTER_STYLER);
-				text.append(")", StyledString.COUNTER_STYLER);
+				text.append(")", StyledString.COUNTER_STYLER); //$NON-NLS-1$
 			}
 		}
 		else {

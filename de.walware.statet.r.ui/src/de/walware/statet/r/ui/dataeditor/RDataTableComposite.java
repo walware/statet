@@ -31,17 +31,23 @@ import org.eclipse.nebula.widgets.nattable.coordinate.PositionCoordinate;
 import org.eclipse.nebula.widgets.nattable.coordinate.Range;
 import org.eclipse.nebula.widgets.nattable.copy.command.CopyDataCommandHandler;
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
+import org.eclipse.nebula.widgets.nattable.data.ISpanningDataProvider;
 import org.eclipse.nebula.widgets.nattable.freeze.CompositeFreezeLayer;
 import org.eclipse.nebula.widgets.nattable.freeze.FreezeLayer;
 import org.eclipse.nebula.widgets.nattable.grid.GridRegion;
 import org.eclipse.nebula.widgets.nattable.grid.cell.AlternatingRowConfigLabelAccumulator;
 import org.eclipse.nebula.widgets.nattable.grid.data.DefaultCornerDataProvider;
-import org.eclipse.nebula.widgets.nattable.grid.layer.ColumnHeaderLayer;
+import org.eclipse.nebula.widgets.nattable.grid.labeled.ExtColumnHeaderLayer;
+import org.eclipse.nebula.widgets.nattable.grid.labeled.ExtGridLayer;
+import org.eclipse.nebula.widgets.nattable.grid.labeled.ExtRowHeaderLayer;
+import org.eclipse.nebula.widgets.nattable.grid.labeled.LabelCornerLayer;
 import org.eclipse.nebula.widgets.nattable.grid.layer.CornerLayer;
 import org.eclipse.nebula.widgets.nattable.grid.layer.GridLayer;
-import org.eclipse.nebula.widgets.nattable.grid.layer.RowHeaderLayer;
+import org.eclipse.nebula.widgets.nattable.group.NColumnGroupHeaderLayer;
+import org.eclipse.nebula.widgets.nattable.group.NRowGroupHeaderLayer;
 import org.eclipse.nebula.widgets.nattable.layer.DataLayer;
 import org.eclipse.nebula.widgets.nattable.layer.ILayerListener;
+import org.eclipse.nebula.widgets.nattable.layer.SpanningDataLayer;
 import org.eclipse.nebula.widgets.nattable.layer.cell.AggregrateConfigLabelAccumulator;
 import org.eclipse.nebula.widgets.nattable.layer.event.ILayerEvent;
 import org.eclipse.nebula.widgets.nattable.layer.event.IVisualChangeEvent;
@@ -82,13 +88,18 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.rj.data.RArray;
+import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RDataFrame;
+import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RVector;
-import de.walware.rj.services.RService;
+import de.walware.rj.data.UnexpectedRDataException;
+import de.walware.rj.eclient.IRToolService;
+import de.walware.rj.services.FunctionCall;
 
 import de.walware.statet.r.internal.ui.dataeditor.AbstractRDataProvider;
+import de.walware.statet.r.internal.ui.dataeditor.FTableDataProvider;
 import de.walware.statet.r.internal.ui.dataeditor.FindTask;
 import de.walware.statet.r.internal.ui.dataeditor.IFindFilter;
 import de.walware.statet.r.internal.ui.dataeditor.IFindListener;
@@ -253,11 +264,14 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		fTableLayers.topBodyLayer = compositeFreezeLayer;
 		
 		final IDataProvider columnHeaderDataProvider = dataProvider.getColumnDataProvider();
-		final ColumnHeaderLayer columnHeaderLayer = new ColumnHeaderLayer(
-				new DataLayer(columnHeaderDataProvider),
+		final NColumnGroupHeaderLayer columnHeaderLayer = new NColumnGroupHeaderLayer(
+				(columnHeaderDataProvider instanceof ISpanningDataProvider) ?
+						new SpanningDataLayer((ISpanningDataProvider) columnHeaderDataProvider) :
+						new DataLayer(columnHeaderDataProvider),
 				fTableLayers.topBodyLayer, fTableLayers.selectionLayer,
 				false, presentation.getHeaderLayerPainter() );
 		columnHeaderLayer.addConfiguration(new UIBindings.ColumnHeaderConfiguration());
+		fTableLayers.topColumnHeaderLayer = columnHeaderLayer;
 		
 		final ISortModel sortModel = dataProvider.getSortModel();
 		if (sortModel != null) {
@@ -269,20 +283,35 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		
 		final IDataProvider rowHeaderDataProvider = dataProvider.getRowDataProvider();
 		{	final int width = sizeConfig.getCharWidth() * 8 + sizeConfig.getDefaultSpace() * 2;
-			fTableLayers.topRowHeaderLayer = new RowHeaderLayer(
-				new DataLayer(rowHeaderDataProvider, width, sizeConfig.getRowHeight()),
+			fTableLayers.topRowHeaderLayer = new NRowGroupHeaderLayer(
+				(rowHeaderDataProvider instanceof ISpanningDataProvider) ?
+						new SpanningDataLayer((ISpanningDataProvider) rowHeaderDataProvider, width, sizeConfig.getRowHeight()) :
+						new DataLayer(rowHeaderDataProvider, width, sizeConfig.getRowHeight()),
 				fTableLayers.topBodyLayer, fTableLayers.selectionLayer,
 				false, presentation.getHeaderLayerPainter() );
 		}
 		
 		final IDataProvider cornerDataProvider = new DefaultCornerDataProvider(
 				columnHeaderDataProvider, rowHeaderDataProvider );
-		final CornerLayer cornerLayer = new CornerLayer(
-				new DataLayer(cornerDataProvider), fTableLayers.topRowHeaderLayer, fTableLayers.topColumnHeaderLayer,
-				false, presentation.getHeaderLayerPainter() );
 		
-		final GridLayer gridLayer = new GridLayer(fTableLayers.topBodyLayer,
-				fTableLayers.topColumnHeaderLayer, fTableLayers.topRowHeaderLayer, cornerLayer, false);
+		final GridLayer gridLayer;
+		if (dataProvider.getColumnLabelProvider() != null || dataProvider.getRowLabelProvider() != null) {
+			fTableLayers.topColumnHeaderLayer = new ExtColumnHeaderLayer(fTableLayers.topColumnHeaderLayer, sizeConfig);
+			fTableLayers.topRowHeaderLayer = new ExtRowHeaderLayer(fTableLayers.topRowHeaderLayer, sizeConfig);
+			final CornerLayer cornerLayer = new LabelCornerLayer(new DataLayer(cornerDataProvider),
+					fTableLayers.topRowHeaderLayer, fTableLayers.topColumnHeaderLayer,
+					dataProvider.getColumnLabelProvider(), dataProvider.getRowLabelProvider(),
+					false, presentation.getHeaderLabelLayerPainter() );
+			gridLayer = new ExtGridLayer(fTableLayers.topBodyLayer,
+					fTableLayers.topColumnHeaderLayer, fTableLayers.topRowHeaderLayer, cornerLayer, false);
+		}
+		else {
+			final CornerLayer cornerLayer = new CornerLayer(new DataLayer(cornerDataProvider),
+					fTableLayers.topRowHeaderLayer, fTableLayers.topColumnHeaderLayer,
+					false, presentation.getHeaderLayerPainter() );
+			gridLayer = new GridLayer(fTableLayers.topBodyLayer,
+					fTableLayers.topColumnHeaderLayer, fTableLayers.topRowHeaderLayer, cornerLayer, false);
+		}
 		gridLayer.setConfigLabelAccumulatorForRegion(GridRegion.BODY, new AlternatingRowConfigLabelAccumulator());
 		
 		final NatTable table = new NatTable(this, gridLayer, false);
@@ -498,21 +527,40 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	}
 	
 	protected String getRowLabel(final int row) {
-		final Object value = fDataProvider.getRowDataProvider().getDataValue(0, row);
-		if (value != null) {
-			final Object displayValue = fFormatter.modelToDisplayValue(value);
-			if (displayValue.getClass() == String.class) {
-				return (String) displayValue;
+		final IDataProvider dataProvider = fDataProvider.getRowDataProvider();
+		if (dataProvider.getColumnCount() <= 1) {
+			return getHeaderLabel(dataProvider.getDataValue(0, row));
+		}
+		final StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < dataProvider.getColumnCount(); i++) {
+			final String label = getHeaderLabel(dataProvider.getDataValue(i, row));
+			if (label == null) {
+				return null;
 			}
-			return null;
+			sb.append(label);
+			sb.append(", "); //$NON-NLS-1$
 		}
-		else {
-			return fFormatter.modelToDisplayValue(null).toString();
-		}
+		return sb.substring(0, sb.length()-2);
 	}
 	
 	protected String getColumnLabel(final int column) {
-		final Object value = fDataProvider.getColumnDataProvider().getDataValue(column, 0);
+		final IDataProvider dataProvider = fDataProvider.getColumnDataProvider();
+		if (dataProvider.getRowCount() <= 1) {
+			return getHeaderLabel(dataProvider.getDataValue(column, 0));
+		}
+		final StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < dataProvider.getRowCount(); i++) {
+			final String label = getHeaderLabel(dataProvider.getDataValue(column, i));
+			if (label == null) {
+				return null;
+			}
+			sb.append(label);
+			sb.append(", "); //$NON-NLS-1$
+		}
+		return sb.substring(0, sb.length()-2);
+	}
+	
+	private String getHeaderLabel(final Object value) {
 		if (value != null) {
 			final Object displayValue = fFormatter.modelToDisplayValue(value);
 			if (displayValue.getClass() == String.class) {
@@ -619,13 +667,18 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 					@Override
 					public void run(final IToolService service,
 							final IProgressMonitor monitor) throws CoreException {
-						final RService r = (RService) service;
+						final IRToolService r = (IRToolService) service;
 						
 						final AtomicReference<AbstractRDataProvider<?>> dataProvider = new AtomicReference<AbstractRDataProvider<?>>();
 						Exception error = null;
 						try {
 							final RObject struct = r.evalData(input.getFullName(),
 									null, RObjectFactory.F_ONLY_STRUCT, 1, monitor);
+							RCharacterStore classNames = null;
+							{	final FunctionCall call = r.createFunctionCall("class"); //$NON-NLS-1$
+								call.add(input.getFullName());
+								classNames = RDataUtil.checkRCharVector(call.evalData(monitor)).getData();
+							}
 							
 							switch (struct.getRObjectType()) {
 							case RObject.TYPE_VECTOR:
@@ -634,6 +687,10 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 							case RObject.TYPE_ARRAY: {
 								final RArray<?> array = (RArray<?>) struct;
 								if (array.getDim().getLength() == 2) {
+									if (classNames.contains("ftable")) { //$NON-NLS-1$
+										dataProvider.set(new FTableDataProvider(input, array));
+										break;
+									}
 									dataProvider.set(new RMatrixDataProvider(input, array));
 									break;
 								}
@@ -646,6 +703,9 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 							}
 						}
 						catch (final CoreException e) {
+							error = e;
+						}
+						catch (final UnexpectedRDataException e) {
 							error = e;
 						}
 						final IStatus status;
@@ -795,10 +855,13 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	
 	public void sortByColumn(final int index, final boolean increasing) {
 		if (fTable != null) {
-			fDataProvider.getSortModel().sort(
-					index, increasing ? SortDirectionEnum.ASC : SortDirectionEnum.DESC, false );
-			fTableLayers.topColumnHeaderLayer.fireLayerEvent(new SortColumnEvent(
-					fTableLayers.topColumnHeaderLayer, 0) ); // 
+			final ISortModel sortModel = fDataProvider.getSortModel();
+			if (sortModel != null) {
+				sortModel.sort(
+						index, increasing ? SortDirectionEnum.ASC : SortDirectionEnum.DESC, false );
+				fTableLayers.topColumnHeaderLayer.fireLayerEvent(new SortColumnEvent(
+						fTableLayers.topColumnHeaderLayer, 0) ); //
+			}
 		}
 	}
 	

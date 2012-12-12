@@ -89,6 +89,7 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 					r, monitor);
 		}
 		description.setDataColumns(dataColumns);
+		description.setVariables(dataColumns);
 		
 		return description;
 	}

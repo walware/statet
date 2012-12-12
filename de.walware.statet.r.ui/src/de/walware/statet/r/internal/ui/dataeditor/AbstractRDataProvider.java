@@ -209,6 +209,9 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	protected class RowDataProvider implements IDataProvider {
 		
 		
+		private final Store<RVector<?>> fRowNamesStore = new Store<RVector<?>>(fFragmentsLock, 1, fRowCount, 10);
+		
+		
 		public RowDataProvider() {
 		}
 		
@@ -444,13 +447,15 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	
 	protected RDataTableContentDescription fDescription;
 	
-	private final IDataProvider fRowDataProvider;
 	private final IDataProvider fColumnDataProvider;
+	private final IDataProvider fRowDataProvider;
+	
+	private final IDataProvider fColumnLabelProvider;
+	private final IDataProvider fRowLabelProvider;
 	
 	private final MainLock fFragmentsLock = new MainLock();
 	
 	private final Store<T> fDataStore;
-	private final Store<RVector<?>> fRowNamesStore;
 	
 	private boolean fUpdateSorting;
 	private boolean fUpdateFiltering;
@@ -491,11 +496,12 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			dataMax = 25;
 		}
 		fDataStore = new Store<T>(fFragmentsLock, fColumnCount, fRowCount, dataMax);
-		fRowNamesStore = new Store<RVector<?>>(fFragmentsLock, 1, fRowCount, 10);
 		fFindManager = new FindManager(this);
 		
 		fColumnDataProvider = createColumnDataProvider();
 		fRowDataProvider = createRowDataProvider();
+		fColumnLabelProvider = createColumnLabelProvider();
+		fRowLabelProvider = createRowLabelProvider();
 		fSortModel = createSortModel();
 	}
 	
@@ -621,23 +627,28 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		boolean work = true;
 		while (work) {
 			try {
-				final Item<T>[] dataToUpdate;
-				final Item<RVector<?>>[] rowNamesToUpdate;
+				Item<T>[] dataToUpdate = null;
+				Item<RVector<?>>[] rowNamesToUpdate = null;
 				
 				boolean updateSorting = false;
 				boolean updateFiltering = false;
 				work = false;
 				
 				synchronized (fFragmentsLock) {
-					dataToUpdate = fDataStore.internalForUpdate();
-					rowNamesToUpdate = fRowNamesStore.internalForUpdate();
-					
 					if (fUpdateSorting) {
 						updateSorting = true;
 					}
 					if (fUpdateFiltering) {
 						updateFiltering = true;
 					}
+					
+					if (!updateSorting && !updateFiltering) {
+						if (fRowDataProvider instanceof AbstractRDataProvider<?>.RowDataProvider) {
+							rowNamesToUpdate = ((RowDataProvider) fRowDataProvider).fRowNamesStore.internalForUpdate();
+						}
+						dataToUpdate = fDataStore.internalForUpdate();
+					}
+					
 					fFragmentsLock.scheduled = false;
 				}
 				
@@ -654,55 +665,59 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 					work = true;
 				}
 				
-				for (int i = 0; i < rowNamesToUpdate.length; i++) {
-					final Item<RVector<?>> item = rowNamesToUpdate[i];
-					if (item == null) {
-						break;
-					}
-					work = true;
-					synchronized (fFragmentsLock) {
-						if (!item.scheduled) {
-							continue;
+				if (rowNamesToUpdate != null) {
+					for (int i = 0; i < rowNamesToUpdate.length; i++) {
+						final Item<RVector<?>> item = rowNamesToUpdate[i];
+						if (item == null) {
+							break;
 						}
-					}
-					final RVector<?> fragment = loadRowNamesFragment(item, r, monitor);
-					synchronized (fFragmentsLock) {
-						if (!item.scheduled) {
-							continue;
+						work = true;
+						synchronized (fFragmentsLock) {
+							if (!item.scheduled) {
+								continue;
+							}
 						}
-						item.fragment = new Store.Fragment<RVector<?>>(fragment,
-								item.beginRowIdx, item.endRowIdx,
-								item.beginColumnIdx, item.endColumnIdx );
-						item.scheduled = false;
-						
-						fFragmentsLock.notify(item);
+						final RVector<?> fragment = loadRowNamesFragment(item, r, monitor);
+						synchronized (fFragmentsLock) {
+							if (!item.scheduled) {
+								continue;
+							}
+							item.fragment = new Store.Fragment<RVector<?>>(fragment,
+									item.beginRowIdx, item.endRowIdx,
+									item.beginColumnIdx, item.endColumnIdx );
+							item.scheduled = false;
+							
+							fFragmentsLock.notify(item);
+						}
+						notifyListener(item);
 					}
-					notifyListener(item);
 				}
-				for (int i = 0; i < dataToUpdate.length; i++) {
-					final Item<T> item = dataToUpdate[i];
-					if (item == null) {
-						break;
-					}
-					work = true;
-					synchronized (fFragmentsLock) {
-						if (!item.scheduled) {
-							continue;
+				if (dataToUpdate != null) {
+					for (int i = 0; i < dataToUpdate.length; i++) {
+						final Item<T> item = dataToUpdate[i];
+						if (item == null) {
+							break;
 						}
-					}
-					final T fragment = loadDataFragment(item, r, monitor);
-					synchronized (fFragmentsLock) {
-						if (!item.scheduled) {
-							continue;
+						work = true;
+						synchronized (fFragmentsLock) {
+							if (!item.scheduled) {
+								continue;
+							}
 						}
-						item.fragment = new Store.Fragment<T>(fragment,
-								item.beginRowIdx, item.endRowIdx,
-								item.beginColumnIdx, item.endColumnIdx );
-						item.scheduled = false;
-						
-						fFragmentsLock.notify(item);
+						final T fragment = loadDataFragment(item, r, monitor);
+						synchronized (fFragmentsLock) {
+							if (!item.scheduled) {
+								continue;
+							}
+							item.fragment = new Store.Fragment<T>(fragment,
+									item.beginRowIdx, item.endRowIdx,
+									item.beginColumnIdx, item.endColumnIdx );
+							item.scheduled = false;
+							
+							fFragmentsLock.notify(item);
+						}
+						notifyListener(item);
 					}
-					notifyListener(item);
 				}
 			}
 			catch (final Exception e) {
@@ -1157,12 +1172,29 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		return fRowDataProvider;
 	}
 	
+	public IDataProvider getColumnLabelProvider() {
+		return fColumnLabelProvider;
+	}
+	
+	public IDataProvider getRowLabelProvider() {
+		return fRowLabelProvider;
+	}
+	
+	
 	protected IDataProvider createColumnDataProvider() {
 		return new ColumnDataProvider();
 	}
 	
 	protected IDataProvider createRowDataProvider() {
 		return new RowDataProvider();
+	}
+	
+	protected IDataProvider createColumnLabelProvider() {
+		return null;
+	}
+	
+	protected IDataProvider createRowLabelProvider() {
+		return null;
 	}
 	
 	protected ISortModel createSortModel() {
@@ -1277,7 +1309,9 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			final boolean clearFind) {
 		synchronized (fFragmentsLock) {
 			fDataStore.internalClear(filteredRowCount);
-			fRowNamesStore.internalClear(filteredRowCount);
+			if (fRowDataProvider instanceof AbstractRDataProvider<?>.RowDataProvider) {
+				((RowDataProvider) fRowDataProvider).fRowNamesStore.internalClear(filteredRowCount);
+			}
 			fUpdateSorting |= updateSorting;
 			fUpdateFiltering |= updateFiltering;
 			

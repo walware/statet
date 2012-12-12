@@ -72,7 +72,7 @@ public class RDataFormatterConverter implements IDisplayConverter {
 			final ILayerCell cell) {
 		final List<RDataTableColumn> columns = description.getDataColumns();
 		final int index = cell.getColumnIndex();
-		if (columns != null && index >= 0 && index < columns.size()) {
+		if (index >= 0 && index < columns.size()) {
 			return columns.get(index).getDefaultFormat();
 		}
 		return description.getDefaultDataFormat();

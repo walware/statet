@@ -78,6 +78,7 @@ public class RVectorDataProvider extends AbstractRDataProvider<RVector<?>> {
 						fInput.getFullName(), BASE_NAME, 0, fInput.getLastName(),
 						r, monitor );
 		description.setDataColumns(dataColumn);
+		description.setVariables(dataColumn);
 		
 		description.setDefaultDataFormat(dataColumn.getDefaultFormat());
 		
