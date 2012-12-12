@@ -12,26 +12,66 @@
 package de.walware.statet.r.ui.dataeditor;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.nebula.widgets.nattable.NatTable;
+import org.eclipse.nebula.widgets.nattable.command.ILayerCommandHandler;
+import org.eclipse.nebula.widgets.nattable.config.CellConfigAttributes;
+import org.eclipse.nebula.widgets.nattable.config.IConfigRegistry;
+import org.eclipse.nebula.widgets.nattable.config.LayoutSizeConfig;
+import org.eclipse.nebula.widgets.nattable.coordinate.PositionCoordinate;
+import org.eclipse.nebula.widgets.nattable.coordinate.Range;
+import org.eclipse.nebula.widgets.nattable.copy.command.CopyDataCommandHandler;
+import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
+import org.eclipse.nebula.widgets.nattable.freeze.CompositeFreezeLayer;
+import org.eclipse.nebula.widgets.nattable.freeze.FreezeLayer;
+import org.eclipse.nebula.widgets.nattable.grid.GridRegion;
+import org.eclipse.nebula.widgets.nattable.grid.cell.AlternatingRowConfigLabelAccumulator;
+import org.eclipse.nebula.widgets.nattable.grid.data.DefaultCornerDataProvider;
+import org.eclipse.nebula.widgets.nattable.grid.layer.ColumnHeaderLayer;
+import org.eclipse.nebula.widgets.nattable.grid.layer.CornerLayer;
+import org.eclipse.nebula.widgets.nattable.grid.layer.GridLayer;
+import org.eclipse.nebula.widgets.nattable.grid.layer.RowHeaderLayer;
+import org.eclipse.nebula.widgets.nattable.layer.DataLayer;
+import org.eclipse.nebula.widgets.nattable.layer.ILayerListener;
+import org.eclipse.nebula.widgets.nattable.layer.cell.AggregrateConfigLabelAccumulator;
+import org.eclipse.nebula.widgets.nattable.layer.event.ILayerEvent;
+import org.eclipse.nebula.widgets.nattable.layer.event.IVisualChangeEvent;
+import org.eclipse.nebula.widgets.nattable.layer.event.RowStructuralRefreshEvent;
+import org.eclipse.nebula.widgets.nattable.layer.event.RowUpdateEvent;
+import org.eclipse.nebula.widgets.nattable.selection.SelectRelativeCommandHandler;
+import org.eclipse.nebula.widgets.nattable.selection.SelectionLayer;
+import org.eclipse.nebula.widgets.nattable.selection.command.SelectAllCommand;
+import org.eclipse.nebula.widgets.nattable.selection.command.SelectColumnsCommand;
+import org.eclipse.nebula.widgets.nattable.selection.event.ISelectionEvent;
+import org.eclipse.nebula.widgets.nattable.sort.ISortModel;
+import org.eclipse.nebula.widgets.nattable.sort.SortDirectionEnum;
+import org.eclipse.nebula.widgets.nattable.sort.SortHeaderLayer;
+import org.eclipse.nebula.widgets.nattable.sort.command.ClearSortCommand;
+import org.eclipse.nebula.widgets.nattable.sort.event.SortColumnEvent;
+import org.eclipse.nebula.widgets.nattable.style.DisplayMode;
+import org.eclipse.nebula.widgets.nattable.tickupdate.config.DefaultTickUpdateConfiguration;
+import org.eclipse.nebula.widgets.nattable.viewport.ViewportLayer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.FontMetrics;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ts.ISystemRunnable;
@@ -46,49 +86,6 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RVector;
 import de.walware.rj.services.RService;
-import net.sourceforge.nattable.NatTable;
-import net.sourceforge.nattable.command.ILayerCommandHandler;
-import net.sourceforge.nattable.config.CellConfigAttributes;
-import net.sourceforge.nattable.config.IConfigRegistry;
-import net.sourceforge.nattable.coordinate.PositionCoordinate;
-import net.sourceforge.nattable.coordinate.Range;
-import net.sourceforge.nattable.copy.command.CopyDataCommandHandler;
-import net.sourceforge.nattable.data.IDataProvider;
-import net.sourceforge.nattable.freeze.CompositeFreezeLayer;
-import net.sourceforge.nattable.freeze.FreezeLayer;
-import net.sourceforge.nattable.grid.GridRegion;
-import net.sourceforge.nattable.grid.cell.AlternatingRowConfigLabelAccumulator;
-import net.sourceforge.nattable.grid.data.DefaultCornerDataProvider;
-import net.sourceforge.nattable.grid.layer.ColumnHeaderLayer;
-import net.sourceforge.nattable.grid.layer.CornerLayer;
-import net.sourceforge.nattable.grid.layer.GridLayer;
-import net.sourceforge.nattable.grid.layer.RowHeaderLayer;
-import net.sourceforge.nattable.layer.AbstractLayer;
-import net.sourceforge.nattable.layer.DataLayer;
-import net.sourceforge.nattable.layer.ILayerListener;
-import net.sourceforge.nattable.layer.cell.AggregrateConfigLabelAccumulator;
-import net.sourceforge.nattable.layer.cell.ColumnOverrideLabelAccumulator;
-import net.sourceforge.nattable.layer.event.ILayerEvent;
-import net.sourceforge.nattable.layer.event.IVisualChangeEvent;
-import net.sourceforge.nattable.layer.event.RowStructuralRefreshEvent;
-import net.sourceforge.nattable.layer.event.RowUpdateEvent;
-import net.sourceforge.nattable.selection.SelectRelativelyCommandHandler;
-import net.sourceforge.nattable.selection.SelectionLayer;
-import net.sourceforge.nattable.selection.command.ISelectionCommand.SelectionFlag;
-import net.sourceforge.nattable.selection.command.SelectAllCommand;
-import net.sourceforge.nattable.selection.command.SelectColumnsCommand;
-import net.sourceforge.nattable.selection.event.ISelectionEvent;
-import net.sourceforge.nattable.sort.ISortModel;
-import net.sourceforge.nattable.sort.SortDirectionEnum;
-import net.sourceforge.nattable.sort.SortHeaderLayer;
-import net.sourceforge.nattable.sort.command.ClearSortCommand;
-import net.sourceforge.nattable.sort.event.SortColumnsEvent;
-import net.sourceforge.nattable.style.DisplayMode;
-import net.sourceforge.nattable.tickupdate.config.DefaultTickUpdateConfiguration;
-import net.sourceforge.nattable.viewport.ScrollCommandHandler;
-import net.sourceforge.nattable.viewport.ViewportLayer;
-import net.sourceforge.nattable.viewport.command.ViewportSelectColumnsCommandHandler;
-import net.sourceforge.nattable.viewport.command.ViewportSelectRowCommandHandler;
 
 import de.walware.statet.r.internal.ui.dataeditor.AbstractRDataProvider;
 import de.walware.statet.r.internal.ui.dataeditor.AbstractRDataProvider.FindTask;
@@ -103,6 +100,7 @@ import de.walware.statet.r.internal.ui.intable.PresentationConfig;
 import de.walware.statet.r.internal.ui.intable.RDataLayer;
 import de.walware.statet.r.internal.ui.intable.TableLayers;
 import de.walware.statet.r.internal.ui.intable.UIBindings;
+import de.walware.statet.r.ui.RUI;
 
 
 public class RDataTableComposite extends Composite implements ISelectionProvider {
@@ -142,6 +140,8 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	}
 	
 	
+	private final Display fDisplay;
+	
 	private final StackLayout fLayout;
 	
 	private final Label fMessageControl;
@@ -167,6 +167,9 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	private final Runnable fSelectionUpdateRunnable = new Runnable() {
 		@Override
 		public void run() {
+			if (isDisposed()) {
+				return;
+			}
 			updateSelection();
 		}
 	};
@@ -188,6 +191,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	public RDataTableComposite(final Composite parent, final Runnable closeRunnable) {
 		super(parent, SWT.NONE);
 		
+		fDisplay = getDisplay();
 		fCloseRunnable = closeRunnable;
 		
 		fLayout = new StackLayout();
@@ -202,21 +206,23 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			final AbstractRDataProvider<? extends RObject> dataProvider) {
 		fInput = input;
 		fDataProvider = dataProvider;
-		final RDataLayer dataLayer = new RDataLayer(dataProvider);
+		
+		final PresentationConfig presentation = PresentationConfig.getInstance(fDisplay);
+		final LayoutSizeConfig sizeConfig = presentation.getBaseSizeConfig();
+		
+		final RDataLayer dataLayer = new RDataLayer(dataProvider, sizeConfig);
 		
 		if (!fDataProvider.getAllColumnsEqual()) {
-			final ColumnOverrideLabelAccumulator columnLabelAccumulator =
-					new ColumnOverrideLabelAccumulator(dataLayer);
-			for (int i = 0; i < fDataProvider.getColumnCount(); i++) {
-				columnLabelAccumulator.registerColumnOverrides(i, ColumnOverrideLabelAccumulator.COLUMN_LABEL_PREFIX + i);
-			}
+//			final ColumnOverrideLabelAccumulator columnLabelAccumulator =
+//					new ColumnOverrideLabelAccumulator(dataLayer);
+//			for (int i = 0; i < fDataProvider.getColumnCount(); i++) {
+//				columnLabelAccumulator.registerColumnOverrides(i, ColumnLabelAccumulator.COLUMN_LABEL_PREFIX + i);
+//			}
 			final AggregrateConfigLabelAccumulator aggregateLabelAccumulator =
 					new AggregrateConfigLabelAccumulator();
-			aggregateLabelAccumulator.add(columnLabelAccumulator);
+//			aggregateLabelAccumulator.add(columnLabelAccumulator);
 			dataLayer.setConfigLabelAccumulator(aggregateLabelAccumulator);
 		}
-		
-		final PresentationConfig presentation = new PresentationConfig(getDisplay());
 		
 		fTableLayers = new TableLayers();
 //		final WColumnReorderLayer columnReorderLayer = new WColumnReorderLayer(dataLayer);
@@ -228,10 +234,10 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		
 		fTableLayers.viewportLayer = new ViewportLayer(fTableLayers.selectionLayer);
 		
-		{	final ILayerCommandHandler<?> commandHandler = new ScrollCommandHandler(fTableLayers.viewportLayer);
-			fTableLayers.viewportLayer.registerCommandHandler(commandHandler);
-		}
-		{	final ILayerCommandHandler<?> commandHandler = new SelectRelativelyCommandHandler(fTableLayers.selectionLayer);
+//		{	final ILayerCommandHandler<?> commandHandler = new ScrollCommandHandler(fTableLayers.viewportLayer);
+//			fTableLayers.viewportLayer.registerCommandHandler(commandHandler);
+//		}
+		{	final ILayerCommandHandler<?> commandHandler = new SelectRelativeCommandHandler(fTableLayers.selectionLayer);
 			fTableLayers.viewportLayer.registerCommandHandler(commandHandler);
 			fTableLayers.selectionLayer.registerCommandHandler(commandHandler);
 		}
@@ -242,10 +248,6 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		final FreezeLayer freezeLayer = new FreezeLayer(fTableLayers.selectionLayer);
 		final CompositeFreezeLayer compositeFreezeLayer = new CompositeFreezeLayer(freezeLayer,
 				fTableLayers.viewportLayer, fTableLayers.selectionLayer, true);
-		final AbstractLayer freezedColumnLayer = (AbstractLayer) compositeFreezeLayer.getChildLayerByLayoutCoordinate(0, 1);
-		freezedColumnLayer.registerCommandHandler(new ViewportSelectColumnsCommandHandler(freezedColumnLayer));
-		final AbstractLayer freezedRowLayer = (AbstractLayer) compositeFreezeLayer.getChildLayerByLayoutCoordinate(1, 0);
-		freezedRowLayer.registerCommandHandler(new ViewportSelectRowCommandHandler(freezedRowLayer));
 		fTableLayers.topBodyLayer = compositeFreezeLayer;
 		
 		final IDataProvider columnHeaderDataProvider = dataProvider.getColumnDataProvider();
@@ -256,24 +258,29 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		columnHeaderLayer.addConfiguration(new UIBindings.ColumnHeaderConfiguration());
 		
 		final ISortModel sortModel = dataProvider.getSortModel();
-		fTableLayers.sortColumnHeaderLayer = new SortHeaderLayer<Object>(
-				columnHeaderLayer, sortModel, false);
-		fTableLayers.sortColumnHeaderLayer.addConfiguration(new UIBindings.SortConfiguration());
+		if (sortModel != null) {
+			final SortHeaderLayer<?> sortHeaderLayer = new SortHeaderLayer<Object>(
+					columnHeaderLayer, sortModel, false);
+			sortHeaderLayer.addConfiguration(new UIBindings.SortConfiguration());
+			fTableLayers.topColumnHeaderLayer = sortHeaderLayer;
+		}
 		
 		final IDataProvider rowHeaderDataProvider = dataProvider.getRowDataProvider();
-		final RowHeaderLayer rowHeaderLayer = new RowHeaderLayer(
-				new DataLayer(rowHeaderDataProvider, 50, 20),
+		{	final int width = sizeConfig.getCharWidth() * 8 + sizeConfig.getDefaultSpace() * 2;
+			fTableLayers.topRowHeaderLayer = new RowHeaderLayer(
+				new DataLayer(rowHeaderDataProvider, width, sizeConfig.getRowHeight()),
 				fTableLayers.topBodyLayer, fTableLayers.selectionLayer,
 				false, presentation.getHeaderLayerPainter() );
+		}
 		
 		final IDataProvider cornerDataProvider = new DefaultCornerDataProvider(
 				columnHeaderDataProvider, rowHeaderDataProvider );
 		final CornerLayer cornerLayer = new CornerLayer(
-				new DataLayer(cornerDataProvider), rowHeaderLayer, fTableLayers.sortColumnHeaderLayer,
-				presentation.getHeaderLayerPainter() );
+				new DataLayer(cornerDataProvider), fTableLayers.topRowHeaderLayer, fTableLayers.topColumnHeaderLayer,
+				false, presentation.getHeaderLayerPainter() );
 		
 		final GridLayer gridLayer = new GridLayer(fTableLayers.topBodyLayer,
-				fTableLayers.sortColumnHeaderLayer, rowHeaderLayer, cornerLayer, false);
+				fTableLayers.topColumnHeaderLayer, fTableLayers.topRowHeaderLayer, cornerLayer, false);
 		gridLayer.setConfigLabelAccumulatorForRegion(GridRegion.BODY, new AlternatingRowConfigLabelAccumulator());
 		
 		final NatTable table = new NatTable(this, gridLayer, false);
@@ -284,23 +291,15 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			@Override
 			public void widgetDisposed(final DisposeEvent e) {
 				dataProvider.dispose();
-				presentation.dispose();
 			}
 		});
 		
 		final IConfigRegistry registry = table.getConfigRegistry();
 		registry.registerConfigAttribute(CellConfigAttributes.DISPLAY_CONVERTER,
-				new RDataFormatterConverter.DataColumn(dataProvider, -1));
+				new RDataFormatterConverter(dataProvider));
 		registry.registerConfigAttribute(CellConfigAttributes.DISPLAY_CONVERTER,
 				new RDataFormatterConverter.RowHeader(dataProvider),
 				DisplayMode.NORMAL, GridRegion.ROW_HEADER);
-		if (!dataProvider.getAllColumnsEqual()) {
-			for (int i = 0; i < dataProvider.getColumnCount(); i++) {
-				registry.registerConfigAttribute(CellConfigAttributes.DISPLAY_CONVERTER,
-						new RDataFormatterConverter.DataColumn(dataProvider, i),
-						DisplayMode.NORMAL, ColumnOverrideLabelAccumulator.COLUMN_LABEL_PREFIX + i);
-			}
-		}
 		
 		fTable = table;
 		fTableInitialized = false;
@@ -327,13 +326,6 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 				if (fTable != fLayout.topControl) {
 					table.configure();
 				}
-				
-				final GC gc = new GC(table);
-				gc.setFont(presentation.getBaseFont());
-				final FontMetrics fontMetrics = gc.getFontMetrics();
-				final int charWidth = (gc.textExtent("1234567890.-120").x + 5) / 15;
-				dataLayer.setSizeConfig(fontMetrics.getHeight(), charWidth);
-				gc.dispose();
 				
 				if (fTable != fLayout.topControl) {
 					fLayout.topControl = table;
@@ -398,7 +390,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			}
 			fSelectionUpdateScheduled = true;
 		}
-		getDisplay().asyncExec(fSelectionUpdateRunnable);
+		fDisplay.asyncExec(fSelectionUpdateRunnable);
 	}
 	
 	protected void updateSelection() {
@@ -406,7 +398,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		synchronized (fSelectionLock) {
 			final long diff = (fSelectionUpdateScheduleStamp - System.nanoTime()) / 1000000L;
 			if (diff > 5) {
-				getDisplay().timerExec((int) diff, fSelectionUpdateRunnable);
+				fDisplay.timerExec((int) diff, fSelectionUpdateRunnable);
 				return;
 			}
 			checkLabel = fSelectionCheckLabel;
@@ -421,7 +413,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			final SelectionLayer selectionLayer = fTableLayers.selectionLayer;
 			final PositionCoordinate anchor = selectionLayer.getSelectionAnchor();
 			PositionCoordinate lastSelected = selectionLayer.getLastSelectedCellPosition();
-			if (lastSelected != null && lastSelected.equals(anchor)) {
+			if (lastSelected.equals(anchor)) {
 				lastSelected = null;
 			}
 			
@@ -524,6 +516,9 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	}
 	
 	protected void showDummy(final String message) {
+		if (isDisposed()) {
+			return;
+		}
 		fMessageControl.setText(message);
 		fLayout.topControl = fMessageControl;
 		layout();
@@ -581,6 +576,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			showDummy(""); //$NON-NLS-1$
 			fTable.dispose();
 			fTable = null;
+			fDataProvider = null;
 		}
 		if (input != null) {
 			showDummy("Preparing (" + input.getLastName() + ")...");
@@ -614,37 +610,59 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 					public void run(final IToolService service,
 							final IProgressMonitor monitor) throws CoreException {
 						final RService r = (RService) service;
-						final RObject struct = r.evalData(input.getFullName(),
-								null, RObjectFactory.F_ONLY_STRUCT, 1, monitor);
 						
-						final AbstractRDataProvider<?> dataProvider;
-						switch (struct.getRObjectType()) {
-						case RObject.TYPE_VECTOR:
-							dataProvider = new RVectorDataProvider(input, (RVector<?>) struct);
-							break;
-						case RObject.TYPE_ARRAY: {
-							final RArray<?> array = (RArray<?>) struct;
-							if (array.getDim().getLength() == 2) {
-								dataProvider = new RMatrixDataProvider(input, array);
+						final AtomicReference<AbstractRDataProvider<?>> dataProvider = new AtomicReference<AbstractRDataProvider<?>>();
+						Exception error = null;
+						try {
+							final RObject struct = r.evalData(input.getFullName(),
+									null, RObjectFactory.F_ONLY_STRUCT, 1, monitor);
+							
+							switch (struct.getRObjectType()) {
+							case RObject.TYPE_VECTOR:
+								dataProvider.set(new RVectorDataProvider(input, (RVector<?>) struct));
+								break;
+							case RObject.TYPE_ARRAY: {
+								final RArray<?> array = (RArray<?>) struct;
+								if (array.getDim().getLength() == 2) {
+									dataProvider.set(new RMatrixDataProvider(input, array));
+									break;
+								}
+								break; }
+							case RObject.TYPE_DATAFRAME:
+								dataProvider.set(new RDataFrameDataProvider(input, (RDataFrame) struct));
+								break;
+							default:
 								break;
 							}
-							dataProvider = null;
-							break; }
-						case RObject.TYPE_DATAFRAME:
-							dataProvider = new RDataFrameDataProvider(input, (RDataFrame) struct);
-							break;
-						default:
-							dataProvider = null;
-							break;
 						}
-						UIAccess.getDisplay().asyncExec(new Runnable() {
+						catch (final CoreException e) {
+							error = e;
+						}
+						final IStatus status;
+						if (error != null) {
+							status = new Status(IStatus.ERROR, RUI.PLUGIN_ID,
+									"An error occurred when preparing the R data viewer.", error );
+							StatusManager.getManager().handle(status);
+						}
+						else if (dataProvider.get() == null) {
+							status = new Status(IStatus.INFO, RUI.PLUGIN_ID,
+									"This R element type is not supported.", null );
+						}
+						else {
+							status = null;
+						}
+						fDisplay.asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								if (dataProvider != null) {
-									initTable(input, dataProvider);
+								fDataProvider = null;
+								if (!UIAccess.isOkToUse(RDataTableComposite.this)) {
+									return;
+								}
+								if (status == null) {
+									initTable(input, dataProvider.get());
 								}
 								else {
-									showDummy("This R element type is not supported.");
+									showDummy(status.getMessage());
 								}
 							}
 						});
@@ -660,7 +678,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	protected void showReload() {
 		if (fReloadControl == null) {
 			fReloadControl = new Composite(this, SWT.NONE);
-			fReloadControl.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(0, false), 4));
+			fReloadControl.setLayout(LayoutUtil.createCompositeGrid(4));
 			
 			final Label label = new Label(fReloadControl, SWT.WRAP);
 			label.setText("The structure of the R element is changed (columns / data type).");
@@ -742,7 +760,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 //			final int rowIndex = fTableBodyLayerStack.getViewportLayer().getRowIndexByPosition(0);
 			final int rowIndex = 0;
 			fTable.doCommand(new SelectColumnsCommand(
-					fTableLayers.selectionLayer, indexes, rowIndex, SelectionFlag.NONE));
+					fTableLayers.selectionLayer, indexes, rowIndex, 0));
 		}
 	}
 	
@@ -756,8 +774,8 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		if (fTable != null) {
 			fDataProvider.getSortModel().sort(
 					index, increasing ? SortDirectionEnum.ASC : SortDirectionEnum.DESC, false );
-			fTableLayers.sortColumnHeaderLayer.fireLayerEvent(new SortColumnsEvent(
-					fTableLayers.sortColumnHeaderLayer, 0) ); // 
+			fTableLayers.topColumnHeaderLayer.fireLayerEvent(new SortColumnEvent(
+					fTableLayers.topColumnHeaderLayer, 0) ); // 
 		}
 	}
 	
@@ -765,13 +783,6 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		if (fTable != null) {
 			fTable.doCommand(new ClearSortCommand());
 		}
-	}
-	
-	public RDataTableColumn[] getColumns() {
-		if (fTable != null) {
-			return fDataProvider.getDescription().dataColumns;
-		}
-		return null;
 	}
 	
 	public void refresh() {

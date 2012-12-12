@@ -11,30 +11,30 @@
 
 package de.walware.statet.r.internal.ui.intable;
 
-import net.sourceforge.nattable.command.AbstractLayerCommandHandler;
-import net.sourceforge.nattable.resize.command.MultiColumnResizeCommand;
+import org.eclipse.nebula.widgets.nattable.command.AbstractLayerCommandHandler;
+import org.eclipse.nebula.widgets.nattable.resize.command.AutoResizeColumnsCommand;
 
 
-public class MultiColumnResizeCommandHandler extends AbstractLayerCommandHandler<MultiColumnResizeCommand> {
+public class MultiColumnAutoResizeCommandHandler extends AbstractLayerCommandHandler<AutoResizeColumnsCommand> {
 	
 	
 	private final RDataLayer fDataLayer;
 	
 	
-	public MultiColumnResizeCommandHandler(final RDataLayer dataLayer) {
+	public MultiColumnAutoResizeCommandHandler(final RDataLayer dataLayer) {
 		fDataLayer = dataLayer;
 	}
 	
 	
 	@Override
-	public Class<MultiColumnResizeCommand> getCommandClass() {
-		return MultiColumnResizeCommand.class;
+	public Class<AutoResizeColumnsCommand> getCommandClass() {
+		return AutoResizeColumnsCommand.class;
 	}
 	
 	@Override
-	protected boolean doCommand(final MultiColumnResizeCommand command) {
+	protected boolean doCommand(final AutoResizeColumnsCommand command) {
 		for (final int columnPosition : command.getColumnPositions()) {
-			fDataLayer.setColumnWidth(columnPosition, command.getColumnWidth(columnPosition));
+			fDataLayer.setColumnWidthToAutoWidth(columnPosition);
 		}
 		return true;
 	}

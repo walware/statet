@@ -63,7 +63,7 @@
          unpack="false"/>
 
    <plugin
-         id="de.walware.ecommons.intable.core"
+         id="de.walware.ecommons.inatable.core"
          download-size="0"
          install-size="0"
          version="0.0.0"

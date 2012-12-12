@@ -13,6 +13,7 @@ package de.walware.statet.r.internal.ui.dataeditor;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
 
 import de.walware.rj.data.RDataFrame;
 import de.walware.rj.data.RDataUtil;
@@ -21,8 +22,8 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.RVector;
 import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.services.RService;
-import net.sourceforge.nattable.data.IDataProvider;
 
+import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.ui.dataeditor.IRDataTableInput;
 import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
 
@@ -67,17 +68,24 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 	}
 	
 	@Override
-	protected RDataTableContentDescription loadDescription(final RDataFrame struct,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
-		final RDataTableContentDescription description = new RDataTableContentDescription(struct);
-		description.rowHeaderColumn =
-				createNamesColumn("row.names(" + fInput.getFullName() + ")", struct.getRowCount(), r, monitor);
-		description.dataColumns = new RDataTableColumn[getColumnCount()];
-		for (int i = 0; i < getColumnCount(); i++) {
-			description.dataColumns[i] = createColumn(struct.getColumn(i),
+	protected RDataTableContentDescription loadDescription(final RElementName name,
+			final RDataFrame struct, final RService r,
+			final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+		final RDataTableContentDescription description = new RDataTableContentDescription(name, struct);
+		final int columnCount = getColumnCount();
+		
+		description.setRowHeaderColumns(
+				createNamesColumn("row.names(" + fInput.getFullName() + ")", struct.getRowCount(),
+						r, monitor ));
+		
+		final RDataTableColumn[] dataColumns = new RDataTableColumn[columnCount];
+		for (int i = 0; i < columnCount; i++) {
+			dataColumns[i] = createColumn(struct.getColumn(i),
 					fInput.getFullName() + "[[" + (i+1) + "]]",
 					i, struct.getColumnNames().getChar(i), r, monitor);
 		}
+		description.setDataColumns(dataColumns);
+		
 		return description;
 	}
 	

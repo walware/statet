@@ -23,6 +23,7 @@ import de.walware.rj.data.RVector;
 import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.services.RService;
 
+import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.ui.dataeditor.IRDataTableInput;
 import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
 
@@ -73,14 +74,18 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 	}
 	
 	@Override
-	protected RDataTableContentDescription loadDescription(final RArray<?> struct,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
-		final RDataTableContentDescription description = new RDataTableContentDescription(struct);
-		description.rowHeaderColumn =
-				createNamesColumn("rownames(" + fInput.getFullName() + ")", getRowCount(struct), r, monitor);
-		final RDataTableColumn template = createColumn(struct.getData(), fInput.getFullName(), -1, null, r, monitor);
-		
+	protected RDataTableContentDescription loadDescription(final RElementName name,
+			final RArray<?> struct, final RService r,
+			final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+		final RDataTableContentDescription description = new RDataTableContentDescription(name, struct);
 		final int count = getColumnCount();
+		
+		description.setRowHeaderColumns(
+				createNamesColumn("rownames(" + fInput.getFullName() + ")", getRowCount(struct),
+						r, monitor ));
+		
+		final RDataTableColumn template = createColumn(struct.getData(),
+						fInput.getFullName(), -1, null, r, monitor );
 		if (count <= 2500) {
 			RStore names;
 			final RObject rObject = r.evalData("colnames(" + fInput.getFullName() + ")", monitor);
@@ -91,19 +96,18 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 			else {
 				names = null;
 			}
-			description.dataColumns = new RDataTableColumn[count];
+			final RDataTableColumn[] dataColumns = new RDataTableColumn[count];
 			for (int i = 0; i < count; i++) {
-				description.dataColumns[i] = new RDataTableColumn(i,
+				dataColumns[i] = new RDataTableColumn(i,
 						(names != null) ? names.getChar(i) : Integer.toString((i+1)),
 						template.getColumnType(), template.getDataStore(), template.getClassNames(),
 						template.getDefaultFormat());
 			}
-		}
-		else {
-			description.dataColumns = new RDataTableColumn[0];
+			description.setDataColumns(dataColumns);
 		}
 		
-		description.defaultDataFormatter = template.getDefaultFormat();
+		description.setDefaultDataFormat(template.getDefaultFormat());
+		
 		return description;
 	}
 	

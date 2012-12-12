@@ -12,18 +12,22 @@
 package de.walware.statet.r.internal.ui.intable;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import net.sourceforge.nattable.coordinate.Range;
-import net.sourceforge.nattable.layer.AbstractLayer;
-import net.sourceforge.nattable.layer.ILayer;
-import net.sourceforge.nattable.layer.IUniqueIndexLayer;
-import net.sourceforge.nattable.layer.LayerUtil;
-import net.sourceforge.nattable.resize.event.ColumnResizeEvent;
+import org.eclipse.nebula.widgets.nattable.config.LayoutSizeConfig;
+import org.eclipse.nebula.widgets.nattable.coordinate.Range;
+import org.eclipse.nebula.widgets.nattable.layer.AbstractLayer;
+import org.eclipse.nebula.widgets.nattable.layer.ILayer;
+import org.eclipse.nebula.widgets.nattable.layer.IUniqueIndexLayer;
+import org.eclipse.nebula.widgets.nattable.layer.LayerUtil;
+import org.eclipse.nebula.widgets.nattable.resize.event.ColumnResizeEvent;
 
 import de.walware.statet.r.internal.ui.dataeditor.AbstractRDataProvider;
+import de.walware.statet.r.internal.ui.dataeditor.RDataFormatter;
 import de.walware.statet.r.internal.ui.dataeditor.RDataTableContentDescription;
+import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
 
 
 public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
@@ -31,10 +35,9 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	
 	private final AbstractRDataProvider<?> fDataProvider;
 	
-	private final int fHSpacing = 15;
-	private final int fVSpacing = 3;
-	private int fRowHeight = 10;
-	private int fCharWidth = 8;
+	private final int fHSpacing;
+	private final int fRowHeight;
+	private final int fCharWidth;
 	
 	private final int fColumnFallbackWidth = 10;
 	
@@ -47,8 +50,12 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	private final Map<Integer, Integer> fCustomColumnWidths = new TreeMap<Integer, Integer>();
 	
 	
-	public RDataLayer(final AbstractRDataProvider<?> dataProvider) {
+	public RDataLayer(final AbstractRDataProvider<?> dataProvider, final LayoutSizeConfig sizeConfig) {
 		fDataProvider = dataProvider;
+		
+		fHSpacing = sizeConfig.getDefaultSpace() * 4;
+		fRowHeight = sizeConfig.getRowHeight();
+		fCharWidth = sizeConfig.getCharWidth();
 		
 		registerCommandHandlers();
 	}
@@ -56,7 +63,8 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	
 	// Configuration
 	
-	private void registerCommandHandlers() {
+	@Override
+	protected void registerCommandHandlers() {
 		registerCommandHandler(new ColumnResizeCommandHandler(this));
 		registerCommandHandler(new MultiColumnResizeCommandHandler(this));
 		registerCommandHandler(new MultiColumnAutoResizeCommandHandler(this));
@@ -93,11 +101,7 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	 */
 	@Override
 	public int getColumnPositionByIndex(final int columnIndex) {
-		if (columnIndex >=0 && columnIndex < getColumnCount()) {
-			return columnIndex;
-		} else {
-			return -1;
-		}
+		return (columnIndex >= 0 && columnIndex < getColumnCount()) ? columnIndex : -1;
 	}
 	
 	@Override
@@ -170,26 +174,28 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	}
 	
 	protected int getColumnFormatterCharWidth(final int columnPosition) {
+		RDataFormatter formatter;
 		if (fDataProvider.getAllColumnsEqual()) {
-			final RDataTableContentDescription formatter = fDataProvider.getDescription();
-			if (formatter != null
-					&& formatter.defaultDataFormatter != null
-					&& formatter.defaultDataFormatter.getAutoWidth() >= 0) {
-				return formatter.defaultDataFormatter.getAutoWidth();
+			final RDataTableContentDescription description = fDataProvider.getDescription();
+			if (description != null
+					&& (formatter = description.getDefaultDataFormat()) != null
+					&& formatter.getAutoWidth() >= 0) {
+				return formatter.getAutoWidth();
 			}
 			return fColumnFallbackWidth;
 		}
 		else {
 			final RDataTableContentDescription description = fDataProvider.getDescription();
 			if (description != null) {
-				if (columnPosition < description.dataColumns.length
-						&& description.dataColumns[columnPosition] != null
-						&& description.dataColumns[columnPosition].getDefaultFormat().getAutoWidth() >= 0) {
-					return description.dataColumns[columnPosition].getDefaultFormat().getAutoWidth();
+				final List<RDataTableColumn> columns = description.getDataColumns();
+				if (columnPosition < columns.size()
+						&& (formatter = columns.get(columnPosition).getDefaultFormat()) != null
+						&& formatter.getAutoWidth() >= 0) {
+					return formatter.getAutoWidth();
 				}
-				if (description.defaultDataFormatter != null
-						&& description.defaultDataFormatter.getAutoWidth() >= 0) {
-					return description.defaultDataFormatter.getAutoWidth();
+				if ((formatter = description.getDefaultDataFormat()) != null
+						&& formatter.getAutoWidth() >= 0) {
+					return formatter.getAutoWidth();
 				}
 			}
 			return fColumnFallbackWidth;
@@ -265,11 +271,7 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	 */
 	@Override
 	public int getRowPositionByIndex(final int rowIndex) {
-		if (rowIndex >= 0 && rowIndex < getRowCount()) {
-			return rowIndex;
-		} else {
-			return -1;
-		}
+		return (rowIndex >= 0 && rowIndex < getRowCount()) ? rowIndex : -1;
 	}
 	
 	@Override
@@ -302,11 +304,6 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	@Override
 	public int getPreferredHeight() {
 		return getHeight();
-	}
-	
-	public void setSizeConfig(final int height, final int charWidth) {
-		fRowHeight = height + fVSpacing;
-		fCharWidth = charWidth;
 	}
 	
 	@Override

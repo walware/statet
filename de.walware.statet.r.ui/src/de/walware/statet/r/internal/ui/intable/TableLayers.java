@@ -11,13 +11,12 @@
 
 package de.walware.statet.r.internal.ui.intable;
 
-import net.sourceforge.nattable.command.LayerCommandUtil;
-import net.sourceforge.nattable.coordinate.ColumnPositionCoordinate;
-import net.sourceforge.nattable.layer.AbstractLayer;
-import net.sourceforge.nattable.selection.SelectionLayer;
-import net.sourceforge.nattable.selection.event.CellSelectionEvent;
-import net.sourceforge.nattable.sort.SortHeaderLayer;
-import net.sourceforge.nattable.viewport.ViewportLayer;
+import org.eclipse.nebula.widgets.nattable.command.LayerCommandUtil;
+import org.eclipse.nebula.widgets.nattable.coordinate.ColumnPositionCoordinate;
+import org.eclipse.nebula.widgets.nattable.layer.IUniqueIndexLayer;
+import org.eclipse.nebula.widgets.nattable.selection.SelectionLayer;
+import org.eclipse.nebula.widgets.nattable.selection.event.CellSelectionEvent;
+import org.eclipse.nebula.widgets.nattable.viewport.ViewportLayer;
 
 
 public class TableLayers {
@@ -29,10 +28,10 @@ public class TableLayers {
 	
 	public ViewportLayer viewportLayer;
 	
-	public AbstractLayer topBodyLayer;
+	public IUniqueIndexLayer topBodyLayer;
 	
-	
-	public SortHeaderLayer<?> sortColumnHeaderLayer;
+	public IUniqueIndexLayer topColumnHeaderLayer;
+	public IUniqueIndexLayer topRowHeaderLayer;
 	
 	
 	public void setAnchor(int columnPosition, final int rowPosition,

@@ -13,6 +13,7 @@ package de.walware.statet.r.internal.ui.dataeditor;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
 
 import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RIntegerStore;
@@ -20,8 +21,8 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.RVector;
 import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.services.RService;
-import net.sourceforge.nattable.data.IDataProvider;
 
+import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.ui.dataeditor.IRDataTableInput;
 import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
 
@@ -64,14 +65,22 @@ public class RVectorDataProvider extends AbstractRDataProvider<RVector<?>> {
 	}
 	
 	@Override
-	protected RDataTableContentDescription loadDescription(final RVector<?> struct,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
-		final RDataTableContentDescription description = new RDataTableContentDescription(struct);
-		description.rowHeaderColumn =
-				createNamesColumn("names(" + fInput.getFullName() + ")", getRowCount(struct), r, monitor);
-		description.dataColumns = new RDataTableColumn[] {
-				createColumn(struct.getData(), fInput.getFullName(), 0, fInput.getLastName(), r, monitor) };
-		description.defaultDataFormatter = description.dataColumns[0].getDefaultFormat();
+	protected RDataTableContentDescription loadDescription(final RElementName name,
+			final RVector<?> struct, final RService r,
+			final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+		final RDataTableContentDescription description = new RDataTableContentDescription(name, struct);
+		
+		description.setRowHeaderColumns(
+				createNamesColumn("names(" + fInput.getFullName() + ")", getRowCount(struct),
+						r, monitor ));
+		
+		final RDataTableColumn dataColumn = createColumn(struct.getData(),
+						fInput.getFullName(), 0, fInput.getLastName(),
+						r, monitor );
+		description.setDataColumns(dataColumn);
+		
+		description.setDefaultDataFormat(dataColumn.getDefaultFormat());
+		
 		return description;
 	}
 	

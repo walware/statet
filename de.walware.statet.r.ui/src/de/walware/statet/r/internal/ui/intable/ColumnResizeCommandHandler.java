@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.internal.ui.intable;
 
-import net.sourceforge.nattable.command.AbstractLayerCommandHandler;
-import net.sourceforge.nattable.resize.command.ColumnResizeCommand;
+import org.eclipse.nebula.widgets.nattable.command.AbstractLayerCommandHandler;
+import org.eclipse.nebula.widgets.nattable.resize.command.ColumnResizeCommand;
 
 
 public class ColumnResizeCommandHandler extends AbstractLayerCommandHandler<ColumnResizeCommand> {

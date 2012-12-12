@@ -22,30 +22,20 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.StyledCellLabelProvider;
-import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerCell;
-import org.eclipse.swt.graphics.Image;
 
-import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.actions.SimpleContributionItem;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.workbench.AbstractEditorOutlinePage;
 
-import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RFactorStore;
-import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
 
-import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.ui.RLabelProvider;
-import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.dataeditor.IRDataTableInput;
 import de.walware.statet.r.ui.dataeditor.IRDataTableListener;
 import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
@@ -55,7 +45,7 @@ import de.walware.statet.r.ui.dataeditor.RProcessDataTableInput;
 public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 	
 	
-	private static abstract class ColumnPropertyItem {
+	static abstract class ColumnPropertyItem {
 		
 		
 		protected final RDataTableColumn fColumn;
@@ -172,7 +162,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 		@Override
 		public boolean hasChildren(final Object element) {
 			if (element == fDescription) {
-				return (fDescription.dataColumns.length > 0);
+				return (fDescription.getDataColumnsArray().length > 0);
 			}
 			if (element instanceof RDataTableColumn) {
 				final RDataTableColumn column = (RDataTableColumn) element;
@@ -187,8 +177,10 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 		
 		@Override
 		public Object[] getChildren(final Object parentElement) {
-			if (parentElement == fDescription && fDescription.dataColumns.length <= 2500) {
-				return fDescription.dataColumns;
+			{	Object[] columns;
+				if (parentElement == fDescription && (columns = fDescription.getDataColumnsArray()).length <= 2500) {
+					return columns;
+				}
 			}
 			if (parentElement instanceof RDataTableColumn) {
 				final RDataTableColumn column = (RDataTableColumn) parentElement;
@@ -209,129 +201,10 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 		
 	}
 	
-	private class RDataLabelProvider extends StyledCellLabelProvider {
-		
-		
-		private final RLabelProvider fRLabelProvider = new RLabelProvider(
-				RLabelProvider.NO_STORE_TYPE | RLabelProvider.COUNT | RLabelProvider.NAMESPACE);
-		
-		
-		public RDataLabelProvider() {
-		}
-		
-		
-		@Override
-		public void update(final ViewerCell cell) {
-			Image image;
-			final StyledString text = new StyledString();
-			final Object element = cell.getElement();
-			if (element == fDescription) {
-				if (fDescription.struct instanceof ICombinedRElement) {
-					fRLabelProvider.update(cell, (IModelElement) fDescription.struct);
-					super.update(cell);
-					return;
-				}
-				switch (fDescription.struct.getRObjectType()) {
-				case RObject.TYPE_VECTOR:
-					image = RUI.getImage(RUI.IMG_OBJ_VECTOR);
-					break;
-				case RObject.TYPE_ARRAY:
-					image = RUI.getImage(RUI.IMG_OBJ_VECTOR);
-					break;
-				case RObject.TYPE_DATAFRAME:
-					image = RUI.getImage(RUI.IMG_OBJ_VECTOR);
-					break;
-				default:
-					image = null;
-					break;
-				}
-				text.append(fRootElementName.toString());
-			}
-			else if (element instanceof RDataTableColumn) {
-				final RDataTableColumn column = (RDataTableColumn) element;
-				switch (column.getColumnType()) {
-				case RDataTableColumn.LOGI:
-					image = RUI.getImage(RUI.IMG_OBJ_COL_LOGI);
-					break;
-				case RDataTableColumn.INT:
-					image = RUI.getImage(RUI.IMG_OBJ_COL_INT);
-					break;
-				case RDataTableColumn.NUM:
-					image = RUI.getImage(RUI.IMG_OBJ_COL_NUM);
-					break;
-				case RDataTableColumn.CPLX:
-					image = RUI.getImage(RUI.IMG_OBJ_COL_CPLX);
-					break;
-				case RDataTableColumn.CHAR:
-					image = RUI.getImage(RUI.IMG_OBJ_COL_CHAR);
-					break;
-				case RDataTableColumn.RAW:
-					image = RUI.getImage(RUI.IMG_OBJ_COL_RAW);
-					break;
-				case RDataTableColumn.FACTOR:
-					image = RUI.getImage(RUI.IMG_OBJ_COL_FACTOR);
-					break;
-				case RDataTableColumn.DATE:
-					image = RUI.getImage(RUI.IMG_OBJ_COL_DATE);
-					break;
-				case RDataTableColumn.DATETIME:
-					image = RUI.getImage(RUI.IMG_OBJ_COL_DATETIME);
-					break;
-				default:
-					image = null;
-				}
-				text.append(column.getName());
-				
-				text.append(" : ", StyledString.DECORATIONS_STYLER);
-				final List<String> classNames = column.getClassNames();
-				text.append(classNames.get(0), StyledString.DECORATIONS_STYLER);
-				for (int i = 1; i < classNames.size(); i++) {
-					text.append(", ", StyledString.DECORATIONS_STYLER);
-					text.append(classNames.get(i), StyledString.DECORATIONS_STYLER);
-				}
-				if (!classNames.contains(RDataUtil.getStoreClass(column.getDataStore()))) {
-					text.append(" (", StyledString.DECORATIONS_STYLER);
-					text.append(RDataUtil.getStoreAbbr(column.getDataStore()), StyledString.DECORATIONS_STYLER);
-					text.append(")", StyledString.DECORATIONS_STYLER);
-				}
-			}
-			else if (element instanceof ColumnPropertyItem) {
-				final ColumnPropertyItem item = (ColumnPropertyItem) element;
-				image = null;
-				text.append(item.getName());
-				final int count = item.getCount();
-				if (count >= 0) {
-					text.append(" (", StyledString.COUNTER_STYLER);
-					text.append(Integer.toString(count), StyledString.COUNTER_STYLER);
-					text.append(")", StyledString.COUNTER_STYLER);
-				}
-			}
-			else {
-				image = null;
-				text.append(element.toString());
-			}
-			
-			cell.setText(text.getString());
-			cell.setStyleRanges(text.getStyleRanges());
-			cell.setImage(image);
-			
-			super.update(cell);
-		}
-		
-		@Override
-		public void dispose() {
-			super.dispose();
-			
-			fRLabelProvider.dispose();
-		}
-		
-	}
-	
-	
 	private final RDataEditor fEditor;
 	
-	private RDataTableContentDescription fDescription;
-	private RElementName fRootElementName;
+	RDataTableContentDescription fDescription;
+	RElementName fRootElementName;
 	
 	
 	public RDataEditorOutlinePage(final RDataEditor editor) {
@@ -365,7 +238,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 			public void inputChanged(final IRDataTableInput input, final RDataTableContentDescription description) {
 				final boolean isNew = (description != null
 						&& (fDescription == null
-								|| fDescription.dataColumns.length != description.dataColumns.length ));
+								|| fDescription.getDataColumns().size() != description.getDataColumns().size() ));
 				fDescription = description;
 				fRootElementName = ((RProcessDataTableInput) input).getElementName();
 				

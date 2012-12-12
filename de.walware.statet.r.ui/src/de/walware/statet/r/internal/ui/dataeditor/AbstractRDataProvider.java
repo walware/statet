@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.ui.dataeditor;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.ibm.icu.util.TimeZone;
@@ -20,6 +22,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
+import org.eclipse.nebula.widgets.nattable.sort.ISortModel;
+import org.eclipse.nebula.widgets.nattable.sort.SortDirectionEnum;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -45,10 +50,8 @@ import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.data.defaultImpl.RFactorDataStruct;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 import de.walware.rj.services.RService;
-import net.sourceforge.nattable.data.IDataProvider;
-import net.sourceforge.nattable.sort.ISortModel;
-import net.sourceforge.nattable.sort.SortDirectionEnum;
 
+import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.internal.ui.dataeditor.IFindListener.FindEvent;
 import de.walware.statet.r.internal.ui.dataeditor.Store.Item;
 import de.walware.statet.r.internal.ui.dataeditor.Store.LoadDataException;
@@ -307,6 +310,15 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 		
 		@Override
+		public List<Integer> getSortedColumnIndexes() {
+			final SortColumn sortColumn = getSortColumn();
+			if (sortColumn != null) {
+				return Collections.singletonList(sortColumn.columnIdx);
+			}
+			return Collections.<Integer>emptyList();
+		}
+		
+		@Override
 		public void sort(final int columnIndex, final SortDirectionEnum sortDirection, final boolean accumulate) {
 			SortColumn sortColumn;
 			switch (sortDirection) {
@@ -353,6 +365,11 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		@Override
 		public void clear() {
 			setSortColumn(null);
+		}
+		
+		@Override
+		public List<Comparator> getComparatorsForColumnIndex(final int columnIndex) {
+			throw new UnsupportedOperationException();
 		}
 		
 	}
@@ -654,7 +671,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		}
 		final RDataTableContentDescription description;
 		try {
-			description = loadDescription(fRObjectStruct, r, monitor);
+			description = loadDescription(fInput.getElementName(), fRObjectStruct, r, monitor);
 		}
 		catch (final Exception e) {
 			synchronized (fInitRunnable) {
@@ -816,8 +833,9 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	
 	protected abstract T validateObject(RObject struct) throws UnexpectedRDataException;
 	
-	protected abstract RDataTableContentDescription loadDescription(T struct,
-			RService r, IProgressMonitor monitor) throws CoreException, UnexpectedRDataException;
+	protected abstract RDataTableContentDescription loadDescription(RElementName name,
+			T struct, RService r,
+			IProgressMonitor monitor) throws CoreException, UnexpectedRDataException;
 	
 	
 	protected RDataTableColumn createColumn(final RStore store, final String expression,

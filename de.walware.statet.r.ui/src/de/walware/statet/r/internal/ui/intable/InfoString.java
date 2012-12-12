@@ -9,38 +9,44 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.dataeditor;
+package de.walware.statet.r.internal.ui.intable;
 
-import de.walware.rj.data.RObject;
+import org.eclipse.nebula.widgets.nattable.style.ConfigAttribute;
+import org.eclipse.swt.graphics.Font;
 
-import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
 
-
-public class RDataTableContentDescription {
+public class InfoString {
 	
 	
-	public final RObject struct;
+	public static final ConfigAttribute<Font> CELL_STYLE_FONT_ATTRIBUTE = new ConfigAttribute<Font>();
 	
-	public RDataFormatter defaultDataFormatter;
-	
-	public RDataTableColumn rowHeaderColumn;
-	
-	public RDataTableColumn[] dataColumns;
+	public static final InfoString NA = new InfoString("NA"); //$NON-NLS-1$
+	public static final InfoString DUMMY = new InfoString(""); //$NON-NLS-1$
 	
 	
-	public RDataTableContentDescription(final RObject struct) {
-		this.struct = struct;
+	private final String fText;
+	
+	
+	public InfoString(final String text) {
+		fText = text;
+	}
+	
+	
+	@Override
+	public String toString() {
+		return fText;
 	}
 	
 	
 	@Override
 	public int hashCode() {
-		return 986986;
+		return fText.hashCode();
 	}
 	
 	@Override
 	public boolean equals(final Object obj) {
-		return (obj instanceof RDataTableContentDescription);
+		return (obj instanceof InfoString
+				&& fText.equals(((InfoString) obj).fText));
 	}
 	
 }

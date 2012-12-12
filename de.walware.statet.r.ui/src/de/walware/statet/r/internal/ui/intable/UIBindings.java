@@ -11,13 +11,40 @@
 
 package de.walware.statet.r.internal.ui.intable;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.nebula.widgets.nattable.NatTable;
+import org.eclipse.nebula.widgets.nattable.config.AbstractUiBindingConfiguration;
+import org.eclipse.nebula.widgets.nattable.coordinate.Direction;
+import org.eclipse.nebula.widgets.nattable.grid.GridRegion;
+import org.eclipse.nebula.widgets.nattable.resize.action.AutoResizeColumnAction;
+import org.eclipse.nebula.widgets.nattable.resize.action.ColumnResizeCursorAction;
+import org.eclipse.nebula.widgets.nattable.resize.command.InitializeAutoResizeColumnsCommand;
+import org.eclipse.nebula.widgets.nattable.resize.event.ColumnResizeEventMatcher;
+import org.eclipse.nebula.widgets.nattable.resize.mode.ColumnResizeDragMode;
+import org.eclipse.nebula.widgets.nattable.selection.action.CellSelectionDragMode;
+import org.eclipse.nebula.widgets.nattable.selection.action.RowSelectionDragMode;
+import org.eclipse.nebula.widgets.nattable.selection.action.SelectCellAction;
+import org.eclipse.nebula.widgets.nattable.selection.command.SelectRelativeCellCommand;
+import org.eclipse.nebula.widgets.nattable.sort.SortDirectionEnum;
+import org.eclipse.nebula.widgets.nattable.sort.action.SortColumnAction;
+import org.eclipse.nebula.widgets.nattable.sort.command.ClearSortCommand;
+import org.eclipse.nebula.widgets.nattable.sort.command.SortColumnCommand;
+import org.eclipse.nebula.widgets.nattable.ui.NatEventData;
+import org.eclipse.nebula.widgets.nattable.ui.action.AbstractNavigationAction;
+import org.eclipse.nebula.widgets.nattable.ui.action.ClearCursorAction;
+import org.eclipse.nebula.widgets.nattable.ui.action.NoOpMouseAction;
+import org.eclipse.nebula.widgets.nattable.ui.binding.UiBindingRegistry;
+import org.eclipse.nebula.widgets.nattable.ui.matcher.IMouseEventMatcher;
+import org.eclipse.nebula.widgets.nattable.ui.matcher.KeyEventMatcher;
+import org.eclipse.nebula.widgets.nattable.ui.matcher.MouseEventMatcher;
+import org.eclipse.nebula.widgets.nattable.ui.menu.PopupMenuAction;
+import org.eclipse.nebula.widgets.nattable.viewport.action.ViewportSelectColumnAction;
+import org.eclipse.nebula.widgets.nattable.viewport.action.ViewportSelectRowAction;
+import org.eclipse.nebula.widgets.nattable.viewport.command.ScrollCellCommand;
+import org.eclipse.nebula.widgets.nattable.viewport.command.SelectRelativePageCommand;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -25,94 +52,75 @@ import org.eclipse.swt.events.KeyEvent;
 
 import de.walware.ecommons.ui.SharedUIResources;
 
-import net.sourceforge.nattable.NatTable;
-import net.sourceforge.nattable.config.AbstractUiBindingConfiguration;
-import net.sourceforge.nattable.coordinate.IRelative.Direction;
-import net.sourceforge.nattable.coordinate.IRelative.Scale;
-import net.sourceforge.nattable.grid.GridRegion;
-import net.sourceforge.nattable.resize.action.AutoResizeColumnAction;
-import net.sourceforge.nattable.resize.action.ColumnResizeCursorAction;
-import net.sourceforge.nattable.resize.command.InitializeAutoResizeColumnsCommand;
-import net.sourceforge.nattable.resize.event.ColumnResizeEventMatcher;
-import net.sourceforge.nattable.resize.mode.ColumnResizeDragMode;
-import net.sourceforge.nattable.selection.action.CellSelectionDragMode;
-import net.sourceforge.nattable.selection.action.RowSelectionDragMode;
-import net.sourceforge.nattable.selection.action.SelectCellAction;
-import net.sourceforge.nattable.selection.command.ISelectionCommand.SelectionFlag;
-import net.sourceforge.nattable.selection.command.SelectRelativelyCommand;
-import net.sourceforge.nattable.sort.SortDirectionEnum;
-import net.sourceforge.nattable.sort.action.SortColumnAction;
-import net.sourceforge.nattable.sort.command.ClearSortCommand;
-import net.sourceforge.nattable.sort.command.SortColumnCommand;
-import net.sourceforge.nattable.ui.NatEventData;
-import net.sourceforge.nattable.ui.action.ClearCursorAction;
-import net.sourceforge.nattable.ui.action.IKeyAction;
-import net.sourceforge.nattable.ui.action.NoOpMouseAction;
-import net.sourceforge.nattable.ui.binding.UiBindingRegistry;
-import net.sourceforge.nattable.ui.matcher.IMouseEventMatcher;
-import net.sourceforge.nattable.ui.matcher.KeyEventMatcher;
-import net.sourceforge.nattable.ui.matcher.MouseEventMatcher;
-import net.sourceforge.nattable.ui.menu.PopupMenuAction;
-import net.sourceforge.nattable.viewport.action.ViewportSelectColumnAction;
-import net.sourceforge.nattable.viewport.action.ViewportSelectRowAction;
-import net.sourceforge.nattable.viewport.command.ScrollCommand;
-
 
 public class UIBindings {
 	
 	
-	public static abstract class AbstractNavigationAction implements IKeyAction {
-		
-		
-		private final Direction fDirection;
-		
-		private final Scale fStepSize;
-		
-		
-		public AbstractNavigationAction(final Direction direction, final Scale stepSize) {
-			fDirection = direction;
-			fStepSize = stepSize;
-		}
-		
-		
-		public Direction getDirection() {
-			return fDirection;
-		}
-		
-		public Scale getStepSize() {
-			return fStepSize;
-		}
-		
-	}
+	private static final int CELL = 1;
+	private static final int PAGE = 2;
+	private static final int TABLE = 3;
+	
 	
 	public static class ScrollAction extends AbstractNavigationAction {
 		
 		
-		public ScrollAction(final Direction direction, final Scale stepSize) {
-			super(direction, stepSize);
+		private final int fType;
+		
+		
+		public ScrollAction(final Direction direction, final int type) {
+			super(direction);
+			
+			fType = type;
 		}
 		
 		
 		@Override
 		public void run(final NatTable natTable, final KeyEvent event) {
-			natTable.doCommand(new ScrollCommand(getDirection(), getStepSize()));
+			switch (fType) {
+			case CELL:
+				natTable.doCommand(new ScrollCellCommand(getDirection()));
+				break;
+			case PAGE:
+				break;
+			case TABLE:
+				natTable.doCommand(new ScrollCellCommand(getDirection(), -1));
+				break;
+			default:
+				throw new IllegalStateException();
+			}
 		}
 		
 	}
 	
-	public static class RelativeSelectionAction extends AbstractNavigationAction {
+	public static class SelectRelativeAction extends AbstractNavigationAction {
 		
 		
-		public RelativeSelectionAction(final Direction direction, final Scale stepSize) {
-			super(direction, stepSize);
+		private final int fType;
+		
+		
+		public SelectRelativeAction(final Direction direction, final int type) {
+			super(direction);
+			
+			fType = type;
 		}
 		
 		
 		@Override
 		public void run(final NatTable natTable, final KeyEvent event) {
-			final Set<SelectionFlag> flags = ((event.stateMask & SWT.SHIFT) == SWT.SHIFT) ?
-					EnumSet.of(SelectionFlag.RANGE_SELECTION) : SelectionFlag.NONE;
-			natTable.doCommand(new SelectRelativelyCommand(getDirection(), getStepSize(), flags));
+			final int selectionFlags = (event.stateMask & SWT.SHIFT);
+			switch (fType) {
+			case CELL:
+				natTable.doCommand(new SelectRelativeCellCommand(getDirection(), 1, selectionFlags));
+				break;
+			case PAGE:
+				natTable.doCommand(new SelectRelativePageCommand(getDirection(), selectionFlags));
+				break;
+			case TABLE:
+				natTable.doCommand(new SelectRelativeCellCommand(getDirection(), -1, selectionFlags));
+				break;
+			default:
+				throw new IllegalStateException();
+			}
 		}
 		
 	}
@@ -157,13 +165,13 @@ public class UIBindings {
 		public void configureUiBindings(final UiBindingRegistry uiBindingRegistry) {
 			// scroll/roll navigation
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.CTRL, SWT.ARROW_UP),
-					new ScrollAction(Direction.UP, Scale.CELL) );
+					new ScrollAction(Direction.UP, CELL) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.CTRL, SWT.ARROW_DOWN),
-					new ScrollAction(Direction.DOWN, Scale.CELL) );
+					new ScrollAction(Direction.DOWN, CELL) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.CTRL, SWT.ARROW_LEFT),
-					new ScrollAction(Direction.LEFT, Scale.CELL) );
+					new ScrollAction(Direction.LEFT, CELL) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.CTRL, SWT.ARROW_RIGHT),
-					new ScrollAction(Direction.RIGHT, Scale.CELL) );
+					new ScrollAction(Direction.RIGHT, CELL) );
 			
 //			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.SCROLL_LOCK, SWT.PAGE_UP),
 //					new ScrollAction(Direction.UP, Scale.PAGE) );
@@ -172,53 +180,53 @@ public class UIBindings {
 			
 			// move anchor
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.NONE, SWT.ARROW_UP),
-					new RelativeSelectionAction(Direction.UP, Scale.CELL) );
+					new SelectRelativeAction(Direction.UP, CELL) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.NONE, SWT.ARROW_DOWN),
-					new RelativeSelectionAction(Direction.DOWN, Scale.CELL) );
+					new SelectRelativeAction(Direction.DOWN, CELL) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.NONE, SWT.ARROW_LEFT),
-					new RelativeSelectionAction(Direction.LEFT, Scale.CELL) );
+					new SelectRelativeAction(Direction.LEFT, CELL) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.NONE, SWT.ARROW_RIGHT),
-					new RelativeSelectionAction(Direction.RIGHT, Scale.CELL) );
+					new SelectRelativeAction(Direction.RIGHT, CELL) );
 			
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.NONE, SWT.PAGE_UP),
-					new RelativeSelectionAction(Direction.UP, Scale.PAGE) );
+					new SelectRelativeAction(Direction.UP, PAGE) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.NONE, SWT.PAGE_DOWN),
-					new RelativeSelectionAction(Direction.DOWN, Scale.PAGE) );
+					new SelectRelativeAction(Direction.DOWN, PAGE) );
 			
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.NONE, SWT.HOME),
-					new RelativeSelectionAction(Direction.LEFT, Scale.TABLE) );
+					new SelectRelativeAction(Direction.LEFT, TABLE) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.NONE, SWT.END),
-					new RelativeSelectionAction(Direction.RIGHT, Scale.TABLE) );
+					new SelectRelativeAction(Direction.RIGHT, TABLE) );
 			
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.CTRL, SWT.HOME),
-					new RelativeSelectionAction(Direction.UP, Scale.TABLE) );
+					new SelectRelativeAction(Direction.UP, TABLE) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.CTRL, SWT.END),
-					new RelativeSelectionAction(Direction.DOWN, Scale.TABLE) );
+					new SelectRelativeAction(Direction.DOWN, TABLE) );
 			
 			// resize selection
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.SHIFT, SWT.ARROW_UP),
-					new RelativeSelectionAction(Direction.UP, Scale.CELL) );
+					new SelectRelativeAction(Direction.UP, CELL) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.SHIFT, SWT.ARROW_DOWN),
-					new RelativeSelectionAction(Direction.DOWN, Scale.CELL) );
+					new SelectRelativeAction(Direction.DOWN, CELL) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.SHIFT, SWT.ARROW_LEFT),
-					new RelativeSelectionAction(Direction.LEFT, Scale.CELL) );
+					new SelectRelativeAction(Direction.LEFT, CELL) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.SHIFT, SWT.ARROW_RIGHT),
-					new RelativeSelectionAction(Direction.RIGHT, Scale.CELL) );
+					new SelectRelativeAction(Direction.RIGHT, CELL) );
 			
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.SHIFT, SWT.PAGE_UP),
-					new RelativeSelectionAction(Direction.UP, Scale.PAGE) );
+					new SelectRelativeAction(Direction.UP, PAGE) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.SHIFT, SWT.PAGE_DOWN),
-					new RelativeSelectionAction(Direction.DOWN, Scale.PAGE) );
+					new SelectRelativeAction(Direction.DOWN, PAGE) );
 			
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.SHIFT, SWT.HOME),
-					new RelativeSelectionAction(Direction.LEFT, Scale.TABLE) );
+					new SelectRelativeAction(Direction.LEFT, TABLE) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.SHIFT, SWT.END),
-					new RelativeSelectionAction(Direction.RIGHT, Scale.TABLE) );
+					new SelectRelativeAction(Direction.RIGHT, TABLE) );
 			
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.SHIFT | SWT.CTRL, SWT.HOME),
-					new RelativeSelectionAction(Direction.UP, Scale.TABLE) );
+					new SelectRelativeAction(Direction.UP, TABLE) );
 			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.SHIFT | SWT.CTRL, SWT.END),
-					new RelativeSelectionAction(Direction.DOWN, Scale.TABLE) );
+					new SelectRelativeAction(Direction.DOWN, TABLE) );
 			
 			
 //			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.SHIFT | SWT.CONTROL, SWT.ARROW_UP), new MoveToFirstRowAction());
@@ -237,28 +245,28 @@ public class UIBindings {
 			
 			// mouse
 			uiBindingRegistry.registerFirstSingleClickBinding(
-					new MouseEventMatcher(GridRegion.BODY, IMouseEventMatcher.LEFT_BUTTON,
-							MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT),
+					new MouseEventMatcher(MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT,
+							GridRegion.BODY, IMouseEventMatcher.LEFT_BUTTON ),
 					new SelectCellAction());
 			
 			uiBindingRegistry.registerSingleClickBinding(
-					new MouseEventMatcher(GridRegion.COLUMN_HEADER, IMouseEventMatcher.LEFT_BUTTON,
-							MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT),
+					new MouseEventMatcher(MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT,
+							GridRegion.COLUMN_HEADER, IMouseEventMatcher.LEFT_BUTTON ),
 					new ViewportSelectColumnAction());
 			
 			uiBindingRegistry.registerSingleClickBinding(
-					new MouseEventMatcher(GridRegion.ROW_HEADER, IMouseEventMatcher.LEFT_BUTTON,
-							MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT),
+					new MouseEventMatcher(MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT,
+							GridRegion.ROW_HEADER, IMouseEventMatcher.LEFT_BUTTON ),
 					new ViewportSelectRowAction());
 			
 			uiBindingRegistry.registerMouseDragMode(
-					new MouseEventMatcher(GridRegion.BODY, IMouseEventMatcher.LEFT_BUTTON,
-							MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT),
+					new MouseEventMatcher(MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT,
+							GridRegion.BODY, IMouseEventMatcher.LEFT_BUTTON ),
 					new CellSelectionDragMode());
 			
 			uiBindingRegistry.registerMouseDragMode(
-					new MouseEventMatcher(GridRegion.ROW_HEADER, IMouseEventMatcher.LEFT_BUTTON,
-							MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT),
+					new MouseEventMatcher(MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT,
+							GridRegion.ROW_HEADER, IMouseEventMatcher.LEFT_BUTTON ),
 					new RowSelectionDragMode());
 		}
 		
@@ -274,7 +282,7 @@ public class UIBindings {
 		@Override
 		public void configureUiBindings(final UiBindingRegistry uiBindingRegistry) {
 			uiBindingRegistry.registerSingleClickBinding(
-					new MouseEventMatcher(GridRegion.COLUMN_HEADER, 1, SWT.ALT),
+					new MouseEventMatcher(SWT.ALT, GridRegion.COLUMN_HEADER, 1),
 					new SortColumnAction(false));
 		}
 		
@@ -328,7 +336,7 @@ public class UIBindings {
 				@Override
 				protected void execute(final NatEventData eventData) throws ExecutionException {
 					eventData.getNatTable().doCommand(new InitializeAutoResizeColumnsCommand(
-							eventData.getNatTable(), eventData.getColumnPosition(), eventData.getNatTable() ));
+							eventData.getNatTable(), eventData.getColumnPosition() ));
 				}
 			});
 		}
@@ -336,7 +344,7 @@ public class UIBindings {
 		@Override
 		public void configureUiBindings(final UiBindingRegistry uiBindingRegistry) {
 			uiBindingRegistry.registerSingleClickBinding(
-					new MouseEventMatcher(GridRegion.COLUMN_HEADER, IMouseEventMatcher.RIGHT_BUTTON, SWT.NONE),
+					new MouseEventMatcher(SWT.NONE, GridRegion.COLUMN_HEADER, IMouseEventMatcher.RIGHT_BUTTON),
 					new PopupMenuAction(fMenuManager.getMenu()));
 		}
 		

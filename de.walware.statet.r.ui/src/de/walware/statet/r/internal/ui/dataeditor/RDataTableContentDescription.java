@@ -1,0 +1,114 @@
+/*******************************************************************************
+ * Copyright (c) 2010-2012 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     Stephan Wahlbrink - initial API and implementation
+ *******************************************************************************/
+
+package de.walware.statet.r.internal.ui.dataeditor;
+
+import java.util.Collections;
+import java.util.List;
+
+import de.walware.ecommons.collections.ConstList;
+
+import de.walware.rj.data.RObject;
+
+import de.walware.statet.r.core.model.RElementName;
+import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
+
+
+public final class RDataTableContentDescription {
+	
+	
+	private static final RDataTableColumn[] NO_COLUMNS_ARRAY = new RDataTableColumn[0];
+	
+	
+	private final RElementName fElementName;
+	private final RObject fStruct;
+	
+	private List<RDataTableColumn> fColumnHeaderRows = Collections.emptyList();
+	private List<RDataTableColumn> fRowHeaderColumns = Collections.emptyList();
+	
+	private List<RDataTableColumn> fDataColumns = Collections.emptyList();
+	private RDataTableColumn[] fDataColumnsArray = NO_COLUMNS_ARRAY;
+	
+	private RDataFormatter fDefaultDataFormat;
+	
+	
+	public RDataTableContentDescription(final RElementName elementName, final RObject struct) {
+		if (elementName == null) {
+			throw new NullPointerException("elementName");
+		}
+		if (struct == null) {
+			throw new NullPointerException("struct");
+		}
+		fElementName = elementName;
+		fStruct = struct;
+	}
+	
+	
+	public RElementName getElementName() {
+		return fElementName;
+	}
+	
+	public RObject getRElementStruct() {
+		return fStruct;
+	}
+	
+	
+	void setColumnHeaderRows(final RDataTableColumn... dataColumns) {
+		fColumnHeaderRows = new ConstList<RDataTableColumn>(dataColumns);
+	}
+	
+	void setRowHeaderColumns(final RDataTableColumn... dataColumns) {
+		fRowHeaderColumns = new ConstList<RDataTableColumn>(dataColumns);
+	}
+	
+	void setDataColumns(final RDataTableColumn... dataColumns) {
+		fDataColumns = new ConstList<RDataTableColumn>(dataColumns);
+		fDataColumnsArray = dataColumns;
+	}
+	
+	void setDefaultDataFormat(final RDataFormatter format) {
+		fDefaultDataFormat = format;
+	}
+	
+	
+	public List<RDataTableColumn> getColumnHeaderRows() {
+		return fColumnHeaderRows;
+	}
+	
+	public List<RDataTableColumn> getRowHeaderColumns() {
+		return fRowHeaderColumns;
+	}
+	
+	public List<RDataTableColumn> getDataColumns() {
+		return fDataColumns;
+	}
+	
+	RDataTableColumn[] getDataColumnsArray() {
+		return fDataColumnsArray;
+	}
+	
+	
+	public RDataFormatter getDefaultDataFormat() {
+		return fDefaultDataFormat;
+	}
+	
+	
+	@Override
+	public int hashCode() {
+		return 986986;
+	}
+	
+	@Override
+	public boolean equals(final Object obj) {
+		return (obj instanceof RDataTableContentDescription);
+	}
+	
+}
