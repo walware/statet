@@ -56,6 +56,15 @@ public class RDataTableSelection implements ISelection {
 	
 	
 	@Override
+	public int hashCode() {
+		int h = ((fAnchorRowLabel != null) ? fAnchorRowLabel.hashCode() : 0);
+		h = h * 3 + ((fAnchorColumnLabel != null) ? fAnchorColumnLabel.hashCode() : 0);
+		h = h * 17 + ((fLastSelectedCellRowLabel != null) ? fLastSelectedCellRowLabel.hashCode() : 0);
+		h = h * 99 + ((fLastSelectedCellColumnLabel != null) ? fLastSelectedCellColumnLabel.hashCode() : 0);
+		return h;
+	}
+	
+	@Override
 	public boolean equals(final Object obj) {
 		if (!(obj instanceof RDataTableSelection)) {
 			return false;

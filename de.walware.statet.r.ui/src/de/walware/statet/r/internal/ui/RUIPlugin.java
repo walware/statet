@@ -39,6 +39,7 @@ import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesManageListener;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.ui.util.ImageDescriptorRegistry;
 import de.walware.ecommons.ui.util.ImageRegistryUtil;
 
 import de.walware.statet.base.ui.StatetUIServices;
@@ -107,6 +108,10 @@ public class RUIPlugin extends AbstractUIPlugin {
 	}
 	
 	
+	private boolean fStarted;
+	
+	private ImageDescriptorRegistry fImageDescriptorRegistry;
+	
 	private RDocumentProvider fRDocumentProvider;
 	private RFragmentDocumentProvider fRFragmentDocumentProvider;
 	private RdDocumentProvider fRdDocumentProvider;
@@ -152,6 +157,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 		fDisposables = new ArrayList<IDisposable>();
 		
 		super.start(context);
+		
+		fStarted = true;
 	}
 	
 	/**
@@ -160,6 +167,12 @@ public class RUIPlugin extends AbstractUIPlugin {
 	@Override
 	public void stop(final BundleContext context) throws Exception {
 		try {
+			synchronized (this) {
+				fStarted = false;
+				
+				fImageDescriptorRegistry = null;
+			}
+			
 			for (final IDisposable d : fDisposables) {
 				try {
 					d.dispose();
@@ -252,6 +265,17 @@ public class RUIPlugin extends AbstractUIPlugin {
 		util.register(RUI.IMG_LOCTOOL_SORT_PACKAGE, ImageRegistryUtil.T_LOCTOOL, "sort-package.png"); //$NON-NLS-1$
 		
 		util.register(IMG_LOCTOOL_REFRESH_RECOMMENDED, ImageRegistryUtil.T_LOCTOOL, "refresh-rec.png"); //$NON-NLS-1$
+	}
+	
+	public synchronized ImageDescriptorRegistry getImageDescriptorRegistry() {
+		if (fImageDescriptorRegistry == null) {
+			if (!fStarted) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
+			fImageDescriptorRegistry = new ImageDescriptorRegistry();
+			registerPluginDisposable(fImageDescriptorRegistry);
+		}
+		return fImageDescriptorRegistry;
 	}
 	
 	

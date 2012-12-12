@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.ts.ITool;
 
 import de.walware.rj.data.RObject;
 
@@ -31,6 +32,10 @@ public final class RDataTableContentDescription {
 	private final RElementName fElementName;
 	private final RObject fStruct;
 	
+	private final String fLabel;
+	
+	private final ITool fRHandle;
+	
 	private List<RDataTableColumn> fColumnHeaderRows = Collections.emptyList();
 	private List<RDataTableColumn> fRowHeaderColumns = Collections.emptyList();
 	
@@ -40,7 +45,8 @@ public final class RDataTableContentDescription {
 	private RDataFormatter fDefaultDataFormat;
 	
 	
-	public RDataTableContentDescription(final RElementName elementName, final RObject struct) {
+	public RDataTableContentDescription(final RElementName elementName, final RObject struct,
+			final ITool rHandle) {
 		if (elementName == null) {
 			throw new NullPointerException("elementName");
 		}
@@ -49,6 +55,8 @@ public final class RDataTableContentDescription {
 		}
 		fElementName = elementName;
 		fStruct = struct;
+		fLabel = elementName.getDisplayName();
+		fRHandle = rHandle;
 	}
 	
 	
@@ -58,6 +66,14 @@ public final class RDataTableContentDescription {
 	
 	public RObject getRElementStruct() {
 		return fStruct;
+	}
+	
+	public String getLabel() {
+		return fLabel;
+	}
+	
+	public ITool getRHandle() {
+		return fRHandle;
 	}
 	
 	

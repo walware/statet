@@ -168,5 +168,17 @@
             icon="icons/tool_16/breakpoint.png">
       </image>
    </extension>
+   
+      <extension
+         point="org.eclipse.ui.views">
+      <view
+            id="de.walware.statet.base.views.ContentFilter"
+            category="de.walware.statet.base.views.StatetCategory"
+            icon="icons/view_16/view-filter.png"
+            name="%views_ContentFilterView_name"
+            class="de.walware.statet.base.ui.contentfilter.FilterView"
+            restorable="true">
+      </view>
+   </extension>
 
 </plugin>

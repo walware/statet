@@ -27,6 +27,7 @@ import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.internal.ui.dataeditor.RDataEditorOutlinePage.ColumnPropertyItem;
 import de.walware.statet.r.ui.RLabelProvider;
 import de.walware.statet.r.ui.RUI;
+import de.walware.statet.r.ui.dataeditor.IRDataTableVariable;
 import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
 
 
@@ -42,24 +43,24 @@ public class RDataLabelProvider extends StyledCellLabelProvider {
 	
 	
 	public Image getImage(final RDataTableColumn element) {
-		switch (element.getColumnType()) {
-		case RDataTableColumn.LOGI:
+		switch (element.getVarType()) {
+		case IRDataTableVariable.LOGI:
 			return RUI.getImage(RUI.IMG_OBJ_COL_LOGI);
-		case RDataTableColumn.INT:
+		case IRDataTableVariable.INT:
 			return RUI.getImage(RUI.IMG_OBJ_COL_INT);
-		case RDataTableColumn.NUM:
+		case IRDataTableVariable.NUM:
 			return RUI.getImage(RUI.IMG_OBJ_COL_NUM);
-		case RDataTableColumn.CPLX:
+		case IRDataTableVariable.CPLX:
 			return RUI.getImage(RUI.IMG_OBJ_COL_CPLX);
-		case RDataTableColumn.CHAR:
+		case IRDataTableVariable.CHAR:
 			return RUI.getImage(RUI.IMG_OBJ_COL_CHAR);
-		case RDataTableColumn.RAW:
+		case IRDataTableVariable.RAW:
 			return RUI.getImage(RUI.IMG_OBJ_COL_RAW);
-		case RDataTableColumn.FACTOR:
+		case IRDataTableVariable.FACTOR:
 			return RUI.getImage(RUI.IMG_OBJ_COL_FACTOR);
-		case RDataTableColumn.DATE:
+		case IRDataTableVariable.DATE:
 			return RUI.getImage(RUI.IMG_OBJ_COL_DATE);
-		case RDataTableColumn.DATETIME:
+		case IRDataTableVariable.DATETIME:
 			return RUI.getImage(RUI.IMG_OBJ_COL_DATETIME);
 		default:
 			return null;

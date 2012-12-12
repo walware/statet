@@ -76,6 +76,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
@@ -88,12 +89,13 @@ import de.walware.rj.data.RVector;
 import de.walware.rj.services.RService;
 
 import de.walware.statet.r.internal.ui.dataeditor.AbstractRDataProvider;
-import de.walware.statet.r.internal.ui.dataeditor.AbstractRDataProvider.FindTask;
+import de.walware.statet.r.internal.ui.dataeditor.FindTask;
 import de.walware.statet.r.internal.ui.dataeditor.IFindFilter;
 import de.walware.statet.r.internal.ui.dataeditor.IFindListener;
 import de.walware.statet.r.internal.ui.dataeditor.RDataFormatter;
 import de.walware.statet.r.internal.ui.dataeditor.RDataFormatterConverter;
 import de.walware.statet.r.internal.ui.dataeditor.RDataFrameDataProvider;
+import de.walware.statet.r.internal.ui.dataeditor.RDataTableContentDescription;
 import de.walware.statet.r.internal.ui.dataeditor.RMatrixDataProvider;
 import de.walware.statet.r.internal.ui.dataeditor.RVectorDataProvider;
 import de.walware.statet.r.internal.ui.intable.PresentationConfig;
@@ -362,9 +364,17 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 				}
 			}
 			
-//			public void onRowCountChanged() {
-//				dataLayer.fireLayerEvent(new RowStructuralRefreshEvent(dataLayer));
-//			}
+			@Override
+			public void onRowCountChanged() {
+				if (fTable != table || table.isDisposed()) {
+					return;
+				}
+				
+				dataLayer.fireLayerEvent(new RowStructuralRefreshEvent(dataLayer));
+				
+				fSelection = null;
+				scheduleUpdateSelection(true, 0);
+			}
 			
 			@Override
 			public void onRowsChanged(final int beginIdx, final int endIdx) {
@@ -581,7 +591,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		if (input != null) {
 			showDummy("Preparing (" + input.getLastName() + ")...");
 			try {
-				((RProcessDataTableInput) input).run(new ISystemRunnable() {
+				final IToolRunnable runnable = new ISystemRunnable() {
 					
 					@Override
 					public String getTypeId() {
@@ -667,7 +677,11 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 							}
 						});
 					}
-				});
+				};
+				final IStatus status = ((RToolDataTableInput) input).getTool().getQueue().add(runnable);
+				if (status.getSeverity() >= IStatus.ERROR) {
+					throw new CoreException(status);
+				}
 			}
 			catch (final CoreException e) {
 				showDummy(e.getLocalizedMessage());
@@ -727,6 +741,15 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		layout(true);
 	}
 	
+	
+	public void setFilter(final String filter) {
+		fDataProvider.setFilter(filter);
+	}
+	
+	
+	public RDataTableContentDescription getDescription() {
+		return fDataProvider.getDescription();
+	}
 	
 	public void addTableListener(final IRDataTableListener listener) {
 		fTableListeners.add(listener);

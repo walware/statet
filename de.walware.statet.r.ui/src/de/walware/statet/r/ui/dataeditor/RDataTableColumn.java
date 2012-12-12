@@ -15,26 +15,18 @@ import java.util.List;
 
 import de.walware.rj.data.RStore;
 
+import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.internal.ui.dataeditor.RDataFormatter;
 
 
-public class RDataTableColumn {
-	
-	
-	public static final int LOGI = RStore.LOGICAL;
-	public static final int INT = RStore.INTEGER;
-	public static final int NUM = RStore.NUMERIC;
-	public static final int CPLX = RStore.COMPLEX;
-	public static final int CHAR = RStore.CHARACTER;
-	public static final int RAW = RStore.RAW;
-	public static final int FACTOR = RStore.FACTOR;
-	public static final int DATE = 0x11;
-//	public static final int TIME = 0x12;
-	public static final int DATETIME = 0x13;
+public class RDataTableColumn implements IRDataTableVariable {
 	
 	
 	private final int fIndex;
 	private final String fName;
+	
+	private final String fRExpression;
+	private final RElementName fElementName;
 	
 	private final int fColumnType;
 	private final RStore fDataStore;
@@ -45,10 +37,13 @@ public class RDataTableColumn {
 	
 	
 	public RDataTableColumn(final int columnIndex, final String name,
+			final String rExpression, final RElementName elementName,
 			final int columnType, final RStore dataStore, final List<String> classNames,
 			final RDataFormatter defaultFormat) {
 		fIndex = columnIndex;
 		fName = name;
+		fRExpression = rExpression;
+		fElementName = elementName;
 		fColumnType = columnType;
 		fDataStore = dataStore;
 		fClassNames = classNames;
@@ -57,15 +52,30 @@ public class RDataTableColumn {
 	}
 	
 	
+	@Override
+	public int getVarPresentation() {
+		return COLUMN;
+	}
+	
 	public int getIndex() {
 		return fIndex;
 	}
 	
+	@Override
 	public String getName() {
 		return fName;
 	}
 	
-	public int getColumnType() {
+	public String getRExpression() {
+		return fRExpression;
+	}
+	
+	public RElementName getElementName() {
+		return fElementName;
+	}
+	
+	@Override
+	public int getVarType() {
 		return fColumnType;
 	}
 	

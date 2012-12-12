@@ -41,6 +41,8 @@ public class RDataFormatter {
 	public static final int MILLIS_PER_HOUR = 60 * 60 * MILLIS_PER_MINUTE;
 	public static final int MILLIS_PER_DAY = MILLIS_PER_HOUR * 24;
 	
+	private static final InfoString NA = new InfoString("NA");
+	
 	private final StringBuilder fCurrentText = new StringBuilder();
 	
 	private DecimalFormat fNumFormat;
@@ -51,8 +53,6 @@ public class RDataFormatter {
 	private long fDateValueMillis;
 	
 	private RCharacterStore fFactorLevels;
-	
-	private InfoString fNA = new InfoString("NA");
 	
 	private int fAutoWidth = -1;
 	
@@ -89,7 +89,7 @@ public class RDataFormatter {
 	
 	public Object modelToDisplayValue(Object modelValue) {
 		if (modelValue == null) {
-			return fNA;
+			return NA;
 		}
 		final Class<?> clazz = modelValue.getClass();
 		if (clazz == InfoString.class) {
@@ -224,6 +224,19 @@ public class RDataFormatter {
 		return modelValue;
 	}
 	
+	
+	public boolean hasNumFormat() {
+		return (fNumFormat != null);
+	}
+	
+	public int getMaxFractionalDigits() {
+		return fNumFormat.getMaximumFractionDigits();
+	}
+	
+	public int getMaxExponentDigits() {
+		return fNumMaxExpDigits;
+	}
+	
 	public void initNumFormat(final int maxFractionalDigits, final int maxExponentDigits) {
 		clean();
 		
@@ -257,17 +270,17 @@ public class RDataFormatter {
 	public void initDateFormat(final int millis) {
 		clean();
 		
-		final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
 		fDateFormat = dateFormat;
 		
 		fDateValueMillis = millis;
-		fDateFormat.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC"), ULocale.ENGLISH));
+		fDateFormat.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC"), ULocale.ENGLISH)); //$NON-NLS-1$
 	}
 	
 	public void initDateTimeFormat(final int millis) {
 		clean();
 		
-		final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zz");
+		final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zz"); //$NON-NLS-1$
 		fDateFormat = dateFormat;
 		
 		fDateValueMillis = millis;
@@ -288,11 +301,6 @@ public class RDataFormatter {
 	
 	public RCharacterStore getFactorLevels() {
 		return fFactorLevels;
-	}
-	
-	
-	public void setNAString(final String text) {
-		fNA = new InfoString(text);
 	}
 	
 	

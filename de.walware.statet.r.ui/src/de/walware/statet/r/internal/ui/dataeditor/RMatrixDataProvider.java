@@ -21,7 +21,7 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.RVector;
 import de.walware.rj.data.UnexpectedRDataException;
-import de.walware.rj.services.RService;
+import de.walware.rj.eclient.IRToolService;
 
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.ui.dataeditor.IRDataTableInput;
@@ -75,9 +75,9 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 	
 	@Override
 	protected RDataTableContentDescription loadDescription(final RElementName name,
-			final RArray<?> struct, final RService r,
+			final RArray<?> struct, final IRToolService r,
 			final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
-		final RDataTableContentDescription description = new RDataTableContentDescription(name, struct);
+		final RDataTableContentDescription description = new RDataTableContentDescription(name, struct, r.getTool());
 		final int count = getColumnCount();
 		
 		description.setRowHeaderColumns(
@@ -85,7 +85,8 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 						r, monitor ));
 		
 		final RDataTableColumn template = createColumn(struct.getData(),
-						fInput.getFullName(), -1, null, r, monitor );
+						fInput.getFullName(), null, -1, null,
+						r, monitor );
 		if (count <= 2500) {
 			RStore names;
 			final RObject rObject = r.evalData("colnames(" + fInput.getFullName() + ")", monitor);
@@ -99,8 +100,8 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 			final RDataTableColumn[] dataColumns = new RDataTableColumn[count];
 			for (int i = 0; i < count; i++) {
 				dataColumns[i] = new RDataTableColumn(i,
-						(names != null) ? names.getChar(i) : Integer.toString((i+1)),
-						template.getColumnType(), template.getDataStore(), template.getClassNames(),
+						(names != null) ? names.getChar(i) : Integer.toString((i+1)), null, null,
+						template.getVarType(), template.getDataStore(), template.getClassNames(),
 						template.getDefaultFormat());
 			}
 			description.setDataColumns(dataColumns);
@@ -113,11 +114,11 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 	
 	@Override
 	protected RArray<?> loadDataFragment(final Store.Fragment<RArray<?>> f,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+			final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		final RVector<RIntegerStore> dim = RDataUtil.checkRIntVector(
 				r.evalData("dim(" + fInput.getFullName() + ")", monitor) );
 		if (dim.getData().getLength() != 2
-				|| dim.getData().getInt(0) != getRowCount()
+				|| dim.getData().getInt(0) != getFullRowCount()
 				|| dim.getData().getInt(1) != getColumnCount() ) {
 			throw new UnexpectedRDataException("dim");
 		}
@@ -145,11 +146,11 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 	
 	@Override
 	protected RVector<?> loadRowNamesFragment(final Store.Fragment<RVector<?>> f,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+			final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		final RVector<RIntegerStore> dim = RDataUtil.checkRIntVector(
 				r.evalData("dim(" + fInput.getFullName() + ")", monitor) );
 		if (dim.getData().getLength() != 2
-				|| dim.getData().getInt(0) != getRowCount()
+				|| dim.getData().getInt(0) != getFullRowCount()
 				|| dim.getData().getInt(1) != getColumnCount() ) {
 			throw new UnexpectedRDataException("dim");
 		}

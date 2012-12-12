@@ -38,6 +38,9 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import de.walware.ecommons.ui.actions.HandlerCollection;
 
+import de.walware.statet.base.ui.contentfilter.IFilterPage;
+
+import de.walware.statet.r.internal.ui.datafilterview.RDataFilterPage;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.dataeditor.IRDataEditorInput;
 import de.walware.statet.r.ui.dataeditor.IRDataTableInput;
@@ -84,6 +87,8 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 	private final ActivationListener fActivationListener = new ActivationListener();
 	
 	private RDataEditorOutlinePage fOutlinePage;
+	
+	private RDataFilterPage fFilterPage;
 	
 	private final IRDataTableInput.StateListener fInputStateListener = new IRDataTableInput.StateListener() {
 		@Override
@@ -297,6 +302,10 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 		return new RDataEditorOutlinePage(this);
 	}
 	
+	protected RDataFilterPage createFilterPage() {
+		return new RDataFilterPage(this);
+	}
+	
 	
 	@Override
 	public Object getAdapter(final Class required) {
@@ -308,6 +317,12 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 				fOutlinePage = createOutlinePage();
 			}
 			return fOutlinePage;
+		}
+		if (IFilterPage.class.equals(required)) {
+			if (fFilterPage == null) {
+				fFilterPage = createFilterPage();
+			}
+			return fFilterPage;
 		}
 		return super.getAdapter(required);
 	}

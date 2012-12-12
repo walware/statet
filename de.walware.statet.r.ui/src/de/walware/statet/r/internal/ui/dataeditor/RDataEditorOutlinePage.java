@@ -34,12 +34,11 @@ import de.walware.ecommons.ui.workbench.AbstractEditorOutlinePage;
 import de.walware.rj.data.RFactorStore;
 import de.walware.rj.data.RStore;
 
-import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.dataeditor.IRDataTableInput;
 import de.walware.statet.r.ui.dataeditor.IRDataTableListener;
+import de.walware.statet.r.ui.dataeditor.IRDataTableVariable;
 import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
-import de.walware.statet.r.ui.dataeditor.RProcessDataTableInput;
 
 
 public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
@@ -166,7 +165,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 			}
 			if (element instanceof RDataTableColumn) {
 				final RDataTableColumn column = (RDataTableColumn) element;
-				return (column.getColumnType() == RDataTableColumn.FACTOR);
+				return (column.getVarType() == IRDataTableVariable.FACTOR);
 			}
 			if (element instanceof ColumnPropertyItem) {
 				final ColumnPropertyItem item = (ColumnPropertyItem) element;
@@ -184,7 +183,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 			}
 			if (parentElement instanceof RDataTableColumn) {
 				final RDataTableColumn column = (RDataTableColumn) parentElement;
-				if (column.getColumnType() == RDataTableColumn.FACTOR) {
+				if (column.getVarType() == IRDataTableVariable.FACTOR) {
 					return new Object[] { new FactorLevels(column) };
 				}
 			}
@@ -203,8 +202,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 	
 	private final RDataEditor fEditor;
 	
-	RDataTableContentDescription fDescription;
-	RElementName fRootElementName;
+	private RDataTableContentDescription fDescription;
 	
 	
 	public RDataEditorOutlinePage(final RDataEditor editor) {
@@ -240,7 +238,6 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 						&& (fDescription == null
 								|| fDescription.getDataColumns().size() != description.getDataColumns().size() ));
 				fDescription = description;
-				fRootElementName = ((RProcessDataTableInput) input).getElementName();
 				
 				final TreeViewer viewer = getViewer();
 				if (UIAccess.isOkToUse(viewer)) {

@@ -11,12 +11,8 @@
 
 package de.walware.statet.r.ui.dataeditor;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ts.ITool;
-import de.walware.ecommons.ts.IToolRunnable;
 
 import de.walware.statet.nico.core.IToolLifeListener;
 import de.walware.statet.nico.core.NicoCore;
@@ -25,7 +21,7 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.r.core.model.RElementName;
 
 
-public class RProcessDataTableInput implements IRDataTableInput {
+public class RToolDataTableInput implements IRDataTableInput {
 	
 	
 	private final RElementName fElementName;
@@ -39,7 +35,7 @@ public class RProcessDataTableInput implements IRDataTableInput {
 	private final FastList<IRDataTableInput.StateListener> fListeners = new FastList<IRDataTableInput.StateListener>(IRDataTableInput.StateListener.class);
 	
 	
-	public RProcessDataTableInput(RElementName name, final ToolProcess process) {
+	public RToolDataTableInput(RElementName name, final ToolProcess process) {
 		if (process == null) {
 			throw new NullPointerException("process");
 		}
@@ -74,17 +70,9 @@ public class RProcessDataTableInput implements IRDataTableInput {
 		return fLastName;
 	}
 	
-	public ToolProcess getProcess() {
+	public ITool getTool() {
 		return fProcess;
 	}
-	
-	public void run(final IToolRunnable runnable) throws CoreException {
-		final IStatus status = fProcess.getQueue().add(runnable);
-		if (status.getSeverity() >= IStatus.ERROR) {
-			throw new CoreException(status);
-		}
-	}
-	
 	
 	@Override
 	public boolean isAvailable() {
@@ -145,10 +133,10 @@ public class RProcessDataTableInput implements IRDataTableInput {
 	
 	@Override
 	public boolean equals(final Object obj) {
-		if (!(obj instanceof RProcessDataTableInput)) {
+		if (!(obj instanceof RToolDataTableInput)) {
 			return false;
 		}
-		final RProcessDataTableInput other = (RProcessDataTableInput) obj;
+		final RToolDataTableInput other = (RToolDataTableInput) obj;
 		return (this == other || (
 				fProcess.equals(other.fProcess)
 				&& fFullName.equals(other.fFullName) ));

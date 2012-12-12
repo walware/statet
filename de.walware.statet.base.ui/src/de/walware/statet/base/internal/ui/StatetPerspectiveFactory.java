@@ -17,6 +17,8 @@ import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.progress.IProgressConstants;
 import org.eclipse.ui.texteditor.templates.TemplatesView;
 
+import de.walware.statet.base.ui.contentfilter.FilterView;
+
 
 public class StatetPerspectiveFactory implements IPerspectiveFactory {
 	
@@ -56,6 +58,7 @@ public class StatetPerspectiveFactory implements IPerspectiveFactory {
 				"editor-additions", IPageLayout.RIGHT, 0.75f, editorArea); //$NON-NLS-1$
 		editorAddFolder.addView(IPageLayout.ID_OUTLINE);
 		editorAddFolder.addPlaceholder(TemplatesView.ID);
+		editorAddFolder.addPlaceholder(FilterView.VIEW_ID);
 		
 		final IFolderLayout consoleAddFolder = layout.createFolder(
 				"console-additions", IPageLayout.BOTTOM, 0.60f, "left"); //$NON-NLS-1$ //$NON-NLS-2$

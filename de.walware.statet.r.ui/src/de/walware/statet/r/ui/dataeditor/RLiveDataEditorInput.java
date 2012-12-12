@@ -46,11 +46,11 @@ public class RLiveDataEditorInput extends PlatformObject implements IRDataEditor
 	}
 	
 	
-	private final RProcessDataTableInput fInput;
+	private final RToolDataTableInput fInput;
 	
 	
 	public RLiveDataEditorInput(final ToolProcess process, final RElementName elementName) {
-		fInput = new RProcessDataTableInput(elementName, process);
+		fInput = new RToolDataTableInput(elementName, process);
 	}
 	
 	
@@ -67,12 +67,12 @@ public class RLiveDataEditorInput extends PlatformObject implements IRDataEditor
 	@Override
 	public String getToolTipText() {
 		return NLS.bind("{0} in {1}", fInput.getElementName().getDisplayName(),
-				fInput.getProcess().getLabel(ITool.LONG_LABEL));
+				fInput.getTool().getLabel(ITool.LONG_LABEL));
 	}
 	
 	@Override
 	public boolean exists() {
-		return !fInput.getProcess().isTerminated();
+		return fInput.isAvailable();
 	}
 	
 	@Override
@@ -81,7 +81,7 @@ public class RLiveDataEditorInput extends PlatformObject implements IRDataEditor
 	}
 	
 	@Override
-	public RProcessDataTableInput getRDataTableInput() {
+	public RToolDataTableInput getRDataTableInput() {
 		return fInput;
 	}
 	

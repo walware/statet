@@ -20,7 +20,7 @@ import de.walware.rj.data.RIntegerStore;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RVector;
 import de.walware.rj.data.UnexpectedRDataException;
-import de.walware.rj.services.RService;
+import de.walware.rj.eclient.IRToolService;
 
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.ui.dataeditor.IRDataTableInput;
@@ -66,16 +66,16 @@ public class RVectorDataProvider extends AbstractRDataProvider<RVector<?>> {
 	
 	@Override
 	protected RDataTableContentDescription loadDescription(final RElementName name,
-			final RVector<?> struct, final RService r,
+			final RVector<?> struct, final IRToolService r,
 			final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
-		final RDataTableContentDescription description = new RDataTableContentDescription(name, struct);
+		final RDataTableContentDescription description = new RDataTableContentDescription(name, struct, r.getTool());
 		
 		description.setRowHeaderColumns(
 				createNamesColumn("names(" + fInput.getFullName() + ")", getRowCount(struct),
 						r, monitor ));
 		
 		final RDataTableColumn dataColumn = createColumn(struct.getData(),
-						fInput.getFullName(), 0, fInput.getLastName(),
+						fInput.getFullName(), BASE_NAME, 0, fInput.getLastName(),
 						r, monitor );
 		description.setDataColumns(dataColumn);
 		
@@ -86,11 +86,11 @@ public class RVectorDataProvider extends AbstractRDataProvider<RVector<?>> {
 	
 	@Override
 	protected RVector<?> loadDataFragment(final Store.Fragment<RVector<?>> f,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+			final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		final RVector<RIntegerStore> dim = RDataUtil.checkRIntVector(
 				r.evalData("length(" + fInput.getFullName() + ")", monitor) );
 		if (dim.getData().getLength() != 1
-				|| dim.getData().getInt(0) != getRowCount() ) {
+				|| dim.getData().getInt(0) != getFullRowCount() ) {
 			throw new UnexpectedRDataException("dim");
 		}
 		
@@ -113,11 +113,11 @@ public class RVectorDataProvider extends AbstractRDataProvider<RVector<?>> {
 	
 	@Override
 	protected RVector<?> loadRowNamesFragment(final Store.Fragment<RVector<?>> f,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+			final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		final RVector<RIntegerStore> dim = RDataUtil.checkRIntVector(
 				r.evalData("length(" + fInput.getFullName() + ")", monitor) );
 		if (dim.getData().getLength() != 1
-				|| dim.getData().getInt(0) != getRowCount() ) {
+				|| dim.getData().getInt(0) != getFullRowCount() ) {
 			throw new UnexpectedRDataException("dim");
 		}
 		

@@ -20,7 +20,6 @@ import com.ibm.icu.util.TimeZone;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
 import org.eclipse.nebula.widgets.nattable.sort.ISortModel;
@@ -35,7 +34,6 @@ import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
-import de.walware.ecommons.ui.components.StatusInfo;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.rj.data.RCharacterStore;
@@ -49,10 +47,10 @@ import de.walware.rj.data.RVector;
 import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.data.defaultImpl.RFactorDataStruct;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
-import de.walware.rj.services.RService;
+import de.walware.rj.eclient.IRToolService;
+import de.walware.rj.services.FunctionCall;
 
 import de.walware.statet.r.core.model.RElementName;
-import de.walware.statet.r.internal.ui.dataeditor.IFindListener.FindEvent;
 import de.walware.statet.r.internal.ui.dataeditor.Store.Item;
 import de.walware.statet.r.internal.ui.dataeditor.Store.LoadDataException;
 import de.walware.statet.r.internal.ui.dataeditor.Store.Lock;
@@ -60,22 +58,31 @@ import de.walware.statet.r.internal.ui.intable.InfoString;
 import de.walware.statet.r.nico.ICombinedRDataAdapter;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.dataeditor.IRDataTableInput;
+import de.walware.statet.r.ui.dataeditor.IRDataTableVariable;
 import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
-import de.walware.statet.r.ui.dataeditor.RProcessDataTableInput;
+import de.walware.statet.r.ui.dataeditor.RToolDataTableInput;
 
 
 public abstract class AbstractRDataProvider<T extends RObject> implements IDataProvider {
 	
 	
-	public static final Object LOADING = new InfoString("LOADING");
+	public static final Object LOADING = new InfoString("loading...");
 	public static final Object ERROR = new InfoString("ERROR");
 	
+	protected static final RElementName BASE_NAME = RElementName.create(RElementName.MAIN_DEFAULT, "x"); //$NON-NLS-1$
 	
-	public static void checkCancel(final Exception e) throws CoreException {
+	
+	static void checkCancel(final Exception e) throws CoreException {
 		if (e instanceof CoreException
 				&& ((CoreException) e).getStatus().getSeverity() == IStatus.CANCEL) {
 			throw (CoreException) e;
 		}
+	}
+	
+	static void cleanTmp(final String name, final IRToolService r, final IProgressMonitor monitor) throws CoreException {
+		final FunctionCall call = r.createFunctionCall(RJTmp.REMOVE); 
+		call.addChar(RJTmp.NAME_PAR, name);
+		call.evalVoid(monitor);
 	}
 	
 	
@@ -108,51 +115,6 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 	}
 	
-	public static final class FindTask {
-		
-		
-		public final String expression;
-		
-		public final int rowIdx;
-		public final int columnIdx;
-		public final boolean firstInRow;
-		public final boolean forward;
-		
-		public final IFindFilter filter;
-		
-		
-		public FindTask(final String expression,
-				final int rowIdx, final int columnIdx,
-				final boolean firstByRow, final boolean forward,
-				final IFindFilter filter) {
-			this.expression = expression;
-			
-			this.rowIdx = rowIdx;
-			this.columnIdx = columnIdx;
-			this.firstInRow = firstByRow;
-			this.forward = forward;
-			
-			this.filter = filter;
-		}
-		
-		
-		@Override
-		public int hashCode() {
-			return expression.hashCode();
-		}
-		
-		@Override
-		public boolean equals(final Object obj) {
-			if (!(obj instanceof FindTask)) {
-				return false;
-			}
-			final FindTask other = (FindTask) obj;
-			return (expression.equals(other.expression)
-					&& firstInRow == other.firstInRow);
-		}
-		
-	}
-	
 	public static interface IDataProviderListener {
 		
 		
@@ -163,16 +125,11 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 		void onInputFailed(int error);
 		
-//		void onRowCountChanged();
+		void onRowCountChanged();
 		
 		void onRowsChanged(int begin, int end);
 		
 	}
-	
-	
-	private static final int FIND_CELL = 1;
-	private static final int FIND_ROW = 2;
-	private static final int FIND_ERROR = -1;
 	
 	
 	private class MainLock extends Lock {
@@ -204,23 +161,6 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		void notify(final Object obj) {
 			if (obj == waiting) {
 				notifyAll();
-			}
-		}
-		
-	}
-	
-	private class FindLock extends Lock {
-		
-		boolean scheduled;
-		
-		@Override
-		void schedule(final Object obj) {
-			if (obj != null && state > 0) {
-				return;
-			}
-			if (!scheduled) {
-				scheduled = true;
-				AbstractRDataProvider.this.schedule(fFindRunnable);
 			}
 		}
 		
@@ -403,7 +343,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
-			runInit((RService) service, monitor);
+			runInit((IRToolService) service, monitor);
 		}
 		
 	};
@@ -446,50 +386,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
-			runUpdate((RService) service, monitor);
-		}
-		
-	};
-	
-	private final IToolRunnable fFindRunnable = new ISystemRunnable() {
-		
-		@Override
-		public String getTypeId() {
-			return "r/dataeditor/find"; //$NON-NLS-1$
-		}
-		
-		@Override
-		public String getLabel() {
-			return "Find Data (" + fInput.getLastName() + ")";
-		}
-		
-		@Override
-		public boolean isRunnableIn(final ITool tool) {
-			return true; // TODO
-		}
-		
-		@Override
-		public boolean changed(final int event, final ITool process) {
-			switch (event) {
-			case MOVING_FROM:
-				return false;
-			case REMOVING_FROM:
-			case BEING_ABANDONED:
-				synchronized (fFindLock) {
-					fFindLock.scheduled = false;
-					fFindLock.notifyAll();
-				}
-				break;
-			default:
-				break;
-			}
-			return true;
-		}
-		
-		@Override
-		public void run(final IToolService service,
-				final IProgressMonitor monitor) throws CoreException {
-			runFind((RService) service, monitor);
+			runUpdate((IRToolService) service, monitor);
 		}
 		
 	};
@@ -526,15 +423,18 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
-			runClean((RService) service, monitor);
+			runClean((IRToolService) service, monitor);
 		}
 		
 	};
 	
 	
+	private final Display fRealm;
+	
 	protected final IRDataTableInput fInput;
 	
 	private final int fColumnCount;
+	private int fFullRowCount;
 	private int fRowCount;
 	
 	private final FastList<IDataProviderListener> fDataListeners =
@@ -553,6 +453,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	private final Store<RVector<?>> fRowNamesStore;
 	
 	private boolean fUpdateSorting;
+	private boolean fUpdateFiltering;
 	
 	private final StringBuilder fRStringBuilder = new StringBuilder(128);
 	private String fRCacheId; // only in R jobs
@@ -561,27 +462,22 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	private final ISortModel fSortModel;
 	private SortColumn fSortColumn = null;
 	private String fRCacheSort; // only in R jobs
-	private String fRCacheSortR; // only in R jobs
 	
-	private FindTask fFindScheduledTask;
+	private String fFilter;
+	private String fRCacheFilter;
 	
-	private String fRCacheFind; // only in R jobs
-	private FindTask fFindCurrentTask;
-	private int fFindActiveMode;
-	private String fFindActiveExpression;
-	private int fFindCount;
-	private int fFindLastMatchIdx;
+	private boolean fUpdateIdx; // only in R jobs
+	private String fRCacheIdx; // only in R jobs
+	private String fRCacheIdxR; // only in R jobs
 	
-	private final FindLock fFindLock = new FindLock();
-	private final Store<RObject> fFindStore;
-	
-	private final FastList<IFindListener> fFindListeners = new FastList<IFindListener>(IFindListener.class);
+	private final FindManager fFindManager;
 	
 	
 	protected AbstractRDataProvider(final IRDataTableInput input, final T initialRObject) {
+		fRealm = UIAccess.getDisplay();
 		fInput = input;
 		
-		fRowCount = getRowCount(initialRObject);
+		fFullRowCount = fRowCount = getRowCount(initialRObject);
 		fColumnCount = getColumnCount(initialRObject);
 		
 		final int dataMax;
@@ -596,7 +492,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		}
 		fDataStore = new Store<T>(fFragmentsLock, fColumnCount, fRowCount, dataMax);
 		fRowNamesStore = new Store<RVector<?>>(fFragmentsLock, 1, fRowCount, 10);
-		fFindStore = new Store<RObject>(fFindLock, 1, 0, 5);
+		fFindManager = new FindManager(this);
 		
 		fColumnDataProvider = createColumnDataProvider();
 		fRowDataProvider = createRowDataProvider();
@@ -606,22 +502,32 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	
 	public abstract RObject getRObject();
 	
-	private void schedule(final IToolRunnable runnable) {
+	final int getLockState() {
+		return fFragmentsLock.state;
+	}
+	
+	final void schedule(final IToolRunnable runnable) {
 		try {
-			((RProcessDataTableInput) fInput).run(runnable);
+			final ITool tool = ((RToolDataTableInput) fInput).getTool();
+			final IStatus status = tool.getQueue().add(runnable);
+			if (status.getSeverity() == IStatus.ERROR && !tool.isTerminated()) {
+				throw new CoreException(status);
+			}
 		}
 		catch (final CoreException e) {
-			clear(Lock.ERROR_STATE, -1, true);
+			clear(Lock.ERROR_STATE);
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
 					"An error occurred when scheduling job for data viewer.", e));
 		}
 	}
 	
-	private void runInit(final RService r, final IProgressMonitor monitor) throws CoreException {
+	private void runInit(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
 		try {
 			if (fRCacheId == null) {
 				r.evalVoid("require(\"rj\", quietly = TRUE)", monitor);
-				fRCacheId = RDataUtil.checkSingleCharValue(r.evalData(".rj.nextId(\"viewer\")", monitor));
+				final FunctionCall call = r.createFunctionCall(RJTmp.CREATE_ID);
+				call.addChar("viewer"); //$NON-NLS-1$
+				fRCacheId = RDataUtil.checkSingleCharValue(call.evalData(monitor));
 			}
 		}
 		catch (final Exception e) {
@@ -629,11 +535,11 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 				fInitScheduled = false;
 			}
 			checkCancel(e);
-			clear(Lock.ERROR_STATE, -1, true);
+			clear(Lock.ERROR_STATE);
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
 					"An error occurred when preparing tmp variables for data viewer.", e));
 			
-			Display.getDefault().syncExec(new Runnable() {
+			fRealm.syncExec(new Runnable() {
 				@Override
 				public void run() {
 					for (final IDataProviderListener listener : fDataListeners.toArray()) {
@@ -655,11 +561,11 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 				fInitScheduled = false;
 			}
 			checkCancel(e);
-			clear(Lock.RELOAD_STATE, -1, true);
+			clear(Lock.RELOAD_STATE);
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
 					"An error occurred when initializing structure data for data viewer.", e));
 			
-			Display.getDefault().syncExec(new Runnable() {
+			fRealm.syncExec(new Runnable() {
 				@Override
 				public void run() {
 					for (final IDataProviderListener listener : fDataListeners.toArray()) {
@@ -678,19 +584,19 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 				fInitScheduled = false;
 			}
 			checkCancel(e);
-			clear(Lock.RELOAD_STATE, -1, true);
+			clear(Lock.RELOAD_STATE);
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
 					"An error occurred when initializing default formats for data viewer.", e));
 			return;
 		}
 		
-		Display.getDefault().syncExec(new Runnable() {
+		fRealm.syncExec(new Runnable() {
 			@Override
 			public void run() {
 				fDescription = description;
 				final int rowCount = getRowCount(fRObjectStruct);
 				final boolean rowsChanged = (rowCount != getRowCount());
-				clear(0, rowCount, true);
+				clear(0, rowCount, rowCount, true, true, true);
 				
 				synchronized (fInitRunnable) {
 					fInitScheduled = false;
@@ -707,7 +613,11 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		});
 	}
 	
-	private void runUpdate(final RService r, final IProgressMonitor monitor) throws CoreException {
+	final String createTmp(final String key) {
+		return fRCacheId + key;
+	}
+	
+	private void runUpdate(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
 		boolean work = true;
 		while (work) {
 			try {
@@ -715,7 +625,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 				final Item<RVector<?>>[] rowNamesToUpdate;
 				
 				boolean updateSorting = false;
-				SortColumn sortColumn = null;
+				boolean updateFiltering = false;
 				work = false;
 				
 				synchronized (fFragmentsLock) {
@@ -724,14 +634,23 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 					
 					if (fUpdateSorting) {
 						updateSorting = true;
-						sortColumn = fSortColumn;
 					}
-					
+					if (fUpdateFiltering) {
+						updateFiltering = true;
+					}
 					fFragmentsLock.scheduled = false;
 				}
 				
 				if (updateSorting) {
-					updateSorting(sortColumn, r, monitor);
+					updateSorting(r, monitor);
+					work = true;
+				}
+				if (updateFiltering) {
+					updateFiltering(r, monitor);
+					work = true;
+				}
+				if (fUpdateIdx) {
+					updateIdx(r, monitor);
 					work = true;
 				}
 				
@@ -788,7 +707,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			}
 			catch (final Exception e) {
 				checkCancel(e);
-				clear(Lock.RELOAD_STATE, -1, true);
+				clear(Lock.RELOAD_STATE);
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
 						NLS.bind("An error occurred when loading data of ''{0}'' for data viewer.", fInput.getFullName()), e));
 				return;
@@ -796,29 +715,121 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		}
 	}
 	
-	private void updateSorting(final SortColumn sortColumn,
-			final RService r, final IProgressMonitor monitor) throws UnexpectedRDataException, CoreException {
-		if (sortColumn == null) {
-			cleanSorting(r, monitor);
+	private void updateSorting(
+			final IRToolService r, final IProgressMonitor monitor) throws UnexpectedRDataException, CoreException {
+		cleanSorting(r, monitor);
+		
+		final SortColumn sortColumn;
+		synchronized (fFragmentsLock) {
+			sortColumn = fSortColumn;
+			fUpdateSorting = false;
+		}
+		if (sortColumn != null) {
+			if (fRCacheSort == null) {
+				fRCacheSort = fRCacheId + ".order"; //$NON-NLS-1$
+			}
+			final FunctionCall call = r.createFunctionCall(RJTmp.SET); 
+			call.addChar(RJTmp.NAME_PAR, fRCacheSort);
+			final StringBuilder cmd = getRCmdStringBuilder();
+			appendOrderCmd(cmd, sortColumn);
+			call.add(RJTmp.VALUE_PAR, cmd.toString()); 
+			call.evalVoid(monitor);
+		}
+	}
+	
+	private void updateFiltering(
+			final IRToolService r, final IProgressMonitor monitor) throws UnexpectedRDataException, CoreException {
+		cleanFiltering(r, monitor);
+		
+		String filter;
+		synchronized (fFragmentsLock) {
+			filter = fFilter;
+			fUpdateFiltering = false;
+		}
+		final int filteredRowCount;
+		if (filter == null) {
+			filteredRowCount = getFullRowCount();
 		}
 		else {
-			if (fRCacheSortR != null) {
-				cleanTmp(fRCacheSortR, r, monitor);
-				fRCacheSortR = null;
+			if (fRCacheFilter == null) {
+				fRCacheFilter = fRCacheId + ".include"; //$NON-NLS-1$
 			}
-			if (fRCacheSort == null) {
-				fRCacheSort = fRCacheId + ".order";
+			{	final FunctionCall call = r.createFunctionCall(RJTmp.SET); 
+				call.addChar(RJTmp.NAME_PAR, fRCacheFilter);
+				call.add(RJTmp.VALUE_PAR, filter); 
+				call.evalVoid(monitor);
 			}
-			final StringBuilder cmd = getRCmdStringBuilder();
-			cmd.append("assign(\"").append(fRCacheSort).append("\", envir = .rj.tmp, value = ");
-			appendOrderCmd(cmd, sortColumn);
-			cmd.append(")");
-			r.evalVoid(cmd.toString(), monitor);
+			{	final FunctionCall call = r.createFunctionCall(RJTmp.GET_FILTERED_COUNT);
+				call.addChar(RJTmp.FILTER_PAR, fRCacheFilter);
+				filteredRowCount = RDataUtil.checkSingleIntValue(call.evalData(monitor));
+			}
 		}
-		synchronized (fFragmentsLock) {
-			if (fSortColumn == sortColumn) {
-				fUpdateSorting = false;
+		fRealm.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				clear(0, filteredRowCount, getFullRowCount(), false, false, false);
+				for (final IDataProviderListener listener : fDataListeners.toArray()) {
+					listener.onRowCountChanged();
+				}
 			}
+		});
+	}
+	
+	private void updateIdx(
+			final IRToolService r, final IProgressMonitor monitor) throws UnexpectedRDataException, CoreException {
+		cleanIdx(r, monitor);
+		if (fRCacheSort != null || fRCacheFilter != null) {
+			if (fRCacheIdx == null) {
+				fRCacheIdx = fRCacheId + ".idx";
+			}
+			if (fRCacheFilter == null) { // fRCacheSort != null
+				final FunctionCall call = r.createFunctionCall(RJTmp.SET);
+				call.addChar(RJTmp.NAME_PAR, fRCacheIdx);
+				call.add(RJTmp.VALUE_PAR, RJTmp.ENV+'$'+ fRCacheSort);
+				call.evalVoid(monitor);
+			}
+			else if (fRCacheSort == null) { // fRCacheFilter != null
+				final FunctionCall call = r.createFunctionCall(RJTmp.SET_WHICH_INDEX);
+				call.addChar(RJTmp.NAME_PAR, fRCacheIdx);
+				call.addChar(RJTmp.FILTER_PAR, fRCacheFilter);
+				call.evalVoid(monitor);
+			}
+			else { // fRCacheSort != null && fRCacheFilter != null
+				final FunctionCall call = r.createFunctionCall(RJTmp.SET_FILTERED_INDEX);
+				call.addChar(RJTmp.NAME_PAR, fRCacheIdx);
+				call.addChar(RJTmp.FILTER_PAR, fRCacheFilter);
+				call.addChar(RJTmp.INDEX_PAR, fRCacheSort);
+				call.evalVoid(monitor);
+			}
+		}
+		fUpdateIdx = false;
+	}
+	
+	String checkFilter() {
+		return fRCacheFilter;
+	}
+	
+	String checkRevIndex(
+			final IRToolService r, final IProgressMonitor monitor) throws CoreException {
+		if (fRCacheIdx != null && fRCacheIdxR == null) {
+			final String name = fRCacheIdx + ".r";
+			try {
+				final FunctionCall call = r.createFunctionCall(RJTmp.SET_REVERSE_INDEX);
+				call.addChar(RJTmp.NAME_PAR, name);
+				call.addChar(RJTmp.INDEX_PAR, fRCacheIdx);
+				call.addInt(RJTmp.LEN_PAR, getFullRowCount());
+				call.evalVoid(monitor);
+				fRCacheIdxR = name;
+				return name;
+			}
+			finally {
+				if (fRCacheIdxR == null) {
+					cleanTmp(name, r, monitor);
+				}
+			}
+		}
+		else {
+			return null;
 		}
 	}
 	
@@ -826,28 +837,28 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	protected abstract int getRowCount(T struct);
 	
 	protected abstract T loadDataFragment(Store.Fragment<T> f,
-			RService r, IProgressMonitor monitor) throws CoreException, UnexpectedRDataException;
+			IRToolService r, IProgressMonitor monitor) throws CoreException, UnexpectedRDataException;
 	
 	protected abstract RVector<?> loadRowNamesFragment(final Store.Fragment<RVector<?>> f,
-			RService r, IProgressMonitor monitor) throws CoreException, UnexpectedRDataException;
+			IRToolService r, IProgressMonitor monitor) throws CoreException, UnexpectedRDataException;
 	
 	protected abstract T validateObject(RObject struct) throws UnexpectedRDataException;
 	
 	protected abstract RDataTableContentDescription loadDescription(RElementName name,
-			T struct, RService r,
+			T struct, IRToolService r,
 			IProgressMonitor monitor) throws CoreException, UnexpectedRDataException;
 	
 	
 	protected RDataTableColumn createColumn(final RStore store, final String expression,
-			final int columnIndex, final String columnName,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+			final RElementName elementName, final int columnIndex, final String columnName,
+			final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		
 		final ConstList<String> classNames;
 		
 		RObject rObject;
-		{	final StringBuilder cmd = getRCmdStringBuilder();
-			cmd.append("class(").append(expression).append(')');
-			rObject = r.evalData(cmd.toString(), monitor);
+		{	final FunctionCall call = r.createFunctionCall("class"); //$NON-NLS-1$
+			call.add(expression);
+			rObject = call.evalData(monitor);
 			final RVector<RCharacterStore> names = RDataUtil.checkRCharVector(rObject);
 			classNames = new ConstList<String>(names.getData().toArray());
 		}
@@ -856,90 +867,90 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		switch (store.getStoreType()) {
 		case RStore.LOGICAL:
 			format.setAutoWidth(5);
-			column = new RDataTableColumn(columnIndex, columnName,
-					RDataTableColumn.LOGI, store, classNames, format);
+			column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+					IRDataTableVariable.LOGI, store, classNames, format);
 			break;
 		case RStore.NUMERIC:
 			if (checkDateFormat(expression, classNames, format, r, monitor)) {
-				column = new RDataTableColumn(columnIndex, columnName,
-						RDataTableColumn.DATE, store, classNames, format);
+				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+						IRDataTableVariable.DATE, store, classNames, format);
 				break;
 			}
 			if (checkDateTimeFormat(expression, classNames, format, r, monitor)) {
-				column = new RDataTableColumn(columnIndex, columnName,
-						RDataTableColumn.DATETIME, store, classNames, format);
+				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+						IRDataTableVariable.DATETIME, store, classNames, format);
 				break;
 			}
-			{	final StringBuilder cmd = getRCmdStringBuilder();
-				cmd.append("format.info(").append(expression).append(')');
-				rObject = r.evalData(cmd.toString(), monitor);
+			{	final FunctionCall call = r.createFunctionCall("format.info"); //$NON-NLS-1$
+				call.add(expression);
+				rObject = call.evalData(monitor);
 			}
 			{	final RIntegerStore formatInfo = RDataUtil.checkRIntVector(rObject).getData();
 				RDataUtil.checkLengthGreaterOrEqual(formatInfo, 3);
 				format.setAutoWidth(Math.max(formatInfo.getInt(0), 3));
 				format.initNumFormat(formatInfo.getInt(1), formatInfo.getInt(2) > 0 ?
 						formatInfo.getInt(2) + 1 : 0);
-				column = new RDataTableColumn(columnIndex, columnName,
-						RDataTableColumn.NUM, store, classNames, format);
+				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+						IRDataTableVariable.NUM, store, classNames, format);
 				break;
 			}
 		case RStore.INTEGER:
 			if (checkDateFormat(expression, classNames, format, r, monitor)) {
-				column = new RDataTableColumn(columnIndex, columnName,
-						RDataTableColumn.DATE, store, classNames, format);
+				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+						IRDataTableVariable.DATE, store, classNames, format);
 				break;
 			}
 			if (checkDateTimeFormat(expression, classNames, format, r, monitor)) {
-				column = new RDataTableColumn(columnIndex, columnName,
-						RDataTableColumn.DATETIME, store, classNames, format);
+				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+						IRDataTableVariable.DATETIME, store, classNames, format);
 				break;
 			}
-			{	final StringBuilder cmd = getRCmdStringBuilder();
-				cmd.append("format.info(").append(expression).append(')');
-				rObject = r.evalData(cmd.toString(), monitor);
+			{	final FunctionCall call = r.createFunctionCall("format.info"); //$NON-NLS-1$
+				call.add(expression);
+				rObject = call.evalData(monitor);
 			}
 			{	final RIntegerStore formatInfo = RDataUtil.checkRIntVector(rObject).getData();
 				RDataUtil.checkLengthGreaterOrEqual(formatInfo, 1);
 				format.setAutoWidth(Math.max(formatInfo.getInt(0), 3));
-				column = new RDataTableColumn(columnIndex, columnName,
-						RDataTableColumn.INT, store, classNames, format);
+				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+						IRDataTableVariable.INT, store, classNames, format);
 				break;
 			}
 		case RStore.CHARACTER:
-			{	final StringBuilder cmd = getRCmdStringBuilder();
-				cmd.append("format.info(").append(expression).append(')');
-				rObject = r.evalData(cmd.toString(), monitor);
+			{	final FunctionCall call = r.createFunctionCall("format.info"); //$NON-NLS-1$
+				call.add(expression);
+				rObject = call.evalData(monitor);
 			}
 			{	final RIntegerStore formatInfo = RDataUtil.checkRIntVector(rObject).getData();
 				RDataUtil.checkLengthGreaterOrEqual(formatInfo, 1);
 				format.setAutoWidth(Math.max(formatInfo.getInt(0), 3));
-				column = new RDataTableColumn(columnIndex, columnName,
-						RDataTableColumn.CHAR, store, classNames, format);
+				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+						IRDataTableVariable.CHAR, store, classNames, format);
 				break;
 			}
 		case RStore.COMPLEX:
-			{	final StringBuilder cmd = getRCmdStringBuilder();
-				cmd.append("format.info(").append(expression).append(')');
-				rObject = r.evalData(cmd.toString(), monitor);
+			{	final FunctionCall call = r.createFunctionCall("format.info"); //$NON-NLS-1$
+				call.add(expression);
+				rObject = call.evalData(monitor);
 			}
 			{	final RIntegerStore formatInfo = RDataUtil.checkRIntVector(rObject).getData();
 				RDataUtil.checkLengthGreaterOrEqual(formatInfo, 3);
 				format.setAutoWidth(Math.max(formatInfo.getInt(0), 3));
 				format.initNumFormat(formatInfo.getInt(1), formatInfo.getInt(2) > 0 ?
 						formatInfo.getInt(2) + 1 : 0);
-				column = new RDataTableColumn(columnIndex, columnName,
-						RDataTableColumn.CPLX, store, classNames, format);
+				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+						IRDataTableVariable.CPLX, store, classNames, format);
 				break;
 			}
 		case RStore.RAW:
 			format.setAutoWidth(2);
-			column = new RDataTableColumn(columnIndex, columnName,
-					RDataTableColumn.RAW, store, classNames, format);
+			column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+					IRDataTableVariable.RAW, store, classNames, format);
 			break;
 		case RStore.FACTOR:
-			{	final StringBuilder cmd = getRCmdStringBuilder();
-				cmd.append("levels(").append(expression).append(')');
-				rObject = r.evalData(cmd.toString(), monitor);
+			{	final FunctionCall call = r.createFunctionCall("levels"); //$NON-NLS-1$
+				call.add(expression);
+				rObject = call.evalData(monitor);
 			}
 			{	format.setAutoWidth(3);
 				final RCharacterStore levels = RDataUtil.checkRCharVector(rObject).getData();
@@ -952,8 +963,8 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 					}
 				}
 				format.initFactorLevels(levels);
-				column = new RDataTableColumn(columnIndex, columnName,
-						RDataTableColumn.FACTOR, RFactorDataStruct.addLevels((RFactorStore) store, levels),
+				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+						IRDataTableVariable.FACTOR, RFactorDataStruct.addLevels((RFactorStore) store, levels),
 						classNames, format);
 				break;
 			}
@@ -965,7 +976,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	
 	protected boolean checkDateFormat(final String expression, final List<String> classNames,
 			final RDataFormatter formatter,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+			final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		if (classNames.contains("Data")) {
 			formatter.initDateFormat(RDataFormatter.MILLIS_PER_DAY);
 			formatter.setAutoWidth(10);
@@ -976,15 +987,16 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	
 	protected boolean checkDateTimeFormat(final String expression, final List<String> classNames,
 			final RDataFormatter formatter,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+			final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		RObject rObject;
 		if (classNames.contains("POSIXct")) {
 			formatter.initDateTimeFormat(RDataFormatter.MILLIS_PER_SECOND);
 			formatter.setAutoWidth(27);
 			
-			{	final StringBuilder cmd = getRCmdStringBuilder();
-				cmd.append("attr(").append(expression).append(",\"tzone\")");
-				rObject = r.evalData(cmd.toString(), monitor);
+			{	final FunctionCall call = r.createFunctionCall("base::attr"); //$NON-NLS-1$
+				call.add(expression);
+				call.addChar("tzone");
+				rObject = call.evalData(monitor);
 			}
 			if (rObject.getRObjectType() != RObject.TYPE_NULL) {
 				formatter.setDateTimeZone(TimeZone.getTimeZone(RDataUtil.checkSingleCharValue(rObject)));
@@ -995,13 +1007,13 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	}
 	
 	protected RDataTableColumn createNamesColumn(final String expression, final int count,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+			final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		final RObject names = r.evalData(expression, null, RObjectFactory.F_ONLY_STRUCT, 1, monitor);
 		if (names != null && names.getRObjectType() == RObject.TYPE_VECTOR
 				&& names.getLength() == count
 				&& (names.getData().getStoreType() == RStore.CHARACTER
 						|| names.getData().getStoreType() == RStore.INTEGER)) {
-			return createColumn(names.getData(), expression, -1, null, r, monitor);
+			return createColumn(names.getData(), expression, null, -1, null, r, monitor);
 		}
 		return createAutoNamesColumn(count);
 	}
@@ -1009,8 +1021,8 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	private RDataTableColumn createAutoNamesColumn(final int count) {
 		final RDataFormatter format = new RDataFormatter();
 		format.setAutoWidth(Math.max(Integer.toString(count).length(), 3));
-		return new RDataTableColumn(-1, null,
-				RDataTableColumn.INT, RObjectFactoryImpl.INT_STRUCT_DUMMY,
+		return new RDataTableColumn(-1, null, null, null,
+				IRDataTableVariable.INT, RObjectFactoryImpl.INT_STRUCT_DUMMY,
 				new ConstList<String>(RObject.CLASSNAME_INTEGER),
 				format);
 	}
@@ -1018,51 +1030,52 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	protected abstract void appendOrderCmd(StringBuilder cmd, SortColumn sortColumn);
 	
 	
-	private void runClean(final RService r, final IProgressMonitor monitor) throws CoreException {
-		clear(Lock.ERROR_STATE, -1, true);
+	private void runClean(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
+		clear(Lock.ERROR_STATE);
 		cleanSorting(r, monitor);
-		cleanFinding(r, monitor);
+		cleanFiltering(r, monitor);
+		fFindManager.clean(r, monitor);
 		cleanTmp(fRCacheId, r, monitor);
 	}
 	
-	private void cleanSorting(final RService r, final IProgressMonitor monitor) throws CoreException {
+	private void cleanSorting(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
+		cleanIdx(r, monitor);
 		if (fRCacheSort != null) {
 			cleanTmp(fRCacheSort, r, monitor);
 			fRCacheSort = null;
 		}
-		if (fRCacheSortR != null) {
-			cleanTmp(fRCacheSortR, r, monitor);
-			fRCacheSortR = null;
+	}
+	
+	private void cleanFiltering(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
+		cleanIdx(r, monitor);
+		if (fRCacheFilter != null) {
+			cleanTmp(fRCacheFilter, r, monitor);
+			fRCacheFilter = null;
 		}
 	}
 	
-	private void cleanFinding(final RService r, final IProgressMonitor monitor) throws CoreException {
-		if (fRCacheFind != null) {
-			cleanTmp(fRCacheFind, r, monitor);
-			fRCacheFind = null;
+	private void cleanIdx(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
+		fUpdateIdx = true;
+		if (fRCacheIdx != null) {
+			cleanTmp(fRCacheIdx, r, monitor);
+			fRCacheIdx = null;
+		}
+		if (fRCacheIdxR != null) {
+			cleanTmp(fRCacheIdxR, r, monitor);
+			fRCacheIdxR = null;
 		}
 	}
 	
-	private void cleanTmp(final String tmp, final RService r, final IProgressMonitor monitor) throws CoreException {
-		final StringBuilder cmd = getRCmdStringBuilder();
-		cmd.append("if ");
-		cmd.append("(exists(\"").append(tmp).append("\", envir = .rj.tmp, inherits = FALSE)) ");
-		cmd.append("{");
-		cmd.append("rm(\"").append(tmp).append("\", envir = .rj.tmp, inherits = FALSE)");
-		cmd.append("}");
-		r.evalVoid(cmd.toString(), monitor);
-	}
 	
-	
-	protected StringBuilder getRCmdStringBuilder() {
+	protected final StringBuilder getRCmdStringBuilder() {
 		fRStringBuilder.setLength(0);
 		return fRStringBuilder;
 	}
 	
 	protected void appendRowIdxs(final StringBuilder cmd, final int beginRowIdx, final int endRowIdx) {
-		if (fRCacheSort != null) {
-			cmd.append(".rj.tmp$");
-			cmd.append(fRCacheSort);
+		if (fRCacheIdx != null) {
+			cmd.append(RJTmp.ENV+'$');
+			cmd.append(fRCacheIdx);
 			cmd.append('[');
 			cmd.append((beginRowIdx + 1));
 			cmd.append('L');
@@ -1100,6 +1113,10 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	@Override
 	public int getColumnCount() {
 		return fColumnCount;
+	}
+	
+	public int getFullRowCount() {
+		return fFullRowCount;
 	}
 	
 	@Override
@@ -1176,446 +1193,39 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			}
 			fSortColumn = column;
 			
-			clear(-1, -1, false);
+			clear(-1, -1, -1, true, false, false);
 			
-			synchronized (fFindLock) {
-				fFindScheduledTask = null;
-				fFindStore.internalClear(-1);
-				fFindLastMatchIdx = -1;
-				
-				if (fFindLock.state < Lock.LOCAL_PAUSE_STATE) {
-					fFindLock.state = Lock.LOCAL_PAUSE_STATE;
-				}
-			}
+			fFindManager.reset(false);
 		}
 	}
+	
+	public void setFilter(final String filter) {
+		synchronized (fFragmentsLock) {
+			if ((fFilter != null) ? fFilter.equals(filter) : null == filter) {
+				return;
+			}
+			fFilter = filter;
+			
+			clear(-1, -1, -1, false, true, false);
+			
+			fFindManager.reset(true);
+			
+			fFragmentsLock.schedule(null);
+		}
+	}
+	
 	
 	
 	public void addFindListener(final IFindListener listener) {
-		fFindListeners.add(listener);
+		fFindManager.addFindListener(listener);
 	}
 	
 	public void removeFindListener(final IFindListener listener) {
-		fFindListeners.remove(listener);
+		fFindManager.removeFindListener(listener);
 	}
 	
 	public void find(final FindTask task) {
-		synchronized (fFindLock) {
-			fFindScheduledTask = task;
-			if (!task.equals(fFindCurrentTask)) {
-				clearFind(-1);
-				fFindScheduledTask = task;
-				if (fFindLock.state < Lock.LOCAL_PAUSE_STATE) {
-					fFindLock.state = Lock.LOCAL_PAUSE_STATE;
-				}
-			}
-			if (fFragmentsLock.state > Lock.LOCAL_PAUSE_STATE) {
-				return;
-			}
-		}
-		try {
-			findMatch(null, new NullProgressMonitor());
-		}
-		catch (final CoreException e) {}
-	}
-	
-	private void runFind(final RService r, final IProgressMonitor monitor) throws CoreException {
-		try {
-			final boolean updateFinding;
-			synchronized (fFindLock) {
-				fFindCurrentTask = fFindScheduledTask;
-				fFindLock.scheduled = false;
-				
-				if (fFindCurrentTask == null) {
-					return;
-				}
-				updateFinding = !fFindCurrentTask.expression.equals(fFindActiveExpression);
-				if (fFindLock.state > Lock.LOCAL_PAUSE_STATE) {
-					return;
-				}
-				if (fFindLock.state == Lock.LOCAL_PAUSE_STATE && !updateFinding) {
-					fFindLock.state = 0;
-				}
-			}
-			if (updateFinding) {
-				try {
-					updateFindingCache(r, monitor);
-				}
-				catch (final Exception e) {
-					checkCancel(e);
-					StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
-							"An error occurred when evaluating find criteria for data viewer.", e));
-					return;
-				}
-			}
-			
-			updateFindingFragments(r, monitor);
-			
-			findMatch(r, monitor);
-		}
-		catch (final CoreException e) {
-			if (e.getStatus().getSeverity() == IStatus.CANCEL) {
-				notifyFindListeners(fFindCurrentTask, new StatusInfo(IStatus.CANCEL, ""), -1, -1, -1);
-			}
-			throw e;
-		}
-	}
-	
-	private void updateFindingCache(final RService r, final IProgressMonitor monitor) throws UnexpectedRDataException, CoreException {
-		int mode = 0;
-		int count = 0;
-		try {
-			if (fRCacheFind == null) {
-				fRCacheFind = fRCacheId + ".find";
-			}
-			final boolean runWhich;
-			{	final StringBuilder cmd = getRCmdStringBuilder();
-				cmd.append("local({");
-				cmd.append("x <- ").append(fInput.getFullName()).append("; ");
-				cmd.append("assign(\"").append(fRCacheFind).append("\", envir = .rj.tmp, value = (")
-						.append(fFindCurrentTask.expression).append(")); ");
-				cmd.append("dimnames(").append(".rj.tmp$").append(fRCacheFind).append(") <- NULL; ");
-				cmd.append(".rj.tmp$").append(fRCacheFind).append("; ");
-				cmd.append("})");
-				final RObject logi = r.evalData(cmd.toString(), null, RObjectFactory.F_ONLY_STRUCT, RService.DEPTH_ONE, monitor);
-				if (logi.getRObjectType() == RObject.TYPE_ARRAY
-						&& logi.getData().getStoreType() == RStore.LOGICAL
-						&& logi.getLength() == getRowCount() * getColumnCount()) {
-					mode = (getColumnCount() == 1) ? FIND_ROW : FIND_CELL;
-					runWhich = true;
-				}
-				else if (logi.getRObjectType() == RObject.TYPE_VECTOR
-						&& logi.getData().getStoreType() == RStore.LOGICAL
-						&& logi.getLength() == getRowCount()) {
-					mode = FIND_ROW;
-					runWhich = true;
-				}
-				else if (logi.getRObjectType() == RObject.TYPE_VECTOR
-						&& logi.getData().getStoreType() == RStore.INTEGER) {
-					mode = FIND_ROW;
-					runWhich = false;
-				}
-				else {
-					throw new UnexpectedRDataException(logi.toString());
-				}
-			}
-			if (runWhich) {
-				final StringBuilder cmd = getRCmdStringBuilder();
-				cmd.append("assign(\"").append(fRCacheFind).append("\", envir = .rj.tmp, value = ")
-						.append("which(").append(".rj.tmp$").append(fRCacheFind).append(", arr.ind = TRUE))");
-				r.evalVoid(cmd.toString(), monitor);
-			}
-			
-			{	final StringBuilder cmd = getRCmdStringBuilder();
-				cmd.append((mode == FIND_CELL) ? "nrow(" : "length(")
-						.append(".rj.tmp$").append(fRCacheFind).append(")");
-				count = RDataUtil.checkSingleIntValue(r.evalData(cmd.toString(), monitor));
-			}
-		}
-		catch (final CoreException e) {
-			cleanFinding(r, monitor);
-			checkCancel(e);
-			mode = FIND_ERROR;
-			throw e;
-		}
-		catch (final UnexpectedRDataException e) {
-			cleanFinding(r, monitor);
-			checkCancel(e);
-			mode = FIND_ERROR;
-			throw e;
-		}
-		finally {
-			if (mode == FIND_ERROR) {
-				notifyFindListeners(fFindCurrentTask, new StatusInfo(IStatus.ERROR, "Error"), -1, -1, -1);
-			}
-			synchronized (fFindLock) {
-				fFindActiveMode = mode;
-				fFindActiveExpression = fFindCurrentTask.expression;
-				fFindCount = count;
-				fFindStore.internalClear(count);
-				fFindLastMatchIdx = -1;
-				if (mode != FIND_ERROR && fFindLock.state < Lock.PAUSE_STATE) {
-					fFindLock.state = 0;
-				}
-			}
-		}
-	}
-	
-	private void updateFindingFragments(final RService r, final IProgressMonitor monitor) throws CoreException {
-		try {
-			final Item<RObject>[] toUpdate;
-			synchronized (fFindLock) {
-				toUpdate = fFindStore.internalForUpdate();
-			}
-			for (int i = 0; i < toUpdate.length; i++) {
-				if (monitor.isCanceled()) {
-					throw new CoreException(Status.CANCEL_STATUS);
-				}
-				
-				final Item<RObject> item = toUpdate[i];
-				if (item == null) {
-					break;
-				}
-				synchronized (fFindLock) {
-					if (!item.scheduled) {
-						continue;
-					}
-				}
-				final RObject fragment = loadFindFragment(item, r, monitor);
-				synchronized (fFindLock) {
-					if (!item.scheduled) {
-						continue;
-					}
-					item.fragment = new Store.Fragment<RObject>(fragment,
-							item.beginRowIdx, item.endRowIdx,
-							item.beginColumnIdx, item.endColumnIdx );
-					item.scheduled = false;
-				}
-			}
-		}
-		catch (final Exception e) {
-			checkCancel(e);
-			synchronized (fFindLock) {
-				clearFind(-1);
-				if (fFindLock.state < Lock.RELOAD_STATE) {
-					fFindLock.state = Lock.RELOAD_STATE;
-				}
-			}
-			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
-					"An error occurred when loading find matches for data viewer.", e));
-			return;
-		}
-	}
-	
-	private RObject loadFindFragment(final Store.Fragment<RObject> f,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
-		{	final StringBuilder cmd = getRCmdStringBuilder();
-			cmd.append("local({");
-			if (fRCacheSort != null && fRCacheSortR == null) {
-				fRCacheSortR = fRCacheSort + ".r";
-				cmd.append(".rj.tmp$").append(fRCacheSortR).append(" <- ")
-						.append("integer(length(").append(".rj.tmp$").append(fRCacheSort).append(")); ");
-				cmd.append(".rj.tmp$").append(fRCacheSortR)
-						.append("[").append(".rj.tmp$").append(fRCacheSort).append("] <- ")
-						.append("1L:length(").append(".rj.tmp$").append(fRCacheSortR).append("); ");
-			}
-			if (fRCacheSortR != null) {
-				if (fFindActiveMode == FIND_CELL) {
-					cmd.append("x <- ").append(".rj.tmp$").append(fRCacheSortR)
-							.append("[").append(".rj.tmp$").append(fRCacheFind).append("[,1]").append("]; ");
-					cmd.append("x <- cbind(x, ").append(".rj.tmp$").append(fRCacheFind).append("[,2]").append("); ");
-				}
-				else {
-					cmd.append("x <- ").append(".rj.tmp$").append(fRCacheSortR)
-							.append("[").append(".rj.tmp$").append(fRCacheFind).append("]; ");
-				}
-			}
-			else {
-				cmd.append("x <- ").append(".rj.tmp$").append(fRCacheFind).append("; ");
-			}
-			cmd.append("x <- x[order(");
-			if (fFindActiveMode == FIND_CELL) {
-				cmd.append((fFindCurrentTask.firstInRow) ? "x[,1], x[,2]" : "x[,2], x[,1]");
-			}
-			else {
-				cmd.append("x");
-			}
-			cmd.append(")").append("[").append(f.beginRowIdx + 1).append("L:").append(f.endRowIdx).append("L]");
-			if (fFindActiveMode == FIND_CELL) {
-				cmd.append(",");
-			}
-			cmd.append("]; ");
-			cmd.append("x; ");
-			cmd.append("})");
-			return r.evalData(cmd.toString(), monitor);
-		}
-	}
-	
-	private void findMatch(final RService r, final IProgressMonitor monitor) throws CoreException {
-		final FindTask task;
-		final int mode;
-		final int count;
-		int globalMatchIdx;
-		synchronized (fFindLock) {
-			task = fFindScheduledTask;
-			mode = fFindActiveMode;
-			count = fFindCount;
-			globalMatchIdx = fFindLastMatchIdx;
-			
-			if (task == null || !task.equals(fFindCurrentTask)
-					|| fFindLock.state == Lock.LOCAL_PAUSE_STATE) {
-				notifyFindListeners(task, new StatusInfo(IStatus.INFO, "Finding..."), -1, -1, -1);
-				fFindLock.schedule(null);
-				return;
-			}
-			if (mode == FIND_ERROR) {
-				notifyFindListeners(task, new StatusInfo(IStatus.ERROR, "Error"), -1, -1, -1);
-				return;
-			}
-		}
-		
-		if (count <= 0) {
-			notifyFindListeners(task, new StatusInfo(IStatus.INFO, "Not found."), count, -1, -1);
-			return;
-		}
-		else {
-			notifyFindListeners(task, new StatusInfo(IStatus.INFO,
-					"Finding " + (task.forward ? "next" : "previous") + "... (total " + count + ")"), count, -1, -1);
-		}
-		if (globalMatchIdx >= count) {
-			globalMatchIdx = count - 1;
-		}
-		else if (globalMatchIdx < 0) {
-			globalMatchIdx = count / 2;
-		}
-		try {
-			final int[] rPos;
-			final int[] low;
-			final int[] high;
-			final int rowIdx;
-			final int colIdx;
-			if (mode == FIND_CELL) {
-				rowIdx = task.firstInRow ? 0 : 1;
-				colIdx = task.firstInRow ? 1 : 0;
-				
-				rPos = new int[2];
-				rPos[rowIdx] = task.rowIdx + 1;
-				rPos[colIdx] = task.columnIdx + 1;
-				low = new int[2];
-				high = new int[2];
-			}
-			else {
-				rowIdx = 0;
-				colIdx = -1;
-				
-				rPos = new int[] { task.rowIdx + 1 };
-				low = new int[1];
-				high = new int[1];
-			}
-			
-			while (true) {
-				int last = 0;
-				Store.Fragment<RObject> fragment;
-				while (true) {
-					if (monitor.isCanceled()) {
-						throw new CoreException(Status.CANCEL_STATUS);
-					}
-					
-					fragment = fFindStore.getFor(globalMatchIdx, 0);
-					if (fragment != null) {
-						final RStore data = fragment.rObject.getData();
-						final int length = fragment.endRowIdx - fragment.beginRowIdx;
-						low[rowIdx] = data.getInt(0);
-						high[rowIdx] = data.getInt(length-1);
-						if (mode == FIND_CELL) {
-							low[colIdx] = data.getInt(length);
-							high[colIdx] = data.getInt(length+length-1);
-						}
-						if (RDataUtil.compare(rPos, low) < 0) {
-							globalMatchIdx = fragment.beginRowIdx - 1;
-							if (globalMatchIdx < 0
-									|| (task.forward && last == +1)) {
-								break;
-							}
-							last = -1;
-						}
-						if (RDataUtil.compare(rPos, high) > 0) {
-							globalMatchIdx = fragment.endRowIdx;
-							if (globalMatchIdx > count
-									|| (!task.forward && last == -1)) {
-								break;
-							}
-							last = +1;
-						}
-						break;
-					}
-					else if (r != null) {
-						updateFindingFragments(r, monitor);
-						synchronized (fFindLock) {
-							if (task != fFindScheduledTask
-									|| fFindLock.state > 0) {
-								return;
-							}
-						}
-					}
-					else {
-						synchronized (fFindLock) {
-							if (task != fFindScheduledTask) {
-								return;
-							}
-							fFindLock.schedule(null);
-						}
-						return;
-					}
-				}
-				
-				final RStore data = fragment.rObject.getData();
-				final int length = fragment.endRowIdx - fragment.beginRowIdx;
-				int localMatchIdx;
-				if (mode == FIND_CELL) {
-					low[rowIdx] = 0;
-					low[colIdx] = length;
-					localMatchIdx = RDataUtil.binarySearch(data, low, length, rPos);
-				}
-				else {
-					localMatchIdx = RDataUtil.binarySearch(data, rPos[rowIdx]);
-				}
-				if (localMatchIdx >= 0) {
-					localMatchIdx += (task.forward) ? +1 : -1;
-				}
-				else {
-					localMatchIdx = -(localMatchIdx + 1);
-					localMatchIdx += (task.forward) ? 0 : -1;
-				}
-				if (localMatchIdx < 0 || localMatchIdx >= length) {
-					notifyFindListeners(task, new StatusInfo(IStatus.INFO, "No further match (total " + count + ")"), count, -1, -1);
-					return;
-				}
-				synchronized (fFindLock) {
-					if (task != fFindScheduledTask) {
-						return;
-					}
-					fFindLastMatchIdx = globalMatchIdx = fragment.beginRowIdx + localMatchIdx;
-				}
-				{	
-					final int posCol;
-					final int posRow;
-					rPos[rowIdx] = data.getInt(localMatchIdx);
-					posRow = rPos[rowIdx] - 1;
-					if (mode == FIND_CELL) {
-						rPos[colIdx] = data.getInt(length + localMatchIdx);
-						posCol = rPos[colIdx] - 1;
-					}
-					else {
-						posCol = -1;
-					}
-					if (task.filter == null || task.filter.match(posRow, posCol)) {
-						notifyFindListeners(task, new StatusInfo(IStatus.INFO, "Match " + (globalMatchIdx + 1) + " (total " + count + ")"), count, posRow, posCol);
-						return;
-					}
-				}
-			}
-		}
-		catch (final LoadDataException e) {
-		}
-	}
-	
-	private void notifyFindListeners(final FindTask task, final IStatus status, final int total,
-			final int rowIdx, final int colIdx) {
-		UIAccess.getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				synchronized (fFindLock) {
-					if (task != null && task != fFindScheduledTask) {
-						return;
-					}
-				}
-				final FindEvent event = new FindEvent(status, total, rowIdx, colIdx);
-				for (final IFindListener listener : fFindListeners.toArray()) {
-					listener.handleFindEvent(event);
-				}
-			}
-		});
+		fFindManager.find(task);
 	}
 	
 	
@@ -1641,7 +1251,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	
 	
 	public void reset() {
-		clear(Lock.PAUSE_STATE, -1, true);
+		clear(Lock.PAUSE_STATE);
 		synchronized (fInitRunnable) {
 			if (fInitScheduled) {
 				return;
@@ -1649,43 +1259,40 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			fInitScheduled = true;
 		}
 		try {
-			((RProcessDataTableInput) fInput).run(fInitRunnable);
+			final IStatus status = ((RToolDataTableInput) fInput).getTool().getQueue().add(fInitRunnable);
+			if (status.getSeverity() >= IStatus.ERROR) {
+				throw new CoreException(status);
+			}
 		}
 		catch (final CoreException e) {
 		}
 	}
 	
-	private void clear(final int newState, final int rowCount, final boolean clearFind) {
+	private void clear(final int newState) {
+		clear(newState, -1, -1, true, true, true);
+	}
+	
+	private void clear(final int newState, final int filteredRowCount, final int fullRowCount,
+			final boolean updateSorting, final boolean updateFiltering,
+			final boolean clearFind) {
 		synchronized (fFragmentsLock) {
-			fDataStore.internalClear(rowCount);
-			fRowNamesStore.internalClear(rowCount);
-			fUpdateSorting = true;
+			fDataStore.internalClear(filteredRowCount);
+			fRowNamesStore.internalClear(filteredRowCount);
+			fUpdateSorting |= updateSorting;
+			fUpdateFiltering |= updateFiltering;
 			
 			if (newState >= 0 && fFragmentsLock.state < Lock.ERROR_STATE) {
 				fFragmentsLock.state = newState;
 			}
-			if (rowCount >= 0) {
-				fRowCount = rowCount;
+			if (filteredRowCount >= 0) {
+				fRowCount = filteredRowCount;
+				fFullRowCount = fullRowCount;
 			}
 			
 			if (clearFind) {
-				clearFind(newState);
+				fFindManager.clear(newState);
 			}
 		}
-	}
-	
-	private void clearFind(final int newState) {
-		synchronized (fFindLock) {
-			fFindScheduledTask = null;
-			fFindStore.internalClear(0);
-			fFindActiveExpression = null;
-			fFindLastMatchIdx = -1;
-			
-			if (newState >= 0 && fFindLock.state < Lock.ERROR_STATE) {
-				fFindLock.state = newState;
-			}
-		}
-		notifyFindListeners(null, new StatusInfo(IStatus.CANCEL, ""), -1, -1, -1);
 	}
 	
 	public void dispose() {

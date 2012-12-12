@@ -15,13 +15,15 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
 
+import de.walware.ecommons.collections.ConstList;
+
 import de.walware.rj.data.RDataFrame;
 import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RIntegerStore;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RVector;
 import de.walware.rj.data.UnexpectedRDataException;
-import de.walware.rj.services.RService;
+import de.walware.rj.eclient.IRToolService;
 
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.ui.dataeditor.IRDataTableInput;
@@ -69,20 +71,22 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 	
 	@Override
 	protected RDataTableContentDescription loadDescription(final RElementName name,
-			final RDataFrame struct, final RService r,
+			final RDataFrame struct, final IRToolService r,
 			final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
-		final RDataTableContentDescription description = new RDataTableContentDescription(name, struct);
+		final RDataTableContentDescription description = new RDataTableContentDescription(name, struct, r.getTool());
 		final int columnCount = getColumnCount();
 		
 		description.setRowHeaderColumns(
 				createNamesColumn("row.names(" + fInput.getFullName() + ")", struct.getRowCount(),
 						r, monitor ));
-		
 		final RDataTableColumn[] dataColumns = new RDataTableColumn[columnCount];
 		for (int i = 0; i < columnCount; i++) {
+			final String columnName = struct.getColumnNames().getChar(i);
+			final RElementName elementName = RElementName.concat(new ConstList<RElementName>(BASE_NAME,
+					RElementName.create(RElementName.SUB_NAMEDPART, columnName, i+1 )));
 			dataColumns[i] = createColumn(struct.getColumn(i),
-					fInput.getFullName() + "[[" + (i+1) + "]]",
-					i, struct.getColumnNames().getChar(i), r, monitor);
+					fInput.getFullName() + "[[" + (i+1) + "]]", elementName, i, columnName,
+					r, monitor);
 		}
 		description.setDataColumns(dataColumns);
 		
@@ -91,11 +95,11 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 	
 	@Override
 	protected RDataFrame loadDataFragment(final Store.Fragment<RDataFrame> f,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+			final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		final RVector<RIntegerStore> dim = RDataUtil.checkRIntVector(
 				r.evalData("dim(" + fInput.getFullName() + ")", monitor) );
 		if (dim.getData().getLength() != 2
-				|| dim.getData().getInt(0) != getRowCount()
+				|| dim.getData().getInt(0) != getFullRowCount()
 				|| dim.getData().getInt(1) != getColumnCount() ) {
 			throw new UnexpectedRDataException("dim");
 		}
@@ -125,11 +129,11 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 	
 	@Override
 	protected RVector<?> loadRowNamesFragment(final Store.Fragment<RVector<?>> f,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+			final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		final RVector<RIntegerStore> dim = RDataUtil.checkRIntVector(
 				r.evalData("dim(" + fInput.getFullName() + ")", monitor) );
 		if (dim.getData().getLength() != 2
-				|| dim.getData().getInt(0) != getRowCount()
+				|| dim.getData().getInt(0) != getFullRowCount()
 				|| dim.getData().getInt(1) != getColumnCount() ) {
 			throw new UnexpectedRDataException("dim");
 		}
