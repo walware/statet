@@ -675,6 +675,11 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	}
 	
 	@Override
+	public boolean acceptNewConsoleCommand() {
+		return ((fCurrentPrompt.meta & (META_PROMPT_DEFAULT | META_PROMPT_SUSPENDED)) != 0);
+	}
+	
+	@Override
 	public void submitToConsole(final String input,
 			final IProgressMonitor monitor) throws CoreException {
 		if (fTopLevelBrowserAction != 0 && getCurrentLevelL() == 0 && (fCurrentPrompt.meta & META_PROMPT_DEFAULT) != 0) {

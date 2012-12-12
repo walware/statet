@@ -27,6 +27,7 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
+import de.walware.statet.r.core.renv.RNumVersion;
 import de.walware.statet.r.core.rhelp.IREnvHelp;
 import de.walware.statet.r.core.rhelp.IRPackageHelp;
 import de.walware.statet.r.internal.core.RCorePlugin;
@@ -144,20 +145,21 @@ public class REnvIndexChecker {
 		fCheckedNames.clear();
 	}
 	
-	public void checkPackage(final String pkgName, final String pkgVersion) {
-		if (pkgName != null && fCheckedNames.add(pkgName)) {
-			final IRPackageHelp packageHelp = fREnvHelp.getRPackage(pkgName);
+	public void checkPackage(final String name, final RNumVersion version, final String built) {
+		final String pkgVersion = version.toString();
+		if (name != null && fCheckedNames.add(name)) {
+			final IRPackageHelp packageHelp = fREnvHelp.getRPackage(name);
 			if (packageHelp == null) {
 				fNewPkg++;
-				fFoundCurrent.put(pkgName, pkgVersion);
-				if (fNewChange == 0 && !pkgVersion.equals(fFoundPrevious.get(pkgName))) {
+				fFoundCurrent.put(name, pkgVersion);
+				if (fNewChange == 0 && !pkgVersion.equals(fFoundPrevious.get(name))) {
 					fNewChange = 1;
 				}
 			}
 			else if (!packageHelp.getVersion().equals(pkgVersion)) {
 				fChangedPkg++;
-				fFoundCurrent.put(pkgName, pkgVersion);
-				if (fNewChange == 0 && !pkgVersion.equals(fFoundPrevious.get(pkgName))) {
+				fFoundCurrent.put(name, pkgVersion);
+				if (fNewChange == 0 && !pkgVersion.equals(fFoundPrevious.get(name))) {
 					fNewChange = 1;
 				}
 			}

@@ -205,6 +205,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 		util.register(RUI.IMG_OBJ_R_RUNTIME_ENV, ImageRegistryUtil.T_OBJ, "r_env.png");  //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_R_REMOTE_ENV, ImageRegistryUtil.T_OBJ, "r_env-remote.png");  //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_R_PACKAGE, ImageRegistryUtil.T_OBJ, "package.png");  //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_R_PACKAGE_NOTA, ImageRegistryUtil.T_OBJ, "package-nota.png");  //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_R_HELP_PAGE, ImageRegistryUtil.T_OBJ, "rhelp-page.png");  //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_R_HELP_SEARCH, ImageRegistryUtil.T_TOOL, "rhelp-search.png");  //$NON-NLS-1$
 		

@@ -59,7 +59,10 @@ import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.ui.RConsole;
 import de.walware.statet.r.console.ui.launching.RConsoleLaunching;
+import de.walware.statet.r.console.ui.tools.REnvAutoUpdater;
 import de.walware.statet.r.console.ui.tools.REnvIndexAutoUpdater;
+import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
@@ -160,10 +163,14 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		return config;
 	}
 	
-	static void initConsoleOptions(final RjsController controller, final ILaunchConfiguration configuration,
+	static void initConsoleOptions(final RjsController controller, final IREnvConfiguration rEnv,
+			final ILaunchConfiguration configuration,
 			final boolean isStartup) throws CoreException {
-		new REnvIndexAutoUpdater(controller.getTool());
-		
+		if (rEnv != null) {
+			final IRPkgManager manager = RCore.getRPkgManager(rEnv.getReference());
+			REnvAutoUpdater.connect(controller, manager);
+			REnvIndexAutoUpdater.connect(controller.getTool(), manager);
+		}
 		controller.addStartupRunnable(new ConfigRunnable(
 				controller.getTool(),
 				configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RHELP_ENABLED, true),
@@ -379,7 +386,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			
 			progress.worked(5);
 			
-			initConsoleOptions(controller, configuration, true);
+			initConsoleOptions(controller, rEnv, configuration, true);
 			
 			if (fAddon != null) {
 				fAddon.init(configuration, mode, controller, monitor);

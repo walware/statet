@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.core.renv;
 
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 
 import org.eclipse.core.runtime.CoreException;
@@ -28,7 +29,7 @@ public interface IREnvManager {
 	String[] set(IREnvConfiguration[] configs, String defaultConfigName) throws CoreException;
 	
 	Lock getReadLock();
-	IREnvConfiguration[] getConfigurations();
+	List<IREnvConfiguration> getConfigurations();
 	
 	IREnv get(String id, String name);
 	IREnv getDefault();

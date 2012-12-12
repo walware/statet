@@ -13,13 +13,15 @@ package de.walware.statet.r.console.core;
 
 import de.walware.rj.services.RService;
 
+import de.walware.statet.r.core.tool.IRConsoleService;
+
 
 /**
  * Adapter interface for {@link RTool#R_DATA_FEATURESET_ID}.
  * 
  * Makes {@link RService} available.
  */
-public interface IRDataAdapter extends IRBasicAdapter, RService {
+public interface IRDataAdapter extends IRBasicAdapter, RService, IRConsoleService {
 	
 	
 }

@@ -102,6 +102,8 @@ public interface IREnvConfiguration {
 	
 	String getName();
 	
+	String getRVersion();
+	
 	
 	String getType();
 	
@@ -110,6 +112,8 @@ public interface IREnvConfiguration {
 	boolean isLocal();
 	
 	boolean isRemote();
+	
+	boolean isDeleted();
 	
 	
 	WorkingCopy createWorkingCopy();

@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,7 +77,7 @@ public class REnvManager implements IREnvManager {
 	
 	private Set<String> fNames;
 	private Map<String, IREnv> fNameMap;
-	private Map<String, IREnvConfiguration> fIdMap;
+	private Map<String, REnvConfiguration> fIdMap;
 	private final REnvProxy fDefaultEnv = new REnvProxy(IREnv.DEFAULT_WORKBENCH_ENV_ID);
 	
 	public REnvManager(final SettingsChangeNotifier notifier) {
@@ -147,11 +148,12 @@ public class REnvManager implements IREnvManager {
 			newREnvs.add(config.getReference().getId());
 		}
 		final Set<String> managedNames = new TreeSet<String>(Collator.getInstance());
+		final Set<String> oldIds = new HashSet<String>(fIdMap.keySet());
 		
 		// update or add configurations
 		boolean changed = false;
-		for (IREnvConfiguration config : configs) {
-			config = new REnvConfiguration(config);
+		for (int i = 0; i < configs.length; i++) {
+			final REnvConfiguration config = new REnvConfiguration(configs[i]);
 			final REnvReference rEnv = (REnvReference) config.getReference();
 			IREnvConfiguration oldConfig = fIdMap.put(rEnv.getId(), config);
 			if (oldConfig == null) {
@@ -167,9 +169,17 @@ public class REnvManager implements IREnvManager {
 			rEnv.fConfig = config;
 			fNameMap.put(rEnv.fName, rEnv);
 			managedNames.add(rEnv.fName);
+			oldIds.remove(rEnv.getId());
 		}
 		// remove old configurations
-		changed |= fIdMap.keySet().retainAll(newREnvs);
+		for (final String id : oldIds) {
+			final REnvConfiguration rConfig = fIdMap.remove(id);
+			if (rConfig != null) {
+				changed |= true;
+				rConfig.fDeleted = true;
+			}
+		}
+//		changed |= fIdMap.keySet().retainAll(newREnvs);
 		changed |= fNameMap.keySet().retainAll(managedNames);
 		fNames = managedNames;
 		
@@ -214,7 +224,7 @@ public class REnvManager implements IREnvManager {
 	
 	private void load() throws BackingStoreException {
 		fNameMap = new HashMap<String, IREnv>();
-		fIdMap = new HashMap<String, IREnvConfiguration>();
+		fIdMap = new HashMap<String, REnvConfiguration>();
 		fNames = new HashSet<String>();
 		
 		loadFromRegistry();
@@ -233,11 +243,11 @@ public class REnvManager implements IREnvManager {
 				for (final String name : names) {
 					final Preferences node = scopes[i].node(name);
 					String id = node.get("id", null); //$NON-NLS-1$
-					if (id != null && id.length() > 0) {
+					if (id != null && id.length() > 0 && id.startsWith(IREnv.USER_ENV_ID_PREFIX)) {
 						id = REnvReference.updateId(id);
 						final REnvReference rEnv = new REnvReference(id);
 						final REnvConfiguration config = new REnvConfiguration(
-								IREnvConfiguration.USER_LOCAL_TYPE, rEnv, prefs, name);
+								null, rEnv, prefs, name);
 						if (config.getName() != null) {
 							config.upgradePref();
 							rEnv.fName = config.getName();
@@ -256,11 +266,11 @@ public class REnvManager implements IREnvManager {
 			while (configs.isEmpty() && i < scopes.length) {
 				final String[] names = scopes[i].childrenNames();
 				for (String id : names) {
-					if (id != null && id.length() > 0) {
+					if (id != null && id.length() > 0 && id.startsWith(IREnv.USER_ENV_ID_PREFIX)) {
 						id = REnvReference.updateId(id);
 						final REnvReference rEnv = new REnvReference(id);
 						final REnvConfiguration config = new REnvConfiguration(
-								IREnvConfiguration.USER_LOCAL_TYPE, rEnv, prefs, null);
+								rEnv, prefs);
 						if (config.getName() != null) {
 							rEnv.fName = config.getName();
 							rEnv.fConfig = config;
@@ -298,15 +308,17 @@ public class REnvManager implements IREnvManager {
 				fDefaultEnv.getConfig().getReference().getId() : null);
 		map.put(PREF_VERSION, 2);
 		
-		PreferencesUtil.setPrefValues(new InstanceScope(), map);
+		PreferencesUtil.setPrefValues(InstanceScope.INSTANCE, map);
 		node.flush();
 	}
 	
 	private void loadFromRegistry() {
+		final IPreferenceAccess prefs = PreferencesUtil.getInstancePrefs();
 		final List<RSetup> setups = RSetupUtil.loadAvailableSetups(null);
 		for (final RSetup setup : setups) {
 			final REnvReference rEnv = new REnvReference(IREnvConfiguration.EPLUGIN_LOCAL_TYPE + '-' + setup.getId());
-			final REnvConfiguration config = new REnvConfiguration(rEnv, setup);
+			final REnvConfiguration config = new REnvConfiguration(
+					IREnvConfiguration.EPLUGIN_LOCAL_TYPE, rEnv, setup, prefs );
 			
 			rEnv.fName = config.getName();
 			rEnv.fConfig = config;
@@ -348,15 +360,22 @@ public class REnvManager implements IREnvManager {
 //	}
 	
 	@Override
-	public IREnvConfiguration[] getConfigurations() {
+	public List<IREnvConfiguration> getConfigurations() {
+		final List<IREnvConfiguration> list;
 		checkAndLock(false);
 		try {
-			final Collection<IREnvConfiguration> values = fIdMap.values();
-			return values.toArray(new IREnvConfiguration[values.size()]);
+			list = new ArrayList<IREnvConfiguration>(fIdMap.values());
 		}
 		finally {
 			fLock.readLock().unlock();
 		}
+		final Iterator<IREnvConfiguration> iter = list.iterator();
+		while (iter.hasNext()) {
+			if (iter.next().isDeleted()) {
+				iter.remove();
+			}
+		}
+		return list;
 	}
 	
 	public String[] getIds() {

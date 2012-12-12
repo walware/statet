@@ -193,7 +193,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 			fListButtons.connectTo(fListViewer, new DataAdapter.ListAdapter<IREnvConfiguration.WorkingCopy>(
 					fList, fDefault ) {
 				@Override
-				public boolean isModifyAllowed(final Object element) {
+				public boolean isDeleteAllowed(final Object element) {
 					final IREnvConfiguration config = (IREnvConfiguration) element;
 					return config.isEditable();
 				}
@@ -217,7 +217,6 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 				}
 			});
 			fListViewer.setInput(fList);
-			
 		}
 		loadValues(PreferencesUtil.getInstancePrefs());
 		
@@ -298,11 +297,11 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 			}
 		}
 		Dialog dialog;
-		if (config.getType() == IREnvConfiguration.USER_LOCAL_TYPE) {
+		if (config.isLocal()) {
 			dialog = new REnvLocalConfigDialog(getShell(),
 					config, newConfig, existingConfigs);
 		}
-		else if (config.getType() == IREnvConfiguration.USER_REMOTE_TYPE) {
+		else if (config.isRemote()) {
 			dialog = new REnvRemoteConfigDialog(getShell(),
 					config, newConfig, existingConfigs);
 		}
@@ -479,9 +478,9 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 		
 		final IREnvManager manager = RCore.getREnvManager();
 		final IREnv defaultEnv = manager.getDefault().resolve();
-		final IREnvConfiguration[] configurations = manager.getConfigurations();
-		for (final IREnvConfiguration rEnvConfig : configurations) {
-			final IREnvConfiguration config = (rEnvConfig.isEditable()) ? rEnvConfig.createWorkingCopy() : rEnvConfig;
+		final List<IREnvConfiguration> rEnvConfigs = manager.getConfigurations();
+		for (final IREnvConfiguration rEnvConfig : rEnvConfigs) {
+			final IREnvConfiguration config = rEnvConfig.createWorkingCopy();
 			fList.add(config);
 			if (config.getReference() == defaultEnv) {
 				fDefault.setValue(config);

@@ -354,7 +354,8 @@ public class REnvIndexWriter implements IREnvIndex {
 		try {
 			fStatus.add(new Status(IStatus.INFO, RCore.PLUGIN_ID, "Beginning package: '" + name + "'.")); //$NON-NLS-1$ //$NON-NLS-2$
 			
-			fCurrentPackage = new RPackageHelp(name, packageDesription.getTitle(), packageDesription.getVersion(),
+			fCurrentPackage = new RPackageHelp(name, packageDesription.getTitle(),
+					packageDesription.getVersion().toString(),
 					fREnvConfig.getReference());
 			synchronized (fPackages) {
 				fExistingPackages.remove(name);

@@ -34,6 +34,7 @@ public class RUI {
 	public static final String IMG_OBJ_R_RUNTIME_ENV = RUI.PLUGIN_ID + "/image/obj/r_environment"; //$NON-NLS-1$
 	public static final String IMG_OBJ_R_REMOTE_ENV = RUI.PLUGIN_ID + "/image/obj/r_environment.remote"; //$NON-NLS-1$
 	public static final String IMG_OBJ_R_PACKAGE = RUI.PLUGIN_ID + "/image/obj/r_package"; //$NON-NLS-1$
+	public static final String IMG_OBJ_R_PACKAGE_NOTA = RUI.PLUGIN_ID + "/image/obj/r_package-notavail"; //$NON-NLS-1$
 	public static final String IMG_OBJ_R_HELP_PAGE = RUI.PLUGIN_ID + "/image/obj/r_help/page"; //$NON-NLS-1$
 	public static final String IMG_OBJ_R_HELP_SEARCH = RUI.PLUGIN_ID + "/image/obj/r_help/search"; //$NON-NLS-1$
 	

@@ -47,9 +47,12 @@ import de.walware.statet.r.console.ui.IRConsoleHelpContextIds;
 import de.walware.statet.r.console.ui.RConsole;
 import de.walware.statet.r.console.ui.tools.ChangeWorkingDirectoryWizard;
 import de.walware.statet.r.core.RCodeStyleSettings;
-import de.walware.statet.r.core.renv.IREnvConfiguration;
+import de.walware.statet.r.core.pkgmanager.IRPkgManager;
+import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
 import de.walware.statet.r.internal.console.ui.actions.REnvIndexUpdateHandler;
+import de.walware.statet.r.internal.ui.pkgmanager.OpenRPkgManagerHandler;
+import de.walware.statet.r.internal.ui.rhelp.OpenRHelpHandler;
 import de.walware.statet.r.ui.RUIHelp;
 
 
@@ -136,24 +139,61 @@ public class RConsolePage extends NIConsolePage {
 		menuManager.insertBefore(SharedUIResources.ADDITIONS_MENU_ID, new Separator("view")); //$NON-NLS-1$
 		
 		final RProcess process = (RProcess) getConsole().getProcess();
-		if (process.isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)
-				&& process.getAdapter(IREnvConfiguration.class) != null) {
-			final MenuManager rEnv = new MenuManager("R &Environment");
-			menuManager.appendToGroup(NICO_CONTROL_MENU_ID, rEnv);
+		final IREnv rEnv = (IREnv) process.getAdapter(IREnv.class);
+		if (process.isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID) && rEnv != null) {
+			menuManager.appendToGroup(NICO_CONTROL_MENU_ID,
+					new HandlerContributionItem(new CommandContributionItemParameter(
+							getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
+							null, null, null,
+							"Open Package Manager", "P", null,
+							CommandContributionItem.STYLE_PUSH, null, false ),
+					new OpenRPkgManagerHandler((RProcess) getTool(), getSite().getShell()) ));
 			
-			rEnv.add(new HandlerContributionItem(new CommandContributionItemParameter(
+			final MenuManager rEnvMenu = new MenuManager("R &Environment");
+			menuManager.appendToGroup(NICO_CONTROL_MENU_ID, rEnvMenu);
+			
+			rEnvMenu.add(new HandlerContributionItem(new CommandContributionItemParameter(
+							getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
+							null, null, null,
+							"Open Package Manager", "P", null,
+							CommandContributionItem.STYLE_PUSH, null, false ),
+					new OpenRPkgManagerHandler((RProcess) getTool(), getSite().getShell()) ));
+			
+			rEnvMenu.add(new HandlerContributionItem(new CommandContributionItemParameter(
+							getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
+							null, null, null,
+							"Open Package Manager - Clean", null, null,
+							CommandContributionItem.STYLE_PUSH, null, false ),
+							new OpenRPkgManagerHandler((RProcess) getTool(), getSite().getShell()) {
+						@Override
+						protected IRPkgManager getPackageManager() {
+							final IRPkgManager packageManager = super.getPackageManager();
+							packageManager.clear();
+							return packageManager;
+						}
+					}));
+			
+			rEnvMenu.add(new HandlerContributionItem(new CommandContributionItemParameter(
+							getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
+							null, null, null,
+							"Open R Help", "H", null,
+							CommandContributionItem.STYLE_PUSH, null, false ),
+					new OpenRHelpHandler(rEnv, process, true) ));
+			
+			rEnvMenu.add(new Separator());
+			
+			rEnvMenu.add(new HandlerContributionItem(new CommandContributionItemParameter(
 					getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
 					null, null, null,
 					"Index c&ompletely", null, null,
 					CommandContributionItem.STYLE_PUSH, null, false),
 					new REnvIndexUpdateHandler(process, true) ));
-			rEnv.add(new HandlerContributionItem(new CommandContributionItemParameter(
+			rEnvMenu.add(new HandlerContributionItem(new CommandContributionItemParameter(
 					getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
 					null, null, null,
 					"Index ch&anges", null, null,
 					CommandContributionItem.STYLE_PUSH, null, false),
 					new REnvIndexUpdateHandler(process, false) ));
-			
 		}
 	}
 	

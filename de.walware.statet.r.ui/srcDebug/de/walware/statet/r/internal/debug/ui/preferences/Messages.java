@@ -41,6 +41,7 @@ public class Messages extends NLS {
 	public static String REnv_Detail_Location_error_NoRHome_message;
 	public static String REnv_Detail_Location_FindAuto_label;
 	public static String REnv_Detail_Location_FindAuto_Failed_message;
+	public static String REnv_Detail_RVersion_label;
 	public static String REnv_Detail_Arch_label;
 	public static String REnv_Detail_Libraries_label;
 	public static String REnv_Detail_LibraryLocation_label;

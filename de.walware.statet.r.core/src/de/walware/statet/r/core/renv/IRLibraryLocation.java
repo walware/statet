@@ -23,15 +23,26 @@ import org.eclipse.core.filesystem.IFileStore;
 public interface IRLibraryLocation {
 	
 	
-	public interface WorkingCopy extends IRLibraryLocation {
+	interface WorkingCopy extends IRLibraryLocation {
 		
 		public void setDirectoryPath(String path);
 		
 	}
 	
+	/** Source type constant */
+	String R = "r"; //$NON-NLS-1$
+	/** Source type constant */
+	String EPLUGIN = "eplugin"; //$NON-NLS-1$
+	/** Source type constant */
+	String USER = "user"; //$NON-NLS-1$
 	
-	public String getDirectoryPath();
 	
-	public IFileStore getDirectoryStore();
+	String getSource();
+	
+	String getLabel();
+	
+	String getDirectoryPath();
+	
+	IFileStore getDirectoryStore();
 	
 }

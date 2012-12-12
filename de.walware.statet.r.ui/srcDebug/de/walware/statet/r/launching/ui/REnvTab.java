@@ -11,9 +11,6 @@
 
 package de.walware.statet.r.launching.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
@@ -29,7 +26,6 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
@@ -147,18 +143,12 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		group = new Group(mainComposite, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		group.setText(RLaunchingMessages.REnv_Tab_REnvConfig_label+':');
-		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 1));
+		group.setLayout(LayoutUtil.createGroupGrid(1));
 		if (fLocal) {
 			fREnvControl = new REnvSelectionComposite(group) {
 				@Override
-				protected List<IREnv> getValidREnvs(final IREnvConfiguration[] configurations) {
-					final List<IREnv> list = new ArrayList<IREnv>(configurations.length);
-					for (final IREnvConfiguration rEnvConfig : configurations) {
-						if (rEnvConfig.isLocal()) {
-							list.add(rEnvConfig.getReference());
-						}
-					}
-					return list;
+				protected boolean isValid(IREnvConfiguration rEnvConfig) {
+					return super.isValid(rEnvConfig) && rEnvConfig.isLocal();
 				}
 			};
 		}

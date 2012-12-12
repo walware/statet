@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -78,7 +77,7 @@ public class REnvRemoteConfigDialog extends ExtStatusDialog {
 	protected Control createDialogArea(final Composite parent) {
 		final Composite dialogArea = new Composite(parent, SWT.NONE);
 		dialogArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		dialogArea.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
+		dialogArea.setLayout(LayoutUtil.createDialogGrid(2));
 		
 		{	final Label label = new Label(dialogArea, SWT.LEFT);
 			label.setText("R Environment configuration for remote R installations (consoles).");

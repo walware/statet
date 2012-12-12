@@ -1227,12 +1227,17 @@
             id="de.walware.statet.r.preferencePages.RInteractionPage"
             category="de.walware.statet.base.preferencePages.RunDebug"
             class="de.walware.statet.r.internal.debug.ui.preferences.RInteractionPreferencePage"
-            name="%preferencePages.RInteraction.name"/>
+            name="%preferencePages_RInteraction_name"/>
       <page
             id="de.walware.statet.r.preferencePages.REnvironmentPage"
             category="de.walware.statet.base.preferencePages.RunDebug"
             class="de.walware.statet.r.internal.debug.ui.preferences.REnvPreferencePage"
-            name="%preferencePages.REnvironments.name"/>
+            name="%preferencePages_REnvironments_name"/>
+      <page
+            id="de.walware.statet.r.preferencePages.RRepositories"
+            category="de.walware.statet.base.preferencePages.RunDebug"
+            class="de.walware.statet.r.internal.ui.pkgmanager.RRepoPreferencePage"
+            name="%preferencePages_RRepositories_name"/>
    </extension>
    <extension point="org.eclipse.ui.commands">
       <!-- commands of launch shortcuts above -->

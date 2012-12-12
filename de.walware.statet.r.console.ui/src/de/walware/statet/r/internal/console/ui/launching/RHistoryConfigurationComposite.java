@@ -46,7 +46,7 @@ public class RHistoryConfigurationComposite extends RTrackingConfigurationCompos
 	@Override
 	protected void configure() {
 		addSaveTemplate(new SaveTemplate("'.Rhistory' in R working directory", HISTORY_TRACKING_DEFAULT_PATH));
-		addSaveTemplate(new SaveTemplate("'.Rhistory' in user home directory", "${system_property:user.home}/.RHistory")); //$NON-NLS-2$
+		addSaveTemplate(new SaveTemplate("'.Rhistory' in user home directory", "${user_home}/.RHistory")); //$NON-NLS-2$
 	}
 	
 	@Override

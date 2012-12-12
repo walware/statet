@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,6 +37,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ICommonStatusConstants;
@@ -114,56 +117,60 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	}
 	
 	
-	private static String getLibGroupLabel(final String id) {
-		if (id.equals(IRLibraryGroup.R_DEFAULT)) {
-			return Messages.REnvConfiguration_DefaultLib_label;
-		}
-		if (id.equals(IRLibraryGroup.R_SITE)) {
-			return Messages.REnvConfiguration_SiteLibs_label;
-		}
-		if (id.equals(IRLibraryGroup.R_USER)) {
-			return Messages.REnvConfiguration_UserLibs_label;
-		}
-		if (id.equals(IRLibraryGroup.R_OTHER)) {
-			return Messages.REnvConfiguration_OtherLibs_label;
-		}
-		return null;
-	}
-	
-	private static final List<RLibraryLocation> NO_LIBS = Collections.emptyList();
+	private static final List<IRLibraryLocation> NO_LIBS = Collections.emptyList();
 	
 	private static final String[] DEFAULT_LIBS_IDS = new String[] {
-			IRLibraryGroup.R_DEFAULT, IRLibraryGroup.R_SITE,
-			IRLibraryGroup.R_USER, IRLibraryGroup.R_OTHER
+			IRLibraryGroup.R_OTHER,
+			IRLibraryGroup.R_USER,
+			IRLibraryGroup.R_SITE,
+			IRLibraryGroup.R_DEFAULT,
 	};
 	
-	private static final List<IRLibraryGroup> DEFAULT_LIBS_INIT;
-	static {
-		final IRLibraryGroup[] groups = new IRLibraryGroup[DEFAULT_LIBS_IDS.length];
-		for (int i = 0; i < DEFAULT_LIBS_IDS.length; i++) {
-			groups[i] = new RLibraryGroup.Final(DEFAULT_LIBS_IDS[i], getLibGroupLabel(DEFAULT_LIBS_IDS[i]), NO_LIBS);
-		}
-		DEFAULT_LIBS_INIT = new ConstList<IRLibraryGroup>(groups);
+	private static RLibraryLocation createDefaultLocation() {
+		return new RLibraryLocation(IRLibraryLocation.R, IRLibraryGroup.DEFAULTLOCATION_R_DEFAULT, null);
 	}
 	
-	private static final List<IRLibraryGroup> DEFAULT_LIBS_DEFAULTS = new ConstList<IRLibraryGroup>(
-			new RLibraryGroup.Final(IRLibraryGroup.R_DEFAULT, getLibGroupLabel(IRLibraryGroup.R_DEFAULT),
-				new ConstList<RLibraryLocation>(new RLibraryLocation(IRLibraryGroup.DEFAULTLOCATION_R_DEFAULT)) ),
-			new RLibraryGroup.Final(IRLibraryGroup.R_SITE, getLibGroupLabel(IRLibraryGroup.R_SITE),
-				new ConstList<RLibraryLocation>(new RLibraryLocation(IRLibraryGroup.DEFAULTLOCATION_R_SITE)) ),
-			new RLibraryGroup.Final(IRLibraryGroup.R_USER, getLibGroupLabel(IRLibraryGroup.R_USER), NO_LIBS),
-			new RLibraryGroup.Final(IRLibraryGroup.R_OTHER, getLibGroupLabel(IRLibraryGroup.R_OTHER), NO_LIBS) );
+	private static final List<IRLibraryGroup> DEFAULT_LIBS_INIT;
+	private static final List<IRLibraryGroup> DEFAULT_LIBS_DEFAULTS;
+	static {
+		{	final IRLibraryGroup[] groups = new IRLibraryGroup[DEFAULT_LIBS_IDS.length];
+			for (int i = 0; i < DEFAULT_LIBS_IDS.length; i++) {
+				final String id = DEFAULT_LIBS_IDS[i];
+				final List<IRLibraryLocation> libs = NO_LIBS;
+				groups[i] = new RLibraryGroup.Final(id, RLibraryGroup.getLabel(id), libs);
+			}
+			DEFAULT_LIBS_INIT = new ConstList<IRLibraryGroup>(groups);
+		}
+		{	final IRLibraryGroup[] groups = new IRLibraryGroup[DEFAULT_LIBS_IDS.length];
+			for (int i = 0; i < DEFAULT_LIBS_IDS.length; i++) {
+				final String id = DEFAULT_LIBS_IDS[i];
+				final List<IRLibraryLocation> libs;
+				if (id == IRLibraryGroup.R_DEFAULT) {
+					libs = new ConstList<IRLibraryLocation>(createDefaultLocation());
+				}
+				else if (id == IRLibraryGroup.R_SITE) {
+					libs = new ConstList<IRLibraryLocation>(new RLibraryLocation(
+							IRLibraryLocation.USER, IRLibraryGroup.DEFAULTLOCATION_R_SITE, null ));
+				}
+				else {
+					libs = NO_LIBS;
+				}
+				groups[i] = new RLibraryGroup.Final(id, RLibraryGroup.getLabel(id), libs);
+			}
+			DEFAULT_LIBS_DEFAULTS = new ConstList<IRLibraryGroup>(groups);
+		}
+	}
 	
 	
 	public static class Editable extends REnvConfiguration implements WorkingCopy {
 		
 		public Editable(final String type, final IREnv link) {
-			super(type, link, null, null);
+			super(type, link, (IPreferenceAccess) null, null);
 			loadDefaults();
 		}
 		
 		private Editable(final REnvConfiguration config) {
-			super(config.fType, config.getReference(), null, null);
+			super(config.fType, config.getReference(), (IPreferenceAccess) null, null);
 			load(config);
 		}
 		
@@ -193,6 +200,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	private final IREnv fREnv;
 	
 	private String fType;
+	boolean fDeleted;
 	
 	private String fNodeQualifier;
 	private String fCheckId;
@@ -209,6 +217,8 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	private int fRBits;
 	private StringPref fPrefROS;
 	private String fROS;
+	
+	private String fRVersion;
 	
 	protected List<? extends IRLibraryGroup> fRLibraries;
 	private StringPref fPrefRDocDirectory;
@@ -229,25 +239,39 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	private final Object fSharedPropertiesLock = new Object();
 	
 	
+	REnvConfiguration(final IREnv link, final IPreferenceAccess prefs) {
+		this(null, link, prefs, (String) null);
+	}
+	
 	protected REnvConfiguration(final String type, final IREnv link,
 			final IPreferenceAccess prefs, final String key) {
 		assert (link != null);
 		fType = type;
 		fREnv = link;
-		fRBits = 64;
 		
 		fNodeQualifier = RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER + '/' +
 				((key != null) ? key : link.getId());
-		fRLibraries = DEFAULT_LIBS_INIT;
+		
+		fRBits = 64;
 		if (prefs != null) {
+			fRLibraries = copyLibs(DEFAULT_LIBS_DEFAULTS);
 			load(prefs);
+		}
+		else {
+			fRLibraries = DEFAULT_LIBS_INIT;
 		}
 	}
 	
-	REnvConfiguration(final IREnv link, final RSetup setup) {
+	REnvConfiguration(final String type, final IREnv link,
+			final RSetup setup, final IPreferenceAccess prefs) {
 		assert (link != null && setup != null);
-		fType = EPLUGIN_LOCAL_TYPE;
+		if (type != EPLUGIN_LOCAL_TYPE) {
+			throw new IllegalArgumentException(type);
+		}
+		fType = type;
 		fREnv = link;
+		
+		fNodeQualifier = RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER + '/' + link.getId();
 		
 		setName(setup.getName());
 		setROS(setup.getOS());
@@ -260,34 +284,66 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		}
 		fRBits = (Platform.ARCH_X86.equals(setup.getOSArch())) ? 32 : 64;
 		setRHome(setup.getRHome());
-		setRDocDirectoryPath("${env_var:R_HOME}/doc"); //$NON-NLS-1$
-		setRShareDirectoryPath("${env_var:R_HOME}/share"); //$NON-NLS-1$
-		setRIncludeDirectoryPath("${env_var:R_HOME}/include"); //$NON-NLS-1$
+		loadDefaultInstallDir();
+		fRVersion = setup.getRVersion();
 		
 		final String[] ids = DEFAULT_LIBS_IDS;
 		final List<IRLibraryGroup> groups = new ArrayList<IRLibraryGroup>(ids.length);
+		final List<RLibraryLocation> tmpList = new ArrayList<RLibraryLocation>();
+		
+		final String userHome = getUserHome();
+		final String eclipseHome = getInstallLocation();
+		
 		for (int i = 0; i < ids.length; i++) {
+			tmpList.clear();
 			final String id = ids[i];
-			final String label = getLibGroupLabel(id);
+			final String label = RLibraryGroup.getLabel(id);
 			if (label != null) {
 				final List<String> locations;
-				if (id.equals(IRLibraryGroup.R_SITE)) {
+				if (id == IRLibraryGroup.R_DEFAULT) {
+					tmpList.add(createDefaultLocation());
+					locations = null;
+				}
+				else if (id == IRLibraryGroup.R_SITE) {
 					locations = setup.getRLibsSite();
 				}
-				else if (id.equals(IRLibraryGroup.R_USER)) {
+				else if (id == IRLibraryGroup.R_USER) {
 					locations = setup.getRLibsUser();
+					try {
+						final String path = "${workspace_loc}/.metadata/.r/" + link.getId() + "/user-library"; //$NON-NLS-1$ //$NON-NLS-2$
+						final IFileStore store = checkPath(path, null, null);
+						if (!store.fetchInfo().exists()) {
+							store.mkdir(EFS.NONE, null);
+						}
+						tmpList.add(new RLibraryLocation(IRLibraryLocation.R, path, "Workspace Library"));
+					}
+					catch (final Exception e) {
+						RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
+								"An error occured when creating default R_USER 'Workspace Library'.", e));
+					}
 				}
-				else if (id.equals(IRLibraryGroup.R_OTHER)) {
+				else if (id == IRLibraryGroup.R_OTHER) {
 					locations = setup.getRLibs();
 				}
 				else {
 					continue;
 				}
-				final RLibraryLocation[] libs = new RLibraryLocation[(locations != null) ? locations.size() : 0];
-				for (int j = 0; j < locations.size(); j++) {
-					libs[j] = new RLibraryLocation(locations.get(j));
+				if (locations != null) {
+					for (int j = 0; j < locations.size(); j++) {
+						String path = locations.get(j);
+						if (eclipseHome != null && path.startsWith(eclipseHome)) {
+							path = "${eclipse_home}" + File.separatorChar + //$NON-NLS-1$
+									path.substring(eclipseHome.length());
+						}
+						else if (userHome != null && path.startsWith(userHome)) {
+							path = "${user_home}" + File.separatorChar + //$NON-NLS-1$
+									path.substring(userHome.length());
+						}
+						tmpList.add(new RLibraryLocation(IRLibraryLocation.EPLUGIN, path, null));
+					}
 				}
-				groups.add(new RLibraryGroup.Final(id, label, new ConstList<RLibraryLocation>(libs)));
+				groups.add(new RLibraryGroup.Final(id, label,
+						new ConstList<IRLibraryLocation>(tmpList)) );
 			}
 			else {
 				// unknown group
@@ -295,21 +351,63 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		}
 		fRLibraries = Collections.unmodifiableList(groups);
 		
+		if (prefs != null) {
+			load(prefs);
+		}
+		
 		resolvePaths();
 	}
 	
+	private String getUserHome() {
+		IPath path = new Path(System.getProperty("user.home")); //$NON-NLS-1$
+		path = path.addTrailingSeparator();
+		return path.toOSString();
+	}
+	
+	private String getInstallLocation() {
+		final Location installLocation = Platform.getInstallLocation();
+		if (installLocation == null) {
+			return null;
+		}
+		final URL url = installLocation.getURL();
+		if (url == null) {
+			return null;
+		}
+		IPath path;
+		try {
+			path = URIUtil.toPath(url.toURI());
+		}
+		catch (final URISyntaxException e) {
+			return null;
+		}
+		if (path == null) {
+			return null;
+		}
+		path = path.addTrailingSeparator();
+		return path.toOSString();
+	}
+	
 	public REnvConfiguration(final IREnvConfiguration config) {
-		this(config.getType(), config.getReference(), null, null);
+		this(config.getType(), config.getReference(), null, (String) null);
 		load(config);
 	}
 	
-	protected void checkPrefs() {
+	protected void checkPrefs(final IPreferenceAccess prefs) {
 		final String id = fREnv.getId();
 		if (id.equals(fCheckId)) {
 			return;
 		}
 		fCheckId = id;
+		
 		fPrefType = new StringPref(fNodeQualifier, PREFKEY_TYPE);
+		
+		if (fType == null && prefs != null) {
+			final String type = prefs.getPreferenceValue(fPrefType);
+			if (type != null) {
+				fType = type.intern();
+			}
+		}
+		
 		fPrefName = new StringPref(fNodeQualifier, PREFKEY_NAME);
 		fPrefROS = new StringPref(fNodeQualifier, PREFKEY_ROS);
 		if (fType == USER_LOCAL_TYPE) {
@@ -354,6 +452,11 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	}
 	
 	@Override
+	public boolean isDeleted() {
+		return fDeleted;
+	}
+	
+	@Override
 	public boolean isEditable() {
 		return (fType == USER_LOCAL_TYPE || fType == USER_REMOTE_TYPE);
 	}
@@ -371,23 +474,31 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	
 	@Override
 	public String[] getNodeQualifiers() {
-		if (fType == EPLUGIN_LOCAL_TYPE) {
-			return new String[0];
-		}
-		
-		checkPrefs();
+		checkPrefs(null);
 		return new String[] { fNodeQualifier };
 	}
 	
 	@Override
 	public void loadDefaults() {
+		if (!(this instanceof WorkingCopy)) {
+			throw new UnsupportedOperationException("No working copy");
+		}
 		setName("R"); //$NON-NLS-1$
 		if (fType == USER_LOCAL_TYPE) {
 			setRHome(""); //$NON-NLS-1$
 			fRLibraries = copyLibs(DEFAULT_LIBS_DEFAULTS);
 		}
+		if (isLocal()) {
+			loadDefaultInstallDir();
+		}
 		
 		resolvePaths();
+	}
+	
+	private void loadDefaultInstallDir() {
+		setRDocDirectoryPath("${env_var:R_HOME}/doc"); //$NON-NLS-1$
+		setRShareDirectoryPath("${env_var:R_HOME}/share"); //$NON-NLS-1$
+		setRIncludeDirectoryPath("${env_var:R_HOME}/include"); //$NON-NLS-1$
 	}
 	
 	public void load(final IREnvConfiguration from) {
@@ -409,25 +520,13 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	
 	@Override
 	public void load(final IPreferenceAccess prefs) {
-		if (fType == EPLUGIN_LOCAL_TYPE) {
-			return;
-		}
-		
-		checkPrefs();
+		checkPrefs(prefs);
 		checkExistence(prefs);
-		final String type = prefs.getPreferenceValue(fPrefType);
-		if (USER_REMOTE_TYPE.equals(type)) {
-			fType = USER_REMOTE_TYPE;
-		}
-		else if (EPLUGIN_LOCAL_TYPE.equals(type)) {
-			fType = EPLUGIN_LOCAL_TYPE;
-		}
-		else {
-			fType = USER_LOCAL_TYPE;
-		}
-		setName(prefs.getPreferenceValue(fPrefName));
-		setROS(prefs.getPreferenceValue(fPrefROS));
 		
+		if (isEditable()) {
+			setName(prefs.getPreferenceValue(fPrefName));
+			setROS(prefs.getPreferenceValue(fPrefROS));
+		}
 		if (fType == USER_LOCAL_TYPE) {
 			setRHome(prefs.getPreferenceValue(fPrefRHomeDirectory));
 			setSubArch(prefs.getPreferenceValue(fPrefSubArch));
@@ -435,24 +534,31 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 			setRDocDirectoryPath(prefs.getPreferenceValue(fPrefRDocDirectory));
 			setRShareDirectoryPath(prefs.getPreferenceValue(fPrefRShareDirectory));
 			setRIncludeDirectoryPath(prefs.getPreferenceValue(fPrefRIncludeDirectory));
-			
+		}
+		if (isLocal()) {
 			final String[] ids = DEFAULT_LIBS_IDS;
 			final List<IRLibraryGroup> groups = new ArrayList<IRLibraryGroup>(ids.length);
 			for (int i = 0; i < ids.length; i++) {
 				final String id = ids[i];
-				final String label = getLibGroupLabel(id);
-				if (label != null) {
-					final String[] locations = prefs.getPreferenceValue(
-							new StringArrayPref(fNodeQualifier, PREFKEY_RLIBS_PREFIX+id, Preference.IS2_SEPARATOR_CHAR));
-					final RLibraryLocation[] libs = new RLibraryLocation[(locations != null) ? locations.length : 0];
-					for (int j = 0; j < locations.length; j++) {
-						libs[j] = new RLibraryLocation(locations[j]);
+				final List<IRLibraryLocation> libs = new ArrayList<IRLibraryLocation>();
+				final IRLibraryGroup group = getRLibraryGroup(id);
+				for (final IRLibraryLocation location : group.getLibraries()) {
+					if (location.getSource() != IRLibraryLocation.USER) {
+						libs.add(location);
 					}
-					groups.add(new RLibraryGroup.Final(id, label, new ConstList<RLibraryLocation>(libs)));
 				}
-				else {
-					// unknown group
+				if (id != IRLibraryGroup.R_DEFAULT) {
+					final String[] paths = prefs.getPreferenceValue(
+							new StringArrayPref(fNodeQualifier, PREFKEY_RLIBS_PREFIX+id, Preference.IS2_SEPARATOR_CHAR));
+					for (final String path : paths) {
+						final RLibraryLocation location = new RLibraryLocation(IRLibraryLocation.USER, path, null);
+						if (!libs.contains(location)) {
+							libs.add(location);
+						}
+					}
 				}
+				groups.add(new RLibraryGroup.Final(id, RLibraryGroup.getLabel(id),
+						new ConstList<IRLibraryLocation>(libs)) );
 			}
 			fRLibraries = Collections.unmodifiableList(groups);
 		}
@@ -472,14 +578,14 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	
 	@Override
 	public Map<Preference<?>, Object> deliverToPreferencesMap(final Map<Preference<?>, Object> map) {
-		if (fType == EPLUGIN_LOCAL_TYPE) {
-			return map;
-		}
+		checkPrefs(null);
 		
-		checkPrefs();
 		map.put(fPrefType, getType());
-		map.put(fPrefName, getName());
-		map.put(fPrefROS, getROS());
+		
+		if (isEditable()) {
+			map.put(fPrefName, getName());
+			map.put(fPrefROS, getROS());
+		}
 		
 		if (fType == USER_LOCAL_TYPE) {
 			map.put(fPrefRHomeDirectory, getRHome());
@@ -488,18 +594,20 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 			map.put(fPrefRDocDirectory, getRDocDirectoryPath());
 			map.put(fPrefRShareDirectory, getRShareDirectoryPath());
 			map.put(fPrefRIncludeDirectory, getRIncludeDirectoryPath());
-			
+		}
+		if (isLocal()) {
 			final List<? extends IRLibraryGroup> groups = fRLibraries;
 			for (final IRLibraryGroup group : groups) {
 				final List<? extends IRLibraryLocation> libraries = group.getLibraries();
-				final String[] locations = new String[libraries.size()];
-				for (int i = 0; i < libraries.size(); i++) {
-					locations[i] = libraries.get(i).getDirectoryPath();
+				final List<String> locations = new ArrayList<String>(libraries.size());
+				for (final IRLibraryLocation location : libraries) {
+					if (location.getSource() == IRLibraryLocation.USER) {
+						locations.add(location.getDirectoryPath());
+					}
 				}
-				map.put(new StringArrayPref(fNodeQualifier, PREFKEY_RLIBS_PREFIX+group.getId(), Preference.IS2_SEPARATOR_CHAR),
-						locations);
+				map.put(new StringArrayPref(fNodeQualifier, PREFKEY_RLIBS_PREFIX+group.getId(),
+						Preference.IS2_SEPARATOR_CHAR ), locations.toArray(new String[locations.size()]));
 			}
-			
 		}
 		
 		map.put(fPrefIndexDirectory, getIndexDirectoryPath());
@@ -528,6 +636,11 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		final String oldValue = fName;
 		fName = label;
 		firePropertyChange(PROP_NAME, oldValue, label);
+	}
+	
+	@Override
+	public String getRVersion() {
+		return fRVersion;
 	}
 	
 	public boolean isValidRHomeLocation(final IFileStore rHome) {
@@ -592,8 +705,8 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		if ((arch.equals("exec"))) { //$NON-NLS-1$
 			return null;
 		}
-		if (LOCAL_PLATFORM == LOCAL_WIN) { //$NON-NLS-1$
-			if (arch.equals("x64")) {
+		if (LOCAL_PLATFORM == LOCAL_WIN) {
+			if (arch.equals("x64")) { //$NON-NLS-1$
 				return "x86_64"; //$NON-NLS-1$
 			}
 			if (arch.equals("i386")) { //$NON-NLS-1$
@@ -614,7 +727,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 			if (arch.equals("/x86_64")) { //$NON-NLS-1$
 				return "/x64"; //$NON-NLS-1$
 			}
-			if (arch.equals("/x86")) {
+			if (arch.equals("/x86")) { //$NON-NLS-1$
 				return "/i386"; //$NON-NLS-1$
 			}
 		}
@@ -988,7 +1101,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 						sb.append(':').append(data.getPort());
 					}
 					sb.append('/');
-					envp.put("http_proxy", sb.toString());
+					envp.put("http_proxy", sb.toString()); //$NON-NLS-1$
 				}
 				
 				data = proxyService.getProxyData("FTP"); //$NON-NLS-1$
@@ -1180,9 +1293,11 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		try {
 			if (path != null && path.length() > 0) {
 				if (rHome != null) {
+					path = path.replace("${r_home}", rHome); //$NON-NLS-1$
 					path = path.replace("${env_var:R_HOME}", rHome); //$NON-NLS-1$
 				}
-				else if (path.contains("${env_var:R_HOME}")) { //$NON-NLS-1$
+				else if (path.contains("${r_home}") //$NON-NLS-1$
+						|| path.contains("${env_var:R_HOME}")) { //$NON-NLS-1$
 					return null;
 				}
 				if (userHome != null) {
@@ -1200,7 +1315,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		}
 		catch (final Exception e) {
 			RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, 0,
-					NLS.bind("Could not resolve configured path ''{0}}'' of " +
+					NLS.bind("Could not resolve configured path ''{0}'' of " +
 							"R environment configuration ''{1}''.", path, fName ), e));
 		}
 		return null;
@@ -1226,15 +1341,21 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 				&& ((fName != null) ? fName.equals(other.getName()) : null == other.getName())
 				&& ((fSubArch != null) ? fSubArch.equals(other.getSubArch()) : null == other.getSubArch())
 				&& ((fROS != null) ? fROS.equals(other.getROS()) : null == other.getROS())
-				&& ((fType == USER_LOCAL_TYPE
-						&& ((fRHomeDirectory != null) ? fRHomeDirectory.equals(other.getRHome()) : null == other.getRHome())
+				&& (!isLocal() || (
+						   ((fRHomeDirectory != null) ? fRHomeDirectory.equals(other.getRHome()) : null == other.getRHome())
 						&& ((fRDocDirectory != null) ? fRDocDirectory.equals(other.getRDocDirectoryPath()) : null == other.getRDocDirectoryPath())
 						&& ((fRShareDirectory != null) ? fRShareDirectory.equals(other.getRShareDirectoryPath()) : null == other.getRShareDirectoryPath())
 						&& ((fRIncludeDirectory != null) ? fRIncludeDirectory.equals(other.getRIncludeDirectoryPath()) : null == other.getRIncludeDirectoryPath())
-						&& ((fRLibraries != null) ? fRLibraries.equals(other.getRLibraryGroups()) : null == fRLibraries)
-				) || (fType == USER_REMOTE_TYPE) || (fType == EPLUGIN_LOCAL_TYPE) )
+						&& ((fRLibraries != null) ? fRLibraries.equals(other.getRLibraryGroups()) : null == fRLibraries) )
+						)
 				&& ((fIndexDirectory != null) ? fIndexDirectory.equals(other.getIndexDirectoryPath()) : null == other.getIndexDirectoryPath())
 				);
+	}
+	
+	
+	@Override
+	public String toString() {
+		return fREnv.getId() + " (" + getName() + ", " + getRHome() + ")"; //$NON-NLS-1$
 	}
 	
 }

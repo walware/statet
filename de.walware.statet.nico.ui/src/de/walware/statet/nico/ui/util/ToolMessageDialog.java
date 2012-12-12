@@ -30,10 +30,18 @@ public class ToolMessageDialog extends MessageDialog {
 	
 	public static boolean openConfirm(final ToolProcess tool, final Shell parent, final String title, final String message) {
 		final ToolMessageDialog dialog = new ToolMessageDialog(tool,
-				parent, title, null, 
-				message, QUESTION, 
-				new String[] { IDialogConstants.OK_LABEL, IDialogConstants.CANCEL_LABEL }, 0);
-		return dialog.open() == 0;
+				parent, title, null,
+				message, QUESTION,
+				new String[] { IDialogConstants.OK_LABEL, IDialogConstants.CANCEL_LABEL }, 0 );
+		return (dialog.open() == 0);
+	}
+	
+	public static boolean openQuestion(final ToolProcess tool, final Shell parent, final String title, final String message) {
+		final ToolMessageDialog dialog = new ToolMessageDialog(tool,
+				parent, title, null,
+				message, QUESTION,
+				new String[] { IDialogConstants.YES_LABEL, IDialogConstants.NO_LABEL }, 0 );
+		return (dialog.open() == 0);
 	}
 	
 	

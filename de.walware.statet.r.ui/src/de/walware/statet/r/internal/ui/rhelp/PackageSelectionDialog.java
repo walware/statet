@@ -25,7 +25,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -79,7 +78,7 @@ public class PackageSelectionDialog extends SelectionDialog {
 	protected Control createDialogArea(final Composite parent) {
 		final Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		composite.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 1));
+		composite.setLayout(LayoutUtil.createDialogGrid(1));
 		
 		initializeDialogUnits(composite);
 		

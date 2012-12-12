@@ -31,7 +31,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -52,6 +51,9 @@ import de.walware.statet.r.console.core.AbstractRDataRunnable;
 import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.core.pkgmanager.IRPkgChangeSet;
+import de.walware.statet.r.core.pkgmanager.IRPkgManager;
+import de.walware.statet.r.core.pkgmanager.IRPkgManager.Event;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.rhelp.rj.RJREnvIndexChecker;
 import de.walware.statet.r.core.rhelp.rj.RJREnvIndexUpdater;
@@ -61,6 +63,18 @@ import de.walware.statet.r.nico.impl.RjsController;
 
 
 public class REnvIndexAutoUpdater {
+	
+	
+	public static void connect(final RProcess process, final IRPkgManager manager) {
+		final IREnvConfiguration rEnvConfig = (IREnvConfiguration) process
+				.getAdapter(IREnvConfiguration.class);
+		if (rEnvConfig != null) {
+			final CheckRunnable checker = new CheckRunnable(process, manager,
+					new RJREnvIndexChecker(rEnvConfig) );
+			process.getQueue().addOnIdle(checker, 1000);
+			return;
+		}
+	}
 	
 	
 	public static final class UpdateRunnable extends AbstractRDataRunnable {
@@ -129,7 +143,7 @@ public class REnvIndexAutoUpdater {
 			
 			LayoutUtil.addGDDummy(parent);
 			final Composite composite = new Composite(parent, SWT.NONE);
-			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 1));
+			composite.setLayout(LayoutUtil.createCompositeGrid(1));
 			
 			{	final Label label = new Label(composite, SWT.NONE);
 				label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -187,13 +201,27 @@ public class REnvIndexAutoUpdater {
 		
 	}
 	
-	
-	private class CheckRunnable implements ISystemRunnable {
+	private static class CheckRunnable implements ISystemRunnable, IRPkgManager.Listener {
 		
+		
+		private final RProcess fProcess;
+		
+		private final RJREnvIndexChecker fChecker;
+		
+		private final IRPkgManager fManager;
+		private boolean fChanged;
 		
 		private String fSessionSetting;
 		
-		private boolean fRJMissing;
+		
+		public CheckRunnable(final RProcess process, final IRPkgManager manager, final RJREnvIndexChecker checker) {
+			fProcess = process;
+			fManager = manager;
+			fChecker = checker;
+			fChanged = true;
+			
+			fManager.addListener(this);
+		}
 		
 		
 		@Override
@@ -216,31 +244,42 @@ public class REnvIndexAutoUpdater {
 			if (event == MOVING_FROM) {
 				return false;
 			}
+			if (event == BEING_ABANDONED) {
+				fManager.removeListener(this);
+			}
 			return true;
+		}
+		
+		@Override
+		public void handleChange(final Event event) {
+			if ((event.pkgsChanged() & IRPkgManager.INSTALLED) == IRPkgManager.INSTALLED) {
+				final IRPkgChangeSet changeSet = event.getInstalledPkgChangeSet();
+				if (changeSet != null && !changeSet.getNames().isEmpty()) {
+					fChanged = true;
+				}
+			}
 		}
 		
 		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			final RjsController r = (RjsController) service; // interface?
-			if (r.isBusy() || !r.isDefaultPrompt() || r.getBriefedChanges() == 0) {
+			if (r.isBusy() || !r.isDefaultPrompt() || !fChanged ) {
 				return;
 			}
+			fChanged = false;
 			try {
 				final String global = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_RENV_CHECK_UPDATE).intern();
 				
 				if (global == DISABLED
-						|| (global == ASK && fSessionSetting == DISABLED)
-						|| fChecker == null) {
+						|| (global == ASK && fSessionSetting == DISABLED) ) {
 					return;
 				}
 				final int check = fChecker.check(r, monitor);
 				final String message;
 				
 				if (fChecker.wasAlreadyReported()) {
-					if (!fRJMissing) {
-						return;
-					}
+					return;
 				}
 				switch (check) {
 				case RJREnvIndexChecker.NOT_AVAILABLE:
@@ -259,12 +298,6 @@ public class REnvIndexAutoUpdater {
 					return;
 				}
 				
-				if (!fChecker.isRJPackageInstalled()) {
-					fRJMissing = true;
-					return;
-				}
-				fRJMissing = false;
-				
 				if (global != AUTO && fSessionSetting == null) {
 					final AtomicBoolean update = new AtomicBoolean();
 					UIAccess.getDisplay().syncExec(new Runnable() {
@@ -273,7 +306,7 @@ public class REnvIndexAutoUpdater {
 							final AskDialog dialog = new AskDialog(fProcess, message);
 							update.set(dialog.open() == 0);
 							if (dialog.fRememberGlobally) {
-								PreferencesUtil.setPrefValue(new InstanceScope(),
+								PreferencesUtil.setPrefValue(InstanceScope.INSTANCE,
 										PREF_RENV_CHECK_UPDATE, update.get() ? AUTO : DISABLED);
 							}
 							else if (dialog.fRememberSession) {
@@ -296,26 +329,6 @@ public class REnvIndexAutoUpdater {
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID, -1,
 						RConsoleMessages.REnvIndex_Check_error_message, e ));
 			}
-		}
-		
-	}
-	
-	
-	private final RProcess fProcess;
-	
-	private final RJREnvIndexChecker fChecker;
-	
-	
-	public REnvIndexAutoUpdater(final RProcess process) {
-		fProcess = process;
-		final IREnvConfiguration rEnvConfig = (IREnvConfiguration) process.getAdapter(IREnvConfiguration.class);
-		if (rEnvConfig != null) {
-			fChecker = new RJREnvIndexChecker(rEnvConfig);
-			fProcess.getQueue().addOnIdle(new CheckRunnable(), 1000);
-			return;
-		}
-		else {
-			fChecker = null;
 		}
 	}
 	

@@ -11,18 +11,19 @@
 
 package de.walware.statet.r.core.rhelp.rj;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.rj.data.RCharacterStore;
-import de.walware.rj.data.RDataUtil;
-import de.walware.rj.data.RStore;
-import de.walware.rj.data.RVector;
 import de.walware.rj.services.RService;
 
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.pkgmanager.IRPkgInfo;
+import de.walware.statet.r.core.pkgmanager.IRPkgManager;
+import de.walware.statet.r.core.pkgmanager.IRPkgSet;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.core.rhelp.REnvIndexChecker;
 
@@ -39,14 +40,15 @@ public class RJREnvIndexChecker {
 	public static final int PACKAGES = 2;
 	
 	
+	private final IREnvConfiguration fREnvConfig;
 	private final REnvIndexChecker fIndex;
-	
-	private double fLastChange = 0;
-	
-	private boolean fRJPackageFound;
 	
 	
 	public RJREnvIndexChecker(final IREnvConfiguration rEnvConfig) {
+		if (rEnvConfig == null) {
+			throw new NullPointerException("rEnvConfig"); //$NON-NLS-1$
+		}
+		fREnvConfig = rEnvConfig;
 		fIndex = new REnvIndexChecker(rEnvConfig);
 	}
 	
@@ -58,49 +60,40 @@ public class RJREnvIndexChecker {
 		}
 		Exception errorCause = null;
 		try {
-			final double lastChange = RDataUtil.checkSingleNumValue(r.evalData("max(file.info(.libPaths())$mtime)", monitor)); //$NON-NLS-1$
-			if (fLastChange != lastChange || fIndex.hasNewChanges()) {
-				fLastChange = lastChange;
-				
-				fRJPackageFound = false;
-				
-				final RVector<RCharacterStore> pkgData = RDataUtil.checkRCharVector(
-						r.evalData("installed.packages()[,\"Version\"]", monitor)); //$NON-NLS-1$
-				final RCharacterStore pkgVersions = pkgData.getData();
-				final RStore names = pkgData.getNames();
-				
-				if (fIndex.needsComplete()) {
-					fRJPackageFound = names.contains("rj"); //$NON-NLS-1$
-				}
-				else {
-					fIndex.beginPackageCheck();
-					
-					final int count = names.getLength();
-					for (int i = 0; i < count; i++) {
-						fIndex.checkPackage(names.getChar(i), pkgVersions.get(i));
-					}
-					fRJPackageFound = fIndex.getCheckedPackages().contains("rj"); //$NON-NLS-1$
-					
-					fIndex.endPackageCheck();
-				}
+			if (fIndex.needsComplete()) {
+				return COMPLETE;
 			}
+			
+			final IRPkgManager rPkgManager = RCore.getRPkgManager(fREnvConfig.getReference());
+			final IRPkgSet rPkgSet = rPkgManager.getRPkgSet();
+			final List<String> installedPkgNames = rPkgSet.getNames();
+			fIndex.beginPackageCheck();
+			for (final String pkgName : installedPkgNames) {
+				final IRPkgInfo pkgInfo = rPkgSet.getInstalled().getFirstByName(pkgName);
+				if (pkgInfo == null) {
+					continue;
+				}
+				fIndex.checkPackage(pkgName, pkgInfo.getVersion(), pkgInfo.getBuilt());
+			}
+			fIndex.endPackageCheck();
 			
 			if (fIndex.needsComplete()) {
 				return COMPLETE;
-			} else if (fIndex.hasPackageChanges()) {
+			}
+			else if (fIndex.hasPackageChanges()) {
 				return PACKAGES;
 			}
 			else {
 				return UP_TO_DATE;
 			}
 		}
-		catch (final CoreException e) {
-			fIndex.cancelCheck();
-			if (e.getStatus().getSeverity() == IStatus.CANCEL) {
-				throw e;
-			}
-			errorCause = e;
-		}
+//		catch (final CoreException e) {
+//			fIndex.cancelCheck();
+//			if (e.getStatus().getSeverity() == IStatus.CANCEL) {
+//				throw e;
+//			}
+//			errorCause = e;
+//		}
 		catch (final Exception e) {
 			fIndex.cancelCheck();
 			errorCause = e;
@@ -123,10 +116,6 @@ public class RJREnvIndexChecker {
 	
 	public int getChangedPackageCount() {
 		return fIndex.getChangedPackageCount();
-	}
-	
-	public boolean isRJPackageInstalled() {
-		return fRJPackageFound;
 	}
 	
 }

@@ -601,7 +601,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			
 			progress.worked(5);
 			
-			RConsoleRJLaunchDelegate.initConsoleOptions(controller, configuration, startup);
+			RConsoleRJLaunchDelegate.initConsoleOptions(controller, rEnv, configuration, startup);
 			
 			if (fAddon != null) {
 				fAddon.init(configuration, mode, controller, monitor);

@@ -261,7 +261,7 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 		try {
 			// Workbench default
 			final IREnv defaultEnv = manager.getDefault();
-			final IREnvConfiguration[] list = manager.getConfigurations();
+			final List<IREnvConfiguration> list = manager.getConfigurations();
 			fValidREnvs = getValidREnvs(list);
 			Collections.sort(fValidREnvs, RENV_COMPARATOR);
 			final String[] validNames = new String[fValidREnvs.size()];
@@ -269,7 +269,7 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 				validNames[i] = fValidREnvs.get(i).getName();
 			}
 			fWorkbenchLabel.setText(defaultEnv.getName());
-			if (list.length > 0) {
+			if (!list.isEmpty()) {
 				fInvalidPreference = false;
 			}
 			// Specifics
@@ -288,12 +288,18 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 		}
 	}
 	
-	protected List<IREnv> getValidREnvs(final IREnvConfiguration[] configurations) {
-		final List<IREnv> list = new ArrayList<IREnv>(configurations.length);
+	protected List<IREnv> getValidREnvs(final List<IREnvConfiguration> configurations) {
+		final List<IREnv> list = new ArrayList<IREnv>(configurations.size());
 		for (final IREnvConfiguration rEnvConfig : configurations) {
-			list.add(rEnvConfig.getReference());
+			if (isValid(rEnvConfig)) {
+				list.add(rEnvConfig.getReference());
+			}
 		}
 		return list;
+	}
+	
+	protected boolean isValid(final IREnvConfiguration rEnvConfig) {
+		return (!rEnvConfig.isDeleted());
 	}
 	
 	public void setSetting(final IREnv rEnv) {

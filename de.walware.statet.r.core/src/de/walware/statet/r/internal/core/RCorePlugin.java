@@ -32,6 +32,7 @@ import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.internal.core.pkgmanager.REnvPkgManager;
 import de.walware.statet.r.internal.core.renv.REnvManager;
 import de.walware.statet.r.internal.core.rhelp.RHelpManager;
 import de.walware.statet.r.internal.core.sourcemodel.RModelManager;
@@ -110,6 +111,7 @@ public class RCorePlugin extends Plugin {
 	private RModelManager fRModelManager;
 	private ResourceTracker fResourceTracker;
 	
+	private REnvPkgManager fREnvPkgManager;
 	private RHelpManager fRHelpManager;
 	
 	private ServiceTracker fProxyService;
@@ -138,6 +140,7 @@ public class RCorePlugin extends Plugin {
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(fResourceTracker,
 				IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.PRE_DELETE );
 		
+		fREnvPkgManager = new REnvPkgManager(fREnvManager);
 		fRHelpManager = new RHelpManager();
 		fDisposables.add(fRHelpManager);
 		
@@ -206,6 +209,9 @@ public class RCorePlugin extends Plugin {
 		return fResourceTracker;
 	}
 	
+	public REnvPkgManager getREnvPkgManager() {
+		return fREnvPkgManager;
+	}
 	
 	public RHelpManager getRHelpManager() {
 		return fRHelpManager;

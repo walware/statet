@@ -48,6 +48,7 @@ import org.eclipse.core.runtime.Status;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IRPackageDescription;
+import de.walware.statet.r.core.renv.RNumVersion;
 import de.walware.statet.r.core.rhelp.IRHelpPage;
 import de.walware.statet.r.core.rhelp.IRHelpSearchRequestor;
 import de.walware.statet.r.core.rhelp.IRPackageHelp;
@@ -507,7 +508,7 @@ public class REnvIndexReader implements IREnvIndex {
 				
 				return new RPackageDescription(packageName, title,
 						document.get(DESCRIPTION_TXT_FIELD_NAME),
-						version, document.get(PKG_PRIORITY_FIELD_NAME),
+						RNumVersion.create(version), document.get(PKG_PRIORITY_FIELD_NAME),
 						document.get(AUTHORS_TXT_FIELD_NAME),
 						document.get(MAINTAINER_TXT_FIELD_NAME),
 						document.get(URL_TXT_FIELD_NAME) );

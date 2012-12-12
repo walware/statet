@@ -25,8 +25,10 @@ import de.walware.statet.nico.ui.util.ReportStatusHandler;
 import de.walware.statet.nico.ui.util.RunBlockingHandler;
 
 import de.walware.statet.r.core.RUtil;
+import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.internal.console.ui.handler.RGraphicEventHandler;
 import de.walware.statet.r.internal.console.ui.handler.RHelpEventHandler;
+import de.walware.statet.r.internal.console.ui.handler.RPkgEventHandler;
 import de.walware.statet.r.nico.AbstractRController;
 
 
@@ -115,10 +117,17 @@ public class RConsoleLaunching {
 		final IToolEventHandler ideHandler = new EclipseIDEOperationsHandler();
 		controller.addEventHandler(EclipseIDEOperationsHandler.SHOW_FILE_ID, ideHandler);
 		controller.addEventHandler(EclipseIDEOperationsHandler.SHOW_HISTORY_ID, ideHandler);
-		final IToolEventHandler rGraphicHandler = new RGraphicEventHandler();
-		controller.addEventHandler(AbstractRController.INIT_RGRAPHIC_FACTORY_HANDLER_ID, rGraphicHandler);
-		final IToolEventHandler rHelpHandler = new RHelpEventHandler();
-		controller.addEventHandler(AbstractRController.SHOW_RHELP_HANDLER_ID, rHelpHandler);
+		
+		{	final IToolEventHandler handler = new RGraphicEventHandler();
+			controller.addEventHandler(AbstractRController.INIT_RGRAPHIC_FACTORY_HANDLER_ID, handler);
+		}
+		{	final IToolEventHandler handler = new RHelpEventHandler();
+			controller.addEventHandler(AbstractRController.SHOW_RHELP_HANDLER_ID, handler);
+		}
+		if (controller.getTool().getAdapter(IREnv.class) != null) {
+			final IToolEventHandler handler = new RPkgEventHandler();
+			controller.addEventHandler(RPkgEventHandler.OPEN_PACKAGE_MANAGER_ID, handler);
+		}
 	}
 	
 	public static void scheduleStartupSnippet(final AbstractRController controller, final ILaunchConfiguration configuration) throws CoreException {

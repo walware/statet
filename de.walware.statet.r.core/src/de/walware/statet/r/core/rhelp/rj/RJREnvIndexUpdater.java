@@ -42,6 +42,7 @@ import de.walware.rj.services.RService;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
+import de.walware.statet.r.core.renv.RNumVersion;
 import de.walware.statet.r.internal.core.RPackageDescription;
 import de.walware.statet.r.internal.core.rhelp.REnvIndexWriter;
 import de.walware.statet.r.internal.core.rhelp.REnvIndexWriter.AbortIndexException;
@@ -195,7 +196,8 @@ public class RJREnvIndexUpdater {
 						final String url = checkNA2Null(pkgMatrixData.get(RDataUtil.getDataIdx(pkgMatrixDim, i, idxUrl)));
 						
 						packageDescription = new RPackageDescription(
-								name, title, desription, version, priority, author, maintainer, url);
+								name, title, desription, RNumVersion.create(version), priority,
+								author, maintainer, url );
 						
 						fIndex.beginPackage(packageDescription);
 						

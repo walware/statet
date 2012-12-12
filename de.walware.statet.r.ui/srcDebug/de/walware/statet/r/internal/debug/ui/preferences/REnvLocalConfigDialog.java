@@ -46,7 +46,6 @@ import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.CellEditor;
-import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -96,6 +95,7 @@ import de.walware.statet.r.core.renv.IRLibraryLocation;
 import de.walware.statet.r.core.renv.IRLibraryLocation.WorkingCopy;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
+import de.walware.statet.r.ui.REnvLabelProvider;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -241,7 +241,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	protected Control createDialogArea(final Composite parent) {
 		final Composite dialogArea = new Composite(parent, SWT.NONE);
 		dialogArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		dialogArea.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
+		dialogArea.setLayout(LayoutUtil.createDialogGrid(2));
 		
 		{	// Name:
 			final Label label = new Label(dialogArea, SWT.LEFT);
@@ -252,8 +252,11 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			gd.widthHint = LayoutUtil.hintWidth(fNameControl, 60);
 			fNameControl.setLayoutData(gd);
+			fNameControl.setEditable(fConfigModel.isEditable());
 		}
-		{	// Location:
+		
+		if (fConfigModel.isEditable()) {
+			// Location:
 			final Label label = new Label(dialogArea, SWT.LEFT);
 			label.setText(Messages.REnv_Detail_Location_label+':');
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
@@ -287,17 +290,23 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 						}
 					}
 				});
+				fRArchControl.setEnabled(fConfigModel.isEditable());
 			}
 			
-			fLoadButton = new Button(composite, SWT.PUSH);
-			fLoadButton.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, true, false));
-			fLoadButton.setText(Messages.REnv_Detail_DetectSettings_label);
-			fLoadButton.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(final SelectionEvent e) {
-					detectSettings();
-				}
-			});
+			if (fConfigModel.isEditable()) {
+				fLoadButton = new Button(composite, SWT.PUSH);
+				fLoadButton.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, true, false, 2, 1));
+				fLoadButton.setText(Messages.REnv_Detail_DetectSettings_label);
+				fLoadButton.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(final SelectionEvent e) {
+						detectSettings();
+					}
+				});
+			}
+			else {
+				LayoutUtil.addGDDummy(composite, true, 2);
+			}
 		}
 		
 		{	// Libraries:
@@ -310,11 +319,11 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
 			
 			final TreeComposite treeComposite = new ViewerUtil.TreeComposite(composite, SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION);
+			fRLibrariesViewer = treeComposite.viewer;
 			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 			gd.widthHint = LayoutUtil.hintWidth(fNameControl, 80);
 			gd.heightHint = LayoutUtil.hintHeight(treeComposite.tree, 10);
 			treeComposite.setLayoutData(gd);
-			fRLibrariesViewer = treeComposite.viewer;
 			treeComposite.viewer.setContentProvider(new ITreeContentProvider() {
 				@Override
 				public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
@@ -355,30 +364,31 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				}
 			});
 			final TreeViewerColumn column = treeComposite.addColumn(SWT.LEFT, new ColumnWeightData(100));
-			column.setLabelProvider(new CellLabelProvider() {
+			column.setLabelProvider(new REnvLabelProvider() {
 				@Override
 				public void update(final ViewerCell cell) {
 					final Object element = cell.getElement();
-					if (element instanceof IRLibraryGroup.WorkingCopy) {
-						final IRLibraryGroup.WorkingCopy group = (IRLibraryGroup.WorkingCopy) element;
-						cell.setImage(RUI.getImage(RUI.IMG_OBJ_LIBRARY_GROUP));
-						cell.setText(group.getLabel());
-					}
-					else if (element instanceof RLibraryContainer) {
+					if (element instanceof RLibraryContainer) {
 						final IRLibraryLocation lib = ((RLibraryContainer) element).library;
 						cell.setImage(RUI.getImage(RUI.IMG_OBJ_LIBRARY_LOCATION));
-						cell.setText(lib.getDirectoryPath());
-					} else {
-						throw new UnsupportedOperationException();
+						if (lib.getSource() != IRLibraryLocation.USER && lib.getLabel() != null) {
+							cell.setText(lib.getLabel());
+						}
+						else {
+							cell.setText(lib.getDirectoryPath());
+						}
+						finishUpdate(cell);
+						return;
 					}
+					super.update(cell);
 				}
 			});
 			column.setEditingSupport(new EditingSupport(treeComposite.viewer) {
 				@Override
 				protected boolean canEdit(final Object element) {
 					if (element instanceof RLibraryContainer) {
-						final IRLibraryGroup.WorkingCopy group = ((RLibraryContainer) element).parent;
-						return !group.getId().equals(IRLibraryGroup.R_DEFAULT);
+						final RLibraryContainer container = ((RLibraryContainer) element);
+						return (container.library.getSource() == IRLibraryLocation.USER);
 					}
 					return false;
 				}
@@ -477,7 +487,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				@Override
 				public boolean isModifyAllowed(final Object element) {
 					return ( element instanceof RLibraryContainer
-							&& !getGroup(element).getId().equals(IRLibraryGroup.R_DEFAULT) );
+							&& ((RLibraryContainer) element).library.getSource() == IRLibraryLocation.USER );
 				}
 				@Override
 				public Object getAddParent(final Object element) {
@@ -496,11 +506,12 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			fRLibrariesButtons.connectTo(fRLibrariesViewer, adapter);
 		}
 		
-		final Composite installGroup = createInstallDirGroup(dialogArea);
-		if (installGroup != null) {
-			installGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+		if (fConfigModel.isEditable()) {
+			final Composite group = createInstallDirGroup(dialogArea);
+			if (group != null) {
+				group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+			}
 		}
-		
 		LayoutUtil.addSmallFiller(dialogArea, true);
 		applyDialogFont(dialogArea);
 		
@@ -579,38 +590,43 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 						return ValidationStatus.ok();
 					}
 				}), null);
-		final Binding rHomeBinding = db.getContext().bindValue(fRHomeControl.getObservable(), 
-				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RHOME), 
-				new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
-					@Override
-					public IStatus validate(final Object value) {
-						final IStatus status = fRHomeControl.getValidator().validate(value);
-						if (!status.isOK()) {
-							return status;
+		if (fRHomeControl != null) {
+			final Binding rHomeBinding = db.getContext().bindValue(fRHomeControl.getObservable(), 
+					BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RHOME), 
+					new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
+						@Override
+						public IStatus validate(final Object value) {
+							final IStatus status = fRHomeControl.getValidator().validate(value);
+							if (!status.isOK()) {
+								return status;
+							}
+							if (!fConfigModel.isValidRHomeLocation(fRHomeControl.getResourceAsFileStore())) {
+								return ValidationStatus.error(Messages.REnv_Detail_Location_error_NoRHome_message);
+							}
+							updateArchs(!fIsNewConfig);
+							return ValidationStatus.ok();
 						}
-						if (!fConfigModel.isValidRHomeLocation(fRHomeControl.getResourceAsFileStore())) {
-							return ValidationStatus.error(Messages.REnv_Detail_Location_error_NoRHome_message);
-						}
-						updateArchs(!fIsNewConfig);
-						return ValidationStatus.ok();
-					}
-				}), null);
-		rHomeBinding.getValidationStatus().addValueChangeListener(new IValueChangeListener() {
-			@Override
-			public void handleValueChange(final ValueChangeEvent event) {
-				final IStatus status = (IStatus) event.diff.getNewValue();
-				fLoadButton.setEnabled(status.isOK());
-			}
-		});
-		rHomeBinding.validateTargetToModel();
+					}), null);
+			rHomeBinding.getValidationStatus().addValueChangeListener(new IValueChangeListener() {
+				@Override
+				public void handleValueChange(final ValueChangeEvent event) {
+					final IStatus status = (IStatus) event.diff.getNewValue();
+					fLoadButton.setEnabled(status.isOK());
+				}
+			});
+			rHomeBinding.validateTargetToModel();
+		}
 		db.getContext().bindValue(SWTObservables.observeText(fRArchControl),
 				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_SUBARCH) );
-		db.getContext().bindValue(fRDocDirectoryControl.getObservable(),
-				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RDOC_DIRECTORY) );
-		db.getContext().bindValue(fRShareDirectoryControl.getObservable(),
-				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RSHARE_DIRECTORY) );
-		db.getContext().bindValue(fRIncludeDirectoryControl.getObservable(),
-				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RINCLUDE_DIRECTORY) );
+		
+		if (fRDocDirectoryControl != null) {
+			db.getContext().bindValue(fRDocDirectoryControl.getObservable(),
+					BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RDOC_DIRECTORY) );
+			db.getContext().bindValue(fRShareDirectoryControl.getObservable(),
+					BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RSHARE_DIRECTORY) );
+			db.getContext().bindValue(fRIncludeDirectoryControl.getObservable(),
+					BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RINCLUDE_DIRECTORY) );
+		}
 	}
 	
 	private String[] searchRHOME() {
@@ -667,6 +683,9 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	}
 	
 	private void updateArchs(final boolean conservative) {
+		if (fRHomeControl == null) {
+			return;
+		}
 		try {
 			final IFileStore rHome = fRHomeControl.getResourceAsFileStore();
 			final List<String> availableArchs = fConfigModel.searchAvailableSubArchs(rHome);
@@ -808,7 +827,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				s = "${env_var:R_HOME}/" + path.makeRelativeTo(rHomePath).toString(); //$NON-NLS-1$
 			}
 			else if (userHomePath.isPrefixOf(path)) {
-				s = "${system_property:user.home}/" + path.makeRelativeTo(userHomePath).toString(); //$NON-NLS-1$
+				s = "${user_home}/" + path.makeRelativeTo(userHomePath).toString(); //$NON-NLS-1$
 			}
 			else {
 				s = path.toString();

@@ -679,12 +679,10 @@ public class RHelpSearchResultPage extends AbstractTextSearchViewPage
 	}
 	
 	private boolean showOpenPage(final RHelpView view, final String url) {
-		final List<BrowserSession> sessions = view.getSessions();
-		for (final BrowserSession session : sessions) {
-			if (url.equals(session.getUrl())) {
-				view.showPage(session);
-				return true;
-			}
+		BrowserSession session = view.findBrowserSession(url);
+		if (session != null) {
+			view.showPage(session);
+			return true;
 		}
 		return false;
 	}

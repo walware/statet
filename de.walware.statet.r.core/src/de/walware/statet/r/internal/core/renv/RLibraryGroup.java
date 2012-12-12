@@ -18,29 +18,46 @@ import de.walware.ecommons.collections.ConstList;
 
 import de.walware.statet.r.core.renv.IRLibraryGroup;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
+import de.walware.statet.r.internal.core.Messages;
 
 
 public abstract class RLibraryGroup implements IRLibraryGroup {
 	
 	
-	private static List<IRLibraryLocation.WorkingCopy> toWorkingCopy(final List<? extends IRLibraryLocation> locations) {
-		final List<IRLibraryLocation.WorkingCopy> copies = new ArrayList<IRLibraryLocation.WorkingCopy>(locations.size());
-		for (final IRLibraryLocation location : locations) {
-			copies.add(((RLibraryLocation) location).createWorkingCopy());
+	public static String getLabel(final String id) {
+		if (id.equals(IRLibraryGroup.R_DEFAULT)) {
+			return Messages.REnvConfiguration_DefaultLib_label;
 		}
-		return copies;
+		if (id.equals(IRLibraryGroup.R_SITE)) {
+			return Messages.REnvConfiguration_SiteLibs_label;
+		}
+		if (id.equals(IRLibraryGroup.R_USER)) {
+			return Messages.REnvConfiguration_UserLibs_label;
+		}
+		if (id.equals(IRLibraryGroup.R_OTHER)) {
+			return Messages.REnvConfiguration_OtherLibs_label;
+		}
+		return null;
 	}
+	
 	
 	public static class Final extends RLibraryGroup {
 		
 		
-		public Final(final String id, final String label, final List<RLibraryLocation> libraries) {
+		private static List<IRLibraryLocation> copy(final List<? extends IRLibraryLocation> locations) {
+			final IRLibraryLocation[] copies = new IRLibraryLocation[locations.size()];
+			for (int i = 0; i < copies.length; i++) {
+				copies[i] = new RLibraryLocation(locations.get(i));
+			}
+			return new ConstList<IRLibraryLocation>(copies);
+		}
+		
+		public Final(final String id, final String label, final List<IRLibraryLocation> libraries) {
 			super(id, label, libraries);
 		}
 		
 		public Final(final RLibraryGroup template) {
-			super(template.getId(), template.getLabel(),
-					new ConstList<IRLibraryLocation>(template.getLibraries() ));
+			super(template.getId(), template.getLabel(), copy(template.getLibraries()));
 		}
 		
 	}
@@ -48,9 +65,16 @@ public abstract class RLibraryGroup implements IRLibraryGroup {
 	public static class Editable extends RLibraryGroup implements WorkingCopy {
 		
 		
+		private static List<IRLibraryLocation.WorkingCopy> copy(final List<? extends IRLibraryLocation> locations) {
+			final List<IRLibraryLocation.WorkingCopy> copies = new ArrayList<IRLibraryLocation.WorkingCopy>(locations.size());
+			for (final IRLibraryLocation location : locations) {
+				copies.add(((RLibraryLocation) location).createWorkingCopy());
+			}
+			return copies;
+		}
+		
 		public Editable(final RLibraryGroup template) {
-			super(template.getId(), template.getLabel(),
-					toWorkingCopy(template.getLibraries()) );
+			super(template.getId(), template.getLabel(), copy(template.getLibraries()) );
 		}
 		
 		public Editable(final String id, final String label) {

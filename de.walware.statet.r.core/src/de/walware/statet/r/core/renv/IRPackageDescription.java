@@ -15,18 +15,14 @@ package de.walware.statet.r.core.renv;
 /**
  * 
  */
-public interface IRPackageDescription {
+public interface IRPackageDescription extends IRPkg {
 	
-	
-	String getName();
 	
 	String getTitle();
 	
 	String getDescription();
 	
 	String getPriority();
-	
-	String getVersion();
 	
 	String getAuthor();
 	

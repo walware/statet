@@ -22,7 +22,7 @@ public class RLibraryLocation implements IRLibraryLocation {
 	public static class Editable extends RLibraryLocation implements WorkingCopy {
 		
 		public Editable(final String path) {
-			super(path);
+			super(USER, path, null);
 		}
 		
 		public Editable(final RLibraryLocation template) {
@@ -32,20 +32,45 @@ public class RLibraryLocation implements IRLibraryLocation {
 	}
 	
 	
+	private final String fSource;
+	
+	private final String fLabel;
+	
 	protected String fPath;
 	protected IFileStore fStore;
 	
 	
-	public RLibraryLocation(final RLibraryLocation template) {
-		fPath = template.fPath;
+	public RLibraryLocation(final IRLibraryLocation template) {
+		fSource = template.getSource();
+		fPath = template.getDirectoryPath();
+		fLabel = template.getLabel();
 	}
 	
-	public RLibraryLocation(final String path) {
+	public RLibraryLocation(final String source, final String path, final String label) {
+		if (source == null) {
+			throw new NullPointerException("source");
+		}
+		if (path == null) {
+			throw new NullPointerException("path");
+		}
+		fSource = source;
 		fPath = path;
+		fLabel = label;
 	}
 	
 	public Editable createWorkingCopy() {
 		return new Editable(this);
+	}
+	
+	
+	@Override
+	public String getSource() {
+		return fSource;
+	}
+	
+	@Override
+	public String getLabel() {
+		return fLabel;
 	}
 	
 	
@@ -79,6 +104,12 @@ public class RLibraryLocation implements IRLibraryLocation {
 		}
 		final RLibraryLocation other = (RLibraryLocation) obj;
 		return fPath.equals(other.getDirectoryPath());
+	}
+	
+	
+	@Override
+	public String toString() {
+		return fPath;
 	}
 	
 }

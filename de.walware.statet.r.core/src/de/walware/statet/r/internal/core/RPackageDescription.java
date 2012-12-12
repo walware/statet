@@ -12,6 +12,7 @@
 package de.walware.statet.r.internal.core;
 
 import de.walware.statet.r.core.renv.IRPackageDescription;
+import de.walware.statet.r.core.renv.RNumVersion;
 
 
 public class RPackageDescription implements IRPackageDescription {
@@ -20,7 +21,7 @@ public class RPackageDescription implements IRPackageDescription {
 	private final String fName;
 	private final String fTitle;
 	private final String fDescription;
-	private final String fVersion;
+	private final RNumVersion fVersion;
 	private final String fPriority;
 	private final String fAuthor;
 	private final String fMaintainer;
@@ -28,7 +29,7 @@ public class RPackageDescription implements IRPackageDescription {
 	
 	
 	public RPackageDescription(final String name, final String title,
-			final String desription, final String version, final String priority,
+			final String desription, final RNumVersion version, final String priority,
 			final String author, final String maintainer, final String url) {
 		fName = name.intern();
 		fTitle = title;
@@ -62,7 +63,7 @@ public class RPackageDescription implements IRPackageDescription {
 	}
 	
 	@Override
-	public String getVersion() {
+	public RNumVersion getVersion() {
 		return fVersion;
 	}
 	

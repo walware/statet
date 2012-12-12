@@ -32,7 +32,7 @@ public interface IRHelpManager {
 	
 	String PORTABLE_DEFAULT_RENV_BROWSE_URL = PORTABLE_URL_PREFIX + "/browse/" + IREnv.DEFAULT_WORKBENCH_ENV_ID + '/'; //$NON-NLS-1$
 	
-	
+	String getREnvHttpUrl(IREnv rEnv, String target);
 	String getPackageHttpUrl(IRPackageHelp packageHelp, String target);
 	
 	String getPageHttpUrl(IRHelpPage page, String target);
@@ -55,6 +55,13 @@ public interface IRHelpManager {
 	
 	boolean hasHelp(IREnv rEnv);
 	
+	/**
+	 * Returns the help for the specified R environment.
+	 * The help is already locked (read lock). Call {@link IREnvHelp#unlock()} to release the lock.
+	 * 
+	 * @param env
+	 * @return the R help
+	 */
 	IREnvHelp getHelp(IREnv rEnv);
 	
 	

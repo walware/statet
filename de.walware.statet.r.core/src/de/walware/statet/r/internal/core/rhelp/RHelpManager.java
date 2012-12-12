@@ -194,6 +194,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		return createUrl(sb.toString());
 	}
 	
+	@Override
 	public String getREnvHttpUrl(final IREnv rEnv, final String target) {
 		checkRunning();
 		final StringBuilder sb = new StringBuilder(64);
@@ -509,17 +510,17 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 	@Override
 	public void settingsChanged(final Set<String> groupIds) {
 		if (groupIds.contains(IREnvManager.SETTINGS_GROUP_ID)) {
-			final IREnvConfiguration[] configurations = fREnvManager.getConfigurations();
-			final EnvItem[] items = new EnvItem[configurations.length]; 
+			final List<IREnvConfiguration> configurations = fREnvManager.getConfigurations();
+			final EnvItem[] items = new EnvItem[configurations.size()]; 
 			synchronized (fIndexLock) {
-				for (int i = 0; i < configurations.length; i++) {
-					items[i] = fHelpIndexes.get(configurations[i].getReference().getId());
+				for (int i = 0; i < configurations.size(); i++) {
+					items[i] = fHelpIndexes.get(configurations.get(i).getReference().getId());
 				}
 			}
-			for (int i = 0; i < configurations.length; i++) {
+			for (int i = 0; i < configurations.size(); i++) {
 				if (items[i] != null) {
 					final EnvItem item = items[i];
-					final IREnvConfiguration config = configurations[i];
+					final IREnvConfiguration config = configurations.get(i);
 					REnvHelp oldHelp = null;
 					synchronized (item.helpLock) {
 						if (!((item.indexDir != null) ? 
@@ -603,11 +604,11 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 	
 	@Override
 	public List<IREnv> getREnvWithHelp() {
-		final IREnvConfiguration[] configurations = fREnvManager.getConfigurations();
-		final EnvItem[] items = new EnvItem[configurations.length];
+		final List<IREnvConfiguration> configurations = fREnvManager.getConfigurations();
+		final EnvItem[] items = new EnvItem[configurations.size()];
 		synchronized (fIndexLock) {
-			for (int i = 0; i < configurations.length; i++) {
-				final String id = configurations[i].getReference().getId();
+			for (int i = 0; i < configurations.size(); i++) {
+				final String id = configurations.get(i).getReference().getId();
 				EnvItem item = fHelpIndexes.get(id);
 				if (item == null) {
 					item = new EnvItem(id);
@@ -616,10 +617,13 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 				items[i] = item;
 			}
 		}
-		final List<IREnv> withHelp = new ArrayList<IREnv>(configurations.length);
+		final List<IREnv> withHelp = new ArrayList<IREnv>(configurations.size());
 		for (int i = 0; i < items.length; i++) {
 			final EnvItem item = items[i];
-			final IREnvConfiguration rEnvConfig = configurations[i];
+			final IREnvConfiguration rEnvConfig = configurations.get(i);
+			if (rEnvConfig.isDeleted()) {
+				continue;
+			}
 			synchronized (item.helpLock) {
 				switch (item.state) {
 				case HELP_LOADED:

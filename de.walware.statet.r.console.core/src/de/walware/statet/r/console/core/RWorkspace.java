@@ -61,8 +61,9 @@ import de.walware.statet.r.nico.RWorkspaceConfig;
 public class RWorkspace extends ToolWorkspace {
 	
 	
-	public static final int REFRESH_AUTO =          0x1;
-	public static final int REFRESH_COMPLETE =      0x2;
+	public static final int REFRESH_AUTO =                  0x01;
+	public static final int REFRESH_COMPLETE =              0x02;
+	public static final int REFRESH_PACKAGES =              0x10;
 	
 	private static final Set<Long> NO_ENVS_SET = Collections.emptySet();
 	
