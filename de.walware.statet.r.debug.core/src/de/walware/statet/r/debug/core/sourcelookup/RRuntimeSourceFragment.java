@@ -11,7 +11,10 @@
 
 package de.walware.statet.r.debug.core.sourcelookup;
 
+import org.eclipse.jface.text.AbstractDocument;
+
 import de.walware.ecommons.text.ISourceFragment;
+import de.walware.ecommons.text.ReadOnlyDocument;
 import de.walware.ecommons.ts.ITool;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -32,7 +35,7 @@ public class RRuntimeSourceFragment implements ISourceFragment {
 	
 	private final String fName;
 	private final String fFullName;
-	private final String fSource;
+	private final AbstractDocument fDocument;
 	
 	
 	public RRuntimeSourceFragment(final RProcess process, final String name, 
@@ -40,10 +43,11 @@ public class RRuntimeSourceFragment implements ISourceFragment {
 		fProcess = process;
 		fName = name;
 		fFullName = fullName;
-		fSource = source;
+		fDocument = new ReadOnlyDocument(source, System.currentTimeMillis());
 		
-		fId = "r:" + fProcess.getLabel(ITool.DEFAULT_LABEL) + '-' + fProcess.getStartupTimestamp() + '/' +
-				fFullName + '-' + fSource.hashCode();
+		fId = "r:" + fProcess.getLabel(ITool.DEFAULT_LABEL) + '-'+  //$NON-NLS-1$
+				fProcess.getStartupTimestamp() + '/' +
+				fFullName + '-' + source.hashCode();
 	}
 	
 	
@@ -67,8 +71,8 @@ public class RRuntimeSourceFragment implements ISourceFragment {
 	}
 	
 	@Override
-	public String getSource() {
-		return fSource;
+	public AbstractDocument getDocument() {
+		return fDocument;
 	}
 	
 	
@@ -98,9 +102,10 @@ public class RRuntimeSourceFragment implements ISourceFragment {
 			return false;
 		}
 		final RRuntimeSourceFragment other = (RRuntimeSourceFragment) obj;
-		return (fProcess.equals(other.fProcess)
+		return (fId.equals(other.fId)
+				&& fProcess.equals(other.fProcess)
 				&& fFullName.equals(other.fFullName)
-				&& fSource.equals(other.fSource) );
+				&& fDocument.equals(other.fDocument) );
 	}
 	
 	@Override

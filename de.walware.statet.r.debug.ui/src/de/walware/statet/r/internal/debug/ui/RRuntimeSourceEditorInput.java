@@ -96,7 +96,7 @@ public class RRuntimeSourceEditorInput implements ISourceFragmentEditorInput {
 	
 	@Override
 	public String toString() {
-		return fFragment.getFullName() + " - " + fFragment.getProcess().getLabel(ITool.LONG_LABEL);
+		return fFragment.getFullName() + " - " + fFragment.getProcess().getLabel(ITool.LONG_LABEL); //$NON-NLS-1$
 	}
 	
 }
