@@ -27,7 +27,7 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStatus;
 import de.walware.statet.nico.ui.NicoUITools;
 
-import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.debug.core.IRStackFrame;
 import de.walware.statet.r.nico.AbstractRDbgController;
 
@@ -40,7 +40,7 @@ public class RDebugUIUtils {
 			return null;
 		}
 		final ToolProcess tool = NicoUITools.getTool(workbenchPart);
-		if (tool.getMainType() != RTool.TYPE || (!(tool.getController() instanceof AbstractRDbgController))) {
+		if (tool.getMainType() != RConsoleTool.TYPE || (!(tool.getController() instanceof AbstractRDbgController))) {
 			return null;
 		}
 		final AbstractRDbgController controller = (AbstractRDbgController) tool.getController();

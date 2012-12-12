@@ -9,7 +9,7 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.console.ui.handler;
+package de.walware.statet.r.ui.pkgmanager;
 
 import java.util.Map;
 
@@ -20,29 +20,30 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.statet.nico.core.runtime.IConsoleService;
-import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.ui.NicoUI;
+
+import de.walware.rj.eclient.AbstractRToolCommandHandler;
+import de.walware.rj.eclient.IRToolService;
 
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.internal.ui.pkgmanager.OpenRPkgManagerHandler;
 import de.walware.statet.r.ui.RUI;
 
 
-public class RPkgEventHandler implements IToolEventHandler {
+public class RPkgUICommandHandler extends AbstractRToolCommandHandler {
 	
 	
-	public static final String OPEN_PACKAGE_MANAGER_ID = "r/openPackageManager"; //$NON-NLS-1$
+	public static final String OPEN_PACKAGE_MANAGER_COMMAND_ID = "openPackageManager"; //$NON-NLS-1$
 	
 	
-	public RPkgEventHandler() {
+	public RPkgUICommandHandler() {
 	}
 	
 	
 	@Override
-	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
-		if (id.equals(OPEN_PACKAGE_MANAGER_ID)) {
-			final RProcess process = (RProcess) tools.getTool();
+	public IStatus execute(final String id, final IRToolService r, final Map<String, Object> data, final IProgressMonitor monitor) {
+		if (id.equals(OPEN_PACKAGE_MANAGER_COMMAND_ID)) {
+			final RProcess process = (RProcess) r.getTool();
 			final IWorkbenchPage page = NicoUI.getToolRegistry().findWorkbenchPage(process);
 			final OpenRPkgManagerHandler handler = new OpenRPkgManagerHandler(process,
 					page.getWorkbenchWindow().getShell() );

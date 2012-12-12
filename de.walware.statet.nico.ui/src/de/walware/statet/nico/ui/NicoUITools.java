@@ -40,6 +40,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
+import de.walware.ecommons.ts.ui.IToolRunnableDecorator;
 
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;

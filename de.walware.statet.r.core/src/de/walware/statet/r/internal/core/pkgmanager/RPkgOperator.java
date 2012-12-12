@@ -28,7 +28,6 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.UnexpectedRDataException;
-import de.walware.rj.services.RService;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RUtil;
@@ -50,7 +49,7 @@ public class RPkgOperator {
 	private final IREnvConfiguration fEnvConfig;
 	private final ISelectedRepos fRepos;
 	
-	private RService fR;
+	private IRConsoleService fR;
 	
 	private String fTempDir;
 	private Set<String> fCreatedDirs;
@@ -86,17 +85,17 @@ public class RPkgOperator {
 		
 		final StringBuilder sb = new StringBuilder();
 		sb.setLength(0);
-		sb.append("dir.create(");
+		sb.append("dir.create("); //$NON-NLS-1$
 		sb.append('"').append(RUtil.escapeCompletely(dir)).append('"');
-		sb.append(", showWarnings= FALSE");
-		sb.append(", recursive= TRUE");
+		sb.append(", showWarnings= FALSE"); //$NON-NLS-1$
+		sb.append(", recursive= TRUE"); //$NON-NLS-1$
 		sb.append(')');
 		fR.evalVoid(sb.toString(), monitor);
 		
 		sb.setLength(0);
-		sb.append("file.access(");
+		sb.append("file.access("); //$NON-NLS-1$
 		sb.append('"').append(RUtil.escapeCompletely(dir)).append('"');
-		sb.append(", 3L");
+		sb.append(", 3L"); //$NON-NLS-1$
 		sb.append(')');
 		if (RDataUtil.checkSingleIntValue(fR.evalData(sb.toString(), monitor)) != 0) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, 0,
@@ -104,10 +103,10 @@ public class RPkgOperator {
 		}
 		
 		sb.setLength(0);
-		sb.append(".libPaths(");
-		sb.append("c(");
+		sb.append(".libPaths("); //$NON-NLS-1$
+		sb.append("c("); //$NON-NLS-1$
 		sb.append('"').append(RUtil.escapeCompletely(dir)).append('"');
-		sb.append(", .libPaths())");
+		sb.append(", .libPaths())"); //$NON-NLS-1$
 		sb.append(')');
 		fR.evalVoid(sb.toString(), monitor);
 		
@@ -115,7 +114,7 @@ public class RPkgOperator {
 	}
 	
 	void runActions(final List<? extends RPkgAction> actions,
-			final RService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+			final IRConsoleService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		final SubMonitor progress = SubMonitor.convert(monitor, actions.size());
 		fR = r;
 		try {
@@ -197,7 +196,7 @@ public class RPkgOperator {
 		}
 		sb.append(", dependencies= FALSE"); //$NON-NLS-1$
 		sb.append(')');
-		submit(sb.toString(), monitor);
+		fR.submitToConsole(sb.toString(), monitor);
 		
 		fManager.fPkgScanner.addExpectedPkg(action.getLibraryLocation(), action.getPkg());
 	}
@@ -210,7 +209,7 @@ public class RPkgOperator {
 		sb.setLength(0);
 		sb.append("remove.packages("); //$NON-NLS-1$
 		sb.append('"').append(name).append('"');
-		{	sb.append(", lib= ");
+		{	sb.append(", lib= "); //$NON-NLS-1$
 			final Entry entry = fManager.getRLibPaths().getEntryByLocation(
 					action.getLibraryLocation() );
 			if ((entry.getAccess() & IRLibPaths.WRITABLE) == 0) {
@@ -219,11 +218,11 @@ public class RPkgOperator {
 			sb.append('"').append(RUtil.escapeCompletely(entry.getRPath())).append('"');
 		}
 		sb.append(')');
-		submit(sb.toString(), monitor);
+		fR.submitToConsole(sb.toString(), monitor);
 	}
 	
 	void loadPkgs(final List<? extends IRPkgDescription> pkgs, final boolean expliciteLocation,
-			final RService r, final IProgressMonitor monitor) throws CoreException {
+			final IRConsoleService r, final IProgressMonitor monitor) throws CoreException {
 		fR = r;
 		try {
 			final StringBuilder sb = new StringBuilder();
@@ -241,30 +240,12 @@ public class RPkgOperator {
 					sb.append('"').append(RUtil.escapeCompletely(entry.getRPath())).append('"');
 				}
 				sb.append(')');
-				submit(sb.toString(), monitor);
+				fR.submitToConsole(sb.toString(), monitor);
 			};
 		}
 		finally {
-			if (fR instanceof IRConsoleService) {
-				((IRConsoleService) fR).briefAboutChange(0x1); // auto
-			}
+			fR.briefAboutChange(0x1); // auto
 			fR = null;
-		}
-	}
-	
-	
-	protected void submit(final String command,
-			final IProgressMonitor monitor) throws CoreException {
-		if (fR instanceof IRConsoleService) {
-			if (!((IRConsoleService) fR).acceptNewConsoleCommand()) {
-				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, 0,
-						"Operation cancelled because another command is already started" +
-						"in the console.", null ));
-			}
-			((IRConsoleService) fR).submitToConsole(command, monitor);
-		}
-		else {
-			fR.evalVoid(command, monitor);
 		}
 	}
 	

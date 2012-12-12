@@ -41,8 +41,8 @@ import de.walware.statet.nico.ui.console.ConsolePageEditor;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.console.core.RProcess;
-import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.console.ui.IRConsoleHelpContextIds;
 import de.walware.statet.r.console.ui.RConsole;
 import de.walware.statet.r.console.ui.tools.ChangeWorkingDirectoryWizard;
@@ -52,8 +52,8 @@ import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
 import de.walware.statet.r.internal.console.ui.actions.REnvIndexUpdateHandler;
 import de.walware.statet.r.internal.ui.pkgmanager.OpenRPkgManagerHandler;
-import de.walware.statet.r.internal.ui.rhelp.OpenRHelpHandler;
 import de.walware.statet.r.ui.RUIHelp;
+import de.walware.statet.r.ui.rhelp.OpenRHelpHandler;
 
 
 public class RConsolePage extends NIConsolePage {
@@ -140,7 +140,7 @@ public class RConsolePage extends NIConsolePage {
 		
 		final RProcess process = (RProcess) getConsole().getProcess();
 		final IREnv rEnv = (IREnv) process.getAdapter(IREnv.class);
-		if (process.isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID) && rEnv != null) {
+		if (process.isProvidingFeatureSet(RConsoleTool.R_DATA_FEATURESET_ID) && rEnv != null) {
 			menuManager.appendToGroup(NICO_CONTROL_MENU_ID,
 					new HandlerContributionItem(new CommandContributionItemParameter(
 							getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,

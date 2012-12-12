@@ -34,8 +34,8 @@ import de.walware.statet.nico.core.util.TrackWriter;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 
 import de.walware.statet.r.console.core.IRBasicAdapter;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.console.core.RProcess;
-import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.core.model.RElementName;
 
@@ -57,7 +57,7 @@ public abstract class AbstractRController extends ToolController
 		
 		@Override
 		public boolean isRunnableIn(final ITool tool) {
-			return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
+			return (tool.isProvidingFeatureSet(RConsoleTool.R_BASIC_FEATURESET_ID));
 		}
 		
 		@Override
@@ -77,8 +77,6 @@ public abstract class AbstractRController extends ToolController
 	}
 	
 	
-	public static final String SHOW_RHELP_HANDLER_ID = "r/showHelp"; //$NON-NLS-1$
-	
 	public static final String INIT_RGRAPHIC_FACTORY_HANDLER_ID = "r/initRGraphicFactory"; //$NON-NLS-1$
 	
 	protected List<IToolRunnable> fStartupsRunnables = new ArrayList<IToolRunnable>();
@@ -94,7 +92,7 @@ public abstract class AbstractRController extends ToolController
 	
 	public AbstractRController(final RProcess process, final Map<String, Object> initData) {
 		super(process, initData);
-		process.registerFeatureSet(RTool.R_BASIC_FEATURESET_ID);
+		process.registerFeatureSet(RConsoleTool.R_BASIC_FEATURESET_ID);
 		fChanged = RWorkspace.REFRESH_COMPLETE;
 	}
 	

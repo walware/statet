@@ -18,12 +18,12 @@ import org.eclipse.swt.graphics.Image;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
+import de.walware.ecommons.ts.ui.IToolRunnableDecorator;
 
 import de.walware.statet.nico.core.runtime.IConsoleRunnable;
 import de.walware.statet.nico.core.runtime.SubmitType;
-import de.walware.statet.nico.ui.IToolRunnableDecorator;
 
-import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.nico.AbstractRController;
 
@@ -69,7 +69,7 @@ public class RunFileViaCommandRunnable implements IConsoleRunnable, IToolRunnabl
 	
 	@Override
 	public boolean isRunnableIn(final ITool tool) {
-		return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
+		return (tool.isProvidingFeatureSet(RConsoleTool.R_BASIC_FEATURESET_ID));
 	}
 	
 	@Override

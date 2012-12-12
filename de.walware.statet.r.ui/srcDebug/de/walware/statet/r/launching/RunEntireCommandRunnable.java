@@ -20,7 +20,7 @@ import de.walware.ecommons.ts.IToolService;
 import de.walware.statet.nico.core.runtime.IConsoleRunnable;
 import de.walware.statet.nico.core.runtime.SubmitType;
 
-import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.IRSrcref;
@@ -71,7 +71,7 @@ public class RunEntireCommandRunnable implements IConsoleRunnable {
 	
 	@Override
 	public boolean isRunnableIn(final ITool tool) {
-		return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
+		return (tool.isProvidingFeatureSet(RConsoleTool.R_BASIC_FEATURESET_ID));
 	}
 	
 	@Override

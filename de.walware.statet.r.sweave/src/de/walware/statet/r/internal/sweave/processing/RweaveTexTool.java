@@ -86,7 +86,7 @@ import net.sourceforge.texlipse.builder.TexlipseBuilder;
 import net.sourceforge.texlipse.viewer.ViewerConfiguration;
 
 import de.walware.statet.r.console.core.IRBasicAdapter;
-import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
@@ -136,7 +136,7 @@ class RweaveTexTool implements Runnable, IProcess {
 		
 		@Override
 		public boolean isRunnableIn(final ITool tool) {
-			return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
+			return (tool.isProvidingFeatureSet(RConsoleTool.R_BASIC_FEATURESET_ID));
 		}
 		
 		@Override
@@ -705,7 +705,7 @@ class RweaveTexTool implements Runnable, IProcess {
 	//			RCodeLaunchRegistry.runRCodeDirect(RUtil.LINE_SEPARATOR_PATTERN.split(fSweaveCommands), false);
 				final ToolProcess rProcess = NicoUI.getToolRegistry().getActiveToolSession(fWorkbenchPage).getProcess();
 				if (rProcess == null) {
-					NicoUITools.accessTool(RTool.TYPE, rProcess); // throws CoreException
+					NicoUITools.accessTool(RConsoleTool.TYPE, rProcess); // throws CoreException
 				}
 				
 				final R rTask = new R();

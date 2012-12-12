@@ -14,6 +14,8 @@ package de.walware.statet.r.console.ui.launching;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
+import de.walware.ecommons.ts.IToolCommandHandler;
+
 import de.walware.statet.nico.core.runtime.HistoryOperationsHandler;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.SubmitType;
@@ -26,10 +28,10 @@ import de.walware.statet.nico.ui.util.RunBlockingHandler;
 
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.renv.IREnv;
-import de.walware.statet.r.internal.console.ui.handler.RGraphicEventHandler;
-import de.walware.statet.r.internal.console.ui.handler.RHelpEventHandler;
-import de.walware.statet.r.internal.console.ui.handler.RPkgEventHandler;
 import de.walware.statet.r.nico.AbstractRController;
+import de.walware.statet.r.ui.graphics.RGraphicCommandHandler;
+import de.walware.statet.r.ui.pkgmanager.RPkgUICommandHandler;
+import de.walware.statet.r.ui.rhelp.RHelpUICommandHandler;
 
 
 public class RConsoleLaunching {
@@ -106,27 +108,28 @@ public class RConsoleLaunching {
 	public static final String ATTR_OBJECTDB_ENVS_MAX_LENGTH = ATTR_ROOT+"objectdb.envs.max_length"; //$NON-NLS-1$
 	
 	public static void registerDefaultHandlerTo(final AbstractRController controller) {
-		controller.addEventHandler(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID, new QuitHandler());
-		controller.addEventHandler(IToolEventHandler.RUN_BLOCKING_EVENT_ID, new RunBlockingHandler());
-		controller.addEventHandler(IToolEventHandler.REPORT_STATUS_EVENT_ID, new ReportStatusHandler());
-		final IToolEventHandler historyHandler = new HistoryOperationsHandler();
-		controller.addEventHandler(HistoryOperationsHandler.LOAD_HISTORY_ID, historyHandler);
-		controller.addEventHandler(HistoryOperationsHandler.SAVE_HISTORY_ID, historyHandler);
-		controller.addEventHandler(HistoryOperationsHandler.ADDTO_HISTORY_ID, historyHandler);
-		controller.addEventHandler(ChooseFileHandler.CHOOSE_FILE_ID, new ChooseFileHandler());
-		final IToolEventHandler ideHandler = new EclipseIDEOperationsHandler();
-		controller.addEventHandler(EclipseIDEOperationsHandler.SHOW_FILE_ID, ideHandler);
-		controller.addEventHandler(EclipseIDEOperationsHandler.SHOW_HISTORY_ID, ideHandler);
-		
-		{	final IToolEventHandler handler = new RGraphicEventHandler();
-			controller.addEventHandler(AbstractRController.INIT_RGRAPHIC_FACTORY_HANDLER_ID, handler);
+		controller.addCommandHandler(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID, new QuitHandler());
+		controller.addCommandHandler(IToolEventHandler.RUN_BLOCKING_EVENT_ID, new RunBlockingHandler());
+		controller.addCommandHandler(IToolEventHandler.REPORT_STATUS_EVENT_ID, new ReportStatusHandler());
+		{	final IToolCommandHandler handler = new HistoryOperationsHandler();
+			controller.addCommandHandler(HistoryOperationsHandler.LOAD_HISTORY_ID, handler);
+			controller.addCommandHandler(HistoryOperationsHandler.SAVE_HISTORY_ID, handler);
+			controller.addCommandHandler(HistoryOperationsHandler.ADDTO_HISTORY_ID, handler);
+			controller.addCommandHandler(ChooseFileHandler.CHOOSE_FILE_ID, new ChooseFileHandler());
 		}
-		{	final IToolEventHandler handler = new RHelpEventHandler();
-			controller.addEventHandler(AbstractRController.SHOW_RHELP_HANDLER_ID, handler);
+		{	final IToolCommandHandler handler = new EclipseIDEOperationsHandler();
+			controller.addCommandHandler(EclipseIDEOperationsHandler.SHOW_FILE_ID, handler);
+			controller.addCommandHandler(EclipseIDEOperationsHandler.SHOW_HISTORY_ID, handler);
+		}
+		{	final IToolCommandHandler handler = new RGraphicCommandHandler();
+			controller.addCommandHandler(AbstractRController.INIT_RGRAPHIC_FACTORY_HANDLER_ID, handler);
+		}
+		{	final IToolCommandHandler handler = new RHelpUICommandHandler();
+			controller.addCommandHandler(RHelpUICommandHandler.SHOW_HELP_COMMAND_ID, handler);
 		}
 		if (controller.getTool().getAdapter(IREnv.class) != null) {
-			final IToolEventHandler handler = new RPkgEventHandler();
-			controller.addEventHandler(RPkgEventHandler.OPEN_PACKAGE_MANAGER_ID, handler);
+			final IToolCommandHandler handler = new RPkgUICommandHandler();
+			controller.addCommandHandler(RPkgUICommandHandler.OPEN_PACKAGE_MANAGER_COMMAND_ID, handler);
 		}
 	}
 	

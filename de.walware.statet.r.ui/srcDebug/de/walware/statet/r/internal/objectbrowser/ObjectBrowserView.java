@@ -95,6 +95,7 @@ import de.walware.ecommons.ltk.ui.IElementNameProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
+import de.walware.ecommons.ts.ui.IToolRunnableDecorator;
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.actions.HandlerContributionItem;
 import de.walware.ecommons.ui.actions.SearchContributionItem;
@@ -118,7 +119,6 @@ import de.walware.statet.nico.core.util.IToolProvider;
 import de.walware.statet.nico.core.util.IToolRetargetable;
 import de.walware.statet.nico.ui.IToolRegistry;
 import de.walware.statet.nico.ui.IToolRegistryListener;
-import de.walware.statet.nico.ui.IToolRunnableDecorator;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
@@ -133,8 +133,8 @@ import de.walware.rj.data.RStore;
 
 import de.walware.statet.r.console.core.AbstractRDataRunnable;
 import de.walware.statet.r.console.core.IRDataAdapter;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.console.core.RProcess;
-import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
 import de.walware.statet.r.core.data.ICombinedRElement;
@@ -551,7 +551,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				
 				final ToolProcess process = fProcess;
 				try {
-					final ToolController controller = NicoUITools.accessController(RTool.TYPE, process);
+					final ToolController controller = NicoUITools.accessController(RConsoleTool.TYPE, process);
 					controller.submit(name, SubmitType.TOOLS);
 				}
 				catch (final CoreException e) {
@@ -1603,7 +1603,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		}
 		synchronized (fProcessLock) {
 			fProcess = (RProcess) 
-					((process != null && process.isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)) ?
+					((process != null && process.isProvidingFeatureSet(RConsoleTool.R_DATA_FEATURESET_ID)) ?
 							process : null);
 		}
 		if (fHoveringController != null) {

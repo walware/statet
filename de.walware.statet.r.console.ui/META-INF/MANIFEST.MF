@@ -28,9 +28,10 @@ Import-Package: com.ibm.icu.text;version="4.4.2",
  de.walware.ecommons.preferences,
  de.walware.ecommons.ts,
  de.walware.ecommons.variables.core,
+ de.walware.rj.eclient;version="1.2.0",
+ de.walware.rj.eclient.graphics,
  de.walware.rj.services;version="[1.0.0,2.0.0)",
- de.walware.rj.services.utils,
- de.walware.rj.eclient.graphics
+ de.walware.rj.services.utils
 Export-Package: de.walware.statet.r.cmd.ui.launching,
  de.walware.statet.r.console.ui,
  de.walware.statet.r.console.ui.launching,

@@ -597,7 +597,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			process.init(controller);
 			
 			RConsoleLaunching.registerDefaultHandlerTo(controller);
-			controller.addEventHandler(IToolEventHandler.LOGIN_REQUEST_EVENT_ID, new LoginHandler());
+			controller.addCommandHandler(IToolEventHandler.LOGIN_REQUEST_EVENT_ID, new LoginHandler());
 			
 			progress.worked(5);
 			

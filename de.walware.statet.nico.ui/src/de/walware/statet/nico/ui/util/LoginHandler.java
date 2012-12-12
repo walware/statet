@@ -49,13 +49,14 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.ts.IToolService;
+import de.walware.ecommons.ts.util.ToolCommandHandlerUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
 import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 import de.walware.statet.nico.ui.NicoUI;
@@ -247,10 +248,11 @@ public class LoginHandler implements IToolEventHandler {
 	
 	
 	@Override
-	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
-		final boolean saveAllowed = ToolEventHandlerUtil.getCheckedData(data, "save.allowed", Boolean.TRUE); //$NON-NLS-1$
-		final boolean saveActivated = ToolEventHandlerUtil.getCheckedData(data, "save.activated", Boolean.FALSE); //$NON-NLS-1$
-		final Callback[] callbacks = ToolEventHandlerUtil.getCheckedData(data, LOGIN_CALLBACKS_DATA_KEY, Callback[].class, true); 
+	public IStatus execute(final String id, final IToolService service, final Map<String, Object> data, final IProgressMonitor monitor) {
+		final IConsoleService console = (IConsoleService) service;
+		final boolean saveAllowed = ToolCommandHandlerUtil.getCheckedData(data, "save.allowed", Boolean.TRUE); //$NON-NLS-1$
+		final boolean saveActivated = ToolCommandHandlerUtil.getCheckedData(data, "save.activated", Boolean.FALSE); //$NON-NLS-1$
+		final Callback[] callbacks = ToolCommandHandlerUtil.getCheckedData(data, LOGIN_CALLBACKS_DATA_KEY, Callback[].class, true); 
 		
 		ITER_CALLBACKS: for (final Callback callback : callbacks) {
 			if (callback instanceof TextOutputCallback
@@ -266,21 +268,21 @@ public class LoginHandler implements IToolEventHandler {
 			return status;
 		}
 		
+		final ToolProcess process = console.getTool();
 		if (id.equals(IToolEventHandler.LOGIN_REQUEST_EVENT_ID)) {
 			// count login tries
-			final int attempt = ToolEventHandlerUtil.getCheckedData(data, "attempt", Integer.valueOf(1)); //$NON-NLS-1$
+			final int attempt = ToolCommandHandlerUtil.getCheckedData(data, "attempt", Integer.valueOf(1)); //$NON-NLS-1$
 			data.put("attempt", attempt+1); //$NON-NLS-1$
 			if (saveAllowed && attempt == 1) {
-				if (readData(callbacks, getDataNode(tools.getTool(), data, false), data)) {
+				if (readData(callbacks, getDataNode(process, data, false), data)) {
 					return Status.OK_STATUS;
 				}
 			}
-			final String message = ToolEventHandlerUtil.getCheckedData(data, LOGIN_MESSAGE_DATA_KEY, String.class, false); 
+			final String message = ToolCommandHandlerUtil.getCheckedData(data, LOGIN_MESSAGE_DATA_KEY, String.class, false); 
 			if (callbacks.length == 0) {
 				return Status.OK_STATUS;
 			}
 			final AtomicReference<IStatus> result = new AtomicReference<IStatus>(Status.CANCEL_STATUS);
-			final ToolProcess process = tools.getTool();
 			UIAccess.getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -305,7 +307,7 @@ public class LoginHandler implements IToolEventHandler {
 		}
 		if (id.equals(IToolEventHandler.LOGIN_OK_EVENT_ID)) {
 			if (saveAllowed && saveActivated) {
-				if (saveData(callbacks, getDataNode(tools.getTool(), data, true))) {
+				if (saveData(callbacks, getDataNode(process, data, true))) {
 					return Status.OK_STATUS;
 				}
 			}
@@ -407,7 +409,7 @@ public class LoginHandler implements IToolEventHandler {
 	}
 	
 	private ISecurePreferences getDataNode(final ToolProcess process, final Map<String, Object> data, final boolean create) {
-		final String id = ToolEventHandlerUtil.getCheckedData(data, LOGIN_ADDRESS_DATA_KEY, String.class, false); 
+		final String id = ToolCommandHandlerUtil.getCheckedData(data, LOGIN_ADDRESS_DATA_KEY, String.class, false); 
 		if (id == null) {
 			return null;
 		}

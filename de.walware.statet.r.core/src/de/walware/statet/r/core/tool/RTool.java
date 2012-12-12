@@ -9,22 +9,22 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.nico.ui;
+package de.walware.statet.r.core.tool;
 
-import org.eclipse.swt.graphics.Image;
+import de.walware.ecommons.ts.ITool;
 
 
-/**
- * UI Adapter for IToolRunnable
- */
-public interface IToolRunnableDecorator {
+public class RTool {
 	
 	
 	/**
-	 * Returns an image to be used for displaying a runnable.
+	 * Tool type of R instances.
 	 * 
-	 * @return the image or <code>null</code>.
+	 * @see ITool#getMainType()
 	 */
-	public Image getImage();
+	public static final String TYPE = "R"; //$NON-NLS-1$
+	
+	public static final String R_SERVICE_FEATURE_ID = "de.walware.rj.services.RService"; //$NON-NLS-1$
+	
 	
 }

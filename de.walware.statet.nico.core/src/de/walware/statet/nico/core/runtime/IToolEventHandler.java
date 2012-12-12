@@ -11,13 +11,11 @@
 
 package de.walware.statet.nico.core.runtime;
 
-import java.util.Map;
-
 import javax.security.auth.callback.Callback;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+
+import de.walware.ecommons.ts.IToolCommandHandler;
 
 
 /**
@@ -25,14 +23,7 @@ import org.eclipse.core.runtime.Status;
  * 
  * Tool events allows automation and the separation of UI.
  */
-public interface IToolEventHandler {
-	
-	public static final int OK = Status.OK;
-	public static final int ERROR = Status.ERROR;
-	public static final int CANCEL = Status.CANCEL;
-	
-	public static final int YES = 0;
-	public static final int NO = -1;
+public interface IToolEventHandler extends IToolCommandHandler {
 	
 	
 	/**
@@ -90,8 +81,5 @@ public interface IToolEventHandler {
 	
 	/** {@link de.walware.ecommons.ts.IToolRunnable} = runnable to run */
 	public static final String RUN_RUNNABLE_DATA_KEY = "runnable"; //$NON-NLS-1$
-	
-	
-	public IStatus handle(String id, IConsoleService tools, Map<String, Object> data, IProgressMonitor monitor);
 	
 }

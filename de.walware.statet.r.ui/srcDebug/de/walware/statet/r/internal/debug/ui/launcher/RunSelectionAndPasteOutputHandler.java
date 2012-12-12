@@ -54,7 +54,7 @@ import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 
 import de.walware.statet.r.console.core.IRBasicAdapter;
-import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RUtil;
@@ -146,7 +146,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 		
 		@Override
 		public boolean isRunnableIn(final ITool tool) {
-			return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
+			return (tool.isProvidingFeatureSet(RConsoleTool.R_BASIC_FEATURESET_ID));
 		}
 		
 		@Override
@@ -295,7 +295,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 			}
 			final ToolProcess process = NicoUI.getToolRegistry().getActiveToolSession(UIAccess.getActiveWorkbenchPage(true)).getProcess();
 			try {
-				NicoUITools.accessTool(RTool.TYPE, process);
+				NicoUITools.accessTool(RConsoleTool.TYPE, process);
 			}
 			catch (final CoreException e) {
 				cancel(r, e.getStatus(), event);

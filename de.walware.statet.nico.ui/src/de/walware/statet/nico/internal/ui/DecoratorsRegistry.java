@@ -22,9 +22,9 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import de.walware.ecommons.ts.ui.IToolRunnableDecorator;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.nico.ui.IToolRunnableDecorator;
 
 
 public class DecoratorsRegistry {

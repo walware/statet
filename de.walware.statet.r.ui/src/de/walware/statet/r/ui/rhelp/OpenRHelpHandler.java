@@ -9,7 +9,7 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.rhelp;
+package de.walware.statet.r.ui.rhelp;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -28,6 +28,8 @@ import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.rhelp.IRHelpManager;
+import de.walware.statet.r.internal.ui.rhelp.RHelpUIServlet;
+import de.walware.statet.r.internal.ui.rhelp.RHelpView;
 import de.walware.statet.r.ui.RUI;
 
 

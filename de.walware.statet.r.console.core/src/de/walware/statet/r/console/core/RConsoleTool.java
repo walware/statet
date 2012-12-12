@@ -13,18 +13,12 @@ package de.walware.statet.r.console.core;
 
 import de.walware.ecommons.ts.IToolService;
 
-import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 
+import de.walware.statet.r.core.tool.RTool;
 
-public final class RTool {
-	
-	/**
-	 * Tool type of R instances.
-	 * 
-	 * @see ToolProcess#getMainType()
-	 */
-	public static final String TYPE = "R"; //$NON-NLS-1$
+
+public final class RConsoleTool extends RTool {
 	
 	
 	/**

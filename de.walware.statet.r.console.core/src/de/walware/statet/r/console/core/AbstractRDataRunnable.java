@@ -19,6 +19,7 @@ import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
 
 
+
 public abstract class AbstractRDataRunnable implements IToolRunnable {
 	
 	
@@ -44,7 +45,7 @@ public abstract class AbstractRDataRunnable implements IToolRunnable {
 	
 	@Override
 	public boolean isRunnableIn(final ITool tool) {
-		return tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID);
+		return tool.isProvidingFeatureSet(RConsoleTool.R_BASIC_FEATURESET_ID);
 	}
 	
 	@Override

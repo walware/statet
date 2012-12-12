@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.nico.impl;
 
+import static de.walware.statet.nico.core.runtime.IToolEventHandler.RUN_BLOCKING_EVENT_ID;
+import static de.walware.statet.nico.core.runtime.IToolEventHandler.RUN_RUNNABLE_DATA_KEY;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,12 +42,12 @@ import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IStreamMonitor;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ts.IToolCommandHandler;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
 
 import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.IRequireSynch;
-import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolStatus;
@@ -332,11 +335,12 @@ public class RTermController extends AbstractRController implements IRequireSync
 			return false;
 		}
 		
-		final IToolEventHandler handler = getEventHandler(IToolEventHandler.RUN_BLOCKING_EVENT_ID);
+		final IToolCommandHandler handler = getCommandHandler(RUN_BLOCKING_EVENT_ID);
 		if (handler != null) {
 			final RTermCancelRunnable cancelRunnable = new RTermCancelRunnable();
-			final Map<String, Object> data = Collections.singletonMap(IToolEventHandler.RUN_RUNNABLE_DATA_KEY, (Object) cancelRunnable); 
-			return (handler.handle(IToolEventHandler.RUN_BLOCKING_EVENT_ID, this, data, null).isOK());
+			final Map<String, Object> data = Collections.singletonMap(RUN_RUNNABLE_DATA_KEY, (Object) cancelRunnable);
+			final IStatus status = executeHandler(RUN_BLOCKING_EVENT_ID, handler, data, null);
+			return (status != null && status.isOK());
 		}
 		return false;
 	}

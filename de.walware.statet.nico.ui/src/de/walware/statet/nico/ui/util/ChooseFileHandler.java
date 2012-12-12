@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
 import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.ts.util.ToolCommandHandlerUtil;
 import de.walware.ecommons.ui.dialogs.TitleAreaStatusUpdater;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -41,9 +42,8 @@ import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.IProgressInfo;
-import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
+import de.walware.statet.nico.internal.ui.AbstractConsoleCommandHandler;
 import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 
@@ -51,7 +51,7 @@ import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 /**
  * TODO: Better support for remote engines (resource mapping); disable OK button on errors?
  */
-public class ChooseFileHandler implements IToolEventHandler {
+public class ChooseFileHandler extends AbstractConsoleCommandHandler {
 	
 	
 	public static final String CHOOSE_FILE_ID = "common/chooseFile"; //$NON-NLS-1$
@@ -145,22 +145,22 @@ public class ChooseFileHandler implements IToolEventHandler {
 	
 	
 	@Override
-	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus execute(final String id, final IConsoleService service, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final String message;
-		{	String s = ToolEventHandlerUtil.getCheckedData(data, LOGIN_MESSAGE_DATA_KEY, String.class, false); 
+		{	String s = ToolCommandHandlerUtil.getCheckedData(data, "message", String.class, false);  //$NON-NLS-1$
 			if (s == null) {
-				final IProgressInfo progressInfo = tools.getController().getProgressInfo();
+				final IProgressInfo progressInfo = service.getController().getProgressInfo();
 				s = NLS.bind("Choose file (asked by {0}):", progressInfo.getLabel());
 			}
 			message = s;
 		}
-		final Boolean newFile = ToolEventHandlerUtil.getCheckedData(data, "newResource", Boolean.class, true); //$NON-NLS-1$
+		final Boolean newFile = ToolCommandHandlerUtil.getCheckedData(data, "newResource", Boolean.class, true); //$NON-NLS-1$
 		final AtomicReference<IFileStore> file = new AtomicReference<IFileStore>();
 		final Runnable runnable = new Runnable() {
 			@Override
 			public void run() {
 				final ChooseFileDialog dialog = new ChooseFileDialog(UIAccess.getActiveWorkbenchShell(true),
-						tools.getTool(), message, newFile.booleanValue());
+						service.getTool(), message, newFile.booleanValue());
 				dialog.setBlockOnOpen(true);
 				if (dialog.open() == Dialog.OK) {
 					file.set(dialog.getResource());
@@ -171,7 +171,10 @@ public class ChooseFileHandler implements IToolEventHandler {
 		if (file.get() == null) {
 			return Status.CANCEL_STATUS;
 		}
-		data.put("filename", file.get().toString()); //$NON-NLS-1$
+		{	final String fileName = file.get().toString();
+			data.put("filename", fileName); //$NON-NLS-1$
+			data.put("fileName", fileName); //$NON-NLS-1$
+		}
 		return Status.OK_STATUS;
 	}
 	

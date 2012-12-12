@@ -25,11 +25,11 @@ import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ts.IToolRunnable;
+import de.walware.ecommons.ts.IToolService;
+import de.walware.ecommons.ts.util.ToolCommandHandlerUtil;
 
 import de.walware.statet.nico.core.NicoCore;
-import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
-import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
 import de.walware.statet.nico.internal.ui.Messages;
 
 
@@ -40,15 +40,15 @@ public class RunBlockingHandler implements IToolEventHandler {
 	
 	
 	@Override
-	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus execute(final String id, final IToolService service, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
-		final IToolRunnable toolRunnable = ToolEventHandlerUtil.getCheckedData(data, RUN_RUNNABLE_DATA_KEY, IToolRunnable.class, true); 
+		final IToolRunnable toolRunnable = ToolCommandHandlerUtil.getCheckedData(data, RUN_RUNNABLE_DATA_KEY, IToolRunnable.class, true); 
 		try {
 			progressService.busyCursorWhile(new IRunnableWithProgress() {
 				@Override
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					try {
-						toolRunnable.run(tools, monitor);
+						toolRunnable.run(service, monitor);
 					}
 					catch (final CoreException e) {
 						throw new InvocationTargetException(e);

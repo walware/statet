@@ -31,10 +31,10 @@ import org.eclipse.ui.part.PageBookView;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
+import de.walware.ecommons.ts.ui.IToolRunnableDecorator;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.ui.IToolRunnableDecorator;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
@@ -42,7 +42,7 @@ import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 
 import de.walware.statet.r.console.core.IRBasicAdapter;
-import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
 
 
@@ -77,7 +77,7 @@ public class AdjustWidthHandler extends AbstractHandler {
 		
 		@Override
 		public boolean isRunnableIn(final ITool tool) {
-			return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
+			return (tool.isProvidingFeatureSet(RConsoleTool.R_BASIC_FEATURESET_ID));
 		}
 		
 		@Override
@@ -110,7 +110,7 @@ public class AdjustWidthHandler extends AbstractHandler {
 	}
 	
 	private boolean isValid(final ToolProcess process) {
-		return (process != null && process.getMainType() == RTool.TYPE
+		return (process != null && process.getMainType() == RConsoleTool.TYPE
 				&& !process.isTerminated() );
 	}
 	

@@ -22,8 +22,11 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
 
+import de.walware.ecommons.ts.IToolCommandHandler;
+import de.walware.ecommons.ts.IToolService;
+import de.walware.ecommons.ts.util.ToolCommandHandlerUtil;
+
 import de.walware.statet.nico.core.NicoCore;
-import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
 import de.walware.statet.nico.internal.core.Messages;
 
 
@@ -32,7 +35,7 @@ import de.walware.statet.nico.internal.core.Messages;
  * {@link #SAVE_HISTORY_ID}
  * {@link #ADDTO_HISTORY_ID}
  */
-public class HistoryOperationsHandler implements IToolEventHandler {
+public class HistoryOperationsHandler implements IToolCommandHandler {
 	
 	
 	public static final String LOAD_HISTORY_ID = "common/loadHistory"; //$NON-NLS-1$
@@ -43,17 +46,20 @@ public class HistoryOperationsHandler implements IToolEventHandler {
 	
 	
 	@Override
-	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
-		if (id.equals(LOAD_HISTORY_ID)) {
-			return loadHistory(tools, data, monitor);
-		}
-		if (id.equals(SAVE_HISTORY_ID)) {
-			return saveHistory(tools, data, monitor);
-		}
-		if (id.equals(ADDTO_HISTORY_ID)) {
-			final String item = ToolEventHandlerUtil.getCheckedData(data, "text", String.class, true); //$NON-NLS-1$
-			tools.getTool().getHistory().addCommand(item, tools.getController().getCurrentSubmitType());
-			return Status.OK_STATUS;
+	public IStatus execute(final String id, final IToolService service, final Map<String, Object> data, final IProgressMonitor monitor) {
+		if (service instanceof IConsoleService) {
+			final IConsoleService console = (IConsoleService) service;
+			if (id.equals(LOAD_HISTORY_ID)) {
+				return loadHistory(console, data, monitor);
+			}
+			if (id.equals(SAVE_HISTORY_ID)) {
+				return saveHistory(console, data, monitor);
+			}
+			if (id.equals(ADDTO_HISTORY_ID)) {
+				final String item = ToolCommandHandlerUtil.getCheckedData(data, "text", String.class, true); //$NON-NLS-1$
+				console.getTool().getHistory().addCommand(item, console.getController().getCurrentSubmitType());
+				return Status.OK_STATUS;
+			}
 		}
 		throw new UnsupportedOperationException();
 	}
@@ -63,7 +69,7 @@ public class HistoryOperationsHandler implements IToolEventHandler {
 		try {
 			CoreException fileException = null;
 			IFileStore fileStore = null;
-			final String filename = ToolEventHandlerUtil.getCheckedData(data, "filename", String.class, true); //$NON-NLS-1$
+			final String filename = ToolCommandHandlerUtil.getCheckedData(data, "filename", String.class, true); //$NON-NLS-1$
 			final ToolWorkspace workspaceData = tools.getWorkspaceData();
 			try {
 				fileStore = workspaceData.toFileStore(filename);
@@ -94,7 +100,7 @@ public class HistoryOperationsHandler implements IToolEventHandler {
 			IFileStore fileStore = null;
 			final IStatus status;
 			
-			final String filename = ToolEventHandlerUtil.getCheckedData(data, "filename", String.class, true); //$NON-NLS-1$
+			final String filename = ToolCommandHandlerUtil.getCheckedData(data, "filename", String.class, true); //$NON-NLS-1$
 			final ToolWorkspace workspaceData = tools.getWorkspaceData();
 			try {
 				fileStore = workspaceData.toFileStore(filename);

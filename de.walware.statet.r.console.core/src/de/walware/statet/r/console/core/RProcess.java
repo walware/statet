@@ -44,7 +44,7 @@ public class RProcess extends ToolProcess {
 	public RProcess(final ILaunch launch, final IREnvConfiguration renv,
 			final String labelPrefix, final String name,
 			final String address, final String wd, final long timestamp) {
-		super(launch, RTool.TYPE, labelPrefix, name,
+		super(launch, RConsoleTool.TYPE, labelPrefix, name,
 				address, wd, timestamp);
 		fREnvConfig = renv;
 	}

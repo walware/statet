@@ -39,7 +39,7 @@ import de.walware.rj.services.RService;
 
 import de.walware.statet.r.console.core.AbstractRDataRunnable;
 import de.walware.statet.r.console.core.IRDataAdapter;
-import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.RElementName;
@@ -109,7 +109,7 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 	
 	
 	public RElementInfoData load(final ITool tool, final Control control) {
-		if (!NicoUITools.isToolReady(RTool.TYPE, RTool.R_DATA_FEATURESET_ID, tool)) {
+		if (!NicoUITools.isToolReady(RConsoleTool.TYPE, RConsoleTool.R_DATA_FEATURESET_ID, tool)) {
 			return null;
 		}
 		try {

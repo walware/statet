@@ -54,7 +54,8 @@ import de.walware.rj.data.RVector;
 import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
 import de.walware.rj.data.defaultImpl.RVectorImpl;
-import de.walware.rj.eclient.AbstractRServiceRunnable;
+import de.walware.rj.eclient.AbstractRToolRunnable;
+import de.walware.rj.eclient.IRToolService;
 import de.walware.rj.server.srvext.ServerUtil;
 import de.walware.rj.services.FunctionCall;
 import de.walware.rj.services.RPlatform;
@@ -76,6 +77,7 @@ import de.walware.statet.r.core.pkgmanager.SelectedRepos;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.RNumVersion;
+import de.walware.statet.r.core.tool.AbstractStatetRRunnable;
 import de.walware.statet.r.core.tool.IRConsoleService;
 import de.walware.statet.r.internal.core.RCorePlugin;
 
@@ -746,10 +748,10 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	
 	@Override
 	public void apply(final ITool process) {
-		process.getQueue().add(new AbstractRServiceRunnable("r/renv/rpkg.apply", //$NON-NLS-1$
+		process.getQueue().add(new AbstractRToolRunnable("r/renv/rpkg.apply", //$NON-NLS-1$
 				"Perform Package Manager Operations") {
 			@Override
-			protected void run(final RService r, final IProgressMonitor monitor) throws CoreException {
+			protected void run(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
 				runApply(r, monitor);
 			}
 		});
@@ -1254,12 +1256,13 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		final String label = (actions.get(0).getAction() == RPkgAction.UNINSTALL) ?
 				"Uninstall R Packages" : "Install/Update R Packages";
 		final RPkgOperator op = new RPkgOperator(this);
-		rTool.getQueue().add(new AbstractRServiceRunnable("r/renv/pkgs.inst", label) { //$NON-NLS-1$
+		rTool.getQueue().add(new AbstractStatetRRunnable("r/renv/pkgs.inst", label) { //$NON-NLS-1$
 			@Override
-			protected void run(final RService r, final IProgressMonitor monitor) throws CoreException {
+			protected void run(final IRConsoleService r, final IProgressMonitor monitor) throws CoreException {
 				Exception error = null;
-				beginRTask((IToolService) r, monitor);
+				beginRTask(r, monitor);
 				try {
+					checkNewCommand(r, monitor);
 					op.runActions(actions, r, monitor);
 				}
 				catch (final UnexpectedRDataException e) {
@@ -1271,9 +1274,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 				finally {
 					endRTask();
 					
-					if (r instanceof IRConsoleService) {
-						((IRConsoleService) r).briefAboutChange(0x10); // packages
-					}
+					r.briefAboutChange(0x10); // packages
 				}
 				if (error != null) {
 					throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, 0,
@@ -1287,10 +1288,11 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	public void loadPkgs(final ITool rTool, final List<? extends IRPkgDescription> pkgs,
 			final boolean expliciteLocation) {
 		final RPkgOperator op = new RPkgOperator(this);
-		rTool.getQueue().add(new AbstractRServiceRunnable("r/renv/pkgs.load", //$NON-NLS-1$
+		rTool.getQueue().add(new AbstractStatetRRunnable("r/renv/pkgs.load", //$NON-NLS-1$
 				"Load R Packages") {
 			@Override
-			protected void run(final RService r, final IProgressMonitor monitor) throws CoreException {
+			protected void run(final IRConsoleService r, final IProgressMonitor monitor) throws CoreException {
+				checkNewCommand(r, monitor);
 				op.loadPkgs(pkgs, expliciteLocation, r, monitor);
 			}
 		});

@@ -50,7 +50,7 @@ import de.walware.statet.nico.ui.util.ToolMessageDialog;
 import de.walware.statet.r.console.core.AbstractRDataRunnable;
 import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RProcess;
-import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.core.pkgmanager.IRPkgChangeSet;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager.Event;
@@ -236,7 +236,7 @@ public class REnvIndexAutoUpdater {
 		
 		@Override
 		public boolean isRunnableIn(final ITool tool) {
-			return (tool.isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID));
+			return (tool.isProvidingFeatureSet(RConsoleTool.R_DATA_FEATURESET_ID));
 		}
 		
 		@Override

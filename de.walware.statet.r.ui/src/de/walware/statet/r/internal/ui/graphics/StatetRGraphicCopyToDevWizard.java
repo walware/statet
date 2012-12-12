@@ -48,9 +48,9 @@ import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.util.ToolInfoGroup;
 
+import de.walware.rj.eclient.IRToolService;
 import de.walware.rj.eclient.graphics.IERGraphic;
 import de.walware.rj.eclient.graphics.utils.CopyToDevRunnable;
-import de.walware.rj.services.RService;
 
 import de.walware.statet.r.console.core.IRBasicAdapter;
 import de.walware.statet.r.core.RUtil;
@@ -213,7 +213,7 @@ public class StatetRGraphicCopyToDevWizard extends Wizard {
 						fGraphic, fDevCmd, RUtil.escapeCompletely(path),
 						"onefile= TRUE, paper= \"special\"") {
 					@Override
-					public void run(final RService r,
+					public void run(final IRToolService r,
 							final IProgressMonitor monitor) throws CoreException {
 						super.run(r, monitor);
 						if (open) {

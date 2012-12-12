@@ -22,7 +22,7 @@ import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
 
 import de.walware.statet.r.console.core.IRBasicAdapter;
-import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
@@ -53,7 +53,7 @@ public class ChangeWDRunnable implements IToolRunnable {
 	
 	@Override
 	public boolean isRunnableIn(final ITool tool) {
-		return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
+		return (tool.isProvidingFeatureSet(RConsoleTool.R_BASIC_FEATURESET_ID));
 	}
 	
 	@Override
@@ -70,9 +70,10 @@ public class ChangeWDRunnable implements IToolRunnable {
 	public void run(final IToolService service,
 			final IProgressMonitor monitor) throws CoreException {
 		final IRBasicAdapter r = (IRBasicAdapter) service;
+		final String command;
 		try {
 			final String toolPath = r.getWorkspaceData().toToolPath(fWorkingDir);
-			final String command = "setwd(\"" + RUtil.escapeCompletely(toolPath) + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
+			command = "setwd(\"" + RUtil.escapeCompletely(toolPath) + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
 			r.submitToConsole(command, monitor);
 		}
 		catch (final CoreException e) {

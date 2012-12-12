@@ -29,7 +29,7 @@ import de.walware.rj.eclient.graphics.IERGraphicsManager;
 import de.walware.rj.eclient.graphics.PageBookRGraphicView;
 import de.walware.rj.eclient.graphics.RGraphicPage;
 
-import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
@@ -57,7 +57,7 @@ public class StatetRGraphicView extends PageBookRGraphicView {
 			protected ToolProcess getTool() throws CoreException {
 				final ToolProcess process = NicoUI.getToolRegistry().getActiveToolSession(
 						UIAccess.getActiveWorkbenchPage(false)).getProcess();
-				NicoUITools.accessTool(RTool.TYPE, process);
+				NicoUITools.accessTool(RConsoleTool.TYPE, process);
 				return process;
 			}
 		};

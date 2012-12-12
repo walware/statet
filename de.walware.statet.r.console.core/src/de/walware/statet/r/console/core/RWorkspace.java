@@ -493,7 +493,7 @@ public class RWorkspace extends ToolWorkspace {
 	
 	protected void refreshFromTool(final AbstractRController controller, final int options, final IProgressMonitor monitor) throws CoreException {
 		monitor.subTask("Update Workspace Data");
-		if (controller.getTool().isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)) {
+		if (controller.getTool().isProvidingFeatureSet(RConsoleTool.R_DATA_FEATURESET_ID)) {
 			final IRDataAdapter r = (IRDataAdapter) controller;
 			updateWorkspaceDir(r, monitor);
 			updateOptions(r, monitor);

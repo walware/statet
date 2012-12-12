@@ -23,7 +23,7 @@ import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 
 import de.walware.statet.r.console.core.RProcess;
-import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.console.ui.tools.REnvIndexAutoUpdater;
 
 
@@ -61,7 +61,7 @@ public class REnvIndexUpdateHandler extends AbstractHandler {
 			final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 			process = NicoUI.getToolRegistry().getActiveToolSession(page).getProcess();
 		}
-		if (!NicoUITools.isToolReady(RTool.TYPE, RTool.R_DATA_FEATURESET_ID, process)) {
+		if (!NicoUITools.isToolReady(RConsoleTool.TYPE, RConsoleTool.R_DATA_FEATURESET_ID, process)) {
 			return null;
 		}
 		process.getQueue().add(new REnvIndexAutoUpdater.UpdateRunnable(fCompletely));

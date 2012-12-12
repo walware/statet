@@ -11,6 +11,8 @@
 
 package de.walware.statet.nico.ui.util;
 
+import static de.walware.statet.nico.core.runtime.IToolEventHandler.REPORT_STATUS_DATA_KEY;
+
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -18,24 +20,26 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.statet.nico.core.runtime.IToolEventHandler;
+import de.walware.ecommons.ts.util.ToolCommandHandlerUtil;
+
 import de.walware.statet.nico.core.runtime.IConsoleService;
+import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolStreamMonitor;
-import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
+import de.walware.statet.nico.internal.ui.AbstractConsoleCommandHandler;
 
 
 /**
  * @see {@link IToolEventHandler#REPORT_STATUS_EVENT_ID}
  */
-public class ReportStatusHandler implements IToolEventHandler {
+public class ReportStatusHandler extends AbstractConsoleCommandHandler {
 	
 	
 	@Override
-	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
-		final IStatus status = ToolEventHandlerUtil.getCheckedData(data, REPORT_STATUS_DATA_KEY, IStatus.class, false); 
+	public IStatus execute(final String id, final IConsoleService service, final Map<String, Object> data, final IProgressMonitor monitor) {
+		final IStatus status = ToolCommandHandlerUtil.getCheckedData(data, REPORT_STATUS_DATA_KEY, IStatus.class, false); 
 		if (status != null) {
-			final String br = tools.getWorkspaceData().getLineSeparator();
+			final String br = service.getWorkspaceData().getLineSeparator();
 			final StringBuilder msg = new StringBuilder(br);
 			switch (status.getSeverity()) {
 			case IStatus.ERROR:
@@ -64,7 +68,7 @@ public class ReportStatusHandler implements IToolEventHandler {
 			}
 			
 			try {
-				final ToolStreamMonitor infoStream = tools.getController().getStreams().getInfoStreamMonitor();
+				final ToolStreamMonitor infoStream = service.getController().getStreams().getInfoStreamMonitor();
 				infoStream.append(msg.toString(), SubmitType.OTHER, 0); // Error stream when error?
 			}
 			catch (final Exception e) {

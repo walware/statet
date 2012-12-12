@@ -13,6 +13,7 @@ package de.walware.statet.nico.core.runtime;
 
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.REPORT_STATUS_DATA_KEY;
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.REPORT_STATUS_EVENT_ID;
+import static de.walware.statet.nico.core.runtime.IToolEventHandler.SCHEDULE_QUIT_EVENT_ID;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +38,7 @@ import de.walware.ecommons.IDisposable;
 import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolCommandHandler;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
 
@@ -278,7 +280,7 @@ public abstract class ToolController implements IConsoleService {
 				try {
 					runnable.run(service, monitor);
 				}
-				catch (CoreException e) {
+				catch (final CoreException e) {
 					final IStatus status = (e instanceof CoreException) ? e.getStatus() : null;
 					if (status != null && (status.getSeverity() == IStatus.CANCEL || status.getSeverity() <= IStatus.INFO)) {
 						// ignore
@@ -369,7 +371,7 @@ public abstract class ToolController implements IConsoleService {
 				try {
 					((ToolController) service).doQuitL(monitor);
 				}
-				catch (CoreException e) {
+				catch (final CoreException e) {
 					if (!fIsTerminated) {
 						handleStatus(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, 0,
 								"An error occured when running quit command.", e), monitor);
@@ -379,12 +381,12 @@ public abstract class ToolController implements IConsoleService {
 		}
 		
 		@Override
-		protected boolean canExec(IProgressMonitor monitor) throws CoreException {
+		protected boolean canExec(final IProgressMonitor monitor) throws CoreException {
 			return true;
 		}
 		
 		@Override
-		protected void doExec(IProgressMonitor monitor) throws CoreException {
+		protected void doExec(final IProgressMonitor monitor) throws CoreException {
 		}
 		
 	}
@@ -449,7 +451,7 @@ public abstract class ToolController implements IConsoleService {
 	
 	protected ToolWorkspace fWorkspaceData;
 	
-	private final Map<String, IToolEventHandler> fHandlers = new HashMap<String, IToolEventHandler>();
+	private final Map<String, IToolCommandHandler> fActionHandlers = new HashMap<String, IToolCommandHandler>();
 	
 	// RunnableAdapter proxy for tool lifecycle thread
 	protected String fCurrentInput;
@@ -479,12 +481,12 @@ public abstract class ToolController implements IConsoleService {
 	}
 	
 	
-	public final void addEventHandler(final String eventId, final IToolEventHandler handler) {
-		fHandlers.put(eventId, handler);
+	public final void addCommandHandler(final String commandId, final IToolCommandHandler handler) {
+		fActionHandlers.put(commandId, handler);
 	}
 	
-	public final IToolEventHandler getEventHandler(final String eventId) {
-		return fHandlers.get(eventId);
+	public final IToolCommandHandler getCommandHandler(final String commandId) {
+		return fActionHandlers.get(commandId);
 	}
 	
 	/**
@@ -744,12 +746,12 @@ public abstract class ToolController implements IConsoleService {
 		// ask handler
 		boolean schedule = true;
 		try {
-			final IToolEventHandler handler = fHandlers.get(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID);
+			final IToolCommandHandler handler = fActionHandlers.get(SCHEDULE_QUIT_EVENT_ID);
 			if (handler != null) {
 				final Map<String, Object> data = new HashMap<String, Object>();
 				data.put("scheduledQuitTasks", getQuitTasks()); //$NON-NLS-1$
-				final IStatus answer = handler.handle(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID, this, data, new NullProgressMonitor());
-				if (!answer.isOK()) {
+				final IStatus status = executeHandler(SCHEDULE_QUIT_EVENT_ID, handler, data, new NullProgressMonitor());
+				if (status != null && !status.isOK()) {
 					schedule = false;
 				}
 			}
@@ -835,7 +837,7 @@ public abstract class ToolController implements IConsoleService {
 	}
 	
 	public final void kill(final IProgressMonitor monitor) throws CoreException {
-		Thread thread = getControllerThread();
+		final Thread thread = getControllerThread();
 		killTool(monitor);
 		if (thread != null) {
 			for (int i = 0; i < 3; i++) {
@@ -847,7 +849,7 @@ public abstract class ToolController implements IConsoleService {
 					try {
 						fQueue.wait(10);
 					}
-					catch (Exception e) {}
+					catch (final Exception e) {}
 				}
 				thread.interrupt();
 			}
@@ -1106,7 +1108,7 @@ public abstract class ToolController implements IConsoleService {
 		}
 	}
 	
-	private final void loopSuspended(int level) {
+	private final void loopSuspended(final int level) {
 		boolean enterSuspended = false;
 		
 		while (true) {
@@ -1419,7 +1421,7 @@ public abstract class ToolController implements IConsoleService {
 		}
 	}
 	
-	protected void runSuspendedLoopL(int o) {
+	protected void runSuspendedLoopL(final int o) {
 		IToolRunnable insertMarker = null;
 		IToolRunnable updater = null;
 		
@@ -1538,7 +1540,7 @@ public abstract class ToolController implements IConsoleService {
 		}
 	}
 	
-	protected void doRunSuspendedLoopL(int o, int level) {
+	protected void doRunSuspendedLoopL(final int o, final int level) {
 		loopSuspended(level);
 	}
 	
@@ -1605,7 +1607,7 @@ public abstract class ToolController implements IConsoleService {
 	 * Interrupts the tool. This methods can be called async.
 	 */
 	protected void interruptTool() throws UnsupportedOperationException {
-		Thread thread = getControllerThread();
+		final Thread thread = getControllerThread();
 		if (thread != null) {
 			thread.interrupt();
 		}
@@ -1652,15 +1654,28 @@ public abstract class ToolController implements IConsoleService {
 		if (status == null || status.getSeverity() == IStatus.OK) {
 			return;
 		}
-		final IToolEventHandler eventHandler = getEventHandler(REPORT_STATUS_EVENT_ID);
-		if (eventHandler != null) {
+		final IToolCommandHandler handler = getCommandHandler(REPORT_STATUS_EVENT_ID);
+		if (handler != null) {
 			final Map<String, Object> data = Collections.singletonMap(REPORT_STATUS_DATA_KEY, (Object) status);
-			eventHandler.handle(REPORT_STATUS_EVENT_ID, this, data, monitor);
-		}
-		else {
-			if (status.getSeverity() > IStatus.INFO) {
-				NicoPlugin.log(status);
+			final IStatus reportStatus = executeHandler(REPORT_STATUS_EVENT_ID, handler, data, monitor);
+			if (reportStatus != null && reportStatus.isOK()) {
+				return;
 			}
+		}
+		if (status.getSeverity() > IStatus.INFO) {
+			NicoPlugin.log(status);
+		}
+	}
+	
+	protected IStatus executeHandler(final String commandID, final IToolCommandHandler handler,
+			final Map<String, Object> data, final IProgressMonitor monitor) {
+		try {
+			return handler.execute(commandID, this, data, monitor);
+		}
+		catch (final Exception e) {
+			NicoPlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID,
+					NLS.bind("An error occurred when executing tool command ''{0}''.", commandID)));
+			return null;
 		}
 	}
 	

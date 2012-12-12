@@ -29,7 +29,7 @@ import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.console.NIConsole;
 
-import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
 
 
@@ -68,7 +68,7 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 				info.set(NicoUI.getToolRegistry().getActiveToolSession(page));
 			}
 		});
-		final ToolController controller = NicoUITools.accessController(RTool.TYPE, info.get().getProcess());
+		final ToolController controller = NicoUITools.accessController(RConsoleTool.TYPE, info.get().getProcess());
 		final IStatus status = rCommands.submitTo(controller);
 		if (status.getSeverity() >= IStatus.ERROR) {
 			throw new CoreException(status);

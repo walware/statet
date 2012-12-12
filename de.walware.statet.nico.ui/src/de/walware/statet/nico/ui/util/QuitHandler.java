@@ -27,6 +27,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
+import de.walware.ecommons.ts.IToolService;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.IConsoleService;
@@ -85,12 +86,13 @@ public class QuitHandler implements IToolEventHandler {
 	}
 	
 	@Override
-	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data,
+	public IStatus execute(final String id, final IToolService service, final Map<String, Object> data,
 			final IProgressMonitor monitor) {
+		final IConsoleService console = (IConsoleService) service;
 		if (PlatformUI.getWorkbench().isClosing()) {
-			final ToolController controller = tools.getController();
+			final ToolController controller = console.getController();
 			if (controller != null) {
-				if (tools.getTool().isProvidingFeatureSet(IRemoteEngineController.FEATURE_SET_ID)) {
+				if (console.getTool().isProvidingFeatureSet(IRemoteEngineController.FEATURE_SET_ID)) {
 					try {
 						((IRemoteEngineController) controller).disconnect(monitor);
 						return Status.CANCEL_STATUS;
@@ -112,7 +114,7 @@ public class QuitHandler implements IToolEventHandler {
 		}
 		
 		final UIRunnable runner = new UIRunnable();
-		runner.fController = tools.getController();
+		runner.fController = console.getController();
 		final ToolProcess process = runner.fController.getTool();
 		runner.fDialogTitle = NLS.bind(Messages.TerminatingMonitor_title, process.getLabel(ITool.DEFAULT_LABEL));
 		runner.fDialogMessage = NLS.bind(Messages.TerminatingMonitor_message, process.getLabel(ITool.LONG_LABEL));

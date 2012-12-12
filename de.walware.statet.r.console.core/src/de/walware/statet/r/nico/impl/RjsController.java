@@ -14,6 +14,8 @@ package de.walware.statet.r.nico.impl;
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_ADDRESS_DATA_KEY;
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_CALLBACKS_DATA_KEY;
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_MESSAGE_DATA_KEY;
+import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_OK_EVENT_ID;
+import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_REQUEST_EVENT_ID;
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_USERNAME_DATA_KEY;
 
 import java.io.InputStream;
@@ -50,11 +52,11 @@ import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.net.RMIAddress;
+import de.walware.ecommons.ts.IToolCommandHandler;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
 
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
-import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 
@@ -97,9 +99,9 @@ import de.walware.rj.services.RServiceControlExtension;
 
 import de.walware.statet.r.console.core.IRBasicAdapter;
 import de.walware.statet.r.console.core.IRDataAdapter;
+import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.console.core.RDbg;
 import de.walware.statet.r.console.core.RProcess;
-import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.IRElement;
@@ -218,11 +220,11 @@ public class RjsController extends AbstractRDbgController
 		
 		@Override
 		protected void initGraphicFactory() {
-			final IToolEventHandler eventHandler = getEventHandler(INIT_RGRAPHIC_FACTORY_HANDLER_ID);
+			final IToolCommandHandler handler = getCommandHandler(INIT_RGRAPHIC_FACTORY_HANDLER_ID);
 			final Map<String, Object> data = new HashMap<String, Object>();
-			final IStatus status = eventHandler.handle(INIT_RGRAPHIC_FACTORY_HANDLER_ID, RjsController.this, data, null);
+			final IStatus status = executeHandler(INIT_RGRAPHIC_FACTORY_HANDLER_ID, handler, data, null);
 			final RClientGraphicFactory factory = (RClientGraphicFactory) data.get("factory"); //$NON-NLS-1$
-			if (status.isOK() && factory != null) {
+			if (status != null && status.isOK() && factory != null) {
 				setGraphicFactory(factory, new ERClientGraphicActions(this, fProcess));
 			}
 		}
@@ -274,12 +276,19 @@ public class RjsController extends AbstractRDbgController
 		
 		
 		@Override
-		protected RList handleUICallback(final String commandId, final RList args,
+		protected RList handleUICallback(String commandId, final RList args,
 				final IProgressMonitor monitor) throws Exception {
 			// TODO: allow handlers to use RJ data objects
 			// TODO: allow handlers to return values
 			// TODO: provide extension point for event handlers
-			final IToolEventHandler handler = getEventHandler(commandId);
+			IToolCommandHandler handler = getCommandHandler(commandId);
+			if (handler == null && commandId.startsWith("r/")) {
+				final String s = commandId.substring(2);
+				handler = getCommandHandler(s);
+				if (handler != null) {
+					commandId = s;
+				}
+			}
 			if (handler != null) {
 				final RDataJConverter converter = new RDataJConverter();
 				converter.setKeepArray1(false);
@@ -292,7 +301,7 @@ public class RjsController extends AbstractRDbgController
 					}
 				}
 				
-				final IStatus status = handler.handle(commandId, RjsController.this, javaArgs, monitor);
+				final IStatus status = handler.execute(commandId, RjsController.this, javaArgs, monitor);
 				switch (status.getSeverity()) {
 				case IStatus.OK:
 					break;
@@ -441,7 +450,7 @@ public class RjsController extends AbstractRDbgController
 		if (address == null || connection == null) {
 			throw new IllegalArgumentException();
 		}
-		process.registerFeatureSet(RTool.R_DATA_FEATURESET_ID);
+		process.registerFeatureSet(RConsoleTool.R_DATA_FEATURESET_ID);
 		process.registerFeatureSet("de.walware.rj.services.RService"); //$NON-NLS-1$
 		if (!embedded) {
 			process.registerFeatureSet(IRemoteEngineController.FEATURE_SET_ID);
@@ -542,7 +551,7 @@ public class RjsController extends AbstractRDbgController
 		fRjs.initClient(getTool(), this, fRjsProperties, fRjsId);
 		try {
 			final Map<String, Object> data = new HashMap<String, Object>();
-			final IToolEventHandler loginHandler = getEventHandler(IToolEventHandler.LOGIN_REQUEST_EVENT_ID);
+			final IToolCommandHandler loginHandler = getCommandHandler(LOGIN_REQUEST_EVENT_ID);
 			String msg = null;
 			boolean connected = false;
 			while (!connected) {
@@ -574,7 +583,7 @@ public class RjsController extends AbstractRDbgController
 									ICommonStatusConstants.LAUNCHING,
 									"Login requested but not supported by this configuration.", null ));
 						}
-						if (!loginHandler.handle(IToolEventHandler.LOGIN_REQUEST_EVENT_ID, this, data, monitor).isOK()) {
+						if (!loginHandler.execute(LOGIN_REQUEST_EVENT_ID, this, data, monitor).isOK()) {
 							throw new CoreException(Status.CANCEL_STATUS);
 						}
 						
@@ -602,7 +611,7 @@ public class RjsController extends AbstractRDbgController
 					connected = true;
 					
 					if (callbacks != null) {
-						loginHandler.handle(IToolEventHandler.LOGIN_OK_EVENT_ID, this, data, monitor);
+						loginHandler.execute(LOGIN_OK_EVENT_ID, this, data, monitor);
 						if (initData != null) {
 							initData.put(LOGIN_USERNAME_DATA_KEY, data.get(LOGIN_USERNAME_DATA_KEY));
 						}

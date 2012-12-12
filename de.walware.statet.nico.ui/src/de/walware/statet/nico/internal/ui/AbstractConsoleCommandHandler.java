@@ -9,32 +9,30 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.core.tool;
+package de.walware.statet.nico.internal.ui;
+
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 
+import de.walware.ecommons.ts.IToolCommandHandler;
 import de.walware.ecommons.ts.IToolService;
 
-import de.walware.rj.eclient.IRToolService;
-import de.walware.rj.services.RService;
+import de.walware.statet.nico.core.runtime.IConsoleService;
 
 
-public interface IRConsoleService extends IRToolService, RService, IToolService {
+public abstract class AbstractConsoleCommandHandler implements IToolCommandHandler {
 	
 	
-	boolean acceptNewConsoleCommand();
+	@Override
+	public IStatus execute(final String id, final IToolService service, final Map<String, Object> data,
+			final IProgressMonitor monitor) throws CoreException {
+		return execute(id, (IConsoleService) service, data, monitor);
+	}
 	
-	/**
-	 * Submits the text to the tool console.
-	 * 
-	 * @param input the text to submit
-	 * @param monitor the progress monitor of the current run (or a child)
-	 * @throws CoreException if an error occurred or the operation was canceled
-	 */
-	void submitToConsole(String input, IProgressMonitor monitor)
-			throws CoreException;
-	
-	void briefAboutChange(int o);
+	protected abstract IStatus execute(String id, IConsoleService service, Map<String, Object> data,
+			IProgressMonitor monitor) throws CoreException;
 	
 }

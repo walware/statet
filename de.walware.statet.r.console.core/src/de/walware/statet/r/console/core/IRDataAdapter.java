@@ -17,11 +17,11 @@ import de.walware.statet.r.core.tool.IRConsoleService;
 
 
 /**
- * Adapter interface for {@link RTool#R_DATA_FEATURESET_ID}.
+ * Adapter interface for {@link RConsoleTool#R_DATA_FEATURESET_ID}.
  * 
  * Makes {@link RService} available.
  */
-public interface IRDataAdapter extends IRBasicAdapter, RService, IRConsoleService {
+public interface IRDataAdapter extends IRBasicAdapter, IRConsoleService {
 	
 	
 }
