@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003 Louis Thomas and others.
+ * Copyright (C) 2003-2013 Louis Thomas and others.
  * License: http://www.latenighthacking.com/projects/lnhfslicense.html
  */
 
