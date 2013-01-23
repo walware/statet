@@ -56,6 +56,7 @@ import de.walware.ecommons.ui.components.ButtonGroup.IActions;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
 import de.walware.ecommons.ui.util.ComparatorViewerComparator;
 import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
 
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
@@ -98,7 +99,8 @@ class EditRepoDialog extends ExtStatusDialog {
 	
 	
 	public EditRepoDialog(final Shell parent, final RRepo repo, final boolean isNew) {
-		super(parent);
+		super(parent, (isNew) ? WITH_DATABINDING_CONTEXT :
+				(WITH_DATABINDING_CONTEXT | SHOW_INITIAL_STATUS));
 		fRepo = repo;
 		fIsNew = isNew;
 		
@@ -107,41 +109,34 @@ class EditRepoDialog extends ExtStatusDialog {
 	
 	
 	@Override
-	protected Control createContents(final Composite parent) {
-		final Control control = super.createContents(parent);
-		initBindings();
-		return control;
-	}
-	
-	@Override
 	protected Control createDialogArea(final Composite parent) {
-		final Composite dialogArea = new Composite(parent, SWT.NONE);
-		dialogArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		dialogArea.setLayout(LayoutUtil.createDialogGrid(2));
+		final Composite area = new Composite(parent, SWT.NONE);
+		area.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		area.setLayout(LayoutUtil.createDialogGrid(2));
 		
-		{	final Label label = new Label(dialogArea, SWT.NONE);
+		{	final Label label = new Label(area, SWT.NONE);
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			label.setText("Name:");
 		}
-		{	final Text text = new Text(dialogArea, SWT.BORDER);
+		{	final Text text = new Text(area, SWT.BORDER);
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			fNameControl = text;
 		}
-		{	final Label label = new Label(dialogArea, SWT.NONE);
+		{	final Label label = new Label(area, SWT.NONE);
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			label.setText("URL:");
 		}
-		{	final Text text = new Text(dialogArea, SWT.BORDER);
+		{	final Text text = new Text(area, SWT.BORDER);
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			gd.widthHint = LayoutUtil.hintWidth(fNameControl, 60);
 			text.setLayoutData(gd);
 			fURLControl = text;
 		}
-		{	final Label label = new Label(dialogArea, SWT.NONE);
+		{	final Label label = new Label(area, SWT.NONE);
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			label.setText("Type:");
 		}
-		{	final ComboViewer viewer = new ComboViewer(dialogArea, SWT.READ_ONLY | SWT.BORDER | SWT.DROP_DOWN);
+		{	final ComboViewer viewer = new ComboViewer(area, SWT.READ_ONLY | SWT.BORDER | SWT.DROP_DOWN);
 			final GridData gd = new GridData(SWT.LEFT, SWT.CENTER, true, false);
 			gd.widthHint = LayoutUtil.hintWidth(viewer.getCombo(), 10);
 			viewer.getCombo().setLayoutData(gd);
@@ -153,10 +148,11 @@ class EditRepoDialog extends ExtStatusDialog {
 			fTypeControl = viewer;
 		}
 		
-		LayoutUtil.addSmallFiller(dialogArea, true);
-		applyDialogFont(dialogArea);
+		LayoutUtil.addSmallFiller(area, true);
 		
-		return dialogArea;
+		applyDialogFont(area);
+		
+		return area;
 	}
 	
 	@Override
@@ -290,6 +286,8 @@ class RRepoConfigurationBlock extends ManagedConfigurationBlock implements IActi
 //			}
 			table.viewer.setComparator(new ComparatorViewerComparator(COMPARATOR));
 			fTables[r] = table;
+			
+			ViewerUtil.scheduleStandardSelection(table.viewer);
 		}
 		{	final ButtonGroup<RRepo> buttons = new ButtonGroup<RRepo>(parent, this, false);
 			buttons.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));

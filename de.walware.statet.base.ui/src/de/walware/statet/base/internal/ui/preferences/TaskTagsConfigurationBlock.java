@@ -78,7 +78,7 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 	
 	
-	private IStatusChangeListener fStatusListener;
+	private final IStatusChangeListener fStatusListener;
 	
 	private TableViewer fListViewer;
 	private ButtonGroup<TaskTag> fListButtons;
@@ -122,14 +122,14 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		{	// Table area
 			final Composite composite = new Composite(pageComposite, SWT.NONE);
 			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+			composite.setLayout(LayoutUtil.createCompositeGrid(2));
 			
 			final Composite table = createTable(composite);
 			table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			
 			fListButtons = new ButtonGroup<TaskTag>(composite) {
 				@Override
-				protected TaskTag edit1(final TaskTag item, final boolean newItem, Object parent) {
+				protected TaskTag edit1(final TaskTag item, final boolean newItem, final Object parent) {
 					final TaskTagsInputDialog dialog = new TaskTagsInputDialog(getShell(), item, newItem, fList);
 					if (dialog.open() == Dialog.OK) {
 						return dialog.getResult();
@@ -152,6 +152,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 			
 			fListButtons.connectTo(fListViewer, fList, fDefault);
 			fListViewer.setInput(fList);
+			ViewerUtil.scheduleStandardSelection(fListViewer);
 		}
 		
 		updateControls();
@@ -350,7 +351,7 @@ class TaskTagsInputDialog extends ExtStatusDialog {
 	
 	private String fName;
 	private TaskPriority fPriority;
-	private List<String> fExistingNames;
+	private final List<String> fExistingNames;
 	
 	
 	public TaskTagsInputDialog(final Shell parent, final TaskTag task, final boolean newTask, final List<TaskTag> existingEntries) {
@@ -382,9 +383,9 @@ class TaskTagsInputDialog extends ExtStatusDialog {
 	
 	@Override
 	protected Control createDialogArea(final Composite parent) {
-		final Composite dialogArea = new Composite(parent, SWT.NONE);
-		final Layouter layouter = new Layouter(dialogArea, LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
-		dialogArea.setLayoutData(new GridData(GridData.FILL_BOTH));
+		final Composite area = new Composite(parent, SWT.NONE);
+		final Layouter layouter = new Layouter(area, LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
+		area.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
 		fNameControl = layouter.addLabeledTextControl(Messages.TaskTags_InputDialog_Name_label);
 		((GridData) fNameControl.getLayoutData()).widthHint =
@@ -449,9 +450,11 @@ class TaskTagsInputDialog extends ExtStatusDialog {
 			);
 		}
 		
-		LayoutUtil.addSmallFiller(dialogArea, true);
-		applyDialogFont(dialogArea);
-		return dialogArea;
+		LayoutUtil.addSmallFiller(area, true);
+		
+		applyDialogFont(area);
+		
+		return area;
 	}
 	
 	

@@ -101,7 +101,7 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 		{	// Table area
 			final Composite composite = new Composite(pageComposite, SWT.NONE);
 			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+			composite.setLayout(LayoutUtil.createCompositeGrid(2));
 			
 			final Composite table = createTable(composite);
 			table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -124,6 +124,7 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 			
 			fListButtons.connectTo(fListViewer, fList, null);
 			fListViewer.setInput(fList);
+			ViewerUtil.scheduleStandardSelection(fListViewer);
 		}
 		
 		final IResourceMappingManager manager = ResourceMappingUtils.getManager();
@@ -229,7 +230,8 @@ class EditMappingDialog extends ExtStatusDialog {
 	
 	
 	public EditMappingDialog(final Shell shell, final ResourceMapping mapping, final boolean newMapping) {
-		super(shell);
+		super(shell, (newMapping) ? WITH_DATABINDING_CONTEXT :
+				(WITH_DATABINDING_CONTEXT | SHOW_INITIAL_STATUS));
 		setTitle("Edit Resource Mapping");
 		
 		fMappingId = (!newMapping) ? mapping.getId() : null;
@@ -244,19 +246,12 @@ class EditMappingDialog extends ExtStatusDialog {
 	}
 	
 	@Override
-	protected Control createContents(final Composite parent) {
-		final Control control = super.createContents(parent);
-		initBindings();
-		return control;
-	}
-	
-	@Override
 	protected Control createDialogArea(final Composite parent) {
-		final Composite dialogArea = new Composite(parent, SWT.NONE);
-		dialogArea.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
-		dialogArea.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
+		final Composite area = new Composite(parent, SWT.NONE);
+		area.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
+		area.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
 		
-		final Composite composite = dialogArea;
+		final Composite composite = area;
 		{	final Label label = new Label(composite, SWT.NONE);
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			label.setText("Path on &Local:");
@@ -285,9 +280,9 @@ class EditMappingDialog extends ExtStatusDialog {
 			fRemoteControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		}
 		
-		applyDialogFont(dialogArea);
+		applyDialogFont(area);
 		
-		return dialogArea;
+		return area;
 	}
 	
 	@Override

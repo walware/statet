@@ -11,7 +11,6 @@
 
 package de.walware.statet.nico.ui.util;
 
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -35,7 +34,8 @@ public class TrackingConfigurationDialog extends ExtStatusDialog {
 	
 	
 	public TrackingConfigurationDialog(final Shell parent, final TrackingConfiguration config, final boolean isNew) {
-		super(parent);
+		super(parent, (isNew) ? WITH_DATABINDING_CONTEXT :
+				(WITH_DATABINDING_CONTEXT | SHOW_INITIAL_STATUS) );
 		setTitle(isNew ? "New Tracking Configuration" : "Edit Tracking Configuration");
 		
 		fConfig = config;
@@ -44,20 +44,18 @@ public class TrackingConfigurationDialog extends ExtStatusDialog {
 	
 	@Override
 	protected Control createDialogArea(final Composite parent) {
-		final Composite dialogArea = new Composite(parent, SWT.NONE);
-		dialogArea.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
-		dialogArea.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
+		final Composite area = new Composite(parent, SWT.NONE);
+		area.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
+		area.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
 		
-		fConfigComposite = createConfigComposite(dialogArea);
+		fConfigComposite = createConfigComposite(area);
 		fConfigComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
 		
 		fConfigComposite.setInput(fConfig);
 		
-		initBindings();
+		applyDialogFont(area);
 		
-		Dialog.applyDialogFont(dialogArea);
-		
-		return dialogArea;
+		return area;
 	}
 	
 	@Override

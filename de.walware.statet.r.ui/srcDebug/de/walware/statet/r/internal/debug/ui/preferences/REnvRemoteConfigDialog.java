@@ -58,7 +58,8 @@ public class REnvRemoteConfigDialog extends ExtStatusDialog {
 	public REnvRemoteConfigDialog(final Shell parent, 
 			final IREnvConfiguration.WorkingCopy config, final boolean isNewConfig, 
 			final Collection<IREnvConfiguration> existingConfigs) {
-		super(parent, true);
+		super(parent, WITH_RUNNABLE_CONTEXT | ((isNewConfig) ? WITH_DATABINDING_CONTEXT :
+				(WITH_DATABINDING_CONTEXT | SHOW_INITIAL_STATUS)) );
 		
 		fConfigModel = config;
 		fIsNewConfig = isNewConfig;
@@ -73,51 +74,55 @@ public class REnvRemoteConfigDialog extends ExtStatusDialog {
 	
 	
 	@Override
-	protected Control createDialogArea(final Composite parent) {
-		final Composite dialogArea = new Composite(parent, SWT.NONE);
-		dialogArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		dialogArea.setLayout(LayoutUtil.createDialogGrid(2));
+	public void create() {
+		super.create();
 		
-		{	final Label label = new Label(dialogArea, SWT.LEFT);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(getShell(), IRUIHelpContextIds.R_ENV);
+	}
+	
+	@Override
+	protected Control createDialogArea(final Composite parent) {
+		final Composite area = new Composite(parent, SWT.NONE);
+		area.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		area.setLayout(LayoutUtil.createDialogGrid(2));
+		
+		{	final Label label = new Label(area, SWT.LEFT);
 			label.setText("R Environment configuration for remote R installations (consoles).");
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 		}
 		
-		LayoutUtil.addSmallFiller(dialogArea, false);
+		LayoutUtil.addSmallFiller(area, false);
 		
 		{	// Name:
-			final Label label = new Label(dialogArea, SWT.LEFT);
+			final Label label = new Label(area, SWT.LEFT);
 			label.setText(Messages.REnv_Detail_Name_label+':');
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
-			fNameControl = new Text(dialogArea, SWT.BORDER);
+			fNameControl = new Text(area, SWT.BORDER);
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			gd.widthHint = LayoutUtil.hintWidth(fNameControl, 60);
 			fNameControl.setLayoutData(gd);
 		}
 		
-		LayoutUtil.addSmallFiller(dialogArea, false);
+		LayoutUtil.addSmallFiller(area, false);
 		
 		{	// Index:
-			final Label label = new Label(dialogArea, SWT.LEFT);
+			final Label label = new Label(area, SWT.LEFT);
 			label.setText("Index directory"+':');
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
-			final ResourceInputComposite text = new ResourceInputComposite(dialogArea, ResourceInputComposite.STYLE_TEXT,
+			final ResourceInputComposite text = new ResourceInputComposite(area, ResourceInputComposite.STYLE_TEXT,
 					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_DOC_DIR");
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			text.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 			fIndexDirectoryControl = text;
 		}
 		
-		LayoutUtil.addSmallFiller(dialogArea, true);
-		applyDialogFont(dialogArea);
+		LayoutUtil.addSmallFiller(area, true);
 		
-		initBindings();
+		applyDialogFont(area);
 		
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(getShell(), IRUIHelpContextIds.R_ENV);
-		
-		return dialogArea;
+		return area;
 	}
 	
 	@Override

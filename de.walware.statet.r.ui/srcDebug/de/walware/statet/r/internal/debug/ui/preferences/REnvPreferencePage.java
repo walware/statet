@@ -216,7 +216,9 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 					return a.equals(b);
 				}
 			});
+			
 			fListViewer.setInput(fList);
+			ViewerUtil.scheduleStandardSelection(fListViewer);
 		}
 		loadValues(PreferencesUtil.getInstancePrefs());
 		

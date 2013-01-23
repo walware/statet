@@ -39,7 +39,6 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -165,6 +164,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		}
 		
 		Dialog.applyDialogFont(parent);
+		
 		initBindings();
 		fTrackingButtons.updateState();
 	}
@@ -172,7 +172,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	private Composite createConsoleOptions(final Composite parent) {
 		final Group group = new Group(parent, SWT.NONE);
 		group.setText(RConsoleMessages.RConsole_MainTab_ConsoleOptions_label);
-		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
+		group.setLayout(LayoutUtil.createGroupGrid(2));
 		
 		fPinControl = new Button(group, SWT.CHECK);
 		fPinControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
@@ -184,7 +184,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	private Composite createTrackingOptions(final Composite parent) {
 		final Group group = new Group(parent, SWT.NONE);
 		group.setText("History / Transcript / Tracking:");
-		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
+		group.setLayout(LayoutUtil.createGroupGrid(2));
 		
 		final ViewerUtil.CheckboxTableComposite trackingTable;
 		{	trackingTable = new ViewerUtil.CheckboxTableComposite(group, SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION);
@@ -250,11 +250,13 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		fTrackingButtons.addEditButton(null);
 		fTrackingButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
 		
+		ViewerUtil.scheduleStandardSelection(fTrackingTable);
+		
 		return group;
 	}
 	
 	private void createSnippetOptions(final Composite container) {
-		container.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 1));
+		container.setLayout(LayoutUtil.createGroupGrid(1));
 		
 		final TemplateVariableProcessor templateVariableProcessor = new TemplateVariableProcessor();
 		final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(
@@ -267,7 +269,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	}
 	
 	private void createEclipseOptions(final Composite container) {
-		container.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
+		container.setLayout(LayoutUtil.createGroupGrid(2));
 		
 		{	fRHelpByStatetControl = new Button(container, SWT.CHECK);
 			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
@@ -360,7 +362,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		fTrackingButtons.connectTo(fTrackingTable,
 				new DataAdapter.ListAdapter<TrackingConfiguration>(fTrackingList, null) {
 			@Override
-			public boolean isDeleteAllowed(Object element) {
+			public boolean isDeleteAllowed(final Object element) {
 				return (super.isDeleteAllowed(element)
 						&& ((TrackingConfiguration) element).getId().startsWith(CUSTOM_TRACKING_ID_PREFIX) );
 			}
@@ -505,7 +507,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		}
 		
 		{	fTrackingEnabledSet.clear();
-			List<String> trackingEnabledIds = Collections.EMPTY_LIST;
+			List<String> trackingEnabledIds = Collections.emptyList();
 			try {
 				trackingEnabledIds = configuration.getAttribute(TRACKING_ENABLED_IDS, Collections.EMPTY_LIST);
 				final List<TrackingConfiguration> trackingList = fTrackingList;

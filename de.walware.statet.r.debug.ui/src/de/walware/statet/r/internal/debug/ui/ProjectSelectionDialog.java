@@ -44,29 +44,24 @@ public class ProjectSelectionDialog extends AbstractCheckboxSelectionDialog {
 	
 	
 	public ProjectSelectionDialog(final Shell parentShell, final List<IProject> projects){
-		super(parentShell, projects);
+		super(parentShell, WITH_DATABINDING_CONTEXT, projects);
 		
 		fProjects = projects;
 	}
 	
 	
 	@Override
-	protected Control createContents(final Composite parent) {
-		final Control control = super.createContents(parent);
-		initBindings();
-		return control;
-	}
-	
-	@Override
 	protected Control createDialogArea(final Composite parent) {
-		final Composite dialogArea = new Composite(parent, SWT.NONE);
-		dialogArea.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
-		dialogArea.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 1));
+		final Composite area = new Composite(parent, SWT.NONE);
+		area.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
+		area.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 1));
 		
-		final Composite checkboxComposite = createCheckboxComposite(dialogArea, "&R projects:");
+		final Composite checkboxComposite = createCheckboxComposite(area, "&R projects:");
 		checkboxComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
-		return dialogArea;
+		applyDialogFont(area);
+		
+		return area;
 	}
 	
 	@Override

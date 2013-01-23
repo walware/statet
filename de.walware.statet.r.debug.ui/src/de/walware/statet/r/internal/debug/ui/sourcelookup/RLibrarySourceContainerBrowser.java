@@ -48,7 +48,8 @@ public class RLibrarySourceContainerBrowser extends
 		
 		
 		public EditContainerDialog(final Shell parent, final String location) {
-			super(parent);
+			super(parent, (location == null) ? WITH_DATABINDING_CONTEXT :
+					(WITH_DATABINDING_CONTEXT | SHOW_INITIAL_STATUS) );
 			setTitle((location == null) ? Messages.RLibrarySourceContainerBrowser_Add_title :
 					Messages.RLibrarySourceContainerBrowser_Edit_title );
 			
@@ -57,20 +58,13 @@ public class RLibrarySourceContainerBrowser extends
 		
 		
 		@Override
-		protected Control createContents(final Composite parent) {
-			final Control control = super.createContents(parent);
-			initBindings();
-			return control;
-		}
-		
-		@Override
 		protected Control createDialogArea(final Composite parent) {
-			final Composite dialogArea = new Composite(parent, SWT.NONE);
-			dialogArea.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
-			dialogArea.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 1));
+			final Composite area = new Composite(parent, SWT.NONE);
+			area.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
+			area.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 1));
 			
-			final Composite composite = dialogArea;
-			{	final Label label = new Label(dialogArea, SWT.NONE);
+			final Composite composite = area;
+			{	final Label label = new Label(area, SWT.NONE);
 				label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 				label.setText(Messages.RLibrarySourceContainerBrowser_Directory_label+':');
 				
@@ -82,7 +76,10 @@ public class RLibrarySourceContainerBrowser extends
 				gd.widthHint = LayoutUtil.hintWidth((Text) fResourceControl.getTextControl(), 60);
 				fResourceControl.setLayoutData(gd);
 			}
-			return dialogArea;
+			
+			applyDialogFont(area);
+			
+			return area;
 		}
 		
 		@Override

@@ -48,7 +48,6 @@ import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -58,7 +57,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -220,7 +218,8 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	public REnvLocalConfigDialog(final Shell parent, 
 			final IREnvConfiguration.WorkingCopy config, final boolean isNewConfig, 
 			final Collection<IREnvConfiguration> existingConfigs) {
-		super(parent, true);
+		super(parent, WITH_RUNNABLE_CONTEXT | ((isNewConfig) ? WITH_DATABINDING_CONTEXT :
+			(WITH_DATABINDING_CONTEXT | SHOW_INITIAL_STATUS)) );
 		
 		fConfigModel = config;
 		fIsNewConfig = isNewConfig;
@@ -235,17 +234,24 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	
 	
 	@Override
+	public void create() {
+		super.create();
+		
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(getShell(), IRUIHelpContextIds.R_ENV);
+	}
+	
+	@Override
 	protected Control createDialogArea(final Composite parent) {
-		final Composite dialogArea = new Composite(parent, SWT.NONE);
-		dialogArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		dialogArea.setLayout(LayoutUtil.createDialogGrid(2));
+		final Composite area = new Composite(parent, SWT.NONE);
+		area.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		area.setLayout(LayoutUtil.createDialogGrid(2));
 		
 		{	// Name:
-			final Label label = new Label(dialogArea, SWT.LEFT);
+			final Label label = new Label(area, SWT.LEFT);
 			label.setText(Messages.REnv_Detail_Name_label+':');
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
-			fNameControl = new Text(dialogArea, SWT.BORDER);
+			fNameControl = new Text(area, SWT.BORDER);
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			gd.widthHint = LayoutUtil.hintWidth(fNameControl, 60);
 			fNameControl.setLayoutData(gd);
@@ -254,24 +260,24 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		
 		if (fConfigModel.isEditable()) {
 			// Location:
-			final Label label = new Label(dialogArea, SWT.LEFT);
+			final Label label = new Label(area, SWT.LEFT);
 			label.setText(Messages.REnv_Detail_Location_label+':');
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
-			fRHomeControl = new RHomeComposite(dialogArea);
+			fRHomeControl = new RHomeComposite(area);
 			fRHomeControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		}
 		
-		LayoutUtil.addSmallFiller(dialogArea, false);
+		LayoutUtil.addSmallFiller(area, false);
 		
 		{	// Architecture / Bits:
-			final Label label = new Label(dialogArea, SWT.LEFT);
+			final Label label = new Label(area, SWT.LEFT);
 			label.setText(Messages.REnv_Detail_Arch_label+':');
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
-			final Composite composite = new Composite(dialogArea, SWT.NONE);
+			final Composite composite = new Composite(area, SWT.NONE);
 			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 3));
+			composite.setLayout(LayoutUtil.createCompositeGrid(3));
 			
 			{	fRArchControl = new Combo(composite, SWT.DROP_DOWN);
 				final GridData gd = new GridData(SWT.FILL, SWT.FILL, false, false);
@@ -307,13 +313,13 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		}
 		
 		{	// Libraries:
-			final Label label = new Label(dialogArea, SWT.LEFT);
+			final Label label = new Label(area, SWT.LEFT);
 			label.setText(Messages.REnv_Detail_Libraries_label+":"); //$NON-NLS-1$
 			label.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
 			
-			final Composite composite = new Composite(dialogArea, SWT.NONE);
+			final Composite composite = new Composite(area, SWT.NONE);
 			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+			composite.setLayout(LayoutUtil.createCompositeGrid(2));
 			
 			final TreeComposite treeComposite = new ViewerUtil.TreeComposite(composite, SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION);
 			fRLibrariesViewer = treeComposite.viewer;
@@ -431,6 +437,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			treeComposite.viewer.setAutoExpandLevel(TreeViewer.ALL_LEVELS);
 			treeComposite.viewer.setInput(fConfigModel);
 			ViewerUtil.installDefaultEditBehaviour(treeComposite.viewer);
+			ViewerUtil.scheduleStandardSelection(treeComposite.viewer);
 			
 			fRLibrariesButtons = new ButtonGroup<IRLibraryLocation.WorkingCopy>(composite) {
 				@Override
@@ -504,33 +511,22 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		}
 		
 		if (fConfigModel.isEditable()) {
-			final Composite group = createInstallDirGroup(dialogArea);
+			final Composite group = createInstallDirGroup(area);
 			if (group != null) {
 				group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
 			}
 		}
-		LayoutUtil.addSmallFiller(dialogArea, true);
-		applyDialogFont(dialogArea);
 		
-		initBindings();
-		fRLibrariesButtons.updateState();
+		LayoutUtil.addSmallFiller(area, true);
 		
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(getShell(), IRUIHelpContextIds.R_ENV);
+		applyDialogFont(area);
 		
-		dialogArea.getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				fRLibrariesViewer.setSelection(new StructuredSelection(
-						fConfigModel.getRLibraryGroups().get(0)));
-			}
-		});
-		
-		return dialogArea;
+		return area;
 	}
 	
 	private Composite createInstallDirGroup(final Composite parent) {
 		final Group composite = new Group(parent, SWT.NONE);
-		composite.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
+		composite.setLayout(LayoutUtil.createGroupGrid(2));
 		composite.setText("Advanced - Installation locations:");
 		{	final Label label = new Label(composite, SWT.NONE);
 			label.setText("Documentation ('R_DOC_DIR'):");
