@@ -33,12 +33,16 @@ public abstract class RResourceUnit extends GenericResourceSourceUnit {
 		return AbstractFilePersistenceSourceUnitFactory.createResourceId(uri);
 	}
 	
-	public static RResourceUnit createTempUnit(final IFile file, final String modelTypeId) {
+	public static RResourceUnit createTempUnit(final IFile file, final String modelTypeId, final String contentTypeId) {
 		final String id = AbstractFilePersistenceSourceUnitFactory.createResourceId(file);
 		return new RResourceUnit(id, file) {
 			@Override
 			public String getModelTypeId() {
 				return modelTypeId;
+			}
+			@Override
+			public String getContentTypeId() {
+				return contentTypeId;
 			}
 		};
 	}

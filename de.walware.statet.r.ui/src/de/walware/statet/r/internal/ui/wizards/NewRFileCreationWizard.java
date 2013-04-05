@@ -53,7 +53,8 @@ public class NewRFileCreationWizard extends NewElementWizard {
 		protected String getInitialFileContent(final IFile newFileHandle) {
 			final String lineDelimiter = TextUtil.getLineDelimiter(newFileHandle.getProject());
 			try {
-				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, RModel.TYPE_ID);
+				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle,
+						RModel.TYPE_ID, IRSourceUnit.RD_CONTENT );
 				final EvaluatedTemplate data = CodeGeneration.getNewRFileContent(rcu, lineDelimiter);
 				if (data != null) {
 					fInitialSelection = data.getRegionToSelect();

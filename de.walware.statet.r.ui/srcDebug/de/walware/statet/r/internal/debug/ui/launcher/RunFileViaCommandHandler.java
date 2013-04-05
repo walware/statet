@@ -154,9 +154,7 @@ public class RunFileViaCommandHandler extends AbstractHandler implements IElemen
 				if (su != null) {
 					command = (fileCommandId != null) ?
 							RCodeLaunching.getFileCommand(fileCommandId) :
-							RCodeLaunching.getPreferredFileCommand(
-									LTK.getExtContentTypeManager().getContentTypeForModelType(
-											su.getModelTypeId()) );
+							RCodeLaunching.getPreferredFileCommand(su.getContentTypeId());
 					while (su != null && su.getWorkingContext() != LTK.PERSISTENCE_CONTEXT) {
 						su = su.getUnderlyingUnit();
 					}
@@ -165,12 +163,13 @@ public class RunFileViaCommandHandler extends AbstractHandler implements IElemen
 					command = (fileCommandId != null) ?
 							RCodeLaunching.getFileCommand(fileCommandId) :
 							RCodeLaunching.getPreferredFileCommand(
-									LaunchShortcutUtil.getContentTypeId(file));
+									LaunchShortcutUtil.getContentTypeId(file) );
 				}
 				else if (uri != null) {
 					command = (fileCommandId != null) ?
 							RCodeLaunching.getFileCommand(fileCommandId) :
-							RCodeLaunching.getPreferredFileCommand(LaunchShortcutUtil.getContentTypeId(uri));
+							RCodeLaunching.getPreferredFileCommand(
+									LaunchShortcutUtil.getContentTypeId(uri) );
 				}
 				
 				if (command != null) {

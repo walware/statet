@@ -11,14 +11,14 @@
 
 package de.walware.statet.r.core.refactoring;
 
+import de.walware.ecommons.ltk.core.ElementSet;
 import de.walware.ecommons.ltk.core.refactoring.CommonDeleteProcessor;
-import de.walware.ecommons.ltk.core.refactoring.RefactoringElementSet;
 
 
 public class RDeleteProcessor extends CommonDeleteProcessor {
 	
 	
-	public RDeleteProcessor(final RefactoringElementSet elements, final RRefactoringAdapter adapter) {
+	public RDeleteProcessor(final ElementSet elements, final RRefactoringAdapter adapter) {
 		super(elements, adapter);
 	}
 	

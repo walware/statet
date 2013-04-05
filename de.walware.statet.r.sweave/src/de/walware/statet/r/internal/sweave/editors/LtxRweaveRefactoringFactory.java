@@ -17,10 +17,10 @@ import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 
 import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.core.ElementSet;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringFactory;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringAdapter;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringDestination;
-import de.walware.ecommons.ltk.core.refactoring.RefactoringElementSet;
 
 import de.walware.docmlet.tex.core.sourcecode.TexRefactoring;
 
@@ -46,8 +46,8 @@ public class LtxRweaveRefactoringFactory extends CommonRefactoringFactory {
 	@Override
 	public RefactoringAdapter createAdapter(Object elements) {
 		LtxRweaveSwitch type = null;
-		if (elements instanceof RefactoringElementSet) {
-			elements = ((RefactoringElementSet) elements).getInitialObjects();
+		if (elements instanceof ElementSet) {
+			elements = ((ElementSet) elements).getInitialObjects();
 		}
 		if (elements == null) {
 			type = LtxRweaveSwitch.LTX;

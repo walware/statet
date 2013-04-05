@@ -71,7 +71,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 	}
 	
 	@Override
-	public RHeuristicTokenScanner getScanner(ISourceUnit su) {
+	public RHeuristicTokenScanner getScanner(final ISourceUnit su) {
 		return (RHeuristicTokenScanner) LTK.getModelAdapter(su.getModelTypeId(), RHeuristicTokenScanner.class);
 	}
 	

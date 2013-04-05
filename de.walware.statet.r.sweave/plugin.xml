@@ -59,7 +59,14 @@
    </extension>
    
    <extension
-         point="de.walware.ecommons.ltk.workingContexts">
+         point="de.walware.ecommons.ltk.modelTypes">
+      <modelType
+            id="ltx-rweave">
+      </modelType>
+      <contentType
+            contentTypeId="de.walware.statet.r.contentTypes.LtxRweave"
+            modelTypeId="ltx-rweave">
+      </contentType>
       <unitType modelTypeId="ltx-rweave"
             contextKey="persistence.default"
             unitFactory="de.walware.statet.r.internal.sweave.LtxRweavePersistenceUnitFactory">

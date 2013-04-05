@@ -52,6 +52,11 @@ public final class RSourceUnit extends RResourceUnit implements IRWorkspaceSourc
 	}
 	
 	@Override
+	public String getContentTypeId() {
+		return IRSourceUnit.R_CONTENT;
+	}
+	
+	@Override
 	public int getElementType() {
 		return IRSourceUnit.R_WORKSPACE_SU;
 	}

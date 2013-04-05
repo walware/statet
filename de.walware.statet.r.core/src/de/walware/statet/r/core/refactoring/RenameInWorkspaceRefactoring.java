@@ -40,9 +40,9 @@ import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitManager;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
+import de.walware.ecommons.ltk.core.ElementSet;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringDescriptor;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringChange;
-import de.walware.ecommons.ltk.core.refactoring.RefactoringElementSet;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringMessages;
 import de.walware.ecommons.ltk.core.refactoring.SourceUnitChange;
 import de.walware.ecommons.ltk.core.refactoring.TextChangeCompatibility;
@@ -81,7 +81,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	
 	
 	private final RRefactoringAdapter fAdapter = new RRefactoringAdapter();
-	private final RefactoringElementSet fElementSet;
+	private final ElementSet fElementSet;
 	
 	private IRegion fSelectionRegion;
 	
@@ -107,7 +107,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	 */
 	public RenameInWorkspaceRefactoring(final IRWorkspaceSourceUnit su, final IRegion region) {
 		fSourceUnit = su;
-		fElementSet = new RefactoringElementSet(new Object[] { su });
+		fElementSet = new ElementSet(new Object[] { su });
 		
 		if (region != null && region.getOffset() >= 0 && region.getLength() >= 0) {
 			fSelectionRegion = region;
@@ -122,7 +122,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	 */
 	public RenameInWorkspaceRefactoring(final IRWorkspaceSourceUnit su, final RAstNode node) {
 		fSourceUnit = su;
-		fElementSet = new RefactoringElementSet(new Object[] { su });
+		fElementSet = new ElementSet(new Object[] { su });
 		
 		if (node.getNodeType() == NodeType.SYMBOL || node.getNodeType() == NodeType.STRING_CONST) {
 			fInitialSymbolNode = node;
@@ -269,7 +269,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 				createChanges(status, manager, progress.newChild(90));
 				fChanges = manager.getAllChanges();
 				
-				final RefactoringElementSet elements = new RefactoringElementSet(manager.getAllSourceUnits());
+				final ElementSet elements = new ElementSet(manager.getAllSourceUnits());
 				fAdapter.checkFinalToModify(status, elements, progress.newChild(2));
 			}
 			

@@ -117,16 +117,18 @@
             type="text">
       </fileTypes>
    </extension>
-   <extension
-         point="de.walware.ecommons.ltk.contentTypeActivation">
-      <modelType id="r"
-            contentTypeId="de.walware.statet.r.contentTypes.R">
-      </modelType>
-   </extension>
    
    <extension
-         point="de.walware.ecommons.ltk.workingContexts">
-      <unitType modelTypeId="r"
+         point="de.walware.ecommons.ltk.modelTypes">
+      <modelType
+            id="r">
+      </modelType>
+      <contentType
+            contentTypeId="de.walware.statet.r.contentTypes.R"
+            modelTypeId="r">
+      </contentType>
+      <unitType
+            modelTypeId="r"
             contextKey="persistence.default"
             unitFactory="de.walware.statet.r.internal.core.RSourceUnitFactory">
       </unitType>

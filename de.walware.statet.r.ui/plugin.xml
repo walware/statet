@@ -16,7 +16,7 @@
 <plugin>
 
    <extension
-         point="de.walware.ecommons.ltk.workingContexts">
+         point="de.walware.ecommons.ltk.modelTypes">
       <unitType modelTypeId="r"
             contextKey="editor.default"
             unitFactory="de.walware.statet.r.internal.ui.REditorWorkingCopyFactory">

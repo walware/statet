@@ -50,7 +50,8 @@ public class NewRdFileCreationWizard extends NewElementWizard {
 		protected String getInitialFileContent(final IFile newFileHandle) {
 			final String lineDelimiter = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			try {
-				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, "rd"); //$NON-NLS-1$
+				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle,
+						"rd", IRSourceUnit.RD_CONTENT ); //$NON-NLS-1$
 				final EvaluatedTemplate data = CodeGeneration.getNewRdFileContent(rcu, lineDelimiter);
 				if (data != null) {
 					fInitialSelection = data.getRegionToSelect();

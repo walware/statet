@@ -41,9 +41,9 @@ import org.eclipse.text.edits.ReplaceEdit;
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
+import de.walware.ecommons.ltk.core.ElementSet;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringDescriptor;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringChange;
-import de.walware.ecommons.ltk.core.refactoring.RefactoringElementSet;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringMessages;
 import de.walware.ecommons.ltk.core.refactoring.SourceUnitChange;
 import de.walware.ecommons.ltk.core.refactoring.TextChangeCompatibility;
@@ -170,7 +170,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 	
 	
 	private final RRefactoringAdapter fAdapter = new RRefactoringAdapter();
-	private final RefactoringElementSet fElementSet;
+	private final ElementSet fElementSet;
 	
 	private IRegion fSelectionRegion;
 	
@@ -186,7 +186,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 	 */
 	public RenameInRegionRefactoring(final IRSourceUnit su, final IRegion region) {
 		fSourceUnit = su;
-		fElementSet = new RefactoringElementSet(new Object[] { su });
+		fElementSet = new ElementSet(new Object[] { su });
 		
 		if (region != null && region.getOffset() >= 0 && region.getLength() >= 0) {
 			fSelectionRegion = region;

@@ -74,6 +74,11 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSo
 		return RModel.TYPE_ID;
 	}
 	
+	@Override
+	public String getContentTypeId() {
+		return R_CONTENT;
+	}
+	
 	
 	@Override
 	public void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {

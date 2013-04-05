@@ -57,8 +57,13 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 	}
 	
 	@Override
+	public String getContentTypeId() {
+		return R_CONTENT;
+	}
+	
+	@Override
 	public int getElementType() {
-		return IRSourceUnit.R_OTHER_SU;
+		return R_OTHER_SU;
 	}
 	
 	

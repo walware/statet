@@ -47,6 +47,11 @@ public class LtxRweaveDocUnit extends GenericResourceSourceUnit
 		return Sweave.LTX_R_MODEL_TYPE_ID;
 	}
 	
+	@Override
+	public String getContentTypeId() {
+		return Sweave.LTX_R_CONTENT_ID;
+	}
+	
 	
 	@Override
 	public ITexRweaveCoreAccess getRCoreAccess() {

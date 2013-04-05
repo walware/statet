@@ -55,7 +55,8 @@ public class NewSweaveFileCreationWizard extends NewElementWizard {
 		protected String getInitialFileContent(final IFile newFileHandle) {
 			final String lineDelimiter = TextUtil.getLineDelimiter(newFileHandle.getProject());
 			try {
-				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, Sweave.LTX_R_MODEL_TYPE_ID);
+				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle,
+						Sweave.LTX_R_MODEL_TYPE_ID, Sweave.LTX_R_CONTENT_ID );
 				final EvaluatedTemplate data = CodeGeneration.getNewSweaveDocContent(rcu,
 						lineDelimiter, fTemplate );
 				if (data != null) {

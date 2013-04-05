@@ -54,8 +54,13 @@ public class RFragmentSourceUnit extends GenericFragmentSourceUnit implements IR
 	}
 	
 	@Override
+	public String getContentTypeId() {
+		return R_CONTENT;
+	}
+	
+	@Override
 	public int getElementType() {
-		return IRSourceUnit.R_OTHER_SU;
+		return R_OTHER_SU;
 	}
 	
 	
