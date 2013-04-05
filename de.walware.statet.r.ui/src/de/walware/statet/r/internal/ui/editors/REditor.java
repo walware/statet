@@ -38,9 +38,7 @@ import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
-import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
-import de.walware.ecommons.ltk.ui.ElementInfoController;
 import de.walware.ecommons.ltk.ui.LTKUI;
 import de.walware.ecommons.ltk.ui.sourceediting.AbstractMarkOccurrencesProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.FoldingEditorAddon;
@@ -66,9 +64,9 @@ import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.launching.RCodeLaunching;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.RUIHelp;
-import de.walware.statet.r.ui.editors.DefaultRFoldingProvider;
 import de.walware.statet.r.ui.editors.IREditor;
 import de.walware.statet.r.ui.editors.RCorrectIndentHandler;
+import de.walware.statet.r.ui.editors.RDefaultFoldingProvider;
 import de.walware.statet.r.ui.editors.REditorOptions;
 import de.walware.statet.r.ui.editors.RMarkOccurrencesLocator;
 import de.walware.statet.r.ui.sourceediting.InsertAssignmentHandler;
@@ -107,8 +105,6 @@ public class REditor extends SourceEditor1 implements IREditor {
 	protected RSourceViewerConfigurator fRConfig;
 	protected IContextProvider fHelpContextProvider;
 	
-	protected ElementInfoController fModelProvider;
-	
 	
 	public REditor() {
 	}
@@ -127,9 +123,8 @@ public class REditor extends SourceEditor1 implements IREditor {
 	protected SourceEditorViewerConfigurator createConfiguration() {
 		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
 		
-		fModelProvider = new ElementInfoController(RCore.getRModelManager(), LTK.EDITOR_CONTEXT);
-		enableStructuralFeatures(fModelProvider,
-				REditorOptions.PREF_FOLDING_ENABLED,
+		enableStructuralFeatures(RCore.getRModelManager(),
+				REditorOptions.FOLDING_ENABLED_PREF,
 				REditorOptions.PREF_MARKOCCURRENCES_ENABLED );
 		
 		final IRCoreAccess initAccess = RCore.getWorkbenchAccess();
@@ -178,7 +173,7 @@ public class REditor extends SourceEditor1 implements IREditor {
 	
 	@Override
 	protected ISourceEditorAddon createCodeFoldingProvider() {
-		return new FoldingEditorAddon(new DefaultRFoldingProvider());
+		return new FoldingEditorAddon(new RDefaultFoldingProvider());
 	}
 	
 	@Override
@@ -204,8 +199,8 @@ public class REditor extends SourceEditor1 implements IREditor {
 	@Override
 	protected void setupConfiguration(final IEditorInput newInput) {
 		super.setupConfiguration(newInput);
+		
 		final IRSourceUnit su = getSourceUnit();
-		fModelProvider.setInput(su);
 		fRConfig.setSource((su != null) ? su.getRCoreAccess() : null);
 	}
 	

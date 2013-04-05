@@ -25,7 +25,7 @@ public class RToggleFoldingHandler extends TogglePreferenceEnablementHandler {
 	
 	
 	public RToggleFoldingHandler() {
-		super(REditorOptions.PREF_FOLDING_ENABLED, IFoldingCommandIds.FOLDING_TOGGLE);
+		super(REditorOptions.FOLDING_ENABLED_PREF, IFoldingCommandIds.FOLDING_TOGGLE);
 	}
 	
 }

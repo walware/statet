@@ -17,6 +17,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
 
@@ -67,22 +68,23 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		EditorsUI.useAnnotationsPreferencePage(store);
 		EditorsUI.useQuickDiffPreferencePage(store);
 		
-		final DefaultScope scope = new DefaultScope();
+		final IScopeContext scope = DefaultScope.INSTANCE;
 		final Map<Preference<?>, Object> map = new HashMap<Preference<?>, Object>();
 		RUIPreferenceConstants.initializeDefaultValues(scope);
 		
 		new REditorOptions(0).deliverToPreferencesMap(map);
 		
-		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED, false);
-		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSEROUND_ENABLED, true);
-		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSESQUARE_ENABLED, true);
-		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED, true);
-		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED, true);
+		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED, Boolean.FALSE);
+		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSEROUND_ENABLED, Boolean.TRUE);
+		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSESQUARE_ENABLED, Boolean.TRUE);
+		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED, Boolean.TRUE);
+		PreferencesUtil.setPrefValue(scope, CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED, Boolean.TRUE);
 		
-		PreferencesUtil.setPrefValue(scope, REditorOptions.PREF_FOLDING_ENABLED, true);
-		PreferencesUtil.setPrefValue(scope, REditorOptions.PREF_MARKOCCURRENCES_ENABLED, true);
-		PreferencesUtil.setPrefValue(scope, REditorBuild.PROBLEMCHECKING_ENABLED_PREF, true);
-		PreferencesUtil.setPrefValue(scope, REditorOptions.PREF_SPELLCHECKING_ENABLED, false);
+		PreferencesUtil.setPrefValue(scope, REditorOptions.FOLDING_ENABLED_PREF, Boolean.TRUE);
+		PreferencesUtil.setPrefValue(scope, REditorOptions.FOLDING_RESTORE_STATE_ENABLED_PREF, Boolean.TRUE);
+		PreferencesUtil.setPrefValue(scope, REditorOptions.PREF_MARKOCCURRENCES_ENABLED, Boolean.TRUE);
+		PreferencesUtil.setPrefValue(scope, REditorBuild.PROBLEMCHECKING_ENABLED_PREF, Boolean.TRUE);
+		PreferencesUtil.setPrefValue(scope, REditorOptions.PREF_SPELLCHECKING_ENABLED, Boolean.FALSE);
 		DefaultRFoldingPreferences.initializeDefaultValues(scope);
 		
 		scope.getNode(REDITOR_NODE).put(ContentAssistComputerRegistry.CIRCLING_ORDERED, "r-elements:false,templates:true,r-elements.runtime:true"); //$NON-NLS-1$

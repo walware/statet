@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.ui.editors;
 
+import static de.walware.statet.r.internal.ui.RUIPreferenceInitializer.REDITOR_NODE;
+
 import java.util.Map;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISmartInsertSettings;
@@ -20,12 +22,7 @@ import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
 import de.walware.ecommons.preferences.Preference.EnumPref;
 
-import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
 
-
-/**
- * 
- */
 public class REditorOptions extends AbstractPreferencesModelObject
 		implements ISmartInsertSettings {
 	// Default values see RUIPreferenceInitializer
@@ -36,35 +33,40 @@ public class REditorOptions extends AbstractPreferencesModelObject
 	public static final String SMARTINSERT_GROUP_ID = "r/r.editor/smartinsert"; //$NON-NLS-1$
 	
 	public static final BooleanPref SMARTINSERT_BYDEFAULT_ENABLED_PREF = new BooleanPref(
-			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.as_default.enabled"); //$NON-NLS-1$
+			REDITOR_NODE, "smartinsert.as_default.enabled"); //$NON-NLS-1$
 	
 	public static final BooleanPref SMARTINSERT_ONPASTE_ENABLED_PREF = new BooleanPref(
-			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.on_paste.enabled"); //$NON-NLS-1$
+			REDITOR_NODE, "smartinsert.on_paste.enabled"); //$NON-NLS-1$
 	
 	public static final Preference<TabAction> SMARTINSERT_TAB_ACTION_PREF = new EnumPref<TabAction>(
-			RUIPreferenceInitializer.REDITOR_NODE, "SmartInsert.Tab.action", TabAction.class); //$NON-NLS-1$
+			REDITOR_NODE, "SmartInsert.Tab.action", TabAction.class); //$NON-NLS-1$
 	
 	public static final BooleanPref SMARTINSERT_CLOSECURLY_ENABLED_PREF = new BooleanPref(
-			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.close_curlybrackets.enabled"); //$NON-NLS-1$
+			REDITOR_NODE, "smartinsert.close_curlybrackets.enabled"); //$NON-NLS-1$
 	public static final BooleanPref SMARTINSERT_CLOSEROUND_ENABLED_PREF = new BooleanPref(
-			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.close_roundbrackets.enabled"); //$NON-NLS-1$
+			REDITOR_NODE, "smartinsert.close_roundbrackets.enabled"); //$NON-NLS-1$
 	public static final BooleanPref SMARTINSERT_CLOSESQUARE_ENABLED_PREF = new BooleanPref(
-			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.close_squarebrackets.enabled"); //$NON-NLS-1$
+			REDITOR_NODE, "smartinsert.close_squarebrackets.enabled"); //$NON-NLS-1$
 	public static final BooleanPref SMARTINSERT_CLOSESPECIAL_ENABLED_PREF = new BooleanPref(
-			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.close_specialpercent.enabled"); //$NON-NLS-1$
+			REDITOR_NODE, "smartinsert.close_specialpercent.enabled"); //$NON-NLS-1$
 	public static final BooleanPref SMARTINSERT_CLOSESTRINGS_ENABLED_PREF = new BooleanPref(
-			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.close_strings.enabled"); //$NON-NLS-1$
+			REDITOR_NODE, "smartinsert.close_strings.enabled"); //$NON-NLS-1$
 	
 	
 	public static final BooleanPref PREF_SPELLCHECKING_ENABLED = new BooleanPref(
-			RUIPreferenceInitializer.REDITOR_NODE, "spellcheck.enabled"); //$NON-NLS-1$
+			REDITOR_NODE, "spellcheck.enabled"); //$NON-NLS-1$
 	
 	// not in group
-	public static final BooleanPref PREF_FOLDING_ENABLED = new BooleanPref(
-			RUIPreferenceInitializer.REDITOR_NODE, "folding.enabled"); //$NON-NLS-1$
+	public static final BooleanPref FOLDING_ENABLED_PREF = new BooleanPref(
+			REDITOR_NODE, "folding.enabled"); //$NON-NLS-1$
+	
+	public static final String FOLDING_SHARED_GROUP_ID = "r/r.editor/folding.shared"; //$NON-NLS-1$
+	
+	public static final BooleanPref FOLDING_RESTORE_STATE_ENABLED_PREF = new BooleanPref(
+			REDITOR_NODE, "Folding.RestoreState.enabled"); //$NON-NLS-1$
 	
 	public static final BooleanPref PREF_MARKOCCURRENCES_ENABLED = new BooleanPref(
-			RUIPreferenceInitializer.REDITOR_NODE, "markoccurrences.enabled"); //$NON-NLS-1$
+			REDITOR_NODE, "markoccurrences.enabled"); //$NON-NLS-1$
 	
 	
 	private boolean fIsSmartByDefaultEnabled;

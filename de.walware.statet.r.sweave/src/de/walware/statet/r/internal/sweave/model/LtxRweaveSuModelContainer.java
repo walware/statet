@@ -255,7 +255,7 @@ public class LtxRweaveSuModelContainer extends LtxSuModelContainer<ILtxRweaveSou
 						}
 					}
 					if (name == null) {
-						name = RElementName.create(RElementName.MAIN_OTHER, "#"+Integer.toString(chunkCount));
+						name = RElementName.create(RElementName.MAIN_OTHER, "#"+Integer.toString(chunkCount)); //$NON-NLS-1$
 						nameRegion = new Region(texNode.getOffset()+2, 0);
 					}
 					final TexRChunkElement element = new TexRChunkElement(item.getModelRefElement(), rChunk, name, nameRegion);

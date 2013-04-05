@@ -38,9 +38,7 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
-import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
-import de.walware.ecommons.ltk.ui.ElementInfoController;
 import de.walware.ecommons.ltk.ui.LTKUI;
 import de.walware.ecommons.ltk.ui.sourceediting.AbstractMarkOccurrencesProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.FoldingEditorAddon;
@@ -66,9 +64,9 @@ import de.walware.statet.r.sweave.ILtxRweaveSourceUnit;
 import de.walware.statet.r.sweave.Sweave;
 import de.walware.statet.r.sweave.text.Rweave;
 import de.walware.statet.r.ui.RUI;
-import de.walware.statet.r.ui.editors.DefaultRFoldingProvider;
 import de.walware.statet.r.ui.editors.IREditor;
 import de.walware.statet.r.ui.editors.RCorrectIndentHandler;
+import de.walware.statet.r.ui.editors.RDefaultFoldingProvider;
 import de.walware.statet.r.ui.editors.RMarkOccurrencesLocator;
 import de.walware.statet.r.ui.sourceediting.InsertAssignmentHandler;
 
@@ -181,8 +179,6 @@ public class LtxRweaveEditor extends SourceEditor1 implements ILtxRweaveEditor {
 	}
 	
 	
-	private ElementInfoController fModelProvider;
-	
 	private LtxRweaveViewerConfigurator fCombinedConfig;
 	
 	
@@ -201,8 +197,7 @@ public class LtxRweaveEditor extends SourceEditor1 implements ILtxRweaveEditor {
 	protected SourceEditorViewerConfigurator createConfiguration() {
 		setDocumentProvider(SweavePlugin.getDefault().getRTexDocumentProvider());
 		
-		fModelProvider = new ElementInfoController(TexModel.getModelManager(), LTK.EDITOR_CONTEXT);
-		enableStructuralFeatures(fModelProvider,
+		enableStructuralFeatures(TexModel.getModelManager(),
 				TexEditorOptions.FOLDING_ENABLED_PREF,
 				SweaveEditorOptions.MARKOCCURRENCES_ENABLED_PREF );
 		
@@ -222,7 +217,7 @@ public class LtxRweaveEditor extends SourceEditor1 implements ILtxRweaveEditor {
 	@Override
 	protected ISourceEditorAddon createCodeFoldingProvider() {
 		return new FoldingEditorAddon(new LtxDefaultFoldingProvider(
-				new DefaultRFoldingProvider() ));
+				new RDefaultFoldingProvider() ));
 	}
 	
 	@Override
@@ -244,8 +239,8 @@ public class LtxRweaveEditor extends SourceEditor1 implements ILtxRweaveEditor {
 	@Override
 	protected void setupConfiguration(final IEditorInput newInput) {
 		super.setupConfiguration(newInput);
+		
 		final ILtxRweaveSourceUnit su = getSourceUnit();
-		fModelProvider.setInput(su);
 		fCombinedConfig.setSource(su.getTexCoreAccess());
 	}
 	
