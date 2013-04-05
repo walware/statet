@@ -29,7 +29,9 @@ import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.handlers.IHandlerService;
+import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
+import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.services.IServiceLocator;
 
 import de.walware.ecommons.ltk.IModelElement;
@@ -53,9 +55,12 @@ import de.walware.docmlet.tex.core.model.ILtxSourceElement;
 import de.walware.docmlet.tex.core.model.TexModel;
 import de.walware.docmlet.tex.ui.TexImages;
 
+import de.walware.statet.base.ui.IStatetUIMenuIds;
+
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 import de.walware.statet.r.internal.sweave.model.TexRChunkElement;
+import de.walware.statet.r.launching.RCodeLaunching;
 import de.walware.statet.r.sweave.TexRweaveLabelProvider;
 
 
@@ -399,6 +404,32 @@ public class LtxRweaveOutlinePage extends SourceEditor2OutlinePage {
 						handlers.get(".FilterRChunks") ) ); //$NON-NLS-1$
 //		toolBarManager.appendToGroup(ECommonsUI.VIEW_FILTER_MENU_ID,
 //				new FilterLocalDefinitions());
+	}
+	
+	@Override
+	protected void contextMenuAboutToShow(final IMenuManager m) {
+		super.contextMenuAboutToShow(m);
+		final IPageSite site = getSite();
+		
+		if (m.find(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID) == null) {
+			m.insertBefore(SharedUIResources.ADDITIONS_MENU_ID,
+					new Separator(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID) );
+		}
+		
+		m.appendToGroup(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID, 
+				new CommandContributionItem(new CommandContributionItemParameter(
+						site, null, RCodeLaunching.SUBMIT_SELECTION_COMMAND_ID, null,
+						null, null, null,
+						null, "R", null, //$NON-NLS-1$
+						CommandContributionItem.STYLE_PUSH, null, false) ));
+		m.appendToGroup(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID, 
+				new CommandContributionItem(new CommandContributionItemParameter(
+						site, null, RCodeLaunching.SUBMIT_UPTO_SELECTION_COMMAND_ID, null,
+						null, null, null,
+						null, "U", null, //$NON-NLS-1$
+						CommandContributionItem.STYLE_PUSH, null, false) ));
+		
+		m.add(new Separator(IStatetUIMenuIds.GROUP_ADD_MORE_ID));
 	}
 	
 	protected ILtxModelInfo getCurrentInputModel() {

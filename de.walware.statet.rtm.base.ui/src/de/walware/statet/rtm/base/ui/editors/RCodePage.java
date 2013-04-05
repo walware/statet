@@ -126,7 +126,7 @@ public class RCodePage extends REditor implements IFormPage {
 	protected void editorContextMenuAboutToShow(final IMenuManager m) {
 		super.editorContextMenuAboutToShow(m);
 		
-		m.appendToGroup(IStatetUIMenuIds.GROUP_RUN_STAT_ID, new CommandContributionItem(new CommandContributionItemParameter(
+		m.appendToGroup(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID, new CommandContributionItem(new CommandContributionItemParameter(
 				getSite(), null, RtModelUIPlugin.RUN_R_TASK_COMMAND_ID, CommandContributionItem.STYLE_PUSH)));
 	}
 	

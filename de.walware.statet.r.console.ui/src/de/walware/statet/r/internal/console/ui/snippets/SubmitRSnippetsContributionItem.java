@@ -31,7 +31,7 @@ import de.walware.ecommons.ui.util.MessageUtil;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 
 
-public class RunRSnippetsContributionItem extends CompoundContributionItem
+public class SubmitRSnippetsContributionItem extends CompoundContributionItem
 		implements IWorkbenchContribution {
 	
 	
@@ -40,7 +40,7 @@ public class RunRSnippetsContributionItem extends CompoundContributionItem
 	private final RSnippets fSnippets;
 	
 	
-	public RunRSnippetsContributionItem() {
+	public SubmitRSnippetsContributionItem() {
 		fSnippets = RConsoleUIPlugin.getDefault().getRSnippets();
 	}
 	
@@ -61,7 +61,7 @@ public class RunRSnippetsContributionItem extends CompoundContributionItem
 		}
 		final IContributionItem[] items = new IContributionItem[filtered.size()];
 		final IHandler2 handler = (IHandler2) ((ICommandService) serviceLocator.getService(ICommandService.class))
-				.getCommand(RSnippets.RUN_SNIPPET_COMMAND_ID).getHandler();
+				.getCommand(RSnippets.SUBMIT_SNIPPET_COMMAND_ID).getHandler();
 		for (int i = 0; i < items.length; i++) {
 			final Template template = filtered.get(i);
 			String label = MessageUtil.escapeForMenu(template.getDescription());
@@ -71,7 +71,7 @@ public class RunRSnippetsContributionItem extends CompoundContributionItem
 				label = mnemonic + ' ' + label;
 			}
 			items[i] = new HandlerContributionItem(new CommandContributionItemParameter(
-					serviceLocator, null, RSnippets.RUN_SNIPPET_COMMAND_ID,
+					serviceLocator, null, RSnippets.SUBMIT_SNIPPET_COMMAND_ID,
 					Collections.singletonMap(RSnippets.SNIPPET_PAR, template.getName()),
 					null, null, null,
 					label, mnemonic, null,

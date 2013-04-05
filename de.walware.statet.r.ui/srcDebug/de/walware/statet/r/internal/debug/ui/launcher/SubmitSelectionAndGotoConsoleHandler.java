@@ -11,20 +11,14 @@
 
 package de.walware.statet.r.internal.debug.ui.launcher;
 
-import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 
 
-public class RunSelectionAndGotoConsoleHandler extends RunSelectionHandler {
+public class SubmitSelectionAndGotoConsoleHandler extends SubmitSelectionHandler {
 	
 	
-	public RunSelectionAndGotoConsoleHandler() {
+	public SubmitSelectionAndGotoConsoleHandler() {
 		super(true);
 	}
 	
-	
-	@Override
-	protected String appendVariant(final String label) {
-		return label + RLaunchingMessages.RunCode_GotoConsole_affix;
-	}
 	
 }

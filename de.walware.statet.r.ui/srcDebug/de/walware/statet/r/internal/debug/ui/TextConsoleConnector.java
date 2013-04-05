@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.debug.ui;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -29,14 +31,14 @@ import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.ui.console.NIConsole;
 
-import de.walware.statet.r.launching.IRCodeLaunchConnector;
+import de.walware.statet.r.launching.IRCodeSubmitConnector;
 import de.walware.statet.r.ui.RUI;
 
 
 /**
  * Connector for classic Eclipse console.
  */
-public class TextConsoleConnector implements IRCodeLaunchConnector {
+public class TextConsoleConnector implements IRCodeSubmitConnector {
 	
 	
 	public static final String ID = "de.walware.statet.r.rCodeLaunchConnector.EclipseTextConsole"; //$NON-NLS-1$
@@ -46,8 +48,8 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 	}
 	
 	@Override
-	public boolean submit(final String[] rCommands, final boolean gotoConsole) throws CoreException {
-		if (rCommands == null) {
+	public boolean submit(final List<String> lines, final boolean gotoConsole) throws CoreException {
+		if (lines == null) {
 			throw new NullPointerException();
 		}
 		
@@ -65,8 +67,8 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 					
 					final IDocument doc = console.getDocument();
 					try {
-						for (int i = 0; i < rCommands.length; i++) {
-							doc.replace(doc.getLength(), 0, rCommands[i]+'\n');
+						for (int i = 0; i < lines.size(); i++) {
+							doc.replace(doc.getLength(), 0, lines.get(i)+'\n');
 						}
 						if (gotoConsole) {
 							activePart = null;

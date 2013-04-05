@@ -16,21 +16,20 @@ import org.eclipse.osgi.util.NLS;
 
 public class RLaunchingMessages extends NLS {
 	
-	public static String RunCode_error_NoRSession_message;
-	public static String RunCode_error_RSessionTerminated_message;
-	public static String RunCode_error_WhenAnalyzingAndCollecting_message;
-	public static String RunCode_TextSelection_label;
-	public static String RunCode_OtherSelection_label;
-	public static String RunCode_GotoConsole_affix;
-	public static String RunCode_error_RuntimeError_message;
-	public static String RunCode_info_NotSupported_message;
-	public static String RunCode_info_SyntaxError_message;
-	public static String RunCode_error_NoConnector_message;
+	public static String SubmitCode_error_NoRSession_message;
+	public static String SubmitCode_error_RSessionTerminated_message;
+	public static String SubmitCode_error_WhenAnalyzingAndCollecting_message;
+	public static String SubmitCode_TextSelection_label;
+	public static String SubmitCode_GotoConsole_affix;
+	public static String SubmitCode_error_RuntimeError_message;
+	public static String SubmitCode_info_NotSupported_message;
+	public static String SubmitCode_info_SyntaxError_message;
+	public static String SubmitCode_error_NoConnector_message;
 	
-	public static String RunCodeAndPasteOutput_error_Unspecific_status;
-	public static String RunCodeAndPasteOutput_error_WhenPasting_message;
-	public static String RunCodeAndPasteOutput_info_WriteProtected_status;
-	public static String RunCodeAndPasteOutput_RTask_label;
+	public static String SubmitCodeAndPasteOutput_error_Unspecific_status;
+	public static String SubmitCodeAndPasteOutput_error_WhenPasting_message;
+	public static String SubmitCodeAndPasteOutput_info_WriteProtected_status;
+	public static String SubmitCodeAndPasteOutput_RTask_label;
 	// Launch shortcuts
 	public static String RSelectionLaunch_error_message;
 	public static String RScriptLaunch_error_message;
@@ -53,9 +52,9 @@ public class RLaunchingMessages extends NLS {
 	public static String RErrorLineTracker_error_OpeningFile_message;
 	public static String RErrorLineTracker_File_name;
 	
-	
+	static final String BUNDLE_NAME = RLaunchingMessages.class.getName();
 	static {
-		NLS.initializeMessages(RLaunchingMessages.class.getName(), RLaunchingMessages.class);
+		NLS.initializeMessages(BUNDLE_NAME, RLaunchingMessages.class);
 	}
 	private RLaunchingMessages() {}
 	

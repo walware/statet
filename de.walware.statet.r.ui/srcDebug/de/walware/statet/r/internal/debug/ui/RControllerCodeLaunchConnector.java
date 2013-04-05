@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.debug.ui;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.CoreException;
@@ -30,13 +31,13 @@ import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.console.NIConsole;
 
 import de.walware.statet.r.console.core.RConsoleTool;
-import de.walware.statet.r.launching.IRCodeLaunchConnector;
+import de.walware.statet.r.launching.IRCodeSubmitConnector;
 
 
 /**
  * Connector for NICO consoles.
  */
-public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
+public class RControllerCodeLaunchConnector implements IRCodeSubmitConnector {
 	
 	
 	public static final String ID = "de.walware.statet.r.launching.RNewConsoleConnector"; //$NON-NLS-1$
@@ -50,11 +51,11 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 	
 	
 	@Override
-	public boolean submit(final String[] rCommands, final boolean gotoConsole) throws CoreException {
+	public boolean submit(final List<String> lines, final boolean gotoConsole) throws CoreException {
 		return submit(new CommandsCreator() {
 			@Override
 			public IStatus submitTo(final ToolController controller) {
-				return controller.submit(rCommands, SubmitType.EDITOR);
+				return controller.submit(lines, SubmitType.EDITOR);
 			}
 		}, gotoConsole);
 	}
@@ -95,7 +96,7 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 			if (part != null) {
 				final IEditorStatusLine statusLine = (IEditorStatusLine) part.getAdapter(IEditorStatusLine.class);
 				if (statusLine != null) {
-					statusLine.setMessage(true, RLaunchingMessages.RunCode_error_NoRSession_message, null);
+					statusLine.setMessage(true, RLaunchingMessages.SubmitCode_error_NoRSession_message, null);
 				}
 			}
 			Display.getCurrent().beep();

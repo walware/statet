@@ -18,11 +18,11 @@ package de.walware.statet.r.internal.debug.ui.launcher;
  * 
  * Supports only text editors.
  */
-public class RunEntireCommandAndGotoConsoleHandler extends
-		RunEntireCommandHandler {
+public class SubmitEntireCommandAndGotoConsoleHandler extends
+		SubmitEntireCommandHandler {
 	
 	
-	public RunEntireCommandAndGotoConsoleHandler() {
+	public SubmitEntireCommandAndGotoConsoleHandler() {
 		super(true);
 	}
 	

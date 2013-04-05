@@ -18,10 +18,10 @@ package de.walware.statet.r.internal.sweave.debug;
  * 
  * Supports only text editors.
  */
-public class RChunkDirectAndConsoleLaunchShortcut extends RChunkDirectLaunchShortcut {
+public class SubmitRChunkDirectAndConsoleLaunchShortcut extends SubmitRChunkDirectLaunchShortcut {
 	
 	
-	public RChunkDirectAndConsoleLaunchShortcut() {
+	public SubmitRChunkDirectAndConsoleLaunchShortcut() {
 		fGotoConsole = true;
 	}
 	

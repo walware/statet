@@ -26,7 +26,7 @@ import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.IRSrcref;
 
 
-public class RunEntireCommandRunnable implements IConsoleRunnable {
+public class SubmitEntireCommandRunnable implements IConsoleRunnable {
 	
 	
 	private final String[] fLines;
@@ -35,7 +35,7 @@ public class RunEntireCommandRunnable implements IConsoleRunnable {
 	private final IRSrcref fSrcref;
 	
 	
-	public RunEntireCommandRunnable(final String[] lines, final IRSrcref srcref) {
+	public SubmitEntireCommandRunnable(final String[] lines, final IRSrcref srcref) {
 		fLines = lines;
 		fLabel = createLabel();
 		fSrcref = srcref;

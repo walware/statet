@@ -49,17 +49,17 @@ import de.walware.statet.r.launching.RCodeLaunching;
  * @see RCodeLaunchRegistry
  * @see RCodeLaunching#getPreferredFileCommand
  */
-public class RunFileViaCommandHandler extends AbstractHandler implements IElementUpdater {
+public class SubmitFileViaCommandHandler extends AbstractHandler implements IElementUpdater {
 	
 	
 	private final boolean fGotoConsole;
 	
 	
-	public RunFileViaCommandHandler() {
+	public SubmitFileViaCommandHandler() {
 		this(false);
 	}
 	
-	public RunFileViaCommandHandler(final boolean gotoConsole) {
+	public SubmitFileViaCommandHandler(final boolean gotoConsole) {
 		fGotoConsole = gotoConsole;
 	}
 	

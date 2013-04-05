@@ -14,8 +14,8 @@ package de.walware.statet.base.ui;
 
 public interface IStatetUIMenuIds {
 	
-	public static final String GROUP_ADD_MORE_ID = "more"; //$NON-NLS-1$
+	String GROUP_ADD_MORE_ID = "more"; //$NON-NLS-1$
 	
-	public static final String GROUP_RUN_STAT_ID = "run.stat"; //$NON-NLS-1$
+	String GROUP_SUBMIT_MENU_ID = "stat.submit"; //$NON-NLS-1$
 	
 }

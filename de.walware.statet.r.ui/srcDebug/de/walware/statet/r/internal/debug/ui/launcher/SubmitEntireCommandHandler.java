@@ -58,7 +58,7 @@ import de.walware.statet.r.ui.RUI;
  * 
  * Supports only text editors with input supporting R AST.
  */
-public class RunEntireCommandHandler extends AbstractHandler {
+public class SubmitEntireCommandHandler extends AbstractHandler {
 	
 	
 	protected static class Data {
@@ -79,11 +79,11 @@ public class RunEntireCommandHandler extends AbstractHandler {
 	private final boolean fGotoConsole;
 	
 	
-	public RunEntireCommandHandler() {
+	public SubmitEntireCommandHandler() {
 		this(false);
 	}
 	
-	protected RunEntireCommandHandler(final boolean gotoConsole) {
+	protected SubmitEntireCommandHandler(final boolean gotoConsole) {
 		fGotoConsole = gotoConsole;
 	}
 	
@@ -207,7 +207,7 @@ public class RunEntireCommandHandler extends AbstractHandler {
 			for (int i = 0; i < nodes.length; i++) {
 				if (RAst.hasErrors(nodes[i])) {
 					return new Status(IStatus.ERROR, RUI.PLUGIN_ID,
-							RLaunchingMessages.RunCode_info_SyntaxError_message );
+							RLaunchingMessages.SubmitCode_info_SyntaxError_message );
 				}
 				
 				final SourceRegion region = new SourceRegion(data.su, data.document);
@@ -222,7 +222,7 @@ public class RunEntireCommandHandler extends AbstractHandler {
 		}
 		catch (final BadLocationException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
-					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
+					RLaunchingMessages.SubmitCode_error_WhenAnalyzingAndCollecting_message, e));
 		}
 	}
 	

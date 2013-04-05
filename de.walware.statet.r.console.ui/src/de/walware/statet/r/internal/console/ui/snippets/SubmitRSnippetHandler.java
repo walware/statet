@@ -11,35 +11,38 @@
 
 package de.walware.statet.r.internal.console.ui.snippets;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.eclipse.core.commands.IParameterValues;
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.text.templates.Template;
 
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 
 
-public class RunRSnippetParameterValues implements IParameterValues {
+public class SubmitRSnippetHandler extends AbstractHandler {
 	
 	
 	private final RSnippets fSnippets;
 	
 	
-	public RunRSnippetParameterValues() {
+	public SubmitRSnippetHandler() {
 		fSnippets = RConsoleUIPlugin.getDefault().getRSnippets();
 	}
 	
 	
 	@Override
-	public Map getParameterValues() {
-		final Template[] templates = fSnippets.getTemplateStore().getTemplates();
-		
-		final Map<String, String> parameters = new HashMap<String, String>();
-		for (final Template template : templates) {
-			parameters.put(template.getDescription(), template.getName());
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
+		final String name = event.getParameter(RSnippets.SNIPPET_PAR);
+		if (name == null) {
+			return null;
 		}
-		return parameters;
+		final Template template = fSnippets.getTemplateStore().findTemplate(name);
+		if (template != null) {
+			fSnippets.run(template, event);
+		}
+		
+		return null;
 	}
+	
 	
 }

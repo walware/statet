@@ -13,6 +13,7 @@ package de.walware.statet.r.internal.debug.ui.launcher;
 
 import java.util.Map;
 
+import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
@@ -25,21 +26,25 @@ import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
  * 
  * Low requirements: ITextSelection is sufficient
  */
-public class RunSelectionForTextHandler extends RunSelectionHandler {
+public class SubmitSelectionForTextHandler extends SubmitSelectionHandler implements IElementUpdater {
 	
 	
-	public RunSelectionForTextHandler() {
+	public SubmitSelectionForTextHandler() {
 		this(false);
 	}
 	
-	protected RunSelectionForTextHandler(final boolean gotoConsole) {
+	protected SubmitSelectionForTextHandler(final boolean gotoConsole) {
 		super(gotoConsole);
 	}
 	
 	
 	@Override
 	public void updateElement(final UIElement element, final Map parameters) {
-		element.setText(appendVariant(RLaunchingMessages.RunCode_TextSelection_label));
+		element.setText(appendVariant(RLaunchingMessages.SubmitCode_TextSelection_label));
+	}
+	
+	protected String appendVariant(final String label) {
+		return label;
 	}
 	
 }

@@ -28,7 +28,7 @@ import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.nico.AbstractRController;
 
 
-public class RunFileViaCommandRunnable implements IConsoleRunnable, IToolRunnableDecorator {
+public class SubmitFileViaCommandRunnable implements IConsoleRunnable, IToolRunnableDecorator {
 	
 	
 	private final String fCommand;
@@ -38,7 +38,7 @@ public class RunFileViaCommandRunnable implements IConsoleRunnable, IToolRunnabl
 	private final String fLabel;
 	
 	
-	public RunFileViaCommandRunnable(final Image image, final String label,
+	public SubmitFileViaCommandRunnable(final Image image, final String label,
 			final String command, final ISourceUnit su) {
 		fImage = image;
 		fLabel = label;

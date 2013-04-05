@@ -181,16 +181,22 @@ public class ROutlinePage extends SourceEditor2OutlinePage {
 		super.contextMenuAboutToShow(m);
 		final IPageSite site = getSite();
 		
-		if (m.find(IStatetUIMenuIds.GROUP_RUN_STAT_ID) == null) {
+		if (m.find(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID) == null) {
 			m.insertBefore(SharedUIResources.ADDITIONS_MENU_ID,
-					new Separator(IStatetUIMenuIds.GROUP_RUN_STAT_ID) );
+					new Separator(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID) );
 		}
 		
-		m.appendToGroup(IStatetUIMenuIds.GROUP_RUN_STAT_ID, 
+		m.appendToGroup(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID, 
 				new CommandContributionItem(new CommandContributionItemParameter(
-						site, null, RCodeLaunching.RUN_SELECTION_COMMAND_ID, null,
+						site, null, RCodeLaunching.SUBMIT_SELECTION_COMMAND_ID, null,
 						null, null, null,
 						null, "R", null, //$NON-NLS-1$
+						CommandContributionItem.STYLE_PUSH, null, false) ));
+		m.appendToGroup(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID, 
+				new CommandContributionItem(new CommandContributionItemParameter(
+						site, null, RCodeLaunching.SUBMIT_UPTO_SELECTION_COMMAND_ID, null,
+						null, null, null,
+						null, "U", null, //$NON-NLS-1$
 						CommandContributionItem.STYLE_PUSH, null, false) ));
 		
 		m.add(new Separator(IStatetUIMenuIds.GROUP_ADD_MORE_ID));

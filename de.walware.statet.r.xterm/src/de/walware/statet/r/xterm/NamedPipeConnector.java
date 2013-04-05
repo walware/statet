@@ -13,15 +13,16 @@ package de.walware.statet.r.xterm;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.statet.r.launching.IRCodeLaunchConnector;
+import de.walware.statet.r.launching.IRCodeSubmitConnector;
 
 
-public class NamedPipeConnector implements IRCodeLaunchConnector {
+public class NamedPipeConnector implements IRCodeSubmitConnector {
 	
 	
 	private final String fLineSeparator;
@@ -36,7 +37,7 @@ public class NamedPipeConnector implements IRCodeLaunchConnector {
 	
 	
 	@Override
-	public boolean submit(final String[] rCommands, boolean gotoConsole) throws CoreException {
+	public boolean submit(final List<String> lines, boolean gotoConsole) throws CoreException {
 		// Initializing the pipe/file each time has the advantages:
 		//  - No problem if pipe/file is deleted during one Eclipse session.
 		//  - The pipe/file can be closed.
@@ -45,7 +46,7 @@ public class NamedPipeConnector implements IRCodeLaunchConnector {
 		try {
 			pipe = new RandomAccessFile(fPipeName, "rwd");
 			
-			for (String line : rCommands) {
+			for (String line : lines) {
 				pipe.writeChars(line);
 				pipe.writeChars(fLineSeparator);
 			}

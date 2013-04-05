@@ -78,15 +78,17 @@ import de.walware.statet.r.ui.RUI;
 public final class RCodeLaunching {
 	
 	
-	public static final String RUN_SELECTION_COMMAND_ID = "de.walware.statet.r.commands.RunSelectionInR"; //$NON-NLS-1$
+	public static final String SUBMIT_SELECTION_COMMAND_ID = "de.walware.statet.r.commands.SubmitSelectionToR"; //$NON-NLS-1$
 	
-	public static final String RUN_SELECTION_GOTOCONSOLE_COMMAND_ID = "de.walware.statet.r.commands.RunSelectionInR_GotoConsole"; //$NON-NLS-1$
+	public static final String SUBMIT_SELECTION_GOTOCONSOLE_COMMAND_ID = "de.walware.statet.r.commands.SubmitSelectionToR_GotoConsole"; //$NON-NLS-1$
 	
-	public static final String RUN_SELECTION_PASTEOUTPUT_COMMAND_ID = "de.walware.statet.r.commands.RunSelectionInR_PasteOutput"; //$NON-NLS-1$
+	public static final String SUBMIT_SELECTION_PASTEOUTPUT_COMMAND_ID = "de.walware.statet.r.commands.SubmitSelectionToR_PasteOutput"; //$NON-NLS-1$
 	
-	public static final String RUN_FILEVIACOMMAND_COMMAND_ID = "de.walware.statet.r.commands.RunFileViaCommand"; //$NON-NLS-1$
+	public static final String SUBMIT_UPTO_SELECTION_COMMAND_ID = "de.walware.statet.r.commands.SubmitUptoSelectionToR"; //$NON-NLS-1$
 	
-	public static final String RUN_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID = "de.walware.statet.r.commands.RunFileViaCommand_GotoConsole"; //$NON-NLS-1$
+	public static final String SUBMIT_FILEVIACOMMAND_COMMAND_ID = "de.walware.statet.r.commands.SubmitFileToRViaCommand"; //$NON-NLS-1$
+	
+	public static final String SUBMIT_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID = "de.walware.statet.r.commands.SubmitFileToRViaCommand_GotoConsole"; //$NON-NLS-1$
 	
 	
 	public static final String FILE_COMMAND_ID_PARAMTER_ID = "fileCommandId"; //$NON-NLS-1$
@@ -276,7 +278,7 @@ public final class RCodeLaunching {
 	
 	
 	public static void gotoRConsole() throws CoreException {
-		final IRCodeLaunchConnector connector = RCodeLaunchRegistry.getDefault().getConnector();
+		final IRCodeSubmitConnector connector = RCodeLaunchRegistry.getDefault().getConnector();
 		
 		connector.gotoConsole();
 	}
@@ -294,7 +296,7 @@ public final class RCodeLaunching {
 		return fileCommand.getCurrentCommand();
 	}
 	
-	public static ICodeLaunchContentHandler getCodeLaunchContentHandler(final String contentType) {
+	public static ICodeSubmitContentHandler getCodeSubmitContentHandler(final String contentType) {
 		return RCodeLaunchRegistry.getDefault().getContentHandler(contentType);
 	}
 	
@@ -329,7 +331,7 @@ public final class RCodeLaunching {
 			}
 		}
 		
-		final IRCodeLaunchConnector connector = RCodeLaunchRegistry.getDefault().getConnector();
+		final IRCodeSubmitConnector connector = RCodeLaunchRegistry.getDefault().getConnector();
 		IFileStore fileStore = null;
 		try {
 			fileStore = EFS.getStore(fileURI);
@@ -347,7 +349,7 @@ public final class RCodeLaunching {
 					try {
 						final String path = workspace.toToolPath(store);
 						final String code = resolveVariables(command, path, encoding);
-						final IToolRunnable runnable = new RunFileViaCommandRunnable(
+						final IToolRunnable runnable = new SubmitFileViaCommandRunnable(
 								PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE),
 								"Run '" + store.toString() + "'", // TODO custom image and label
 								code, su );
@@ -375,7 +377,7 @@ public final class RCodeLaunching {
 				path = fileURI.toString();
 			}
 			final String code = resolveVariables(command, path, encoding);
-			connector.submit(new String[] { code }, gotoConsole);
+			connector.submit(Collections.singletonList(code), gotoConsole);
 		}
 	}
 	
@@ -400,7 +402,7 @@ public final class RCodeLaunching {
 				final Boolean echo = PreferencesUtil.getInstancePrefs().getPreferenceValue(
 						RCodeLaunching.ECHO_ENABLED_PREF);
 				return (echo != null && echo.booleanValue()) ?
-						"TRUE" : "FALSE";
+						"TRUE" : "FALSE"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		});
 		final VariableText text = new VariableText(command, variables, true);
@@ -423,25 +425,19 @@ public final class RCodeLaunching {
 		return true;
 	}
 	
-	public static boolean runRCodeDirect(final String[] lines, final boolean gotoConsole,
+	public static boolean runRCodeDirect(final List<String> lines, final boolean gotoConsole,
 			final IProgressMonitor monitor) throws CoreException {
 		if (monitor != null) {
 			monitor.subTask(RLaunchingMessages.RCodeLaunch_SubmitCode_task);
 		}
-		final IRCodeLaunchConnector connector = RCodeLaunchRegistry.getDefault().getConnector();
+		final IRCodeSubmitConnector connector = RCodeLaunchRegistry.getDefault().getConnector();
 		
 		return connector.submit(lines, gotoConsole);
 	}
 	
-	public static boolean runRCodeDirect(final String code, final boolean gotoConsole) throws CoreException {
-		final List<String> lines = new ArrayList<String>(2 + code.length()/30);
-		listLines(code, lines);
-		return runRCodeDirect(lines.toArray(new String[lines.size()]), gotoConsole, null);
-	}
-	
 	public static boolean runRCodeDirect(final List<SourceRegion> codeRegions,
 			final boolean gotoConsole) throws CoreException {
-		final IRCodeLaunchConnector connector = RCodeLaunchRegistry.getDefault().getConnector();
+		final IRCodeSubmitConnector connector = RCodeLaunchRegistry.getDefault().getConnector();
 		if (connector instanceof RControllerCodeLaunchConnector) {
 			return ((RControllerCodeLaunchConnector) connector).submit(
 					new RControllerCodeLaunchConnector.CommandsCreator() {
@@ -452,8 +448,8 @@ public final class RCodeLaunching {
 					for (int i = 0; i < runnables.length; i++) {
 						final SourceRegion region = codeRegions.get(i);
 						lines.clear();
-						listLines(region.fCode, lines);
-						runnables[i] = new RunEntireCommandRunnable(
+						TextUtil.addLines(region.fCode, lines);
+						runnables[i] = new SubmitEntireCommandRunnable(
 								lines.toArray(new String[lines.size()]), region);
 					}
 					final IStatus status = controller.getTool().getQueue().add(runnables);
@@ -468,96 +464,12 @@ public final class RCodeLaunching {
 		}
 		final List<String> lines = new ArrayList<String>(codeRegions.size()*2);
 		for (int i = 0; i < codeRegions.size(); i++) {
-			listLines(codeRegions.get(i).fCode, lines);
+			TextUtil.addLines(codeRegions.get(i).fCode, lines);
 		}
-		return runRCodeDirect(lines.toArray(new String[lines.size()]), gotoConsole, null);
+		return runRCodeDirect(lines, gotoConsole, null);
 	}
 	
-	private static void listLines(final String text, final List<String> lines) {
-		final int n = text.length();
-		int i = 0;
-		int lineStart = 0;
-		while (i < n) {
-			switch (text.charAt(i)) {
-			case '\r':
-				lines.add(text.substring(lineStart, i));
-				i++;
-				if (i < n && text.charAt(i) == '\n') {
-					i++;
-				}
-				lineStart = i;
-				continue;
-			case '\n':
-				lines.add(text.substring(lineStart, i));
-				i++;
-				if (i < n && text.charAt(i) == '\r') {
-					i++;
-				}
-				lineStart = i;
-				continue;
-			default:
-				i++;
-				continue;
-			}
-		}
-		if (lineStart < n) {
-			lines.add(text.substring(lineStart, n));
-		}
-	}
-	
-	private static String firstLine(final String text) {
-		final int n = text.length();
-		int i = 0;
-		int start = -1;
-		int end = -1;
-		final StringBuilder sb = new StringBuilder(80);
-		while (i < n) {
-			final int c = text.charAt(i);
-			switch (c) {
-			case '\r':
-			case '\n':
-			case '\f':
-				if (start >= 0) {
-					if (sb.length() > 0) {
-						sb.append(' ');
-					}
-					sb.append(text, start, end);
-					if (sb.length() >= 30) {
-						return sb.toString();
-					}
-					start = -1;
-				}
-				i++;
-				continue;
-			case ' ':
-			case '\t':
-				if (start >= 0 && sb.length() + (end - start) >= 60) {
-					if (sb.length() > 0) {
-						sb.append(' ');
-					}
-					sb.append(text, start, end);
-					return sb.toString();
-				}
-				i++;
-				continue;
-			default:
-				if (start < 0) {
-					start = i;
-				}
-				end = ++i;
-				continue;
-			}
-		}
-		if (start >= 0) {
-			if (sb.length() > 0) {
-				sb.append(' ');
-			}
-			sb.append(text, start, end);
-		}
-		return sb.toString();
-	}
-
 	public static final BooleanPref ECHO_ENABLED_PREF = new BooleanPref(
-	RRunDebugPreferenceConstants.ROOT_QUALIFIER + "/codelaunch", "echo.enabled" );
+			RRunDebugPreferenceConstants.ROOT_QUALIFIER + "/codelaunch", "echo.enabled" );
 	
 }

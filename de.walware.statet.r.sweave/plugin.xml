@@ -329,7 +329,7 @@
             id="de.walware.statet.r.launchShortcuts.RChunkDirect"
             category="de.walware.statet.r.other"
             modes="run"
-            class="de.walware.statet.r.internal.sweave.debug.RChunkDirectLaunchShortcut"
+            class="de.walware.statet.r.internal.sweave.debug.SubmitRChunkDirectLaunchShortcut"
             label="%launchShortcuts_RunRChunkDirect_label"
             icon="icons/tool_16/run-r-chunk.png"
             path="statet/r/3">
@@ -380,7 +380,7 @@
             id="de.walware.statet.r.launchShortcuts.RChunkDirectAndConsole"
             category="de.walware.statet.r.other"
             modes="run"
-            class="de.walware.statet.r.internal.sweave.debug.RChunkDirectAndConsoleLaunchShortcut"
+            class="de.walware.statet.r.internal.sweave.debug.SubmitRChunkDirectAndConsoleLaunchShortcut"
             label="%launchShortcuts_RunRChunkDirectAndGotoConsole_label"
             icon="icons/tool_16/run-r-chunk.png"
             path="statet/r/3">

@@ -29,10 +29,10 @@ import de.walware.statet.r.ui.RUI;
  * 
  * Supports only text editors and R doc (with AST).
  */
-public class RunEntireCommandAndGotoNextCommandHandler extends RunEntireCommandHandler {
+public class SubmitEntireCommandAndGotoNextCommandHandler extends SubmitEntireCommandHandler {
 	
 	
-	public RunEntireCommandAndGotoNextCommandHandler() {
+	public SubmitEntireCommandAndGotoNextCommandHandler() {
 		super(false);
 	}
 	

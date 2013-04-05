@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.debug.ui.launcher;
 
+import java.util.List;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -31,10 +33,10 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.launching.RCodeLaunching;
 
 
-public class RunSelectionAndGotoNextLineHandler extends AbstractHandler {
+public class SubmitSelectionAndGotoNextLineHandler extends AbstractHandler {
 	
 	
-	public RunSelectionAndGotoNextLineHandler() {
+	public SubmitSelectionAndGotoNextLineHandler() {
 		super();
 	}
 	
@@ -55,9 +57,9 @@ public class RunSelectionAndGotoNextLineHandler extends AbstractHandler {
 				if (document == null) {
 					return null;
 				}
-				final String code = LaunchShortcutUtil.getSelectedCode(event);
-				if (code != null) {
-					RCodeLaunching.runRCodeDirect(code, false);
+				final List<String> lines = LaunchShortcutUtil.getSelectedCodeLines(event);
+				if (lines != null) {
+					RCodeLaunching.runRCodeDirect(lines, false, null);
 					final int newOffset = getNextLineOffset(document, ((ITextSelection) selection).getEndLine());
 					if (newOffset >= 0) {
 						editor.selectAndReveal(newOffset, 0);

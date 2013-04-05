@@ -50,13 +50,13 @@ import de.walware.statet.r.ui.RUI;
  * 
  * Supports only text editors.
  */
-public class RChunkDirectLaunchShortcut implements ILaunchShortcut {
+public class SubmitRChunkDirectLaunchShortcut implements ILaunchShortcut {
 	
 	
 	protected boolean fGotoConsole = false;
 	
 	
-	public RChunkDirectLaunchShortcut() {
+	public SubmitRChunkDirectLaunchShortcut() {
 	}
 	
 	
@@ -93,7 +93,7 @@ public class RChunkDirectLaunchShortcut implements ILaunchShortcut {
 			});
 		}
 		catch (final InvocationTargetException e) {
-			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID,
 					ICommonStatusConstants.LAUNCHING, Messages.RChunkLaunch_error_message, e.getTargetException()));
 		}
 		catch (final InterruptedException e) {
@@ -128,8 +128,7 @@ public class RChunkDirectLaunchShortcut implements ILaunchShortcut {
 				return;
 			}
 			
-			RCodeLaunching.runRCodeDirect(lines.toArray(new String[lines.size()]), fGotoConsole,
-					monitor );
+			RCodeLaunching.runRCodeDirect(lines, fGotoConsole, monitor);
 		}
 		catch (final BadLocationException e) {
 			throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, -1,

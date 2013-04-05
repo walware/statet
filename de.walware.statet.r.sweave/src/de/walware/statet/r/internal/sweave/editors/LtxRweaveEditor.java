@@ -17,6 +17,9 @@ import java.util.List;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler2;
+import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
@@ -34,7 +37,10 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.handlers.IHandlerService;
+import org.eclipse.ui.menus.CommandContributionItem;
+import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
@@ -56,9 +62,13 @@ import de.walware.docmlet.tex.ui.editors.LtxDefaultFoldingProvider;
 import de.walware.docmlet.tex.ui.editors.TexEditorOptions;
 import de.walware.docmlet.tex.ui.editors.TexMarkOccurrencesLocator;
 
+import de.walware.statet.base.ui.IStatetUIMenuIds;
+
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.launching.RCodeLaunching;
 import de.walware.statet.r.sweave.ILtxRweaveEditor;
 import de.walware.statet.r.sweave.ILtxRweaveSourceUnit;
 import de.walware.statet.r.sweave.Sweave;
@@ -309,6 +319,26 @@ public class LtxRweaveEditor extends SourceEditor1 implements ILtxRweaveEditor {
 		final IHandler2 handler = new CatIndentHandler(this);
 		markAsStateDependentHandler(handler, true);
 		return handler;
+	}
+	
+	@Override
+	protected void editorContextMenuAboutToShow(final IMenuManager m) {
+		super.editorContextMenuAboutToShow(m);
+		final IRSourceUnit su = getSourceUnit();
+		
+		m.insertBefore(SharedUIResources.ADDITIONS_MENU_ID, new Separator(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID));
+		final IContributionItem additions = m.find(SharedUIResources.ADDITIONS_MENU_ID);
+		if (additions != null) {
+			additions.setVisible(false);
+		}
+		
+		m.remove(ITextEditorActionConstants.SHIFT_RIGHT);
+		m.remove(ITextEditorActionConstants.SHIFT_LEFT);
+		
+		m.appendToGroup(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID, new CommandContributionItem(new CommandContributionItemParameter(
+				getSite(), null, RCodeLaunching.SUBMIT_SELECTION_COMMAND_ID, CommandContributionItem.STYLE_PUSH)));
+		m.appendToGroup(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID, new CommandContributionItem(new CommandContributionItemParameter(
+				getSite(), null, RCodeLaunching.SUBMIT_UPTO_SELECTION_COMMAND_ID, CommandContributionItem.STYLE_PUSH)));
 	}
 	
 	

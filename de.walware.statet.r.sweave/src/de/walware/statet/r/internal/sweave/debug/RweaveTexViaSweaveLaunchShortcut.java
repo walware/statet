@@ -11,10 +11,10 @@
 
 package de.walware.statet.r.internal.sweave.debug;
 
-import de.walware.statet.r.launching.RunFileViaCommandLaunchShortcut;
+import de.walware.statet.r.launching.SubmitFileViaCommandLaunchShortcut;
 
 
-public class RweaveTexViaSweaveLaunchShortcut extends RunFileViaCommandLaunchShortcut {
+public class RweaveTexViaSweaveLaunchShortcut extends SubmitFileViaCommandLaunchShortcut {
 	
 	
 	public RweaveTexViaSweaveLaunchShortcut() {

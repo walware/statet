@@ -99,22 +99,45 @@
             description="%launchConfigurations_RRemoteConsole_description"
             helpContextId="de.walware.statet.r.ui.r_remote_console-launch"/>
    </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="de.walware.statet.r.commands.SubmitRSnippet"
+            categoryId="de.walware.statet.nico.commands.ConsoleCategory"
+            name="%commands_RunRSnippet_name"
+            description="%commands_RunRSnippet_description"
+            defaultHandler="de.walware.statet.r.internal.console.ui.snippets.SubmitRSnippetHandler">
+         <commandParameter
+               id="snippet"
+               name="%commands_RunRSnippet_SnippetPar_name"
+               optional="false"
+               values="de.walware.statet.r.internal.console.ui.snippets.SubmitRSnippetParameterValues">
+         </commandParameter>
+      </command>
+      <command
+            id="de.walware.statet.r.commands.SubmitLastRSnippet"
+            categoryId="de.walware.statet.nico.commands.ConsoleCategory"
+            name="%commands_RunLastRSnippet_name"
+            description="%commands_RunLastRSnippet_description"
+            defaultHandler="de.walware.statet.r.internal.console.ui.snippets.SubmitLastRSnippetHandler">
+      </command>
+   </extension>
    
 <!-- Code Launch Contributions -->
    <extension
          point="org.eclipse.ui.bindings">
       <key
-            commandId="de.walware.statet.r.commands.RunFileViaCommand"
+            commandId="de.walware.statet.r.commands.SubmitFileToRViaCommand"
             contextId="org.eclipse.ui.globalScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M2+M3+X R"/>
        <key
-            commandId="de.walware.statet.r.commands.RunFileViaCommand"
+            commandId="de.walware.statet.r.commands.SubmitFileToRViaCommand"
             contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+S"/>
      <key
-            commandId="de.walware.statet.r.commands.RunFileViaCommand_GotoConsole"
+            commandId="de.walware.statet.r.commands.SubmitFileToRViaCommand_GotoConsole"
             contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R S"/>
@@ -125,28 +148,28 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+D"/>
       <key
-            commandId="de.walware.statet.r.commands.RunEntireCommand"
+            commandId="de.walware.statet.r.commands.SubmitEntireCommandToR"
             contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+E"/>
       <key
-            commandId="de.walware.statet.r.commands.RunEntireCommand_GotoConsole"
+            commandId="de.walware.statet.r.commands.SubmitEntireCommandToR_GotoConsole"
             contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R E"/>
       <key
-            commandId="de.walware.statet.r.commands.RunEntireCommand_GotoNextCommand"
+            commandId="de.walware.statet.r.commands.SubmitEntireCommandToR_GotoNextCommand"
             contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+3">
       </key>
       <key
-            commandId="de.walware.statet.r.commands.RunFunctionDef"
+            commandId="de.walware.statet.r.commands.SubmitFunctionDefToR"
             contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+F"/>
       <key
-            commandId="de.walware.statet.r.commands.RunFunctionDef_GotoConsole"
+            commandId="de.walware.statet.r.commands.SubmitFunctionDefToR_GotoConsole"
             contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R F"/>
@@ -157,25 +180,31 @@
             sequence="M1+R D"/>
       
       <key
-            commandId="de.walware.statet.r.commands.RunSelectionInR"
+            commandId="de.walware.statet.r.commands.SubmitSelectionToR"
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+R"/>
       <key
-            commandId="de.walware.statet.r.commands.RunSelectionInR_GotoConsole"
+            commandId="de.walware.statet.r.commands.SubmitSelectionToR_GotoConsole"
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R R"/>
       <key
-            commandId="de.walware.statet.r.commands.RunSelectionInR_GotoNextLine"
+            commandId="de.walware.statet.r.commands.SubmitSelectionToR_GotoNextLine"
             contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+4"/>
       <key
-            commandId="de.walware.statet.r.commands.RunSelectionInR_PasteOutput"
+            commandId="de.walware.statet.r.commands.SubmitSelectionToR_PasteOutput"
             contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+V">
+      </key>
+      <key
+            commandId="de.walware.statet.r.commands.SubmitUptoSelectionToR"
+            contextId="de.walware.statet.r.contexts.REditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R M1+U">
       </key>
       <key
             commandId="de.walware.statet.r.commands.GotoRConsole"
@@ -195,8 +224,9 @@
                   visible="true">
             </separator>
             <command
-                  commandId="de.walware.statet.r.commands.RunFileViaCommand"
-                  style="push">
+                  commandId="de.walware.statet.r.commands.SubmitFileToRViaCommand"
+                  style="push"
+                  label="Run File in R via Command">
                <visibleWhen
                      checkEnabled="false">
                   <with
@@ -216,8 +246,9 @@
                   visible="false">
             </separator>
             <command
-                  commandId="de.walware.statet.r.commands.RunSelectionInR"
-                  style="push">
+                  commandId="de.walware.statet.r.commands.SubmitSelectionToR"
+                  style="push"
+                  label="Run Selection in R">
                <visibleWhen
                      checkEnabled="false">
                   <with
@@ -237,8 +268,9 @@
                   visible="false">
             </separator>
             <command
-                  commandId="de.walware.statet.r.commands.RunEntireCommand"
-                  style="push">
+                  commandId="de.walware.statet.r.commands.SubmitEntireCommandToR"
+                  style="push"
+                  label="Run Entire Command in R">
                <visibleWhen
                      checkEnabled="false">
                   <with
@@ -254,8 +286,9 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="de.walware.statet.r.commands.RunEntireCommand_GotoNextCommand"
-                  style="push">
+                  commandId="de.walware.statet.r.commands.SubmitEntireCommandToR_GotoNextCommand"
+                  style="push"
+                  label="Run Entire Command in R and Go to Next Command">
                <visibleWhen
                      checkEnabled="false">
                   <with
@@ -279,8 +312,9 @@
       <menuContribution
             locationURI="toolbar:de.walware.statet.r.menus.RunToolbar?after=submit_selection">
          <command
-               commandId="de.walware.statet.r.commands.RunSelectionInR_GotoNextLine"
-               style="push">
+               commandId="de.walware.statet.r.commands.SubmitSelectionToR_GotoNextLine"
+               style="push"
+               label="Run Selection in R and Go to Next Line">
             <visibleWhen
                   checkEnabled="false">
                <with
@@ -370,40 +404,17 @@
       </page>
    </extension>
    
-   <extension
-         point="org.eclipse.ui.commands">
-      <command
-            id="de.walware.statet.r.commands.RunRSnippet"
-            categoryId="de.walware.statet.nico.commands.ConsoleCategory"
-            name="%commands_RunRSnippet_name"
-            description="%commands_RunRSnippet_description"
-            defaultHandler="de.walware.statet.r.internal.console.ui.snippets.RunRSnippetHandler">
-         <commandParameter
-               id="snippet"
-               name="%commands_RunRSnippet_SnippetPar_name"
-               optional="false"
-               values="de.walware.statet.r.internal.console.ui.snippets.RunRSnippetParameterValues">
-         </commandParameter>
-      </command>
-      <command
-            id="de.walware.statet.r.commands.RunLastRSnippet"
-            categoryId="de.walware.statet.nico.commands.ConsoleCategory"
-            name="%commands_RunLastRSnippet_name"
-            description="%commands_RunLastRSnippet_description"
-            defaultHandler="de.walware.statet.r.internal.console.ui.snippets.RunLastRSnippetHandler">
-      </command>
-   </extension>
    
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="popup:org.eclipse.ui.popup.any?before=additions">
          <separator
-               name="run.stat">
+               name="stat.submit">
          </separator>
       </menuContribution>
       <menuContribution
-            locationURI="popup:org.eclipse.ui.popup.any?endof=run.stat">
+            locationURI="popup:org.eclipse.ui.popup.any?endof=stat.submit">
          <menu
                id="de.walware.statet.r.menus.RunRSnippetMenu"
                label="Run Code Snippet in R"
@@ -412,7 +423,8 @@
             <visibleWhen
                   checkEnabled="false">
                <or>
-                  <iterate operator="or">
+                  <iterate
+                        operator="or">
                      <adapt
                            type="org.eclipse.core.resources.IResource">
                         <test
@@ -423,22 +435,28 @@
                   </iterate>
                   <with
                         variable="activeMenuSelection">
-                  <test
-                        property="de.walware.ecommons.ltk.isElementSelection"
-                        value="r*">
-                  </test>
+                     <test
+                           property="de.walware.ecommons.ltk.isElementSelection"
+                           value="r*">
+                     </test>
                   </with>
-                  <with
-                        variable="activePart">
-                     <instanceof
-                           value="de.walware.statet.r.ui.editors.IREditor">
-                     </instanceof>
-                  </with>
+                  <and>
+                     <with
+                           variable="activePart">
+                        <instanceof
+                              value="de.walware.statet.r.ui.editors.IREditor">
+                        </instanceof>
+                     </with>
+                     <with
+                           variable="activeMenuEditorInput">
+                        <!-- avoids appearance in ruler menu -->
+                     </with>
+                  </and>
                </or>
             </visibleWhen>
             <dynamic
                   id="de.walware.statet.r.menus.RunRSnippetList"
-                  class="de.walware.statet.r.internal.console.ui.snippets.RunRSnippetsContributionItem">
+                  class="de.walware.statet.r.internal.console.ui.snippets.SubmitRSnippetsContributionItem">
             </dynamic>
          </menu>
       </menuContribution>
@@ -446,16 +464,17 @@
             locationURI="toolbar:de.walware.statet.r.menus.RunToolbar">
          <command
                id="de.walware.statet.r.menus.RunRSnippetMain"
-               commandId="de.walware.statet.r.commands.RunLastRSnippet"
+               commandId="de.walware.statet.r.commands.SubmitLastRSnippet"
                style="pulldown"
-               icon="icons/tool_16/submit-r_snippet.png">
+               icon="icons/tool_16/submit-r_snippet.png"
+               label="%commands_RunLastRSnippet_name">
          </command>
       </menuContribution>
       <menuContribution
             locationURI="menu:de.walware.statet.r.menus.RunRSnippetMain">
          <dynamic
                id="de.walware.statet.r.menus.RunRSnippetList"
-               class="de.walware.statet.r.internal.console.ui.snippets.RunRSnippetsContributionItem">
+               class="de.walware.statet.r.internal.console.ui.snippets.SubmitRSnippetsContributionItem">
          </dynamic>
          <separator
                name="additions"

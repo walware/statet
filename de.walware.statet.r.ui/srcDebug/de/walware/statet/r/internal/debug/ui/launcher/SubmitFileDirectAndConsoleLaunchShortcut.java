@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,23 +11,17 @@
 
 package de.walware.statet.r.internal.debug.ui.launcher;
 
-import de.walware.statet.r.launching.RunFileViaCommandLaunchShortcut;
-
 
 /**
- * Launch shortcut, which loads the data file
- * using the <code>load</code> command to R.
- * Does not change the focus by default.
+ * Launch shortcut, which submits the whole script directly to R
+ * and goes to the console.
  */
-public class RDataViaLoadShortcut extends RunFileViaCommandLaunchShortcut {
+public class SubmitFileDirectAndConsoleLaunchShortcut extends
+		SubmitFileDirectLaunchShortcut {
 	
 	
-	public RDataViaLoadShortcut() {
-		this(false);
-	}
-	
-	protected RDataViaLoadShortcut(final boolean gotoConsole) {
-		super("de.walware.statet.r.rFileCommand.LoadRData", gotoConsole); //$NON-NLS-1$
+	public SubmitFileDirectAndConsoleLaunchShortcut() {
+		super(true);
 	}
 	
 }

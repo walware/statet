@@ -13,6 +13,7 @@ package de.walware.statet.nico.ui.views;
 
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.List;
 
 import com.ibm.icu.text.DateFormat;
 
@@ -69,6 +70,7 @@ import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 import de.walware.ecommons.FastArrayBufferList;
 import de.walware.ecommons.FastList;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.preferences.Preference.EnumSetPref;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.SharedUIResources;
@@ -131,13 +133,13 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		return text.toString();
 	}
 	
-	public static String[] createTextArray(final Entry[] selection) {
+	public static List<String> createCommandList(final Entry[] selection) {
 		final String[] array = new String[selection.length];
 		for (int i = 0; i < selection.length; i++) {
 			array[i] = selection[i].getCommand();
 		}
 		
-		return array;
+		return new ConstList<String>(array);
 	}
 	
 	

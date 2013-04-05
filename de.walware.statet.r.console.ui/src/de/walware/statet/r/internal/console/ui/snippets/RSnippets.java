@@ -36,6 +36,7 @@ import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ltk.ui.util.LTKWorkbenchUIUtil;
+import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.workbench.ResourceVariablesUtil;
 import de.walware.ecommons.variables.core.DynamicVariable;
@@ -52,8 +53,9 @@ import de.walware.statet.r.ui.rtool.RResourceEncodingVariableResolver;
 public class RSnippets {
 	
 	
-	public static final String RUN_SNIPPET_COMMAND_ID = "de.walware.statet.r.commands.RunRSnippet"; //$NON-NLS-1$
-	public static final String RUN_LAST_COMMAND_ID = "de.walware.statet.r.commands.RunLastRSnippet"; //$NON-NLS-1$
+	public static final String SUBMIT_SNIPPET_COMMAND_ID = "de.walware.statet.r.commands.SubmitRSnippet"; //$NON-NLS-1$
+	
+	public static final String SUBMIT_LAST_COMMAND_ID = "de.walware.statet.r.commands.SubmitLastRSnippet"; //$NON-NLS-1$
 	
 	public static final String SNIPPET_PAR = "snippet"; //$NON-NLS-1$
 	
@@ -85,7 +87,7 @@ public class RSnippets {
 		public void run() {
 			final ICommandService service = (ICommandService) PlatformUI.getWorkbench()
 					.getService(ICommandService.class);
-			service.refreshElements(RUN_LAST_COMMAND_ID, null);
+			service.refreshElements(SUBMIT_LAST_COMMAND_ID, null);
 		}
 	};
 	
@@ -247,7 +249,9 @@ public class RSnippets {
 		setLastSnippet(template.getName());
 		try {
 			final String snippet = resolve(template);
-			RCodeLaunching.runRCodeDirect(snippet, false);
+			final List<String> lines = TextUtil.toLines(snippet);
+			
+			RCodeLaunching.runRCodeDirect(lines, false, null);
 			
 			return;
 		}

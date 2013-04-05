@@ -9,25 +9,25 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.launching;
+package de.walware.statet.r.internal.debug.ui.launcher;
 
-import org.eclipse.core.runtime.CoreException;
+import de.walware.statet.r.launching.SubmitFileViaCommandLaunchShortcut;
 
 
-public interface IRCodeLaunchConnector {
+/**
+ * Launch shortcut, which loads the data file
+ * using the <code>load</code> command to R.
+ * Does not change the focus by default.
+ */
+public class SubmitRDataViaLoadShortcut extends SubmitFileViaCommandLaunchShortcut {
 	
 	
-	/**
-	 * Submit commands to R.
-	 * 
-	 * @param rCommands array with commands
-	 * @param gotoConsole if <code>true</code>, switch focus console, else does not change the focus.
-	 * @return <code>false</code>, if not successful, otherwise <code>true</code> (hint)
-	 * 
-	 * @throws CoreException if a technical error occured
-	 */
-	boolean submit(String[] rCommands, boolean gotoConsole) throws CoreException;
+	public SubmitRDataViaLoadShortcut() {
+		this(false);
+	}
 	
-	void gotoConsole() throws CoreException;
+	protected SubmitRDataViaLoadShortcut(final boolean gotoConsole) {
+		super("de.walware.statet.r.rFileCommand.LoadRData", gotoConsole); //$NON-NLS-1$
+	}
 	
 }

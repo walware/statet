@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.launching;
 
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -78,7 +79,7 @@ public abstract class AbstractRCommandHandler extends AbstractHandler {
 	
 	protected void runCommand(final String cmd, final boolean gotoConsole) {
 		try {
-			RCodeLaunching.runRCodeDirect(new String[] { cmd }, gotoConsole, null);
+			RCodeLaunching.runRCodeDirect(Collections.singletonList(cmd), gotoConsole, null);
 		}
 		catch (final CoreException e) {
 			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,

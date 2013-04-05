@@ -12,37 +12,47 @@
 package de.walware.statet.r.internal.debug.ui.launcher;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 
 import de.walware.ecommons.text.TextUtil;
 
-import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
-import de.walware.statet.r.launching.ICodeLaunchContentHandler;
-import de.walware.statet.r.ui.RUI;
+import de.walware.statet.r.launching.ICodeSubmitContentHandler;
 
 
 /**
  * Handler for R script files.
  */
-public class DefaultCodeLaunchHandler implements ICodeLaunchContentHandler {
+public class DefaultContentHandler implements ICodeSubmitContentHandler {
+	
+	
+	public DefaultContentHandler() {
+	}
 	
 	
 	@Override
-	public String[] getCodeLines(final IDocument document) throws CoreException {
-		try {
-			final ArrayList<String> lines = new ArrayList<String>(document.getNumberOfLines()+1);
-			TextUtil.addLines(document, 0, document.getLength(), lines);
-			return lines.toArray(new String[lines.size()]);
-		}
-		catch (final BadLocationException e) {
-			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
-					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
-		}
+	public List<String> getCodeLines(final IDocument document)
+			throws BadLocationException, CoreException {
+		final ArrayList<String> lines = new ArrayList<String>(document.getNumberOfLines() + 1);
+		
+		TextUtil.addLines(document, 0, document.getLength(), lines);
+		
+		return lines;
 	}
+	
+	@Override
+	public List<String> getCodeLines(final IDocument document, final int offset, final int length)
+			throws CoreException, BadLocationException {
+		final ArrayList<String> lines = new ArrayList<String>(
+				document.getNumberOfLines(0, length) + 1 );
+		
+		TextUtil.addLines(document, offset, length, lines);
+		
+		return lines;
+	}
+	
 	
 }

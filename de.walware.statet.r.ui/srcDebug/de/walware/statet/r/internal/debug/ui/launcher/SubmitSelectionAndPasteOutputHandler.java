@@ -65,7 +65,7 @@ import de.walware.statet.r.ui.RUI;
 /**
  * 
  */
-public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
+public class SubmitSelectionAndPasteOutputHandler extends AbstractHandler {
 	
 	
 	private static class R implements IConsoleRunnable, Runnable {
@@ -136,7 +136,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 		
 		@Override
 		public String getLabel() {
-			return RLaunchingMessages.RunCodeAndPasteOutput_RTask_label;
+			return RLaunchingMessages.SubmitCodeAndPasteOutput_RTask_label;
 		}
 		
 		@Override
@@ -257,7 +257,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 				}
 			} catch (final BadLocationException e) {
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
-						RLaunchingMessages.RunCodeAndPasteOutput_error_WhenPasting_message, e),
+						RLaunchingMessages.SubmitCodeAndPasteOutput_error_WhenPasting_message, e),
 						StatusManager.LOG | StatusManager.SHOW);
 			}
 			finally {
@@ -271,7 +271,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 	}
 	
 	
-	public RunSelectionAndPasteOutputHandler() {
+	public SubmitSelectionAndPasteOutputHandler() {
 	}
 	
 	
@@ -282,7 +282,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 		if (editor != null) {
 			if (!editor.isEditable(true)) {
 				cancel(null, new Status(IStatus.ERROR, RUI.PLUGIN_ID,
-						RLaunchingMessages.RunCodeAndPasteOutput_info_WriteProtected_status), event);
+						RLaunchingMessages.SubmitCodeAndPasteOutput_info_WriteProtected_status), event);
 				return null;
 			}
 			final SourceViewer viewer = editor.getViewer();
@@ -290,7 +290,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 			final R r = new R(editor);
 			if (!r.setupSource(selection)) {
 				cancel(r, new Status(IStatus.ERROR, RUI.PLUGIN_ID,
-						RLaunchingMessages.RunCodeAndPasteOutput_error_Unspecific_status), null);
+						RLaunchingMessages.SubmitCodeAndPasteOutput_error_Unspecific_status), null);
 				return null;
 			}
 			final ToolProcess process = NicoUI.getToolRegistry().getActiveToolSession(UIAccess.getActiveWorkbenchPage(true)).getProcess();

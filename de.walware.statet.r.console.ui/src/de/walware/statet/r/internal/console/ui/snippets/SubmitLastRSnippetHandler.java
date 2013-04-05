@@ -31,13 +31,13 @@ import de.walware.ecommons.ui.util.MenuUtil;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 
 
-public class RunLastRSnippetHandler extends AbstractHandler implements IElementUpdater {
+public class SubmitLastRSnippetHandler extends AbstractHandler implements IElementUpdater {
 	
 	
 	private final RSnippets fSnippets;
 	
 	
-	public RunLastRSnippetHandler() {
+	public SubmitLastRSnippetHandler() {
 		fSnippets = RConsoleUIPlugin.getDefault().getRSnippets();
 	}
 	

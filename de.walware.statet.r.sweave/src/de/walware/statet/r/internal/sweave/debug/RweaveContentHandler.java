@@ -12,21 +12,25 @@
 package de.walware.statet.r.internal.sweave.debug;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.ITypedRegion;
 
 import de.walware.ecommons.text.TextUtil;
 
 import de.walware.statet.r.internal.sweave.editors.LtxRweaveDocumentSetupParticipant;
-import de.walware.statet.r.launching.ICodeLaunchContentHandler;
+import de.walware.statet.r.launching.ICodeSubmitContentHandler;
 import de.walware.statet.r.sweave.text.Rweave;
 
 
-public class RweaveContentHandler implements ICodeLaunchContentHandler {
+public class RweaveContentHandler implements ICodeSubmitContentHandler {
+	
+	
+	static IDocumentSetupParticipant DOC_SETUP = new LtxRweaveDocumentSetupParticipant();
 	
 	
 	public RweaveContentHandler() {
@@ -34,23 +38,37 @@ public class RweaveContentHandler implements ICodeLaunchContentHandler {
 	
 	
 	@Override
-	public String[] getCodeLines(final IDocument document) throws BadLocationException, CoreException {
-		if (document instanceof IDocumentExtension3) {
-			final IDocumentExtension3 doc3 = (IDocumentExtension3) document;
-			if (doc3.getDocumentPartitioner(Rweave.LTX_R_PARTITIONING) == null) {
-				new LtxRweaveDocumentSetupParticipant().setup(document);
+	public List<String> getCodeLines(final IDocument document) throws BadLocationException, CoreException {
+		DOC_SETUP.setup(document);
+		
+		final ArrayList<String> lines = new ArrayList<String>(document.getNumberOfLines() / 2);
+		
+		final ITypedRegion[] cats = Rweave.R_TEX_CAT_UTIL.getCats(document, 0, document.getLength());
+		for (final ITypedRegion cat : cats) {
+			if (cat.getType() == Rweave.R_CAT) {
+				TextUtil.addLines(document, cat.getOffset(), cat.getLength(), lines);
 			}
-			final ITypedRegion[] cats = Rweave.R_TEX_CAT_UTIL.getCats(document, 0, document.getLength());
-			final ArrayList<String> lines = new ArrayList<String>(document.getNumberOfLines());
-			for (int i = 0; i < cats.length; i++) {
-				final ITypedRegion cat = cats[i];
-				if (cat.getType() == Rweave.R_CAT) {
-					TextUtil.addLines(document, cat.getOffset(), cat.getLength(), lines);
-				}
-			}
-			return lines.toArray(new String[lines.size()]);
 		}
-		return null;
+		
+		return lines;
+	}
+	
+	@Override
+	public List<String> getCodeLines(final IDocument document, final int offset, final int length)
+			throws CoreException, BadLocationException {
+		DOC_SETUP.setup(document);
+		
+		final ArrayList<String> lines = new ArrayList<String>(Math.min(
+				document.getNumberOfLines(0, length) + 1, 64) );
+		
+		final ITypedRegion[] cats = Rweave.R_TEX_CAT_UTIL.getCats(document, offset, length);
+		for (final ITypedRegion cat : cats) {
+			if (cat.getType() == Rweave.R_CAT) {
+				TextUtil.addLines(document, cat.getOffset(), cat.getLength(), lines);
+			}
+		}
+		
+		return lines;
 	}
 	
 }

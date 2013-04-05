@@ -12,7 +12,7 @@
 package de.walware.statet.nico.ui.console;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.regex.Pattern;
+import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,6 +25,8 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.actions.ActionFactory;
 
+import de.walware.ecommons.text.TextUtil;
+
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.ui.NicoUIMessages;
@@ -32,9 +34,6 @@ import de.walware.statet.nico.ui.NicoUITools;
 
 
 class SubmitPasteAction extends Action {
-	
-	
-	private static Pattern gLineSeparatorPattern = Pattern.compile("\\r[\\n]?|\\n"); //$NON-NLS-1$
 	
 	
 	private final NIConsolePage fView;
@@ -74,11 +73,11 @@ class SubmitPasteAction extends Action {
 				try {
 					monitor.beginTask(NicoUITools.createSubmitMessage(controller.getTool()), 1000);
 					
-					final String[] lines = splitString(text);
+					final List<String> lines = TextUtil.toLines(text);
 					monitor.worked(200);
 					
 					final IStatus status = controller.submit(lines, SubmitType.CONSOLE,
-							new SubProgressMonitor(monitor, 800));
+							new SubProgressMonitor(monitor, 800) );
 					if (status.getSeverity() >= IStatus.ERROR) {
 						throw new CoreException(status);
 					}
@@ -91,11 +90,6 @@ class SubmitPasteAction extends Action {
 				}
 			}
 		};
-	}
-	
-	static String[] splitString(final String text) {
-		final String[] lines = gLineSeparatorPattern.split(text);
-		return lines;
 	}
 	
 }

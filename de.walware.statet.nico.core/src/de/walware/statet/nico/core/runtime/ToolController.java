@@ -978,7 +978,7 @@ public abstract class ToolController implements IConsoleService {
 	
 	/**
 	 * Version for one single text line.
-	 * @see #submit(String[], SubmitType)
+	 * @see #submit(List, SubmitType)
 	 * 
 	 * @param text a single text line.
 	 * @param type type of this submittal.
@@ -986,7 +986,7 @@ public abstract class ToolController implements IConsoleService {
 	 * 		otherwise <code>false</code>.
 	 */
 	public final IStatus submit(final String text, final SubmitType type) {
-		return submit(new String[] { text }, type);
+		return submit(Collections.singletonList(text), type);
 	}
 	
 	/**
@@ -999,14 +999,14 @@ public abstract class ToolController implements IConsoleService {
 	 * @return <code>true</code>, if adding commands to queue was successful,
 	 *     otherwise <code>false</code>.
 	 */
-	public final IStatus submit(final String[] text, final SubmitType type, final IProgressMonitor monitor) {
+	public final IStatus submit(final List<String> text, final SubmitType type, final IProgressMonitor monitor) {
 		try {
 			monitor.beginTask(NicoCoreMessages.SubmitTask_label, 2);
 			assert (text != null);
 			
-			final IToolRunnable[] runs = new IToolRunnable[text.length];
-			for (int i = 0; i < text.length; i++) {
-				runs[i] = createCommandRunnable(text[i], type);
+			final IToolRunnable[] runs = new IToolRunnable[text.size()];
+			for (int i = 0; i < text.size(); i++) {
+				runs[i] = createCommandRunnable(text.get(i), type);
 			}
 			
 			if (monitor.isCanceled()) {
@@ -1031,7 +1031,7 @@ public abstract class ToolController implements IConsoleService {
 	 * @return <code>true</code>, if adding commands to queue was successful,
 	 *     otherwise <code>false</code>.
 	 */
-	public final IStatus submit(final String[] text, final SubmitType type) {
+	public final IStatus submit(final List<String> text, final SubmitType type) {
 		return submit(text, type, fgProgressMonitorDummy);
 	}
 	

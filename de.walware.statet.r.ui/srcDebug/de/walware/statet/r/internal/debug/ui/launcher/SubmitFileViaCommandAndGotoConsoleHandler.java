@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2008-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,15 +12,10 @@
 package de.walware.statet.r.internal.debug.ui.launcher;
 
 
-/**
- * Launch shortcut, which submits the whole script directly to R
- * and goes to the console.
- */
-public class RScriptDirectAndConsoleLaunchShortcut extends
-		RScriptDirectLaunchShortcut {
+public class SubmitFileViaCommandAndGotoConsoleHandler extends SubmitFileViaCommandHandler {
 	
 	
-	public RScriptDirectAndConsoleLaunchShortcut() {
+	public SubmitFileViaCommandAndGotoConsoleHandler() {
 		super(true);
 	}
 	

@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.internal.debug.ui.launcher;
 
-import de.walware.statet.r.launching.RunFileViaCommandLaunchShortcut;
+import de.walware.statet.r.launching.SubmitFileViaCommandLaunchShortcut;
 
 
 /**
@@ -19,14 +19,14 @@ import de.walware.statet.r.launching.RunFileViaCommandLaunchShortcut;
  * using the <code>source</code> command to R
  * and does not change the focus.
  */
-public class RScriptViaSourceShortcut extends RunFileViaCommandLaunchShortcut {
+public class SubmitRScriptViaSourceShortcut extends SubmitFileViaCommandLaunchShortcut {
 	
 	
-	public RScriptViaSourceShortcut() {
+	public SubmitRScriptViaSourceShortcut() {
 		this(false);
 	}
 	
-	protected RScriptViaSourceShortcut(final boolean gotoConsole) {
+	protected SubmitRScriptViaSourceShortcut(final boolean gotoConsole) {
 		super("de.walware.statet.r.rFileCommand.SourceRScript", gotoConsole); //$NON-NLS-1$
 	}
 	

@@ -35,8 +35,8 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.ContentHandler.FileCommand;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.launching.ICodeLaunchContentHandler;
-import de.walware.statet.r.launching.IRCodeLaunchConnector;
+import de.walware.statet.r.launching.ICodeSubmitContentHandler;
+import de.walware.statet.r.launching.IRCodeSubmitConnector;
 import de.walware.statet.r.launching.RRunDebugPreferenceConstants;
 import de.walware.statet.r.ui.RUI;
 
@@ -132,7 +132,7 @@ public class RCodeLaunchRegistry {
 		
 		private final String fContentTypeId;
 		IConfigurationElement fConfigurationElement;
-		ICodeLaunchContentHandler fHandler;
+		ICodeSubmitContentHandler fHandler;
 		private final FileCommand[] fFileCommands;
 		
 		public ContentHandler(final IConfigurationElement config) {
@@ -153,10 +153,10 @@ public class RCodeLaunchRegistry {
 			return fContentTypeId;
 		}
 		
-		public ICodeLaunchContentHandler getHandler() {
+		public ICodeSubmitContentHandler getHandler() {
 			if (fHandler == null && fConfigurationElement != null && fConfigurationElement.getAttribute(ATT_HANDLER) != null) {
 				try {
-					fHandler = (ICodeLaunchContentHandler) fConfigurationElement.createExecutableExtension(ATT_HANDLER);
+					fHandler = (ICodeSubmitContentHandler) fConfigurationElement.createExecutableExtension(ATT_HANDLER);
 				} catch (final CoreException e) {
 					RUIPlugin.logError(ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 							"Error occurred when loading content handler", e); //$NON-NLS-1$
@@ -203,7 +203,7 @@ public class RCodeLaunchRegistry {
 	
 /* Instance *******************************************************************/
 	
-	private IRCodeLaunchConnector fConnector;
+	private IRCodeSubmitConnector fConnector;
 	private final HashMap<String, ContentHandler> fContentHandler = new HashMap<String, ContentHandler>();
 	private ContentHandler fDefaultHandler;
 	
@@ -242,7 +242,7 @@ public class RCodeLaunchRegistry {
 		for (int i = 0; i < elements.length; i++) {
 			if (id.equals(elements[i].getAttribute(ATT_ID))) {
 				try {
-					fConnector = (IRCodeLaunchConnector) elements[i].createExecutableExtension(ATT_CLASS);
+					fConnector = (IRCodeSubmitConnector) elements[i].createExecutableExtension(ATT_CLASS);
 					return;
 				} catch (final Exception e) {
 					StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
@@ -290,20 +290,20 @@ public class RCodeLaunchRegistry {
 		}
 	}
 	
-	public IRCodeLaunchConnector getConnector() throws CoreException {
+	public IRCodeSubmitConnector getConnector() throws CoreException {
 		if (fConnector == null) {
-			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, IStatus.OK, RLaunchingMessages.RunCode_error_NoConnector_message, null));
+			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, IStatus.OK, RLaunchingMessages.SubmitCode_error_NoConnector_message, null));
 		}
 		
 		return fConnector;
 	}
 	
-	public ICodeLaunchContentHandler getContentHandler(final String contentType) {
+	public ICodeSubmitContentHandler getContentHandler(final String contentType) {
 		final ContentHandler data;
 		synchronized (fContentHandler) {
 			data = fContentHandler.get(contentType);
 		}
-		final ICodeLaunchContentHandler handler = (data != null) ? data.getHandler() : null;
+		final ICodeSubmitContentHandler handler = (data != null) ? data.getHandler() : null;
 		if (handler != null) {
 			return handler;
 		}

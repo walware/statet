@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.internal.debug.ui.launcher;
 
-import java.util.Map;
+import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -21,11 +21,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.commands.IElementUpdater;
-import org.eclipse.ui.menus.UIElement;
 
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ui.util.LTKSelectionUtil;
+import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.workbench.ui.WorkbenchUIUtil;
 
 import de.walware.statet.r.core.refactoring.RRefactoringAdapter;
@@ -41,30 +40,21 @@ import de.walware.statet.r.launching.RCodeLaunching;
  * 
  * Low requirements: ITextSelection is sufficient
  */
-public class RunSelectionHandler extends AbstractHandler implements IElementUpdater {
+public class SubmitSelectionHandler extends AbstractHandler {
 	
 	
 	private final boolean fGotoConsole;
 	private RRefactoringAdapter fModelUtil;
 	
 	
-	public RunSelectionHandler() {
+	public SubmitSelectionHandler() {
 		this(false); 
 	}
 	
-	protected RunSelectionHandler(final boolean gotoConsole) {
+	protected SubmitSelectionHandler(final boolean gotoConsole) {
 		fGotoConsole = gotoConsole;
 	}
 	
-	
-	@Override
-	public void updateElement(final UIElement element, final Map parameters) {
-		element.setText(appendVariant(RLaunchingMessages.RunCode_OtherSelection_label));
-	}
-	
-	protected String appendVariant(final String label) {
-		return label;
-	}
 	
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
@@ -73,9 +63,9 @@ public class RunSelectionHandler extends AbstractHandler implements IElementUpda
 		try {
 			// text selection
 			if (selection instanceof ITextSelection) {
-				final String code = LaunchShortcutUtil.getSelectedCode(event);
-				if (code != null) {
-					RCodeLaunching.runRCodeDirect(code, fGotoConsole);
+				final List<String> lines = LaunchShortcutUtil.getSelectedCodeLines(event);
+				if (lines != null) {
+					RCodeLaunching.runRCodeDirect(lines, fGotoConsole, null);
 					return null;
 				}
 			}
@@ -85,11 +75,12 @@ public class RunSelectionHandler extends AbstractHandler implements IElementUpda
 				final ISourceStructElement[] elements = LTKSelectionUtil.getSelectedSourceStructElements(selection);
 				if (elements != null) {
 					if (fModelUtil == null) {
-						fModelUtil = new RRefactoringAdapter();
+						fModelUtil = new RSourceCodeAdapter();
 					}
-					final String code = fModelUtil.getSourceCodeStringedTogether(elements, null);
+					final List<String> lines = TextUtil.toLines(
+							fModelUtil.getSourceCodeStringedTogether(elements, null) );
 					
-					RCodeLaunching.runRCodeDirect(code, fGotoConsole);
+					RCodeLaunching.runRCodeDirect(lines, fGotoConsole, null);
 					return null;
 				}
 				
@@ -97,8 +88,9 @@ public class RunSelectionHandler extends AbstractHandler implements IElementUpda
 				if (files != null) {
 					final int last = files.length-1;
 					for (int i = 0; i <= last; i++) {
-						final String[] lines = LaunchShortcutUtil.getCodeLines(files[i]);
-						RCodeLaunching.runRCodeDirect(lines[i], (i < last) && fGotoConsole);
+						final List<String> lines = LaunchShortcutUtil.getCodeLines(files[i]);
+						
+						RCodeLaunching.runRCodeDirect(lines, (i == last) && fGotoConsole, null);
 					}
 					return null;
 				}

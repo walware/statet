@@ -33,14 +33,14 @@ import de.walware.statet.r.ui.RUI;
  * 
  * Supports only text editors with input supporting R AST.
  */
-public class RunFunctionDefHandler extends RunEntireCommandHandler {
+public class SubmitFunctionDefHandler extends SubmitEntireCommandHandler {
 	
 	
-	public RunFunctionDefHandler() {
+	public SubmitFunctionDefHandler() {
 		super(false);
 	}
 	
-	public RunFunctionDefHandler(final boolean gotoConsole) {
+	public SubmitFunctionDefHandler(final boolean gotoConsole) {
 		super(gotoConsole);
 	}
 	
@@ -60,7 +60,7 @@ public class RunFunctionDefHandler extends RunEntireCommandHandler {
 		try {
 			if (RAst.hasErrors(node)) {
 				return new Status(IStatus.ERROR, RUI.PLUGIN_ID,
-						RLaunchingMessages.RunCode_info_SyntaxError_message );
+						RLaunchingMessages.SubmitCode_info_SyntaxError_message );
 			}
 			
 			data.nodes = new RAstNode[] { node };
@@ -77,7 +77,7 @@ public class RunFunctionDefHandler extends RunEntireCommandHandler {
 		}
 		catch (final BadLocationException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
-					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
+					RLaunchingMessages.SubmitCode_error_WhenAnalyzingAndCollecting_message, e));
 		}
 	}
 	

@@ -33,7 +33,7 @@ public abstract class RChunkElement extends RChunkBuildElement implements IRLang
 		return fNode;
 	}
 	
-	protected abstract Object getSourceComponents();
+	protected abstract SourceComponent[] getSourceComponents();
 	
 	
 	@Override

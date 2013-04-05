@@ -52,6 +52,7 @@ import de.walware.ecommons.ltk.ui.ISelectionWithElementInfoListener;
 import de.walware.ecommons.ltk.ui.LTKInputData;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.actions.HandlerCollection;
 import de.walware.ecommons.ui.actions.SimpleContributionItem;
@@ -98,10 +99,11 @@ public class RHelpView extends PageBookBrowserView
 		public Object execute(final ExecutionEvent event) throws ExecutionException {
 			final PageBookBrowserPage browserPage = getCurrentBrowserPage();
 			if (browserPage != null) {
-				final String selection = browserPage.getSelection();
-				if (selection != null && selection.length() > 0) {
+				final String selectedText = browserPage.getSelection();
+				if (selectedText != null && selectedText.length() > 0) {
 					try {
-						RCodeLaunching.runRCodeDirect(selection, fGotoConsole);
+						final List<String> lines = TextUtil.toLines(selectedText);
+						RCodeLaunching.runRCodeDirect(lines, fGotoConsole, null);
 					}
 					catch (final CoreException e) {
 						final IStatus causeStatus = e.getStatus();
@@ -243,12 +245,12 @@ public class RHelpView extends PageBookBrowserView
 		final IHandlerService handlerService = (IHandlerService) serviceLocator.getService(IHandlerService.class);
 		
 		{	final IHandler2 handler = new RunCode(false);
-			handlers.add(RCodeLaunching.RUN_SELECTION_COMMAND_ID, handler);
-			handlerService.activateHandler(RCodeLaunching.RUN_SELECTION_COMMAND_ID, handler);
+			handlers.add(RCodeLaunching.SUBMIT_SELECTION_COMMAND_ID, handler);
+			handlerService.activateHandler(RCodeLaunching.SUBMIT_SELECTION_COMMAND_ID, handler);
 		}
 		{	final IHandler2 handler = new RunCode(true);
-			handlers.add(RCodeLaunching.RUN_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID, handler);
-			handlerService.activateHandler(RCodeLaunching.RUN_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID, handler);
+			handlers.add(RCodeLaunching.SUBMIT_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID, handler);
+			handlerService.activateHandler(RCodeLaunching.SUBMIT_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID, handler);
 		}
 	}
 	

@@ -19,6 +19,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.CoreException;
@@ -35,14 +36,14 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 
-import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
+import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.util.DNDUtil;
 
-import de.walware.statet.r.launching.IRCodeLaunchConnector;
+import de.walware.statet.r.launching.IRCodeSubmitConnector;
 
 
-public class RGWLauncher implements IRCodeLaunchConnector {
+public class RGWLauncher implements IRCodeSubmitConnector {
 	
 	
 	private static BooleanPref PREF_SUBMIT_DIRECTLY_ENABLED = new BooleanPref(
@@ -61,8 +62,9 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 		try {
 			final String local = FileLocator.toFileURL(dir).getPath();
 			final File file = new File(local);
-			if (!file.exists())
+			if (!file.exists()) {
 				throw new IOException("Missing File '"+file.getAbsolutePath() + "'.");
+			}
 			fExecutable = file.getAbsolutePath();
 		} catch (final IOException e) {
 			throw new CoreException(new Status(
@@ -77,20 +79,23 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 	private enum SubmitType { DONOTHING, SUBMITINPUT, PASTECLIPBOARD };
 	
 	@Override
-	public boolean submit(final String[] rCommands, final boolean gotoConsole) throws CoreException {
+	public boolean submit(final List<String> lines, final boolean gotoConsole) throws CoreException {
 		// goto option not implemented (requires extension of .net-code)
 		final SubmitType type;
-		if (rCommands.length == 0)
+		if (lines.isEmpty()) {
 			type = SubmitType.DONOTHING;
-		else if (fSubmitDirectly && rCommands.length == 1)
+		}
+		else if (fSubmitDirectly && lines.size() == 1) {
 			type = SubmitType.SUBMITINPUT;
+		}
 		else {
-			if (!copyToClipboard(rCommands))
+			if (!copyToClipboard(lines)) {
 				return false;
+			}
 			type = SubmitType.PASTECLIPBOARD;
 		}
 		
-		doRunConnector(type, (type == SubmitType.SUBMITINPUT) ? rCommands : null);
+		doRunConnector(type, (type == SubmitType.SUBMITINPUT) ? lines : null);
 		return true;
 //		StringBuilder rCmd = new StringBuilder();
 //		for (int i = 0; i < rCommands.length; i++) {
@@ -105,7 +110,7 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 		doRunConnector(SubmitType.DONOTHING, null);
 	}
 	
-	private void doRunConnector(final SubmitType connectorCmd, final String[] writeToProcess) throws CoreException {
+	private void doRunConnector(final SubmitType connectorCmd, final List<String> writeToProcess) throws CoreException {
 		final String[] processCmd = new String[] {
 			fExecutable, connectorCmd.toString().toLowerCase() };
 		final AtomicReference<Process> process = new AtomicReference<Process>();
@@ -135,8 +140,9 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 						try {
 							reader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 							message = reader.readLine();
-							if (message == null)
+							if (message == null) {
 								message = "Unable to detect Error";
+							}
 						}
 						catch (final Exception e) {
 							message = "Unable to detect Error";
@@ -157,13 +163,14 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 						
 					}
 					
-					if (message != null)
+					if (message != null) {
 						throw new CoreException(new Status(
 								IStatus.ERROR,
 								WinRGuiConnectorPlugin.PLUGIN_ID,
 								-1,
 								"Error when running RGui-Connector: \n"+message,
 								null));
+					}
 				}
 				catch (final Exception e) {
 					throw new InvocationTargetException(e);
@@ -196,30 +203,31 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 	}
 	
 	
-	private void writeTextToProcess(final Process process, final String[] text) {
+	private void writeTextToProcess(final Process process, final List<String> text) {
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(new OutputStreamWriter(process.getOutputStream()));
-			for (int i = 0; i < text.length; i++) {
-				writer.println(text[i]);
+			for (int i = 0; i < text.size(); i++) {
+				writer.println(text.get(i));
 			}
 		}
 		catch (final Exception e) {
 			
 		}
 		finally {
-			if (writer != null)
+			if (writer != null) {
 				try {
 					writer.close();
-				} catch (final Exception e) {};
+				} catch (final Exception e) {}
+			}
 		}
 	}
 	
-	private boolean copyToClipboard(final String[] text) {
+	private boolean copyToClipboard(final List<String> lines) {
 		final StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < text.length; i++) {
-			builder.append(text[i]);
-			builder.append("\n");
+		for (int i = 0; i < lines.size(); i++) {
+			builder.append(lines.get(i));
+			builder.append("\n"); //$NON-NLS-1$
 		}
 		
 		if (fClipboard == null) {

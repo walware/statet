@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.debug.ui.launcher;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jface.text.IDocument;
@@ -19,9 +21,10 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 import de.walware.ecommons.ltk.ui.util.LTKSelectionUtil;
+import de.walware.ecommons.ltk.ui.util.LTKWorkbenchUIUtil;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
-import de.walware.statet.r.launching.ICodeLaunchContentHandler;
+import de.walware.statet.r.launching.ICodeSubmitContentHandler;
 import de.walware.statet.r.launching.RCodeLaunching;
 
 
@@ -29,17 +32,17 @@ import de.walware.statet.r.launching.RCodeLaunching;
  * Launch shortcut, which submits the whole script directly to R
  * and does not change the focus.
  */
-public class RScriptDirectLaunchShortcut implements ILaunchShortcut {
+public class SubmitFileDirectLaunchShortcut implements ILaunchShortcut {
 	
 	
 	private final boolean fGotoConsole;
 	
 	
-	public RScriptDirectLaunchShortcut() {
+	public SubmitFileDirectLaunchShortcut() {
 		this(false);
 	}
 	
-	protected RScriptDirectLaunchShortcut(final boolean gotoConsole) {
+	protected SubmitFileDirectLaunchShortcut(final boolean gotoConsole) {
 		fGotoConsole = gotoConsole;
 	}
 	
@@ -53,7 +56,8 @@ public class RScriptDirectLaunchShortcut implements ILaunchShortcut {
 			if (files != null) {
 				final int last = files.length-1;
 				for (int i = 0; i <= last; i++) {
-					final String[] lines = LaunchShortcutUtil.getCodeLines(files[i]);
+					final List<String> lines = LaunchShortcutUtil.getCodeLines(files[i]);
+					
 					RCodeLaunching.runRCodeDirect(lines, (i == last) && fGotoConsole, null);
 				}
 				return;
@@ -74,10 +78,12 @@ public class RScriptDirectLaunchShortcut implements ILaunchShortcut {
 		try {
 			if (editor instanceof AbstractTextEditor) {
 				final AbstractTextEditor redt = (AbstractTextEditor) editor;
-				final ICodeLaunchContentHandler handler = RCodeLaunching.getCodeLaunchContentHandler(
-						LaunchShortcutUtil.getContentTypeId(redt.getEditorInput()));
-				final IDocument document = redt.getDocumentProvider().getDocument(editor.getEditorInput() );
-				final String[] lines = handler.getCodeLines(document);
+				final ICodeSubmitContentHandler handler = RCodeLaunching.getCodeSubmitContentHandler(
+						LTKWorkbenchUIUtil.getContentTypeId(redt) );
+				final IDocument document = redt.getDocumentProvider().getDocument(
+						editor.getEditorInput() );
+				final List<String> lines = handler.getCodeLines(document);
+				
 				RCodeLaunching.runRCodeDirect(lines, fGotoConsole, null);
 				return;
 			}

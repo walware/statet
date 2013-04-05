@@ -17,6 +17,7 @@ import de.walware.ecommons.ltk.ISourceStructElement;
 
 import de.walware.statet.r.core.model.RChunkElement;
 import de.walware.statet.r.core.model.RElementName;
+import de.walware.statet.r.core.rsource.ast.SourceComponent;
 
 
 public class TexRChunkElement extends RChunkElement {
@@ -34,7 +35,7 @@ public class TexRChunkElement extends RChunkElement {
 	}
 	
 	@Override
-	protected Object getSourceComponents() {
+	protected SourceComponent[] getSourceComponents() {
 		return getNode().fRSources;
 	}
 	

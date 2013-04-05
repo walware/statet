@@ -175,7 +175,7 @@ public class RSnippetPreferencePage
 				@Override
 				protected Object getData(final SelectionEvent e) {
 					if (fCommand == null) {
-						final Command command = fCommandService.getCommand(RSnippets.RUN_SNIPPET_COMMAND_ID);
+						final Command command = fCommandService.getCommand(RSnippets.SUBMIT_SNIPPET_COMMAND_ID);
 						final List<TemplateItem> templates = getTemplates(getGroups().get(0));
 						if (!templates.isEmpty()) {
 							final String name = templates.get(0).getData().getTemplate().getName();

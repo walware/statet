@@ -12,6 +12,7 @@
 package de.walware.statet.nico.internal.ui.actions;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -58,7 +59,7 @@ public class HistorySubmitAction extends Action {
 				try {
 					monitor.beginTask(NicoUITools.createSubmitMessage(controller.getTool()), 1000);
 					
-					final String[] commands = HistoryView.createTextArray(selection);
+					final List<String> commands = HistoryView.createCommandList(selection);
 					monitor.worked(200);
 					
 					final IStatus status = controller.submit(commands, SubmitType.EDITOR,

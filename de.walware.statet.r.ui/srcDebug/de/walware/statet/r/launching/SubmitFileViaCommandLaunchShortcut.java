@@ -33,20 +33,20 @@ import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.debug.ui.launcher.LaunchShortcutUtil;
-import de.walware.statet.r.internal.debug.ui.launcher.RunFileViaCommandHandler;
+import de.walware.statet.r.internal.debug.ui.launcher.SubmitFileViaCommandHandler;
 
 
 /**
- * Launch Shortcut for {@link RunFileViaCommandHandler}
+ * Launch Shortcut for {@link SubmitFileViaCommandHandler}
  */
-public class RunFileViaCommandLaunchShortcut implements ILaunchShortcut {
+public class SubmitFileViaCommandLaunchShortcut implements ILaunchShortcut {
 	
 	
 	private final boolean fGotoConsole;
 	private final String fFileCommandId;
 	
 	
-	public RunFileViaCommandLaunchShortcut(final String fileCommandId, final boolean gotoConsole) {
+	public SubmitFileViaCommandLaunchShortcut(final String fileCommandId, final boolean gotoConsole) {
 		fFileCommandId = fileCommandId;
 		fGotoConsole = gotoConsole;
 	}
@@ -65,7 +65,7 @@ public class RunFileViaCommandLaunchShortcut implements ILaunchShortcut {
 			final Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put(RCodeLaunching.FILE_COMMAND_ID_PARAMTER_ID, fFileCommandId);
 			final Command command = commandService.getCommand(!fGotoConsole ?
-					RCodeLaunching.RUN_FILEVIACOMMAND_COMMAND_ID : RCodeLaunching.RUN_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID);
+					RCodeLaunching.SUBMIT_FILEVIACOMMAND_COMMAND_ID : RCodeLaunching.SUBMIT_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID);
 			final ExecutionEvent executionEvent = new ExecutionEvent(command, parameters, null, handlerService.getCurrentState());
 			if (!selection.equals(HandlerUtil.getCurrentSelection(executionEvent))) {
 				LaunchShortcutUtil.handleUnsupportedExecution(executionEvent);
@@ -102,7 +102,7 @@ public class RunFileViaCommandLaunchShortcut implements ILaunchShortcut {
 			final Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put(RCodeLaunching.FILE_COMMAND_ID_PARAMTER_ID, fFileCommandId);
 			final Command command = commandService.getCommand(!fGotoConsole ?
-					RCodeLaunching.RUN_FILEVIACOMMAND_COMMAND_ID : RCodeLaunching.RUN_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID);
+					RCodeLaunching.SUBMIT_FILEVIACOMMAND_COMMAND_ID : RCodeLaunching.SUBMIT_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID);
 			final ExecutionEvent executionEvent = new ExecutionEvent(command, parameters, null, handlerService.getCurrentState());
 			if (!editor.equals(HandlerUtil.getActivePart(executionEvent))) {
 				LaunchShortcutUtil.handleUnsupportedExecution(executionEvent);

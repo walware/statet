@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2008-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,19 +11,20 @@
 
 package de.walware.statet.r.internal.debug.ui.launcher;
 
+import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 
-/**
- * Launch shortcut, which submits the lowest enclosing function (assign of fdef)
- * and goes to the console.
- * 
- * Supports only text editors.
- */
-public class RunFunctionDefAndGotoConsoleHandler extends
-		RunFunctionDefHandler {
+
+public class SubmitSelectionAndGotoConsoleForTextHandler extends SubmitSelectionForTextHandler {
 	
 	
-	public RunFunctionDefAndGotoConsoleHandler() {
-		super(false);
+	public SubmitSelectionAndGotoConsoleForTextHandler() {
+		super(true);
+	}
+	
+	
+	@Override
+	protected String appendVariant(final String label) {
+		return label + RLaunchingMessages.SubmitCode_GotoConsole_affix;
 	}
 	
 }

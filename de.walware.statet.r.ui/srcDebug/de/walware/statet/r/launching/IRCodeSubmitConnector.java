@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,18 +11,25 @@
 
 package de.walware.statet.r.launching;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
 
 
-/**
- * 
- */
-public interface ICodeLaunchContentHandler {
+public interface IRCodeSubmitConnector {
 	
 	
-	public String[] getCodeLines(final IDocument document) throws BadLocationException, CoreException;
+	/**
+	 * Submit commands to R.
+	 * 
+	 * @param lines array with commands
+	 * @param gotoConsole if <code>true</code>, switch focus console, else does not change the focus.
+	 * @return <code>false</code>, if not successful, otherwise <code>true</code> (hint)
+	 * 
+	 * @throws CoreException if a technical error occured
+	 */
+	boolean submit(List<String> lines, boolean gotoConsole) throws CoreException;
 	
+	void gotoConsole() throws CoreException;
 	
 }
