@@ -103,7 +103,7 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 		 */
 		@Override
 		public Image getImage() {
-			return LTKUI.getImages().get(LTKUI.OBJ_TEXT_AT_TAG);
+			return LTKUI.getImages().get(LTKUI.OBJ_TEXT_AT_TAG_IMAGE_ID);
 		}
 		
 		@Override

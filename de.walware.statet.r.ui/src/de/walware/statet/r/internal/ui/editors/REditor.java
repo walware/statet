@@ -16,7 +16,6 @@ import java.util.List;
 import org.eclipse.core.commands.IHandler2;
 import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
@@ -42,6 +41,7 @@ import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ui.ElementInfoController;
+import de.walware.ecommons.ltk.ui.LTKUI;
 import de.walware.ecommons.ltk.ui.sourceediting.AbstractMarkOccurrencesProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.FoldingEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
@@ -54,7 +54,6 @@ import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.SpecificContentAssistHandler;
 import de.walware.ecommons.ui.SharedUIResources;
 
-import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.IStatetUIMenuIds;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -69,7 +68,7 @@ import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.RUIHelp;
 import de.walware.statet.r.ui.editors.DefaultRFoldingProvider;
 import de.walware.statet.r.ui.editors.IREditor;
-import de.walware.statet.r.ui.editors.RCorrectIndentAction;
+import de.walware.statet.r.ui.editors.RCorrectIndentHandler;
 import de.walware.statet.r.ui.editors.REditorOptions;
 import de.walware.statet.r.ui.editors.RMarkOccurrencesLocator;
 import de.walware.statet.r.ui.sourceediting.InsertAssignmentHandler;
@@ -248,7 +247,7 @@ public class REditor extends SourceEditor1 implements IREditor {
 		final IHandlerService handlerService = (IHandlerService) getServiceLocator().getService(IHandlerService.class);
 		
 		{	final IHandler2 handler = new InsertAssignmentHandler(this);
-			handlerService.activateHandler(IStatetUICommandIds.INSERT_ASSIGNMENT, handler);
+			handlerService.activateHandler(LTKUI.INSERT_ASSIGNMENT_COMMAND_ID, handler);
 			markAsStateDependentHandler(handler, true);
 		}
 		{	final Action action = new RDoubleCommentAction(this, getRCoreAccess());
@@ -258,17 +257,22 @@ public class REditor extends SourceEditor1 implements IREditor {
 		{	final IHandler2 handler = new SpecificContentAssistHandler(this, RUIPlugin.getDefault().getREditorContentAssistRegistry());
 			handlerService.activateHandler(ISourceEditorCommandIds.SPECIFIC_CONTENT_ASSIST_COMMAND_ID, handler);
 		}
+		{	final IHandler2 handler = new RStripCommentsHandler(this);
+			handlerService.activateHandler(LTKUI.STRIP_COMMENTS_COMMAND_ID, handler);
+		}
 	}
 	
 	@Override
-	protected IAction createCorrectIndentAction() {
-		return new RCorrectIndentAction(this);
+	protected IHandler2 createCorrectIndentHandler() {
+		final IHandler2 handler = new RCorrectIndentHandler(this);
+		markAsStateDependentHandler(handler, true);
+		return handler;
 	}
 	
 	@Override
 	protected void editorContextMenuAboutToShow(final IMenuManager m) {
 		super.editorContextMenuAboutToShow(m);
-		IRSourceUnit su = getSourceUnit();
+		final IRSourceUnit su = getSourceUnit();
 		
 		m.insertBefore(SharedUIResources.ADDITIONS_MENU_ID, new Separator(IStatetUIMenuIds.GROUP_RUN_STAT_ID));
 		final IContributionItem additions = m.find(SharedUIResources.ADDITIONS_MENU_ID);

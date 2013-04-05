@@ -18,11 +18,11 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.services.IServiceLocator;
 
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ui.LTKUI;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.actions.HandlerCollection;
 
-import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
@@ -80,7 +80,7 @@ public class RInputGroup extends ConsolePageEditor implements ISettingsChangedHa
 		contextService.activateContext("de.walware.statet.r.contexts.REditor"); //$NON-NLS-1$
 		
 		{	final IHandler2 handler = new InsertAssignmentHandler(this);
-			handlerService.activateHandler(IStatetUICommandIds.INSERT_ASSIGNMENT, handler);
+			handlerService.activateHandler(LTKUI.INSERT_ASSIGNMENT_COMMAND_ID, handler);
 		}
 	}
 	

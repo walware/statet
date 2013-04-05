@@ -16,9 +16,7 @@ import java.util.List;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.commands.IHandler2;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
@@ -43,6 +41,7 @@ import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ui.ElementInfoController;
+import de.walware.ecommons.ltk.ui.LTKUI;
 import de.walware.ecommons.ltk.ui.sourceediting.AbstractMarkOccurrencesProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.FoldingEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
@@ -59,8 +58,6 @@ import de.walware.docmlet.tex.ui.editors.LtxDefaultFoldingProvider;
 import de.walware.docmlet.tex.ui.editors.TexEditorOptions;
 import de.walware.docmlet.tex.ui.editors.TexMarkOccurrencesLocator;
 
-import de.walware.statet.base.ui.IStatetUICommandIds;
-
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -70,7 +67,8 @@ import de.walware.statet.r.sweave.Sweave;
 import de.walware.statet.r.sweave.text.Rweave;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.editors.DefaultRFoldingProvider;
-import de.walware.statet.r.ui.editors.RCorrectIndentAction;
+import de.walware.statet.r.ui.editors.IREditor;
+import de.walware.statet.r.ui.editors.RCorrectIndentHandler;
 import de.walware.statet.r.ui.editors.RMarkOccurrencesLocator;
 import de.walware.statet.r.ui.sourceediting.InsertAssignmentHandler;
 
@@ -163,9 +161,9 @@ public class LtxRweaveEditor extends SourceEditor1 implements ILtxRweaveEditor {
 		
 	}
 	
-	private class CatIndentAction extends RCorrectIndentAction {
+	private class CatIndentHandler extends RCorrectIndentHandler {
 		
-		public CatIndentAction(final SourceEditor1 editor) {
+		public CatIndentHandler(final IREditor editor) {
 			super(editor);
 		}
 		
@@ -294,7 +292,7 @@ public class LtxRweaveEditor extends SourceEditor1 implements ILtxRweaveEditor {
 		final IHandlerService handlerService = (IHandlerService) getServiceLocator().getService(IHandlerService.class);
 		
 		{	final IHandler2 handler = new InsertAssignmentHandler(this);
-			handlerService.activateHandler(IStatetUICommandIds.INSERT_ASSIGNMENT, handler);
+			handlerService.activateHandler(LTKUI.INSERT_ASSIGNMENT_COMMAND_ID, handler);
 			markAsStateDependentHandler(handler, true);
 		}
 		{	final IHandler2 handler = new LtxRweaveForwardHandler(this, null,
@@ -305,15 +303,17 @@ public class LtxRweaveEditor extends SourceEditor1 implements ILtxRweaveEditor {
 	}
 	
 	@Override
-	protected IHandler createToggleCommentHandler() {
-		final MultiCatCommentHandler commentHandler = new MultiCatCommentHandler();
-		markAsStateDependentHandler(commentHandler, true);
-		return commentHandler;
+	protected IHandler2 createToggleCommentHandler() {
+		final IHandler2 handler = new MultiCatCommentHandler();
+		markAsStateDependentHandler(handler, true);
+		return handler;
 	}
 	
 	@Override
-	protected IAction createCorrectIndentAction() {
-		return new CatIndentAction(this);
+	protected IHandler2 createCorrectIndentHandler() {
+		final IHandler2 handler = new CatIndentHandler(this);
+		markAsStateDependentHandler(handler, true);
+		return handler;
 	}
 	
 	

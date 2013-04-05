@@ -25,9 +25,8 @@ public class RUIMessages extends NLS {
 	public static String ChooseREnv_error_IncompleteSelection_message;
 	public static String ChooseREnv_error_InvalidSelection_message;
 	
-	public static String CorrectIndent_error_message;
-	public static String CorrectIndent_task_Indent;
-	public static String CorrectIndent_task_UpdateStructure;
+	public static String StripComments_task_label;
+	public static String CorrectIndent_task_label;
 	
 	public static String Proposal_RenameInFile_label;
 	public static String Proposal_RenameInFile_description;

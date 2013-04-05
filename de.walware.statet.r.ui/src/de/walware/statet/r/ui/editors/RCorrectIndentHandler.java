@@ -16,10 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentRewriteSessionType;
@@ -29,84 +25,48 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.statushandlers.StatusManager;
-import org.eclipse.ui.texteditor.IUpdate;
 
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
-import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
-import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorProgressHandler;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.rsource.RSourceIndenter;
 import de.walware.statet.r.internal.ui.RUIMessages;
-import de.walware.statet.r.ui.RUI;
 
 
 /**
- * Action to correct indentation of selected code lines.
+ * Command handler to correct indentation of selected code lines.
  * @see RSourceIndenter
  */
-public class RCorrectIndentAction extends Action implements IUpdate {
+public class RCorrectIndentHandler extends SourceEditorProgressHandler {
 	
 	
-	private final SourceEditor1 fEditor;
-	private final ISourceEditor fSourceEditor;
 	private RSourceIndenter fIndenter;
 	
 	
-	public RCorrectIndentAction(final SourceEditor1 editor) {
-		setId("de.walware.statet.r.actions.RCorrectIndent"); //$NON-NLS-1$
-		setActionDefinitionId(ISourceEditorCommandIds.CORRECT_INDENT);
-		fEditor = editor;
-		fSourceEditor = (ISourceEditor) editor.getAdapter(ISourceEditor.class);
+	public RCorrectIndentHandler(final ISourceEditor editor) {
+		super(editor);
 	}
 	
 	
 	@Override
-	public void update() {
-		setEnabled(fSourceEditor.isEditable(false));
+	protected String getTaskLabel() {
+		return RUIMessages.CorrectIndent_task_label;
 	}
 	
 	@Override
-	public void run() {
-		if (!fSourceEditor.isEditable(true)) {
-			return;
-		}
-		try {
-			final ITextSelection selection = (ITextSelection) fEditor.getSelectionProvider().getSelection();
-			
-			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
-				@Override
-				public void run(final IProgressMonitor monitor)
-						throws InvocationTargetException, InterruptedException {
-					try {
-						final ISourceUnit unit = fEditor.getSourceUnit();
-						if (unit != null) {
-							doCorrection(unit, selection, monitor);
-						}
-					}
-					catch (final Exception e) {
-						throw new InvocationTargetException(e);
-					}
-				}
-			});
-		}
-		catch (final InvocationTargetException e) {
-			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
-					RUIMessages.CorrectIndent_error_message, e.getTargetException()));
-		}
-		catch (final InterruptedException e) {}
+	protected boolean isEditTask() {
+		return true;
 	}
 	
-	private void doCorrection(final ISourceUnit su, final ITextSelection selection, final IProgressMonitor monitor)
-			throws Exception {
-		monitor.subTask(RUIMessages.CorrectIndent_task_UpdateStructure);
+	@Override
+	protected void doExecute(final ISourceEditor editor, final ISourceUnit su,
+			final ITextSelection selection, final IProgressMonitor monitor) throws Exception {
 		final AbstractDocument document = su.getDocument(monitor);
 		final AstInfo ast = su.getAstInfo(null, true, monitor);
 		
@@ -114,7 +74,7 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 			return;
 		}
 		
-		monitor.subTask(RUIMessages.CorrectIndent_task_Indent);
+		monitor.subTask(getTaskLabel() + "...");
 		
 		if (fIndenter == null) {
 			fIndenter = new RSourceIndenter();
@@ -166,8 +126,8 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
-						if (UIAccess.isOkToUse(fSourceEditor.getViewer())) {
-							fEditor.selectAndReveal(newPos, 0);
+						if (UIAccess.isOkToUse(editor.getViewer())) {
+							editor.selectAndReveal(newPos, 0);
 						}
 					}
 				});
