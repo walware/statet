@@ -7,12 +7,12 @@
 	<parent>
 		<groupId>de.walware.statet</groupId>
 		<artifactId>statet</artifactId>
-		<version>3.2-SNAPSHOT</version>
+		<version>3.3-SNAPSHOT</version>
 	</parent>
 	
 	<groupId>de.walware.statet-packaging</groupId>
 	<artifactId>de.walware.statet-repo</artifactId>
-	<version>3.2.0-SNAPSHOT</version>
+	<version>3.3.0-SNAPSHOT</version>
 	<packaging>eclipse-repository</packaging>
 	
 	<build>

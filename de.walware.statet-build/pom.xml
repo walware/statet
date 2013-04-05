@@ -5,7 +5,7 @@
 	
 	<groupId>de.walware.statet</groupId>
 	<artifactId>statet</artifactId>
-	<version>3.2-SNAPSHOT</version>
+	<version>3.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>StatET</name>
 	
@@ -57,7 +57,7 @@
 						<artifact>
 							<groupId>de.walware.statet</groupId>
 							<artifactId>de.walware.statet-default</artifactId>
-							<version>3.2.1-SNAPSHOT</version>
+							<version>3.3.0-SNAPSHOT</version>
 						</artifact>
 					</target>
 				</configuration>
