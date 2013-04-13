@@ -59,7 +59,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.internal.editors.text.EditorsPlugin;
@@ -104,6 +103,7 @@ import de.walware.ecommons.text.ui.TextViewerEditorColorUpdater;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.actions.HandlerCollection;
 import de.walware.ecommons.ui.util.UIAccess;
+import de.walware.ecommons.workbench.ui.WorkbenchUIUtil;
 
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.History.Entry;
@@ -645,11 +645,12 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	}
 	
 	public void initActions(final IServiceLocator serviceLocator, final HandlerCollection handlers) {
-		final IContextService contextService = (IContextService) serviceLocator.getService(IContextService.class);
-		final IHandlerService handlerService = (IHandlerService) serviceLocator.getService(IHandlerService.class);
 		final StyledText textWidget = fSourceViewer.getTextWidget();
 		
-		contextService.activateContext("de.walware.statet.base.contexts.ConsoleEditor"); //$NON-NLS-1$
+		WorkbenchUIUtil.activateContext(serviceLocator,
+				"de.walware.statet.base.contexts.ConsoleEditor" ); //$NON-NLS-1$
+		
+		final IHandlerService handlerService = (IHandlerService) serviceLocator.getService(IHandlerService.class);
 		
 		final ICharPairMatcher matcher = fConfigurator.getSourceViewerConfiguration().getPairMatcher();
 		if (matcher != null) {
@@ -991,7 +992,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	
 	@Override
 	public IServiceLocator getServiceLocator() {
-		return fConsolePage.fInputServices;
+		return fConsolePage.fInputServices.getLocator();
 	}
 	
 	@Override

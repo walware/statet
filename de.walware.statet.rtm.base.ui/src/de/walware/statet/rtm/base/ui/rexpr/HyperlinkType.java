@@ -90,8 +90,15 @@ public class HyperlinkType extends TypeDef implements IHyperlinkListener {
 			}
 		}
 		
+		private static String getId(final IViewReference ref) {
+			// E-Bug #405563
+			final String id = ref.getId();
+			final int idx = id.indexOf(':');
+			return (idx >= 0) ? id.substring(0, idx) : id;
+		}
+		
 		private int ratePropertyView(final IViewReference viewReference, final EFEditor editor) {
-			if (viewReference == null || !viewReference.getId().equals("org.eclipse.ui.views.PropertySheet")) { //$NON-NLS-1$
+			if (viewReference == null || !getId(viewReference).equals("org.eclipse.ui.views.PropertySheet")) { //$NON-NLS-1$
 				return -1;
 			}
 			final PropertySheet view = (PropertySheet) viewReference.getPart(false);

@@ -269,10 +269,11 @@
    <extension
          point="org.eclipse.ui.contexts">
       <context
-            description="%categorys.RSource.description"
             id="de.walware.statet.r.contexts.REditor"
+            parentId="de.walware.ecommons.text.contexts.TextEditor"
             name="%categorys.RSource.name"
-            parentId="de.walware.ecommons.text.contexts.TextEditor"/>
+            description="%categorys.RSource.description">
+      </context>
    </extension>
    <extension
          point="org.eclipse.ui.menus">

@@ -37,6 +37,7 @@ import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.components.StatusInfo;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.NestedServices;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.ui.util.ToolDialog;
@@ -79,6 +80,8 @@ public class RPkgManagerDialog extends ToolDialog implements IChangeListener, IR
 	private int fUpdatePage;
 	
 	private StartAction fStartAction;
+	
+	NestedServices fServiceLocator;
 	
 	
 	public RPkgManagerDialog(final IRPkgManager.Ext rPkgManager, final RProcess rProcess,
@@ -129,6 +132,7 @@ public class RPkgManagerDialog extends ToolDialog implements IChangeListener, IR
 			}
 		});
 		
+		fServiceLocator = new NestedServices.Dialog(getShell());
 		fPkgTab.createActions();
 		
 		updateStatus();

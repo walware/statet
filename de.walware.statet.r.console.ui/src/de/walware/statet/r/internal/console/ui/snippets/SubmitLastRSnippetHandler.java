@@ -63,6 +63,7 @@ public class SubmitLastRSnippetHandler extends AbstractHandler implements IEleme
 				fSnippets.getTemplateStore().findTemplate(name) : null;
 		if (template != null) {
 			fSnippets.run(template, event);
+			return null;
 		}
 		{	// Show pull down menu
 			final Object trigger = event.getTrigger();

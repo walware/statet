@@ -1130,12 +1130,12 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	private class TreeElementSelection extends TreeSelectionProxy implements IElementNameProvider {
 		
-		public TreeElementSelection(ITreeSelection selection) {
+		public TreeElementSelection(final ITreeSelection selection) {
 			super(selection);
 		}
 		
 		@Override
-		public IElementName getElementName(Object selectionElement) {
+		public IElementName getElementName(final Object selectionElement) {
 			if (selectionElement instanceof TreePath) { 
 				return ObjectBrowserView.this.getElementName((TreePath) selectionElement);
 			}
@@ -1151,7 +1151,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		}
 		
 		@Override
-		protected ISelection getSelection(ISelection originalSelection) {
+		protected ISelection getSelection(final ISelection originalSelection) {
 			return new TreeElementSelection((ITreeSelection) originalSelection);
 		}
 		
@@ -1373,7 +1373,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		hookContextMenu();
 		getSite().setSelectionProvider(fTreeSelectionProvider);
 		
-		ViewerDragSupport dragSupport = new ViewerDragSupport(fTreeViewer);
+		final ViewerDragSupport dragSupport = new ViewerDragSupport(fTreeViewer);
 		dragSupport.addDragSourceListener(new ViewerDragSupport.TextDragSourceListener(fTreeViewer));
 		dragSupport.init();
 		
@@ -1429,7 +1429,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		fOpenInEditorHandler = new OpenInEditorHandler();
 		handlerService.activateHandler(OPEN_COMMAND_ID, fOpenInEditorHandler);
 		
-		fSearchTextItem = new SearchContributionItem("search.text", true) { //$NON-NLS-1$
+		fSearchTextItem = new SearchContributionItem("search.text", //$NON-NLS-1$
+				SearchContributionItem.VIEW_TOOLBAR, true ) {
 			@Override
 			protected void search() {
 				fFilterText = getText();

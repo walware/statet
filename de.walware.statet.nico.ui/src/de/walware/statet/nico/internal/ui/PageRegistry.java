@@ -436,12 +436,19 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 		}
 	}
 	
+	private static String getId(final IViewReference ref) {
+		// E-Bug #405563
+		final String id = ref.getId();
+		final int idx = id.indexOf(':');
+		return (idx >= 0) ? id.substring(0, idx) : id;
+	}
+	
 	private List<IConsoleView> getConsoleViews() {
 		final List<IConsoleView> consoleViews = new ArrayList<IConsoleView>();
 		
 		final IViewReference[] allReferences = fPage.getViewReferences();
 		for (final IViewReference reference : allReferences) {
-			if (reference.getId().equals(IConsoleConstants.ID_CONSOLE_VIEW)) {
+			if (getId(reference).equals(IConsoleConstants.ID_CONSOLE_VIEW)) {
 				final IViewPart view = reference.getView(true);
 				if (view != null) {
 					final IConsoleView consoleView = (IConsoleView) view;

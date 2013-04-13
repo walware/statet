@@ -746,7 +746,8 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	}
 	
 	private void fillLocalToolBar(final IToolBarManager manager) {
-		fSearchTextItem = new SearchContributionItem("search.text", false) { //$NON-NLS-1$
+		fSearchTextItem = new SearchContributionItem("search.text", //$NON-NLS-1$
+				SearchContributionItem.VIEW_TOOLBAR ) {
 			@Override
 			protected void search() {
 				HistoryView.this.search(true, -1);

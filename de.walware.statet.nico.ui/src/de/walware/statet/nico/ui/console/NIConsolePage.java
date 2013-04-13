@@ -19,6 +19,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.IHandler2;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.debug.core.DebugEvent;
@@ -32,6 +33,7 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuListener2;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
@@ -78,10 +80,7 @@ import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.console.actions.ClearOutputAction;
-import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
-import org.eclipse.ui.internal.services.IServiceLocatorCreator;
-import org.eclipse.ui.internal.services.ServiceLocator;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.part.IPageBookViewPage;
@@ -89,7 +88,6 @@ import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.IShowInSource;
 import org.eclipse.ui.part.IShowInTargetList;
 import org.eclipse.ui.part.ShowInContext;
-import org.eclipse.ui.services.IDisposable;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.texteditor.FindReplaceAction;
 
@@ -107,6 +105,7 @@ import de.walware.ecommons.ui.actions.SimpleContributionItem;
 import de.walware.ecommons.ui.util.DNDUtil;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.NestedServices;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.Prompt;
@@ -393,7 +392,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	// Actions
 	private MultiActionHandler fMultiActionHandler;
 	private final ListenerList fToolActions = new ListenerList();
-	ServiceLocator fInputServices;
+	NestedServices fInputServices;
 	
 	private FindReplaceUpdater fFindReplaceUpdater;
 	private FindReplaceAction fFindReplaceAction;
@@ -419,10 +418,6 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	private ConsoleRemoveLaunchAction fRemoveAction;
 	private ConsoleRemoveAllTerminatedAction fRemoveAllAction;
 	private TerminateToolAction fTerminateAction;
-	
-	private CancelHandler fCancelCurrentHandler;
-	private CancelHandler fCancelAllHandler;
-	private CancelHandler fCancelPauseHandler;
 	
 	private final HandlerCollection fPageHandlers = new HandlerCollection();
 	private final HandlerCollection fInputHandlers = new HandlerCollection();
@@ -530,7 +525,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fClipboard = new Clipboard(fControl.getDisplay());
 		createActions();
 		initActions(getSite(), fPageHandlers);
-		fInputGroup.initActions(fInputServices, fInputHandlers);
+		fInputGroup.initActions(fInputServices.getLocator(), fInputHandlers);
 		hookContextMenu();
 		hookDND();
 		contributeToActionBars(getSite(), getSite().getActionBars(), fPageHandlers);
@@ -601,51 +596,33 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		final SourceViewer inputViewer = fInputGroup.getViewer();
 		final Control inputControl = inputViewer.getControl();
 		
-		final IServiceLocator pageServices = getSite();
-		final IServiceLocatorCreator serviceCreator = (IServiceLocatorCreator) pageServices.getService(IServiceLocatorCreator.class);
-		fInputServices = (ServiceLocator) serviceCreator.createServiceLocator(pageServices, null, new IDisposable() {
-			@Override
-			public void dispose() {
-				fInputServices = null;
-			}
-		});
-		// TODO: E-3.4 / E-3.5 bug #142226
+		final IServiceLocator pageServiceLocator = getSite();
+		fInputServices = new NestedServices(pageServiceLocator, "ConsoleInput");
+		fInputServices.bindTo(inputControl);
 		
-		final IHandlerService pageCommands = (IHandlerService) pageServices.getService(IHandlerService.class);
-		final IHandlerService inputCommands = (IHandlerService) fInputServices.getService(IHandlerService.class);
-		final IContextService pageKeys = (IContextService) pageServices.getService(IContextService.class);
-		final IContextService inputKeys = (IContextService) fInputServices.getService(IContextService.class);
-		
-		inputControl.addListener(SWT.FocusIn, new Listener() {
-			@Override
-			public void handleEvent(final Event event) {
-				if (fInputServices != null) {
-					fInputServices.activate();
-					getSite().getActionBars().updateActionBars();
-				}
-			}
-		});
-		inputControl.addListener(SWT.FocusOut, new Listener() {
-			@Override
-			public void handleEvent(final Event event) {
-				if (fInputServices != null) {
-					fInputServices.deactivate();
-					getSite().getActionBars().updateActionBars();
-				}
-			}
-		});
+		final IHandlerService pageHandlerService = (IHandlerService) pageServiceLocator
+				.getService(IHandlerService.class);
+		final IHandlerService inputHandlerService = (IHandlerService) fInputServices.getLocator()
+				.getService(IHandlerService.class);
 		
 		fMultiActionHandler = new MultiActionHandler();
 		
 		fRemoveAction = new ConsoleRemoveLaunchAction(fConsole.getProcess().getLaunch());
 		fRemoveAllAction = new ConsoleRemoveAllTerminatedAction();
 		fTerminateAction = new TerminateToolAction(fConsole.getProcess());
-		fCancelCurrentHandler = new CancelHandler(this, ToolController.CANCEL_CURRENT);
-		pageCommands.activateHandler(NicoUI.CANCEL_CURRENT_COMMAND_ID, fCancelCurrentHandler);
-		fCancelAllHandler = new CancelHandler(this, ToolController.CANCEL_ALL);
-		pageCommands.activateHandler(NicoUI.CANCEL_ALL_COMMAND_ID, fCancelAllHandler);
-		fCancelPauseHandler = new CancelHandler(this, ToolController.CANCEL_CURRENT | ToolController.CANCEL_PAUSE);
-		pageCommands.activateHandler(NicoUI.CANCEL_PAUSE_COMMAND_ID, fCancelPauseHandler);
+		{	final IHandler2 handler = new CancelHandler(this, ToolController.CANCEL_CURRENT);
+			fPageHandlers.add(NicoUI.CANCEL_CURRENT_COMMAND_ID, handler);
+			pageHandlerService.activateHandler(NicoUI.CANCEL_CURRENT_COMMAND_ID, handler);
+		}
+		{	final IHandler2 handler = new CancelHandler(this, ToolController.CANCEL_ALL);
+			fPageHandlers.add(NicoUI.CANCEL_ALL_COMMAND_ID, handler);
+			pageHandlerService.activateHandler(NicoUI.CANCEL_ALL_COMMAND_ID, handler);
+		}
+		{	final IHandler2 handler = new CancelHandler(this, ToolController.CANCEL_CURRENT | ToolController.CANCEL_PAUSE);
+			fPageHandlers.add(NicoUI.CANCEL_PAUSE_COMMAND_ID, handler);
+			pageHandlerService.activateHandler(NicoUI.CANCEL_PAUSE_COMMAND_ID, handler);
+		}
+		
 // Conflict with binding CTRL+Z (in console EOF)
 //		pageKeys.activateContext("org.eclipse.debug.ui.console");  //$NON-NLS-1$
 		
@@ -740,11 +717,43 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		toolBarManager.appendToGroup(IConsoleConstants.OUTPUT_GROUP, fOutputScrollLockAction);
 		
 		toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, new HandlerContributionItem(
-				new CommandContributionItemParameter(getSite(), CancelHandler.MENU_ID,
+				new CommandContributionItemParameter(serviceLocator, CancelHandler.MENU_ID,
 						NicoUI.CANCEL_CURRENT_COMMAND_ID, null,
 						null, null, null,
 						Messages.CancelAction_name, null, Messages.CancelAction_tooltip,
-						CommandContributionItem.STYLE_PULLDOWN, null, false), fCancelCurrentHandler));
+						HandlerContributionItem.STYLE_PULLDOWN, null, false),
+						fPageHandlers.get(NicoUI.CANCEL_CURRENT_COMMAND_ID) ) {
+			// Workaround for E-Bug #366528
+			@Override
+			protected void initDropDownMenu(final MenuManager menuManager) {
+				menuManager.addMenuListener(new IMenuListener2() {
+					@Override
+					public void menuAboutToShow(final IMenuManager manager) {
+						manager.add(new CommandContributionItem(
+								new CommandContributionItemParameter(serviceLocator,
+										null, NicoUI.CANCEL_CURRENT_COMMAND_ID,
+										CommandContributionItem.STYLE_PUSH )));
+						manager.add(new CommandContributionItem(
+								new CommandContributionItemParameter(serviceLocator,
+										null, NicoUI.CANCEL_PAUSE_COMMAND_ID,
+										CommandContributionItem.STYLE_PUSH )));
+						manager.add(new CommandContributionItem(
+								new CommandContributionItemParameter(serviceLocator,
+										null, NicoUI.CANCEL_ALL_COMMAND_ID,
+										CommandContributionItem.STYLE_PUSH )));
+					}
+					@Override
+					public void menuAboutToHide(final IMenuManager manager) {
+						display.asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								menuManager.dispose();
+							}
+						});
+					}
+				});
+			}
+		});
 		toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fTerminateAction);
 		toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fRemoveAction);
 		toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fRemoveAllAction);

@@ -76,9 +76,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.ui.ActiveShellExpression;
 import org.eclipse.ui.IWorkbenchCommandConstants;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 
@@ -95,7 +93,7 @@ import de.walware.ecommons.ui.content.TableFilterController;
 import de.walware.ecommons.ui.content.TextFilterProvider;
 import de.walware.ecommons.ui.util.AutoCheckController;
 import de.walware.ecommons.ui.util.LayoutUtil;
-import de.walware.ecommons.ui.util.NestedServiceLocator;
+import de.walware.ecommons.ui.util.NestedServices;
 import de.walware.ecommons.ui.util.ViewerUtil.CheckboxTableComposite;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
 import de.walware.ecommons.ui.util.ViewerUtil.TreeComposite;
@@ -247,7 +245,7 @@ public class PkgTab extends Composite {
 	
 	private TableComposite fPkgTable;
 	
-	private NestedServiceLocator fServiceLocator;
+	private NestedServices fServiceLocator;
 	
 	private IHandler2 fRefreshHandler;
 	private final History<String> fPkgHistory = new de.walware.ecommons.ui.components.History<String>() {
@@ -267,7 +265,6 @@ public class PkgTab extends Composite {
 	private DropDownButton fUpdateButton;
 	private Button fUninstallButton;
 	private Button fLoadButton;
-	
 	
 	
 	PkgTab(final RPkgManagerDialog dialog, final TabItem tab, final Composite parent,
@@ -772,8 +769,7 @@ public class PkgTab extends Composite {
 	}
 	
 	void createActions() {
-		fServiceLocator = new NestedServiceLocator(PlatformUI.getWorkbench(),
-				new ActiveShellExpression(getShell()) );
+		fServiceLocator = new NestedServices(fDialog.fServiceLocator.getLocator(), "Tab");
 		fServiceLocator.bindTo(this);
 		
 		final IHandlerService handlerService = (IHandlerService) fServiceLocator.getLocator()
