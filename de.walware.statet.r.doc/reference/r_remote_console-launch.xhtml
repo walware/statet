@@ -41,22 +41,25 @@ A launch configuration of this type can be used optionally if
 one use often several R sessions.</p>
 
 <h4>Connection settings</h4>
-<p>The <b class="uilabel">Address</b> for an R engine has the form:
+<p>The <span class="uilabel">Address</span> for an R engine has the form:
 <code class="indent">//host[:port]//rsessionname</code>
 The host system is specified by its name or IP address.  The port is the TCP/UDP port of the
 RMI registry and can be omitted if the default port 1099 is used.  The 
-<code class="indent">rsessionname</code> can be chosen freely but must be a unique
+<code>rsessionname</code> can be chosen freely but must be a unique
 name in the registry.</p>
 <p>The <span class="uilabel">Browse...</span> button opens a dialog showing all R engines available 
 on the specified servers in your network similar to the reconnect dialog.</p>
 
-<p>The <b class="uilabel">Username</b> is used when connecting requires authentication. This depends
-on the configuration of the server.  See the startup script of the server for detail about the
-available methods.</p>
+<p>The <span class="uilabel">Username</span> is used when connecting requires authentication. This 
+depends on the configuration of the server.  See the startup script of the server for detail about 
+the available methods.</p>
 
 <p>For <b>SSH connection</b>: The <span class="uilabel">SSH Port</span> is the TCP/UDP port of SSH 
 server on the remote system (default is 22).  The host of the address, the username and the SSH 
 port defines the SSH address used to connect to the SSH server.</p>
+
+<p>The option <span class="uilabel">Tunnel connections to R engine through SSH</span> allows
+to secure the connections to the server.</p>
 
 <p>The <span class="uilabel">Remote Command</span> is run through the SSH connection to start the 
 R server on the remote system.  It must point to a startup script like <code>startup.sh</code> 
@@ -66,6 +69,7 @@ provided by the server bundle.  Adjust the path, if required.</p>
 <p>The R options let you configure the initial R working directory and the R start-up options.  
 The working directory must be specified as local folder which is mapped to an <a href="r_remote_console-resourcemapping.xhtml"
 >remote folder</a>.</p>
+
 
 <h2>Console View</h2>
 <p>The console view for the remote R engine has additional commands to:</p>
