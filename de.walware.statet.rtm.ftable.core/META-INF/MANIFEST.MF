@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: de.walware.statet.rtm.ftable.core;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: WalWare.de
+Bundle-Name: R Task Model: 'ftable'
+Bundle-Activator: de.walware.statet.rtm.ftable.core.RtFTableCorePlugin$Implementation
+Bundle-ActivationPolicy: lazy
+Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.emf.ecore;visibility:=reexport,
+ org.eclipse.emf.ecore.xmi;visibility:=reexport,
+ de.walware.statet.rtm.base.core;visibility:=reexport,
+ org.eclipse.emf.edit;visibility:=reexport
+Import-Package: de.walware.ecommons.collections;version="1.0.0"
+Export-Package: de.walware.statet.rtm.ftable,
+ de.walware.statet.rtm.ftable.core,
+ de.walware.statet.rtm.ftable.impl,
+ de.walware.statet.rtm.ftable.provider,
+ de.walware.statet.rtm.ftable.util

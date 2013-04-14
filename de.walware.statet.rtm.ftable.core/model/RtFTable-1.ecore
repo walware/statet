@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="ftable" nsURI="http://walware.de/rtm/Rt-ftable/1.0" nsPrefix="ftable">
+  <eClassifiers xsi:type="ecore:EClass" name="FTable">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="data" eType="ecore:EDataType platform:/plugin/de.walware.statet.rtm.base.core/model/RtData-1.ecore#//RDataFrame"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dataFilter" eType="ecore:EDataType platform:/plugin/de.walware.statet.rtm.base.core/model/RtData-1.ecore#//RDataFilter"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="colVars" upperBound="-1"
+        eType="ecore:EDataType platform:/plugin/de.walware.statet.rtm.base.core/model/RtData-1.ecore#//RVar"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="rowVars" upperBound="-1"
+        eType="ecore:EDataType platform:/plugin/de.walware.statet.rtm.base.core/model/RtData-1.ecore#//RVar"/>
+  </eClassifiers>
+</ecore:EPackage>

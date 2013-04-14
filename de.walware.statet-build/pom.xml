@@ -33,6 +33,8 @@
 		
 		<module>../de.walware.statet.rtm.base.core</module>
 		<module>../de.walware.statet.rtm.base.ui</module>
+		<module>../de.walware.statet.rtm.ftable.core</module>
+		<module>../de.walware.statet.rtm.ftable.ui</module>
 		<module>../de.walware.statet.rtm.ggplot.core</module>
 		<module>../de.walware.statet.rtm.ggplot.ui</module>
 	</modules>
@@ -110,6 +112,7 @@
 				
 				<module>de.walware.statet.r.sweave-feature</module>
 				
+				<module>de.walware.statet.rtm.ftable-feature</module>
 				<module>de.walware.statet.rtm.ggplot-feature</module>
 				
 				<module>repo</module>

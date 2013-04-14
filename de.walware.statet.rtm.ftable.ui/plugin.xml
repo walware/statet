@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<!--
+ Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the Eclipse Public License v1.0
+ which accompanies this distribution, and is available at
+ http://www.eclipse.org/legal/epl-v10.html
+ 
+ Contributors:
+     Stephan Wahlbrink - initial API and implementation
+-->
+
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            id="de.walware.statet.rtm.ftable.editors.FTable"
+            icon="icons/obj_16/ftable_task.png"
+            name="%editors_FTable_label"
+            class="de.walware.statet.rtm.ftable.internal.ui.editors.FTableEditor"
+            contributorClass="de.walware.ecommons.emf.ui.forms.EFEditorActionBarContributor">
+         <contentTypeBinding
+               contentTypeId="de.walware.statet.rtm.contentTypes.FTable">
+         </contentTypeBinding>
+      </editor>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="de.walware.statet.rtm.ftable.commands.NewFTable"
+            categoryId="de.walware.statet.rtm.commands.RTasksCategory"
+            name="%commands_NewFTable_name"
+            description="%commands_NewFTable_description"
+            defaultHandler="de.walware.statet.rtm.ftable.ui.actions.NewFTableHandler">
+      </command>
+   </extension>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <wizard
+            id="de.walware.statet.rtm.ftable.newWizards.NewFTableModel"
+            category="de.walware.statet.r.newWizards.RCategory/de.walware.statet.rtm.base.newWizards.RTasksCategory"
+            icon="icons/obj_16/ftable_task.png"
+            name="%newWizards_NewFTable_name"
+            class="de.walware.statet.rtm.ftable.ui.actions.NewFTableFileWizard">
+         <description>%newWizards_NewFTable_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:de.walware.statet.r.menus.RMain?after=r_tasks.tables">
+         <command
+               commandId="de.walware.statet.rtm.ftable.commands.NewFTable"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+
+</plugin>
