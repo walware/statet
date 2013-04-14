@@ -93,6 +93,7 @@ import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ui.IElementNameProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
+import de.walware.ecommons.ltk.ui.util.ViewerDragSupport;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.ui.IToolRunnableDecorator;
@@ -1371,6 +1372,10 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		createActions();
 		hookContextMenu();
 		getSite().setSelectionProvider(fTreeSelectionProvider);
+		
+		ViewerDragSupport dragSupport = new ViewerDragSupport(fTreeViewer);
+		dragSupport.addDragSourceListener(new ViewerDragSupport.TextDragSourceListener(fTreeViewer));
+		dragSupport.init();
 		
 		// listen on console changes
 		final IToolRegistry toolRegistry = NicoUI.getToolRegistry();

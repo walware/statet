@@ -42,10 +42,10 @@ import de.walware.statet.r.core.pkgmanager.IRPkgSet;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
-import de.walware.statet.r.internal.ui.pkgmanager.OpenRPkgManagerHandler;
-import de.walware.statet.r.internal.ui.pkgmanager.RPkgManagerDialog;
 import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.impl.RjsController;
+import de.walware.statet.r.ui.pkgmanager.RPkgManagerUI;
+import de.walware.statet.r.ui.pkgmanager.StartAction;
 
 
 public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRunnable {
@@ -169,8 +169,8 @@ public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRun
 						NLS.bind(RConsoleMessages.REnvIndex_NewVersion_message, new Object[] {
 								rConfig.getName(), mainVersionString(oldVersion),
 								mainVersionString(newVersion) }))) {
-					final RPkgManagerDialog dialog = OpenRPkgManagerHandler.openDialog(rPkgManager, tool, shell);
-					dialog.startReinstall();
+					RPkgManagerUI.openDialog(rPkgManager, tool, shell,
+							new StartAction(StartAction.REINSTALL) );
 				}
 			}
 		});

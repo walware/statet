@@ -26,7 +26,6 @@ import de.walware.rj.eclient.AbstractRToolCommandHandler;
 import de.walware.rj.eclient.IRToolService;
 
 import de.walware.statet.r.console.core.RProcess;
-import de.walware.statet.r.internal.ui.pkgmanager.OpenRPkgManagerHandler;
 import de.walware.statet.r.ui.RUI;
 
 

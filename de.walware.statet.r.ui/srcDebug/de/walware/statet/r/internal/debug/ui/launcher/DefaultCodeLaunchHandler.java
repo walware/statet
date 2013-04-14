@@ -27,7 +27,7 @@ import de.walware.statet.r.ui.RUI;
 
 
 /**
- * Handler for R-script files.
+ * Handler for R script files.
  */
 public class DefaultCodeLaunchHandler implements ICodeLaunchContentHandler {
 	

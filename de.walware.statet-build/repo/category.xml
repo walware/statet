@@ -17,6 +17,28 @@
       <category name="de.walware.libraries"/>
    </feature>
 
+   <feature url="features/org.eclipse.emf.common_0.0.0.qualifier.jar" id="org.eclipse.emf.common" version="0.0.0">
+      <category name="de.walware.libraries"/>
+   </feature>
+   <feature url="features/org.eclipse.emf.common.ui_0.0.0.qualifier.jar" id="org.eclipse.emf.common.ui" version="0.0.0">
+      <category name="de.walware.libraries"/>
+   </feature>
+   <feature url="features/org.eclipse.emf.ecore_0.0.0.qualifier.jar" id="org.eclipse.emf.ecore" version="0.0.0">
+      <category name="de.walware.libraries"/>
+   </feature>
+   <feature url="features/org.eclipse.emf.edit_0.0.0.qualifier.jar" id="org.eclipse.emf.edit" version="0.0.0">
+      <category name="de.walware.libraries"/>
+   </feature>
+   <feature url="features/org.eclipse.emf.edit.ui_0.0.0.qualifier.jar" id="org.eclipse.emf.edit.ui" version="0.0.0">
+      <category name="de.walware.libraries"/>
+   </feature>
+   <feature url="features/org.eclipse.emf.databinding_0.0.0.qualifier.jar" id="org.eclipse.emf.databinding" version="0.0.0">
+      <category name="de.walware.libraries"/>
+   </feature>
+   <feature url="features/org.eclipse.emf.databinding.edit_0.0.0.qualifier.jar" id="org.eclipse.emf.databinding.edit" version="0.0.0">
+      <category name="de.walware.libraries"/>
+   </feature>
+
    <feature url="features/de.walware.ecommons.ltk_0.0.0.qualifier.jar" id="de.walware.ecommons.ltk" version="0.0.0">
       <category name="de.walware.libraries"/>
    </feature>
@@ -28,6 +50,12 @@
       <category name="de.walware.statet"/>
    </feature>
    <feature url="features/de.walware.statet.r.sweave_0.0.0.qualifier.jar" id="de.walware.statet.r.sweave" version="0.0.0">
+      <category name="de.walware.statet"/>
+   </feature>
+   <feature url="features/de.walware.statet.rtm.ftable_0.0.0.qualifier.jar" id="de.walware.statet.rtm.ftable" version="0.0.0">
+      <category name="de.walware.statet"/>
+   </feature>
+   <feature url="features/de.walware.statet.rtm.ggplot_0.0.0.qualifier.jar" id="de.walware.statet.rtm.ggplot" version="0.0.0">
       <category name="de.walware.statet"/>
    </feature>
 

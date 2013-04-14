@@ -9,18 +9,14 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.pkgmanager;
+package de.walware.statet.r.ui.pkgmanager;
 
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Shell;
 
 import de.walware.ecommons.ui.util.UIAccess;
@@ -34,36 +30,6 @@ import de.walware.statet.r.core.renv.IREnv;
 
 
 public class OpenRPkgManagerHandler extends AbstractHandler {
-	
-	
-	private static final Map<IREnv, RPkgManagerDialog> DIALOGS = new HashMap<IREnv, RPkgManagerDialog>();
-	
-	public static RPkgManagerDialog openDialog(final IRPkgManager.Ext manager,
-			final RProcess tool, final Shell parent) {
-		final IREnv rEnv = manager.getREnv();
-		
-		RPkgManagerDialog dialog = DIALOGS.get(rEnv);
-		if (dialog != null && dialog.getShell() != null && !dialog.getShell().isDisposed()) {
-			dialog.close();
-		}
-		
-		dialog = new RPkgManagerDialog(manager, tool, parent);
-		dialog.setBlockOnOpen(false);
-		DIALOGS.put(rEnv, dialog);
-		
-		dialog.open();
-		dialog.getShell().addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(final DisposeEvent e) {
-				final RPkgManagerDialog d = DIALOGS.get(rEnv);
-				if (d != null && d.getShell() == e.getSource()) {
-					DIALOGS.remove(rEnv);
-				}
-			}
-		});
-		
-		return dialog;
-	}
 	
 	
 	private final RProcess fProcess;
@@ -100,14 +66,14 @@ public class OpenRPkgManagerHandler extends AbstractHandler {
 					UIAccess.getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							openDialog(manager, fProcess, fShell);
+							RPkgManagerUI.openDialog(manager, fProcess, fShell, getStartAction());
 						}
 					});
 				}
 			});
 		}
 		else {
-			openDialog(manager, fProcess, fShell);
+			RPkgManagerUI.openDialog(manager, fProcess, fShell, getStartAction());
 		}
 		return null;
 	}
@@ -117,6 +83,10 @@ public class OpenRPkgManagerHandler extends AbstractHandler {
 		if (env != null) {
 			return RCore.getRPkgManager(env);
 		}
+		return null;
+	}
+	
+	protected StartAction getStartAction() {
 		return null;
 	}
 	

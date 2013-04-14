@@ -268,6 +268,7 @@ public class REditor extends SourceEditor1 implements IREditor {
 	@Override
 	protected void editorContextMenuAboutToShow(final IMenuManager m) {
 		super.editorContextMenuAboutToShow(m);
+		IRSourceUnit su = getSourceUnit();
 		
 		m.insertBefore(SharedUIResources.ADDITIONS_MENU_ID, new Separator(IStatetUIMenuIds.GROUP_RUN_STAT_ID));
 		final IContributionItem additions = m.find(SharedUIResources.ADDITIONS_MENU_ID);
@@ -280,8 +281,10 @@ public class REditor extends SourceEditor1 implements IREditor {
 		
 		m.appendToGroup(IStatetUIMenuIds.GROUP_RUN_STAT_ID, new CommandContributionItem(new CommandContributionItemParameter(
 				getSite(), null, RCodeLaunching.RUN_SELECTION_COMMAND_ID, CommandContributionItem.STYLE_PUSH)));
-		m.appendToGroup(IStatetUIMenuIds.GROUP_RUN_STAT_ID, new CommandContributionItem(new CommandContributionItemParameter(
-				getSite(), null, RCodeLaunching.RUN_SELECTION_PASTEOUTPUT_COMMAND_ID, CommandContributionItem.STYLE_PUSH)));
+		if (su != null && !su.isReadOnly()) {
+			m.appendToGroup(IStatetUIMenuIds.GROUP_RUN_STAT_ID, new CommandContributionItem(new CommandContributionItemParameter(
+					getSite(), null, RCodeLaunching.RUN_SELECTION_PASTEOUTPUT_COMMAND_ID, CommandContributionItem.STYLE_PUSH)));
+		}
 	}
 	
 	

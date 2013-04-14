@@ -61,7 +61,7 @@ public class NewRFileCreationWizard extends NewElementWizard {
 				}
 			}
 			catch (final CoreException e) {
-				RUIPlugin.logError(ICommonStatusConstants.INTERNAL_TEMPLATE, "An error occured when applying template to new R-script file.", e); //$NON-NLS-1$
+				RUIPlugin.logError(ICommonStatusConstants.INTERNAL_TEMPLATE, "An error occured when applying template to new R script file.", e); //$NON-NLS-1$
 			}
 			return null;
 		}

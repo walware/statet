@@ -870,8 +870,7 @@ public class PkgTab extends Composite {
 			public void inputUpdated(final boolean newInput) {
 				if (newInput) {
 					fSelectedPkgVersion = null;
-					final List<?> list = ((IStructuredSelection) fPkgTable.viewer.getSelection()).toList();
-					updateDetail(list.toArray(new String[list.size()]));
+					updateDetail();
 				}
 			}
 		});
@@ -880,7 +879,7 @@ public class PkgTab extends Composite {
 			@Override
 			public void selectionChanged(final SelectionChangedEvent event) {
 				final List<?> list = ((IStructuredSelection) event.getSelection()).toList();
-				updateDetail(list.toArray(new String[list.size()]));
+				doUpdateDetail(list.toArray(new String[list.size()]));
 			}
 		});
 		
@@ -893,6 +892,20 @@ public class PkgTab extends Composite {
 						treeSelection.getPaths()[0] : null );
 			}
 		});
+	}
+	
+	private void clearFilter() {
+		fFilterController.startUpdate();
+		try {
+			fFilterText.clearText();
+			fFilterInstButton.setSelection(false);
+			fFilterNotInstButton.setSelection(false);
+			fFilterPrioritySet.clear();
+			fFilterRViewsSet.clear();
+		}
+		finally {
+			fFilterController.endUpdate();
+		}
 	}
 	
 	public void updateSettings(final IRPkgManager.Ext pkgManager) {
@@ -939,7 +952,12 @@ public class PkgTab extends Composite {
 		}
 	}
 	
-	private void updateDetail(final String[] selection) {
+	private void updateDetail() {
+		final List<?> list = ((IStructuredSelection) fPkgTable.viewer.getSelection()).toList();
+		doUpdateDetail(list.toArray(new String[list.size()]));
+	}
+	
+	private void doUpdateDetail(final String[] selection) {
 		if (selection.length == 1) {
 			final String name = selection[0];
 			fSelectedPkgName = name;
@@ -1102,7 +1120,6 @@ public class PkgTab extends Composite {
 		fPkgTable.viewer.refresh(true);
 		updateButtons();
 	}
-	
 	
 	private void doUpdateLatest() {
 		final Map<String, List<RPkgAction.Install>> pkgs = getFirstSelectedAsActions(
@@ -1400,6 +1417,19 @@ public class PkgTab extends Composite {
 	
 	IRPkgSet.Ext getPkgSet() {
 		return fPkgSet;
+	}
+	
+	void install(final List<String> pkgNames) {
+		fPkgTable.viewer.setSelection(new StructuredSelection());
+		clearFilter();
+		fFilterController.schedule(new Runnable() {
+			@Override
+			public void run() {
+				fFilterController.setSelection(pkgNames);
+//				updateDetail();
+				doInstall();
+			}
+		});
 	}
 	
 	void reinstallAll() {

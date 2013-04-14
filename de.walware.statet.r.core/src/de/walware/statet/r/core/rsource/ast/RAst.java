@@ -757,4 +757,162 @@ public class RAst {
 		return false;
 	}
 	
+	
+	public static Object toJava(RAstNode node) {
+		while (node != null) {
+			switch (node.getNodeType()) {
+			case NUM_CONST:
+				switch (node.getOperator(0)) {
+				case NUM_NUM:
+					return parseNum(node.getText());
+				case NUM_INT:
+					return parseInt(node.getText());
+				case TRUE:
+					return Boolean.TRUE;
+				case FALSE:
+					return Boolean.FALSE;
+				default:
+					break;
+				}
+				return null;
+			case F_CALL_ARG:
+				node = ((FCall.Arg) node).getValueChild();
+				continue;
+			default:
+				return null;
+			}
+		}
+		return null;
+	}
+	
+	public static Integer toJavaInt(RAstNode node) {
+		while (node != null) {
+			switch (node.getNodeType()) {
+			case NUM_CONST:
+				switch (node.getOperator(0)) {
+				case NUM_NUM: {
+					final Double num = parseNum(node.getText());
+					if (num != null && num.doubleValue() == Math.rint(num.doubleValue())) {
+						return num.intValue();
+					}
+					break; }
+				case NUM_INT:
+					return parseInt(node.getText());
+				case TRUE:
+					return 1;
+				case FALSE:
+					return 0;
+				default:
+					break;
+				}
+				return null;
+			case F_CALL_ARG:
+				node = ((FCall.Arg) node).getValueChild();
+				continue;
+			default:
+				return null;
+			}
+		}
+		return null;
+	}
+	
+	public static Float toJavaFloat(RAstNode node) {
+		while (node != null) {
+			switch (node.getNodeType()) {
+			case NUM_CONST:
+				switch (node.getOperator(0)) {
+				case NUM_NUM: {
+					final Double num = parseNum(node.getText());
+					if (num != null && Math.abs(num.doubleValue()) <= Float.MAX_VALUE) {
+						return num.floatValue();
+					}
+					break; }
+				case NUM_INT: {
+					final Integer num = parseInt(node.getText());
+					if (num != null) {
+						return num.floatValue();
+					}
+					break; }
+				case TRUE:
+					return 1f;
+				case FALSE:
+					return 0f;
+				default:
+					break;
+				}
+				return null;
+			case F_CALL_ARG:
+				node = ((FCall.Arg) node).getValueChild();
+				continue;
+			default:
+				return null;
+			}
+		}
+		return null;
+	}
+	
+	public static Double toJavaDouble(RAstNode node) {
+		while (node != null) {
+			switch (node.getNodeType()) {
+			case NUM_CONST:
+				switch (node.getOperator(0)) {
+				case NUM_NUM: {
+					final Double num = parseNum(node.getText());
+					if (num != null) {
+						return num.doubleValue();
+					}
+					break; }
+				case NUM_INT: {
+					final Integer num = parseInt(node.getText());
+					if (num != null) {
+						return num.doubleValue();
+					}
+					break; }
+				case TRUE:
+					return 1.0;
+				case FALSE:
+					return 0.0;
+				default:
+					break;
+				}
+				return null;
+			case F_CALL_ARG:
+				node = ((FCall.Arg) node).getValueChild();
+				continue;
+			default:
+				return null;
+			}
+		}
+		return null;
+	}
+	
+	private static Double parseNum(String text) {
+		if (text != null && !text.isEmpty()) {
+			try {
+				return Double.valueOf(text);
+			}
+			catch (NumberFormatException e) {}
+		}
+		return null;
+	}
+	
+	private static Integer parseInt(String text) {
+		if (text != null && !text.isEmpty()) {
+			try {
+				if (text.endsWith("L")) { //$NON-NLS-1$
+					text = text.substring(0, text.length() - 1);
+				}
+				if (text.startsWith("0x")) { //$NON-NLS-1$
+					text = text.substring(2);
+					return Integer.parseInt(text, 16);
+				}
+				else {
+					return Integer.parseInt(text);
+				}
+			}
+			catch (NumberFormatException e) {}
+		}
+		return null;
+	}
+	
 }

@@ -217,6 +217,21 @@ public final class RScanner {
 		}
 	}
 	
+	public RAstNode scanExpr() {
+		try {
+			fLexer.setFull();
+			init();
+			final SourceComponent rootNode = scanSourceUnit(null);
+			if (rootNode.getChildCount() == 1) {
+				return rootNode.getChild(0);
+			}
+		}
+		catch (final Exception e) {
+			RCorePlugin.logError(-1, "Error occured while parsing R code", e);
+		}
+		return null;
+	}
+	
 	public FDef scanFDef() {
 		try {
 			fLexer.setFull();

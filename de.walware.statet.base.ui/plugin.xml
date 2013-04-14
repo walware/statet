@@ -109,12 +109,6 @@
             label="%keywords_ProjectSpecific"/>
    </extension>
    <extension
-         point="org.eclipse.ui.newWizards">
-      <category
-            id="de.walware.statet.base.newWizards.StatetCategory"
-            name="StatET"/>
-   </extension>
-   <extension
          point="org.eclipse.ui.views">
       <category
             id="de.walware.statet.base.views.StatetCategory"

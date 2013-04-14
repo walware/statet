@@ -29,7 +29,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -49,6 +48,7 @@ import de.walware.statet.r.core.pkgmanager.IRPkgSet;
 import de.walware.statet.r.core.pkgmanager.ISelectedRepos;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.ui.pkgmanager.StartAction;
 
 
 public class RPkgManagerDialog extends ToolDialog implements IChangeListener, IRPkgManager.Listener {
@@ -78,8 +78,7 @@ public class RPkgManagerDialog extends ToolDialog implements IChangeListener, IR
 	private boolean fUpdateState;
 	private int fUpdatePage;
 	
-	private boolean fStartActionReinstall;
-	private Listener fStartActionListener;
+	private StartAction fStartAction;
 	
 	
 	public RPkgManagerDialog(final IRPkgManager.Ext rPkgManager, final RProcess rProcess,
@@ -384,19 +383,27 @@ public class RPkgManagerDialog extends ToolDialog implements IChangeListener, IR
 		super.okPressed();
 	}
 	
-	public void startReinstall() {
-		fStartActionReinstall = true;
+	public void start(final StartAction action) {
+		fStartAction = action;
 		if (fPkgTab != null && fTabFolder.getSelectionIndex() >= 0) {
 			checkAction();
 		}
 	}
 	
 	private void checkAction() {
-		if (fStartActionReinstall) {
+		if (fStartAction != null) {
 			if (fStatus.getSeverity() == IStatus.OK
 					&& fPkgTab.getPkgSet() != IRPkgSet.DUMMY) {
-				fStartActionReinstall = false;
-				fPkgTab.reinstallAll();
+				final StartAction action = fStartAction;
+				fStartAction = null;
+				switch (action.getAction()) {
+				case StartAction.INSTALL:
+					fPkgTab.install(action.getPkgNames());
+					break;
+				case StartAction.REINSTALL:
+					fPkgTab.reinstallAll();
+					break;
+				}
 			}
 		}
 	}

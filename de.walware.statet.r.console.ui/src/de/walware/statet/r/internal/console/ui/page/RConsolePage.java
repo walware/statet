@@ -30,6 +30,7 @@ import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.services.IServiceLocator;
 
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.actions.HandlerCollection;
 import de.walware.ecommons.ui.actions.HandlerContributionItem;
@@ -48,11 +49,13 @@ import de.walware.statet.r.console.ui.RConsole;
 import de.walware.statet.r.console.ui.tools.ChangeWorkingDirectoryWizard;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
+import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
 import de.walware.statet.r.internal.console.ui.actions.REnvIndexUpdateHandler;
-import de.walware.statet.r.internal.ui.pkgmanager.OpenRPkgManagerHandler;
 import de.walware.statet.r.ui.RUIHelp;
+import de.walware.statet.r.ui.pkgmanager.OpenRPkgManagerHandler;
+import de.walware.statet.r.ui.pkgmanager.StartAction;
 import de.walware.statet.r.ui.rhelp.OpenRHelpHandler;
 
 
@@ -158,21 +161,32 @@ public class RConsolePage extends NIConsolePage {
 							"Open Package Manager", "P", null,
 							CommandContributionItem.STYLE_PUSH, null, false ),
 					new OpenRPkgManagerHandler((RProcess) getTool(), getSite().getShell()) ));
-			
-			rEnvMenu.add(new HandlerContributionItem(new CommandContributionItemParameter(
-							getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
-							null, null, null,
-							"Open Package Manager - Clean", null, null,
-							CommandContributionItem.STYLE_PUSH, null, false ),
-							new OpenRPkgManagerHandler((RProcess) getTool(), getSite().getShell()) {
-						@Override
-						protected IRPkgManager getPackageManager() {
-							final IRPkgManager packageManager = super.getPackageManager();
-							packageManager.clear();
-							return packageManager;
-						}
-					}));
-			
+			if (RPkgUtil.DEBUG) {
+				rEnvMenu.add(new HandlerContributionItem(new CommandContributionItemParameter(
+								getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
+								null, null, null,
+								"Open Package Manager - Clean", null, null, //$NON-NLS-1$
+								CommandContributionItem.STYLE_PUSH, null, false ),
+						new OpenRPkgManagerHandler((RProcess) getTool(), getSite().getShell()) {
+							@Override
+							protected IRPkgManager getPackageManager() {
+								final IRPkgManager packageManager = super.getPackageManager();
+								packageManager.clear();
+								return packageManager;
+							}
+						}));
+				rEnvMenu.add(new HandlerContributionItem(new CommandContributionItemParameter(
+								getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
+								null, null, null,
+								"Open Package Manager - Install 'zic'", null, null, //$NON-NLS-1$
+								CommandContributionItem.STYLE_PUSH, null, false ),
+						new OpenRPkgManagerHandler((RProcess) getTool(), getSite().getShell()) {
+							@Override
+							protected StartAction getStartAction() {
+								return new StartAction(StartAction.INSTALL, new ConstList<String>("zic")); //$NON-NLS-1$
+							}
+				}));
+			}
 			rEnvMenu.add(new HandlerContributionItem(new CommandContributionItemParameter(
 							getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
 							null, null, null,

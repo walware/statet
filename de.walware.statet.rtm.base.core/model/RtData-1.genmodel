@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel"
+    copyrightText="Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).&#xD;&#xA;All rights reserved. This program and the accompanying materials&#xD;&#xA;are made available under the terms of the Eclipse Public License v1.0&#xD;&#xA;which accompanies this distribution, and is available at&#xD;&#xA;http://www.eclipse.org/legal/epl-v10.html&#xD;&#xA;&#xD;&#xA;Contributors:&#xD;&#xA;    Stephan Wahlbrink - initial API and implementation&#xD;&#xA;"
+    modelDirectory="/de.walware.statet.rtm.base.core/src" editDirectory="/de.walware.statet.rtm.base.core/src"
+    modelPluginID="de.walware.statet.rtm.base.core" modelName="RtData" modelPluginClass="de.walware.statet.rtm.base.core.RtModelCorePlugin"
+    editPluginClass="de.walware.statet.rtm.base.core.RtModelCorePlugin" nonNLSMarkers="true"
+    booleanFlagsField="" importerID="org.eclipse.emf.importer.ecore" complianceLevel="6.0"
+    copyrightFields="false" editPluginID="de.walware.statet.rtm.base.core" language=""
+    interfaceNamePattern="" operationReflection="true">
+  <foreignModel>RtData-1.ecore</foreignModel>
+  <genPackages prefix="RtData" basePackage="de.walware.statet.rtm" disposableProviderFactory="true"
+      contentTypeIdentifier="" fileExtensions="RtData" ecorePackage="RtData-1.ecore#/">
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RVar"/>
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RDataFrame"/>
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RDataFilter"/>
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RText"/>
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RNum"/>
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RInt"/>
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RFunction"/>
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RLabel"/>
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RNumRange"/>
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RSize"/>
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RColor"/>
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RAlpha"/>
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RPlotPointSymbol"/>
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RPlotLineType"/>
+    <genDataTypes ecoreDataType="RtData-1.ecore#//RFontFamily"/>
+  </genPackages>
+</genmodel:GenModel>

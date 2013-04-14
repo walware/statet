@@ -63,6 +63,7 @@ import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RDbg;
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RWorkspace;
+import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.internal.console.core.RConsoleCorePlugin;
@@ -682,6 +683,19 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	@Override
 	public void submitToConsole(final String input,
 			final IProgressMonitor monitor) throws CoreException {
+		if (input.indexOf('\n') >= 0) {
+			// TODO progress
+			final String[] lines = RUtil.LINE_SEPARATOR_PATTERN.split(input);
+			for (int i = 0; i < lines.length; i++) {
+				if (fTopLevelBrowserAction != 0 && getCurrentLevelL() == 0 && (fCurrentPrompt.meta & META_PROMPT_DEFAULT) != 0) {
+					fTopLevelBrowserAction = 0;
+					setDebugBrowser(TOPLEVEL_ENV_FRAME, false, false, monitor);
+				}
+				super.submitToConsole(lines[i], monitor);
+			}
+			return;
+		}
+		
 		if (fTopLevelBrowserAction != 0 && getCurrentLevelL() == 0 && (fCurrentPrompt.meta & META_PROMPT_DEFAULT) != 0) {
 			fTopLevelBrowserAction = 0;
 			setDebugBrowser(TOPLEVEL_ENV_FRAME, false, false, monitor);

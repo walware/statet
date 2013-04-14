@@ -30,6 +30,11 @@
 		<module>../de.walware.statet.r.sweave</module>
 		<module>../de.walware.statet.r.sweave.debug</module>
 		<module>../de.walware.statet.r.sweave.doc</module>
+		
+		<module>../de.walware.statet.rtm.base.core</module>
+		<module>../de.walware.statet.rtm.base.ui</module>
+		<module>../de.walware.statet.rtm.ggplot.core</module>
+		<module>../de.walware.statet.rtm.ggplot.ui</module>
 	</modules>
 	
 	<properties>
@@ -102,7 +107,10 @@
 			<modules>
 				<module>de.walware.statet.r</module>
 				<module>de.walware.statet.r-feature</module>
+				
 				<module>de.walware.statet.r.sweave-feature</module>
+				
+				<module>de.walware.statet.rtm.ggplot-feature</module>
 				
 				<module>repo</module>
 			</modules>

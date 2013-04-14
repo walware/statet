@@ -226,7 +226,7 @@
          point="org.eclipse.ui.newWizards">
       <wizard
             id="de.walware.statet.r.newWizards.RweaveTexCreation"
-            category="de.walware.statet.base.newWizards.StatetCategory"
+            category="de.walware.statet.r.newWizards.RCategory"
             class="de.walware.statet.r.internal.sweave.NewSweaveFileCreationWizard"
             icon="icons/tool_16/new-ltxrweave_file.png"
             name="%wizards_NewRweaveTexFile_name"

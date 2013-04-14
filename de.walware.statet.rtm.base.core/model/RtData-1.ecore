@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="rtdata" nsURI="http://walware.de/rtm/RtData/1.0" nsPrefix="rtdata">
+  <eClassifiers xsi:type="ecore:EDataType" name="RVar" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="RDataFrame" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="RDataFilter" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="RText" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="RNum" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="RInt" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="RFunction" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="RLabel" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="RNumRange" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="RSize" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="RColor" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="RAlpha" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="RPlotPointSymbol" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="RPlotLineType" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="RFontFamily" instanceClassName="de.walware.statet.rtm.rtdata.types.RTypedExpr"/>
+</ecore:EPackage>

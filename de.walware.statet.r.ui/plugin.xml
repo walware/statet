@@ -705,9 +705,12 @@
 
    <extension
          point="org.eclipse.ui.newWizards">
+      <category
+            id="de.walware.statet.r.newWizards.RCategory"
+            name="StatET: R"/>
       <wizard
             id="de.walware.statet.r.newWizards.RProjectCreation"
-            category="de.walware.statet.base.newWizards.StatetCategory"
+            category="de.walware.statet.r.newWizards.RCategory"
             class="de.walware.statet.r.internal.ui.wizards.NewRProjectWizard"
             icon="icons/tool_16/new-r_project.png"
             name="%wizards_NewRProject_name"
@@ -719,7 +722,7 @@
       </wizard>
       <wizard
             id="de.walware.statet.r.newWizards.RPkgProjectCreation"
-            category="de.walware.statet.base.newWizards.StatetCategory"
+            category="de.walware.statet.r.newWizards.RCategory"
             class="de.walware.statet.r.internal.ui.wizards.NewRPkgProjectWizard"
             icon="icons/tool_16/new-rpkg_project.png"
             name="%wizards_NewRPackageProject_name"
@@ -730,7 +733,7 @@
          </description>
       </wizard>
       <wizard
-            category="de.walware.statet.base.newWizards.StatetCategory"
+            category="de.walware.statet.r.newWizards.RCategory"
             class="de.walware.statet.r.internal.ui.wizards.NewRFileCreationWizard"
             icon="icons/tool_16/new_r-file.gif"
             id="de.walware.statet.r.newWizards.RFileCreation"
@@ -741,7 +744,7 @@
          </description>
       </wizard>
       <wizard
-            category="de.walware.statet.base.newWizards.StatetCategory"
+            category="de.walware.statet.r.newWizards.RCategory"
             class="de.walware.statet.r.internal.ui.wizards.NewRdFileCreationWizard"
             icon="icons/tool_16/new_rd-file.gif"
             id="de.walware.statet.r.newWizards.RdFileCreation"
@@ -1205,6 +1208,10 @@
             id="de.walware.statet.r.actionSets.RSessionTools"
             label="%actionSets_RSessionTools_label">
       </actionSet>
+      <actionSet
+            id="de.walware.statet.r.actionSets.RMainMenu"
+            label="%actionSets_RMainMenu_label">
+      </actionSet>
    </extension>
    <extension
          point="org.eclipse.ui.actionSetPartAssociations">
@@ -1214,6 +1221,15 @@
                id="de.walware.statet.r.editors.R">
          </part>
       </actionSetPartAssociation>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="de.walware.statet.base.perspectives.StatetPerspective">
+         <actionSet
+               id="de.walware.statet.r.actionSets.RMainMenu">
+         </actionSet>
+      </perspectiveExtension>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
@@ -1687,6 +1703,68 @@
             description="%rConnector_EclipseTextConsole_description"
             id="de.walware.statet.r.rCodeLaunchConnector.EclipseTextConsole"
             name="%rConnector_EclipseTextConsole_name"/>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="de.walware.statet.r.commands.LoadRImage"
+            categoryId="de.walware.statet.nico.commands.ConsoleCategory"
+            name="%commands_LoadRImage_name"
+            description="%commands_LoadRImage_description">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            commandId="de.walware.statet.r.commands.LoadRImage"
+            class="de.walware.statet.r.internal.ui.tools.LoadRImageHandler">
+         <enabledWhen>
+            <with
+                  variable="de.walware.statet.activeTool">
+               <test
+                     property="de.walware.statet.nico.isMainType"
+                     value="R"
+                     forcePluginActivation="false">
+               </test>
+            </with>
+         </enabledWhen>
+      </handler>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               id="de.walware.statet.r.menus.RMain"
+               label="R">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeContexts">
+                  <iterate
+                        ifEmpty="false"
+                        operator="or">
+                     <equals
+                           value="de.walware.statet.r.actionSets.RMainMenu">
+                     </equals>
+                  </iterate>
+               </with>
+            </visibleWhen>
+            <separator
+                  name="r_runtime"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="de.walware.statet.r.commands.LoadRImage">
+            </command>
+            <separator
+                  name="r_tasks"
+                  visible="true">
+            </separator>
+         </menu>
+      </menuContribution>
    </extension>
    
    <extension

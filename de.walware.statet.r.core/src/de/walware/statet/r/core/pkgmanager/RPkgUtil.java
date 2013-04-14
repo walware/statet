@@ -12,6 +12,7 @@
 package de.walware.statet.r.core.pkgmanager;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.ibm.icu.text.Collator;
 
@@ -28,6 +29,8 @@ public class RPkgUtil {
 	
 	
 	public static Collator COLLATOR = RSymbolComparator.R_NAMES_COLLATOR;
+	
+	public static boolean DEBUG = Boolean.parseBoolean(System.getProperty("de.walware.statet.r.core.pkgmanager.debug")); //$NON-NLS-1$
 	
 	
 	public static RRepo getRepoById(final Collection<? extends RRepo> list, final String id) {
@@ -142,6 +145,16 @@ public class RPkgUtil {
 			}
 		}
 		return null;
+	}
+	
+	public static boolean areInstalled(final IRPkgManager manager, List<String> pkgNames) {
+		IRPkgCollection<? extends IRPkgInfo> installedPkgs = manager.getRPkgSet().getInstalled();
+		for (String pkgName : pkgNames) {
+			if (!installedPkgs.containsByName(pkgName)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 }

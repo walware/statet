@@ -11,5 +11,23 @@
 			<unit id="org.eclipse.jdt.feature.group"
 					version="3.8.2.v20130116-090414-8-8nFu3FNOfwKLRttdWQJ-2z-_83"/>
 		</location>
+		<location includeAllPlatforms="false" includeMode="planner" includeConfigurePhase="false" includeSource="false"
+				type="InstallableUnit">
+			<repository location="http://download.eclipse.org/modeling/emf/emf/updates/"/>
+			<unit id="org.eclipse.emf.common.feature.group"
+					version="2.8.0.v20130125-0546"/>
+			<unit id="org.eclipse.emf.ecore.feature.group"
+					version="2.8.1.v20120911-0500"/>
+			<unit id="org.eclipse.emf.edit.feature.group"
+					version="2.8.0.v20130125-0826"/>
+			<unit id="org.eclipse.emf.databinding.feature.group"
+					version="1.2.0.v20130125-0826"/>
+			<unit id="org.eclipse.emf.databinding.edit.feature.group"
+					version="1.2.1.v20130125-0826"/>
+			<unit id="org.eclipse.emf.common.ui.feature.group"
+					version="2.7.0.v20130125-0826"/>
+			<unit id="org.eclipse.emf.edit.ui.feature.group"
+					version="2.8.0.v20130125-0826"/>
+		</location>
 	</locations>
 </target>
