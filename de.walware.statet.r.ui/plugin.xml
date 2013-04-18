@@ -307,6 +307,20 @@
          </command>
       </menuContribution>
       <menuContribution
+            locationURI="menu:de.walware.statet.base.menus.MainStatSource?after=comment.add">
+         <command
+               commandId="de.walware.ecommons.ltk.commands.StripComments"
+               mnemonic="%menus_Source_StripComments_mnemonic"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.walware.statet.r.expressions.RSourceElement">
+               </reference>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
             locationURI="menu:de.walware.statet.base.menus.MainStatSource?after=additions">
          <separator
                name="refactor"
