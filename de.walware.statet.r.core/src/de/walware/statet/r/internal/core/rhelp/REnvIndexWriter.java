@@ -160,6 +160,13 @@ public class REnvIndexWriter implements IREnvIndex {
 	}
 	
 	
+	public static final Collection<String> IGNORE_PKG_NAMES;
+	static {
+		IGNORE_PKG_NAMES = new ArrayList<String>();
+		IGNORE_PKG_NAMES.add("translations"); //$NON-NLS-1$
+	}
+	
+	
 	private final IREnvConfiguration fREnvConfig;
 	
 	private String fDocDir;
@@ -332,6 +339,9 @@ public class REnvIndexWriter implements IREnvIndex {
 	 * @return <code>true</code> if seems OK, otherwise false
 	 */
 	public boolean checkPackage(final String name, final String version) {
+		if (IGNORE_PKG_NAMES.contains(name)) {
+			return true;
+		}
 		synchronized (fPackages) {
 			if (fPackages.containsKey(name)) {
 				return true;

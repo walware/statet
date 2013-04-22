@@ -146,8 +146,9 @@ public class REnvIndexChecker {
 	}
 	
 	public void checkPackage(final String name, final RNumVersion version, final String built) {
-		final String pkgVersion = version.toString();
-		if (name != null && fCheckedNames.add(name)) {
+		if (name != null && !REnvIndexWriter.IGNORE_PKG_NAMES.contains(name)
+				&& fCheckedNames.add(name)) {
+			final String pkgVersion = version.toString();
 			final IRPackageHelp packageHelp = fREnvHelp.getRPackage(name);
 			if (packageHelp == null) {
 				fNewPkg++;
