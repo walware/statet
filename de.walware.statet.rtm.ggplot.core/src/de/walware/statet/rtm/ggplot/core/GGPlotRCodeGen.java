@@ -226,7 +226,7 @@ public class GGPlotRCodeGen extends AbstractRCodeGenerator {
 			addTheme("axis.title.x ", plot.getAxXLabelStyle()); //$NON-NLS-1$
 			addTheme("axis.text.x ", plot.getAxXTextStyle()); //$NON-NLS-1$
 			addLab("y", plot.getAxYLabel(), null, null); //$NON-NLS-1$
-			addTheme("axis.title.x ", plot.getAxYLabelStyle()); //$NON-NLS-1$
+			addTheme("axis.title.y ", plot.getAxYLabelStyle()); //$NON-NLS-1$
 			addTheme("axis.text.y ", plot.getAxYTextStyle()); //$NON-NLS-1$
 		}
 		
