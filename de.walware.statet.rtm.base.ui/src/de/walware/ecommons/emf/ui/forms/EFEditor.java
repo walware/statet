@@ -80,6 +80,7 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -653,6 +654,7 @@ public abstract class EFEditor extends FormEditor
 		if (getEditorInput() instanceof DirectResourceEditorInput
 				&& fEditingDomain.getResourceSet().getResources().get(0).getURI().equals(DirectResourceEditorInput.NO_URI)) {
 			doSaveAs();
+			return;
 		}
 		// Save only resources that have actually changed
 		final Map<Object, Object> saveOptions = new HashMap<Object, Object>();
@@ -727,17 +729,20 @@ public abstract class EFEditor extends FormEditor
 	 */
 	@Override
 	public void doSaveAs() {
+		IPath path;
+		
 		final SaveAsDialog saveAsDialog = new SaveAsDialog(getSite().getShell());
-		saveAsDialog.open();
-		IPath path = saveAsDialog.getResult();
-		if (path != null) {
-			if (path.getFileExtension() == null && fModelDescriptor.getDefaultFileExtension() != null) {
-				path = path.addFileExtension(fModelDescriptor.getDefaultFileExtension());
-			}
-			final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-			if (file != null) {
-				doSaveAs(URI.createPlatformResourceURI(file.getFullPath().toString(), true), new FileEditorInput(file));
-			}
+		if (saveAsDialog.open() != Window.OK
+				|| (path = saveAsDialog.getResult()) == null) {
+			return;
+		}
+		
+		if (path.getFileExtension() == null && fModelDescriptor.getDefaultFileExtension() != null) {
+			path = path.addFileExtension(fModelDescriptor.getDefaultFileExtension());
+		}
+		final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+		if (file != null) {
+			doSaveAs(URI.createPlatformResourceURI(file.getFullPath().toString(), true), new FileEditorInput(file));
 		}
 	}
 	
