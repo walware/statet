@@ -706,8 +706,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			}
 			
 			final StringBuilder message = new StringBuilder(names.size() == 1 ?
-					"Are you sure you want to deleting the object" :
-					NLS.bind("Are you sure you want to delete these {0} objects", names.size()));
+					"Are you sure you want to delete the object" :
+					NLS.bind("Are you sure you want to delete these {0} objects:", names.size()));
 			final int show = (names.size() > 5) ? 3 : names.size();
 			for (int i = 0; i < show; i++) {
 				message.append("\n\t"); //$NON-NLS-1$
