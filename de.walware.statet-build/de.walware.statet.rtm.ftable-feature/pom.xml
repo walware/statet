@@ -16,44 +16,4 @@
 	<packaging>eclipse-feature</packaging>
 	<name>Eclipse Feature: StatET for R - R tasks Add-on for 'ftable'</name>
 	
-	<build>
-		<plugins>
-			<!-- workaround for shared licenses -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>2.3</version>
-				<dependencies>
-					<dependency>
-						<groupId>de.walware.releng</groupId>
-						<artifactId>de.walware.opensource.license</artifactId>
-						<version>1.0.0</version>
-					</dependency>
-				</dependencies>
-				<executions>
-					<execution>
-						<id>unpack</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>unpack</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>de.walware.releng</groupId>
-									<artifactId>de.walware.opensource.license</artifactId>
-									<version>1.0.0</version>
-									<overWrite>true</overWrite>
-									<outputDirectory>${project.basedir}</outputDirectory>
-									<includes>*.*</includes>
-									<excludes>feature.xml</excludes>
-								</artifactItem>
-							</artifactItems>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-	
 </project>
