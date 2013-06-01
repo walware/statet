@@ -14,7 +14,7 @@
 -->
 
 <plugin>
-   <extension point="org.eclipse.help.base.luceneSearchParticipants">
+   <extension point="org.eclipse.help.base.searchParticipant">
       <binding participantId="org.eclipse.help.base.xhtml"/>
    </extension>
 
