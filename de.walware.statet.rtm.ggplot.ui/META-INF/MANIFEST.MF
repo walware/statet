@@ -13,5 +13,5 @@ Require-Bundle: org.eclipse.core.resources,
  de.walware.statet.rtm.ggplot.core,
  org.eclipse.ui.ide,
  de.walware.statet.rtm.base.ui;bundle-version="1.0.0",
- de.walware.statet.r.ui;bundle-version="3.3.0"
+ de.walware.statet.r.ui;bundle-version="3.4.0"
 Import-Package: de.walware.ecommons.collections;version="1.0.0"

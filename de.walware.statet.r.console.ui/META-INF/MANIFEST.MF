@@ -3,12 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET R Console Core
 Bundle-SymbolicName: de.walware.statet.r.console.ui;singleton:=true
-Bundle-Version: 3.3.1.qualifier
+Bundle-Version: 3.4.0.qualifier
 Bundle-Activator: de.walware.statet.r.internal.console.ui.RConsoleUIPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: de.walware.statet.base.ui;bundle-version="[3.3.0,3.4.0)",
+Require-Bundle: de.walware.statet.base.ui;bundle-version="[3.4.0,3.5.0)",
  org.eclipse.core.databinding.beans,
  org.eclipse.help,
  de.walware.ecommons.ltk.ui,

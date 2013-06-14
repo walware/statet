@@ -3,12 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET R UI
 Bundle-SymbolicName: de.walware.statet.r.ui;singleton:=true
-Bundle-Version: 3.3.1.qualifier
+Bundle-Version: 3.4.0.qualifier
 Bundle-Activator: de.walware.statet.r.internal.ui.RUIPlugin
 Bundle-ActivationPolicy: lazy;exclude:="de.walware.statet.r.internal.ui.nolazy"
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: de.walware.statet.base.ui;bundle-version="[3.3.0,3.4.0)",
+Require-Bundle: de.walware.statet.base.ui;bundle-version="[3.4.0,3.5.0)",
  org.eclipse.core.variables,
  org.eclipse.core.expressions,
  org.eclipse.core.databinding,
