@@ -152,7 +152,7 @@ public class FullRPkgSet implements IRPkgSet.Ext {
 			info.setSuggests((suggests != null) ? suggests : Collections.<RPkg>emptyList());
 			info.setEnhances((enhances != null) ? enhances : Collections.<RPkg>emptyList());
 			
-			fReverse.add(-idx - 1, info);
+			fReverse.add(-(idx + 1), info);
 		}
 		return info;
 	}

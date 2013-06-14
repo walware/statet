@@ -217,9 +217,8 @@ public abstract class ToolRetargetableHandler extends AbstractHandler implements
 	 * @return if {@link #doRefresh()} should be called
 	 */
 	public boolean handleToolChanged() {
-		final boolean wasEnabled = isEnabled();
 		final boolean isEnabled = evaluateEnabled();
-		if (wasEnabled != isEnabled) {
+		if (isEnabled != isEnabled()) {
 			setBaseEnabled(isEnabled);
 			return true;
 		}

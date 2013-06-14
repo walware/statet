@@ -221,9 +221,6 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 		@Override
 		public void sort(final Viewer viewer, final Object[] elements) {
-			if (elements == null || elements.length == 0) {
-				return;
-			}
 			if (elements != null && elements.length > 0 && elements[0] instanceof ICombinedRElement) {
 				final ICombinedRElement object = (ICombinedRElement) elements[0];
 				if (object.getRObjectType() != RObject.TYPE_ENV) {
@@ -432,10 +429,6 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			init();
 		}
 		
-		@Override
-		protected void setBaseEnabled(final boolean state) {
-			super.setBaseEnabled(state);
-		}
 		@Override
 		public void updateElement(final UIElement element, final Map parameters) {
 			fCurrentState = false;
@@ -671,7 +664,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 						final IElementName itemName = element.getElementName();
 						topName = elementName.getNamespace();
 						if (envirName != null) { // elementName ok => segmentName ok
-							commands.add("rm(`"+itemName.getSegmentName()+"`,"+ //$NON-NLS-1$ 
+							commands.add("rm(`"+itemName.getSegmentName()+"`,"+ //$NON-NLS-1$ //$NON-NLS-2$ 
 									"pos="+RElementName.createDisplayName(envirName, RElementName.DISPLAY_NS_PREFIX | RElementName.DISPLAY_EXACT)+ //$NON-NLS-1$
 									")"); //$NON-NLS-1$
 							names.add(elementName.getDisplayName());
@@ -684,7 +677,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 					case RObject.TYPE_S4OBJECT:
 						topName = elementName.getNamespace();
 						final String name = RElementName.createDisplayName(elementName, RElementName.DISPLAY_EXACT);
-						commands.add("with("+RElementName.createDisplayName(topName, RElementName.DISPLAY_NS_PREFIX)+","+ //$NON-NLS-1$ 
+						commands.add("with("+RElementName.createDisplayName(topName, RElementName.DISPLAY_NS_PREFIX)+","+ //$NON-NLS-1$ //$NON-NLS-2$ 
 								name+"<-NULL"+ //$NON-NLS-1$
 								")"); //$NON-NLS-1$
 						names.add(elementName.getDisplayName());
@@ -1341,15 +1334,13 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				final Object element = selection.getFirstElement();
 				if (element instanceof RObject) {
 					final RObject object = (RObject) element;
-					if (object != null) {
-						switch (object.getRObjectType()) {
-						case RObject.TYPE_ENV:
-						case RObject.TYPE_LIST:
-						case RObject.TYPE_DATAFRAME:
-						case RObject.TYPE_S4OBJECT:
-						case RObject.TYPE_REFERENCE:
-							fTreeViewer.setExpandedState(element, !fTreeViewer.getExpandedState(element));
-						}
+					switch (object.getRObjectType()) {
+					case RObject.TYPE_ENV:
+					case RObject.TYPE_LIST:
+					case RObject.TYPE_DATAFRAME:
+					case RObject.TYPE_S4OBJECT:
+					case RObject.TYPE_REFERENCE:
+						fTreeViewer.setExpandedState(element, !fTreeViewer.getExpandedState(element));
 					}
 				}
 			}

@@ -241,7 +241,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 		fIsDebugEnabled = true;
 		fBreakpointAdapter = breakpointAdapter;
 		
-		addSuspendUpdateRunnable(new ControllerSystemRunnable("r/callstack", "Load Callstack") {
+		addSuspendUpdateRunnable(new ControllerSystemRunnable("r/callstack", "Load Callstack") { //$NON-NLS-1$
 			@Override
 			public void run(final IToolService service,
 					final IProgressMonitor monitor) throws CoreException {
@@ -365,7 +365,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			protected void doExec(final IProgressMonitor monitor) throws CoreException {
 				fChanged |= RWorkspace.REFRESH_AUTO;
 				fTopLevelBrowserEnabled = false;
-				submitToConsole("c", "c", monitor);
+				submitToConsole("c", "c", monitor); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		});
 	}
@@ -405,7 +405,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			@Override
 			protected void doExec(final IProgressMonitor monitor) throws CoreException {
 				fChanged |= RWorkspace.REFRESH_AUTO;
-				submitToConsole("c", "c", monitor);
+				submitToConsole("c", "c", monitor); //$NON-NLS-1$ //$NON-NLS-2$
 				return;
 			}
 		});
@@ -433,7 +433,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 //					submitToConsole("n", (filter || fQueue.size() > 0) ? "n" : "c", monitor);
 //				}
 //				else {
-				submitToConsole("n", "n", monitor);
+				submitToConsole("n", "n", monitor); //$NON-NLS-1$ //$NON-NLS-2$
 //				}
 				return;
 			}
@@ -448,8 +448,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 				if ((getPrompt().meta & META_PROMPT_SUSPENDED) != 0) {
 					final CallStack stack = getCallStack(monitor);
 					final int n = stack.getFrames().size();
-					return (stack != null && toPosition >= 0
-							&& toPosition < n - 1 );
+					return (toPosition >= 0 && toPosition < n - 1 );
 				}
 				return false;
 			}
@@ -460,12 +459,12 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 				fTopLevelBrowserEnabled = false;
 				if (toPosition == 0 || stack.getFrames().get(toPosition).isTopLevelCommand()) {
 					fTopLevelBrowserAction = TOPLEVELBROWSER_ENABLE_COMMANDS;
-					submitToConsole("c", "c", monitor);
+					submitToConsole("c", "c", monitor); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				else {
 					final int n = stack.getFrames().size();
 					final int relPos = n - 1 - toPosition;
-					submitToConsole("c", "browserSetDebug(n="+(relPos)+"L); c", monitor);
+					submitToConsole("c", "browserSetDebug(n="+(relPos)+"L); c", monitor); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				}
 			}
 		});
@@ -497,7 +496,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 					fChanged |= RWorkspace.REFRESH_AUTO;
 					fTopLevelBrowserEnabled = false;
 					fTopLevelBrowserAction = TOPLEVELBROWSER_CHECK_SUBMIT;
-					submitToConsole("Q", "Q", monitor);
+					submitToConsole("Q", "Q", monitor); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 //				getQueue().add(createQuitRunnable());
 			}
@@ -615,7 +614,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 		if (fGlobalEnv == null) {
 			try {
 				fGlobalEnv = RDataUtil.checkRReference(
-						evalData(".GlobalEnv", null, 0, DEPTH_REFERENCE, monitor) );
+						evalData(".GlobalEnv", null, 0, DEPTH_REFERENCE, monitor) ); //$NON-NLS-1$
 			}
 			catch (final UnexpectedRDataException e) {
 				throw new CoreException(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID, 0,

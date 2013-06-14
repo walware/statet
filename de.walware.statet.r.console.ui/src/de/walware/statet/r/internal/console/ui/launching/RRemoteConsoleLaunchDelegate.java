@@ -337,7 +337,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 					
 					socketFactory = RjsUtil.createRMIOverSshClientSocketFactory(sshSession);
 					RjsComConfig.setRMIClientSocketFactory(socketFactory);
-					registry = LocateRegistry.getRegistry("127.0.0.1", rmiAddress.getPortNum(),
+					registry = LocateRegistry.getRegistry("127.0.0.1", rmiAddress.getPortNum(), //$NON-NLS-1$
 							socketFactory );
 					remote = registry.lookup(rmiAddress.getName());
 					registryOK = true;

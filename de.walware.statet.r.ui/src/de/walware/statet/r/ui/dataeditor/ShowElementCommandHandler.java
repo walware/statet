@@ -70,6 +70,7 @@ public class ShowElementCommandHandler extends AbstractRToolCommandHandler {
 					}
 				});
 			}
+			return Status.OK_STATUS;
 		}
 		return null;
 	}

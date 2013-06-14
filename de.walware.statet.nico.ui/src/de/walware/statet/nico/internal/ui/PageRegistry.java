@@ -41,12 +41,14 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.progress.WorkbenchJob;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.IToolRegistryListener;
+import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.console.NIConsole;
@@ -419,7 +421,13 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 		
 		final Object[] listeners = fListeners.toArray();
 		for (final Object obj : listeners) {
-			((IToolRegistryListener) obj).toolSessionActivated(sessionData);
+			try {
+				((IToolRegistryListener) obj).toolSessionActivated(sessionData);
+			}
+			catch (final Exception e) {
+				StatusManager.getManager().handle(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
+						"An error occurred when handling tool activation.", e ));
+			}
 		}
 	}
 	
@@ -432,7 +440,13 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 		
 		final Object[] listeners = fListeners.toArray();
 		for (final Object obj : listeners) {
-			((IToolRegistryListener) obj).toolTerminated(sessionData);
+			try {
+				((IToolRegistryListener) obj).toolTerminated(sessionData);
+			}
+			catch (final Exception e) {
+				StatusManager.getManager().handle(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
+						"An error occurred when handling tool termination.", e ));
+			}
 		}
 	}
 	
