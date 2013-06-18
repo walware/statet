@@ -562,20 +562,20 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			final String orgPrefix, final RElementName prefixSegments,
 			final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		int count = 0;
-		IElementName prefixSegment = prefixSegments;
-		while (true) {
-			count++;
-			if (prefixSegment.getNextSegment() != null) {
-				prefixSegment = prefixSegment.getNextSegment();
-				continue;
+		final String namePrefix;
+		{	IElementName prefixSegment = prefixSegments;
+			while (true) {
+				count++;
+				if (prefixSegment.getNextSegment() != null) {
+					prefixSegment = prefixSegment.getNextSegment();
+					continue;
+				}
+				else {
+					break;
+				}
 			}
-			else {
-				break;
-			}
-		}
-		String namePrefix = prefixSegment.getSegmentName();
-		if (namePrefix == null) {
-			namePrefix = ""; //$NON-NLS-1$
+			namePrefix = (prefixSegment.getSegmentName() != null) ?
+					prefixSegment.getSegmentName() : ""; //$NON-NLS-1$
 		}
 		final RSymbolComparator.PrefixPattern pattern = new RSymbolComparator.PrefixPattern(namePrefix);
 		final int offset = context.getInvocationOffset()-orgPrefix.length();
@@ -610,7 +610,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 				final boolean isRich = (c1type == IModelElement.C1_METHOD);
 				if (isRich || c1type == IModelElement.C1_VARIABLE) {
 					IModelElement element = rootElement;
-					prefixSegment = prefixSegments;
+					IElementName prefixSegment = prefixSegments;
 					IElementName elementSegment = elementName;
 					ITER_SEGMENTS: for (int i = 0; i < count-1; i++) {
 						if (elementSegment == null) {
@@ -686,6 +686,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 				if (allAccess != null) {
 					ITER_ELEMENTS: for (final RElementAccess elementAccess : allAccess) {
 						IElementName elementSegment = elementAccess;
+						IElementName prefixSegment = prefixSegments;
 						ITER_SEGMENTS: for (int i = 0; i < count-1; i++) {
 							if (isCompletable(elementSegment)
 									&& elementSegment.getSegmentName().equals(prefixSegment.getSegmentName())) {
