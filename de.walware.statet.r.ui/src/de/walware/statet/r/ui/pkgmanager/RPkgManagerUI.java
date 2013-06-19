@@ -94,7 +94,7 @@ public class RPkgManagerUI {
 		if (manager.requiresUpdate()) {
 			manager.update(r, monitor);
 		}
-		final IRPkgSet.Ext rPkgSet = manager.getExtRPkgSet();
+		final IRPkgSet rPkgSet = manager.getRPkgSet();
 		final List<String> missingPkgs = new ArrayList<String>(pkgNames.size());
 		final StringBuilder sb = new StringBuilder();
 		for (final String pkgName : pkgNames) {
