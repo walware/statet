@@ -69,6 +69,11 @@ public class SshSessionManager implements ISshSessionService, IDisposable {
 			return session;
 		}
 		catch (final JSchException e) {
+			// create new session, if existing session is broken
+			if ("Packet corrupt".equals(e.getMessage()) && fPool.values().remove(session)) { //$NON-NLS-1$
+				return getSshSession(username, host, port, monitor);
+			}
+			
 			throw new CoreException(new Status(IStatus.ERROR, ECommons.PLUGIN_ID, "Failed to create SSH connection", e));
 		}
 	}
