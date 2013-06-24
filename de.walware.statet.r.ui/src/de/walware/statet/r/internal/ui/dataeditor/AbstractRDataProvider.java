@@ -1146,6 +1146,14 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	
 	protected abstract Object getColumnName(LazyRStore.Fragment<T> fragment, long columnIdx);
 	
+	public boolean hasRealColumns() {
+		return true;
+	}
+	
+	public boolean hasRealRows() {
+		return true;
+	}
+	
 	public IDataProvider getColumnDataProvider() {
 		return fColumnDataProvider;
 	}

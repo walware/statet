@@ -262,12 +262,18 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 				if (selection.getAnchorRowLabel() != null) {
 					final StringBuilder sb = new StringBuilder();
 					sb.append(selection.getAnchorRowLabel());
-					sb.append(", ");
+					if (!selection.getAnchorRowLabel().isEmpty()
+							&& !selection.getAnchorColumnLabel().isEmpty()) {
+						sb.append(", ");
+					}
 					sb.append(selection.getAnchorColumnLabel());
 					if (selection.getLastSelectedCellRowLabel() != null) {
 						sb.append(" (");
 						sb.append(selection.getLastSelectedCellRowLabel());
-						sb.append(", ");
+						if (!selection.getLastSelectedCellRowLabel().isEmpty()
+								&& !selection.getLastSelectedCellColumnLabel().isEmpty()) {
+							sb.append(", ");
+						}
 						sb.append(selection.getLastSelectedCellColumnLabel());
 						sb.append(")");
 					}

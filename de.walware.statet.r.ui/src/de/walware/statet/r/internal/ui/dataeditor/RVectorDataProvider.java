@@ -73,6 +73,12 @@ public class RVectorDataProvider extends AbstractRDataProvider<RVector<?>> {
 		return fragment.getRObject().getData().get(fragment.toLocalRowIdx(rowIdx));
 	}
 	
+	
+	@Override
+	public boolean hasRealColumns() {
+		return false;
+	}
+	
 	@Override
 	public IDataProvider createColumnDataProvider() {
 		return new ColumnDataProvider() {

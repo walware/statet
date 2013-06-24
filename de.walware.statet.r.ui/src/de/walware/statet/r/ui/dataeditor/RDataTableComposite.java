@@ -113,6 +113,7 @@ import de.walware.statet.r.internal.ui.dataeditor.RDataFrameDataProvider;
 import de.walware.statet.r.internal.ui.dataeditor.RDataTableContentDescription;
 import de.walware.statet.r.internal.ui.dataeditor.RMatrixDataProvider;
 import de.walware.statet.r.internal.ui.dataeditor.RVectorDataProvider;
+import de.walware.statet.r.internal.ui.intable.InfoString;
 import de.walware.statet.r.internal.ui.intable.PresentationConfig;
 import de.walware.statet.r.internal.ui.intable.RDataLayer;
 import de.walware.statet.r.internal.ui.intable.TableLayers;
@@ -541,6 +542,9 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	}
 	
 	protected String getRowLabel(final long row) {
+		if (!fDataProvider.hasRealRows()) {
+			return ""; //$NON-NLS-1$
+		}
 		final IDataProvider dataProvider = fDataProvider.getRowDataProvider();
 		if (dataProvider.getColumnCount() <= 1) {
 			return getHeaderLabel(dataProvider.getDataValue(0, row));
@@ -558,6 +562,9 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	}
 	
 	protected String getColumnLabel(final long column) {
+		if (!fDataProvider.hasRealColumns()) {
+			return ""; //$NON-NLS-1$
+		}
 		final IDataProvider dataProvider = fDataProvider.getColumnDataProvider();
 		if (dataProvider.getRowCount() <= 1) {
 			return getHeaderLabel(dataProvider.getDataValue(column, 0));
@@ -579,6 +586,9 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			final Object displayValue = fFormatter.modelToDisplayValue(value);
 			if (displayValue.getClass() == String.class) {
 				return (String) displayValue;
+			}
+			if (displayValue == InfoString.DUMMY) {
+				return ""; //$NON-NLS-1$
 			}
 			return null;
 		}

@@ -220,6 +220,16 @@ public class FTableDataProvider extends RMatrixDataProvider {
 	}
 	
 	@Override
+	public boolean hasRealColumns() {
+		return (fColVars.getLength() > 0);
+	}
+	
+	@Override
+	public boolean hasRealRows() {
+		return (fRowVars.getLength() > 0);
+	}
+	
+	@Override
 	protected IDataProvider createColumnDataProvider() {
 		return new FTableColumnDataProvider();
 	}
