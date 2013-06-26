@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.ui.dataeditor;
 
+import static org.eclipse.nebula.widgets.nattable.coordinate.Orientation.HORIZONTAL;
+
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -266,8 +268,10 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		final IDataProvider columnHeaderDataProvider = dataProvider.getColumnDataProvider();
 		final NColumnGroupHeaderLayer columnHeaderLayer = new NColumnGroupHeaderLayer(
 				(columnHeaderDataProvider instanceof ISpanningDataProvider) ?
-						new SpanningDataLayer((ISpanningDataProvider) columnHeaderDataProvider) :
-						new DataLayer(columnHeaderDataProvider),
+						new SpanningDataLayer((ISpanningDataProvider) columnHeaderDataProvider,
+								sizeConfig.getRowHeight(), sizeConfig.getRowHeight(), true, false ) :
+						new DataLayer(columnHeaderDataProvider,
+								sizeConfig.getRowHeight(), sizeConfig.getRowHeight(), true, false ),
 				fTableLayers.topBodyLayer, fTableLayers.selectionLayer,
 				false, presentation.getHeaderLayerPainter() );
 		columnHeaderLayer.addConfiguration(new UIBindings.ColumnHeaderConfiguration());
@@ -285,8 +289,10 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		{	final int width = sizeConfig.getCharWidth() * 8 + sizeConfig.getDefaultSpace() * 2;
 			fTableLayers.topRowHeaderLayer = new NRowGroupHeaderLayer(
 				(rowHeaderDataProvider instanceof ISpanningDataProvider) ?
-						new SpanningDataLayer((ISpanningDataProvider) rowHeaderDataProvider, width, sizeConfig.getRowHeight()) :
-						new DataLayer(rowHeaderDataProvider, width, sizeConfig.getRowHeight()),
+						new SpanningDataLayer((ISpanningDataProvider) rowHeaderDataProvider,
+								width, sizeConfig.getRowHeight(), false, true ) :
+						new DataLayer(rowHeaderDataProvider,
+								width, sizeConfig.getRowHeight(), false, true ),
 				fTableLayers.topBodyLayer, fTableLayers.selectionLayer,
 				false, presentation.getHeaderLayerPainter() );
 		}
@@ -406,8 +412,13 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			}
 			
 			@Override
-			public void onRowsChanged(final int beginIdx, final int endIdx) {
-				dataLayer.fireLayerEvent(new RowUpdateEvent(dataLayer, new Range(beginIdx, endIdx)));
+			public void onRowsChanged(final long beginIdx, final long endIdx) {
+				fDisplay.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						dataLayer.fireLayerEvent(new RowUpdateEvent(dataLayer, new Range(beginIdx, endIdx)));
+					}
+				});
 			}
 			
 		});
@@ -833,8 +844,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	
 	public void revealColumn(final int index) {
 		if (fTable != null) {
-			fTableLayers.viewportLayer.moveColumnPositionIntoViewport(
-					index, true);
+			fTableLayers.viewportLayer.getDim(HORIZONTAL).movePositionIntoViewport(index);
 		}
 	}
 	

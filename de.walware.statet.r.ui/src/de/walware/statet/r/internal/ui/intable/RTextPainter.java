@@ -51,7 +51,7 @@ public class RTextPainter extends AbstractTextPainter {
 	
 	
 	public RTextPainter(final int space) {
-		super(false, true, space, false, SWT.DRAW_TRANSPARENT);
+		super(false, true, space, false, false, SWT.DRAW_TRANSPARENT);
 	}
 	
 	

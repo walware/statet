@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.internal.ui.intable;
 
+import static org.eclipse.nebula.widgets.nattable.coordinate.Orientation.HORIZONTAL;
+import static org.eclipse.nebula.widgets.nattable.coordinate.Orientation.VERTICAL;
+
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -41,9 +44,8 @@ import org.eclipse.nebula.widgets.nattable.ui.matcher.IMouseEventMatcher;
 import org.eclipse.nebula.widgets.nattable.ui.matcher.KeyEventMatcher;
 import org.eclipse.nebula.widgets.nattable.ui.matcher.MouseEventMatcher;
 import org.eclipse.nebula.widgets.nattable.ui.menu.PopupMenuAction;
-import org.eclipse.nebula.widgets.nattable.viewport.action.ViewportSelectColumnAction;
-import org.eclipse.nebula.widgets.nattable.viewport.action.ViewportSelectRowAction;
-import org.eclipse.nebula.widgets.nattable.viewport.command.ScrollCellCommand;
+import org.eclipse.nebula.widgets.nattable.viewport.action.ViewportSelectDimPositionsAction;
+import org.eclipse.nebula.widgets.nattable.viewport.command.ScrollStepCommand;
 import org.eclipse.nebula.widgets.nattable.viewport.command.SelectRelativePageCommand;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -78,12 +80,12 @@ public class UIBindings {
 		public void run(final NatTable natTable, final KeyEvent event) {
 			switch (fType) {
 			case CELL:
-				natTable.doCommand(new ScrollCellCommand(getDirection()));
+				natTable.doCommand(new ScrollStepCommand(getDirection()));
 				break;
 			case PAGE:
 				break;
 			case TABLE:
-				natTable.doCommand(new ScrollCellCommand(getDirection(), -1));
+				natTable.doCommand(new ScrollStepCommand(getDirection()));
 				break;
 			default:
 				throw new IllegalStateException();
@@ -252,12 +254,12 @@ public class UIBindings {
 			uiBindingRegistry.registerSingleClickBinding(
 					new MouseEventMatcher(MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT,
 							GridRegion.COLUMN_HEADER, IMouseEventMatcher.LEFT_BUTTON ),
-					new ViewportSelectColumnAction());
+					new ViewportSelectDimPositionsAction(HORIZONTAL));
 			
 			uiBindingRegistry.registerSingleClickBinding(
 					new MouseEventMatcher(MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT,
 							GridRegion.ROW_HEADER, IMouseEventMatcher.LEFT_BUTTON ),
-					new ViewportSelectRowAction());
+					new ViewportSelectDimPositionsAction(VERTICAL));
 			
 			uiBindingRegistry.registerMouseDragMode(
 					new MouseEventMatcher(MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT,

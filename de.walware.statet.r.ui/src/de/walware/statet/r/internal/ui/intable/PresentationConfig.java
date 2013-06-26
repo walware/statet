@@ -153,10 +153,10 @@ public class PresentationConfig extends AbstractRegistryConfiguration implements
 		{	final GC gc = new GC(display);
 			gc.setFont(fBaseFont);
 			final FontMetrics fontMetrics = gc.getFontMetrics();
-			int textHeight = fontMetrics.getHeight();
-			int charWidth = (gc.textExtent("1234567890.-120").x + 5) / 15;
+			final int textHeight = fontMetrics.getHeight();
+			final int charWidth = (gc.textExtent("1234567890.-120").x + 5) / 15;
 			gc.dispose();
-			int textSpace = 3;
+			final int textSpace = 3;
 			
 			fBaseSizeConfig = new LayoutSizeConfig(textSpace, textHeight, charWidth);
 		}

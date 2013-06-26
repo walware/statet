@@ -13,7 +13,7 @@ package de.walware.statet.r.internal.ui.intable;
 
 import org.eclipse.nebula.widgets.nattable.command.LayerCommandUtil;
 import org.eclipse.nebula.widgets.nattable.coordinate.ColumnPositionCoordinate;
-import org.eclipse.nebula.widgets.nattable.layer.IUniqueIndexLayer;
+import org.eclipse.nebula.widgets.nattable.layer.ILayer;
 import org.eclipse.nebula.widgets.nattable.selection.SelectionLayer;
 import org.eclipse.nebula.widgets.nattable.selection.event.CellSelectionEvent;
 import org.eclipse.nebula.widgets.nattable.viewport.ViewportLayer;
@@ -28,10 +28,10 @@ public class TableLayers {
 	
 	public ViewportLayer viewportLayer;
 	
-	public IUniqueIndexLayer topBodyLayer;
+	public ILayer topBodyLayer;
 	
-	public IUniqueIndexLayer topColumnHeaderLayer;
-	public IUniqueIndexLayer topRowHeaderLayer;
+	public ILayer topColumnHeaderLayer;
+	public ILayer topRowHeaderLayer;
 	
 	
 	public void setAnchor(int columnPosition, final int rowPosition,
