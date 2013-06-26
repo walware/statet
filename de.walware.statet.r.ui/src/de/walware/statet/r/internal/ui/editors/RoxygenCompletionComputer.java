@@ -26,6 +26,7 @@ import de.walware.ecommons.ltk.ui.LTKUI;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistProposalCollector;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistCompletionProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistInformationProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IContentAssistComputer;
@@ -151,7 +152,7 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void sessionStarted(final ISourceEditor editor) {
+	public void sessionStarted(final ISourceEditor editor, final ContentAssist assist) {
 	}
 	
 	/**

@@ -27,6 +27,7 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IRegisterGroup;
 import org.eclipse.debug.core.model.IVariable;
 
+import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
@@ -39,7 +40,8 @@ import de.walware.rj.eclient.IRToolService;
 import de.walware.rj.server.dbg.CallStack;
 import de.walware.rj.server.dbg.FrameContext;
 
-import de.walware.statet.r.console.core.RWorkspace;
+import de.walware.statet.r.console.core.LoadReferenceRunnable;
+import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.RElementName;
@@ -153,8 +155,8 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		}
 		
 		@Override
-		public void run(IRToolService r,
-				IProgressMonitor monitor) throws CoreException {
+		public void run(final IRToolService r,
+				final IProgressMonitor monitor) throws CoreException {
 			final AbstractRDbgController controller = (AbstractRDbgController) r;
 			if (fStamp != controller.getCounter()) {
 				return;
@@ -170,68 +172,6 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		
 		protected abstract V doLoad(IRToolService r,
 				IProgressMonitor monitor) throws CoreException, UnexpectedRDataException;
-		
-	}
-	
-	private class LoadReferenceRunnable implements ISystemRunnable {
-		
-		private boolean fCancel;
-		
-		private final RReference fReference;
-		private final int fStamp;
-		private ICombinedRElement fData;
-		
-		public LoadReferenceRunnable(final RReference reference, final int stamp) {
-			fReference = reference;
-			fStamp = stamp;
-		}
-		
-		@Override
-		public String getTypeId() {
-			return "r/dbg/stackframe";
-		}
-		
-		@Override
-		public String getLabel() {
-			return "Update Debug Context (Variables)";
-		}
-		
-		@Override
-		public boolean isRunnableIn(final ITool tool) {
-			return (tool == fThread.getDebugTarget().getProcess());
-		}
-		
-		@Override
-		public boolean changed(final int event, final ITool tool) {
-			switch (event) {
-			case REMOVING_FROM:
-				return fCancel;
-			case MOVING_FROM:
-				return false;
-			case BEING_ABANDONED:
-			case FINISHING_OK:
-			case FINISHING_ERROR:
-			case FINISHING_CANCEL:
-				synchronized (LoadReferenceRunnable.this) {
-					LoadReferenceRunnable.this.notifyAll();
-				}
-				break;
-			default:
-				break;
-			}
-			return true;
-		}
-		
-		@Override
-		public void run(final IToolService service,
-				final IProgressMonitor monitor) throws CoreException {
-			final AbstractRDbgController r = (AbstractRDbgController) service;
-			if (fStamp != r.getCounter()) {
-				return;
-			}
-			final RWorkspace workspace = r.getWorkspaceData();
-			fData = workspace.resolve(fReference, monitor);
-		}
 		
 	}
 	
@@ -651,7 +591,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		}
 	}
 	
-	public <V extends RObject> V loadData(LoadDataRunnable<V> runnable, final int stamp) {
+	public <V extends RObject> V loadData(final LoadDataRunnable<V> runnable, final int stamp) {
 		synchronized (runnable) {
 			if (getDebugTarget().getProcess().getQueue().addHot(runnable).isOK()) {
 				try {
@@ -667,19 +607,21 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		}
 	}
 	
-	public ICombinedRElement loadReference(final RReference element, final int stamp) {
+	public ICombinedRElement loadReference(final RReference reference, final int stamp) {
 		if (fStamp != stamp) {
 			return null;
 		}
-		final LoadReferenceRunnable runnable = new LoadReferenceRunnable(element, stamp);
+		final RProcess process = getDebugTarget().getProcess();
+		final LoadReferenceRunnable runnable = new LoadReferenceRunnable(reference, process, stamp,
+				"Debug Context" );
 		synchronized (runnable) {
-			if (getDebugTarget().getProcess().getQueue().addHot(runnable).isOK()) {
+			if (process.getQueue().addHot(runnable).isOK()) {
 				try {
 					runnable.wait();
-					return runnable.fData;
+					return runnable.getResolvedElement();
 				}
 				catch (final InterruptedException e) {
-					runnable.fCancel = true;
+					runnable.cancel();
 					getDebugTarget().getProcess().getQueue().removeHot(runnable);
 				}
 			}
@@ -757,6 +699,10 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		if (IBreakpoint.class.equals(required)) {
 			final IRBreakpointStatus breakpointStatus = fBreakpointStatus;
 			return (breakpointStatus != null) ? breakpointStatus.getBreakpoint() : null;
+		}
+		if (IModelElement.class.equals(required)) {
+			final RElementVariable variable = fFrameVariable;
+			return (variable != null) ? fFrameVariable.getElement() : null;
 		}
 		return super.getAdapter(required);
 	}

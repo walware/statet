@@ -22,11 +22,16 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.model.IDebugTarget;
+import org.eclipse.debug.core.model.IStackFrame;
+import org.eclipse.debug.core.model.IThread;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IElementName;
@@ -40,9 +45,11 @@ import de.walware.ecommons.ltk.ui.IElementLabelProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistProposalCollector;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistCompletionProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistInformationProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IContentAssistComputer;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ReshowCompletionsRunnable;
 import de.walware.ecommons.text.IPartitionConstraint;
 import de.walware.ecommons.ts.ITool;
 
@@ -53,6 +60,7 @@ import de.walware.statet.nico.ui.console.InputDocument;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
 
+import de.walware.statet.r.console.core.LoadReferenceRunnable;
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
@@ -81,6 +89,7 @@ import de.walware.statet.r.internal.ui.editors.RElementCompletionProposal;
 import de.walware.statet.r.internal.ui.editors.RKeywordCompletionProposal;
 import de.walware.statet.r.internal.ui.editors.RSimpleCompletionComputer;
 import de.walware.statet.r.ui.RLabelProvider;
+import de.walware.statet.r.ui.RUI;
 
 
 public class RElementsCompletionComputer implements IContentAssistComputer {
@@ -157,7 +166,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	public static class CompleteRuntime extends RElementsCompletionComputer {
 		
 		public CompleteRuntime() {
-			fCompleteRuntimeMode = true;
+			super(1);
 		}
 		
 	}
@@ -211,18 +220,27 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	
 	
 	private final IElementLabelProvider fLabelProvider = new RLabelProvider(RLabelProvider.NAMESPACE);
-	private ISourceEditor fEditor;
+	ISourceEditor fEditor;
+	ContentAssist fAssist;
 	private RHeuristicTokenScanner fScanner;
 	private RProcess fProcess;
 	
 	private final List<IRFrame>[] fEnvirList = new List[3];
 	private Set<String> fEnvirListPackages;
 	
-	protected boolean fCompleteRuntimeMode;
+	protected final boolean fCompleteRuntimeMode;
+	
+	private IStatus fResultStatus;
+
 	
 	
 	public RElementsCompletionComputer() {
+		this(0);
+	}
+	
+	protected RElementsCompletionComputer(final int mode) {
 		fEnvirList[RUNTIME_ENVIR] = new ArrayList<IRFrame>();
+		fCompleteRuntimeMode = (mode == 1);
 	}
 	
 	
@@ -230,7 +248,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void sessionStarted(final ISourceEditor editor) {
+	public void sessionStarted(final ISourceEditor editor, final ContentAssist assist) {
 		if (fEditor != editor) {
 			fEditor = editor;
 			fScanner = null;
@@ -251,6 +269,8 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 				fProcess = rProcess;
 			}
 		}
+		
+		fAssist = assist;
 	}
 	
 	/**
@@ -263,6 +283,12 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		fEnvirList[RUNTIME_ENVIR].clear();
 		fEnvirListPackages = null;
 		fProcess = null;
+		fAssist = null;
+		fResultStatus = null;
+	}
+	
+	private void setStatus(final IStatus status) {
+		fResultStatus = status;
 	}
 	
 	private RHeuristicTokenScanner getScanner() {
@@ -300,8 +326,12 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	@Override
 	public IStatus computeCompletionProposals(final AssistInvocationContext context,
 			final int mode, final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
+		fResultStatus = null;
+		
 		if (mode == IContentAssistComputer.INFORMATION_MODE) {
-			return computeContextInformation2(context, proposals, false, monitor);
+			doComputeContextInformation(context, proposals, false, monitor);
+			
+			return fResultStatus;
 		}
 		
 		if (context.getModelInfo() == null) {
@@ -340,12 +370,16 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			final String lastPrefix = computeSingleIdentifierPrefix(context);
 			doComputeSubProposals(context, lastPrefix, prefixSegments, proposals, monitor);
 		}
-		return null;
+		return fResultStatus;
 	}
 	
 	protected List<? extends IModelElement> getChildren(IModelElement e) {
 		if (e instanceof RReference) {
-			final RObject rObject = ((RReference) e).getResolvedRObject();
+			final RReference ref = (RReference) e;
+			RObject rObject = ref.getResolvedRObject();
+			if (rObject == null && e instanceof ICombinedRElement && fProcess != null) {
+				rObject = loadReference(ref);
+			}
 			if (rObject instanceof ICombinedRElement) {
 				e = (ICombinedRElement) rObject;
 			}
@@ -501,7 +535,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		final AbstractDocument document = (AbstractDocument) context.getSourceViewer().getDocument();
 		int offset = context.getInvocationOffset();
 		if (offset <= 0 || offset > document.getLength()) {
-			return ""; 
+			return ""; //$NON-NLS-1$
 		}
 		try {
 			ITypedRegion partition = document.getPartition(context.getEditor().getPartitioning().getPartitioning(), offset, true);
@@ -555,7 +589,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 		catch (final BadPartitioningException e) {
 		}
-		return ""; 
+		return ""; //$NON-NLS-1$
 	}
 	
 	protected void doComputeSubProposals(final AssistInvocationContext context,
@@ -732,13 +766,17 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	@Override
 	public IStatus computeContextInformation(final AssistInvocationContext context,
 			final AssistProposalCollector<IAssistInformationProposal> proposals, final IProgressMonitor monitor) {
-		return computeContextInformation2(context, proposals, true, monitor);
+		fResultStatus = null;
+		
+		doComputeContextInformation(context, proposals, true, monitor);
+		
+		return fResultStatus;
 	}
 	
-	public IStatus computeContextInformation2(final AssistInvocationContext context,
+	public void doComputeContextInformation(final AssistInvocationContext context,
 			final AssistProposalCollector<?> proposals, final boolean createContextInfoOnly, final IProgressMonitor monitor) {
 		if (context.getModelInfo() == null) {
-			return null;
+			return;
 		}
 		
 		int offset = context.getInvocationOffset();
@@ -752,7 +790,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			offset += indexShift;
 		}
 		if (scanner == null || offset < 2) {
-			return null;
+			return;
 		}
 		scanner.configureDefaultParitions(document);
 		if (scanner.getPartitioningConfig().getDefaultPartitionConstraint().matches(scanner.getPartition(offset-1).getType())) {
@@ -764,7 +802,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 				}
 			}
 		}
-		return Status.OK_STATUS;
+		setStatus(Status.OK_STATUS);
 	}
 	
 	private FCallInfo searchFCallInfo(final AssistInvocationContext context, final int fcallOpen) {
@@ -878,7 +916,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 				try {
 					fEnvirList[WS_ENVIR] = RModel.createProjectFrameList(null, (IRSourceUnit) su, fEnvirListPackages);
 				}
-				catch (CoreException e) {
+				catch (final CoreException e) {
 					// CANCELLED possible?
 				}
 				if (fEnvirList[WS_ENVIR] != null && !fEnvirList[WS_ENVIR].isEmpty()) {
@@ -896,16 +934,21 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	private void addRuntimeEnvirList(final AssistInvocationContext context) {
 		if (fProcess != null) {
 			if (fEditor instanceof ConsolePageEditor || fCompleteRuntimeMode) {
+				
+				addDebugFrame();
+				
 				final RWorkspace data = fProcess.getWorkspaceData();
 				final List<? extends ICombinedREnvironment> runtimeList = data.getRSearchEnvironments();
 				if (runtimeList != null && !runtimeList.isEmpty()) {
 					for (final ICombinedREnvironment envir : runtimeList) {
-						final IRFrame frame = (IRFrame) envir;
-						if (frame.getFrameType() == IRFrame.PROJECT) {
-							fEnvirList[LOCAL_ENVIR].add(frame);
-						}
-						else {
-							fEnvirList[WS_ENVIR].add(frame);
+						if (envir instanceof IRFrame) {
+							final IRFrame frame = (IRFrame) envir;
+							if (frame.getFrameType() == IRFrame.PROJECT) {
+								fEnvirList[LOCAL_ENVIR].add(frame);
+							}
+							else {
+								fEnvirList[WS_ENVIR].add(frame);
+							}
 						}
 					}
 				}
@@ -922,7 +965,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 						}
 					}
 				}
-				requiredPackages.add("base");
+				requiredPackages.add("base"); //$NON-NLS-1$
 				
 				final RWorkspace data = fProcess.getWorkspaceData();
 				final List<? extends ICombinedREnvironment> runtimeList = data.getRSearchEnvironments();
@@ -937,6 +980,71 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 					}
 				}
 			}
+		}
+	}
+	
+	private void addDebugFrame() {
+		final IDebugTarget debugTarget = fProcess.getLaunch().getDebugTarget();
+		if (debugTarget == null) {
+			return;
+		}
+		try {
+			final IThread[] threads = debugTarget.getThreads();
+			if (threads.length > 0) {
+				final IStackFrame top = threads[0].getTopStackFrame();
+				if (top != null) {
+					final ICombinedRElement envir = (ICombinedRElement) top.getAdapter(IModelElement.class);
+					if (envir instanceof IRFrame) {
+						final IRFrame frame = (IRFrame) envir;
+						if (frame.getFrameType() != IRFrame.PACKAGE) {
+							fEnvirList[LOCAL_ENVIR].add(frame);
+						}
+					}
+				}
+			}
+		}
+		catch (final DebugException e) {
+			if (e.getStatus().getCode() == DebugException.NOT_SUPPORTED
+					|| e.getStatus().getSeverity() == IStatus.CANCEL) {
+				return;
+			}
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
+					"An error occurred when collecting environments for content assist.", e ));
+		}
+	}
+	
+	private RObject loadReference(final RReference reference) {
+		final LoadReferenceRunnable runnable = new LoadReferenceRunnable(reference, fProcess, 0,
+				"Content Assist" );
+		synchronized (runnable) {
+			if (fProcess.getQueue().addHot(runnable).isOK()) {
+				try {
+					runnable.wait(250);
+					if (runnable.isFinished()) {
+						return runnable.getResolvedElement();
+					}
+					else {
+						runnable.setFinishRunnable(new ReshowCompletionsRunnable(fEditor, fAssist) {
+							@Override
+							protected void cancel() {
+								synchronized (runnable) {
+									runnable.cancel();
+								}
+								super.cancel();
+							}
+							@Override
+							protected boolean showCompletionsNow() {
+								return (runnable.getResolvedElement() != null);
+							}
+						});
+						return null;
+					}
+				}
+				catch (final InterruptedException e) {
+					runnable.cancel();
+				}
+			}
+			return null;
 		}
 	}
 	

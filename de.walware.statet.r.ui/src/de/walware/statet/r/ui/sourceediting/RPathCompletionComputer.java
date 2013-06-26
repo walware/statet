@@ -34,6 +34,7 @@ import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistProposalCollector;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistCompletionProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.PathCompletionComputor;
 import de.walware.ecommons.net.resourcemapping.IResourceMapping;
@@ -73,7 +74,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	}
 	
 	@Override
-	public void sessionStarted(final ISourceEditor editor) {
+	public void sessionStarted(final ISourceEditor editor, final ContentAssist assist) {
 		fAssociatedTool = null;
 		fBaseResource = null;
 		fBaseFileStore = null;
@@ -102,7 +103,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 			}
 		}
 		
-		super.sessionStarted(editor);
+		super.sessionStarted(editor, assist);
 	}
 	
 	@Override
