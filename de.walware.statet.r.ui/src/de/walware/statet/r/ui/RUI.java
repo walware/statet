@@ -54,7 +54,6 @@ public class RUI {
 	public static final String IMG_OBJ_DATAFRAME_COLUMN = RUI.PLUGIN_ID + "/image/obj/datastore"; //$NON-NLS-1$
 	public static final String IMG_OBJ_VECTOR = RUI.PLUGIN_ID + "/image/obj/vector"; //$NON-NLS-1$
 	public static final String IMG_OBJ_ARRAY = RUI.PLUGIN_ID + "/image/obj/array"; //$NON-NLS-1$
-	public static final String IMG_OBJ_ATOMIC = RUI.PLUGIN_ID + "/image/obj/atomic"; //$NON-NLS-1$
 	public static final String IMG_OBJ_S4OBJ = RUI.PLUGIN_ID + "/image/obj/s4obj"; //$NON-NLS-1$
 	public static final String IMG_OBJ_S4OBJ_VECTOR = RUI.PLUGIN_ID + "/image/obj/s4obj.vector"; //$NON-NLS-1$
 	public static final String IMG_OBJ_S4OBJ_DATAFRAME_COLUMN = RUI.PLUGIN_ID + "/image/obj/s4obj.dataframe_col"; //$NON-NLS-1$

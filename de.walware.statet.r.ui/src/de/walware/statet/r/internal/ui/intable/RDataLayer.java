@@ -12,9 +12,9 @@
 package de.walware.statet.r.internal.ui.intable;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.eclipse.nebula.widgets.nattable.config.LayoutSizeConfig;
 import org.eclipse.nebula.widgets.nattable.coordinate.Range;
@@ -47,7 +47,7 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	private final int fColumnAutoMinWidth = 3;
 	private final int fColumnAutoMaxWidth = 1000;
 	
-	private final Map<Integer, Integer> fCustomColumnWidths = new TreeMap<Integer, Integer>();
+	private final Map<Long, Integer> fCustomColumnWidths = new HashMap<Long, Integer>();
 	
 	
 	public RDataLayer(final AbstractRDataProvider<?> dataProvider, final LayoutSizeConfig sizeConfig) {
@@ -75,12 +75,12 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	// Columns
 	
 	@Override
-	public int getColumnCount() {
+	public long getColumnCount() {
 		return fDataProvider.getColumnCount();
 	}
 	
 	@Override
-	public int getPreferredColumnCount() {
+	public long getPreferredColumnCount() {
 		return fDataProvider.getColumnCount();
 	}
 	
@@ -88,7 +88,7 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	 * This is the root coordinate system, so the column index is always equal to the column position.
 	 */
 	@Override
-	public int getColumnIndexByPosition(final int columnPosition) {
+	public long getColumnIndexByPosition(final long columnPosition) {
 		if (columnPosition >=0 && columnPosition < getColumnCount()) {
 			return columnPosition;
 		} else {
@@ -100,22 +100,22 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	 * This is the root coordinate system, so the column position is always equal to the column index.
 	 */
 	@Override
-	public int getColumnPositionByIndex(final int columnIndex) {
+	public long getColumnPositionByIndex(final long columnIndex) {
 		return (columnIndex >= 0 && columnIndex < getColumnCount()) ? columnIndex : -1;
 	}
 	
 	@Override
-	public Collection<ILayer> getUnderlyingLayersByColumnPosition(final int columnPosition) {
+	public Collection<ILayer> getUnderlyingLayersByColumnPosition(final long columnPosition) {
 		return null;
 	}
 	
 	@Override
-	public int localToUnderlyingColumnPosition(final int localColumnPosition) {
+	public long localToUnderlyingColumnPosition(final long localColumnPosition) {
 		return localColumnPosition;
 	}
 	
 	@Override
-	public int underlyingToLocalColumnPosition(final ILayer sourceUnderlyingLayer, final int underlyingColumnPosition) {
+	public long underlyingToLocalColumnPosition(final ILayer sourceUnderlyingLayer, final long underlyingColumnPosition) {
 		return underlyingColumnPosition;
 	}
 	
@@ -126,17 +126,17 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	
 	// Width
 	@Override
-	public int getWidth() {
+	public long getWidth() {
 		return aggregateWidth(getColumnCount());
 	}
 	
-	private int aggregateWidth(final int position) {
+	private long aggregateWidth(final long position) {
 		if (position < 0) {
 			return -1;
 		}
 		
 		if (fDataProvider.getAllColumnsEqual()) {
-			final Integer columnWidth = fCustomColumnWidths.get(Integer.valueOf(0));
+			final Integer columnWidth = fCustomColumnWidths.get(Long.valueOf(0));
 			if (columnWidth != null) {
 				return columnWidth * position;
 			}
@@ -145,9 +145,9 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 			}
 		}
 		
-		int width = 0;
-		for (int i = 0; i < position; i++) {
-			final Integer columnWidth = fCustomColumnWidths.get(Integer.valueOf(i));
+		long width = 0;
+		for (long i = 0; i < position; i++) {
+			final Integer columnWidth = fCustomColumnWidths.get(Long.valueOf(i));
 			if (columnWidth != null) {
 				width += columnWidth.intValue();
 			}
@@ -159,21 +159,21 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	}
 	
 	@Override
-	public int getPreferredWidth() {
+	public long getPreferredWidth() {
 		return getWidth();
 	}
 	
 	@Override
-	public int getColumnWidthByPosition(final int columnPosition) {
+	public int getColumnWidthByPosition(final long columnPosition) {
 		final Integer columnWidth = fCustomColumnWidths.get(fDataProvider.getAllColumnsEqual() ?
-				Integer.valueOf(0) : Integer.valueOf(columnPosition));
+				Long.valueOf(0) : Long.valueOf(columnPosition));
 		if (columnWidth != null) {
 				return columnWidth.intValue();
 		}
 		return getColumnDefaultWidth(columnPosition);
 	}
 	
-	protected int getColumnFormatterCharWidth(final int columnPosition) {
+	protected int getColumnFormatterCharWidth(final long columnPosition) {
 		RDataFormatter formatter;
 		if (fDataProvider.getAllColumnsEqual()) {
 			final RDataTableContentDescription description = fDataProvider.getDescription();
@@ -189,7 +189,7 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 			if (description != null) {
 				final List<RDataTableColumn> columns = description.getDataColumns();
 				if (columnPosition < columns.size()
-						&& (formatter = columns.get(columnPosition).getDefaultFormat()) != null
+						&& (formatter = columns.get((int) columnPosition).getDefaultFormat()) != null
 						&& formatter.getAutoWidth() >= 0) {
 					return formatter.getAutoWidth();
 				}
@@ -202,7 +202,7 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 		}
 	}
 	
-	protected int getColumnDefaultWidth(final int columnPosition) {
+	protected int getColumnDefaultWidth(final long columnPosition) {
 		final int charWidth = getColumnFormatterCharWidth(columnPosition);
 		if (charWidth < fColumnDefaultMinWidth) {
 			return fColumnDefaultMinWidth * fCharWidth + fHSpacing;
@@ -213,7 +213,7 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 		return charWidth * fCharWidth + fHSpacing;
 	}
 	
-	protected int getColumnAutoWidth(final int columnPosition) {
+	protected int getColumnAutoWidth(final long columnPosition) {
 		final int charWidth = getColumnFormatterCharWidth(columnPosition);
 		if (charWidth < fColumnAutoMinWidth) {
 			return fColumnAutoMinWidth * fCharWidth + fHSpacing;
@@ -224,20 +224,20 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 		return charWidth * fCharWidth + fHSpacing;
 	}
 	
-	public void setColumnWidth(final int columnPosition, final int width) {
+	public void setColumnWidth(final long columnPosition, final int width) {
 		fCustomColumnWidths.put(fDataProvider.getAllColumnsEqual() ?
-				Integer.valueOf(0) : Integer.valueOf(columnPosition), width);
+				Long.valueOf(0) : Long.valueOf(columnPosition), width);
 		fireLayerEvent(new ColumnResizeEvent(this, columnPosition));
 	}
 	
-	public void setColumnWidthToAutoWidth(final int columnPosition) {
+	public void setColumnWidthToAutoWidth(final long columnPosition) {
 		fCustomColumnWidths.put(fDataProvider.getAllColumnsEqual() ?
-				Integer.valueOf(0) : Integer.valueOf(columnPosition), getColumnAutoWidth(columnPosition));
+				Long.valueOf(0) : Long.valueOf(columnPosition), getColumnAutoWidth(columnPosition) );
 		fireLayerEvent(new ColumnResizeEvent(this, columnPosition));
 	}
 	
 	@Override
-	public boolean isColumnPositionResizable(final int columnPosition) {
+	public boolean isColumnPositionResizable(final long columnPosition) {
 		return true;
 	}
 	
@@ -245,12 +245,12 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	// Rows
 	
 	@Override
-	public int getRowCount() {
+	public long getRowCount() {
 		return fDataProvider.getRowCount();
 	}
 	
 	@Override
-	public int getPreferredRowCount() {
+	public long getPreferredRowCount() {
 		return getRowCount();
 	}
 	
@@ -258,8 +258,8 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	 * This is the root coordinate system, so the row index is always equal to the row position.
 	 */
 	@Override
-	public int getRowIndexByPosition(final int rowPosition) {
-		if (rowPosition >=0 && rowPosition < getRowCount()) {
+	public long getRowIndexByPosition(final long rowPosition) {
+		if (rowPosition >= 0 && rowPosition < getRowCount()) {
 			return rowPosition;
 		} else {
 			return -1;
@@ -270,22 +270,22 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	 * This is the root coordinate system, so the row position is always equal to the row index.
 	 */
 	@Override
-	public int getRowPositionByIndex(final int rowIndex) {
+	public long getRowPositionByIndex(final long rowIndex) {
 		return (rowIndex >= 0 && rowIndex < getRowCount()) ? rowIndex : -1;
 	}
 	
 	@Override
-	public Collection<ILayer> getUnderlyingLayersByRowPosition(final int rowPosition) {
+	public Collection<ILayer> getUnderlyingLayersByRowPosition(final long rowPosition) {
 		return null;
 	}
 	
 	@Override
-	public int localToUnderlyingRowPosition(final int localRowPosition) {
+	public long localToUnderlyingRowPosition(final long localRowPosition) {
 		return localRowPosition;
 	}
 	
 	@Override
-	public int underlyingToLocalRowPosition(final ILayer sourceUnderlyingLayer, final int underlyingRowPosition) {
+	public long underlyingToLocalRowPosition(final ILayer sourceUnderlyingLayer, final long underlyingRowPosition) {
 		return underlyingRowPosition;
 	}
 	
@@ -297,22 +297,22 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	// Height
 	
 	@Override
-	public int getHeight() {
+	public long getHeight() {
 		return getRowCount() * fRowHeight;
 	}
 	
 	@Override
-	public int getPreferredHeight() {
+	public long getPreferredHeight() {
 		return getHeight();
 	}
 	
 	@Override
-	public int getRowHeightByPosition(final int rowPosition) {
+	public int getRowHeightByPosition(final long rowPosition) {
 		return fRowHeight;
 	}
 	
 	@Override
-	public boolean isRowPositionResizable(final int rowPosition) {
+	public boolean isRowPositionResizable(final long rowPosition) {
 		return false;
 	}
 	
@@ -320,29 +320,29 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	// Cell features
 	
 	@Override
-	public Object getDataValueByPosition(final int columnPosition, final int rowPosition) {
-		final int columnIndex = getColumnIndexByPosition(columnPosition);
-		final int rowIndex = getRowIndexByPosition(rowPosition);
+	public Object getDataValueByPosition(final long columnPosition, final long rowPosition) {
+		final long columnIndex = getColumnIndexByPosition(columnPosition);
+		final long rowIndex = getRowIndexByPosition(rowPosition);
 		return fDataProvider.getDataValue(columnIndex, rowIndex);
 	}
 	
 	@Override
-	public int getColumnPositionByX(final int x) {
+	public long getColumnPositionByX(final long x) {
 		return LayerUtil.getColumnPositionByX(this, x);
 	}
 	
 	@Override
-	public int getRowPositionByY(final int y) {
+	public long getRowPositionByY(final long y) {
 		return LayerUtil.getRowPositionByY(this, y);
 	}
 	
 	@Override
-	public int getStartXOfColumnPosition(final int columnPosition) {
+	public long getStartXOfColumnPosition(final long columnPosition) {
 		return aggregateWidth(columnPosition);
 	}
 	
 	@Override
-	public int getStartYOfRowPosition(final int rowPosition) {
+	public long getStartYOfRowPosition(final long rowPosition) {
 		if (rowPosition < 0) {
 			return -1;
 		}
@@ -350,7 +350,7 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	}
 	
 	@Override
-	public ILayer getUnderlyingLayerByPosition(final int columnPosition, final int rowPosition) {
+	public ILayer getUnderlyingLayerByPosition(final long columnPosition, final long rowPosition) {
 		return null;
 	}
 	

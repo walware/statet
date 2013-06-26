@@ -17,8 +17,8 @@ public final class FindTask {
 	
 	public final String expression;
 	
-	public final int rowIdx;
-	public final int columnIdx;
+	public final long rowIdx;
+	public final long columnIdx;
 	public final boolean firstInRow;
 	public final boolean forward;
 	
@@ -26,7 +26,7 @@ public final class FindTask {
 	
 	
 	public FindTask(final String expression,
-			final int rowIdx, final int columnIdx,
+			final long rowIdx, final long columnIdx,
 			final boolean firstInRow, final boolean forward,
 			final IFindFilter filter) {
 		this.expression = expression;

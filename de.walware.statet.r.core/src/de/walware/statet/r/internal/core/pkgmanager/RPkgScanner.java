@@ -180,8 +180,9 @@ final class RPkgScanner {
 			final RCharacterStore repos = RDataUtil.checkRCharVector(r.evalData(
 					"options('repos')[[1L]]", monitor)).getData(); //$NON-NLS-1$
 			
-			final FullRPkgSet pkgs = new FullRPkgSet(repos.getLength());
-			for (int idxRepos = 0; idxRepos < repos.getLength(); idxRepos++) {
+			final int l = RDataUtil.checkIntLength(repos);
+			final FullRPkgSet pkgs = new FullRPkgSet(l);
+			for (int idxRepos = 0; idxRepos < l; idxRepos++) {
 				final String repoURL = repos.getChar(idxRepos);
 				if (repoURL == null || repoURL.isEmpty()) {
 					continue;
@@ -199,7 +200,7 @@ final class RPkgScanner {
 						}
 					}
 					data = RDataUtil.checkRCharArray(call.evalData(monitor), 2);
-					RDataUtil.checkColCountEqual(data, AVAIL_LIST_COUNT1);
+					RDataUtil.checkColumnCountEqual(data, AVAIL_LIST_COUNT1);
 				}
 				
 				final RCharacterStore store = data.getData();
@@ -249,7 +250,8 @@ final class RPkgScanner {
 			final RPkgSet oldPkgs = (RPkgSet) event.fOldPkgs;
 			final RPkgChangeSet changeSet = new RPkgChangeSet();
 			event.fInstalledPkgs = changeSet;
-			for (int idxLib = 0; idxLib < libs.getLength(); idxLib++) {
+			final int l = RDataUtil.checkIntLength(libs.getData());
+			for (int idxLib = 0; idxLib < l; idxLib++) {
 				final String libPath = libs.getNames().getChar(idxLib).intern();
 				final IRLibraryLocation location = rLibGroups.getLibLocation(libPath);
 				if (location == null
@@ -261,7 +263,7 @@ final class RPkgScanner {
 					{	final FunctionCall call = r.createFunctionCall(INST_LIST_FNAME);
 						call.addChar("lib", libPath); //$NON-NLS-1$
 						data = RDataUtil.checkRCharArray(call.evalData(monitor), 2);
-						RDataUtil.checkColCountEqual(data, INST_LIST_COUNT1);
+						RDataUtil.checkColumnCountEqual(data, INST_LIST_COUNT1);
 					}
 					final RCharacterStore store = data.getData();
 					final int nPkgs = data.getDim().getInt(0);
@@ -373,7 +375,7 @@ final class RPkgScanner {
 					{	final FunctionCall call = r.createFunctionCall(INST_LIST_FNAME);
 						call.addChar("lib", libPath.getRPath()); //$NON-NLS-1$
 						data = RDataUtil.checkRCharArray(call.evalData(monitor), 2);
-						RDataUtil.checkColCountEqual(data, INST_LIST_COUNT1);
+						RDataUtil.checkColumnCountEqual(data, INST_LIST_COUNT1);
 					}
 					final RCharacterStore store = data.getData();
 					final int nPkgs = data.getDim().getInt(0);

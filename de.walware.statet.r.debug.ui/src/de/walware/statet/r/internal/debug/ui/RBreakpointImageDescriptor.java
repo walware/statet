@@ -16,7 +16,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 
-import de.walware.statet.base.ui.StatetDebugImages;
+import de.walware.ecommons.debug.ui.WaDebugImages;
+
 
 
 /**
@@ -108,10 +109,10 @@ public class RBreakpointImageDescriptor extends CompositeImageDescriptor {
 		if ((flags & (INSTALLED | SCRIPT)) == INSTALLED) {
 			int x = 0;
 			int y = getSize().y;
-			final ImageData data = StatetDebugImages.getImageRegistry().getDescriptor(
+			final ImageData data = WaDebugImages.getImageRegistry().getDescriptor(
 					((flags & ENABLED) != 0) ?
-							StatetDebugImages.OVR_BREAKPOINT_INSTALLED :
-							StatetDebugImages.OVR_BREAKPOINT_INSTALLED_DISABLED )
+							WaDebugImages.OVR_BREAKPOINT_INSTALLED :
+							WaDebugImages.OVR_BREAKPOINT_INSTALLED_DISABLED )
 					.getImageData();
 			y -= data.height;
 			drawImage(data, x, y);
@@ -150,20 +151,20 @@ public class RBreakpointImageDescriptor extends CompositeImageDescriptor {
 		if ((flags & CONDITIONAL) != 0) {
 			int x = 0;
 			int y = 0;
-			final ImageData data = StatetDebugImages.getImageRegistry().getDescriptor(
+			final ImageData data = WaDebugImages.getImageRegistry().getDescriptor(
 					((flags & ENABLED) != 0) ?
-							StatetDebugImages.OVR_BREAKPOINT_CONDITIONAL :
-							StatetDebugImages.OVR_BREAKPOINT_CONDITIONAL_DISABLED )
+							WaDebugImages.OVR_BREAKPOINT_CONDITIONAL :
+							WaDebugImages.OVR_BREAKPOINT_CONDITIONAL_DISABLED )
 					.getImageData();
 			drawImage(data, x, y);
 		}
 		if ((flags & ENTRY) == ENTRY) {
 			int x = getSize().x;
 			int y = 0;
-			final ImageData data = StatetDebugImages.getImageRegistry().getDescriptor(
+			final ImageData data = WaDebugImages.getImageRegistry().getDescriptor(
 					((flags & ENABLED) != 0) ?
-							StatetDebugImages.OVR_METHOD_BREAKPOINT_ENTRY :
-							StatetDebugImages.OVR_METHOD_BREAKPOINT_ENTRY_DISABLED )
+							WaDebugImages.OVR_METHOD_BREAKPOINT_ENTRY :
+							WaDebugImages.OVR_METHOD_BREAKPOINT_ENTRY_DISABLED )
 					.getImageData();
 			x -= data.width;
 			x -= 1;
@@ -172,10 +173,10 @@ public class RBreakpointImageDescriptor extends CompositeImageDescriptor {
 		if ((flags & EXIT) == EXIT){
 			int x = getSize().x;
 			int y = getSize().y;
-			final ImageData data = StatetDebugImages.getImageRegistry().getDescriptor(
+			final ImageData data = WaDebugImages.getImageRegistry().getDescriptor(
 					((flags & ENABLED) != 0) ?
-							StatetDebugImages.OVR_METHOD_BREAKPOINT_EXIT :
-							StatetDebugImages.OVR_METHOD_BREAKPOINT_EXIT_DISABLED )
+							WaDebugImages.OVR_METHOD_BREAKPOINT_EXIT :
+							WaDebugImages.OVR_METHOD_BREAKPOINT_EXIT_DISABLED )
 					.getImageData();
 			x -= data.width;
 			x -= 1;

@@ -275,10 +275,10 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 	private void updateStatusLine() {
 		final IStatusLineManager manager = getEditorSite().getActionBars().getStatusLineManager();
 		final IContributionItem dimItem = manager.find("data.dimension");
-		final int[] dimension = fTable.getTableDimension();
+		final long[] dimension = fTable.getTableDimension();
 		if (dimItem != null) {
-			((StatusLineContributionItem) dimItem).setText(
-					(dimension != null) ? ("Dim: " + dimension[0] + " × " + dimension[1]) : "");
+			((StatusLineContributionItem) dimItem).setText((dimension != null) ?
+					("Dim: " + dimension[0] + " × " + dimension[1]) : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 	}
 	

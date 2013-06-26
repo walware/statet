@@ -11,8 +11,12 @@
 
 package de.walware.statet.r.internal.ui.intable;
 
+import static org.eclipse.nebula.widgets.nattable.painter.cell.GraphicsUtils.safe;
+
 import org.eclipse.nebula.widgets.nattable.config.CellConfigAttributes;
 import org.eclipse.nebula.widgets.nattable.config.IConfigRegistry;
+import org.eclipse.nebula.widgets.nattable.coordinate.Rectangle;
+import org.eclipse.nebula.widgets.nattable.coordinate.SWTUtil;
 import org.eclipse.nebula.widgets.nattable.data.convert.IDisplayConverter;
 import org.eclipse.nebula.widgets.nattable.layer.cell.ILayerCell;
 import org.eclipse.nebula.widgets.nattable.painter.cell.AbstractTextPainter;
@@ -26,7 +30,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Rectangle;
 
 
 public class RTextPainter extends AbstractTextPainter {
@@ -56,14 +59,14 @@ public class RTextPainter extends AbstractTextPainter {
 	
 	
 	@Override
-	public int getPreferredWidth(final ILayerCell cell, final GC gc, final IConfigRegistry configRegistry){
+	public long getPreferredWidth(final ILayerCell cell, final GC gc, final IConfigRegistry configRegistry){
 		final Object data = getData(cell, configRegistry);
 		setupGCFromConfig(gc, CellStyleUtil.getCellStyle(cell, configRegistry), data);
 		return getWidthFromCache(gc, data.toString()) + (spacing * 2);
 	}
 	
 	@Override
-	public int getPreferredHeight(final ILayerCell cell, final GC gc, final IConfigRegistry configRegistry) {
+	public long getPreferredHeight(final ILayerCell cell, final GC gc, final IConfigRegistry configRegistry) {
 		final Object data = getData(cell, configRegistry);
 		setupGCFromConfig(gc, CellStyleUtil.getCellStyle(cell, configRegistry), data);
 //		return gc.textExtent(data.toString(), swtDrawStyle).y;
@@ -98,8 +101,8 @@ public class RTextPainter extends AbstractTextPainter {
 			super.paintCell(cell, gc, rectangle, configRegistry);
 		}
 		
-		final Rectangle originalClipping = gc.getClipping();
-		gc.setClipping(rectangle.intersection(originalClipping));
+		final org.eclipse.swt.graphics.Rectangle originalClipping = gc.getClipping();
+		gc.setClipping(SWTUtil.toSWT(rectangle).intersection(originalClipping));
 		
 		final Object data = getData(cell, configRegistry);
 		final IStyle cellStyle = CellStyleUtil.getCellStyle(cell, configRegistry);
@@ -107,7 +110,7 @@ public class RTextPainter extends AbstractTextPainter {
 		
 		// Draw Text
 		String text = data.toString();
-		final int width = rectangle.width - (spacing * 2);
+		final long width = rectangle.width - (spacing * 2);
 //		if (text.length() > width * 4) {
 //			text = text.substring(0, width * 4);
 //		}
@@ -120,12 +123,12 @@ public class RTextPainter extends AbstractTextPainter {
 		
 		gc.drawText(
 				text,
-				rectangle.x + spacing + CellStyleUtil.getHorizontalAlignmentPadding((data instanceof InfoString) ?
+				safe(rectangle.x + spacing + CellStyleUtil.getHorizontalAlignmentPadding((data instanceof InfoString) ?
 						HorizontalAlignment.LEFT :
 						cellStyle.getAttributeValue(CellStyleAttributes.HORIZONTAL_ALIGNMENT),
-						width, contentWidth ),
-				rectangle.y + CellStyleUtil.getVerticalAlignmentPadding(VerticalAlignmentEnum.MIDDLE,
-						rectangle, contentHeight ),
+						width, contentWidth )),
+				safe(rectangle.y + CellStyleUtil.getVerticalAlignmentPadding(VerticalAlignmentEnum.MIDDLE,
+						rectangle.height, contentHeight )),
 				swtDrawStyle );
 		
 		gc.setClipping(originalClipping);

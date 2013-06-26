@@ -36,6 +36,7 @@ public class CombinedFactory extends RObjectFactoryImpl {
 	
 	public CombinedElement readObject(final RJIO io, final CombinedElement parent, final RElementName name) throws IOException {
 		final byte type = io.readByte();
+		int options;
 		switch (type) {
 		case -1:
 			return null;
@@ -46,9 +47,12 @@ public class CombinedFactory extends RObjectFactoryImpl {
 		case RObject.TYPE_ARRAY:
 			return new RArrayVar(io, this, parent, name);
 		case RObject.TYPE_LIST:
-			return new RListVar(io, this, parent, name);
+			options = io.readInt();
+			
+			return new RListVar(io, this, options, parent, name);
 		case RObject.TYPE_DATAFRAME:
-			return new RDataFrameVar(io, this, parent, name);
+			options = io.readInt();
+			return new RDataFrameVar(io, this, options, parent, name);
 		case RObject.TYPE_ENV:
 			return new REnvironmentVar(io, this, parent, name);
 		case RObject.TYPE_LANGUAGE:
@@ -72,21 +76,7 @@ public class CombinedFactory extends RObjectFactoryImpl {
 	
 	@Override
 	public RList readAttributeList(final RJIO io) throws IOException {
-		return readAttributeList(io, null, null);
-	}
-	
-	public RList readAttributeList(final RJIO io, final CombinedElement parent, final RElementName name) throws IOException {
-		return new RListVar(io, this, parent, name);
-	}
-	
-//	public void setElementName(final CombinedElement element, final String name) {
-//		if (element.getRObjectType() == RObject.TYPE_ENV) {
-//			element.fElementName = RElementName.create(RElementName.MAIN_DEFAULT, name);
-//		}
-//	}
-	
-	public void setElementName(final CombinedElement element, final RElementName name) {
-		element.fElementName = name;
+		return new RListVar(io, this, io.readInt(), null, null);
 	}
 	
 }

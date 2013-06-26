@@ -9,13 +9,15 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.debug.core;
+package de.walware.ecommons.debug.core.model;
+
+import org.eclipse.debug.core.model.IVariable;
 
 
 /**
- * Represents a dimension of a multi-dimensional R array variable in the Eclipse debug model for R.
+ * Represents a dimension of a multi-dimensional array variable in the Eclipse debug model.
  */
-public interface IRDimVariable {
+public interface IVariableDim extends IVariable {
 	
 	
 }

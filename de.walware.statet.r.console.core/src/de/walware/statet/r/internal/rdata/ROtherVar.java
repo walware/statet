@@ -16,11 +16,9 @@ import java.util.Collections;
 import java.util.List;
 
 import de.walware.rj.data.RJIO;
-import de.walware.rj.data.RList;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.ExternalizableRObject;
-import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
@@ -30,41 +28,35 @@ public final class ROtherVar extends CombinedElement
 		implements ExternalizableRObject {
 	
 	
-	private String fClassName;
-	
-	protected RList fAttributes;
+	private String className1;
 	
 	
-	public ROtherVar(final String className) {
+	public ROtherVar(final String className,
+			final CombinedElement parent, final RElementName name) {
+		super(parent, name);
 		if (className == null) {
 			throw new NullPointerException();
 		}
-		fClassName = className;
+		className1 = className;
 	}
 	
-	public ROtherVar(final RJIO io, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException {
-		fParent = parent;
-		fElementName = name;
-		readExternal(io, factory);
-	}
-	
-	@Override
-	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+	public ROtherVar(final RJIO io, final RObjectFactory factory,
+			final CombinedElement parent, final RElementName name) throws IOException {
+		super(parent, name);
+		
+		//-- options
 		final int options = io.readInt();
-		fClassName = io.readString();
-		if ((options & RObjectFactoryImpl.F_WITH_ATTR) != 0) {
-			fAttributes = factory.readAttributeList(io);
-		}
+		//-- special attributes
+		this.className1 = io.readString();
 	}
 	
 	@Override
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
-		final boolean withAttr = ((io.flags & RObjectFactoryImpl.F_WITH_ATTR) != 0) && (fAttributes != null);
-		io.writeInt((withAttr) ? RObjectFactoryImpl.F_WITH_ATTR : 0);
-		io.writeString(fClassName);
-		if (withAttr) {
-			factory.writeAttributeList(fAttributes, io);
-		}
+		//-- options
+		int options = 0;
+		io.writeInt(options);
+		//-- special attributes
+		io.writeString(this.className1);
 	}
 	
 	
@@ -75,11 +67,11 @@ public final class ROtherVar extends CombinedElement
 	
 	@Override
 	public String getRClassName() {
-		return fClassName;
+		return this.className1;
 	}
 	
 	@Override
-	public int getLength() {
+	public long getLength() {
 		return 0;
 	}
 	
@@ -101,7 +93,7 @@ public final class ROtherVar extends CombinedElement
 	
 	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 	
 }

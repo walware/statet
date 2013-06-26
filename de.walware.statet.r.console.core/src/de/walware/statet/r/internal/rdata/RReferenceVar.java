@@ -31,40 +31,36 @@ public final class RReferenceVar extends CombinedElement
 		implements RReference, ExternalizableRObject {
 	
 	
-	private int fType;
-	private long fHandle;
-	private String fClassName;
+	private final long handle;
+	private final byte type;
+	private final String baseClassName;
+	
 	private RWorkspace fResolver;
 	
 	
-	public RReferenceVar(final String className) {
-		fClassName = className;
+	public RReferenceVar(final long handle, final String className,
+			final CombinedElement parent, final RElementName name) {
+		super(parent, name);
+		
+		this.handle = handle;
+		this.type = 0;
+		this.baseClassName = className;
 	}
 	
-	public RReferenceVar(final long handle, final String className, final RElementName name) {
-		fHandle = handle;
-		fClassName = className;
-		fElementName = name;
-	}
-	
-	public RReferenceVar(final RJIO io, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException {
-		fParent = parent;
-		fElementName = name;
-		readExternal(io, factory);
-	}
-	
-	@Override
-	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
-		fHandle = io.readLong();
-		fType = io.readInt();
-		fClassName = io.readString();
+	public RReferenceVar(final RJIO io, final RObjectFactory factory,
+			final CombinedElement parent, final RElementName name) throws IOException {
+		super(parent, name);
+		
+		this.handle = io.readLong();
+		this.type = io.readByte();
+		this.baseClassName = io.readString();
 	}
 	
 	@Override
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
-		io.writeLong(fHandle);
-		io.writeInt(fType);
-		io.writeString(fClassName);
+		io.writeLong(this.handle);
+		io.writeByte(this.type);
+		io.writeString(this.baseClassName);
 	}
 	
 	
@@ -74,23 +70,23 @@ public final class RReferenceVar extends CombinedElement
 	}
 	
 	@Override
-	public int getReferencedRObjectType() {
-		return fType;
+	public byte getReferencedRObjectType() {
+		return this.type;
 	}
 	
 	@Override
 	public String getRClassName() {
-		return fClassName;
+		return this.baseClassName;
 	}
 	
 	@Override
-	public int getLength() {
+	public long getLength() {
 		return 0;
 	}
 	
 	@Override
 	public long getHandle() {
-		return fHandle;
+		return this.handle;
 	}
 	
 	public void setResolver(final RWorkspace resolver) {
@@ -123,7 +119,7 @@ public final class RReferenceVar extends CombinedElement
 	
 	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 	
 }

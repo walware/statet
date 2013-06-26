@@ -29,51 +29,38 @@ public class RVectorVar<DataType extends RStore> extends CombinedElement
 		implements RVector<DataType>, ExternalizableRObject {
 	
 	
-	private DataType data;
-	private int length;
+	private final DataType data;
+	private final long length;
 	
 	private String className1;
-	private RStore namesAttribute;
 	
 	
-	public RVectorVar(final DataType data, final int length, final String className1, final String[] initialNames) {
+	public RVectorVar(final DataType data, final long length, final String className1,
+			final CombinedElement parent, final RElementName name) {
+		super(parent, name);
 		if (data == null || className1 == null) {
 			throw new NullPointerException();
-		}
-		if ((initialNames != null && initialNames.length != length)
-				|| (data.getLength() >= 0 && data.getLength() != length) ) {
-			throw new IllegalArgumentException();
 		}
 		this.data = data;
 		this.length = length;
 		this.className1 = className1;
-		if (initialNames != null) {
-			this.namesAttribute = new RCharacterDataImpl(initialNames);
-		}
 	}
 	
-	public RVectorVar(final RJIO io, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException {
-		fParent = parent;
-		fElementName = name;
-		readExternal(io, factory);
-	}
-	
-	@Override
-	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+	public RVectorVar(final RJIO io, final RObjectFactory factory,
+			final CombinedElement parent, final RElementName name) throws IOException {
+		super(parent, name);
+		
 		//-- options
 		final int options = io.readInt();
-		final boolean customClass = ((options & RObjectFactory.O_CLASS_NAME) != 0);
 		//-- special attributes
-		if (customClass) {
+		if ((options & RObjectFactory.O_CLASS_NAME) != 0) {
 			this.className1 = io.readString();
 		}
-		this.length = io.readInt();
-		if ((options & RObjectFactory.O_WITH_NAMES) != 0) {
-			this.namesAttribute = factory.readNames(io);
-		}
+		this.length = io.readVULong((byte) (options & RObjectFactory.O_LENGTHGRADE_MASK));
+		assert ((options & RObjectFactory.O_WITH_NAMES) == 0);
 		//-- data
-		this.data = (DataType) factory.readStore(io);
-		if (!customClass) {
+		this.data = (DataType) factory.readStore(io, this.length);
+		if ((options & RObjectFactory.O_CLASS_NAME) == 0) {
 			this.className1 = this.data.getBaseVectorRClassName();
 		}
 	}
@@ -81,23 +68,16 @@ public class RVectorVar<DataType extends RStore> extends CombinedElement
 	@Override
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		//-- options
-		int options = 0;
-		final boolean customClass = !this.className1.equals(this.data.getBaseVectorRClassName());
-		if (customClass) {
+		int options = io.getVULongGrade(this.length);
+		if (!this.className1.equals(this.data.getBaseVectorRClassName())) {
 			options |= RObjectFactory.O_CLASS_NAME;
-		}
-		if ((io.flags & RObjectFactory.F_ONLY_STRUCT) == 0 && this.namesAttribute != null) {
-			options |= RObjectFactory.O_WITH_NAMES;
 		}
 		io.writeInt(options);
 		//-- special attributes
-		if (customClass) {
+		if ((options & RObjectFactory.O_CLASS_NAME) != 0) {
 			io.writeString(this.className1);
 		}
-		io.writeInt(this.length);
-		if ((options & RObjectFactory.O_WITH_NAMES) != 0) {
-			factory.writeNames(this.namesAttribute, io);
-		}
+		io.writeVULong((byte) (options & RObjectFactory.O_LENGTHGRADE_MASK), this.length);
 		//-- data
 		factory.writeStore(this.data, io);
 	}
@@ -114,13 +94,13 @@ public class RVectorVar<DataType extends RStore> extends CombinedElement
 	}
 	
 	@Override
-	public int getLength() {
+	public long getLength() {
 		return this.length;
 	}
 	
 	@Override
 	public RStore getNames() {
-		return this.namesAttribute;
+		return null;
 	}
 	
 	
@@ -142,7 +122,7 @@ public class RVectorVar<DataType extends RStore> extends CombinedElement
 	
 	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 	
 	

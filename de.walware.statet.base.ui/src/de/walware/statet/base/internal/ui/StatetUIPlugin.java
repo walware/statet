@@ -22,9 +22,9 @@ import org.osgi.framework.BundleContext;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.IDisposable;
+import de.walware.ecommons.debug.ui.WaDebugImages;
 import de.walware.ecommons.ui.util.ImageRegistryUtil;
 
-import de.walware.statet.base.ui.StatetDebugImages;
 import de.walware.statet.base.ui.StatetImages;
 
 
@@ -120,16 +120,20 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 		util.register(StatetImages.TOOL_REFRESH, ImageRegistryUtil.T_TOOL, "refresh.png"); //$NON-NLS-1$
 		util.register(StatetImages.TOOLD_REFRESH, ImageRegistryUtil.T_TOOLD, "refresh.png"); //$NON-NLS-1$
 		
-		util.register(StatetDebugImages.OVR_BREAKPOINT_INSTALLED, ImageRegistryUtil.T_OVR, "installed.png"); //$NON-NLS-1$
-		util.register(StatetDebugImages.OVR_BREAKPOINT_INSTALLED_DISABLED, ImageRegistryUtil.T_OVR, "installed-disabled.png"); //$NON-NLS-1$
+		util.register(WaDebugImages.OBJ_VARIABLE_PARTITION, ImageRegistryUtil.T_OBJ, "variable_partition.png"); //$NON-NLS-1$
+		util.register(WaDebugImages.OBJ_VARIABLE_ITEM, ImageRegistryUtil.T_OBJ, "variable_item.png"); //$NON-NLS-1$
+		util.register(WaDebugImages.OBJ_VARIABLE_DIM, ImageRegistryUtil.T_OBJ, "variable_dim.png"); //$NON-NLS-1$
 		
-		util.register(StatetDebugImages.OVR_BREAKPOINT_CONDITIONAL, ImageRegistryUtil.T_OVR, "conditional.png"); //$NON-NLS-1$
-		util.register(StatetDebugImages.OVR_BREAKPOINT_CONDITIONAL_DISABLED, ImageRegistryUtil.T_OVR, "conditional-disabled.png"); //$NON-NLS-1$
+		util.register(WaDebugImages.OVR_BREAKPOINT_INSTALLED, ImageRegistryUtil.T_OVR, "installed.png"); //$NON-NLS-1$
+		util.register(WaDebugImages.OVR_BREAKPOINT_INSTALLED_DISABLED, ImageRegistryUtil.T_OVR, "installed-disabled.png"); //$NON-NLS-1$
 		
-		util.register(StatetDebugImages.OVR_METHOD_BREAKPOINT_ENTRY, ImageRegistryUtil.T_OVR, "entry.png"); //$NON-NLS-1$
-		util.register(StatetDebugImages.OVR_METHOD_BREAKPOINT_ENTRY_DISABLED, ImageRegistryUtil.T_OVR, "entry-disabled.png"); //$NON-NLS-1$
-		util.register(StatetDebugImages.OVR_METHOD_BREAKPOINT_EXIT, ImageRegistryUtil.T_OVR, "exit.png"); //$NON-NLS-1$
-		util.register(StatetDebugImages.OVR_METHOD_BREAKPOINT_EXIT_DISABLED, ImageRegistryUtil.T_OVR, "exit-disabled.png"); //$NON-NLS-1$
+		util.register(WaDebugImages.OVR_BREAKPOINT_CONDITIONAL, ImageRegistryUtil.T_OVR, "conditional.png"); //$NON-NLS-1$
+		util.register(WaDebugImages.OVR_BREAKPOINT_CONDITIONAL_DISABLED, ImageRegistryUtil.T_OVR, "conditional-disabled.png"); //$NON-NLS-1$
+		
+		util.register(WaDebugImages.OVR_METHOD_BREAKPOINT_ENTRY, ImageRegistryUtil.T_OVR, "entry.png"); //$NON-NLS-1$
+		util.register(WaDebugImages.OVR_METHOD_BREAKPOINT_ENTRY_DISABLED, ImageRegistryUtil.T_OVR, "entry-disabled.png"); //$NON-NLS-1$
+		util.register(WaDebugImages.OVR_METHOD_BREAKPOINT_EXIT, ImageRegistryUtil.T_OVR, "exit.png"); //$NON-NLS-1$
+		util.register(WaDebugImages.OVR_METHOD_BREAKPOINT_EXIT_DISABLED, ImageRegistryUtil.T_OVR, "exit-disabled.png"); //$NON-NLS-1$
 	}
 	
 	public void registerPluginDisposable(final IDisposable d) {

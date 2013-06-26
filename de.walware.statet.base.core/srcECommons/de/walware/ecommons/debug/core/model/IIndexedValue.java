@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2013 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,15 +9,23 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.debug.core;
+package de.walware.ecommons.debug.core.model;
 
+import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 
 
 /**
- * Represents a single item of a vector or array variable in the Eclipse debug model for R.
+ * A value containing an indexed collection of variables.
+ * 
+ * Like {@link org.eclipse.debug.core.model.IIndexedValue}, but supporting collections of long size.
  */
-public interface IRIndexVariable extends IVariable {
+public interface IIndexedValue extends IValue {
 	
+	
+	long getSize() throws DebugException;
+	
+	IVariable[] getVariables(long offset, int length);
 	
 }

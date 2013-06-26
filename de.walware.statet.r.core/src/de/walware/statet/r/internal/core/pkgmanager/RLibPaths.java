@@ -92,14 +92,15 @@ public class RLibPaths implements IRLibPaths {
 	static RLibPaths create(final REnvLibGroups rLibGroups,
 			final RVector<RNumericStore> rLibsStamps,
 			final RService r, final IProgressMonitor monitor) throws CoreException {
-		final List<EntryImpl> entries = new ArrayList<EntryImpl>(rLibsStamps.getLength() + 1);
+		final int l = (int) rLibsStamps.getLength();
+		final List<EntryImpl> entries = new ArrayList<EntryImpl>(l + 1);
 		final RLibPaths libPaths = new RLibPaths(rLibGroups.getGroups(), entries);
 		
 		Exception error = null;
 		try {
 			final RVector<RIntegerStore> rLibsAccess = RDataUtil.checkRIntVector(
 				r.evalData("file.access(.libPaths(), 3L)", monitor) ); //$NON-NLS-1$
-			for (int i = 0; i < rLibsStamps.getLength(); i++) {
+			for (int i = 0; i < l; i++) {
 				final String rPath = rLibsStamps.getNames().getChar(i);
 				final IRLibraryLocation location = rLibGroups.getLibLocation(rPath);
 				if (location != null) {

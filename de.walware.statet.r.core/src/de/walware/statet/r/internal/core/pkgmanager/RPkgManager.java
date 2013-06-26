@@ -860,8 +860,9 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 					final RCharacterStore urls = RDataUtil.checkRCharVector(df.get("URL")).getData(); //$NON-NLS-1$
 					final RCharacterStore regions = RDataUtil.checkRCharVector(df.get("CountryCode")).getData(); //$NON-NLS-1$
 					
-					rCRAN = new ArrayList<RRepo>(names.getLength());
-					for (int i = 0; i < names.getLength(); i++) {
+					final int l = RDataUtil.checkIntLength(names);
+					rCRAN = new ArrayList<RRepo>(l);
+					for (int i = 0; i < l; i++) {
 						final String url = Util.checkURL(urls.getChar(i));
 						if (!url.isEmpty()) {
 							final RRepo repo = new RRepo(RRepo.R_PREFIX + url, names.getChar(i),
@@ -901,8 +902,9 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 						final RCharacterStore urls = RDataUtil.checkRCharVector(data).getData();
 						final RStore ids = ((RVector<?>) data).getNames();
 						
-						selected = new ArrayList<RRepo>(urls.getLength());
-						for (int i = 0; i < urls.getLength(); i++) {
+						final int l = RDataUtil.checkIntLength(urls);
+						selected = new ArrayList<RRepo>(l);
+						for (int i = 0; i < l; i++) {
 							final String id = (ids != null) ? ids.getChar(i) : null;
 							final String url = urls.getChar(i);
 							
@@ -930,16 +932,18 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 				final RLogicalStore isDefault = (selected.isEmpty()) ?
 						RDataUtil.checkRLogiVector(df.get("default")).getData() : null; //$NON-NLS-1$
 				
-				rrepos = new ArrayList<RRepo>(labels.getLength() + 4);
-				for (int i = 0; i < labels.getLength(); i++) {
-					final String id = (ids != null) ? ids.getChar(i) : null;
-					final String url = urls.getChar(i);
-					
-					final RRepo repo = Util.createRepoFromR(id, labels.getChar(i), url);
-					if (repo != null) {
-						rrepos.add(repo);
-						if (isDefault != null && isDefault.getLogi(i)) {
-							selected.add(repo);
+				{	final int l = RDataUtil.checkIntLength(labels);
+					rrepos = new ArrayList<RRepo>(l + 4);
+					for (int i = 0; i < l; i++) {
+						final String id = (ids != null) ? ids.getChar(i) : null;
+						final String url = urls.getChar(i);
+						
+						final RRepo repo = Util.createRepoFromR(id, labels.getChar(i), url);
+						if (repo != null) {
+							rrepos.add(repo);
+							if (isDefault != null && isDefault.getLogi(i)) {
+								selected.add(repo);
+							}
 						}
 					}
 				}
@@ -1127,10 +1131,11 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 			libs = RDataUtil.checkRNumVector(r.evalData(
 					"rj:::.renv.checkLibs()", monitor )); //$NON-NLS-1$
 			
-			ITER_LIBS: for (int idxLib = 0; idxLib < libs.getLength(); idxLib++) {
+			final int l = RDataUtil.checkIntLength(libs.getData());
+			ITER_LIBS: for (int idxLib = 0; idxLib < l; idxLib++) {
 				final String libPath = libs.getNames().getChar(idxLib);
 				if (fLibs != null) {
-					final int idx = fLibs.getNames().indexOf(libPath);
+					final int idx = (int) fLibs.getNames().indexOf(libPath);
 					if (idx >= 0) {
 						if (fLibs.getData().getNum(idx) == libs.getData().getNum(idxLib)) {
 							continue ITER_LIBS;
@@ -1138,7 +1143,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 					}
 				}
 				if (update == null) {
-					update = new boolean[libs.getLength()];
+					update = new boolean[l];
 				}
 				update[idxLib] = true;
 			}
@@ -1170,7 +1175,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 				fPkgScanner.updateInstFull(fRLibPaths, update, newPkgs, fRTaskEvent, r, monitor);
 			}
 			else {
-				final RPkgSet newPkgs = new RPkgSet(libs.getLength());
+				final RPkgSet newPkgs = new RPkgSet((int) libs.getLength());
 				fRTaskEvent.fNewPkgs = newPkgs;
 				fPkgScanner.updateInstLight(libs, update, newPkgs, fRTaskEvent, getRLibGroups(),
 						r, monitor);

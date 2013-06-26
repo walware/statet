@@ -15,44 +15,41 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 
+import de.walware.ecommons.debug.core.model.IIndexedVariableItem;
+
 import de.walware.rj.data.RDataUtil;
-import de.walware.rj.data.RStore;
-
-import de.walware.statet.r.debug.core.IRIndexVariable;
 
 
-public class RArrayIndexVariable extends RVariable implements IRIndexVariable, IValue {
+public class RArrayIndexVariable extends RVariable implements IIndexedVariableItem, IValue {
 	
 	
 	private final RArrayValue fMainValue;
 	
-	private final int[] fIndex;
+	private final int[] fDimIndex;
 	
 	
 	public RArrayIndexVariable(final RArrayValue value, final int[] index) {
 		super(value.getDebugTarget());
 		fMainValue = value;
-		fIndex = index;
+		fDimIndex = index;
 	}
 	
 	
 	@Override
 	public String getName() throws DebugException {
 		final StringBuilder sb = new StringBuilder();
-		{	final RStore names = fMainValue.getDimNames(0, fIndex[0] / RArrayValue.LOAD_SIZE);
-			if (names != null) {
-				final int index = fIndex[0] % RArrayValue.LOAD_SIZE;
-				sb.append(names.isNA(index) ? "<NA>" : names.getChar(index));
+		{	final String name = fMainValue.getDimItemName(0, fDimIndex[0]);
+			if (name != null) {
+				sb.append(name);
 				sb.append(' ');
 			}
 		}
-		{	final int n = fMainValue.fDim.getLength();
-			sb.append('[');
-			for (int i = 0; i < n-1; i++) {
-				sb.append(fIndex[i]+1);
-				sb.append(", ");
+		{	sb.append('[');
+			for (int i = 0; i < fMainValue.fDimCount - 1; i++) {
+				sb.append(fDimIndex[i] + 1);
+				sb.append(", "); //$NON-NLS-1$
 			}
-			sb.append(fIndex[n-1]+1);
+			sb.append(fDimIndex[fMainValue.fDimCount - 1] + 1);
 			sb.append(']');
 		}
 		return sb.toString();
@@ -75,13 +72,12 @@ public class RArrayIndexVariable extends RVariable implements IRIndexVariable, I
 	
 	@Override
 	public String getValueString() throws DebugException {
-		final int dataIdx = RDataUtil.getDataIdx(fMainValue.fDim, fIndex);
-		final RStore data = fMainValue.getData(dataIdx / RArrayValue.LOAD_SIZE);
+		final long dataIdx = RDataUtil.getDataIdx(fMainValue.fDim, fDimIndex);
+		final String data = fMainValue.getData(dataIdx);
 		if (data == null) {
 			throw newRequestLoadDataFailed();
 		}
-		final int index = dataIdx % RArrayValue.LOAD_SIZE;
-		return data.isNA(index) ? "NA" : data.getChar(index);
+		return data;
 	}
 	
 	@Override

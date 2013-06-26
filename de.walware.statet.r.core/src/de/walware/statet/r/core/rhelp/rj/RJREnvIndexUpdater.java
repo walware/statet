@@ -162,14 +162,14 @@ public class RJREnvIndexUpdater {
 				final RCharacterStore pkgMatrixData = fPkgMatrix.getData();
 				final RIntegerStore pkgMatrixDim = fPkgMatrix.getDim();
 				final RStore pkgMatrixColumns = fPkgMatrix.getNames(1);
-				final int idxPackage = pkgMatrixColumns.indexOf("Package"); //$NON-NLS-1$
-				final int idxTitle = pkgMatrixColumns.indexOf("Title"); //$NON-NLS-1$
-				final int idxDescription = pkgMatrixColumns.indexOf("Description"); //$NON-NLS-1$
-				final int idxVersion = pkgMatrixColumns.indexOf("Version"); //$NON-NLS-1$
-				final int idxPriority = pkgMatrixColumns.indexOf("Priority"); //$NON-NLS-1$
-				final int idxAuthor = pkgMatrixColumns.indexOf("Author"); //$NON-NLS-1$
-				final int idxMaintainer = pkgMatrixColumns.indexOf("Maintainer"); //$NON-NLS-1$
-				final int idxUrl = pkgMatrixColumns.indexOf("URL"); //$NON-NLS-1$
+				final int idxPackage = (int) pkgMatrixColumns.indexOf("Package"); //$NON-NLS-1$
+				final int idxTitle = (int) pkgMatrixColumns.indexOf("Title"); //$NON-NLS-1$
+				final int idxDescription = (int) pkgMatrixColumns.indexOf("Description"); //$NON-NLS-1$
+				final int idxVersion = (int) pkgMatrixColumns.indexOf("Version"); //$NON-NLS-1$
+				final int idxPriority = (int) pkgMatrixColumns.indexOf("Priority"); //$NON-NLS-1$
+				final int idxAuthor = (int) pkgMatrixColumns.indexOf("Author"); //$NON-NLS-1$
+				final int idxMaintainer = (int) pkgMatrixColumns.indexOf("Maintainer"); //$NON-NLS-1$
+				final int idxUrl = (int) pkgMatrixColumns.indexOf("URL"); //$NON-NLS-1$
 				
 				if (idxPackage < 0 || idxTitle < 0 || idxDescription < 0 || idxVersion < 0
 						|| idxPriority < 0 || idxAuthor < 0 || idxMaintainer < 0 || idxUrl < 0) {
@@ -378,9 +378,9 @@ public class RJREnvIndexUpdater {
 			final RCharacterStore pkgMatrixData = pkgMatrix.getData();
 			final RIntegerStore pkgMatrixDim = pkgMatrix.getDim();
 			final RStore pkgMatrixColumns = pkgMatrix.getNames(1);
-			final int idxPackage = pkgMatrixColumns.indexOf("Package"); //$NON-NLS-1$
-			final int idxLibPath = pkgMatrixColumns.indexOf("LibPath"); //$NON-NLS-1$
-			final int idxVersion = pkgMatrixColumns.indexOf("Version"); //$NON-NLS-1$
+			final int idxPackage = (int) pkgMatrixColumns.indexOf("Package"); //$NON-NLS-1$
+			final int idxLibPath = (int) pkgMatrixColumns.indexOf("LibPath"); //$NON-NLS-1$
+			final int idxVersion = (int) pkgMatrixColumns.indexOf("Version"); //$NON-NLS-1$
 			
 			if (idxPackage < 0 || idxLibPath < 0 || idxVersion < 0) {
 				throw new UnexpectedRDataException("A column is missing\n." + pkgMatrixColumns);

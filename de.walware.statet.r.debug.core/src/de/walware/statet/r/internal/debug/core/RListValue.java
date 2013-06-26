@@ -11,24 +11,48 @@
 
 package de.walware.statet.r.internal.debug.core;
 
-import java.util.List;
-
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
 
-import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.debug.core.model.IIndexedValue;
+import de.walware.ecommons.debug.core.model.VariablePartitionFactory;
 
+import de.walware.statet.r.console.core.RWorkspace.ICombinedRList;
 import de.walware.statet.r.core.data.ICombinedRElement;
 
 
-public class RListValue extends RValue {
+public class RListValue extends RValue implements IIndexedValue {
 	
 	
-	private RVariable[] fVariables;
-	private final ICombinedRElement fElement; 
+	private static class RListPartition extends RVariablePartition<RListValue> {
+		
+		
+		public RListPartition(final RListValue value, final VariablePartitionFactory<RListValue>.PartitionHandle partition) {
+			super(value, partition);
+		}
+		
+		
+		@Override
+		protected String getNameIndexLabel(final long idx) {
+			return value.fElement.getName(idx);
+		}
+		
+	}
+	
+	private static final VariablePartitionFactory<RListValue> LIST_PARTITION_FACTORY = new VariablePartitionFactory<RListValue>() {
+		
+		@Override
+		protected IVariable createPartition(final RListValue value, final PartitionHandle partition) {
+			return new RListPartition(value, partition);
+		}
+		
+	};
 	
 	
-	public RListValue(final RElementVariable variable, final ICombinedRElement element) {
+	private final ICombinedRList fElement; 
+	
+	
+	public RListValue(final RElementVariable variable, final ICombinedRList element) {
 		super(variable);
 		fElement = element;
 	}
@@ -36,7 +60,11 @@ public class RListValue extends RValue {
 	
 	@Override
 	public String getValueString() throws DebugException {
-		return "[" + fElement.getLength() + "]";
+		final StringBuilder sb = new StringBuilder();
+		sb.append('[');
+		sb.append(fElement.getLength());
+		sb.append(']');
+		return sb.toString();
 	}
 	
 	@Override
@@ -46,22 +74,26 @@ public class RListValue extends RValue {
 	
 	@Override
 	public IVariable[] getVariables() throws DebugException {
-		synchronized (this) {
-			if (fVariables == null) {
-				if (fVariable.fValue != this) {
-					fVariables = NO_VARIABLES;
-				}
-				else {
-					final List<? extends IModelElement> children = fElement.getModelChildren(null);
-					fVariables = new RVariable[children.size()];
-					for (int i = 0; i < fVariables.length; i++) {
-						fVariables[i] = new RElementVariable((ICombinedRElement) children.get(i),
-								fVariable.fFrame, fVariable.fStamp);
-					}
-				}
-			}
-			return fVariables;
+		return LIST_PARTITION_FACTORY.getVariables(this);
+	}
+	
+	
+	@Override
+	public long getSize() throws DebugException {
+		return fElement.getLength();
+	}
+	
+	@Override
+	public IVariable[] getVariables(final long offset, final int length) {
+		if (fVariable.fValue != this) {
+			return NO_VARIABLES;
 		}
+		final RVariable[] variables = new RVariable[length];
+		for (int i = 0; i < length; i++) {
+			final ICombinedRElement child = fElement.get(offset + i);
+			variables[i] = new RElementVariable(child, fVariable.fFrame, fVariable.fStamp);
+		}
+		return variables;
 	}
 	
 }

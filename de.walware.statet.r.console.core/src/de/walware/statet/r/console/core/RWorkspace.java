@@ -47,7 +47,6 @@ import de.walware.rj.data.RVector;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.internal.console.core.RConsoleCorePlugin;
-import de.walware.statet.r.internal.rdata.CombinedFactory;
 import de.walware.statet.r.internal.rdata.REnvironmentVar;
 import de.walware.statet.r.internal.rdata.RReferenceVar;
 import de.walware.statet.r.nico.AbstractRController;
@@ -69,6 +68,14 @@ public class RWorkspace extends ToolWorkspace {
 	
 	
 	public static interface ICombinedRList extends RList, ICombinedRElement {
+		
+		
+		@Override
+		ICombinedRElement get(int idx);
+		@Override
+		ICombinedRElement get(long idx);
+		@Override
+		ICombinedRElement get(String name);
 		
 	}
 	
@@ -134,7 +141,7 @@ public class RWorkspace extends ToolWorkspace {
 					continue;
 				}
 				final String name = searchData.getChar(i);
-				fSearchEnvs.add(new REnvironmentVar(name, true));
+				fSearchEnvs.add(new REnvironmentVar(name, true, null, null));
 			}
 		}
 		
@@ -324,7 +331,7 @@ public class RWorkspace extends ToolWorkspace {
 			case RElementName.MAIN_PACKAGE:
 			case RElementName.MAIN_SYSFRAME:
 			case RElementName.MAIN_PROJECT:
-				CombinedFactory.INSTANCE.setElementName(var, name);
+				var.setElementName(name);
 				return;
 			default:
 				return;
@@ -334,25 +341,51 @@ public class RWorkspace extends ToolWorkspace {
 		private void check(final ICombinedRList list,
 				final ICombinedRDataAdapter adapter, final IProgressMonitor monitor) throws CoreException {
 			if (list.hasModelChildren(null)) {
-				final int length = list.getLength();
-				ITER_CHILDREN : for (int i = 0; i < length; i++) {
-					final RObject object = list.get(i);
-					if (object != null) {
-						switch (object.getRObjectType()) {
-						case RObject.TYPE_REFERENCE:
-							if (fCacheMode && object.getRClassName().equals("environment")) {
-								resolveEnv((RReferenceVar) object, adapter, monitor);
+				final long length = list.getLength();
+				if (length <= Integer.MAX_VALUE) {
+					final int l = (int) length;
+					ITER_CHILDREN : for (int i = 0; i < l; i++) {
+						final RObject object = list.get(i);
+						if (object != null) {
+							switch (object.getRObjectType()) {
+							case RObject.TYPE_REFERENCE:
+								if (fCacheMode && object.getRClassName().equals("environment")) {
+									resolveEnv((RReferenceVar) object, adapter, monitor);
+								}
+								else {
+									((RReferenceVar) object).setResolver(fWorkspace);
+								}
+								continue ITER_CHILDREN;
+							case RObject.TYPE_LIST:
+							case RObject.TYPE_S4OBJECT:
+								check((ICombinedRList) object, adapter, monitor);
+								continue ITER_CHILDREN;
+							default:
+								continue ITER_CHILDREN;
 							}
-							else {
-								((RReferenceVar) object).setResolver(fWorkspace);
+						}
+					}
+				}
+				else {
+					ITER_CHILDREN : for (long i = 0; i < length; i++) {
+						final RObject object = list.get(i);
+						if (object != null) {
+							switch (object.getRObjectType()) {
+							case RObject.TYPE_REFERENCE:
+								if (fCacheMode && object.getRClassName().equals("environment")) {
+									resolveEnv((RReferenceVar) object, adapter, monitor);
+								}
+								else {
+									((RReferenceVar) object).setResolver(fWorkspace);
+								}
+								continue ITER_CHILDREN;
+							case RObject.TYPE_LIST:
+							case RObject.TYPE_S4OBJECT:
+								check((ICombinedRList) object, adapter, monitor);
+								continue ITER_CHILDREN;
+							default:
+								continue ITER_CHILDREN;
 							}
-							continue ITER_CHILDREN;
-						case RObject.TYPE_LIST:
-						case RObject.TYPE_S4OBJECT:
-							check((ICombinedRList) object, adapter, monitor);
-							continue ITER_CHILDREN;
-						default:
-							continue ITER_CHILDREN;
 						}
 					}
 				}
@@ -408,7 +441,7 @@ public class RWorkspace extends ToolWorkspace {
 	}
 	
 	public RReference createReference(final long handle, final RElementName name, final String className) {
-		return new RReferenceVar(handle, className, name);
+		return new RReferenceVar(handle, className, null, name);
 	}
 	
 	public ICombinedRElement resolve(final RReference reference, final IProgressMonitor monitor)

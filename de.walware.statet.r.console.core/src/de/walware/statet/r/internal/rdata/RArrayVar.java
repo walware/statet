@@ -17,17 +17,14 @@ import java.util.List;
 
 import de.walware.rj.data.RArray;
 import de.walware.rj.data.RCharacterStore;
+import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RIntegerStore;
 import de.walware.rj.data.RJIO;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.ExternalizableRObject;
-import de.walware.rj.data.defaultImpl.ExternalizableRStore;
-import de.walware.rj.data.defaultImpl.RArrayImpl;
-import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
 import de.walware.rj.data.defaultImpl.RIntegerDataImpl;
-import de.walware.rj.data.defaultImpl.SimpleRListImpl;
 
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
@@ -37,82 +34,67 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 		implements RArray<DataType>, ExternalizableRObject {
 	
 	
-	private DataType data;
+	private final long length;
+	private final DataType data;
 	
 	private String className1;
-	private RIntegerDataImpl dimAttribute;
-	private SimpleRListImpl<RStore> dimnamesAttribute;
+	private final RIntegerDataImpl dimAttribute;
 	
 	
-	public RArrayVar(final DataType data, final String className1, final int[] dim) {
+	public RArrayVar(final DataType data, final String className1, final int[] dim,
+			final CombinedElement parent, final RElementName name) {
+		super(parent, name);
 		if (data == null || className1 == null || dim == null) {
 			throw new NullPointerException();
 		}
-		if (data.getLength() >= 0) {
-			RArrayImpl.checkDim(data.getLength(), dim);
+		this.length = RDataUtil.computeLengthFromDim(dim);
+		if (data.getLength() >= 0 && data.getLength() != this.length) {
+			throw new IllegalArgumentException("dim");
 		}
 		this.className1 = className1;
 		this.dimAttribute = new RIntegerDataImpl(dim);
 		this.data = data;
 	}
 	
-	public RArrayVar(final RJIO io, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException {
-		fParent = parent;
-		fElementName = name;
-		readExternal(io, factory);
-	}
-	
-	@Override
-	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+	public RArrayVar(final RJIO io, final RObjectFactory factory,
+			final CombinedElement parent, final RElementName name) throws IOException {
+		super(parent, name);
+		
 		//-- options
 		final int options = io.readInt();
-		final boolean customClass = ((options & RObjectFactory.O_CLASS_NAME) != 0);
 		//-- special attributes
-		if (customClass) {
+		if ((options & RObjectFactory.O_CLASS_NAME) != 0) {
 			this.className1 = io.readString();
 		}
+		this.length = io.readVULong((byte) (options & RObjectFactory.O_LENGTHGRADE_MASK));
 		final int[] dim = io.readIntArray();
 		this.dimAttribute = new RIntegerDataImpl(dim);
-		if ((options & RObjectFactory.O_WITH_NAMES) != 0) {
-			final RCharacterDataImpl names0 = new RCharacterDataImpl(io);
-			final RStore[] names1 = new RStore[dim.length];
-			for (int i = 0; i < dim.length; i++) {
-				names1[i] = factory.readNames(io);
-			}
-			this.dimnamesAttribute = new SimpleRListImpl<RStore>(names0, names1);
-		}
+		assert ((options & RObjectFactory.O_WITH_NAMES) == 0);
 		//-- data
-		this.data = (DataType) factory.readStore(io);
+		this.data = (DataType) factory.readStore(io, this.length);
 		
-		if (!customClass) {
+		if ((options & RObjectFactory.O_CLASS_NAME) == 0) {
 			this.className1 = (dim.length == 2) ? RObject.CLASSNAME_MATRIX : RObject.CLASSNAME_ARRAY;
 		}
 	}
 	
 	@Override
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+		final int n = (int) this.dimAttribute.getLength();
 		//-- options
-		int options = 0;
-		final boolean customClass = !this.className1.equals((this.dimAttribute.getLength() == 2) ?
-				RObject.CLASSNAME_MATRIX : RObject.CLASSNAME_ARRAY);
-		if (customClass) {
+		int options = io.getVULongGrade(this.length);
+		if (!this.className1.equals((n == 2) ?
+				RObject.CLASSNAME_MATRIX : RObject.CLASSNAME_ARRAY )) {
 			options |= RObjectFactory.O_CLASS_NAME;
-		}
-		if ((io.flags & RObjectFactory.F_ONLY_STRUCT) == 0 && this.dimnamesAttribute != null) {
-			options |= RObjectFactory.O_WITH_NAMES;
 		}
 		io.writeInt(options);
 		//-- special attributes
-		if (customClass) {
+		if ((options & RObjectFactory.O_CLASS_NAME) != 0) {
 			io.writeString(this.className1);
 		}
+		io.writeVULong((byte) (options & RObjectFactory.O_LENGTHGRADE_MASK), this.length);
+		io.writeInt(n);
 		this.dimAttribute.writeExternal(io);
-		if ((options & RObjectFactory.O_WITH_NAMES) != 0) {
-			((ExternalizableRStore) this.dimnamesAttribute.getNames()).writeExternal(io);
-			for (int i = 0; i < this.dimnamesAttribute.getLength(); i++) {
-				factory.writeNames(this.dimnamesAttribute.get(i), io);
-			}
-		}
 		//-- data
 		factory.writeStore(this.data, io);
 	}
@@ -129,19 +111,8 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 	}
 	
 	@Override
-	public int getLength() {
-		if (this.dimAttribute.getLength() == 0) {
-			return 0;
-		}
-		int length = this.data.getLength();
-		if (length >= 0) {
-			return length;
-		}
-		length = 1;
-		for (int i = 0; i < this.dimAttribute.getLength(); i++) {
-			length *= this.dimAttribute.getInt(i);
-		}
-		return length;
+	public long getLength() {
+		return this.length;
 	}
 	
 	@Override
@@ -151,17 +122,11 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 	
 	@Override
 	public RCharacterStore getDimNames() {
-		if (this.dimnamesAttribute != null) {
-			return this.dimnamesAttribute.getNames();
-		}
 		return null;
 	}
 	
 	@Override
 	public RStore getNames(final int dim) {
-		if (this.dimnamesAttribute != null) {
-			return this.dimnamesAttribute.get(dim);
-		}
 		return null;
 	}
 	
@@ -184,7 +149,7 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 	
 	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 	
 	

@@ -11,26 +11,37 @@
 
 package de.walware.statet.r.internal.debug.core;
 
+import static de.walware.statet.r.internal.debug.core.RElementVariable.DEFAULT_FRAGMENT_COUNT;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.debug.core.model.IIndexedValue;
 import org.eclipse.debug.core.model.IVariable;
 
-import de.walware.rj.data.RObject;
+import de.walware.ecommons.debug.core.model.IIndexedValue;
+
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.RVector;
-
-import de.walware.statet.r.core.data.ICombinedRElement;
+import de.walware.rj.data.UnexpectedRDataException;
+import de.walware.rj.eclient.IRToolService;
+import de.walware.rj.services.utils.dataaccess.LazyRStore;
+import de.walware.rj.services.utils.dataaccess.LazyRStore.Fragment;
+import de.walware.rj.services.utils.dataaccess.RVectorDataAdapter;
 
 
 public class RVectorValue extends RValue implements IIndexedValue {
 	
 	
+	private static final RVectorDataAdapter ADAPTER = new RVectorDataAdapter();
+	
+	
 	public static final int LOAD_SIZE = 1000;
 	
 	
-	protected final int fLength;
+	protected final long fLength;
 	
-	protected RVector<?>[] fData;
+	protected LazyRStore<RVector<?>> fNamesStore;
+	protected LazyRStore<RVector<?>> fDataStore;
 	
 	
 	public RVectorValue(final RElementVariable variable) {
@@ -41,17 +52,18 @@ public class RVectorValue extends RValue implements IIndexedValue {
 	
 	@Override
 	public String getValueString() throws DebugException {
-		switch (fLength) {
-		case 0:
-			return "";
-		case 1:
-			final RStore data = getData(0);
+		if (fLength == 0) {
+			return ""; //$NON-NLS-1$
+		}
+		else if (fLength == 1) {
+			final String data = getData(0);
 			if (data == null) {
 				throw newRequestLoadDataFailed();
 			}
-			return data.isNA(0) ? "NA" : data.getChar(0);
-		default:
-			return "[" + fLength + "]";
+			return data;
+		}
+		else {
+			return "[" + fLength + ']'; //$NON-NLS-1$
 		}
 	}
 	
@@ -62,87 +74,94 @@ public class RVectorValue extends RValue implements IIndexedValue {
 	
 	@Override
 	public IVariable[] getVariables() throws DebugException {
-		return getVariables(1, getSize());
-	}
-	
-	@Override
-	public int getInitialOffset() {
-		return 1;
-	}
-	
-	@Override
-	public int getSize() throws DebugException {
 		if (fLength <= 1) {
-			return 0;
+			throw newNotSupported();
 		}
+		return PARTITION_FACTORY.getVariables(this);
+	}
+	
+	
+	@Override
+	public long getSize() throws DebugException {
 		return fLength;
 	}
 	
 	@Override
-	public IVariable getVariable(final int offset) throws DebugException {
-		final ICombinedRElement element = fVariable.fElement;
-		if (element.getLength() <= 1) {
-			throw newNotSupported();
+	public IVariable[] getVariables(final long offset, final int length) {
+		if (fLength <= 1) {
+			throw new UnsupportedOperationException();
 		}
-		if (offset < 1 || offset > element.getLength()) {
-			throw newRequestIllegalIndexFailed();
-		}
-		return new RVectorIndexVariable(this, offset-1);
-	}
-	
-	@Override
-	public IVariable[] getVariables(final int offset, final int length) throws DebugException {
-		final ICombinedRElement element = fVariable.fElement;
-		if (element.getLength() <= 1) {
-			throw newNotSupported();
-		}
-		if (offset < 1 || length < 0 || offset+length-1 > element.getLength()) {
-			throw newRequestIllegalIndexFailed();
+		if (offset < 0 || length < 0 || offset > fLength - length) {
+			throw new IllegalArgumentException();
 		}
 		final RVariable[] variables = new RVariable[length];
 		for (int i = 0; i < length; i++) {
-			variables[i] = new RVectorIndexVariable(this, offset+i-1);
+			variables[i] = new RVectorIndexVariable(this, offset + i);
 		}
 		return variables;
 	}
 	
 	
-	protected RStore getData(final int loadIdx) {
-		final RVector<?> data = ensureData(loadIdx);
-		return (data != null) ? data.getData() : null;
+	protected String getName(final long idx) {
+		final LazyRStore.Fragment<RVector<?>> fragment = ensureNames(idx);
+		if (fragment == null || fragment.getRObject() == null) {
+			return null;
+		}
+		final RStore names = fragment.getRObject().getData();
+		final long i = fragment.toLocalRowIdx(idx);
+		return (!names.isNA(i)) ? names.getChar(i) : "<NA>"; //$NON-NLS-1$
 	}
 	
-	protected RStore getNames(final int loadIdx) {
-		final RVector<?> data = ensureData(loadIdx);
-		return (data != null) ? data.getNames() : null;
-	}
-	
-	private RVector<?> ensureData(final int loadIdx) {
+	private LazyRStore.Fragment<RVector<?>> ensureNames(final long idx) {
 		synchronized (fVariable) {
 			if (fVariable.fValue != this) {
 				return null;
 			}
-			if (fData == null) {
-				fData = new RVector[1 + fLength / LOAD_SIZE];
-			}
-			if (fData[loadIdx] == null) {
-				int length;
-				if (loadIdx == fLength / LOAD_SIZE) { // last
-					length = fLength % LOAD_SIZE;
-					if (length == 0) {
-						length = LOAD_SIZE;
+			if (fNamesStore == null) {
+				fNamesStore = new LazyRStore<RVector<?>>(fLength, 1,
+						DEFAULT_FRAGMENT_COUNT,
+						fVariable.new RDataLoader<RVector<?>>() {
+					@Override
+					protected RVector<?> doLoad(final String refExpr, final Fragment<RVector<?>> fragment,
+							final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+						return ADAPTER.loadRowNames(refExpr, (RVector<?>) fVariable.fElement, fragment, null,
+								r, monitor);
 					}
-				}
-				else {
-					length = LOAD_SIZE;
-				}
-				final String[] command = new String[] { null, subVector((loadIdx) * LOAD_SIZE, length) };
-				final RObject data = fVariable.fFrame.loadData(fVariable.fElement, command, fVariable.fStamp);
-				if (data instanceof RVector) {
-					fData[loadIdx] = (RVector<?>) data;
-				}
+				});
 			}
-			return fData[loadIdx];
+			return fNamesStore.getFragment(idx, 0);
+		}
+	}
+	
+	
+	protected String getData(final long idx) {
+		final LazyRStore.Fragment<RVector<?>> fragment = ensureData(idx);
+		if (fragment == null || fragment.getRObject() == null) {
+			return null;
+		}
+		final RStore data = fragment.getRObject().getData();
+		final int i = fragment.toLocalRowIdx(idx);
+		return (!data.isNA(i)) ? data.getChar(i) : "<NA>"; //$NON-NLS-1$
+	}
+	
+	private LazyRStore.Fragment<RVector<?>> ensureData(final long idx) {
+		synchronized (fVariable) {
+			if (fVariable.fValue != this) {
+				return null;
+			}
+			if (fDataStore == null) {
+				fDataStore = new LazyRStore<RVector<?>>(fLength, 1,
+						DEFAULT_FRAGMENT_COUNT,
+						fVariable.new RDataLoader<RVector<?>>() {
+					@Override
+					protected RVector<?> doLoad(final String refExpr, final Fragment<RVector<?>> fragment,
+							final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+						return ADAPTER.loadData(refExpr, (RVector<?>) fVariable.fElement, fragment, null,
+								r, monitor);
+					}
+				});
+			}
+			return fDataStore.getFragment(idx, 0);
 		}
 	}
 	

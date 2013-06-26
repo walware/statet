@@ -24,12 +24,8 @@ import de.walware.statet.r.core.model.RElementName;
 public final class RNullVar extends CombinedElement {
 	
 	
-	public RNullVar() {
-	}
-	
 	public RNullVar(final CombinedElement parent, final RElementName name) {
-		fParent = parent;
-		fElementName = name;
+		super(parent, name);
 	}
 	
 	
@@ -40,21 +36,16 @@ public final class RNullVar extends CombinedElement {
 	
 	@Override
 	public String getRClassName() {
-		return "NULL";
+		return CLASSNAME_NULL;
 	}
 	
 	@Override
-	public int getLength() {
+	public long getLength() {
 		return 0;
 	}
 	
 	@Override
 	public RStore getData() {
-		return null;
-	}
-	
-	@Override
-	public RList getAttributes() {
 		return null;
 	}
 	
@@ -71,7 +62,13 @@ public final class RNullVar extends CombinedElement {
 	
 	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
+	}
+	
+	
+	@Override
+	public String toString() {
+		return "RObject type=NULL";
 	}
 	
 }

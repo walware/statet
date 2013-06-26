@@ -34,7 +34,7 @@ public class TableLayers {
 	public ILayer topRowHeaderLayer;
 	
 	
-	public void setAnchor(int columnPosition, final int rowPosition,
+	public void setAnchor(long columnPosition, final long rowPosition,
 			final boolean moveIntoViewport) {
 		if (columnPosition < 0) {
 			final ColumnPositionCoordinate colCoordinate = LayerCommandUtil.convertColumnPositionToTargetContext(

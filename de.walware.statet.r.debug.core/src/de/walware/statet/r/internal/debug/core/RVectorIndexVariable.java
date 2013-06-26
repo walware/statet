@@ -15,21 +15,21 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 
+import de.walware.ecommons.debug.core.model.IIndexedVariableItem;
+
 import de.walware.rj.data.RDataUtil;
-import de.walware.rj.data.RStore;
-
-import de.walware.statet.r.debug.core.IRIndexVariable;
 
 
-public class RVectorIndexVariable extends RVariable implements IRIndexVariable, IValue {
+
+public class RVectorIndexVariable extends RVariable implements IIndexedVariableItem, IValue {
 	
 	
 	private final RVectorValue fMainValue;
 	
-	private final int fIndex;
+	private final long fIndex;
 	
 	
-	public RVectorIndexVariable(final RVectorValue value, final int index) {
+	public RVectorIndexVariable(final RVectorValue value, final long index) {
 		super(value.getDebugTarget());
 		fMainValue = value;
 		fIndex = index;
@@ -40,14 +40,13 @@ public class RVectorIndexVariable extends RVariable implements IRIndexVariable, 
 	public String getName() throws DebugException {
 		final StringBuilder sb = new StringBuilder();
 		sb.append('[');
-		sb.append(fIndex+1);
+		sb.append(fIndex + 1);
 		sb.append(']');
-		final RStore names = fMainValue.getNames(fIndex / RVectorValue.LOAD_SIZE);
-		if (names != null) {
+		final String name = fMainValue.getName(fIndex);
+		if (name != null) {
 			sb.append(' ');
 			sb.append(' ');
-			final int index = fIndex % RVectorValue.LOAD_SIZE;
-			sb.append(names.isNA(index) ? "<NA>" : names.getChar(index));
+			sb.append(name);
 		}
 		return sb.toString();
 	}
@@ -69,12 +68,11 @@ public class RVectorIndexVariable extends RVariable implements IRIndexVariable, 
 	
 	@Override
 	public String getValueString() throws DebugException {
-		final RStore data = fMainValue.getData(fIndex / RVectorValue.LOAD_SIZE);
+		final String data = fMainValue.getData(fIndex);
 		if (data == null) {
 			throw newRequestLoadDataFailed();
 		}
-		final int index = fIndex % RVectorValue.LOAD_SIZE;
-		return data.isNA(index) ? "NA" : data.getChar(index);
+		return data;
 	}
 	
 	@Override

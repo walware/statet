@@ -9,35 +9,15 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.dataeditor;
+package de.walware.ecommons.debug.core.model;
 
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.debug.core.model.IVariable;
 
 
-public interface IFindListener {
+/**
+ * Represents a single item of an indexed variable in the Eclipse debug model.
+ */
+public interface IIndexedVariableItem extends IVariable {
 	
-	
-	final class FindEvent {
-		
-		public final IStatus status;
-		
-		public final long total;
-		
-		public final long rowIdx;
-		
-		public final long colIdx;
-		
-		
-		public FindEvent(final IStatus status, final long total, final long rowIdx, final long colIdx) {
-			this.status = status;
-			this.total = total;
-			this.rowIdx = rowIdx;
-			this.colIdx = colIdx;
-		}
-		
-	}
-	
-	
-	void handleFindEvent(FindEvent event);
 	
 }

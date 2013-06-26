@@ -27,8 +27,14 @@ import de.walware.statet.r.core.model.RModel;
 public abstract class CombinedElement implements ICombinedRElement {
 	
 	
-	CombinedElement fParent;
-	protected RElementName fElementName;
+	private final CombinedElement fParent;
+	private RElementName fElementName;
+	
+	
+	protected CombinedElement(final CombinedElement parent, final RElementName name) {
+		fParent = parent;
+		fElementName = name;
+	}
 	
 	
 	@Override
@@ -50,6 +56,11 @@ public abstract class CombinedElement implements ICombinedRElement {
 	@Override
 	public final RElementName getElementName() {
 		return fElementName;
+	}
+	
+	/** Internal **/
+	public final void setElementName(RElementName name) {
+		fElementName = name;
 	}
 	
 	@Override
@@ -121,8 +132,8 @@ public abstract class CombinedElement implements ICombinedRElement {
 			return false;
 		}
 		final ICombinedRElement other = (ICombinedRElement) obj;
-		return (   getElementName().equals(other.getElementName())
-				&& ((fParent != null) ? fParent.equals(other.getModelParent()) : (other.getModelParent() == null)));
+		return (getElementName().equals(other.getElementName())
+				&& ((fParent != null) ? fParent.equals(other.getModelParent()) : (other.getModelParent() == null)) );
 	}
 	
 }

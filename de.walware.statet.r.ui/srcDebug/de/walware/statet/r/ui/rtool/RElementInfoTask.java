@@ -228,7 +228,7 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 			if (robject != null && robject.getRObjectType() == RObject.TYPE_VECTOR
 					&& robject.getData().getStoreType() == RStore.CHARACTER ) {
 				final RStore data = robject.getData();
-				final StringBuilder sb = new StringBuilder(data.getLength()*30);
+				final StringBuilder sb = new StringBuilder((int) data.getLength()*30);
 				final String ln = TextUtil.getPlatformLineDelimiter();
 				for (int i = 0; i < data.getLength(); i++) {
 					if (!data.isNA(i)) {

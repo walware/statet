@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2013 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,9 +12,18 @@
 package de.walware.statet.r.internal.ui.dataeditor;
 
 
-public interface IFindFilter {
+public class LoadDataException extends Exception {
 	
+	private static final long serialVersionUID = -2599418116314887064L;
 	
-	boolean match(long rowIdx, long columnIdx);
+	private final boolean fIsUnrecoverable;
+	
+	public LoadDataException(final boolean isUnrecoverable) {
+		fIsUnrecoverable = isUnrecoverable;
+	}
+	
+	public boolean isUnrecoverable() {
+		return fIsUnrecoverable;
+	}
 	
 }

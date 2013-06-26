@@ -28,6 +28,7 @@ import de.walware.rj.data.defaultImpl.ExternalizableRObject;
 import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
 
 import de.walware.statet.r.console.core.RWorkspace;
+import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
 
@@ -36,59 +37,50 @@ public class RListVar extends CombinedElement
 		implements RList, RWorkspace.ICombinedRList, ExternalizableRObject {
 	
 	
-	private CombinedElement[] components;
 	private int length;
+	private CombinedElement[] components;
 	
 	private String className1;
 	private RCharacterDataImpl namesAttribute;
 	
 	
-	public RListVar(final RJIO io, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException {
-		fParent = parent;
-		fElementName = name;
-		readExternal(io, factory);
-	}
-	
-	@Override
-	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
-		doReadExternal(io, factory);
-	}
-	protected final int doReadExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+	public RListVar(final RJIO io, final CombinedFactory factory, final int options,
+			final CombinedElement parent, final RElementName name) throws IOException {
+		super(parent, name);
+		
 		//-- options
-		final int options = io.readInt();
 		//-- special attributes
 		this.className1 = ((options & RObjectFactory.O_CLASS_NAME) != 0) ?
 				io.readString() : ((getRObjectType() == RObject.TYPE_DATAFRAME) ?
 						RObject.CLASSNAME_DATAFRAME : RObject.CLASSNAME_LIST);
-		final int length = this.length = io.readInt();
+		final int l = this.length = (int) io.readVULong((byte) (options & RObjectFactory.O_LENGTHGRADE_MASK));
 		
 		if ((options & RObjectFactory.O_NO_CHILDREN) != 0) {
 			this.namesAttribute = null;
 			this.components = null;
 		}
 		else {
-			this.namesAttribute = (RCharacterDataImpl) CombinedFactory.INSTANCE.readNames(io);
+			this.namesAttribute = (RCharacterDataImpl) factory.readNames(io, l);
 			//-- data
-			this.components = new CombinedElement[length];
-			for (int i = 0; i < length; i++) {
-				this.components[i] = CombinedFactory.INSTANCE.readObject(io, this,
+			this.components = new CombinedElement[l];
+			for (int i = 0; i < l; i++) {
+				this.components[i] = factory.readObject(io, this,
 						(this.namesAttribute.isNA(i) || this.namesAttribute.getChar(i).isEmpty()) ? 
 								RElementName.create(RElementName.SUB_INDEXED_D, Integer.toString(i+1), i+1) :
 								RElementName.create(RElementName.SUB_NAMEDPART, this.namesAttribute.getChar(i), i+1) );
 			}
 		}
-		return options;
 	}
 	
 	@Override
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
-		doWriteExternal(io, 0, factory);
+		doWriteExternal(io, factory, 0);
 	}
-	protected final void doWriteExternal(final RJIO io, int options, final RObjectFactory factory) throws IOException {
+	protected final void doWriteExternal(final RJIO io, final RObjectFactory factory, int options) throws IOException {
+		final int l = this.length;
 		//-- options
-		final boolean customClass = !((getRObjectType() == TYPE_DATAFRAME) ?
-				this.className1.equals(RObject.CLASSNAME_DATAFRAME) : this.className1.equals(RObject.CLASSNAME_LIST));
-		if (customClass) {
+		options |= io.getVULongGrade(l);
+		if (!this.className1.equals(getDefaultRClassName())) {
 			options |= RObjectFactory.O_CLASS_NAME;
 		}
 		if (this.components == null) {
@@ -96,15 +88,15 @@ public class RListVar extends CombinedElement
 		}
 		io.writeInt(options);
 		//-- special attributes
-		if (customClass) {
+		if ((options & RObjectFactory.O_CLASS_NAME) != 0) {
 			io.writeString(this.className1);
 		}
-		io.writeInt(this.length);
+		io.writeVULong((byte) (options & RObjectFactory.O_LENGTHGRADE_MASK), l);
 		
 		if (this.components != null) {
 			factory.writeNames(this.namesAttribute, io);
 			//-- data
-			for (int i = 0; i < this.length; i++) {
+			for (int i = 0; i < l; i++) {
 				factory.writeObject(this.components[i], io);
 			}
 		}
@@ -116,14 +108,22 @@ public class RListVar extends CombinedElement
 		return TYPE_LIST;
 	}
 	
+	protected String getDefaultRClassName() {
+		return RObject.CLASSNAME_LIST;
+	}
+	
 	@Override
 	public final String getRClassName() {
 		return this.className1;
 	}
 	
 	
+	protected int length() {
+		return this.length;
+	}
+	
 	@Override
-	public int getLength() {
+	public long getLength() {
 		return this.length;
 	}
 	
@@ -141,26 +141,35 @@ public class RListVar extends CombinedElement
 	}
 	
 	@Override
-	public final RObject get(final int idx) {
-		return this.components[idx];
-	}
-	
-	@Override
-	public final RObject get(final String name) {
+	public final String getName(final long idx) {
 		if (this.namesAttribute != null) {
-			final int idx = this.namesAttribute.indexOf(name);
-			if (idx >= 0) {
-				return this.components[idx];
-			}
+			return this.namesAttribute.getChar(idx);
 		}
 		return null;
 	}
 	
 	@Override
-	public final RObject[] toArray() {
-		final RObject[] array = new RObject[this.length];
-		System.arraycopy(this.components, 0, array, 0, this.length);
-		return array;
+	public final ICombinedRElement get(final int idx) {
+		return this.components[idx];
+	}
+	
+	@Override
+	public final ICombinedRElement get(final long idx) {
+		if (idx < 0 || idx >= Integer.MAX_VALUE) {
+			throw new IndexOutOfBoundsException(Long.toString(idx));
+		}
+		return this.components[(int) idx];
+	}
+	
+	@Override
+	public final ICombinedRElement get(final String name) {
+		if (this.namesAttribute != null) {
+			final int idx = this.namesAttribute.indexOf(name, 0);
+			if (idx >= 0) {
+				return this.components[idx];
+			}
+		}
+		return null;
 	}
 	
 	@Override
@@ -220,8 +229,12 @@ public class RListVar extends CombinedElement
 		if (this.components != null) {
 			sb.append("\n\tdata: ");
 			for (int i = 0; i < this.length; i++) {
+				if (i > 100) {
+					sb.append("\n... ");
+					break;
+				}
 				if (this.namesAttribute == null || this.namesAttribute.isNA(i)) {
-					sb.append("\n[[").append(i).append("]]\n");
+					sb.append("\n[[").append((i + 1)).append("]]\n");
 				}
 				else {
 					sb.append("\n$").append(this.namesAttribute.getChar(i)).append("\n");

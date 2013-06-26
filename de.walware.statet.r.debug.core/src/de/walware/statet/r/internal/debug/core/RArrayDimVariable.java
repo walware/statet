@@ -12,52 +12,47 @@
 package de.walware.statet.r.internal.debug.core;
 
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.debug.core.model.IIndexedValue;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 
-import de.walware.rj.data.RStore;
+import de.walware.ecommons.debug.core.model.IIndexedValue;
+import de.walware.ecommons.debug.core.model.IVariableDim;
 
-import de.walware.statet.r.debug.core.IRDimVariable;
 
-
-public class RArrayDimVariable extends RVariable implements IRDimVariable, IIndexedValue {
+public class RArrayDimVariable extends RVariable implements IVariableDim, IIndexedValue {
 	
 	
 	private final RArrayValue fMainValue;
 	
-	private final int[] fSeletectedDim;
+	private final int[] fDimIndex;
 	
 	
 	public RArrayDimVariable(final RArrayValue value, final int[] selected) {
 		super(value.getDebugTarget());
 		fMainValue = value;
-		fSeletectedDim = selected;
+		fDimIndex = selected;
 	}
 	
 	
 	@Override
 	public String getName() throws DebugException {
 		final StringBuilder sb = new StringBuilder();
-		{	final int dim = fMainValue.fDim.getLength()-fSeletectedDim.length;
-			final RStore names = fMainValue.getDimNames(dim, fSeletectedDim[0] / RArrayValue.LOAD_SIZE);
-			if (names != null) {
-				final int index = fSeletectedDim[0] % RArrayValue.LOAD_SIZE;
-				sb.append(names.isNA(index) ? "<NA>" : names.getChar(index));
+		final int m = fMainValue.fDimCount - fDimIndex.length;
+		{	final String name = fMainValue.getDimItemName(m, fDimIndex[0]);
+			if (name != null) {
+				sb.append(name);
 				sb.append(' ');
 			}
 		}
-		{	final int n = fMainValue.fDim.getLength();
-			final int m = n - fSeletectedDim.length;
-			sb.append("[ ");
+		{	sb.append("[ "); //$NON-NLS-1$
 			for (int i = 0; i < m; i++) {
-				sb.append(", ");
+				sb.append(", "); //$NON-NLS-1$
 			}
-			for (int i = m; i < n-1; i++) {
-				sb.append(fSeletectedDim[i-m]+1);
-				sb.append(", ");
+			for (int i = m; i < fMainValue.fDimCount - 1; i++) {
+				sb.append(fDimIndex[i - m] + 1);
+				sb.append(", "); //$NON-NLS-1$
 			}
-			sb.append(fSeletectedDim[fSeletectedDim.length-1]+1);
+			sb.append(fDimIndex[fDimIndex.length - 1] + 1);
 			sb.append(']');
 		}
 		return sb.toString();
@@ -75,13 +70,13 @@ public class RArrayDimVariable extends RVariable implements IRDimVariable, IInde
 	
 	@Override
 	public String getReferenceTypeName() throws DebugException {
-		return "";
+		return ""; //$NON-NLS-1$
 	}
 	
 	@Override
 	public String getValueString() throws DebugException {
 		final StringBuilder sb = new StringBuilder();
-		final int m = fMainValue.fDim.getLength() - fSeletectedDim.length;
+		final int m = fMainValue.fDimCount - fDimIndex.length;
 		sb.append('[');
 		sb.append(fMainValue.fDim.getInt(0));
 		for (int i = 1; i < m; i++) {
@@ -90,10 +85,11 @@ public class RArrayDimVariable extends RVariable implements IRDimVariable, IInde
 		}
 		sb.append(']');
 		
-		final RStore dimNames = fMainValue.getDimNames();
-		if (dimNames != null) {
-			sb.append(" / ");
-			sb.append(dimNames.get(m-1));
+		{	final String dimName = fMainValue.getDimName(m - 1);
+			if (dimName != null) {
+				sb.append(" / "); //$NON-NLS-1$
+				sb.append(dimName);
+			}
 		}
 		
 		return sb.toString();
@@ -101,72 +97,45 @@ public class RArrayDimVariable extends RVariable implements IRDimVariable, IInde
 	
 	@Override
 	public boolean hasVariables() throws DebugException {
-		return (fMainValue.fDim.getInt(fMainValue.fDim.getLength()-fSeletectedDim.length) > 0);
+		return (fMainValue.fDim.getInt(fMainValue.fDimCount - fDimIndex.length) > 0);
 	}
 	
 	@Override
 	public IVariable[] getVariables() throws DebugException {
-		return getVariables(1, getSize());
+		return RValue.PARTITION_FACTORY.getVariables(this);
+	}
+	
+	
+	@Override
+	public long getSize() throws DebugException {
+		return fMainValue.fDim.getInt(fMainValue.fDimCount - fDimIndex.length - 1);
 	}
 	
 	@Override
-	public int getInitialOffset() {
-		return 1;
-	}
-	
-	@Override
-	public int getSize() throws DebugException {
-		return fMainValue.fDim.getInt(fMainValue.fDim.getLength()-fSeletectedDim.length-1);
-	}
-	
-	@Override
-	public IVariable getVariable(final int offset) throws DebugException {
-		{	final int n = fMainValue.fDim.getInt(fMainValue.fDim.getLength()-fSeletectedDim.length-1);
+	public IVariable[] getVariables(final long offset, final int length) {
+		{	final int n = fMainValue.fDim.getInt(fMainValue.fDimCount - fDimIndex.length - 1);
 			if (n <= 0) {
-				throw newNotSupported();
+				throw new UnsupportedOperationException();
 			}
-			if (offset < 1 || offset > n) {
-				throw newRequestIllegalIndexFailed();
-			}
-		}
-		if (fSeletectedDim.length == fMainValue.fDim.getLength() - 1) {
-			final int[] d = new int[fSeletectedDim.length+1];
-			System.arraycopy(fSeletectedDim, 0, d, 1, fSeletectedDim.length);
-			d[0] = offset-1;
-			return new RArrayIndexVariable(fMainValue, d);
-		}
-		else {
-			final int[] d = new int[fSeletectedDim.length+1];
-			System.arraycopy(fSeletectedDim, 0, d, 1, fSeletectedDim.length);
-			d[0] = offset-1;
-			return new RArrayDimVariable(fMainValue, d);
-		}
-	}
-	
-	@Override
-	public IVariable[] getVariables(final int offset, final int length) throws DebugException {
-		{	final int n = fMainValue.fDim.getInt(fMainValue.fDim.getLength()-fSeletectedDim.length-1);
-			if (n <= 0) {
-				throw newNotSupported();
-			}
-			if (offset < 1 || length < 0 || offset+length-1 > n) {
-				throw newRequestIllegalIndexFailed();
+			if (offset < 0 || length < 0 || offset > n - length) {
+				throw new IllegalArgumentException();
 			}
 		}
+		final int o = (int) offset;
 		final RVariable[] variables = new RVariable[length];
-		if (fSeletectedDim.length == fMainValue.fDim.getLength() - 1) {
+		if (fDimIndex.length == fMainValue.fDimCount - 1) {
 			for (int i = 0; i < length; i++) {
-				final int[] d = new int[fSeletectedDim.length+1];
-				System.arraycopy(fSeletectedDim, 0, d, 1, fSeletectedDim.length);
-				d[0] = offset+i-1;
+				final int[] d = new int[fDimIndex.length + 1];
+				System.arraycopy(fDimIndex, 0, d, 1, fDimIndex.length);
+				d[0] = o + i;
 				variables[i] = new RArrayIndexVariable(fMainValue, d);
 			}
 		}
 		else {
 			for (int i = 0; i < length; i++) {
-				final int[] d = new int[fSeletectedDim.length+1];
-				System.arraycopy(fSeletectedDim, 0, d, 1, fSeletectedDim.length);
-				d[0] = offset+i-1;
+				final int[] d = new int[fDimIndex.length + 1];
+				System.arraycopy(fDimIndex, 0, d, 1, fDimIndex.length);
+				d[0] = o + i;
 				variables[i] = new RArrayDimVariable(fMainValue, d);
 			}
 		}

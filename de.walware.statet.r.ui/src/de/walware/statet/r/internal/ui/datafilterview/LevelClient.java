@@ -120,7 +120,7 @@ public class LevelClient extends FilterClient {
 	
 	@Override
 	protected boolean updateLayout() {
-		return updateLayout(fValueListViewer, fAvailableValues.getLength());
+		return updateLayout(fValueListViewer, (int) fAvailableValues.getLength());
 	}
 	
 	

@@ -33,6 +33,9 @@ import de.walware.ecommons.ts.IToolService;
 
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
+import de.walware.rj.data.UnexpectedRDataException;
+import de.walware.rj.eclient.AbstractRToolRunnable;
+import de.walware.rj.eclient.IRToolService;
 import de.walware.rj.server.dbg.CallStack;
 import de.walware.rj.server.dbg.FrameContext;
 
@@ -111,25 +114,16 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		
 	}
 	
-	private class LoadDataRunnable implements ISystemRunnable {
+	abstract class LoadDataRunnable<V extends RObject> extends AbstractRToolRunnable implements ISystemRunnable {
+		
 		
 		private boolean fCancel;
 		
-		private final String fRExpression;
-		private RObject fData;
+		private V fData;
 		
-		public LoadDataRunnable(final String rExpression) {
-			fRExpression = rExpression;
-		}
 		
-		@Override
-		public String getTypeId() {
-			return "r/dbg/stackframe";
-		}
-		
-		@Override
-		public String getLabel() {
-			return "Update Debug Context (Variables)";
+		public LoadDataRunnable() {
+			super("r/dbg/stackframe/loadData", "Update Debug Context (Variables)");
 		}
 		
 		@Override
@@ -159,14 +153,23 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		}
 		
 		@Override
-		public void run(final IToolService service,
-				final IProgressMonitor monitor) throws CoreException {
-			final AbstractRDbgController r = (AbstractRDbgController) service;
-			if (fStamp != r.getCounter()) {
+		public void run(IRToolService r,
+				IProgressMonitor monitor) throws CoreException {
+			final AbstractRDbgController controller = (AbstractRDbgController) r;
+			if (fStamp != controller.getCounter()) {
 				return;
 			}
-			fData = r.evalData(fRExpression, monitor);
+			try {
+				fData = doLoad(controller, monitor);
+			}
+			catch (final UnexpectedRDataException e) {
+				throw new CoreException(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID,
+						"Unexpected state", e ));
+			}
 		}
+		
+		protected abstract V doLoad(IRToolService r,
+				IProgressMonitor monitor) throws CoreException, UnexpectedRDataException;
 		
 	}
 	
@@ -627,8 +630,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		}
 	}
 	
-	public RObject loadData(final ICombinedRElement element, final String[] command, final int stamp) {
-		String rExpression;
+	public String createRefExpression(final ICombinedRElement element, final int stamp) {
 		fLock.readLock().lock();
 		try {
 			if (fStamp != stamp) {
@@ -636,7 +638,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 			}
 			final List<RElementName> segments = new ArrayList<RElementName>();
 			createName(element, segments);
-			rExpression = RElementName.createDisplayName(RElementName.concat(segments),
+			return RElementName.createDisplayName(RElementName.concat(segments),
 						RElementName.DISPLAY_NS_PREFIX | RElementName.DISPLAY_EXACT);
 		}
 		catch (final Exception e) {
@@ -647,19 +649,9 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		finally {
 			fLock.readLock().unlock();
 		}
-		if (command != null) {
-			final StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < command.length; i++) {
-				if (command[i] != null) {
-					sb.append(command[i]);
-				}
-				else {
-					sb.append(rExpression);
-				}
-			}
-			rExpression = sb.toString();
-		}
-		final LoadDataRunnable runnable = new LoadDataRunnable(rExpression);
+	}
+	
+	public <V extends RObject> V loadData(LoadDataRunnable<V> runnable, final int stamp) {
 		synchronized (runnable) {
 			if (getDebugTarget().getProcess().getQueue().addHot(runnable).isOK()) {
 				try {

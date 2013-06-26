@@ -203,7 +203,7 @@ public class RMainThread extends RDebugElement implements IRThread,
 								}
 								if (flag != 0) {
 									while (i + 1 < l) {
-										Frame nextFrame = stack.getFrames().get(i + 1);
+										final Frame nextFrame = stack.getFrames().get(i + 1);
 										if ((nextFrame.getFlags() & 0xff) != ++flag) {
 											break;
 										}

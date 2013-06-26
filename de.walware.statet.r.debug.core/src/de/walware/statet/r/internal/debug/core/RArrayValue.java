@@ -11,29 +11,40 @@
 
 package de.walware.statet.r.internal.debug.core;
 
+import static de.walware.rj.services.utils.dataaccess.LazyRStore.DEFAULT_FRAGMENT_SIZE;
+import static de.walware.statet.r.internal.debug.core.RElementVariable.DEFAULT_FRAGMENT_COUNT;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.debug.core.model.IIndexedValue;
 import org.eclipse.debug.core.model.IVariable;
+
+import de.walware.ecommons.debug.core.model.IIndexedValue;
 
 import de.walware.rj.data.RArray;
 import de.walware.rj.data.RIntegerStore;
-import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.RVector;
+import de.walware.rj.data.UnexpectedRDataException;
+import de.walware.rj.eclient.IRToolService;
+import de.walware.rj.services.utils.dataaccess.LazyRStore;
+import de.walware.rj.services.utils.dataaccess.LazyRStore.Fragment;
+import de.walware.rj.services.utils.dataaccess.RArrayAsVectorDataAdapter;
 
 
 public class RArrayValue extends RValue implements IIndexedValue {
 	
 	
-	public static final int LOAD_SIZE = 500;
+	private static final RArrayAsVectorDataAdapter ADAPTER = new RArrayAsVectorDataAdapter();
 	
 	
-	protected RVector<?>[] fData;
-	protected RVector<?> fDimNames;
-	protected RVector<?>[][] fDimEntryNames;
+	private LazyRStore<RVector<?>> fDimNameStore;
+	private LazyRStore<RVector<?>>[] fDimItemNameStore;
+	private LazyRStore<RVector<?>> fDataStore;
 	
-	protected final int fLength;
+	protected final long fLength;
 	protected final RIntegerStore fDim;
+	protected final int fDimCount;
 	
 	
 	public RArrayValue(final RElementVariable variable) {
@@ -41,6 +52,7 @@ public class RArrayValue extends RValue implements IIndexedValue {
 		
 		fLength = fVariable.fElement.getLength();
 		fDim = ((RArray<?>) fVariable.fElement).getDim();
+		fDimCount = (int) fDim.getLength();
 	}
 	
 	
@@ -48,19 +60,21 @@ public class RArrayValue extends RValue implements IIndexedValue {
 	public String getValueString() throws DebugException {
 		final StringBuilder sb = new StringBuilder();
 		sb.append('['); 
-		if (fDim.getLength() > 0) {
+		if (fDimCount > 0) {
 			sb.append(fDim.getInt(0));
-			for (int i = 1; i < fDim.getLength(); i++) {
+			for (int i = 1; i < fDimCount; i++) {
 				sb.append('×');
 				sb.append(fDim.getInt(i));
 			}
 		}
 		sb.append(']');
 		
-		final RStore dimNames = getDimNames();
-		if (dimNames != null && 0 < dimNames.getLength()) {
-			sb.append(" / ");
-			sb.append(dimNames.get(fDim.getLength()-1));
+		if (fDimCount > 0) {
+			final String dimName = getDimName(fDimCount - 1);
+			if (dimName != null) {
+				sb.append(" / "); //$NON-NLS-1$
+				sb.append(dimName);
+			}
 		}
 		
 		return sb.toString();
@@ -68,64 +82,42 @@ public class RArrayValue extends RValue implements IIndexedValue {
 	
 	@Override
 	public boolean hasVariables() throws DebugException {
-		return (fLength > 0 && fDim.getInt(fDim.getLength()-1) > 0);
+		return (fLength > 0 && fDim.getInt(fDimCount - 1) > 0);
 	}
 	
 	@Override
 	public IVariable[] getVariables() throws DebugException {
-		return getVariables(1, getSize());
+		return PARTITION_FACTORY.getVariables(this);
 	}
 	
-	@Override
-	public int getInitialOffset() {
-		return 1;
-	}
 	
 	@Override
-	public int getSize() throws DebugException {
-		return (fLength > 0) ? fDim.getInt(fDim.getLength()-1) : 0;
+	public long getSize() throws DebugException {
+		return (fLength > 0) ? fDim.getInt(fDimCount - 1) : 0;
 	}
 	
+	
 	@Override
-	public IVariable getVariable(final int offset) throws DebugException {
-		{	final int n = fDim.getInt(fDim.getLength()-1);
+	public IVariable[] getVariables(final long offset, final int length) {
+		{	final int n = fDim.getInt(fDimCount - 1);
 			if (n <= 0) {
-				throw newNotSupported();
+				throw new UnsupportedOperationException();
 			}
-			if (offset < 1 || offset > n) {
-				throw newRequestIllegalIndexFailed();
-			}
-		}
-		if (fDim.getLength() == 1) {
-			final int[] d = new int[] { offset-1 };
-			return new RArrayIndexVariable(this, d);
-		}
-		else {
-			final int[] d = new int[] { offset-1 };
-			return new RArrayDimVariable(this, d);
-		}
-	}
-	
-	@Override
-	public IVariable[] getVariables(final int offset, final int length) throws DebugException {
-		{	final int n = fDim.getInt(fDim.getLength()-1);
-			if (n <= 0) {
-				throw newNotSupported();
-			}
-			if (offset < 1 || length < 0 || offset+length-1 > n) {
-				throw newRequestIllegalIndexFailed();
+			if (offset < 0 || length < 0 || offset > n - length) {
+				throw new IllegalArgumentException();
 			}
 		}
+		final int o = (int) offset;
 		final RVariable[] variables = new RVariable[length];
-		if (fDim.getLength() == 1) {
+		if (fDimCount == 1) {
 			for (int i = 0; i < length; i++) {
-				final int[] d = new int[] { offset+i-1 };
+				final int[] d = new int[] { o + i };
 				variables[i] = new RArrayIndexVariable(this, d);
 			}
 		}
 		else {
 			for (int i = 0; i < length; i++) {
-				final int[] d = new int[] { offset+i-1 };
+				final int[] d = new int[] { o + i };
 				variables[i] = new RArrayDimVariable(this, d);
 			}
 		}
@@ -133,87 +125,123 @@ public class RArrayValue extends RValue implements IIndexedValue {
 	}
 	
 	
-	protected RStore getData(final int loadIdx) {
-		final RVector<?> data = ensureData(loadIdx);
-		return (data != null) ? data.getData() : null;
-	}
-	
-	protected RStore getDimNames() {
-		synchronized (fVariable) {
-			if (fVariable.fValue != this) {
-				return null;
-			}
-			if (fDimNames == null) {
-				final String[] command = new String[] { "names(dimnames(", null, "))" };
-				final RObject data = fVariable.fFrame.loadData(fVariable.fElement, command, fVariable.fStamp);
-				if (data instanceof RVector) {
-					fDimNames = (RVector<?>) data;
-				}
-			}
-			return (fDimNames != null) ? fDimNames.getData() : null;
+	protected String getDimName(final int dimIdx) {
+		final Fragment<RVector<?>> fragment = ensureDimName(dimIdx);
+		if (fragment == null || fragment.getRObject() == null) {
+			return null;
 		}
+		final RStore data = fragment.getRObject().getData();
+		final int i = fragment.toLocalRowIdx(dimIdx);
+		return (!data.isNA(i)) ? data.getChar(i) : "<NA>"; //$NON-NLS-1$
 	}
 	
-	protected RStore getDimNames(final int dim, final int loadIdx) {
+	private LazyRStore.Fragment<RVector<?>> ensureDimName(final int dimIdx) {
 		synchronized (fVariable) {
 			if (fVariable.fValue != this) {
 				return null;
 			}
-			if (fDimEntryNames == null) {
-				fDimEntryNames = new RVector[fDim.getLength()][];
-			}
-			if (fDimEntryNames[dim] == null) {
-				fDimEntryNames[dim] = new RVector[1 + fDim.get(dim) / LOAD_SIZE];
-			}
-			if (fDimEntryNames[dim][loadIdx] == null) {
-				int length;
-				if (loadIdx == fDim.get(dim) / LOAD_SIZE) { // last
-					length = fDim.get(dim) % LOAD_SIZE;
-					if (length == 0) {
-						length = LOAD_SIZE;
+			if (fDimNameStore == null) {
+				fDimNameStore = new LazyRStore<RVector<?>>(fDimCount, 1,
+						DEFAULT_FRAGMENT_COUNT,
+						fVariable.new RDataLoader<RVector<?>>() {
+					@Override
+					protected RVector<?> doLoad(final String refExpr, final Fragment<RVector<?>> fragment,
+							final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+						return ADAPTER.loadDimNames(refExpr, (RArray<?>) fVariable.fElement, fragment,
+								r, monitor);
 					}
-				}
-				else {
-					length = LOAD_SIZE;
-				}
-				final String[] command = new String[] { "dimnames(", null, ")", subList(dim),
-						subVector((loadIdx) * LOAD_SIZE, length) };
-				final RObject data = fVariable.fFrame.loadData(fVariable.fElement, command, fVariable.fStamp);
-				if (data instanceof RVector) {
-					fDimEntryNames[dim][loadIdx] = (RVector<?>) data;
-				}
+				});
 			}
-			return (fDimEntryNames[dim][loadIdx] != null) ? fDimEntryNames[dim][loadIdx].getData() : null;
+			return fDimNameStore.getFragment(dimIdx, 0);
 		}
 	}
 	
-	private RVector<?> ensureData(final int loadIdx) {
+	
+	protected String getDimItemName(final int dimIdx, final int idx) {
+		final Fragment<RVector<?>> fragment = ensureDimItemNames(dimIdx, idx);
+		if (fragment == null || fragment.getRObject() == null) {
+			return null;
+		}
+		final RStore data = fragment.getRObject().getData();
+		final int i = fragment.toLocalRowIdx(idx);
+		return (!data.isNA(i)) ? data.getChar(i) : "<NA>"; //$NON-NLS-1$
+	}
+	
+	private LazyRStore.Fragment<RVector<?>> ensureDimItemNames(final int dimIdx, final int idx) {
 		synchronized (fVariable) {
 			if (fVariable.fValue != this) {
 				return null;
 			}
-			if (fData == null) {
-				fData = new RVector[1 + fLength / LOAD_SIZE];
+			if (fDimItemNameStore == null) {
+				fDimItemNameStore = new LazyRStore[fDimCount];
 			}
-			if (fData[loadIdx] == null) {
-				int length;
-				if (loadIdx == fLength / LOAD_SIZE) { // last
-					length = fLength % LOAD_SIZE;
-					if (length == 0) {
-						length = LOAD_SIZE;
+			if (fDimItemNameStore[dimIdx] == null) {
+				fDimItemNameStore[dimIdx] = new LazyRStore<RVector<?>>(fDim.get(dimIdx), 1,
+						DEFAULT_FRAGMENT_COUNT, fVariable.new RDataLoader<RVector<?>>() {
+					@Override
+					protected RVector<?> doLoad(final String refExpr, final Fragment<RVector<?>> fragment,
+							final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+						return ADAPTER.loadDimItemNames(refExpr, (RArray<?>) fVariable.fElement, dimIdx, fragment,
+								r, monitor);
 					}
-				}
-				else {
-					length = LOAD_SIZE;
-				}
-				final String[] command = new String[] { "as.vector(", null, subVector((loadIdx) * LOAD_SIZE, length), ")" };
-				final RObject data = fVariable.fFrame.loadData(fVariable.fElement, command, fVariable.fStamp);
-				if (data instanceof RVector) {
-					fData[loadIdx] = (RVector<?>) data;
-				}
+				});
 			}
-			return fData[loadIdx];
+			return fDimItemNameStore[dimIdx].getFragment(idx, 0);
 		}
+	}
+	
+	
+	protected String getData(final long idx) {
+		final LazyRStore.Fragment<RVector<?>> fragment = ensureData(idx);
+		if (fragment == null) {
+			return null;
+		}
+		final RStore data = fragment.getRObject().getData();
+		final int i = fragment.toLocalRowIdx(idx);
+		return (!data.isNA(i)) ? data.getChar(i) : "<NA>"; //$NON-NLS-1$
+	}
+	
+	private LazyRStore.Fragment<RVector<?>> ensureData(final long idx) {
+		synchronized (fVariable) {
+			if (fVariable.fValue != this) {
+				return null;
+			}
+			if (fDataStore == null) {
+				final int fragmentSize = estimateFragmentSize();
+				fDataStore = new LazyRStore<RVector<?>>(fLength, 1,
+						(int) Math.ceil((double) (DEFAULT_FRAGMENT_SIZE * DEFAULT_FRAGMENT_COUNT) / fragmentSize), fragmentSize,
+						fVariable.new RDataLoader<RVector<?>>() {
+					@Override
+					protected RVector<?> doLoad(final String refExpr, final Fragment<RVector<?>> fragment,
+							final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+						return ADAPTER.loadData(refExpr, (RArray<?>) fVariable.fElement, fragment, null,
+								r, monitor);
+					}
+				});
+			}
+			return fDataStore.getFragment(idx, 0);
+		}
+	}
+	
+	private int estimateFragmentSize() {
+		if (fDimCount <= 1) {
+			return DEFAULT_FRAGMENT_SIZE;
+		}
+		int size = fDim.getInt(fDim.getLength() - 1);
+		if (size > DEFAULT_FRAGMENT_SIZE) {
+			do {
+				if (size % 2 != 0) {
+					return DEFAULT_FRAGMENT_SIZE;
+				}
+				size /= 2;
+			} while (size > DEFAULT_FRAGMENT_SIZE);
+		}
+		else {
+			while (size <= DEFAULT_FRAGMENT_SIZE / 2) {
+				size *= 2;
+			}
+		}
+		return size;
 	}
 	
 }

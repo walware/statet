@@ -123,16 +123,18 @@ public class TextVariableFilter extends VariableFilter {
 		if (old.getLength() == 0 && add instanceof RCharacterDataImpl) {
 			return (RCharacterDataImpl) add;
 		}
-		int length = old.getLength();
-		final String[] values = new String[length + add.getLength()];
-		System.arraycopy(old.toArray(), 0, values, 0, length);
-		for (int i = 0; i < add.getLength(); i++) {
+		final String[] values = new String[(int) Math.max(old.getLength() + add.getLength(), 10000)];
+		int i = 0;
+		for (; i < add.getLength(); i++) {
+			values[i] = add.get(i);
+		}
+		for (int j = 0; j < add.getLength() && i < values.length; j++) {
 			final String s = add.get(i);
-			if (!old.contains(s)) {
-				values[length++] = s;
+			if (!add.contains(s)) {
+				values[i++] = s;
 			}
 		}
-		return new RCharacterDataImpl(values, length);
+		return new RCharacterDataImpl(values, i);
 	}
 	
 	@Override
@@ -189,7 +191,7 @@ public class TextVariableFilter extends VariableFilter {
 			return;
 		}
 		for (final String value : values) {
-			final int idx = fAvailableValues.indexOf(value);
+			final int idx = (int) fAvailableValues.indexOf(value);
 			if (idx >= 0) {
 				fAvailableValues.remove(idx);
 			}

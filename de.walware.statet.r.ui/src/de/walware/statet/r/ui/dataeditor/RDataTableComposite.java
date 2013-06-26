@@ -140,7 +140,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	private class SelectionFindFilter implements IFindFilter {
 		
 		@Override
-		public boolean match(final int rowIdx, final int columnIdx) {
+		public boolean match(final long rowIdx, final long columnIdx) {
 			if (fTable != null) {
 				if (columnIdx >= 0) {
 					return fTableLayers.selectionLayer.isCellPositionSelected(columnIdx, rowIdx);
@@ -230,7 +230,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		if (!fDataProvider.getAllColumnsEqual()) {
 //			final ColumnOverrideLabelAccumulator columnLabelAccumulator =
 //					new ColumnOverrideLabelAccumulator(dataLayer);
-//			for (int i = 0; i < fDataProvider.getColumnCount(); i++) {
+//			for (long i = 0; i < fDataProvider.getColumnCount(); i++) {
 //				columnLabelAccumulator.registerColumnOverrides(i, ColumnLabelAccumulator.COLUMN_LABEL_PREFIX + i);
 //			}
 			final AggregrateConfigLabelAccumulator aggregateLabelAccumulator =
@@ -304,7 +304,8 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		if (dataProvider.getColumnLabelProvider() != null || dataProvider.getRowLabelProvider() != null) {
 			fTableLayers.topColumnHeaderLayer = new ExtColumnHeaderLayer(fTableLayers.topColumnHeaderLayer, sizeConfig);
 			fTableLayers.topRowHeaderLayer = new ExtRowHeaderLayer(fTableLayers.topRowHeaderLayer, sizeConfig);
-			final CornerLayer cornerLayer = new LabelCornerLayer(new DataLayer(cornerDataProvider),
+			final CornerLayer cornerLayer = new LabelCornerLayer(new DataLayer(cornerDataProvider,
+					sizeConfig.getRowHeight(), sizeConfig.getRowHeight(), false, false ),
 					fTableLayers.topRowHeaderLayer, fTableLayers.topColumnHeaderLayer,
 					dataProvider.getColumnLabelProvider(), dataProvider.getRowLabelProvider(),
 					false, presentation.getHeaderLabelLayerPainter() );
@@ -537,13 +538,13 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		}
 	}
 	
-	protected String getRowLabel(final int row) {
+	protected String getRowLabel(final long row) {
 		final IDataProvider dataProvider = fDataProvider.getRowDataProvider();
 		if (dataProvider.getColumnCount() <= 1) {
 			return getHeaderLabel(dataProvider.getDataValue(0, row));
 		}
 		final StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < dataProvider.getColumnCount(); i++) {
+		for (long i = 0; i < dataProvider.getColumnCount(); i++) {
 			final String label = getHeaderLabel(dataProvider.getDataValue(i, row));
 			if (label == null) {
 				return null;
@@ -554,13 +555,13 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		return sb.substring(0, sb.length()-2);
 	}
 	
-	protected String getColumnLabel(final int column) {
+	protected String getColumnLabel(final long column) {
 		final IDataProvider dataProvider = fDataProvider.getColumnDataProvider();
 		if (dataProvider.getRowCount() <= 1) {
 			return getHeaderLabel(dataProvider.getDataValue(column, 0));
 		}
 		final StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < dataProvider.getRowCount(); i++) {
+		for (long i = 0; i < dataProvider.getRowCount(); i++) {
 			final String label = getHeaderLabel(dataProvider.getDataValue(column, i));
 			if (label == null) {
 				return null;
@@ -594,9 +595,9 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	}
 	
 	
-	public int[] getTableDimension() {
+	public long[] getTableDimension() {
 		if (fTable != null) {
-			return new int[] { fDataProvider.getRowCount(), fDataProvider.getColumnCount() };
+			return new long[] { fDataProvider.getRowCount(), fDataProvider.getColumnCount() };
 		}
 		return null;
 	}
@@ -842,16 +843,16 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		return fLayout.topControl.forceFocus();
 	}
 	
-	public void revealColumn(final int index) {
+	public void revealColumn(final long index) {
 		if (fTable != null) {
 			fTableLayers.viewportLayer.getDim(HORIZONTAL).movePositionIntoViewport(index);
 		}
 	}
 	
-	public void selectColumns(final Collection<Integer> indexes) {
+	public void selectColumns(final Collection<Long> indexes) {
 		if (fTable != null) {
-//			final int rowIndex = fTableBodyLayerStack.getViewportLayer().getRowIndexByPosition(0);
-			final int rowIndex = 0;
+//			final long rowIndex = fTableBodyLayerStack.getViewportLayer().getRowIndexByPosition(0);
+			final long rowIndex = 0;
 			fTable.doCommand(new SelectColumnsCommand(
 					fTableLayers.selectionLayer, indexes, rowIndex, 0));
 		}
@@ -863,7 +864,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		}
 	}
 	
-	public void sortByColumn(final int index, final boolean increasing) {
+	public void sortByColumn(final long index, final boolean increasing) {
 		if (fTable != null) {
 			final ISortModel sortModel = fDataProvider.getSortModel();
 			if (sortModel != null) {

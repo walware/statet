@@ -32,7 +32,7 @@ public class RStoreContentProvider implements IStructuredContentProvider {
 	
 	@Override
 	public Object[] getElements(final Object inputElement) {
-		final Object[] array = new Object[fStore.getLength()];
+		final Object[] array = new Object[(int) fStore.getLength()];
 		for (int idx = 0; idx < array.length; idx++) {
 			if (fStore.isNA(idx)) {
 				array[idx] = InfoString.NA;

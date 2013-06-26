@@ -1093,7 +1093,7 @@ public class RjsController extends AbstractRDbgController
 				monitor );
 		if (data instanceof CombinedElement) {
 			final CombinedElement e = (CombinedElement) data;
-			CombinedFactory.INSTANCE.setElementName(e, name);
+			e.setElementName(name);
 			return e;
 		}
 		return null;
@@ -1107,7 +1107,7 @@ public class RjsController extends AbstractRDbgController
 				monitor );
 		if (data instanceof CombinedElement) {
 			final CombinedElement e = (CombinedElement) data;
-			CombinedFactory.INSTANCE.setElementName(e, name);
+			e.setElementName(name);
 			return e;
 		}
 		return null;
@@ -1129,7 +1129,7 @@ public class RjsController extends AbstractRDbgController
 		final RObject data = evalData(reference, CombinedFactory.FACTORY_ID, (options | RObjectFactory.F_ONLY_STRUCT), depth, monitor);
 		if (data instanceof CombinedElement) {
 			final CombinedElement e = (CombinedElement) data;
-			CombinedFactory.INSTANCE.setElementName(e, name);
+			e.setElementName(name);
 			return e;
 		}
 		return null;

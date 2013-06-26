@@ -69,7 +69,8 @@ public class REnvLibGroups {
 			}
 			{	final RCharacterStore paths = RDataUtil.checkRCharVector(
 						r.evalData(".Library.site", monitor) ).getData(); //$NON-NLS-1$
-				for (int i = 0; i < paths.getLength(); i++) {
+				final int l = RDataUtil.checkIntLength(paths);
+				for (int i = 0; i < l; i++) {
 					final String path = paths.get(i);
 					if (path != null && !path.isEmpty()) {
 						groups[2].add(new RLibraryLocation(IRLibraryLocation.R, path, null));
@@ -79,7 +80,8 @@ public class REnvLibGroups {
 			}
 			{	final RCharacterStore paths = RDataUtil.checkRCharVector(
 						r.evalData(".Library", monitor) ).getData(); //$NON-NLS-1$
-				for (int i = 0; i < paths.getLength(); i++) {
+				final int l = RDataUtil.checkIntLength(paths);
+				for (int i = 0; i < l; i++) {
 					final String path = paths.get(i);
 					if (path != null && !path.isEmpty()) {
 						groups[3].add(new RLibraryLocation(IRLibraryLocation.R, path, null));
@@ -89,7 +91,8 @@ public class REnvLibGroups {
 			}
 			{	final RCharacterStore paths = RDataUtil.checkRCharVector(
 						r.evalData(".libPaths()", monitor) ).getData(); //$NON-NLS-1$
-				for (int i = 0; i < paths.getLength(); i++) {
+				final int l = RDataUtil.checkIntLength(paths);
+				for (int i = 0; i < l; i++) {
 					final String path = paths.get(i);
 					if (path != null && !path.isEmpty() && added.add(path)) {
 						groups[0].add(new RLibraryLocation(IRLibraryLocation.R, path, null));

@@ -34,8 +34,6 @@ public class RDebugUIPlugin extends AbstractUIPlugin {
 	
 	public static final String IMG_OBJ_R_SOURCE_FROM_RUNTIME = R_IMAGES_ID + "/obj/r_source.runtime"; //$NON-NLS-1$
 	
-	public static final String IMG_OBJ_DIM = R_IMAGES_ID + "/obj/dim"; //$NON-NLS-1$
-	
 	
 	/** The shared instance */
 	private static RDebugUIPlugin gPlugin;
@@ -93,8 +91,6 @@ public class RDebugUIPlugin extends AbstractUIPlugin {
 		util.register(IMG_OBJ_R_TOPLEVEL_BREAKPOINT_DISABLED, ImageRegistryUtil.T_OBJ, "r_toplevel_breakpoint-disabled.png"); //$NON-NLS-1$
 		
 		util.register(IMG_OBJ_R_SOURCE_FROM_RUNTIME, ImageRegistryUtil.T_OBJ, "r_source-runtime.png"); //$NON-NLS-1$
-		
-		util.register(IMG_OBJ_DIM, ImageRegistryUtil.T_OBJ, "dim.png"); //$NON-NLS-1$
 	}
 	
 	public synchronized ImageDescriptorRegistry getImageDescriptorRegistry() {

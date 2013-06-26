@@ -24,12 +24,8 @@ import de.walware.statet.r.core.model.RElementName;
 public final class RMissingVar extends CombinedElement {
 	
 	
-	public RMissingVar() {
-	}
-	
 	public RMissingVar(final CombinedElement parent, final RElementName name) {
-		fParent = parent;
-		fElementName = name;
+		super(parent, name);
 	}
 	
 	
@@ -44,7 +40,7 @@ public final class RMissingVar extends CombinedElement {
 	}
 	
 	@Override
-	public int getLength() {
+	public long getLength() {
 		return 0;
 	}
 	
@@ -71,7 +67,13 @@ public final class RMissingVar extends CombinedElement {
 	
 	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
+	}
+	
+	
+	@Override
+	public String toString() {
+		return "RObject type=MISSING";
 	}
 	
 }

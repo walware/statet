@@ -37,6 +37,10 @@ import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 
+import de.walware.ecommons.debug.core.model.IIndexedVariableItem;
+import de.walware.ecommons.debug.core.model.IIndexedVariablePartition;
+import de.walware.ecommons.debug.core.model.IVariableDim;
+import de.walware.ecommons.debug.ui.WaDebugImages;
 import de.walware.ecommons.ui.util.ImageDescriptorRegistry;
 
 import de.walware.rj.data.RObject;
@@ -44,9 +48,7 @@ import de.walware.rj.data.RReference;
 
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.debug.core.IRDebugTarget;
-import de.walware.statet.r.debug.core.IRDimVariable;
 import de.walware.statet.r.debug.core.IRElementVariable;
-import de.walware.statet.r.debug.core.IRIndexVariable;
 import de.walware.statet.r.debug.core.IRStackFrame;
 import de.walware.statet.r.debug.core.IRThread;
 import de.walware.statet.r.debug.core.RDebugModel;
@@ -118,11 +120,14 @@ public class RDebugModelPresentation extends LabelProvider
 				}
 				return gLabelProvider.getImage(rElement);
 			}
-			if (element instanceof IRIndexVariable) {
-				return RUI.getImage(RUI.IMG_OBJ_ATOMIC);
+			if (element instanceof IIndexedVariablePartition) {
+				return WaDebugImages.getImageRegistry().get(WaDebugImages.OBJ_VARIABLE_PARTITION);
 			}
-			if (element instanceof IRDimVariable) {
-				return RDebugUIPlugin.getDefault().getImageRegistry().get(RDebugUIPlugin.IMG_OBJ_DIM);
+			if (element instanceof IIndexedVariableItem) {
+				return WaDebugImages.getImageRegistry().get(WaDebugImages.OBJ_VARIABLE_ITEM);
+			}
+			if (element instanceof IVariableDim) {
+				return WaDebugImages.getImageRegistry().get(WaDebugImages.OBJ_VARIABLE_DIM);
 			}
 		}
 		catch (final CoreException e) {}

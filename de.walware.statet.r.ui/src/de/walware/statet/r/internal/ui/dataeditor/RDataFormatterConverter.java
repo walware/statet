@@ -33,9 +33,9 @@ public class RDataFormatterConverter implements IDisplayConverter {
 		protected RDataFormatter getFormatter(final RDataTableContentDescription description,
 				final ILayerCell cell) {
 			final List<RDataTableColumn> columns = description.getRowHeaderColumns();
-			final int index = cell.getColumnIndex();
+			final long index = cell.getColumnIndex();
 			if (columns != null && index >= 0 && index < columns.size()) {
-				return columns.get(index).getDefaultFormat();
+				return columns.get((int) index).getDefaultFormat();
 			}
 			return null;
 		}
@@ -71,14 +71,14 @@ public class RDataFormatterConverter implements IDisplayConverter {
 	protected RDataFormatter getFormatter(final RDataTableContentDescription description,
 			final ILayerCell cell) {
 		final List<RDataTableColumn> columns = description.getDataColumns();
-		final int index = cell.getColumnIndex();
+		final long index = cell.getColumnIndex();
 		if (index >= 0 && index < columns.size()) {
-			return columns.get(index).getDefaultFormat();
+			return columns.get((int) index).getDefaultFormat();
 		}
 		return description.getDefaultDataFormat();
 	}
 	
-	protected int getColumnIndex(final ILayerCell cell) {
+	protected long getColumnIndex(final ILayerCell cell) {
 		return cell.getColumnIndex();
 	}
 	

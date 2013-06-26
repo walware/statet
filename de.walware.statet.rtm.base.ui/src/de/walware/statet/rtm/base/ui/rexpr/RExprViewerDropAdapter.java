@@ -26,7 +26,7 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.TransferData;
 
 import de.walware.ecommons.emf.core.util.IContext;
-import de.walware.ecommons.ui.content.IElementSourceProvider;
+import de.walware.ecommons.models.core.util.IElementSourceProvider;
 
 import de.walware.statet.rtm.rtdata.types.RTypedExpr;
 

@@ -35,11 +35,10 @@ import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.eclient.IRToolService;
 import de.walware.rj.services.FunctionCall;
 import de.walware.rj.services.RService;
+import de.walware.rj.services.utils.dataaccess.LazyRStore;
+import de.walware.rj.services.utils.dataaccess.LazyRStore.Fragment;
 
 import de.walware.statet.r.internal.ui.dataeditor.IFindListener.FindEvent;
-import de.walware.statet.r.internal.ui.dataeditor.Store.Item;
-import de.walware.statet.r.internal.ui.dataeditor.Store.LoadDataException;
-import de.walware.statet.r.internal.ui.dataeditor.Store.Lock;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -50,13 +49,13 @@ class FindManager {
 	private static final int FIND_ERROR = -1;
 	
 	
-	private class FindLock extends Lock {
+	private class FindLock extends Lock implements LazyRStore.Updater<RObject> {
 		
 		boolean scheduled;
 		
 		@Override
-		void schedule(final Object obj) {
-			if (obj != null && state > 0) {
+		public void scheduleUpdate(final LazyRStore<RObject> store, final LazyRStore.Fragment<RObject> fragment) {
+			if (fragment != null && state > 0) {
 				return;
 			}
 			if (!scheduled) {
@@ -117,12 +116,12 @@ class FindManager {
 	private FindTask fCurrentTask;
 	private int fActiveMode;
 	private String fActiveExpression;
-	private int fFindTotalCount;
-	private int fFindFilteredCount;
-	private int fFindLastMatchIdx;
+	private long fFindTotalCount;
+	private long fFindFilteredCount;
+	private long fFindLastMatchIdx;
 	
 	private final FindLock fLock = new FindLock();
-	private final Store<RObject> fFindStore;
+	private final LazyRStore<RObject> fFindStore;
 	
 	private final FastList<IFindListener> fListeners = new FastList<IFindListener>(IFindListener.class);
 	
@@ -132,7 +131,7 @@ class FindManager {
 	public FindManager(final AbstractRDataProvider<?> dataProvider) {
 		fDataProvider = dataProvider;
 		
-		fFindStore = new Store<RObject>(fLock, 1, 0, 5);
+		fFindStore = new LazyRStore<RObject>(0, 1, 5, fLock);
 	}
 	
 	
@@ -154,7 +153,7 @@ class FindManager {
 	void clear(final int newState) {
 		synchronized (fLock) {
 			fScheduledTask = null;
-			fFindStore.internalClear(0);
+			fFindStore.clear(0);
 			fActiveExpression = null;
 			fFindLastMatchIdx = -1;
 			
@@ -168,7 +167,7 @@ class FindManager {
 	void reset(final boolean filter) {
 		synchronized (fLock) {
 			fScheduledTask = null;
-			fFindStore.internalClear(-1);
+			fFindStore.clear(-1);
 			if (filter) {
 				fFindFilteredCount = -1;
 			}
@@ -251,8 +250,8 @@ class FindManager {
 	
 	private void updateFindingCache(final IRToolService r, final IProgressMonitor monitor) throws UnexpectedRDataException, CoreException {
 		int mode = 0;
-		int count = 0;
-		int filteredCount = 0;
+		long count = 0;
+		long filteredCount = 0;
 		try {
 			if (fRCacheFind == null) {
 				fRCacheFind = fDataProvider.createTmp(".find");
@@ -323,7 +322,7 @@ class FindManager {
 				fActiveExpression = fCurrentTask.expression;
 				fFindTotalCount = count;
 				fFindFilteredCount = filteredCount;
-				fFindStore.internalClear(filteredCount);
+				fFindStore.clear(filteredCount);
 				fFindLastMatchIdx = -1;
 				if (mode != FIND_ERROR && fLock.state < Lock.PAUSE_STATE) {
 					fLock.state = 0;
@@ -332,7 +331,7 @@ class FindManager {
 		}
 	}
 	
-	private int getFilteredCount(final int count, final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+	private long getFilteredCount(final long count, final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		final String filterVar = fDataProvider.checkFilter();
 		if (filterVar == null || count == 0) {
 			return count;
@@ -345,33 +344,21 @@ class FindManager {
 	
 	private void updateFindingFragments(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
 		try {
-			final Item<RObject>[] toUpdate;
-			synchronized (fLock) {
-				toUpdate = fFindStore.internalForUpdate();
-			}
-			for (int i = 0; i < toUpdate.length; i++) {
+			while (true) {
+				final Fragment<RObject> fragment;
+				synchronized (fLock) {
+					fragment = fFindStore.getNextScheduledFragment();
+				}
+				if (fragment == null) {
+					break;
+				}
 				if (monitor.isCanceled()) {
 					throw new CoreException(Status.CANCEL_STATUS);
 				}
 				
-				final Item<RObject> item = toUpdate[i];
-				if (item == null) {
-					break;
-				}
+				final RObject fragmentObject = loadFindFragment(fragment, r, monitor);
 				synchronized (fLock) {
-					if (!item.scheduled) {
-						continue;
-					}
-				}
-				final RObject fragment = loadFindFragment(item, r, monitor);
-				synchronized (fLock) {
-					if (!item.scheduled) {
-						continue;
-					}
-					item.fragment = new Store.Fragment<RObject>(fragment,
-							item.beginRowIdx, item.endRowIdx,
-							item.beginColumnIdx, item.endColumnIdx );
-					item.scheduled = false;
+					fFindStore.updateFragment(fragment, fragmentObject);
 				}
 			}
 		}
@@ -389,7 +376,7 @@ class FindManager {
 		}
 	}
 	
-	private RObject loadFindFragment(final Store.Fragment<RObject> f,
+	private RObject loadFindFragment(final LazyRStore.Fragment<RObject> fragment,
 			final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		final String revIndexName = fDataProvider.checkRevIndex(r, monitor);
 		{	final StringBuilder cmd = fDataProvider.getRCmdStringBuilder();
@@ -397,8 +384,8 @@ class FindManager {
 			if (revIndexName != null) {
 				if (fActiveMode == FIND_CELL) {
 					cmd.append("x <- ").append(RJTmp.ENV+'$').append(revIndexName)
-							.append("[").append(RJTmp.ENV+'$').append(fRCacheFind).append("[,1]").append("]\n");
-					cmd.append("x <- cbind(x, ").append(RJTmp.ENV+'$').append(fRCacheFind).append("[,2]").append(")\n");
+							.append("[").append(RJTmp.ENV+'$').append(fRCacheFind).append("[,1L]").append("]\n");
+					cmd.append("x <- cbind(x, ").append(RJTmp.ENV+'$').append(fRCacheFind).append("[,2L]").append(")\n");
 				}
 				else {
 					cmd.append("x <- ").append(RJTmp.ENV+'$').append(revIndexName)
@@ -411,12 +398,12 @@ class FindManager {
 			}
 			cmd.append("x <- x[order(");
 			if (fActiveMode == FIND_CELL) {
-				cmd.append((fCurrentTask.firstInRow) ? "x[,1], x[,2]" : "x[,2], x[,1]");
+				cmd.append((fCurrentTask.firstInRow) ? "x[,1L], x[,2L]" : "x[,2L], x[,1L]");
 			}
 			else {
 				cmd.append("x");
 			}
-			cmd.append(")").append("[").append(f.beginRowIdx + 1).append("L:").append(f.endRowIdx).append("L]");
+			cmd.append(")").append("[").append(fragment.getRowBeginIdx() + 1).append(":").append(fragment.getRowEndIdx()).append("]");
 			if (fActiveMode == FIND_CELL) {
 				cmd.append(",");
 			}
@@ -430,9 +417,9 @@ class FindManager {
 	private void findMatch(final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		final FindTask task;
 		final int mode;
-		int filteredCount;
-		int totalCount;
-		int globalMatchIdx;
+		long filteredCount;
+		long totalCount;
+		long globalMatchIdx;
 		synchronized (fLock) {
 			task = fScheduledTask;
 			mode = fActiveMode;
@@ -443,7 +430,7 @@ class FindManager {
 			if (task == null || !task.equals(fCurrentTask)
 					|| fLock.state == Lock.LOCAL_PAUSE_STATE) {
 				notifyListeners(task, new StatusInfo(IStatus.INFO, "Finding..."), -1, -1, -1);
-				fLock.schedule(null);
+				fLock.scheduleUpdate(null, null);
 				return;
 			}
 			if (mode == FIND_ERROR) {
@@ -457,7 +444,7 @@ class FindManager {
 				filteredCount = getFilteredCount(totalCount, r, monitor);
 				synchronized (fLock) {
 					fFindFilteredCount = filteredCount;
-					fFindStore.internalClear(filteredCount);
+					fFindStore.clear(filteredCount);
 				}
 			}
 			else {
@@ -465,7 +452,7 @@ class FindManager {
 					if (task != fScheduledTask) {
 						return;
 					}
-					fLock.schedule(null);
+					fLock.scheduleUpdate(null, null);
 				}
 				return;
 			}
@@ -489,42 +476,42 @@ class FindManager {
 			globalMatchIdx = filteredCount / 2;
 		}
 		try {
-			final int[] rPos;
-			final int[] low;
-			final int[] high;
+			final long[] rPos;
+			final long[] low;
+			final long[] high;
 			final int rowIdx;
 			final int colIdx;
 			if (mode == FIND_CELL) {
 				rowIdx = task.firstInRow ? 0 : 1;
 				colIdx = task.firstInRow ? 1 : 0;
 				
-				rPos = new int[2];
+				rPos = new long[2];
 				rPos[rowIdx] = task.rowIdx + 1;
 				rPos[colIdx] = task.columnIdx + 1;
-				low = new int[2];
-				high = new int[2];
+				low = new long[2];
+				high = new long[2];
 			}
 			else {
 				rowIdx = 0;
 				colIdx = -1;
 				
-				rPos = new int[] { task.rowIdx + 1 };
-				low = new int[1];
-				high = new int[1];
+				rPos = new long[] { task.rowIdx + 1 };
+				low = new long[1];
+				high = new long[1];
 			}
 			
 			while (true) {
 				int last = 0;
-				Store.Fragment<RObject> fragment;
+				LazyRStore.Fragment<RObject> fragment;
 				while (true) {
 					if (monitor.isCanceled()) {
 						throw new CoreException(Status.CANCEL_STATUS);
 					}
 					
-					fragment = fFindStore.getFor(globalMatchIdx, 0);
+					fragment = fLock.getFragment(fFindStore, globalMatchIdx, 0);
 					if (fragment != null) {
-						final RStore data = fragment.rObject.getData();
-						final int length = fragment.endRowIdx - fragment.beginRowIdx;
+						final RStore data = fragment.getRObject().getData();
+						final int length = fragment.getRowCount();
 						low[rowIdx] = data.getInt(0);
 						high[rowIdx] = data.getInt(length-1);
 						if (mode == FIND_CELL) {
@@ -532,7 +519,7 @@ class FindManager {
 							high[colIdx] = data.getInt(length+length-1);
 						}
 						if (RDataUtil.compare(rPos, low) < 0) {
-							globalMatchIdx = fragment.beginRowIdx - 1;
+							globalMatchIdx = fragment.getRowBeginIdx() - 1;
 							if (globalMatchIdx < 0
 									|| (task.forward && last == +1)) {
 								break;
@@ -540,7 +527,7 @@ class FindManager {
 							last = -1;
 						}
 						if (RDataUtil.compare(rPos, high) > 0) {
-							globalMatchIdx = fragment.endRowIdx;
+							globalMatchIdx = fragment.getRowEndIdx();
 							if (globalMatchIdx > filteredCount
 									|| (!task.forward && last == -1)) {
 								break;
@@ -563,15 +550,15 @@ class FindManager {
 							if (task != fScheduledTask) {
 								return;
 							}
-							fLock.schedule(null);
+							fLock.scheduleUpdate(null, null);
 						}
 						return;
 					}
 				}
 				
-				final RStore data = fragment.rObject.getData();
-				final int length = fragment.endRowIdx - fragment.beginRowIdx;
-				int localMatchIdx;
+				final RStore data = fragment.getRObject().getData();
+				final int length = fragment.getRowCount();
+				long localMatchIdx;
 				if (mode == FIND_CELL) {
 					low[rowIdx] = 0;
 					low[colIdx] = length;
@@ -597,10 +584,10 @@ class FindManager {
 					if (task != fScheduledTask) {
 						return;
 					}
-					fFindLastMatchIdx = globalMatchIdx = fragment.beginRowIdx + localMatchIdx;
+					fFindLastMatchIdx = globalMatchIdx = fragment.getRowBeginIdx() + localMatchIdx;
 				}
-				{	final int posCol;
-					final int posRow;
+				{	final long posCol;
+					final long posRow;
 					rPos[rowIdx] = data.getInt(localMatchIdx);
 					posRow = rPos[rowIdx] - 1;
 					if (mode == FIND_CELL) {
@@ -624,8 +611,8 @@ class FindManager {
 		}
 	}
 	
-	private void notifyListeners(final FindTask task, final IStatus status, final int total,
-			final int rowIdx, final int colIdx) {
+	private void notifyListeners(final FindTask task, final IStatus status, final long total,
+			final long rowIdx, final long colIdx) {
 		UIAccess.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {

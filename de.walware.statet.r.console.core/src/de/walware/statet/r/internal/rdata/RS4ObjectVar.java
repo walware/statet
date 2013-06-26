@@ -27,6 +27,7 @@ import de.walware.rj.data.defaultImpl.ExternalizableRObject;
 import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
 
 import de.walware.statet.r.console.core.RWorkspace;
+import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
 
@@ -35,39 +36,47 @@ public final class RS4ObjectVar extends CombinedElement
 		implements RS4Object, RWorkspace.ICombinedRList, ExternalizableRObject {
 	
 	
-	private String className;
+	private final String className;
 	
-	private RCharacterDataImpl slotNames;
-	private CombinedElement[] slotValues;
-	private int dataSlotIdx;
+	private final RCharacterDataImpl slotNames;
+	private final CombinedElement[] slotValues;
+	private final int dataSlotIdx;
 	
 	
-	public RS4ObjectVar(final RJIO io, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException {
-		fParent = parent;
-		fElementName = name;
-		readExternal(io, factory);
-	}
-	
-	@Override
-	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+	public RS4ObjectVar(final RJIO io, final CombinedFactory factory,
+			final CombinedElement parent, final RElementName name) throws IOException {
+		super(parent, name);
+		
+		//-- options
+		final int options = io.readInt();
+		//-- special attributes
 		this.className = io.readString();
+		//-- data
+		final int l = (int) io.readVULong((byte) (options & RObjectFactory.O_LENGTHGRADE_MASK));
+		
 		this.dataSlotIdx = io.readInt();
-		this.slotNames = new RCharacterDataImpl(io);
-		final int length = this.slotNames.getLength();
-		this.slotValues = new CombinedElement[length];
-		for (int i = 0; i < length; i++) {
-			this.slotValues[i] = CombinedFactory.INSTANCE.readObject(io, this,
+		this.slotNames = new RCharacterDataImpl(io, l);
+		this.slotValues = new CombinedElement[l];
+		for (int i = 0; i < l; i++) {
+			this.slotValues[i] = factory.readObject(io, this,
 					RElementName.create(RElementName.SUB_NAMEDSLOT, slotNames.getChar(i)));
 		}
 	}
 	
 	@Override
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+		final int l = this.slotValues.length;
+		//-- options
+		final int options = io.getVULongGrade(l);
+		io.writeInt(options);
+		//-- special attributes
 		io.writeString(this.className);
+		//-- data
+		io.writeVULong((byte) (options & RObjectFactory.O_LENGTHGRADE_MASK), l);
+		
 		io.writeInt(this.dataSlotIdx);
 		this.slotNames.writeExternal(io);
-		final int length = this.slotNames.getLength();
-		for (int i = 0; i < length; i++) {
+		for (int i = 0; i < l; i++) {
 			factory.writeObject(this.slotValues[i], io);
 		}
 	}
@@ -84,10 +93,9 @@ public final class RS4ObjectVar extends CombinedElement
 	
 	
 	@Override
-	public int getLength() {
+	public long getLength() {
 		return this.slotValues.length;
 	}
-	
 	
 	@Override
 	public boolean hasDataSlot() {
@@ -116,24 +124,30 @@ public final class RS4ObjectVar extends CombinedElement
 	}
 	
 	@Override
-	public RObject get(final int idx) {
+	public String getName(final long idx) {
+		return this.slotNames.getChar(idx);
+	}
+	
+	@Override
+	public ICombinedRElement get(final int idx) {
 		return this.slotValues[idx];
 	}
 	
 	@Override
-	public RObject get(final String name) {
-		final int idx = this.slotNames.indexOf(name);
+	public ICombinedRElement get(final long idx) {
+		if (idx < 0 || idx >= Integer.MAX_VALUE) {
+			throw new IndexOutOfBoundsException(Long.toString(idx));
+		}
+		return this.slotValues[(int) idx];
+	}
+	
+	@Override
+	public ICombinedRElement get(final String name) {
+		final int idx = this.slotNames.indexOf(name, 0);
 		if (idx >= 0) {
 			return this.slotValues[idx];
 		}
 		throw new IllegalArgumentException();
-	}
-	
-	@Override
-	public final RObject[] toArray() {
-		final RObject[] array = new RObject[this.slotValues.length];
-		System.arraycopy(this.slotValues, 0, array, 0, this.slotValues.length);
-		return array;
 	}
 	
 	

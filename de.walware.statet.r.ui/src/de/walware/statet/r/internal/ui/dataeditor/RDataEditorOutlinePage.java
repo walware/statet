@@ -153,7 +153,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 		@Override
 		public int getCount() {
 			final RStore data = ((FTableVariable) fVariable).getLevelStore();
-			return data.getLength();
+			return (int) data.getLength();
 		}
 		
 	}
@@ -313,7 +313,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 			@Override
 			protected void execute() throws ExecutionException {
 				final IStructuredSelection selection = (IStructuredSelection) getViewer().getSelection();
-				final List<Integer> columnIndexes = new ArrayList<Integer>();
+				final List<Long> columnIndexes = new ArrayList<Long>();
 				for (final Iterator<?> iterator = selection.iterator(); iterator.hasNext();) {
 					final Object element = iterator.next();
 					if (element instanceof RDataTableColumn) {

@@ -21,7 +21,7 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 import de.walware.ecommons.emf.core.util.IEMFEditPropertyContext;
-import de.walware.ecommons.ui.content.IElementSourceProvider;
+import de.walware.ecommons.models.core.util.IElementSourceProvider;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.workbench.ui.WorkbenchUIUtil;
 

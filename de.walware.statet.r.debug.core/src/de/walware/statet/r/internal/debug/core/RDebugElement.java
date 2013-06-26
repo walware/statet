@@ -49,11 +49,6 @@ public class RDebugElement extends DebugElement {
 				DebugException.TARGET_REQUEST_FAILED, "Request failed: cannot load R data.", null));
 	}
 	
-	protected DebugException newRequestIllegalIndexFailed() {
-		return new DebugException(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID,
-				DebugException.REQUEST_FAILED, "Request failed: the specified index is illegal.", null));
-	}
-	
 	
 	@Override
 	public Object getAdapter(final Class adapter) {

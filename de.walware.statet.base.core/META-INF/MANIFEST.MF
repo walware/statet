@@ -24,9 +24,11 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0";visibility:=reex
 Import-Package: com.ibm.icu.text;version="4.4.2.2",
  de.walware.ecommons,
  de.walware.ecommons.collections,
+ de.walware.ecommons.models.core.util,
  de.walware.ecommons.preferences,
  de.walware.ecommons.resources;version="0.10.0"
 Export-Package: de.walware.ecommons.debug.core,
+ de.walware.ecommons.debug.core.model,
  de.walware.ecommons.net.resourcemapping;version="1.0.0",
  de.walware.statet.base.core,
  de.walware.statet.base.core.preferences

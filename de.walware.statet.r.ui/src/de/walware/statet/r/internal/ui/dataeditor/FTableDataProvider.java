@@ -43,23 +43,23 @@ public class FTableDataProvider extends RMatrixDataProvider {
 		}
 		
 		
-		protected DataCell getCell(final RList vars, final int varIdx, int valueIdx) {
+		protected DataCell getCell(final RList vars, final long varIdx, long valueIdx) {
 			int span = 1;
-			for (int idx = vars.getLength() - 1; idx > varIdx; idx--) {
+			for (long idx = vars.getLength() - 1; idx > varIdx; idx--) {
 				span *= vars.get(idx).getLength();
 			}
 			valueIdx -= valueIdx % span; // to origin
 			return createCell(varIdx, valueIdx, span);
 		}
 		
-		protected abstract DataCell createCell(int varPosition, int valuePosition, int valueSpan);
+		protected abstract DataCell createCell(long varPosition, long valuePosition, int valueSpan);
 		
-		protected Object getDataValue(final RList vars, final int varIdx, int valueIdx) {
+		protected Object getDataValue(final RList vars, final long varIdx, long valueIdx) {
 			if (vars.getLength() == 0) {
 				return InfoString.DUMMY;
 			}
 			int span = 1;
-			for (int idx = vars.getLength() - 1; idx > varIdx; idx--) {
+			for (long idx = vars.getLength() - 1; idx > varIdx; idx--) {
 				span *= vars.get(idx).getLength();
 			}
 			final RStore values = vars.get(varIdx).getData();
@@ -69,7 +69,7 @@ public class FTableDataProvider extends RMatrixDataProvider {
 		}
 		
 		@Override
-		public void setDataValue(final int columnIndex, final int rowIndex, final Object newValue) {
+		public void setDataValue(final long columnIndex, final long rowIndex, final Object newValue) {
 			throw new UnsupportedOperationException();
 		}
 		
@@ -83,27 +83,27 @@ public class FTableDataProvider extends RMatrixDataProvider {
 		
 		
 		@Override
-		public int getColumnCount() {
+		public long getColumnCount() {
 			return FTableDataProvider.this.getColumnCount();
 		}
 		
 		@Override
-		public int getRowCount() {
+		public long getRowCount() {
 			return fColVars.getLength();
 		}
 		
 		@Override
-		public DataCell getCellByPosition(final int columnIndex, final int rowIndex) {
+		public DataCell getCellByPosition(final long columnIndex, final long rowIndex) {
 			return getCell(fColVars, rowIndex, columnIndex);
 		}
 		
 		@Override
-		protected DataCell createCell(final int varIndex, final int valueIndex, final int valueSpan) {
+		protected DataCell createCell(final long varIndex, final long valueIndex, final int valueSpan) {
 			return new DataCell(valueIndex, varIndex, valueSpan, 1);
 		}
 		
 		@Override
-		public Object getDataValue(final int columnIndex, final int rowIndex) {
+		public Object getDataValue(final long columnIndex, final long rowIndex) {
 			return getDataValue(fColVars, rowIndex, columnIndex);
 		}
 		
@@ -117,27 +117,27 @@ public class FTableDataProvider extends RMatrixDataProvider {
 		
 		
 		@Override
-		public int getColumnCount() {
+		public long getColumnCount() {
 			return fRowVars.getLength();
 		}
 		
 		@Override
-		public int getRowCount() {
+		public long getRowCount() {
 			return FTableDataProvider.this.getRowCount();
 		}
 		
 		@Override
-		public DataCell getCellByPosition(final int columnIndex, final int rowIndex) {
+		public DataCell getCellByPosition(final long columnIndex, final long rowIndex) {
 			return getCell(fRowVars, columnIndex, rowIndex);
 		}
 		
 		@Override
-		protected DataCell createCell(final int varPosition, final int valuePosition, final int valueSpan) {
+		protected DataCell createCell(final long varPosition, final long valuePosition, final int valueSpan) {
 			return new DataCell(varPosition, valuePosition, 1, valueSpan);
 		}
 		
 		@Override
-		public Object getDataValue(final int columnIndex, final int rowIndex) {
+		public Object getDataValue(final long columnIndex, final long rowIndex) {
 			return getDataValue(fRowVars, columnIndex, rowIndex);
 		}
 		
@@ -185,13 +185,15 @@ public class FTableDataProvider extends RMatrixDataProvider {
 				throw new UnexpectedRDataException("row.vars"); //$NON-NLS-1$
 			}
 		}
-		{	final IRDataTableVariable[] variables = new IRDataTableVariable[fColVars.getLength() + fRowVars.getLength()];
+		{	final int cols = (int) fColVars.getLength();
+			final int rows = (int) fRowVars.getLength();
+			final IRDataTableVariable[] variables = new IRDataTableVariable[cols + rows];
 			int i = 0;
-			for (int j = 0; j < fColVars.getLength(); j++) {
+			for (int j = 0; j < cols; j++) {
 				variables[i++] = new FTableVariable(IRDataTableVariable.COLUMN, fColVars.getName(j),
 						fColVars.get(j).getData() );
 			}
-			for (int j = 0; j < fRowVars.getLength(); j++) {
+			for (int j = 0; j < rows; j++) {
 				variables[i++] = new FTableVariable(IRDataTableVariable.ROW, fRowVars.getName(j),
 						fRowVars.get(j).getData() );
 			}
@@ -203,9 +205,10 @@ public class FTableDataProvider extends RMatrixDataProvider {
 		return description;
 	}
 	
-	private int checkVars(final RList rList) {
-		int num = 1;
-		for (int i = 0; i < rList.getLength(); i++) {
+	private long checkVars(final RList rList) {
+		long num = 1;
+		final int l = (int) rList.getLength();
+		for (int i = 0; i < l; i++) {
 			num *= rList.get(i).getLength();
 		}
 		return num;
@@ -231,22 +234,22 @@ public class FTableDataProvider extends RMatrixDataProvider {
 		return new IDataProvider() {
 			
 			@Override
-			public int getColumnCount() {
+			public long getColumnCount() {
 				return 0;
 			}
 			
 			@Override
-			public int getRowCount() {
+			public long getRowCount() {
 				return fColVars.getLength();
 			}
 			
 			@Override
-			public Object getDataValue(final int columnIndex, final int rowIndex) {
+			public Object getDataValue(final long columnIndex, final long rowIndex) {
 				return fColVars.getName(rowIndex);
 			}
 			
 			@Override
-			public void setDataValue(final int columnIndex, final int rowIndex, final Object newValue) {
+			public void setDataValue(final long columnIndex, final long rowIndex, final Object newValue) {
 				throw new UnsupportedOperationException();
 			}
 			
@@ -258,22 +261,22 @@ public class FTableDataProvider extends RMatrixDataProvider {
 		return new IDataProvider() {
 			
 			@Override
-			public int getColumnCount() {
+			public long getColumnCount() {
 				return fRowVars.getLength();
 			}
 			
 			@Override
-			public int getRowCount() {
+			public long getRowCount() {
 				return 0;
 			}
 			
 			@Override
-			public Object getDataValue(final int columnIndex, final int rowIndex) {
+			public Object getDataValue(final long columnIndex, final long rowIndex) {
 				return fRowVars.getName(columnIndex);
 			}
 			
 			@Override
-			public void setDataValue(final int columnIndex, final int rowIndex, final Object newValue) {
+			public void setDataValue(final long columnIndex, final long rowIndex, final Object newValue) {
 				throw new UnsupportedOperationException();
 			}
 			

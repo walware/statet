@@ -22,7 +22,7 @@ import de.walware.statet.r.internal.ui.dataeditor.RDataFormatter;
 public class RDataTableColumn implements IRDataTableVariable {
 	
 	
-	private final int fIndex;
+	private final long fIndex;
 	private final String fName;
 	
 	private final String fRExpression;
@@ -36,7 +36,7 @@ public class RDataTableColumn implements IRDataTableVariable {
 	private final RDataFormatter fDefaultFormat;
 	
 	
-	public RDataTableColumn(final int columnIndex, final String name,
+	public RDataTableColumn(final long columnIndex, final String name,
 			final String rExpression, final RElementName elementName,
 			final int columnType, final RStore dataStore, final List<String> classNames,
 			final RDataFormatter defaultFormat) {
@@ -57,7 +57,7 @@ public class RDataTableColumn implements IRDataTableVariable {
 		return COLUMN;
 	}
 	
-	public int getIndex() {
+	public long getIndex() {
 		return fIndex;
 	}
 	
@@ -94,7 +94,8 @@ public class RDataTableColumn implements IRDataTableVariable {
 	
 	@Override
 	public int hashCode() {
-		return fIndex * 253;
+		final int h = (int) (fIndex ^ (fIndex >>> 32));
+		return h ^ (h >>> 7);
 	}
 	
 	@Override

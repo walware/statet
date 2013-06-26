@@ -779,7 +779,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 			if (object != null && object.getRObjectType() == RObject.TYPE_VECTOR && object.getData().getStoreType() == RStore.CHARACTER) {
 				classData = object.getData();
 				if (classData.getLength() > 0) {
-					final int last = classData.getLength() - 1;
+					final int last = (int) classData.getLength() - 1;
 					for (int i = 0; i < last; i++) {
 						if (!classData.isNA(i)) {
 							textBuilder.append(classData.getChar(i));
@@ -865,7 +865,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		}
 		textBuilder.append(" ["); 
 		final RIntegerStore dim = ((RArray<?>) element).getDim();
-		final int dimLength = dim.getLength();
+		final int dimLength = (int) dim.getLength();
 		if (dimLength > 0) {
 			textBuilder.append(dim.getInt(0));
 			for (int i = 1; i < dimLength; i++) {

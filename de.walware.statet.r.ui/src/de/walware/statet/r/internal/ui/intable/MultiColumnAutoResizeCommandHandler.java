@@ -33,7 +33,7 @@ public class MultiColumnAutoResizeCommandHandler extends AbstractLayerCommandHan
 	
 	@Override
 	protected boolean doCommand(final AutoResizeColumnsCommand command) {
-		for (final int columnPosition : command.getColumnPositions()) {
+		for (final long columnPosition : command.getColumnPositions()) {
 			fDataLayer.setColumnWidthToAutoWidth(columnPosition);
 		}
 		return true;

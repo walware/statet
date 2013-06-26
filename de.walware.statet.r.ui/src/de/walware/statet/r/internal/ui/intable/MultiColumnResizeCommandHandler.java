@@ -33,7 +33,7 @@ public class MultiColumnResizeCommandHandler extends AbstractLayerCommandHandler
 	
 	@Override
 	protected boolean doCommand(final MultiColumnResizeCommand command) {
-		for (final int columnPosition : command.getColumnPositions()) {
+		for (final long columnPosition : command.getColumnPositions()) {
 			fDataLayer.setColumnWidth(columnPosition, command.getColumnWidth(columnPosition));
 		}
 		return true;

@@ -19,7 +19,6 @@ import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
 
 
-
 public abstract class AbstractRDataRunnable implements IToolRunnable {
 	
 	

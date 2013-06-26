@@ -40,19 +40,18 @@ public final class RFunction2 extends CombinedElement
 	private ArgsDefinition fArgs;
 	
 	
-	public RFunction2(final RElementName name, final ArgsDefinition args) {
-		fElementName = name;
+	public RFunction2(final ArgsDefinition args,
+			final CombinedElement parent, final RElementName name) {
+		super(parent, name);
+		
 		fArgs = args;
 	}
 	
 	
-	public RFunction2(final RJIO io, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException {
-		fParent = parent;
-		fElementName = name;
-		readExternal(io, factory);
-	}
-	
-	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+	public RFunction2(final RJIO io, final RObjectFactory factory,
+			final CombinedElement parent, final RElementName name) throws IOException {
+		super(parent, name);
+		
 		/*final int options =*/ io.readInt();
 		final String headerSource = io.readString();
 		if (headerSource != null && headerSource.length() > 0) {
@@ -75,8 +74,9 @@ public final class RFunction2 extends CombinedElement
 		return "function";
 	}
 	
+	
 	@Override
-	public int getLength() {
+	public long getLength() {
 		return 0;
 	}
 	
@@ -114,7 +114,7 @@ public final class RFunction2 extends CombinedElement
 	
 	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 	
 }

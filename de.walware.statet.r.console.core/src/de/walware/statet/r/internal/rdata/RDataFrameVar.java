@@ -28,34 +28,21 @@ public final class RDataFrameVar extends RListVar
 		implements RDataFrame, ExternalizableRObject {
 	
 	
-	private RStore rownamesAttribute;
-	private int rowCount;
+	private long rowCount;
 	
 	
-	public RDataFrameVar(final RJIO io, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException {
-		super(io, factory, parent, name);
-	}
-	
-	@Override
-	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
-		final int options = super.doReadExternal(io, factory);
-		this.rowCount = io.readInt();
-		if ((options & RObjectFactory.O_WITH_NAMES) != 0) {
-			this.rownamesAttribute = factory.readNames(io);
-		}
+	public RDataFrameVar(final RJIO io, final CombinedFactory factory, final int options,
+			final CombinedElement parent, final RElementName name) throws IOException {
+		super(io, factory, options, parent, name);
+		
+		this.rowCount = io.readLong();
 	}
 	
 	@Override
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		int options = 0;
-		if ((io.flags & RObjectFactory.F_ONLY_STRUCT) == 0 && this.rownamesAttribute != null) {
-			options |= RObjectFactory.O_WITH_NAMES;
-		}
-		super.doWriteExternal(io, options, factory);
-		io.writeInt(this.rowCount);
-		if ((options & RObjectFactory.O_WITH_NAMES) != 0) {
-			factory.writeNames(this.rownamesAttribute, io);
-		}
+		super.doWriteExternal(io, factory, options);
+		io.writeLong(this.rowCount);
 	}
 	
 	
@@ -64,9 +51,14 @@ public final class RDataFrameVar extends RListVar
 		return TYPE_DATAFRAME;
 	}
 	
+	@Override
+	protected String getDefaultRClassName() {
+		return RObject.CLASSNAME_DATAFRAME;
+	}
+	
 	
 	@Override
-	public int getColumnCount() {
+	public long getColumnCount() {
 		return getLength();
 	}
 	
@@ -75,12 +67,14 @@ public final class RDataFrameVar extends RListVar
 		return getNames();
 	}
 	
-	public String getColumnName(final int idx) {
-		return getName(idx);
+	@Override
+	public RStore getColumn(final int idx) {
+		final RObject obj = get(idx);
+		return (obj != null) ? obj.getData() : null;
 	}
 	
 	@Override
-	public RStore getColumn(final int idx) {
+	public RStore getColumn(final long idx) {
 		final RObject obj = get(idx);
 		return (obj != null) ? obj.getData() : null;
 	}
@@ -92,13 +86,13 @@ public final class RDataFrameVar extends RListVar
 	}
 	
 	@Override
-	public int getRowCount() {
+	public long getRowCount() {
 		return this.rowCount;
 	}
 	
 	@Override
 	public RStore getRowNames() {
-		return this.rownamesAttribute;
+		return null;
 	}
 	
 }
