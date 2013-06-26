@@ -261,7 +261,8 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 		final IDocument document = data.getDocument();
 		
 		final boolean assignmentFunction = isFunction()
-				&& fReplacementName.getNextSegment() == null && fReplacementName.getSegmentName().endsWith("<-");
+				&& fReplacementName.getNextSegment() == null
+				&& fReplacementName.getSegmentName().endsWith("<-"); //$NON-NLS-1$
 		final IElementName elementName;
 		if (assignmentFunction) {
 			elementName = RElementName.create(RElementName.MAIN_DEFAULT, fReplacementName.getSegmentName().substring(0, fReplacementName.getSegmentName().length()-2));
@@ -283,6 +284,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 		}
 		
 		int mode = 0;
+		int linkedMode = -1;
 		if (isArgumentName()) {
 			if (!isFollowedByEqualAssign(data, replacementOffset+replacementLength)) {
 				final RCodeStyleSettings codeStyle = getCodeStyleSettings();
@@ -309,34 +311,36 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 				if (mode == 11
 						&& !isClosedBracket(data, replacementOffset, replacementOffset+replacementLength)) {
 					replacement.append(')');
-					mode = 101;
+					linkedMode = 2;
 					
 					if (assignmentFunction && !isFollowedByAssign(data, replacementOffset+replacementLength)) {
-						replacement.append(" <- ");
-						mode += 4;
+						replacement.append(" <- "); //$NON-NLS-1$
+						if (linkedMode >= 0) {
+							linkedMode += 4;
+						}
 					}
 				}
 				
 				final ArgsDefinition argsDef = rMethod.getArgsDefinition();
-				if (argsDef == null || argsDef.size() > 0 || mode == 11) {
+				if (argsDef == null || argsDef.size() > 0 || (mode == 11 && linkedMode < 0)) {
 					data.setContextInformation(new RArgumentListContextInformation(replacementOffset + cursor, rMethod));
 				}
 				else {
 					cursor ++;
-					mode = 200;
+					linkedMode = -1;
 				}
 			}
-			
 		}
 		
 		document.replace(replacementOffset, replacementLength, replacement.toString());
 		setCursorPosition(replacementOffset + cursor);
-		if (mode > 100 && mode < 200) {
-			createLinkedMode(data, replacementOffset + cursor - 1, (mode-100)).enter();
+		if (linkedMode >= 0) {
+			createLinkedMode(data, replacementOffset + cursor - 1, linkedMode).enter();
 		}
 	}
 	
-	private LinkedModeUI createLinkedMode(final ApplyData util, final int offset, final int exitAddition) throws BadLocationException {
+	private LinkedModeUI createLinkedMode(final ApplyData util, final int offset, final int mode)
+			throws BadLocationException {
 		final LinkedModeModel model = new LinkedModeModel();
 		int pos = 0;
 		
@@ -355,7 +359,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 		/* create UI */
 		final LinkedModeUI ui = new LinkedModeUI(model, util.getViewer());
 		ui.setCyclingMode(LinkedModeUI.CYCLE_NEVER);
-		ui.setExitPosition(util.getViewer(), offset+exitAddition, 0, pos);
+		ui.setExitPosition(util.getViewer(), offset + (mode & 0xff), 0, pos);
 		ui.setSimpleMode(true);
 		ui.setExitPolicy(level);
 		return ui;

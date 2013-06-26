@@ -322,7 +322,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			command.doit = true;
 			command.shiftsCaret = true;
 			command.caretOffset = -1;
-			int linkedModeType = -1;
+			int linkedMode = -1;
 			int linkedModeOffset = -1;
 			final int cEnd = command.offset+command.length;
 			
@@ -365,10 +365,10 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					if (fOptions.isSmartCurlyBracketsEnabled() && !isValueChar(cEnd)) {
 						if (!isClosedBracket(command.offset, cEnd, CURLY_BRACKET_TYPE)) {
 							command.text = "{}"; //$NON-NLS-1$
-							linkedModeType = 1 | AUTODELETE;
+							linkedMode = 1 | AUTODELETE;
 						}
 						else if (isCharAt(cEnd, '}')) {
-							linkedModeType = 1;
+							linkedMode = 1;
 						}
 					}
 					linkedModeOffset = smartIndentOnFirstLineCharDefault2(command);
@@ -381,10 +381,10 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					if (fOptions.isSmartRoundBracketsEnabled() && !isValueChar(cEnd)) {
 						if (!isClosedBracket(command.offset, cEnd, ROUND_BRACKET_TYPE)) {
 							command.text = "()"; //$NON-NLS-1$
-							linkedModeType = 2 | AUTODELETE;
+							linkedMode = 2 | AUTODELETE;
 						}
 						else if (isCharAt(cEnd, ')')) {
-							linkedModeType = 2;
+							linkedMode = 2;
 						}
 					}
 					break KEY;
@@ -404,14 +404,14 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 						if (!isClosedBracket(command.offset, cEnd, SQUARE_BRACKET_TYPE)) {
 							command.text = "[]"; //$NON-NLS-1$
 							if (countBackward('[', command.offset) % 2 == 1 && isCharAt(cEnd, ']')) {
-								linkedModeType = 3 | AUTODELETE;
+								linkedMode = 3 | AUTODELETE;
 							}
 							else {
-								linkedModeType = 2 | AUTODELETE;
+								linkedMode = 2 | AUTODELETE;
 							}
 						}
 						else if (isCharAt(cEnd, ']')) {
-							linkedModeType = 2;
+							linkedMode = 2;
 						}
 					}
 					break KEY;
@@ -424,7 +424,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					fScanner.configure(fDocument, IRDocumentPartitions.R_INFIX_OPERATOR);
 					if (fScanner.count(cEnd, line.getOffset()+line.getLength(), '%') % 2 == 0) {
 						command.text = "%%"; //$NON-NLS-1$
-						linkedModeType = 2 | AUTODELETE;
+						linkedMode = 2 | AUTODELETE;
 						break KEY;
 					}
 				}
@@ -438,7 +438,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					if (!isValueChar(cEnd) && !isValueChar(command.offset-1)
 							&& !isClosedString(cEnd, line.getOffset()+line.getLength(), false, c)) {
 						command.text = new String(new char[] { c, c });
-						linkedModeType = 2 | AUTODELETE;
+						linkedMode = 2 | AUTODELETE;
 						break KEY;
 					}
 				}
@@ -477,11 +477,11 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					selection = new TextSelection(fDocument, cursor, 0);
 					fViewer.setSelection(selection, true);
 					
-					if (linkedModeType >= 0) {
+					if (linkedMode >= 0) {
 						if (linkedModeOffset < 0) {
 							linkedModeOffset = command.offset;
 						}
-						createLinkedMode(linkedModeOffset, c, linkedModeType).enter();
+						createLinkedMode(linkedModeOffset, c, linkedMode).enter();
 					}
 				}
 				finally {
@@ -815,7 +815,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		
 		final LinkedPositionGroup group = new LinkedPositionGroup();
 		final InBracketPosition position = RBracketLevel.createPosition(type, fDocument,
-				offset +1, 0, pos++);
+				offset + 1, 0, pos++);
 		group.addPosition(position);
 		model.addGroup(group);
 		
