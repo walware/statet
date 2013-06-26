@@ -11,9 +11,10 @@
 
 package de.walware.statet.r.core.pkgmanager;
 
+import de.walware.rj.renv.RNumVersion;
+import de.walware.rj.renv.RPkg;
+
 import de.walware.statet.r.core.renv.IRLibraryLocation;
-import de.walware.statet.r.core.renv.RNumVersion;
-import de.walware.statet.r.internal.core.pkgmanager.RPkg;
 
 
 public class RPkgInfo extends RPkg implements IRPkgInfo {
@@ -32,7 +33,7 @@ public class RPkgInfo extends RPkg implements IRPkgInfo {
 	
 	public RPkgInfo(final String name,final IRLibraryLocation lib,
 			final int flags, final long installStamp, final String repoId) {
-		this(name, null, null, null, lib, flags, installStamp, repoId);
+		this(name, RNumVersion.NONE, null, null, lib, flags, installStamp, repoId);
 	}
 	
 	public RPkgInfo(final String name, final RNumVersion version, final String built,

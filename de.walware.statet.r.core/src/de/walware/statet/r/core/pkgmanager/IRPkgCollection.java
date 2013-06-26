@@ -13,7 +13,7 @@ package de.walware.statet.r.core.pkgmanager;
 
 import java.util.List;
 
-import de.walware.statet.r.core.renv.IRPkg;
+import de.walware.rj.renv.IRPkg;
 
 
 public interface IRPkgCollection<T extends IRPkg> {

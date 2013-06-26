@@ -33,6 +33,7 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
@@ -59,8 +60,9 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
 
+import de.walware.rj.renv.RPkgType;
+
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
-import de.walware.statet.r.core.pkgmanager.RPkgType;
 import de.walware.statet.r.core.pkgmanager.RRepo;
 
 
@@ -87,7 +89,7 @@ public class RRepoPreferencePage extends ConfigurationBlockPreferencePage<RRepoC
 class EditRepoDialog extends ExtStatusDialog {
 	
 	
-	private static final RPkgType DEFAULT_TYPE = new RPkgType("", "Default"); //$NON-NLS-1$
+	private static final String DEFAULT_TYPE = "Default"; //$NON-NLS-1$
 	
 	
 	private final RRepo fRepo;
@@ -141,7 +143,16 @@ class EditRepoDialog extends ExtStatusDialog {
 			gd.widthHint = LayoutUtil.hintWidth(viewer.getCombo(), 10);
 			viewer.getCombo().setLayoutData(gd);
 			viewer.setContentProvider(ArrayContentProvider.getInstance());
-			viewer.setInput(new RPkgType[] {
+			viewer.setLabelProvider(new LabelProvider() {
+				@Override
+				public String getText(final Object element) {
+					if (element instanceof RPkgType) {
+						return ((RPkgType) element).getLabel();
+					}
+					return super.getText(element);
+				}
+			});
+			viewer.setInput(new Object[] {
 				DEFAULT_TYPE, RPkgType.SOURCE, RPkgType.BINARY
 			});
 			viewer.setSelection(new StructuredSelection(DEFAULT_TYPE));

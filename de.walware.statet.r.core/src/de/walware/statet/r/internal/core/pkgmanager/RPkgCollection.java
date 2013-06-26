@@ -15,8 +15,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.walware.rj.renv.IRPkg;
+
 import de.walware.statet.r.core.pkgmanager.IRPkgCollection;
-import de.walware.statet.r.core.renv.IRPkg;
 
 
 public class RPkgCollection<T extends IRPkg> implements IRPkgCollection<T> {

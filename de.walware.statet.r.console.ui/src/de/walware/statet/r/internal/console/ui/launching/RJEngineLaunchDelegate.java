@@ -46,7 +46,7 @@ import de.walware.ecommons.net.RMIAddress;
 
 import de.walware.statet.nico.core.runtime.ToolRunner;
 
-import de.walware.rj.server.srvext.EServerUtil;
+import de.walware.rj.server.srvext.ERJContext;
 import de.walware.rj.server.srvext.ServerUtil;
 
 import de.walware.statet.r.core.renv.IREnvConfiguration;
@@ -67,16 +67,19 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 			RJ_SERVER_ID,
 	};
 	
-	private static final Pattern PATH_PATTERN = Pattern.compile("\\" + File.pathSeparatorChar);
+	private static final Pattern PATH_PATTERN = Pattern.compile("\\" + File.pathSeparatorChar); //$NON-NLS-1$
 	
 	
 	private final String fAddress;
 	private final IREnvConfiguration fRenv;
 	private final String[] fCodebaseLibs;
 	
+	private ERJContext fServerContext;
+	
 	private File fWorkingDirectory;
 	
 	private IProgressMonitor fMonitor;
+	
 	
 	private String fLibPreloadVar;
 	private String fLibPreloadFile;
@@ -87,6 +90,8 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		fAddress = address;
 		fRenv = renv;
 		fCodebaseLibs = (requireCodebase) ? CODEBASE_LIBS : null;
+		
+		fServerContext = new ERJContext();
 		
 		setLibPreload(true);
 	}
@@ -159,7 +164,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		if (fLibPreloadVar != null) {
 			String value = envp.get(fLibPreloadVar);
 			if (value == null || !value.contains("libjsig")) { //$NON-NLS-1$
-				final String path = (String) ((IVMInstall3) vmInstall).evaluateSystemProperties(
+				final String path = ((IVMInstall3) vmInstall).evaluateSystemProperties(
 						new String[] { "java.library.path" }, fMonitor).get("java.library.path"); //$NON-NLS-1$ //$NON-NLS-2$
 				if (path != null) {
 					final String[] pathList = PATH_PATTERN.split(path);
@@ -188,7 +193,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	
 	@Override
 	public String[] getClasspath(final ILaunchConfiguration configuration) throws CoreException {
-		final String[] rjLibs = EServerUtil.searchRJLibsInPlatform(CLASSPATH_LIBS);
+		final String[] rjLibs = fServerContext.searchRJLibs(CLASSPATH_LIBS);
 		
 		final LinkedHashSet<String> classpath = new LinkedHashSet<String>();
 		classpath.addAll(Arrays.asList(super.getClasspath(configuration)));
@@ -224,7 +229,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		}
 		if (fCodebaseLibs != null && s.indexOf(" -Djava.rmi.server.codebase=") < 0) { //$NON-NLS-1$
 			s.append(" -Djava.rmi.server.codebase=\""); //$NON-NLS-1$
-			final String[] rjLibs = EServerUtil.searchRJLibsInPlatform(fCodebaseLibs);
+			final String[] rjLibs = fServerContext.searchRJLibs(fCodebaseLibs);
 			s.append(ServerUtil.concatCodebase(rjLibs));
 			s.append("\""); //$NON-NLS-1$
 		}
@@ -261,7 +266,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		args.append(fAddress);
 		
 		args.append(" -auth=none"); //$NON-NLS-1$
-		args.append(" -embedded");
+		args.append(" -embedded"); //$NON-NLS-1$
 		
 		args.append(" -plugins="); //$NON-NLS-1$
 		args.append("awt,"); //$NON-NLS-1$

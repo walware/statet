@@ -56,6 +56,9 @@ import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
 import de.walware.rj.data.defaultImpl.RVectorImpl;
 import de.walware.rj.eclient.AbstractRToolRunnable;
 import de.walware.rj.eclient.IRToolService;
+import de.walware.rj.renv.IRPkg;
+import de.walware.rj.renv.RNumVersion;
+import de.walware.rj.renv.RPkgType;
 import de.walware.rj.server.srvext.ServerUtil;
 import de.walware.rj.services.FunctionCall;
 import de.walware.rj.services.RPlatform;
@@ -70,13 +73,11 @@ import de.walware.statet.r.core.pkgmanager.IRPkgSet;
 import de.walware.statet.r.core.pkgmanager.IRView;
 import de.walware.statet.r.core.pkgmanager.ISelectedRepos;
 import de.walware.statet.r.core.pkgmanager.RPkgAction;
-import de.walware.statet.r.core.pkgmanager.RPkgType;
 import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 import de.walware.statet.r.core.pkgmanager.RRepo;
 import de.walware.statet.r.core.pkgmanager.SelectedRepos;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
-import de.walware.statet.r.core.renv.RNumVersion;
 import de.walware.statet.r.core.tool.AbstractStatetRRunnable;
 import de.walware.statet.r.core.tool.IRConsoleService;
 import de.walware.statet.r.internal.core.RCorePlugin;
@@ -1219,32 +1220,10 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	
 	@Override
 	public IRPkgData addToCache(final IFileStore store, final IProgressMonitor monitor) throws CoreException {
-		final String name = checkPkgName(store);
-		final RPkgType type = checkPkgType(store);
-		fCache.add(name, type, store, monitor);
-		return new RPkgData(name, null, RRepo.WS_CACHE_PREFIX + type.getId());
-	}
-	
-	private String checkPkgName(final IFileStore store) throws CoreException {
-		final String name = store.getName();
-		final int idx = name.indexOf('_');
-		if (idx >= 0) {
-			return name.substring(0, idx);
-		}
-		throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
-				NLS.bind("Invalid file name ''{0}'' (missing version) for R package on {1}.",
-						name, fRPlatform.getOSName() )));
-	}
-	
-	RPkgType checkPkgType(final IFileStore store) throws CoreException {
-		final String name = store.getName();
-		final RPkgType type = RPkgUtil.getPkgType(fRPlatform, name);
-		if (type != null) {
-			return type;
-		}
-		throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
-				NLS.bind("Invalid file name ''{0}'' (unsupported extension) for R package on {1}.",
-						name, fRPlatform.getOSName() )));
+		final IRPkg pkg = RPkgUtil.checkPkgFileName(store.getName());
+		final RPkgType type = RPkgUtil.checkPkgType(store.getName(), fRPlatform);
+		fCache.add(pkg.getName(), type, store, monitor);
+		return new RPkgData(pkg.getName(), RNumVersion.NONE, RRepo.WS_CACHE_PREFIX + type.name().toLowerCase());
 	}
 	
 	

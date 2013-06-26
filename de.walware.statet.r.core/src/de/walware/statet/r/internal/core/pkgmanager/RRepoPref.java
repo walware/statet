@@ -13,7 +13,6 @@ package de.walware.statet.r.internal.core.pkgmanager;
 
 import de.walware.ecommons.preferences.Preference;
 
-import de.walware.statet.r.core.pkgmanager.RPkgType;
 import de.walware.statet.r.core.pkgmanager.RRepo;
 
 
@@ -37,7 +36,7 @@ public class RRepoPref extends Preference<RRepo> {
 			final String[] parts = IS1_SEPARATOR_PATTERN.split(s); 
 			if (parts.length >= 3) {
 				return RVarRepo.create(parts[0].intern(), parts[1], parts[2],
-						(parts.length >= 4) ? RPkgType.getPkgType(parts[3]) : null );
+						(parts.length >= 4) ? Util.getPkgType(parts[3]) : null );
 			}
 		}
 		return null;

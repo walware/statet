@@ -32,13 +32,14 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.edb.EmbeddedDB;
 
+import de.walware.rj.renv.RNumVersion;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.pkgmanager.IRPkgInfo;
 import de.walware.statet.r.core.pkgmanager.RPkgInfo;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IRLibraryGroup;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
-import de.walware.statet.r.core.renv.RNumVersion;
 import de.walware.statet.r.internal.core.RCorePlugin;
 
 

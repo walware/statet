@@ -45,10 +45,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
+import de.walware.rj.renv.IRPackageDescription;
+import de.walware.rj.renv.RNumVersion;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
-import de.walware.statet.r.core.renv.IRPackageDescription;
-import de.walware.statet.r.core.renv.RNumVersion;
 import de.walware.statet.r.core.rhelp.IRHelpPage;
 import de.walware.statet.r.core.rhelp.IRHelpSearchRequestor;
 import de.walware.statet.r.core.rhelp.IRPackageHelp;

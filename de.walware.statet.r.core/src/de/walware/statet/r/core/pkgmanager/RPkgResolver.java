@@ -30,10 +30,11 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.collections.ConstList;
 
+import de.walware.rj.renv.IRPkg;
+import de.walware.rj.renv.RNumVersion;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.pkgmanager.RPkgAction.Install;
-import de.walware.statet.r.core.renv.IRPkg;
-import de.walware.statet.r.core.renv.RNumVersion;
 
 
 public class RPkgResolver {

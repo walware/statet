@@ -17,10 +17,12 @@ import java.util.List;
 
 import de.walware.ecommons.collections.ConstList;
 
+import de.walware.rj.renv.IRPkg;
+import de.walware.rj.renv.RNumVersion;
+import de.walware.rj.renv.RPkg;
+
 import de.walware.statet.r.core.pkgmanager.IRPkgData;
 import de.walware.statet.r.core.pkgmanager.IRPkgSet;
-import de.walware.statet.r.core.renv.IRPkg;
-import de.walware.statet.r.core.renv.RNumVersion;
 
 
 public class FullRPkgSet implements IRPkgSet.Ext {
@@ -102,12 +104,12 @@ public class FullRPkgSet implements IRPkgSet.Ext {
 			info = fReverse.get(idx);
 		}
 		else {
-			info = new RPkgData(name, null, null);
-			RPkgList<RPkg> depends = null;
-			RPkgList<RPkg> imports = null;
-			RPkgList<RPkg> linkingTo = null;
-			RPkgList<RPkg> suggests = null;
-			RPkgList<RPkg> enhances = null;
+			info = new RPkgData(name, RNumVersion.NONE, null);
+			RPkgList<VersionListRPkg> depends = null;
+			RPkgList<VersionListRPkg> imports = null;
+			RPkgList<VersionListRPkg> linkingTo = null;
+			RPkgList<VersionListRPkg> suggests = null;
+			RPkgList<VersionListRPkg> enhances = null;
 			for (final RPkgList<RPkgData> list : getAll()) {
 				for (int i = 0; i < list.size(); i++) {
 					final RPkgData pkg = list.get(i);
@@ -116,31 +118,31 @@ public class FullRPkgSet implements IRPkgSet.Ext {
 					}
 					if (Util.findPkg(pkg.getDepends(), name) >= 0) {
 						if (depends == null) {
-							depends = new RPkgList<RPkg>(4);
+							depends = new RPkgList<VersionListRPkg>(4);
 						}
 						addRev(depends, pkg);
 					}
 					if (Util.findPkg(pkg.getImports(), name) >= 0) {
 						if (imports == null) {
-							imports = new RPkgList<RPkg>(4);
+							imports = new RPkgList<VersionListRPkg>(4);
 						}
 						addRev(imports, pkg);
 					}
 					if (Util.findPkg(pkg.getLinkingTo(), name) >= 0) {
 						if (linkingTo == null) {
-							linkingTo = new RPkgList<RPkg>(4);
+							linkingTo = new RPkgList<VersionListRPkg>(4);
 						}
 						addRev(linkingTo, pkg);
 					}
 					if (Util.findPkg(pkg.getSuggests(), name) >= 0) {
 						if (suggests == null) {
-							suggests = new RPkgList<RPkg>(4);
+							suggests = new RPkgList<VersionListRPkg>(4);
 						}
 						addRev(suggests, pkg);
 					}
 					if (Util.findPkg(pkg.getEnhances(), name) >= 0) {
 						if (enhances == null) {
-							enhances = new RPkgList<RPkg>(4);
+							enhances = new RPkgList<VersionListRPkg>(4);
 						}
 						addRev(enhances, pkg);
 					}
@@ -157,38 +159,15 @@ public class FullRPkgSet implements IRPkgSet.Ext {
 		return info;
 	}
 	
-	private void addRev(final RPkgList<RPkg> depends, final IRPkg v) {
+	private void addRev(final RPkgList<VersionListRPkg> depends, final IRPkg v) {
 		final int idx = depends.indexOf(v.getName());
 		if (idx >= 0) {
-			final RPkg ref = depends.get(idx);
-			ref.setVersion(addVersion(ref.getVersion(), v.getVersion()));
+			final VersionListRPkg ref = depends.get(idx);
+			ref.addVersion(v.getVersion());
 		}
 		else {
-			depends.add(-idx - 1, new RPkg(v.getName(), v.getVersion()));
+			depends.add(-idx - 1, new VersionListRPkg(v.getName(), v.getVersion()));
 		}
-	}
-	
-	private RNumVersion addVersion(final RNumVersion list, final RNumVersion v) {
-		if (list.equals(v) || v == RNumVersion.NONE) {
-			return list;
-		}
-		if (list == RNumVersion.NONE) {
-			return v;
-		}
-		final String listString = list.toString();
-		final String vString = v.toString();
-		for (int i = 0; i < listString.length(); i++) {
-			final int idx = listString.indexOf(v.toString(), i);
-			if (idx >= 0) {
-				if ((idx == 0 || listString.regionMatches(idx - 2, ", ", 0, 2)) //$NON-NLS-1$
-						&& (idx + vString.length() == listString.length() || listString.regionMatches(idx + vString.length(), ", ", 0, 2)) ) {
-					return list;
-				}
-				continue;
-			}
-			break;
-		}
-		return RNumVersion.create(listString + ", " + vString); //$NON-NLS-1$
 	}
 	
 	public void checkPkgInfo(final RPkgData pkg) {

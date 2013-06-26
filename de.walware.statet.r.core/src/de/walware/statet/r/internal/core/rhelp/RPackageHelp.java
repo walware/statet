@@ -17,9 +17,10 @@ import java.util.List;
 
 import de.walware.ecommons.collections.ConstList;
 
+import de.walware.rj.renv.IRPackageDescription;
+
 import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.core.renv.IREnv;
-import de.walware.statet.r.core.renv.IRPackageDescription;
 import de.walware.statet.r.core.rhelp.IRHelpPage;
 import de.walware.statet.r.core.rhelp.IRPackageHelp;
 import de.walware.statet.r.internal.core.RCorePlugin;

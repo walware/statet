@@ -133,8 +133,9 @@ public class RLibPaths implements IRLibPaths {
 				if (path != null) {
 					call.addChar(path.toString());
 					final RVector<RIntegerStore> data = RDataUtil.checkRIntVector(call.evalData(monitor));
-					if (data != null && data.getLength() == 1 && data.getData().getInt(0) == 0) {
-						final EntryImpl entry =  new EntryImpl(location, data.getNames().getChar(0),
+					final int state = RDataUtil.checkSingleIntValue(data);
+					if (state == 0) {
+						final EntryImpl entry = new EntryImpl(location, data.getNames().getChar(0),
 								-1, (WRITABLE), 0);
 						entries.add(entry);
 					}

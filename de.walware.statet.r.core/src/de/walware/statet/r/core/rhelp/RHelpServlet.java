@@ -31,10 +31,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.osgi.util.NLS;
 
+import de.walware.rj.renv.IRPackageDescription;
+
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvManager;
-import de.walware.statet.r.core.renv.IRPackageDescription;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.renv.REnvConfiguration;
 import de.walware.statet.r.internal.core.rhelp.REnvHelp;

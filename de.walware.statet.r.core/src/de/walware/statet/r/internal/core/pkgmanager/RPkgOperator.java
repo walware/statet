@@ -150,7 +150,7 @@ public class RPkgOperator {
 		if (repo.getId().startsWith(RRepo.WS_CACHE_PREFIX)) {
 			final IFileStore store = fManager.getCache().get(name, repo.getPkgType(),
 					monitor );
-			if (fManager.checkPkgType(store) != repo.getPkgType()) {
+			if (RPkgUtil.checkPkgType(store.getName(), fManager.getRPlatform()) != repo.getPkgType()) {
 				throw new IllegalStateException();
 			}
 			String fileName;

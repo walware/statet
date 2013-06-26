@@ -37,12 +37,12 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.data.defaultImpl.RListImpl;
+import de.walware.rj.renv.RNumVersion;
 import de.walware.rj.services.RService;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
-import de.walware.statet.r.core.renv.RNumVersion;
 import de.walware.statet.r.internal.core.RPackageDescription;
 import de.walware.statet.r.internal.core.rhelp.REnvIndexWriter;
 import de.walware.statet.r.internal.core.rhelp.REnvIndexWriter.AbortIndexException;

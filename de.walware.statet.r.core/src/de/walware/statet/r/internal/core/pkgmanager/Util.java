@@ -13,9 +13,11 @@ package de.walware.statet.r.internal.core.pkgmanager;
 
 import java.util.List;
 
+import de.walware.rj.renv.IRPkg;
+import de.walware.rj.renv.RPkgType;
+
 import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 import de.walware.statet.r.core.pkgmanager.RRepo;
-import de.walware.statet.r.core.renv.IRPkg;
 
 
 public final class Util extends RPkgUtil {
@@ -63,6 +65,16 @@ public final class Util extends RPkgUtil {
 			}
 		}
 		return -1;
+	}
+	
+	/** For backward compatibility **/
+	public static RPkgType getPkgType(final String name) {
+		try {
+			return RPkgType.valueOf(name);
+		}
+		catch (final IllegalArgumentException e) {
+			return RPkgType.valueOf(name.toUpperCase());
+		}
 	}
 	
 }

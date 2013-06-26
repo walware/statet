@@ -13,6 +13,8 @@ package de.walware.statet.r.core.pkgmanager;
 
 import java.net.URL;
 
+import de.walware.rj.renv.RPkgType;
+
 
 public class RRepo {
 	
@@ -24,8 +26,8 @@ public class RRepo {
 	public static final String CRAN_ID = R_PREFIX + "cran"; //$NON-NLS-1$
 	public static final String BIOC_ID_PREFIX = R_PREFIX + "bioc"; //$NON-NLS-1$
 	public static final String WS_CACHE_PREFIX = SPECIAL_PREFIX + "ws-cache-"; //$NON-NLS-1$
-	public static final String WS_CACHE_SOURCE_ID = WS_CACHE_PREFIX + RPkgType.SOURCE_ID; 
-	public static final String WS_CACHE_BINARY_ID = WS_CACHE_PREFIX + RPkgType.BINARY_ID; 
+	public static final String WS_CACHE_SOURCE_ID = WS_CACHE_PREFIX + "source"; // RPkgType.SOURCE.name().toLowerCase() 
+	public static final String WS_CACHE_BINARY_ID = WS_CACHE_PREFIX + "binary"; // RPkgType.BINARY.name().toLowerCase() 
 	
 	public static final RRepo WS_CACHE_SOURCE_REPO = new RRepo(WS_CACHE_SOURCE_ID,
 			"Local Packages", null, RPkgType.SOURCE );
@@ -107,7 +109,7 @@ public class RRepo {
 	}
 	
 	public void setPkgType(final RPkgType type) {
-		fPkgType = (type != null && type.getId() != null) ? type : null;
+		fPkgType = type;
 	}
 	
 	public RPkgType getPkgType() {

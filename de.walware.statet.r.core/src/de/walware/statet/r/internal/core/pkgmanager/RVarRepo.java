@@ -14,8 +14,9 @@ package de.walware.statet.r.internal.core.pkgmanager;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
+import de.walware.rj.renv.RPkgType;
+
 import de.walware.statet.r.core.pkgmanager.ISelectedRepos;
-import de.walware.statet.r.core.pkgmanager.RPkgType;
 import de.walware.statet.r.core.pkgmanager.RRepo;
 
 

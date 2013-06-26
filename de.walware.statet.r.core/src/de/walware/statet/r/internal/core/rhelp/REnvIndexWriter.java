@@ -44,9 +44,10 @@ import org.eclipse.core.runtime.Status;
 import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.text.HtmlParseInput;
 
+import de.walware.rj.renv.IRPackageDescription;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
-import de.walware.statet.r.core.renv.IRPackageDescription;
 import de.walware.statet.r.core.rhelp.IRHelpKeyword;
 import de.walware.statet.r.core.rhelp.IRHelpKeyword.Group;
 import de.walware.statet.r.core.rhelp.IRHelpKeywordNode;

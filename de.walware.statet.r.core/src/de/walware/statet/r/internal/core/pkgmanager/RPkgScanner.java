@@ -27,6 +27,9 @@ import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RNumericStore;
 import de.walware.rj.data.RVector;
 import de.walware.rj.data.UnexpectedRDataException;
+import de.walware.rj.renv.IRPkg;
+import de.walware.rj.renv.RNumVersion;
+import de.walware.rj.renv.RPkg;
 import de.walware.rj.services.FunctionCall;
 import de.walware.rj.services.RService;
 
@@ -39,7 +42,6 @@ import de.walware.statet.r.core.pkgmanager.RPkgInfo;
 import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 import de.walware.statet.r.core.pkgmanager.RRepo;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
-import de.walware.statet.r.core.renv.RNumVersion;
 import de.walware.statet.r.internal.core.RPackageDescription;
 
 
@@ -75,11 +77,11 @@ final class RPkgScanner {
 	private static final int INST_DETAIL_IDX_ENHANCES = 6;
 	
 	
-	private static List<RPkg> parsePkgRefs(final String s) {
+	private static List<IRPkg> parsePkgRefs(final String s) {
 		if (s == null || s.isEmpty()) {
 			return Collections.emptyList();
 		}
-		final List<RPkg> list = new ArrayList<RPkg>(4);
+		final List<IRPkg> list = new ArrayList<IRPkg>(4);
 		String name = null;
 		String version = null;
 		boolean ws;

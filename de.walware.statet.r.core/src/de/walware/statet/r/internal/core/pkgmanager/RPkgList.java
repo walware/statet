@@ -13,9 +13,10 @@ package de.walware.statet.r.internal.core.pkgmanager;
 
 import java.util.ArrayList;
 
+import de.walware.rj.renv.IRPkg;
+
 import de.walware.statet.r.core.pkgmanager.IRPkgList;
 import de.walware.statet.r.core.pkgmanager.RPkgUtil;
-import de.walware.statet.r.core.renv.IRPkg;
 
 
 public final class RPkgList<T extends IRPkg> extends ArrayList<T> implements IRPkgList<T> {

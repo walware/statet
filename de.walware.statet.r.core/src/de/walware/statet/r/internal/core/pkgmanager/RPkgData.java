@@ -13,8 +13,11 @@ package de.walware.statet.r.internal.core.pkgmanager;
 
 import java.util.List;
 
+import de.walware.rj.renv.IRPkg;
+import de.walware.rj.renv.RNumVersion;
+import de.walware.rj.renv.RPkg;
+
 import de.walware.statet.r.core.pkgmanager.IRPkgData;
-import de.walware.statet.r.core.renv.RNumVersion;
 
 
 public class RPkgData extends RPkg implements IRPkgData {
@@ -22,11 +25,11 @@ public class RPkgData extends RPkg implements IRPkgData {
 	
 	private String fLicense;
 	
-	private List<RPkg> fDependsList;
-	private List<RPkg> fImportsList;
-	private List<RPkg> fLinkingToList;
-	private List<RPkg> fSuggestsList;
-	private List<RPkg> fEnhancesList;
+	private List<? extends IRPkg> fDependsList;
+	private List<? extends IRPkg> fImportsList;
+	private List<? extends IRPkg> fLinkingToList;
+	private List<? extends IRPkg> fSuggestsList;
+	private List<? extends IRPkg> fEnhancesList;
 	
 	private final String fRepoId;
 	
@@ -60,48 +63,48 @@ public class RPkgData extends RPkg implements IRPkgData {
 		return fPriority;
 	}
 	
-	protected void setDepends(final List<RPkg> list) {
+	protected void setDepends(final List<? extends IRPkg> list) {
 		fDependsList = list;
 	}
 	
 	@Override
-	public List<RPkg> getDepends() {
+	public List<? extends IRPkg> getDepends() {
 		return fDependsList;
 	}
 	
-	protected void setImports(final List<RPkg> list) {
+	protected void setImports(final List<? extends IRPkg> list) {
 		fImportsList = list;
 	}
 	
 	@Override
-	public List<RPkg> getImports() {
+	public List<? extends IRPkg> getImports() {
 		return fImportsList;
 	}
 	
-	protected void setLinkingTo(final List<RPkg> list) {
+	protected void setLinkingTo(final List<? extends IRPkg> list) {
 		fLinkingToList = list;
 	}
 	
 	@Override
-	public List<RPkg> getLinkingTo() {
+	public List<? extends IRPkg> getLinkingTo() {
 		return fLinkingToList;
 	}
 	
-	protected void setSuggests(final List<RPkg> list) {
+	protected void setSuggests(final List<? extends IRPkg> list) {
 		fSuggestsList = list;
 	}
 	
 	@Override
-	public List<RPkg> getSuggests() {
+	public List<? extends IRPkg> getSuggests() {
 		return fSuggestsList;
 	}
 	
-	protected void setEnhances(final List<RPkg> list) {
+	protected void setEnhances(final List<? extends IRPkg> list) {
 		fEnhancesList = list;
 	}
 	
 	@Override
-	public List<RPkg> getEnhances() {
+	public List<? extends IRPkg> getEnhances() {
 		return fEnhancesList;
 	}
 	

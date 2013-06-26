@@ -15,11 +15,12 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.ViewerCell;
 
+import de.walware.rj.renv.IRPkg;
+
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IRLibraryGroup;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
-import de.walware.statet.r.core.renv.IRPkg;
 
 
 public class REnvLabelProvider extends StyledCellLabelProvider {

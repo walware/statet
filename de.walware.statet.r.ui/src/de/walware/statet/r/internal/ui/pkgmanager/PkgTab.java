@@ -98,6 +98,8 @@ import de.walware.ecommons.ui.util.ViewerUtil.CheckboxTableComposite;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
 import de.walware.ecommons.ui.util.ViewerUtil.TreeComposite;
 
+import de.walware.rj.renv.IRPkg;
+
 import de.walware.statet.r.core.pkgmanager.IRLibPaths;
 import de.walware.statet.r.core.pkgmanager.IRLibPaths.Entry;
 import de.walware.statet.r.core.pkgmanager.IRPkgData;
@@ -112,7 +114,6 @@ import de.walware.statet.r.core.pkgmanager.RPkgResolver;
 import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 import de.walware.statet.r.core.pkgmanager.RRepo;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
-import de.walware.statet.r.core.renv.IRPkg;
 import de.walware.statet.r.ui.REnvLabelProvider;
 import de.walware.statet.r.ui.RUI;
 

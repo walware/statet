@@ -18,8 +18,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
+import de.walware.rj.renv.RPkgType;
+
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.pkgmanager.RPkgType;
 
 
 final class Cache {

@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.internal.core;
 
-import de.walware.statet.r.core.renv.IRPackageDescription;
-import de.walware.statet.r.core.renv.RNumVersion;
+import de.walware.rj.renv.IRPackageDescription;
+import de.walware.rj.renv.RNumVersion;
 
 
 public class RPackageDescription implements IRPackageDescription {

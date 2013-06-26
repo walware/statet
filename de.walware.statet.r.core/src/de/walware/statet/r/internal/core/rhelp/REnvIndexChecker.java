@@ -25,9 +25,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
 
+import de.walware.rj.renv.RNumVersion;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
-import de.walware.statet.r.core.renv.RNumVersion;
 import de.walware.statet.r.core.rhelp.IREnvHelp;
 import de.walware.statet.r.core.rhelp.IRPackageHelp;
 import de.walware.statet.r.internal.core.RCorePlugin;

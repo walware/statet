@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 
-import de.walware.statet.r.core.renv.IRPkg;
+import de.walware.rj.renv.IRPkg;
 
 
 class DetailGroup {

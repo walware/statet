@@ -11,9 +11,10 @@
 
 package de.walware.statet.r.internal.core.pkgmanager;
 
+import de.walware.rj.renv.RNumVersion;
+
 import de.walware.statet.r.core.pkgmanager.IRPkgDescription;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
-import de.walware.statet.r.core.renv.RNumVersion;
 
 
 public class RPkgDescription extends RPkgData implements IRPkgDescription {

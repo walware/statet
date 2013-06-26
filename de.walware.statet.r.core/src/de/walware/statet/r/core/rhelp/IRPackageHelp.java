@@ -13,8 +13,9 @@ package de.walware.statet.r.core.rhelp;
 
 import java.util.List;
 
+import de.walware.rj.renv.IRPackageDescription;
+
 import de.walware.statet.r.core.renv.IREnv;
-import de.walware.statet.r.core.renv.IRPackageDescription;
 
 
 public interface IRPackageHelp extends Comparable<IRPackageHelp> {

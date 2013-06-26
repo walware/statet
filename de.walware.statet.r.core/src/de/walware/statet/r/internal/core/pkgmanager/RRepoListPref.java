@@ -17,7 +17,6 @@ import java.util.List;
 
 import de.walware.ecommons.preferences.Preference;
 
-import de.walware.statet.r.core.pkgmanager.RPkgType;
 import de.walware.statet.r.core.pkgmanager.RRepo;
 
 
@@ -46,7 +45,7 @@ public class RRepoListPref extends Preference<List<RRepo>> {
 			final String[] parts = IS1_SEPARATOR_PATTERN.split(repos[i]);
 			if (parts.length >= 3) {
 				list.add(RVarRepo.create(parts[0].intern(), parts[1], parts[2],
-						(parts.length >= 4) ? RPkgType.getPkgType(parts[3]) : null ));
+						(parts.length >= 4) ? Util.getPkgType(parts[3]) : null ));
 			}
 		}
 		return list;

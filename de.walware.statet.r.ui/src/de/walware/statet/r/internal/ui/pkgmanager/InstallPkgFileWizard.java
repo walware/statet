@@ -45,11 +45,12 @@ import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
+import de.walware.rj.renv.RPkgType;
+
 import de.walware.statet.r.core.pkgmanager.IRLibPaths;
 import de.walware.statet.r.core.pkgmanager.IRPkgData;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.RPkgAction;
-import de.walware.statet.r.core.pkgmanager.RPkgType;
 import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -133,7 +134,7 @@ public class InstallPkgFileWizard extends Wizard {
 				public IStatus validate(final Object value) {
 					final IFileStore store = (IFileStore) value;
 					if (store.getName().indexOf('_') < 0
-							|| RPkgUtil.getPkgType(fPkgManager.getRPlatform(), store.getName()) == null ) {
+							|| RPkgUtil.getPkgType(store.getName(), fPkgManager.getRPlatform()) == null ) {
 						return ValidationStatus.error("File name must follow the pattern '<package_name>_<version>.<ext>'.");
 					}
 					validateType();
@@ -164,7 +165,7 @@ public class InstallPkgFileWizard extends Wizard {
 			RPkgType type = null;
 			final IFileStore store = fFileControl.getResourceAsFileStore();
 			if (store != null) {
-				type = RPkgUtil.getPkgType(fPkgManager.getRPlatform(), store.getName());
+				type = RPkgUtil.getPkgType(store.getName(), fPkgManager.getRPlatform());
 			}
 			String text = "Type: ";
 			if (type != null) {

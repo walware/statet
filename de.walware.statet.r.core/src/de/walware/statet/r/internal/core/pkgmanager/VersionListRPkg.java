@@ -11,11 +11,11 @@
 
 package de.walware.statet.r.internal.core.pkgmanager;
 
-import de.walware.statet.r.core.renv.IRPkg;
-import de.walware.statet.r.core.renv.RNumVersion;
+import de.walware.rj.renv.IRPkg;
+import de.walware.rj.renv.RNumVersion;
 
 
-public class RPkg implements IRPkg {
+public class VersionListRPkg implements IRPkg {
 	
 	
 	private final String fName;
@@ -23,12 +23,12 @@ public class RPkg implements IRPkg {
 	private RNumVersion fVersion;
 	
 	
-	public RPkg(final String name, final RNumVersion version) {
+	public VersionListRPkg(final String name, final RNumVersion version) {
 		if (name == null) {
 			throw new NullPointerException();
 		}
 		fName = name;
-		setVersion(version);
+		fVersion = (version != null) ? version : RNumVersion.NONE;
 	}
 	
 	
@@ -42,8 +42,29 @@ public class RPkg implements IRPkg {
 		return fVersion;
 	}
 	
-	public void setVersion(final RNumVersion version) {
-		fVersion = (version != null) ? version : RNumVersion.NONE;
+	public void addVersion(final RNumVersion version) {
+		if (fVersion.equals(version) || version == RNumVersion.NONE) {
+			return;
+		}
+		if (fVersion == RNumVersion.NONE) {
+			fVersion = version;
+			return;
+		}
+		final String listString = fVersion.toString();
+		final String addString = version.toString();
+		for (int i = 0; i < listString.length(); i++) {
+			final int idx = listString.indexOf(addString, i);
+			if (idx >= 0) {
+				if ((idx == 0 || listString.regionMatches(idx - 2, ", ", 0, 2)) //$NON-NLS-1$
+						&& (idx + addString.length() == listString.length()
+								|| listString.regionMatches(idx + addString.length(), ", ", 0, 2) )) { //$NON-NLS-1$
+					return;
+				}
+				continue;
+			}
+			break;
+		}
+		fVersion = RNumVersion.create(listString + ", " + addString); //$NON-NLS-1$
 	}
 	
 	
@@ -57,11 +78,11 @@ public class RPkg implements IRPkg {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof RPkg)) {
+		if (!(obj instanceof IRPkg)) {
 			return false;
 		}
-		final RPkg other = (RPkg) obj;
-		return (fName.equals(other.fName) && fVersion.equals(other.fVersion));
+		final IRPkg other = (IRPkg) obj;
+		return (fName.equals(other.getName()) && fVersion.equals(other.getVersion()));
 	}
 	
 	

@@ -11,8 +11,9 @@
 
 package de.walware.statet.r.core.pkgmanager;
 
+import de.walware.rj.renv.IRPkg;
+
 import de.walware.statet.r.core.renv.IRLibraryLocation;
-import de.walware.statet.r.core.renv.IRPkg;
 
 
 public abstract class RPkgAction {

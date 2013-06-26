@@ -16,8 +16,6 @@ import java.util.List;
 
 import com.ibm.icu.text.Collator;
 
-import de.walware.rj.services.RPlatform;
-
 import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.core.pkgmanager.IRLibPaths.Entry;
 import de.walware.statet.r.core.renv.IRLibraryGroup;
@@ -25,7 +23,7 @@ import de.walware.statet.r.core.renv.IRLibraryLocation;
 import de.walware.statet.r.internal.core.pkgmanager.RVarRepo;
 
 
-public class RPkgUtil {
+public class RPkgUtil extends de.walware.rj.renv.RPkgUtil {
 	
 	
 	public static Collator COLLATOR = RSymbolComparator.R_NAMES_COLLATOR;
@@ -89,47 +87,6 @@ public class RPkgUtil {
 	}
 	
 	
-	private static boolean isWin(final RPlatform rPlatform) {
-		return rPlatform.getOsType().equals(RPlatform.OS_WINDOWS);
-	}
-	
-	private static boolean isMac(final RPlatform rPlatform) {
-		return rPlatform.getOSName().regionMatches(true, 0, "Mac OS", 0, 6); //$NON-NLS-1$
-	}
-	
-	public static RPkgType getPkgType(final RPlatform rPlatform, final String fileName) {
-		if (fileName.endsWith(".tar.gz")) { //$NON-NLS-1$
-			return RPkgType.SOURCE;
-		}
-		if (isWin(rPlatform)) {
-			if (fileName.toLowerCase().endsWith(".zip")) { //$NON-NLS-1$
-				return RPkgType.BINARY;
-			}
-		}
-		else if (isMac(rPlatform)) {
-			if (fileName.endsWith(".tgz")) { //$NON-NLS-1$
-				return RPkgType.BINARY;
-			}
-		}
-		return null;
-	}
-	
-	public static String getPkgTypeInstallKey(final RPlatform rPlatform, final RPkgType type) {
-		if (type == RPkgType.SOURCE) {
-			return "source"; //$NON-NLS-1$
-		}
-		if (type == RPkgType.BINARY) {
-			if (isWin(rPlatform)) {
-				return "win.binary"; //$NON-NLS-1$
-			}
-			else if (isMac(rPlatform)) {
-				return "mac.binary.leopard"; //$NON-NLS-1$
-			}
-		}
-		return null;
-	}
-	
-	
 	private static final String[] DEFAULT_INSTALL_ORDER = new String[] {
 		IRLibraryGroup.R_USER, IRLibraryGroup.R_OTHER, IRLibraryGroup.R_SITE, IRLibraryGroup.R_DEFAULT,
 	};
@@ -147,9 +104,9 @@ public class RPkgUtil {
 		return null;
 	}
 	
-	public static boolean areInstalled(final IRPkgManager manager, List<String> pkgNames) {
-		IRPkgCollection<? extends IRPkgInfo> installedPkgs = manager.getRPkgSet().getInstalled();
-		for (String pkgName : pkgNames) {
+	public static boolean areInstalled(final IRPkgManager manager, final List<String> pkgNames) {
+		final IRPkgCollection<? extends IRPkgInfo> installedPkgs = manager.getRPkgSet().getInstalled();
+		for (final String pkgName : pkgNames) {
 			if (!installedPkgs.containsByName(pkgName)) {
 				return false;
 			}
