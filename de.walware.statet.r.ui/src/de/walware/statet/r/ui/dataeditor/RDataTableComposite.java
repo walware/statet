@@ -29,6 +29,7 @@ import org.eclipse.nebula.widgets.nattable.command.ILayerCommandHandler;
 import org.eclipse.nebula.widgets.nattable.config.CellConfigAttributes;
 import org.eclipse.nebula.widgets.nattable.config.IConfigRegistry;
 import org.eclipse.nebula.widgets.nattable.config.LayoutSizeConfig;
+import org.eclipse.nebula.widgets.nattable.coordinate.Orientation;
 import org.eclipse.nebula.widgets.nattable.coordinate.PositionCoordinate;
 import org.eclipse.nebula.widgets.nattable.coordinate.Range;
 import org.eclipse.nebula.widgets.nattable.copy.command.CopyDataCommandHandler;
@@ -67,6 +68,7 @@ import org.eclipse.nebula.widgets.nattable.sort.command.ClearSortCommand;
 import org.eclipse.nebula.widgets.nattable.sort.event.SortColumnEvent;
 import org.eclipse.nebula.widgets.nattable.style.DisplayMode;
 import org.eclipse.nebula.widgets.nattable.tickupdate.config.DefaultTickUpdateConfiguration;
+import org.eclipse.nebula.widgets.nattable.viewport.IViewportDim;
 import org.eclipse.nebula.widgets.nattable.viewport.ViewportLayer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
@@ -602,6 +604,14 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		return null;
 	}
 	
+	public boolean isOK() {
+		return (fLayout.topControl == fTable);
+	}
+	
+	public IViewportDim getViewport(final Orientation orientation) {
+		return fTableLayers.viewportLayer.getDim(orientation);
+	}
+	
 	@Override
 	public ISelection getSelection() {
 		return null;
@@ -856,6 +866,18 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			fTable.doCommand(new SelectColumnsCommand(
 					fTableLayers.selectionLayer, indexes, rowIndex, 0));
 		}
+	}
+	
+	public long[] getAnchor() {
+		final PositionCoordinate coordinate = fTableLayers.selectionLayer.getSelectionAnchor();
+		if (coordinate.columnPosition < 0 || coordinate.rowPosition < 0) {
+			return null;
+		}
+		return new long[] { coordinate.columnPosition, coordinate.rowPosition };
+	}
+	
+	public void setAnchor(final long columnIndex, final long rowIndex) {
+		fTableLayers.selectionLayer.setSelectionAnchor(columnIndex, rowIndex, true);
 	}
 	
 	public void selectAll() {

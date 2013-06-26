@@ -34,9 +34,11 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import de.walware.ecommons.ui.actions.HandlerCollection;
+import de.walware.ecommons.workbench.ui.WorkbenchUIUtil;
 
 import de.walware.statet.base.ui.contentfilter.IFilterPage;
 
@@ -224,6 +226,8 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 	}
 	
 	protected void initActions(final IServiceLocator serviceLocator, final HandlerCollection handlers) {
+		WorkbenchUIUtil.activateContext(serviceLocator, "de.walware.statet.r.contexts.RDataEditor"); //$NON-NLS-1$
+		
 		final IHandlerService handlerService = (IHandlerService) serviceLocator.getService(IHandlerService.class);
 		
 		{	final IHandler2 handler = new RefreshHandler(fTable);
@@ -241,6 +245,10 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 		{	final IHandler2 handler = new FindDialogHandler(this);
 			handlers.add(IWorkbenchCommandConstants.EDIT_FIND_AND_REPLACE, handler);
 			handlerService.activateHandler(IWorkbenchCommandConstants.EDIT_FIND_AND_REPLACE, handler);
+		}
+		{	final IHandler2 handler = new GotoCellHandler(fTable);
+			handlers.add(ITextEditorActionDefinitionIds.LINE_GOTO, handler);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.LINE_GOTO, handler);
 		}
 	}
 	

@@ -15,7 +15,6 @@ import org.eclipse.nebula.widgets.nattable.command.LayerCommandUtil;
 import org.eclipse.nebula.widgets.nattable.coordinate.ColumnPositionCoordinate;
 import org.eclipse.nebula.widgets.nattable.layer.ILayer;
 import org.eclipse.nebula.widgets.nattable.selection.SelectionLayer;
-import org.eclipse.nebula.widgets.nattable.selection.event.CellSelectionEvent;
 import org.eclipse.nebula.widgets.nattable.viewport.ViewportLayer;
 
 
@@ -47,10 +46,7 @@ public class TableLayers {
 				|| rowPosition < 0 || rowPosition > selectionLayer.getRowCount() ) {
 			return;
 		}
-		selectionLayer.getSelectionAnchor().set(rowPosition, columnPosition);
-		
-		selectionLayer.fireLayerEvent(new CellSelectionEvent(selectionLayer,
-				columnPosition, rowPosition, moveIntoViewport ));
+		selectionLayer.setSelectionAnchor(columnPosition, rowPosition, moveIntoViewport);
 	}
 	
 }

@@ -181,7 +181,7 @@ public class FindDataDialog extends ExtStatusDialog {
 	protected Control createDialogArea(final Composite parent) {
 		final Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		composite.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
+		composite.setLayout(LayoutUtil.createDialogGrid(2));
 		
 		final Composite textInput = createTextInput(composite);
 		textInput.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
@@ -205,7 +205,7 @@ public class FindDataDialog extends ExtStatusDialog {
 	
 	protected Composite createTextInput(final Composite parent) {
 		final Composite composite = new Composite(parent, SWT.NONE);
-		composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+		composite.setLayout(LayoutUtil.createCompositeGrid(2));
 		
 		final Label label = new Label(composite, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
