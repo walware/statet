@@ -87,9 +87,13 @@ import de.walware.ecommons.ltk.ui.sourceediting.actions.DeleteNextWordHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.DeletePreviousWordHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.DeleteToLineBeginHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.DeleteToLineEndHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.GotoLineBeginHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.GotoLineEndHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.GotoMatchingBracketHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.GotoNextWordHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.GotoPreviousWordHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.SelectLineBeginHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.SelectLineEndHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.SelectNextWordHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.SelectPreviousWordHandler;
 import de.walware.ecommons.preferences.PreferencesUtil;
@@ -661,6 +665,23 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		
 		TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.DELETE_NEXT);
 		
+		// Line actions: goto, select, cut, delete
+		{	final IHandler2 handler = new GotoLineBeginHandler(this);
+			handlers.add(ITextEditorActionDefinitionIds.LINE_START, handler);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.LINE_START, handler);
+		}
+		{	final IHandler2 handler = new GotoLineEndHandler(this);
+			handlers.add(ITextEditorActionDefinitionIds.LINE_END, handler);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.LINE_END, handler);
+		}
+		{	final IHandler2 handler = new SelectLineBeginHandler(this);
+			handlers.add(ITextEditorActionDefinitionIds.SELECT_LINE_START, handler);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.SELECT_LINE_START, handler);
+		}
+		{	final IHandler2 handler = new SelectLineEndHandler(this);
+			handlers.add(ITextEditorActionDefinitionIds.SELECT_LINE_END, handler);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.SELECT_LINE_END, handler);
+		}
 		{	final IHandler2 handler = new CutLineHandler(this);
 			handlers.add(ITextEditorActionDefinitionIds.CUT_LINE, handler);
 			handlerService.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE, handler);
@@ -686,31 +707,33 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 			handlerService.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE_TO_END, handler);
 		}
 		
+		// Word actions: goto, select, delete
+		{	final IHandler2 handler = new GotoPreviousWordHandler(this);
+			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.WORD_PREVIOUS);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.WORD_PREVIOUS, handler);
+		}
 		{	final IHandler2 handler = new GotoNextWordHandler(this);
 			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.WORD_NEXT);
 			handlerService.activateHandler(ITextEditorActionDefinitionIds.WORD_NEXT, handler);
-		}
-		{	final IHandler2 handler = new GotoPreviousWordHandler(this);
-			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.WORD_NEXT);
-			handlerService.activateHandler(ITextEditorActionDefinitionIds.WORD_PREVIOUS, handler);
-		}
-		{	final IHandler2 handler = new SelectNextWordHandler(this);
-			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.SELECT_WORD_NEXT);
-			handlerService.activateHandler(ITextEditorActionDefinitionIds.SELECT_WORD_NEXT, handler);
 		}
 		{	final IHandler2 handler = new SelectPreviousWordHandler(this);
 			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS);
 			handlerService.activateHandler(ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS, handler);
 		}
-		{	final IHandler2 handler = new DeleteNextWordHandler(this);
-			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.DELETE_NEXT_WORD);
-			handlerService.activateHandler(ITextEditorActionDefinitionIds.DELETE_NEXT_WORD, handler);
+		{	final IHandler2 handler = new SelectNextWordHandler(this);
+			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.SELECT_WORD_NEXT);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.SELECT_WORD_NEXT, handler);
 		}
 		{	final IHandler2 handler = new DeletePreviousWordHandler(this);
 			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.DELETE_PREVIOUS_WORD);
 			handlerService.activateHandler(ITextEditorActionDefinitionIds.DELETE_PREVIOUS_WORD, handler);
 		}
+		{	final IHandler2 handler = new DeleteNextWordHandler(this);
+			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.DELETE_NEXT_WORD);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.DELETE_NEXT_WORD, handler);
+		}
 		
+		// Assists
 		{	final IAction action = new TextViewerAction(getViewer(), ISourceViewer.CONTENTASSIST_PROPOSALS);
 			handlerService.activateHandler(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, new ActionHandler(action));
 		}
