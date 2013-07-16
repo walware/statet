@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2011-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
+ * Copyright (c) 2009-2013 Stephan Wahlbrink (www.walware.de/goto/opensource)
+ * and others. All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
@@ -26,8 +26,7 @@ import de.walware.ecommons.workbench.ui.WorkbenchUIUtil;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
-import de.walware.rj.data.RObject;
-
+import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.dataeditor.RLiveDataEditorInput;
@@ -48,11 +47,15 @@ public class OpenInEditorHandler extends AbstractHandler {
 			
 			final ToolProcess tool = browser.getTool();
 			final ITreeSelection selection;
-			setBaseEnabled(tool != null && !tool.isTerminated()
-					&& (selection = browser.getSelection()).size() == 1
-					&& selection.getFirstElement() instanceof RObject
-					&& RLiveDataEditorInput.isSupported((RObject) selection.getFirstElement()) );
+			if (tool != null && !tool.isTerminated()
+					&& (selection = browser.getSelection()).size() == 1) {
+				final ICombinedRElement rElement = ContentProvider.getCombinedRElement(selection.getFirstElement());
+				setBaseEnabled(rElement != null
+						&& RLiveDataEditorInput.isSupported(rElement) );
+				return;
+			}
 		}
+		setBaseEnabled(false);
 	}
 	
 	@Override

@@ -25,9 +25,12 @@ import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.graphics.Image;
 
+import de.walware.ecommons.debug.ui.WaDebugImages;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.LTKUtil;
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
+import de.walware.ecommons.models.core.util.IElementPartition;
 
 import de.walware.statet.base.ui.StatetImages;
 
@@ -276,7 +279,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 						&& (segmentName.charAt(length-2) == '<') && (segmentName.charAt(length-1) == '-')) {
 					text.append(RElementName.create(RElementName.MAIN_DEFAULT, segmentName.substring(0, length-2)).getDisplayName(), fDefaultStyler);
 					appendMethodDetailAssignmentSpecial(text,  (IRMethod) element);
-					text.append(" <- value");
+					text.append(" <- value"); //$NON-NLS-1$
 					break;
 				}
 			}
@@ -385,7 +388,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 			}
 			else {
 				final StringBuilder textBuilder = getTextBuilder();
-				textBuilder.append(" : ");
+				textBuilder.append(" : "); //$NON-NLS-1$
 				textBuilder.append(element.getRClassName());
 				text.append(textBuilder.toString(), StyledString.DECORATIONS_STYLER);
 			}
@@ -426,36 +429,43 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 	
 	@Override
 	public Image getImage(final Object element) {
-		if (element instanceof ICombinedRElement) {
-			return getImage((ICombinedRElement) element);
-		}
-		if (element instanceof IModelElement) {
-			return getImage((IModelElement) element);
+		final IModelElement modelElement = LTKUtil.getModelElement(element);
+		if (modelElement != null) {
+			if (modelElement instanceof ICombinedRElement) {
+				return getImage((ICombinedRElement) modelElement);
+			}
+			return getImage(modelElement);
 		}
 		return null;
 	}
 	
 	@Override
 	public String getText(final Object element) {
-		if (element instanceof ICombinedRElement) {
-			return getText((ICombinedRElement) element);
-		}
-		if (element instanceof IModelElement) {
-			return getText((IModelElement) element);
+		final IModelElement modelElement = LTKUtil.getModelElement(element);
+		if (modelElement != null) {
+//			if (modelElement instanceof ICombinedRElement) {
+//				return getText((ICombinedRElement) modelElement);
+//			}
+			return getText(modelElement);
 		}
 		return null;
 	}
 	
 	@Override
 	public void update(final ViewerCell cell) {
-		final Object cellElement = cell.getElement();
-		if (cellElement instanceof IModelElement) {
-			update(cell, (IModelElement) cellElement);
+		final Object element = cell.getElement();
+		final IModelElement modelElement = LTKUtil.getModelElement(element);
+		if (element instanceof IElementPartition) {
+			update(cell, (IElementPartition) element, modelElement);
+			super.update(cell);
+		}
+		else if (modelElement != null) {
+			update(cell, modelElement);
 			super.update(cell);
 		}
 		else {
 			cell.setImage(null);
-			cell.setText(cellElement.toString());
+			cell.setText(element.toString());
 			cell.setStyleRanges(null);
 			super.update(cell);
 		}
@@ -494,12 +504,40 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		}
 	}
 	
+	public void update(final ViewerCell cell, final IElementPartition partition, final IModelElement element) {
+		cell.setImage(WaDebugImages.getImageRegistry().get(WaDebugImages.OBJ_VARIABLE_PARTITION));
+		
+		final StyledString text = new StyledString();
+		text.append("["); //$NON-NLS-1$
+		text.append(Long.toString((partition.getPartitionStart() + 1)));
+		text.append(" ... "); //$NON-NLS-1$
+		text.append(Long.toString(partition.getPartitionStart() + partition.getPartitionLength()));
+		text.append("]"); //$NON-NLS-1$
+		
+		if (element instanceof RList) {
+			final RList rList = (RList) element;
+			String label = rList.getName(partition.getPartitionStart());
+			if (label != null) {
+				text.append("  "); //$NON-NLS-1$
+				text.append(label, StyledString.QUALIFIER_STYLER);
+				text.append(" ... ", StyledString.QUALIFIER_STYLER); //$NON-NLS-1$
+				label = rList.getName(partition.getPartitionStart() + (partition.getPartitionLength() - 1));
+				if (label != null) {
+					text.append(label, StyledString.QUALIFIER_STYLER);
+				}
+			}
+		}
+		
+		cell.setText(text.getString());
+		cell.setStyleRanges(text.getStyleRanges());
+	}
+	
 	@Override
 	public String getToolTipText(final Object element) {
 		final StringBuilder text;
 		
-		if (element instanceof IModelElement) {
-			final IModelElement modelElement = (IModelElement) element;
+		final IModelElement modelElement = LTKUtil.getModelElement(element);
+		if (modelElement != null) {
 			switch ((modelElement.getElementType() & MASK_C1) >> SHIFT_C1) {
 			
 			case (IModelElement.C1_METHOD >> SHIFT_C1): {

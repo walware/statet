@@ -446,18 +446,18 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 			}
 			fObjectDBAutoEnabledValue.setValue(enabled);
 		}
-		{	int max = 10000;
+		{	int max = 200000;
 			try {
-				max = configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, 10000);
+				max = configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, max);
 			}
 			catch (final CoreException e) {
 				logReadingError(e);
 			}
 			fObjectDBListsChildrenValue.setValue(max);
 		}
-		{	int max = 10000;
+		{	int max = 20000;
 			try {
-				max = configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000);
+				max = configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, max);
 			}
 			catch (final CoreException e) {
 				logReadingError(e);
