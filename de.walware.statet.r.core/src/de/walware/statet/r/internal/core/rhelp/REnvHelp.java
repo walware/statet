@@ -159,7 +159,7 @@ public class REnvHelp implements IREnvHelp {
 	public IRHelpPage getPageForTopic(final String packageName, final String topic) {
 		final IRPackageHelp packageHelp = getPackageMap().get(packageName);
 		if (packageHelp != null) {
-			getIndex().getPageForTopic(packageHelp, topic);
+			return getIndex().getPageForTopic(packageHelp, topic);
 		}
 		return null;
 	}
