@@ -81,6 +81,9 @@ public class RWorkspace extends ToolWorkspace {
 	
 	public static interface ICombinedREnvironment extends REnvironment, ICombinedRList {
 		
+		
+		RProcess getSource();
+		
 	}
 	
 	public static final List<IStringVariable> ADDITIONAL_R_VARIABLES = new ConstList<IStringVariable>(
@@ -209,7 +212,7 @@ public class RWorkspace extends ToolWorkspace {
 //						System.out.println(robject);
 						if (robject != null && robject.getRObjectType() == RObject.TYPE_ENV) {
 							final REnvironmentVar renv = (REnvironmentVar) robject;
-							renv.setStamp(r.getController().getCounter());
+							renv.setSource(r.getTool(), r.getController().getCounter());
 							fSearchEnvs.set(idx, renv);
 							updateEnvs.add(renv);
 							continue;
@@ -301,7 +304,7 @@ public class RWorkspace extends ToolWorkspace {
 				if (robject != null && robject.getRObjectType() == RObject.TYPE_ENV) {
 					final REnvironmentVar renv = (REnvironmentVar) robject;
 					if (renv.getHandle() == handle.longValue()) {
-						renv.setStamp(r.getController().getCounter());
+						renv.setSource(r.getTool(), r.getController().getCounter());
 						fEnvsMap.put(handle, renv);
 						check(renv, r, monitor);
 						return renv;
@@ -458,8 +461,9 @@ public class RWorkspace extends ToolWorkspace {
 			ICombinedRElement parent = ref.getModelParent();
 			while (parent != null) {
 				if (parent.getRObjectType() == RObject.TYPE_ENV) {
-					final int stamp = ((REnvironmentVar) parent).getStamp();
-					if (controller.getCounter() != stamp) { // unsafe
+					final REnvironmentVar env = (REnvironmentVar) parent;
+					if (controller.getCounter() != env.getStamp()
+							|| controller.getTool() != env.getSource()) { // unsafe
 						return db.fEnvsMap.get(reference.getHandle());
 					}
 					else {

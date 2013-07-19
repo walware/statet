@@ -21,12 +21,24 @@ import de.walware.ecommons.ts.IToolService;
 
 import de.walware.rj.data.RReference;
 
+import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.tool.AbstractStatetRRunnable;
 import de.walware.statet.r.nico.AbstractRDbgController;
 
 
 public class LoadReferenceRunnable extends AbstractStatetRRunnable implements ISystemRunnable {
+	
+	
+	public static RProcess findRProcess(ICombinedRElement element) {
+		while (element != null) {
+			if (element instanceof ICombinedREnvironment) {
+				return ((ICombinedREnvironment) element).getSource();
+			}
+			element = element.getModelParent();
+		}
+		return null;
+	}
 	
 	
 	private final RReference reference;

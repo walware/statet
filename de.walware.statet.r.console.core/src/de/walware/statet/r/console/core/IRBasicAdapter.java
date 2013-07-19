@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.ToolController;
-import de.walware.statet.nico.core.runtime.ToolProcess;
 
 
 /**
@@ -34,7 +33,7 @@ public interface IRBasicAdapter extends IConsoleService {
 	
 	
 	@Override
-	ToolProcess getTool();
+	RProcess getTool();
 	
 	@Override
 	ToolController getController();

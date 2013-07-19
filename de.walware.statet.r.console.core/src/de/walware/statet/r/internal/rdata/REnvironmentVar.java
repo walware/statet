@@ -28,6 +28,7 @@ import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.ExternalizableRObject;
 import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
 
+import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.IRElement;
@@ -53,7 +54,8 @@ public final class REnvironmentVar extends CombinedElement
 	private RCharacterDataImpl namesAttribute;
 	
 	private int fFrameType;
-	private int fStamp;
+	private RProcess source;
+	private int stamp;
 	
 	
 	public REnvironmentVar(final String id, final boolean isSearch,
@@ -84,13 +86,13 @@ public final class REnvironmentVar extends CombinedElement
 			this.namesAttribute = new RCharacterDataImpl(io, l);
 			this.components = new CombinedElement[l];
 			for (int i = 0; i < l; i++) {
-				components[i] = factory.readObject(io, this,
+				this.components[i] = factory.readObject(io, this,
 						RElementName.create(RElementName.MAIN_DEFAULT, namesAttribute.getChar(i)) );
 			}
 		}
 		
 		if (getElementName() == null) {
-			setElementName(RElementName.create(RElementName.MAIN_OTHER, environmentName));
+			setElementName(RElementName.create(RElementName.MAIN_OTHER, this.environmentName));
 		}
 	}
 	
@@ -124,28 +126,34 @@ public final class REnvironmentVar extends CombinedElement
 		}
 	}
 	
-	public void setStamp(int stamp) {
-		fStamp = stamp;
+	public void setSource(final RProcess source, final int stamp) {
+		this.source = source;
+		this.stamp = stamp;
+	}
+	
+	@Override
+	public RProcess getSource() {
+		return this.source;
 	}
 	
 	public int getStamp() {
-		return fStamp;
+		return this.stamp;
 	}
 	
 	
 	protected void setEnvName(final String id, final boolean isSearch) {
 		if (id != null) {
-			if (id.equals("base") || id.equals("package:base")) {
-				environmentName = ENVNAME_BASE;
+			if (id.equals("base") || id.equals("package:base")) { //$NON-NLS-1$ //$NON-NLS-2$
+				this.environmentName = ENVNAME_BASE;
 				fSpecialType = ENVTYPE_BASE;
 				fFrameType = IRFrame.PACKAGE;
 				if (getElementName() == null) {
-					setElementName(RElementName.create(RElementName.MAIN_PACKAGE, "base"));
+					setElementName(RElementName.create(RElementName.MAIN_PACKAGE, "base")); //$NON-NLS-1$
 				}
 				return;
 			}
-			else if (id.startsWith("package:")) {
-				environmentName = id;
+			else if (id.startsWith("package:")) { //$NON-NLS-1$
+				this.environmentName = id;
 				fSpecialType = ENVTYPE_PACKAGE;
 				fFrameType = IRFrame.PACKAGE;
 				if (getElementName() == null) {
@@ -153,17 +161,17 @@ public final class REnvironmentVar extends CombinedElement
 				}
 				return;
 			}
-			else if (id.equals(".GlobalEnv") || id.equals("R_GlobalEnv")){
-				environmentName = ENVNAME_GLOBAL;
+			else if (id.equals(".GlobalEnv") || id.equals("R_GlobalEnv")){ //$NON-NLS-1$ //$NON-NLS-2$
+				this.environmentName = ENVNAME_GLOBAL;
 				fSpecialType = ENVTYPE_GLOBAL;
 				fFrameType = IRFrame.PROJECT;
 				if (getElementName() == null) {
-					setElementName(RElementName.create(RElementName.MAIN_SEARCH_ENV, ".GlobalEnv"));
+					setElementName(RElementName.create(RElementName.MAIN_SEARCH_ENV, ".GlobalEnv")); //$NON-NLS-1$
 				}
 				return;
 			}
-			else if (id.equals("Autoloads")){
-				environmentName = ENVNAME_AUTOLOADS;
+			else if (id.equals("Autoloads")){ //$NON-NLS-1$
+				this.environmentName = ENVNAME_AUTOLOADS;
 				fSpecialType = ENVTYPE_AUTOLOADS;
 				fFrameType = IRFrame.EXPLICIT;
 				if (getElementName() == null) {
@@ -171,10 +179,10 @@ public final class REnvironmentVar extends CombinedElement
 				}
 				return;
 			}
-			environmentName = id;
+			this.environmentName = id;
 		}
 		else {
-			environmentName = "";
+			this.environmentName = ""; //$NON-NLS-1$
 		}
 		fSpecialType = 0;
 		fFrameType = IRFrame.EXPLICIT;
@@ -326,10 +334,10 @@ public final class REnvironmentVar extends CombinedElement
 	}
 	
 	public void setError(final String message) {
-		setElementName(RElementName.create(RElementName.MAIN_OTHER, environmentName));
+		setElementName(RElementName.create(RElementName.MAIN_OTHER, this.environmentName));
 		this.components = new CombinedElement[0];
 		this.namesAttribute = new RCharacterDataImpl();
-		fCombinedName = fCombinedName + " ("+message+")";
+		fCombinedName = fCombinedName + " ("+message+")"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	
@@ -351,7 +359,7 @@ public final class REnvironmentVar extends CombinedElement
 	
 	@Override
 	protected int singleHash() {
-		return (fSpecialType > 0) ? environmentName.hashCode() : (int) this.handle;
+		return (fSpecialType > 0) ? this.environmentName.hashCode() : (int) this.handle;
 	}
 	
 	@Override
@@ -364,7 +372,7 @@ public final class REnvironmentVar extends CombinedElement
 		}
 		final REnvironment other = (REnvironment) obj;
 		return (fSpecialType == other.getSpecialType()
-					&& environmentName.equals(other.getEnvironmentName()) );
+					&& this.environmentName.equals(other.getEnvironmentName()) );
 	}
 	
 	
