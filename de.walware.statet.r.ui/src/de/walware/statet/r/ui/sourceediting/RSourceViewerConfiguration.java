@@ -20,6 +20,7 @@ import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.information.IInformationProvider;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
@@ -38,6 +39,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.EditorInformationProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewer;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistComputerRegistry;
@@ -64,6 +66,7 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.editors.REditor;
 import de.walware.statet.r.internal.ui.editors.REditorInformationProvider;
 import de.walware.statet.r.internal.ui.editors.REditorTextHover;
+import de.walware.statet.r.internal.ui.editors.RQuickOutlineInformationProvider;
 import de.walware.statet.r.internal.ui.editors.RReconcilingStrategy;
 import de.walware.statet.r.ui.editors.REditorOptions;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
@@ -382,6 +385,22 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	public boolean isSmartInsertByDefault() {
 		return PreferencesUtil.getInstancePrefs().getPreferenceValue(
 				REditorOptions.SMARTINSERT_BYDEFAULT_ENABLED_PREF );
+	}
+	
+	
+	@Override
+	protected IInformationProvider getQuickInformationProvider(final ISourceViewer sourceViewer,
+			final int operation) {
+		final ISourceEditor editor = getSourceEditor();
+		if (editor == null) {
+			return null;
+		}
+		switch (operation) {
+		case SourceEditorViewer.SHOW_SOURCE_OUTLINE:
+			return new RQuickOutlineInformationProvider(editor, operation);
+		default:
+			return null;
+		}
 	}
 	
 }

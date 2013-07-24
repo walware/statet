@@ -37,6 +37,7 @@ import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
 import de.walware.statet.r.core.data.ICombinedRElement;
+import de.walware.statet.r.internal.ui.RNameSearchPattern;
 
 
 class ContentJob extends Job implements ToolWorkspace.Listener {
@@ -275,9 +276,7 @@ class ContentJob extends Job implements ToolWorkspace.Listener {
 		IModelElement.Filter envFilter;
 		IModelElement.Filter otherFilter;
 		if (filterText != null && filterText.length() > 0) {
-			final SearchPattern filterPattern = new SearchPattern(SearchPattern.RULE_EXACT_MATCH
-					| SearchPattern.RULE_PREFIX_MATCH | SearchPattern.RULE_CAMELCASE_MATCH
-					| SearchPattern.RULE_PATTERN_MATCH | SearchPattern.RULE_BLANK_MATCH);
+			final SearchPattern filterPattern = new RNameSearchPattern();
 			filterPattern.setPattern(filterText);
 			envFilter = new ContentFilter(filterInternal, filterPattern);
 			otherFilter = (filterInternal) ? new ContentFilter(filterInternal, null) : null;

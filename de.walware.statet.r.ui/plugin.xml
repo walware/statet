@@ -411,6 +411,22 @@
             </visibleWhen>
          </command>
       </menuContribution>
+      <menuContribution
+            locationURI="menu:navigate?endof=show.ext">
+         <command
+               commandId="de.walware.ecommons.ltk.commands.ShowQuickSourceOutline"
+               mnemonic="%menus_Navigate_ShowQuickOutline_mnemonic"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with variable="activePartId">
+                  <equals
+                        value="de.walware.statet.r.editors.R">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.popupMenus">
