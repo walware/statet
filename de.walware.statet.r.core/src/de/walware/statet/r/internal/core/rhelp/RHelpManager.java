@@ -238,7 +238,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 						sb.append(RHelpWebapp.COMMAND_HTML_PAGE);
 						sb.append('/');
 						sb.append(path.substring(idx2+1));
-						sb.append(".html");
+						sb.append(".html"); //$NON-NLS-1$
 					}
 					else {
 						sb.append('/');
@@ -327,7 +327,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		}
 		if (object instanceof String) {
 			final String s = (String) object;
-			if (s.startsWith("http://")) {
+			if (s.startsWith("http://")) { //$NON-NLS-1$
 				return s;
 			}
 		}

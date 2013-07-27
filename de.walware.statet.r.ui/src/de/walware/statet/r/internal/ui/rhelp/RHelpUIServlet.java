@@ -20,6 +20,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.preference.PreferenceConverter;
@@ -89,7 +90,7 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 	
 	private static void appendELinkColors(final StringBuilder sb, final RGB foregroundColor) {
 		final RGB hyperlinkColor = JFaceResources.getColorRegistry().getRGB(JFacePreferences.HYPERLINK_COLOR);
-		sb.append("a { color: ");
+		sb.append("a { color: "); //$NON-NLS-1$
 				appendCssColor(sb, hyperlinkColor);
 				sb.append("; }\n");//$NON-NLS-1$
 		sb.append("a:hover, a:active, a:focus { color: "); //$NON-NLS-1$
@@ -317,6 +318,7 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 	protected void customizeHtmlHeader(final HttpServletRequest req, final PrintWriter writer,
 			final boolean page) {
 		writer.println("<script type=\"text/javascript\">/* <![CDATA[ */"); //$NON-NLS-1$
+		
 		writer.println("function keyNavHandler(event) {"); //$NON-NLS-1$
 		writer.println("if (!event) event = window.event;"); //$NON-NLS-1$
 		writer.println("if (event.which) { key = event.which } else if (event.keyCode) { key = event.keyCode };"); //$NON-NLS-1$
@@ -338,11 +340,30 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 		writer.println("if (anchor) { window.location.hash = anchor; event.cancelBubble = true; return false; }"); //$NON-NLS-1$
 		writer.println("} return true; }"); //$NON-NLS-1$
 		writer.println("document.onkeydown = keyNavHandler;"); //$NON-NLS-1$
+		
+		writer.println("function openFile(event, path) {"); //$NON-NLS-1$
+		writer.println("request = new XMLHttpRequest();"); //$NON-NLS-1$
+		writer.println("request.open('POST', '/rhelp/exec/openFile', true);"); //$NON-NLS-1$
+		writer.println("request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded; charset=utf-8');"); //$NON-NLS-1$
+		writer.println("request.send('path=' + encodeURIComponent(path));"); //$NON-NLS-1$
+//		writer.println("if (event != null && event.preventDefault != null) { e.preventDefault() }");
+		writer.println("return false; }"); //$NON-NLS-1$
+		
 		writer.println("/* ]]> */</script>"); //$NON-NLS-1$
 		
 		if ("hover".equals(req.getParameter("style"))) { //$NON-NLS-1$ //$NON-NLS-2$
 			writer.println("<style type=\"text/css\">body { overflow: hidden; }</style>"); //$NON-NLS-1$
 		}
+	}
+	
+	@Override
+	protected void printOpenFileLink(final PrintWriter writer, final IFileStore fileStore) {
+		final String path = fileStore.toURI().toString().substring(5);
+		writer.write(" href=\"/rhelp/exec/openFile?path="); //$NON-NLS-1$
+		writer.write(path);
+		writer.write("\" onclick=\"return openFile(event, '"); //$NON-NLS-1$
+		writer.write(path);
+		writer.write("');\""); //$NON-NLS-1$
 	}
 	
 	@Override

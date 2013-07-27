@@ -901,6 +901,11 @@
             httpcontextId="rhelp"
             class="de.walware.statet.r.internal.ui.rhelp.RHelpUIServlet$Info">
       </servlet>
+      <servlet
+            alias="/exec"
+            httpcontextId="rhelp"
+            class="de.walware.statet.r.internal.ui.rhelp.ExecServlet">
+      </servlet>
    </extension>
    <extension
          point="org.eclipse.search.searchPages">

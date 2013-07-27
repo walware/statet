@@ -715,9 +715,9 @@ public abstract class RHelpServlet extends HttpServlet {
 						final IFileStore pdfFile = file.getParent().getChild(
 								file.getName().substring(0, file.getName().length()-5) + ".pdf"); //$NON-NLS-1$
 						if (pdfFile.fetchInfo().exists()) {
-							writer.write(" [<a href=\"esystem://"); //$NON-NLS-1$
-							writer.write(pdfFile.toURI().toString().substring(6));
-							writer.write("\" title=\"Open in PDF Viewer\">PDF</a>]");
+							writer.write(" [<a"); //$NON-NLS-1$
+							printOpenFileLink(writer, pdfFile);
+							writer.write(" title=\"Open in PDF Viewer\">PDF</a>]");
 						}
 					}
 					writer.write("</td></tr>"); //$NON-NLS-1$
@@ -780,9 +780,9 @@ public abstract class RHelpServlet extends HttpServlet {
 						final IFileStore pdfFile = file.getParent().getChild(
 								file.getName().substring(0, file.getName().length()-5) + ".pdf"); //$NON-NLS-1$
 						if (pdfFile.fetchInfo().exists()) {
-							writer.write(" [<a href=\"esystem://"); //$NON-NLS-1$
-							writer.write(pdfFile.toURI().toString().substring(6));
-							writer.write("\" title=\"Open in PDF Viewer\">PDF</a>]");
+							writer.write(" [<a"); //$NON-NLS-1$
+							printOpenFileLink(writer, pdfFile);
+							writer.write(" title=\"Open in PDF Viewer\">PDF</a>]");
 						}
 					}
 					writer.write("</td></tr>"); //$NON-NLS-1$
@@ -854,6 +854,13 @@ public abstract class RHelpServlet extends HttpServlet {
 	}
 	
 	protected void customizeIndexHtmlHeader(final HttpServletRequest req, final PrintWriter writer) {
+	}
+	
+	protected void printOpenFileLink(final PrintWriter writer, final IFileStore fileStore) {
+		// linking from http: to file: usually doesn't work
+		writer.write(" href=\""); //$NON-NLS-1$
+		writer.write(fileStore.toURI().toString());
+		writer.write("\""); //$NON-NLS-1$
 	}
 	
 	protected void printRCode(final PrintWriter writer, final String html) {
