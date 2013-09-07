@@ -62,10 +62,10 @@ public class RJREnvIndexUpdater {
 	
 	
 	private static String checkNA2Empty(final String s) {
-		return (s != null && !s.equals("NA") && s.length() > 0) ? s : "";
+		return (s != null && !s.equals("NA") && s.length() > 0) ? s : ""; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	private static String checkNA2Null(final String s) {
-		return (s != null && !s.equals("NA") && s.length() > 0) ? s : null;
+		return (s != null && !s.equals("NA") && s.length() > 0) ? s : null; //$NON-NLS-1$
 	}
 	
 	
@@ -459,15 +459,15 @@ public class RJREnvIndexUpdater {
 	private void processRdData(final String packageName, final RList pkgList) throws Exception {
 		for (int j = 0; j < pkgList.getLength(); j++) {
 			final RObject rdObj = pkgList.get(j);
-			if (rdObj.getRClassName().equals("RdData")) {
+			if (rdObj.getRClassName().equals("RdData")) { //$NON-NLS-1$
 				final RList rdData = (RList) rdObj;
 				final RdItem rdItem = new RdItem(packageName, pkgList.getName(j));
-				{	final RStore store = rdData.get("title").getData();
+				{	final RStore store = rdData.get("title").getData(); //$NON-NLS-1$
 					if (!store.isNA(0)) {
 						rdItem.setTitle(store.getChar(0));
 					}
 				}
-				{	final RStore store = rdData.get("topics").getData();
+				{	final RStore store = rdData.get("topics").getData(); //$NON-NLS-1$
 					for (int k = 0; k < store.getLength(); k++) {
 						if (!store.isNA(k)) {
 							final String alias = store.getChar(k).trim();
@@ -477,7 +477,7 @@ public class RJREnvIndexUpdater {
 						}
 					}
 				}
-				{	final RStore store = rdData.get("keywords").getData();
+				{	final RStore store = rdData.get("keywords").getData(); //$NON-NLS-1$
 					for (int k = 0; k < store.getLength(); k++) {
 						if (!store.isNA(k)) {
 							final String keyword = store.getChar(k).trim();
@@ -487,7 +487,7 @@ public class RJREnvIndexUpdater {
 						}
 					}
 				}
-				{	final RStore store = rdData.get("concepts").getData();
+				{	final RStore store = rdData.get("concepts").getData(); //$NON-NLS-1$
 					for (int k = 0; k < store.getLength(); k++) {
 						if (!store.isNA(k)) {
 							final String concept = store.getChar(k).trim();
@@ -497,7 +497,7 @@ public class RJREnvIndexUpdater {
 						}
 					}
 				}
-				final RObject htmlObj = rdData.get("HTML");
+				final RObject htmlObj = rdData.get("HTML"); //$NON-NLS-1$
 				if (htmlObj.getData() != null
 						&& htmlObj.getData().getStoreType() == RStore.CHARACTER) {
 					rdItem.setHtml(processHtml(htmlObj.getData()));
@@ -519,23 +519,23 @@ public class RJREnvIndexUpdater {
 		length += 300;
 		int topIndex = -1;
 		boolean inExamples = false;
-		fTempBuilder2.append("<div class=\"toc\"><ul>");
+		fTempBuilder2.append("<div class=\"toc\"><ul>"); //$NON-NLS-1$
 		for (int i = 0; i < store.getLength(); i++) {
 			if (!store.isNA(i)) {
 				String line = store.getChar(i);
 				if (topIndex == -1) {
-					if (line.startsWith("<table ")) {
-						fTempBuilder1.append("<table class=\"header\" ");
+					if (line.startsWith("<table ")) { //$NON-NLS-1$
+						fTempBuilder1.append("<table class=\"header\" "); //$NON-NLS-1$
 						line = line.substring(7);
 					}
-					else if (line.startsWith("<h2>")) {
+					else if (line.startsWith("<h2>")) { //$NON-NLS-1$
 						topIndex = fTempBuilder1.length();
-						fTempBuilder1.append("<h2 id=\"top\">");
+						fTempBuilder1.append("<h2 id=\"top\">"); //$NON-NLS-1$
 						line = line.substring(4);
 					}
 				}
 				else if (topIndex >= 0 && line.length() > 10) {
-					if (line.startsWith("<h3>")) {
+					if (line.startsWith("<h3>")) { //$NON-NLS-1$
 						if (inExamples) {
 							fTempBuilder1.append(RHelpWebapp.HTML_END_EXAMPLES);
 							inExamples = false;
@@ -607,7 +607,7 @@ public class RJREnvIndexUpdater {
 							break;
 						}
 					}
-					else if (line.startsWith("<hr>")) {
+					else if (line.startsWith("<hr>")) { //$NON-NLS-1$
 						if (inExamples) {
 							fTempBuilder1.append(RHelpWebapp.HTML_END_EXAMPLES);
 							inExamples = false;
@@ -615,7 +615,7 @@ public class RJREnvIndexUpdater {
 //						if (line.startsWith("<hr><div align=\"center\">[Package <em>")) {
 //							fTempBuilder1.append("<hr/><div class=\"toc\"><ul><li><a href=\"#top\">Top</a></li></ul></div>");
 //						}
-						fTempBuilder1.append("<hr/>");
+						fTempBuilder1.append("<hr/>"); //$NON-NLS-1$
 						line = line.substring(4);
 					}
 				}
@@ -625,7 +625,7 @@ public class RJREnvIndexUpdater {
 			}
 		}
 		if (topIndex >= 0) {
-			fTempBuilder2.append("</ul></div>");
+			fTempBuilder2.append("</ul></div>"); //$NON-NLS-1$
 			fTempBuilder1.insert(topIndex, fTempBuilder2);
 		}
 		return fTempBuilder1.toString();

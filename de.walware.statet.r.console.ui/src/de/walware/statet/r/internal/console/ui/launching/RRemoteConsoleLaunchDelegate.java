@@ -120,11 +120,11 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 	
 	public static final String ADDRESS_VARIABLE_NAME = "address"; //$NON-NLS-1$;
 	public static final IStringVariable ADDRESS_VARIABLE = new StringVariable(ADDRESS_VARIABLE_NAME, "The address of the remote R engine");
-	private static final Pattern ADDRESS_PATTERN = Pattern.compile("\\Q${"+ADDRESS_VARIABLE_NAME+"}\\E"); //$NON-NLS-1$
+	private static final Pattern ADDRESS_PATTERN = Pattern.compile("\\Q${"+ADDRESS_VARIABLE_NAME+"}\\E"); //$NON-NLS-1$ //$NON-NLS-2$
 	
 	public static final String NAME_VARIABLE_NAME = "name"; //$NON-NLS-1$;
 	public static final IStringVariable NAME_VARIABLE = new StringVariable(NAME_VARIABLE_NAME, "The name of the remote R engine (last segment of the address)");
-	private static final Pattern NAME_PATTERN = Pattern.compile("\\Q${"+NAME_VARIABLE_NAME+"}\\E"); //$NON-NLS-1$
+	private static final Pattern NAME_PATTERN = Pattern.compile("\\Q${"+NAME_VARIABLE_NAME+"}\\E"); //$NON-NLS-1$ //$NON-NLS-2$
 	
 	public static final String DEFAULT_COMMAND;
 	private static final Preference<String> DEFAULT_COMMAND_PATH = new StringPref(
@@ -278,7 +278,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			
 			// arguments
 			String address;
-			if (reconnect != null && reconnect.containsKey("address")) {
+			if (reconnect != null && reconnect.containsKey("address")) { //$NON-NLS-1$
 				address = (String) reconnect.get("address"); //$NON-NLS-1$
 			}
 			else {
@@ -289,7 +289,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 						ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 						RConsoleMessages.LaunchDelegate_error_MissingAddress_message, null ));
 			}
-			if (!(address.startsWith("//") || address.startsWith("rmi:"))) { //$NON-NLS-1$
+			if (!(address.startsWith("//") || address.startsWith("rmi:"))) { //$NON-NLS-1$ //$NON-NLS-2$
 				address = "//" + address; //$NON-NLS-1$
 			}
 			// Working directory
@@ -439,7 +439,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 				progress.subTask(RConsoleMessages.LaunchDelegate_StartREngine_subtask);
 				progress.setWorkRemaining(21);
 				if (type.equals(RConsoleLaunching.REMOTE_RJS_SSH)) {
-					command = configuration.getAttribute(RConsoleLaunching.ATTR_COMMAND, "");
+					command = configuration.getAttribute(RConsoleLaunching.ATTR_COMMAND, ""); //$NON-NLS-1$
 					if (command.isEmpty()) {
 						throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
 								ICommonStatusConstants.LAUNCHCONFIG_ERROR,
@@ -493,7 +493,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 									if (socketFactory == null) {
 										socketFactory = RjsUtil.createRMIOverSshClientSocketFactory(sshSession);
 									}
-									registry = LocateRegistry.getRegistry("127.0.0.1", rmiAddress.getPortNum(),
+									registry = LocateRegistry.getRegistry("127.0.0.1", rmiAddress.getPortNum(), //$NON-NLS-1$
 											socketFactory );
 								}
 								else {
@@ -557,7 +557,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			
 			final RProcess process = new RProcess(launch, rEnv,
 					LaunchConfigUtil.createLaunchPrefix(configuration),
-					((rEnv != null) ? rEnv.getName() : "-") + " / RJ " + rmiAddress.toString() + ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
+					((rEnv != null) ? rEnv.getName() : "-") + " / RJ " + rmiAddress.toString() + ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$ //$NON-NLS-2$
 					rmiAddress.toString(),
 					(workingDirectory != null) ? workingDirectory.toString() : null,
 					timestamp );

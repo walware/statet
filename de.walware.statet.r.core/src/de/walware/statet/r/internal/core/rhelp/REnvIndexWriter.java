@@ -215,7 +215,7 @@ public class REnvIndexWriter implements IREnvIndex {
 		}
 		
 		fStatus = new MultiStatus(RCore.PLUGIN_ID, 0, "Indexing: '" + fREnvConfig.getName() + "'.", null); //$NON-NLS-1$ //$NON-NLS-2$
-		fStatus.add(new Status(IStatus.INFO, RCore.PLUGIN_ID, "Beginning batch."));
+		fStatus.add(new Status(IStatus.INFO, RCore.PLUGIN_ID, "Beginning batch (index directory = '" + fIndexDirectory.getAbsolutePath() + "')."));
 		
 		try {
 			final RHelpManager rHelpManager = RCorePlugin.getDefault().getRHelpManager();
@@ -559,26 +559,26 @@ public class REnvIndexWriter implements IREnvIndex {
 	private void createSectionsTxt(final RdItem item) throws IOException {
 		String html = item.fHtml;
 		fTempBuilder.setLength(0);
-		{	final int idx1 = html.indexOf("</h2>");
+		{	final int idx1 = html.indexOf("</h2>"); //$NON-NLS-1$
 			if (idx1 >= 0) {
 				html = html.substring(idx1+5);
 			}
 		}
-		{	final int idx1 = html.lastIndexOf("<hr/>");
+		{	final int idx1 = html.lastIndexOf("<hr/>"); //$NON-NLS-1$
 			if (idx1 >= 0) {
 				html = html.substring(0, idx1);
 			}
 		}
-		{	int idxBegin = html.indexOf("<h3 id=\"description\"");
+		{	int idxBegin = html.indexOf("<h3 id=\"description\""); //$NON-NLS-1$
 			if (idxBegin >= 0) {
 				idxBegin = html.indexOf('>', idxBegin+20);
 				if (idxBegin >= 0) {
-					idxBegin = html.indexOf("</h3>", idxBegin+1);
+					idxBegin = html.indexOf("</h3>", idxBegin+1); //$NON-NLS-1$
 					if (idxBegin >= 0) {
 						idxBegin += 5;
-						int idxEnd = html.indexOf("<h3", idxBegin);
+						int idxEnd = html.indexOf("<h3", idxBegin); //$NON-NLS-1$
 						if (idxEnd < 0) {
-							idxEnd = html.indexOf("<hr/>", idxBegin);
+							idxEnd = html.indexOf("<hr/>", idxBegin); //$NON-NLS-1$
 						}
 						if (idxEnd >= 0) {
 							item.descrTxt = html2txt(html.substring(idxBegin, idxEnd));
@@ -589,7 +589,7 @@ public class REnvIndexWriter implements IREnvIndex {
 			}
 		}
 		final String[] s = new String[] { html, null };
-		{	if (extract(s, "<h3 id=\"examples\"")) {
+		{	if (extract(s, "<h3 id=\"examples\"")) { //$NON-NLS-1$
 				item.examplesTxt = html2txt(s[1]);
 			}
 		}
@@ -602,10 +602,10 @@ public class REnvIndexWriter implements IREnvIndex {
 		if (idx0 >= 0) {
 			int idxBegin = html.indexOf('>', idx0+h3.length());
 			if (idxBegin >= 0) {
-				idxBegin = html.indexOf("</h3>", idxBegin+1);
+				idxBegin = html.indexOf("</h3>", idxBegin+1); //$NON-NLS-1$
 				if (idxBegin >= 0) {
 					idxBegin += 5;
-					final int idxEnd = html.indexOf("<h3", idxBegin);
+					final int idxEnd = html.indexOf("<h3", idxBegin); //$NON-NLS-1$
 					if (idxEnd >= 0) {
 						fTempBuilder.setLength(0);
 						fTempBuilder.append(html, 0, idx0);
