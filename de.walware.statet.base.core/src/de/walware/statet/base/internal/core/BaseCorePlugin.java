@@ -13,11 +13,15 @@ package de.walware.statet.base.internal.core;
 
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jsch.core.IJSchService;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Version;
 import org.osgi.util.tracker.ServiceTracker;
 
 import de.walware.ecommons.IDisposable;
@@ -113,9 +117,22 @@ public final class BaseCorePlugin extends Plugin {
 	}
 	
 	
-	public IJSchService getJSchService() {
+	private static final Version REQ_JSCH_VERSION = new Version(0, 1, 49);
+	
+	public IJSchService getJSchService() throws CoreException {
 		// E-3.5 IJSchService declarative?
 		IJSchService.class.getName();
+		
+		{	// Check if JSch is compatible/up-to-date
+			final Bundle bundle = Platform.getBundle("com.jcraft.jsch"); //$NON-NLS-1$
+			if (bundle != null && bundle.getVersion().compareTo(REQ_JSCH_VERSION) < 0) {
+				throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, 0,
+						"The installed version of the Java Secure Channel Library 'JSch' by JCraft is outdated.\n" +
+						"Please install version " + REQ_JSCH_VERSION + " or newer, " +
+						"for example from the update-site of WalWare.de.", null ));
+			}
+		}
+		
 		return (IJSchService) fSshTracker.getService();
 	}
 	
