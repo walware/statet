@@ -13,7 +13,7 @@
 	
 	<groupId>de.walware.statet</groupId>
 	<artifactId>de.walware.statet.r.console.ui</artifactId>
-	<version>3.3.0-SNAPSHOT</version>
+	<version>3.3.1-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
 	
 </project>
