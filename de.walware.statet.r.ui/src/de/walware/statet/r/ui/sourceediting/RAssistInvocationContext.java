@@ -22,10 +22,16 @@ import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
+import de.walware.ecommons.ts.ITool;
 
+import de.walware.statet.nico.ui.NicoUITools;
+import de.walware.statet.nico.ui.console.ConsolePageEditor;
+
+import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
+import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
@@ -37,14 +43,34 @@ import de.walware.statet.r.core.rsource.ast.RAstNode;
 public class RAssistInvocationContext extends AssistInvocationContext {
 	
 	
+	private final RProcess process;
+	
+	
 	public RAssistInvocationContext(final ISourceEditor editor, final int offset, final boolean isProposal,
 			final IProgressMonitor monitor) {
 		super(editor, offset, (isProposal) ? IModelManager.MODEL_FILE : IModelManager.NONE, monitor);
+		
+		this.process = determineRProcess();
 	}
 	
 	public RAssistInvocationContext(final ISourceEditor editor, final IRegion region,
 			final IProgressMonitor monitor) {
 		super(editor, region, IModelManager.MODEL_FILE, monitor);
+		
+		this.process = determineRProcess();
+	}
+	
+	
+	private RProcess determineRProcess() {
+		final ISourceEditor editor = getEditor();
+		final ITool tool;
+		if (editor instanceof ConsolePageEditor) {
+			tool = (ITool) editor.getAdapter(ITool.class);
+		}
+		else {
+			tool = NicoUITools.getTool(editor.getWorkbenchPart());
+		}
+		return (tool instanceof RProcess) ? (RProcess) tool : null;
 	}
 	
 	
@@ -188,6 +214,18 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 			if (node != null) {
 				node = node.getRParent();
 			}
+		}
+		return null;
+	}
+	
+	
+	public RProcess getTool() {
+		return this.process;
+	}
+	
+	public IREnv getREnv() {
+		if (this.process != null) {
+			return (IREnv) this.process.getAdapter(IREnv.class);
 		}
 		return null;
 	}

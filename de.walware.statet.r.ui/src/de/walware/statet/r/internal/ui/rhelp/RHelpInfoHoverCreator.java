@@ -11,13 +11,16 @@
 
 package de.walware.statet.r.internal.ui.rhelp;
 
+import static de.walware.ecommons.ltk.ui.sourceediting.assist.IInfoHover.MODE_FOCUS;
 import static org.eclipse.debug.ui.IDebugUIConstants.PREF_DETAIL_PANE_FONT;
 
 import java.net.URI;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler2;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.internal.text.html.BrowserInformationControl;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.AbstractInformationControl;
 import org.eclipse.jface.text.AbstractReusableInformationControlCreator;
@@ -80,6 +83,11 @@ import de.walware.statet.r.ui.RUI;
 public class RHelpInfoHoverCreator extends AbstractReusableInformationControlCreator {
 	
 	
+	public static final boolean isAvailable(final Composite parent) {
+		return BrowserInformationControl.isAvailable(parent);
+	}
+	
+	
 	public static class Data {
 		
 		final Control control;
@@ -96,19 +104,19 @@ public class RHelpInfoHoverCreator extends AbstractReusableInformationControlCre
 	}
 	
 	
-	private final boolean fEnrich;
+	private final int mode;
 	
 	
-	public RHelpInfoHoverCreator(final boolean enrich) {
-		fEnrich = enrich;
+	public RHelpInfoHoverCreator(final int mode) {
+		this.mode = mode;
 	}
 	
 	
 	@Override
 	protected IInformationControl doCreateInformationControl(final Shell parent) {
-		return (fEnrich) ?
-				new RHelpInfoControl(parent, true) :
-				new RHelpInfoControl(parent);
+		return ((this.mode & MODE_FOCUS) != 0) ?
+				new RHelpInfoControl(parent, this.mode, true) :
+				new RHelpInfoControl(parent, this.mode);
 	}
 	
 }
@@ -116,10 +124,6 @@ public class RHelpInfoHoverCreator extends AbstractReusableInformationControlCre
 class RHelpInfoControl extends AbstractInformationControl implements IInformationControlExtension2,
 		IPropertyChangeListener, OpenWindowListener, LocationListener, ProgressListener, TitleListener,
 		IBrowserProvider {
-	
-	
-	private static final int MODE_SIMPLE = 1;
-	private static final int MODE_FOCUS = 2;
 	
 	
 	/** Action id (command) to navigate one page back. */
@@ -157,17 +161,19 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 	private boolean fHide;
 	
 	
-	public RHelpInfoControl(final Shell shell) {
-		super(shell, "");
-		fMode = MODE_SIMPLE;
+	RHelpInfoControl(final Shell shell, final int mode) {
+		super(shell, ""); //$NON-NLS-1$
+		assert ((mode & MODE_FOCUS) == 0);
+		fMode = mode;
 		
 		JFaceResources.getFontRegistry().addListener(this);
 		create();
 	}
 	
-	public RHelpInfoControl(final Shell shell, final boolean rich) {
+	RHelpInfoControl(final Shell shell, final int mode, final boolean dummy) {
 		super(shell, new ToolBarManager(SWT.FLAT));
-		fMode = MODE_FOCUS;
+		assert ((mode & MODE_FOCUS) != 0);
+		fMode = mode;
 		
 		create();
 	}
@@ -199,7 +205,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 		};
 		fContentComposite.setBackgroundMode(SWT.INHERIT_FORCE);
 		
-		final GridLayout gridLayout = LayoutUtil.applyCompositeDefaults(new GridLayout(), 2);
+		final GridLayout gridLayout = LayoutUtil.createCompositeGrid(2);
 		gridLayout.horizontalSpacing = (int) ((gridLayout.horizontalSpacing) / 1.5);
 		fContentComposite.setLayout(gridLayout);
 		
@@ -285,7 +291,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 		setBackgroundColor(getShell().getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		setForegroundColor(getShell().getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND));
 		
-		if (fMode == MODE_FOCUS) {
+		if ((fMode & MODE_FOCUS) != 0) {
 			initActions(fHandlerCollection);
 			final ToolBarManager toolBarManager = getToolBarManager();
 			contributeToActionBars(PlatformUI.getWorkbench(), toolBarManager, fHandlerCollection);
@@ -351,7 +357,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 	
 	@Override
 	public void changing(final LocationEvent event) {
-		if (event.location.startsWith("http://")) {
+		if (event.location.startsWith("http://")) { //$NON-NLS-1$
 			try {
 				if (RCore.getRHelpManager().isDynamic(new URI(event.location))) {
 					return;
@@ -438,7 +444,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 		final Rectangle trim = super.computeTrim();
 		
 		final Rectangle textTrim = fInfoBrowser.computeTrim(0, 0, 0, 0);
-		if (fMode == MODE_FOCUS && textTrim.width == 0) {
+		if ((fMode & MODE_FOCUS) != 0 && textTrim.width == 0) {
 			if (gScrollBarSize == null) {
 				final Text text = new Text(fContentComposite, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
 				gScrollBarSize = new Point(
@@ -524,7 +530,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 				fLayoutWorkaround = false;
 			}
 			
-			if ("win32".equals(SWT.getPlatform())) {
+			if (Platform.OS_WIN32.equals(SWT.getPlatform())) {
 				final Shell shell = getShell();
 				if (shell != null) {
 					shell.moveAbove(null);
@@ -555,17 +561,17 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 		updateTitle(fInput.helpObject, null);
 		if (fInput != null && fInput.httpUrl != null) {
 			String url = fInput.httpUrl;
-			if (fMode == MODE_SIMPLE) {
-				url += "?style=hover";
+			if ((fMode & MODE_FOCUS) == 0) { // disable scrollbars
+				url += "?style=hover"; //$NON-NLS-1$
 			}
 			fInfoBrowser.setUrl(url);
 		}
 		else {
 			fInfoBrowser.setUrl("about:blank"); //$NON-NLS-1$
 		}
-		if (fMode == MODE_SIMPLE) {
+		if ((fMode & MODE_FOCUS) == 0) {
 			setStatusText((fInput.control != null && fInput.control.isFocusControl()) ?
-					InformationDispatchHandler.getTooltipAffordanceString() : ""); //$NON-NLS-1$
+					InformationDispatchHandler.getAffordanceString(fMode) : ""); //$NON-NLS-1$
 		}
 	}
 	
@@ -586,7 +592,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 	@Override
 	public IInformationControlCreator getInformationPresenterControlCreator() {
 		// enriched mode
-		return new RHelpInfoHoverCreator(true);
+		return new RHelpInfoHoverCreator(fMode | MODE_FOCUS);
 	}
 	
 	@Override

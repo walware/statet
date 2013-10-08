@@ -11,10 +11,13 @@
 
 package de.walware.statet.r.internal.ui.editors;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.contentassist.ICompletionProposalExtension5;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.link.LinkedModeModel;
 import org.eclipse.jface.text.link.LinkedModeUI;
@@ -23,13 +26,14 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Shell;
 
 import de.walware.ecommons.ltk.IElementName;
-import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ElementNameCompletionProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.IInfoHover;
 import de.walware.ecommons.text.ui.BracketLevel.InBracketPosition;
 
 import de.walware.statet.nico.ui.console.InputSourceViewer;
@@ -42,21 +46,28 @@ import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.RElementName;
+import de.walware.statet.r.core.renv.IREnv;
+import de.walware.statet.r.core.rhelp.IREnvHelp;
+import de.walware.statet.r.core.rhelp.IRHelpManager;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
+import de.walware.statet.r.internal.ui.rhelp.RHelpInfoHoverCreator;
+import de.walware.statet.r.internal.ui.rhelp.RHelpUIServlet;
 import de.walware.statet.r.ui.RUI;
+import de.walware.statet.r.ui.sourceediting.RAssistInvocationContext;
 import de.walware.statet.r.ui.sourceediting.RBracketLevel;
 
 
-public class RElementCompletionProposal extends ElementNameCompletionProposal {
+public class RElementCompletionProposal extends ElementNameCompletionProposal
+		implements ICompletionProposalExtension5 {
 	
 	
 	public static class ArgumentProposal extends RElementCompletionProposal {
 		
 		
-		public ArgumentProposal(final AssistInvocationContext context, 
+		public ArgumentProposal(final RAssistInvocationContext context, 
 				final IElementName replacementName, final int replacementOffset,
-				final int relevance, final IElementLabelProvider labelProvider) {
-			super(context, replacementName, replacementOffset, null, relevance+100, labelProvider);
+				final IRElement element, final int relevance, final IElementLabelProvider labelProvider) {
+			super(context, replacementName, replacementOffset, element, relevance+100, labelProvider);
 		}
 		
 		
@@ -85,9 +96,9 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 	public static class ContextInformationProposal extends RElementCompletionProposal {
 		
 		
-		public ContextInformationProposal(final AssistInvocationContext context,
+		public ContextInformationProposal(final RAssistInvocationContext context,
 				final IElementName elementName, final int replacementOffset,
-				final IModelElement element, final int relevance,
+				final IRElement element, final int relevance,
 				final IElementLabelProvider labelProvider) {
 			super(context, elementName, replacementOffset, element, relevance, labelProvider);
 		}
@@ -193,9 +204,11 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 	
 	private ApplyData fApplyData;
 	
+	private IInformationControlCreator fInformationControlCreator;
 	
-	public RElementCompletionProposal(final AssistInvocationContext context, final IElementName elementName, 
-			final int replacementOffset, final IModelElement element,
+	
+	public RElementCompletionProposal(final RAssistInvocationContext context, final IElementName elementName, 
+			final int replacementOffset, final IRElement element,
 			final int relevance, final IElementLabelProvider labelProvider) {
 		super(context, elementName, replacementOffset, element, 80+relevance, labelProvider);
 	}
@@ -382,9 +395,71 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 		return RCore.getWorkbenchAccess().getRCodeStyle();
 	}
 	
+	
 	@Override
 	public IContextInformation getContextInformation() {
 		return getApplyData().getContextInformation();
+	}
+	
+	
+	@Override
+	public IInformationControlCreator getInformationControlCreator() {
+		final Shell shell = fContext.getSourceViewer().getTextWidget().getShell();
+		if (shell == null || !RHelpInfoHoverCreator.isAvailable(shell)) {
+			return null;
+		}
+		
+		if (fInformationControlCreator == null) {
+			fInformationControlCreator = new RHelpInfoHoverCreator(IInfoHover.MODE_PROPOSAL_INFO);
+		}
+		return fInformationControlCreator;
+	}
+	
+	@Override
+	public Object getAdditionalProposalInfo(IProgressMonitor monitor) {
+		final IRHelpManager rHelpManager = RCore.getRHelpManager();
+		Object helpObject = null;
+		
+		final RElementName elementName = ((IRElement) fElement).getElementName();
+		if (elementName.getType() == RElementName.MAIN_DEFAULT) {
+			RElementName namespace = elementName.getNamespace();
+			if (namespace == null && (fElement.getModelParent() instanceof IRElement)) {
+				namespace = ((IRElement) fElement).getModelParent().getElementName();
+			}
+			if (namespace == null || namespace.getType() != RElementName.MAIN_PACKAGE) {
+				return null;
+			}
+			IREnv rEnv = getREnv();
+			String pkgName = namespace.getSegmentName();
+			String topic = elementName.getSegmentName();
+			
+			if (rEnv == null || pkgName == null || topic == null) {
+				return null;
+			}
+			
+			final IREnvHelp help = rHelpManager.getHelp(rEnv);
+			if (help == null) {
+				return null;
+			}
+			helpObject = help.getPageForTopic(pkgName, topic);
+		}
+		
+		if (Thread.interrupted() || helpObject == null) {
+			return null;
+		}
+		{	final String httpUrl = rHelpManager.toHttpUrl(helpObject, RHelpUIServlet.INFO_TARGET);
+			if (httpUrl != null) {
+				return new RHelpInfoHoverCreator.Data(fContext.getSourceViewer().getTextWidget(),
+						helpObject, httpUrl );
+			}
+		}
+		
+		return null;
+	}
+	
+	protected IREnv getREnv() {
+		final IREnv rEnv = ((RAssistInvocationContext) fContext).getREnv();
+		return (rEnv != null) ? rEnv : RCore.getREnvManager().getDefault();
 	}
 	
 }

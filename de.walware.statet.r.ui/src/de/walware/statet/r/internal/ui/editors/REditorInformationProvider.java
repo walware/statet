@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.internal.ui.editors;
 
+import static de.walware.ecommons.ltk.ui.sourceediting.assist.IInfoHover.MODE_FOCUS;
+import static de.walware.ecommons.ltk.ui.sourceediting.assist.IInfoHover.MODE_TOOLTIP;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -37,7 +40,7 @@ public class REditorInformationProvider extends EditorInformationProvider {
 	
 	
 	public REditorInformationProvider(final ISourceEditor editor) {
-		super(editor, new IInfoHover[] { new RHelpHover(true) });
+		super(editor, new IInfoHover[] { new RHelpHover(MODE_TOOLTIP | MODE_FOCUS) });
 	}
 	
 	

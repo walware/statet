@@ -51,9 +51,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistInformationProposa
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IContentAssistComputer;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ReshowCompletionsRunnable;
 import de.walware.ecommons.text.IPartitionConstraint;
-import de.walware.ecommons.ts.ITool;
 
-import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 import de.walware.statet.nico.ui.console.InputDocument;
 
@@ -223,7 +221,6 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	ISourceEditor fEditor;
 	ContentAssist fAssist;
 	private RHeuristicTokenScanner fScanner;
-	private RProcess fProcess;
 	
 	private final List<IRFrame>[] fEnvirList = new List[3];
 	private Set<String> fEnvirListPackages;
@@ -231,7 +228,6 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	protected final boolean fCompleteRuntimeMode;
 	
 	private IStatus fResultStatus;
-
 	
 	
 	public RElementsCompletionComputer() {
@@ -252,22 +248,6 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		if (fEditor != editor) {
 			fEditor = editor;
 			fScanner = null;
-			fProcess = null;
-		}
-		
-		final ITool tool;
-		if (fEditor instanceof ConsolePageEditor) {
-			tool = (ITool) fEditor.getAdapter(ITool.class);
-		}
-		else {
-			tool = NicoUITools.getTool(fEditor.getWorkbenchPart());
-		}
-		if (tool instanceof RProcess) {
-			final RProcess rProcess = (RProcess) tool;
-			final RWorkspace workspace = rProcess.getWorkspaceData();
-			if (workspace.hasRObjectDB()) {
-				fProcess = rProcess;
-			}
 		}
 		
 		fAssist = assist;
@@ -282,7 +262,6 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		fEnvirList[WS_ENVIR] = null;
 		fEnvirList[RUNTIME_ENVIR].clear();
 		fEnvirListPackages = null;
-		fProcess = null;
 		fAssist = null;
 		fResultStatus = null;
 	}
@@ -328,14 +307,24 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			final int mode, final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		fResultStatus = null;
 		
+		if (context instanceof RAssistInvocationContext) {
+			computeCompletionProposals((RAssistInvocationContext) context, mode, proposals,
+					monitor );
+		}
+		
+		return fResultStatus;
+	}
+	
+	protected void computeCompletionProposals(final RAssistInvocationContext context,
+				final int mode, final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		if (mode == IContentAssistComputer.INFORMATION_MODE) {
-			doComputeContextInformation(context, proposals, false, monitor);
+			doComputeContextInformation(context, proposals, false, monitor );
 			
-			return fResultStatus;
+			return;
 		}
 		
 		if (context.getModelInfo() == null) {
-			return null;
+			return;
 		}
 		
 		// Get node
@@ -345,19 +334,19 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			node = context.getAstInfo().root;
 		}
 		if (!(node instanceof RAstNode)) {
-			return null;
+			return;
 		}
 		
 		// Get envir
 		if (!initEnvirList(context, (RAstNode) node)) {
-			return null;
+			return;
 		}
 		
 		// Get prefix
 		final String prefix = context.getIdentifierPrefix();
 		final RElementName prefixSegments = RElementName.parseDefault(prefix);
 		if (prefixSegments == null) {
-			return null;
+			return;
 		}
 		
 		// Collect proposals
@@ -370,14 +359,13 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			final String lastPrefix = computeSingleIdentifierPrefix(context);
 			doComputeSubProposals(context, lastPrefix, prefixSegments, proposals, monitor);
 		}
-		return fResultStatus;
 	}
 	
 	protected List<? extends IModelElement> getChildren(IModelElement e) {
 		if (e instanceof RReference) {
 			final RReference ref = (RReference) e;
 			RObject rObject = ref.getResolvedRObject();
-			if (rObject == null && e instanceof ICombinedRElement && fProcess != null) {
+			if (rObject == null && e instanceof ICombinedRElement) {
 				rObject = loadReference(ref);
 			}
 			if (rObject instanceof ICombinedRElement) {
@@ -387,7 +375,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		return e.getModelChildren(null);
 	}
 	
-	protected void doComputeArgumentProposals(final AssistInvocationContext context,
+	protected void doComputeArgumentProposals(final RAssistInvocationContext context,
 			final String orgPrefix, final IElementName prefixName,
 			final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		final String namePrefix = prefixName.getSegmentName();
@@ -431,7 +419,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 	}
 	
-	protected void doComputeMainProposals(final AssistInvocationContext context,
+	protected void doComputeMainProposals(final RAssistInvocationContext context,
 			final String orgPrefix, final IElementName prefixName,
 			final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		String namePrefix = prefixName.getSegmentName();
@@ -467,7 +455,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 				break;
 			}
 			final List<? extends IRElement> elements = envir.getModelChildren(null);
-			for (final IModelElement element : elements) {
+			for (final IRElement element : elements) {
 				final IElementName elementName = element.getElementName();
 				final int c1type = (element.getElementType() & IModelElement.MASK_C1);
 				final boolean isRich = (c1type == IModelElement.C1_METHOD);
@@ -478,7 +466,8 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 							&& mainNames.contains(elementName.getSegmentName()) ) {
 						continue;
 					}
-					final IAssistCompletionProposal proposal = createProposal(context, offset, elementName, element, relevance);
+					final IAssistCompletionProposal proposal = createProposal(context,
+							offset, elementName, element, relevance );
 					if (proposal != null) {
 						if (elementName.getNextSegment() == null) {
 							if (isRich) {
@@ -592,7 +581,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		return ""; //$NON-NLS-1$
 	}
 	
-	protected void doComputeSubProposals(final AssistInvocationContext context,
+	protected void doComputeSubProposals(final RAssistInvocationContext context,
 			final String orgPrefix, final RElementName prefixSegments,
 			final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		int count = 0;
@@ -683,27 +672,30 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 						children = Collections.singletonList(element);
 					}
 					for (final IModelElement child : children) {
-						if (childMode) {
-							elementSegment = child.getElementName();
-						}
-						final String candidate = elementSegment.getSegmentName();
-						if (isCompletable(elementSegment)
-								&& pattern.matches(candidate) ) {
-							if ((relevance > 0) && !isRich
-									&& mainNames.contains(candidate) ) {
-								continue ITER_ELEMENTS;
+						if (child instanceof IRElement) {
+							if (childMode) {
+								elementSegment = child.getElementName();
 							}
-							final IAssistCompletionProposal proposal = createProposal(context, offset, elementSegment, child, relevance);
-							if (proposal != null) {
-								if (elementSegment.getNextSegment() == null) {
-									if (isRich) {
-										methodNames.add(candidate);
-									}
-									else {
-										mainNames.add(candidate);
-									}
+							final String candidate = elementSegment.getSegmentName();
+							if (isCompletable(elementSegment)
+									&& pattern.matches(candidate) ) {
+								if ((relevance > 0) && !isRich
+										&& mainNames.contains(candidate) ) {
+									continue ITER_ELEMENTS;
 								}
-								proposals.add(proposal);
+								final IAssistCompletionProposal proposal = createProposal(context,
+										offset, elementSegment, (IRElement) child, relevance );
+								if (proposal != null) {
+									if (elementSegment.getNextSegment() == null) {
+										if (isRich) {
+											methodNames.add(candidate);
+										}
+										else {
+											mainNames.add(candidate);
+										}
+									}
+									proposals.add(proposal);
+								}
 							}
 						}
 					}
@@ -751,12 +743,13 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 	}
 	
-	protected IAssistCompletionProposal createProposal(final AssistInvocationContext context, final String prefix, final String name) {
+	protected IAssistCompletionProposal createProposal(final RAssistInvocationContext context, final String prefix, final String name) {
 		final int offset = context.getInvocationOffset()-prefix.length();
 		return new RSimpleCompletionComputer(context, name, offset);
 	}
 	
-	protected IAssistCompletionProposal createProposal(final AssistInvocationContext context, final int offset, final IElementName elementName, final IModelElement element, final int relevance) {
+	protected IAssistCompletionProposal createProposal(final RAssistInvocationContext context,
+			final int offset, final IElementName elementName, final IRElement element, final int relevance) {
 		return new RElementCompletionProposal(context, elementName, offset, element, relevance, fLabelProvider);
 	}
 	
@@ -768,12 +761,19 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			final AssistProposalCollector<IAssistInformationProposal> proposals, final IProgressMonitor monitor) {
 		fResultStatus = null;
 		
-		doComputeContextInformation(context, proposals, true, monitor);
+		if (context instanceof RAssistInvocationContext) {
+			computeContextInformation((RAssistInvocationContext) context, proposals, monitor);
+		}
 		
 		return fResultStatus;
 	}
 	
-	public void doComputeContextInformation(final AssistInvocationContext context,
+	protected void computeContextInformation(final RAssistInvocationContext context,
+			final AssistProposalCollector<IAssistInformationProposal> proposals, final IProgressMonitor monitor) {
+		doComputeContextInformation(context, proposals, true, monitor);
+	}
+	
+	public void doComputeContextInformation(final RAssistInvocationContext context,
 			final AssistProposalCollector<?> proposals, final boolean createContextInfoOnly, final IProgressMonitor monitor) {
 		if (context.getModelInfo() == null) {
 			return;
@@ -805,7 +805,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		setStatus(Status.OK_STATUS);
 	}
 	
-	private FCallInfo searchFCallInfo(final AssistInvocationContext context, final int fcallOpen) {
+	private FCallInfo searchFCallInfo(final RAssistInvocationContext context, final int fcallOpen) {
 		final AstInfo astInfo = context.getAstInfo();
 		if (astInfo == null || astInfo.root == null) {
 			return null;
@@ -837,7 +837,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		return null;
 	}
 	
-	private void doComputeFCallContextInformation(final AssistInvocationContext context, final FCallInfo fcallInfo,
+	private void doComputeFCallContextInformation(final RAssistInvocationContext context, final FCallInfo fcallInfo,
 			final AssistProposalCollector proposals, final boolean createContextInfoOnly) {
 		int distance = 0;
 		final ExactFCallPattern pattern = new ExactFCallPattern(fcallInfo.access);
@@ -862,7 +862,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 	}
 	
-	private void doComputeFCallArgumentProposals(final AssistInvocationContext context,
+	private void doComputeFCallArgumentProposals(final RAssistInvocationContext context,
 			final int offset, final FCallInfo fcallInfo, final String prefix,
 			final AssistProposalCollector<IAssistCompletionProposal> proposals) {
 		int distance = 0;
@@ -885,7 +885,9 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 								if ((prefix == null || arg.name.startsWith(prefix))
 										&& names.add(arg.name)) {
 									final RElementName name = RElementName.create(RElementName.MAIN_DEFAULT, arg.name);
-									proposals.add(new RElementCompletionProposal.ArgumentProposal(context, name, offset, distance, fLabelProvider));
+									proposals.add(new RElementCompletionProposal.ArgumentProposal(
+											context, name, offset, method, distance,
+											fLabelProvider ));
 								}
 							}
 						}
@@ -897,7 +899,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	}
 	
 	
-	private boolean initEnvirList(final AssistInvocationContext context, final RAstNode node) {
+	private boolean initEnvirList(final RAssistInvocationContext context, final RAstNode node) {
 		if (fEnvirList[LOCAL_ENVIR] != null) {
 			return true;
 		}
@@ -927,17 +929,26 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		if (fEnvirList[WS_ENVIR] == null) {
 			fEnvirList[WS_ENVIR] = new ArrayList<IRFrame>();
 		}
-		addRuntimeEnvirList(context);
+		addRuntimeEnvirList(context, includeCompleteRuntime());
 		return true;
 	}
 	
-	private void addRuntimeEnvirList(final AssistInvocationContext context) {
-		if (fProcess != null) {
-			if (fEditor instanceof ConsolePageEditor || fCompleteRuntimeMode) {
+	private boolean isRuntimeAvailable(final RAssistInvocationContext context) {
+		final RProcess tool = context.getTool();
+		return (tool != null && tool.getWorkspaceData().hasRObjectDB());
+	}
+	
+	private boolean includeCompleteRuntime() {
+		return (fEditor instanceof ConsolePageEditor || fCompleteRuntimeMode);
+	}
+	
+	private void addRuntimeEnvirList(final RAssistInvocationContext context,
+			final boolean complete) {
+		if (isRuntimeAvailable(context)) {
+			if (complete) {
+				addDebugFrame(context);
 				
-				addDebugFrame();
-				
-				final RWorkspace data = fProcess.getWorkspaceData();
+				final RWorkspace data = context.getTool().getWorkspaceData();
 				final List<? extends ICombinedREnvironment> runtimeList = data.getRSearchEnvironments();
 				if (runtimeList != null && !runtimeList.isEmpty()) {
 					for (final ICombinedREnvironment envir : runtimeList) {
@@ -967,7 +978,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 				}
 				requiredPackages.add("base"); //$NON-NLS-1$
 				
-				final RWorkspace data = fProcess.getWorkspaceData();
+				final RWorkspace data = context.getTool().getWorkspaceData();
 				final List<? extends ICombinedREnvironment> runtimeList = data.getRSearchEnvironments();
 				if (runtimeList != null && !runtimeList.isEmpty()) {
 					for (final ICombinedREnvironment envir : runtimeList) {
@@ -983,8 +994,8 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 	}
 	
-	private void addDebugFrame() {
-		final IDebugTarget debugTarget = fProcess.getLaunch().getDebugTarget();
+	private void addDebugFrame(final RAssistInvocationContext context) {
+		final IDebugTarget debugTarget = context.getTool().getLaunch().getDebugTarget();
 		if (debugTarget == null) {
 			return;
 		}
@@ -1014,10 +1025,14 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	}
 	
 	private RObject loadReference(final RReference reference) {
-		final LoadReferenceRunnable runnable = new LoadReferenceRunnable(reference, fProcess, 0,
+		final RProcess process = LoadReferenceRunnable.findRProcess((ICombinedRElement) reference);
+		if (process == null) {
+			return null;
+		}
+		final LoadReferenceRunnable runnable = new LoadReferenceRunnable(reference, process, 0,
 				"Content Assist" );
 		synchronized (runnable) {
-			if (fProcess.getQueue().addHot(runnable).isOK()) {
+			if (process.getQueue().addHot(runnable).isOK()) {
 				try {
 					runnable.wait(250);
 					if (runnable.isFinished()) {

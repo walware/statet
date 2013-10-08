@@ -41,14 +41,15 @@ import de.walware.statet.r.core.rsource.ast.RAstNode;
 public class RHelpHover implements IInfoHover {
 	
 	
-	private boolean fFocus;
+	private final int mode;
 	
 	
 	public RHelpHover() {
+		this(MODE_TOOLTIP);
 	}
 	
-	public RHelpHover(final boolean focus) {
-		fFocus = focus;
+	public RHelpHover(final int mode) {
+		this.mode = mode;
 	}
 	
 	
@@ -63,7 +64,7 @@ public class RHelpHover implements IInfoHover {
 		if (Thread.interrupted()) {
 			return null;
 		}
-		if (fFocus && name == null) {
+		if ((this.mode & MODE_FOCUS) != 0 && name == null) {
 			RAstNode parent;
 			switch (rNode.getNodeType()) {
 			case SYMBOL:
@@ -168,7 +169,7 @@ public class RHelpHover implements IInfoHover {
 	
 	@Override
 	public IInformationControlCreator getHoverControlCreator() {
-		return new RHelpInfoHoverCreator(fFocus);
+		return new RHelpInfoHoverCreator(this.mode);
 	}
 	
 	static RElementName searchName(RAstNode rNode, final IRegion region, final boolean checkInterrupted) {
