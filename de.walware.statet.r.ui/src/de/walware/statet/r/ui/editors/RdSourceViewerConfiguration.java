@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2005-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
+ * Copyright (c) 2005-2013 Stephan Wahlbrink (www.walware.de/goto/opensource)
+ * and others. All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
@@ -25,16 +25,12 @@ import java.util.Set;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
-import org.eclipse.jface.text.presentation.IPresentationReconciler;
-import org.eclipse.jface.text.presentation.PresentationReconciler;
-import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.text.ICharPairMatcher;
 import de.walware.ecommons.text.PairMatcher;
-import de.walware.ecommons.text.ui.presentation.AbstractRuleBasedScanner;
 import de.walware.ecommons.text.ui.presentation.SingleTokenScanner;
 import de.walware.ecommons.ui.ColorManager;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
@@ -60,10 +56,6 @@ public class RdSourceViewerConfiguration extends SourceEditorViewerConfiguration
 	private static final char[][] BRACKETS = { { '{', '}' } };
 	
 	
-	private RdCodeScanner fDocScanner;
-	private CommentScanner fCommentScanner;
-	private SingleTokenScanner fPlatformSpecifScanner;
-	
 	private RdDoubleClickStrategy fDoubleClickStrategy;
 	
 	private IRCoreAccess fRCoreAccess;
@@ -77,31 +69,30 @@ public class RdSourceViewerConfiguration extends SourceEditorViewerConfiguration
 			final IPreferenceStore preferenceStore, final ColorManager colorManager) {
 		super(sourceEditor);
 		setCoreAccess(access);
+		
 		setup(preferenceStore, colorManager,
 				IStatetUIPreferenceConstants.EDITING_DECO_PREFERENCES,
 				IStatetUIPreferenceConstants.EDITING_ASSIST_PREFERENCES );
-		setScanners(initializeScanners());
+		initScanners();
+		fDoubleClickStrategy = new RdDoubleClickStrategy();
 	}
 	
 	protected void setCoreAccess(final IRCoreAccess access) {
 		fRCoreAccess = (access != null) ? access : RCore.getWorkbenchAccess();
 	}
 	
-	/**
-	 * Initializes the scanners.
-	 */
-	protected AbstractRuleBasedScanner[] initializeScanners() {
+	protected void initScanners() {
 		final IPreferenceStore store = getPreferences();
 		final ColorManager colorManager = getColorManager();
-		fDocScanner = new RdCodeScanner(colorManager, store);
-		fCommentScanner = new CommentScanner(colorManager, store, fRCoreAccess.getPrefs(), RUIPreferenceConstants.Rd.TS_GROUP_ID,
-				COMMENT, TASK_TAG);
-		fPlatformSpecifScanner = new SingleTokenScanner(colorManager, store, RUIPreferenceConstants.Rd.TS_GROUP_ID,
-				PLATFORM_SPECIF);
 		
-		fDoubleClickStrategy = new RdDoubleClickStrategy();
-		
-		return new AbstractRuleBasedScanner[] { fDocScanner, fCommentScanner, fPlatformSpecifScanner };
+		addScanner(RDOC_DEFAULT,
+				new RdCodeScanner(colorManager, store) );
+		addScanner(RDOC_COMMENT,
+				new CommentScanner(colorManager, store, fRCoreAccess.getPrefs(),
+						RUIPreferenceConstants.Rd.TS_GROUP_ID, COMMENT, TASK_TAG ) );
+		addScanner(RDOC_PLATFORM_SPECIF,
+				new SingleTokenScanner(colorManager, store,
+						RUIPreferenceConstants.Rd.TS_GROUP_ID, PLATFORM_SPECIF ) );
 	}
 	
 	@Override
@@ -127,26 +118,6 @@ public class RdSourceViewerConfiguration extends SourceEditorViewerConfiguration
 		return fDoubleClickStrategy;
 	}
 	
-	
-	@Override
-	public IPresentationReconciler getPresentationReconciler(final ISourceViewer sourceViewer) {
-		final PresentationReconciler reconciler = new PresentationReconciler();
-		reconciler.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-		
-		DefaultDamagerRepairer dr = new DefaultDamagerRepairer(fDocScanner);
-		reconciler.setDamager(dr, RDOC_DEFAULT);
-		reconciler.setRepairer(dr, RDOC_DEFAULT);
-		
-		dr = new DefaultDamagerRepairer(fCommentScanner);
-		reconciler.setDamager(dr, RDOC_COMMENT);
-		reconciler.setRepairer(dr, RDOC_COMMENT);
-		
-		dr = new DefaultDamagerRepairer(fPlatformSpecifScanner);
-		reconciler.setDamager(dr, RDOC_PLATFORM_SPECIF);
-		reconciler.setRepairer(dr, RDOC_PLATFORM_SPECIF);
-		
-		return reconciler;
-	}
 	
 	@Override
 	public String[] getDefaultPrefixes(final ISourceViewer sourceViewer, final String contentType) {

@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2005-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
+ * Copyright (c) 2005-2013 Stephan Wahlbrink (www.walware.de/goto/opensource)
+ * and others. All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
@@ -21,14 +21,12 @@ import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.information.IInformationProvider;
-import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
 import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
-import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
@@ -50,13 +48,11 @@ import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverRegistry.Effecti
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.text.ICharPairMatcher;
 import de.walware.ecommons.text.IIndentSettings;
-import de.walware.ecommons.text.ui.presentation.SingleTokenScanner;
 import de.walware.ecommons.ui.ColorManager;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.DialogUtil;
 
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
-import de.walware.statet.ext.ui.text.CommentScanner;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -84,11 +80,13 @@ import de.walware.statet.r.ui.text.r.RoxygenScanner;
 public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration {
 	
 	
-	protected RCodeScanner2 fCodeScanner;
-	protected RInfixOperatorScanner fInfixScanner;
-	protected SingleTokenScanner fStringScanner;
-	protected CommentScanner fCommentScanner;
-	protected CommentScanner fRoxygenScanner;
+	private static final String[] NONE_DEFAULT_CONTENT_TYPES = new String[] {
+			IRDocumentPartitions.R_INFIX_OPERATOR,
+			IRDocumentPartitions.R_STRING,
+			IRDocumentPartitions.R_COMMENT,
+			IRDocumentPartitions.R_ROXYGEN,
+	};
+	
 	
 	private RDoubleClickStrategy fDoubleClickStrategy;
 	private RAutoEditStrategy fAutoEditStrategy;
@@ -114,30 +112,27 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 				colorManager,
 				IStatetUIPreferenceConstants.EDITING_DECO_PREFERENCES,
 				IStatetUIPreferenceConstants.EDITING_ASSIST_PREFERENCES );
-		setScanners(createScanners());
+		initScanners();
 	}
 	
 	protected void setCoreAccess(final IRCoreAccess access) {
 		fRCoreAccess = (access != null) ? access : RCore.getWorkbenchAccess();
 	}
 	
-	protected ITokenScanner[] createScanners() {
+	protected void initScanners() {
 		final IPreferenceStore store = getPreferences();
 		final ColorManager colorManager = getColorManager();
 		
-		fCodeScanner = new RCodeScanner2(colorManager, store);
-		fInfixScanner = new RInfixOperatorScanner(colorManager, store);
-		fStringScanner = new RStringScanner(colorManager, store);
-		fCommentScanner = new RCommentScanner(colorManager, store, fRCoreAccess.getPrefs());
-		fRoxygenScanner = new RoxygenScanner(colorManager, store, fRCoreAccess.getPrefs());
-		
-		return new ITokenScanner[] {
-				fCodeScanner,
-				fInfixScanner,
-				fStringScanner,
-				fCommentScanner,
-				fRoxygenScanner
-		};
+		addScanner(IRDocumentPartitions.R_DEFAULT,
+				new RCodeScanner2(colorManager, store) );
+		addScanner(IRDocumentPartitions.R_INFIX_OPERATOR,
+				new RInfixOperatorScanner(colorManager, store) );
+		addScanner(IRDocumentPartitions.R_STRING,
+				new RStringScanner(colorManager, store) );
+		addScanner(IRDocumentPartitions.R_COMMENT,
+				new RCommentScanner(colorManager, store, fRCoreAccess.getPrefs()) );
+		addScanner(IRDocumentPartitions.R_ROXYGEN,
+				new RoxygenScanner(colorManager, store, fRCoreAccess.getPrefs()) );
 	}
 	
 	
@@ -180,6 +175,24 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		return IRDocumentPartitions.R_PARTITIONS;
 	}
 	
+	@Override
+	public void initPresentationReconciler(final PresentationReconciler reconciler) {
+		{	final DefaultDamagerRepairer dr = new DefaultDamagerRepairer(
+					getScanner(IRDocumentPartitions.R_DEFAULT) );
+			if (fHandleDefaultContentType) {
+				reconciler.setDamager(dr, IRDocumentPartitions.R_DEFAULT);
+				reconciler.setRepairer(dr, IRDocumentPartitions.R_DEFAULT);
+			}
+			reconciler.setDamager(dr, IRDocumentPartitions.R_DEFAULT_EXPL);
+			reconciler.setRepairer(dr, IRDocumentPartitions.R_DEFAULT_EXPL);
+		}
+		for (final String contentType : NONE_DEFAULT_CONTENT_TYPES) {
+			final DefaultDamagerRepairer dr = new DefaultDamagerRepairer(getScanner(contentType));
+			reconciler.setDamager(dr, contentType);
+			reconciler.setRepairer(dr, contentType);
+		}
+	}
+	
 	
 	@Override
 	public ICharPairMatcher createPairMatcher() {
@@ -192,47 +205,6 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 			fDoubleClickStrategy = new RDoubleClickStrategy();
 		}
 		return fDoubleClickStrategy;
-	}
-	
-	
-	@Override
-	public IPresentationReconciler getPresentationReconciler(final ISourceViewer sourceViewer) {
-		final PresentationReconciler reconciler = new PresentationReconciler();
-		reconciler.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-		
-		initDefaultPresentationReconciler(reconciler);
-		
-		return reconciler;
-	}
-	
-	public void initDefaultPresentationReconciler(final PresentationReconciler reconciler) {
-		DefaultDamagerRepairer dr = new DefaultDamagerRepairer(fCodeScanner);
-		if (fHandleDefaultContentType) {
-			reconciler.setDamager(dr, IRDocumentPartitions.R_DEFAULT);
-			reconciler.setRepairer(dr, IRDocumentPartitions.R_DEFAULT);
-		}
-		reconciler.setDamager(dr, IRDocumentPartitions.R_DEFAULT_EXPL);
-		reconciler.setRepairer(dr, IRDocumentPartitions.R_DEFAULT_EXPL);
-		
-		dr = new DefaultDamagerRepairer(fStringScanner);
-		reconciler.setDamager(dr, IRDocumentPartitions.R_QUOTED_SYMBOL);
-		reconciler.setRepairer(dr, IRDocumentPartitions.R_QUOTED_SYMBOL);
-		
-		dr = new DefaultDamagerRepairer(fInfixScanner);
-		reconciler.setDamager(dr, IRDocumentPartitions.R_INFIX_OPERATOR);
-		reconciler.setRepairer(dr, IRDocumentPartitions.R_INFIX_OPERATOR);
-		
-		dr = new DefaultDamagerRepairer(fStringScanner);
-		reconciler.setDamager(dr, IRDocumentPartitions.R_STRING);
-		reconciler.setRepairer(dr, IRDocumentPartitions.R_STRING);
-		
-		dr = new DefaultDamagerRepairer(fCommentScanner);
-		reconciler.setDamager(dr, IRDocumentPartitions.R_COMMENT);
-		reconciler.setRepairer(dr, IRDocumentPartitions.R_COMMENT);
-		
-		dr = new DefaultDamagerRepairer(fRoxygenScanner);
-		reconciler.setDamager(dr, IRDocumentPartitions.R_ROXYGEN);
-		reconciler.setRepairer(dr, IRDocumentPartitions.R_ROXYGEN);
 	}
 	
 	@Override

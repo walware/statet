@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2007-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
+ * Copyright (c) 2007-2013 Stephan Wahlbrink (www.walware.de/goto/opensource)
+ * and others. All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
@@ -23,14 +23,12 @@ import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.information.IInformationProvider;
-import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
 import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
-import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
@@ -62,6 +60,7 @@ import de.walware.statet.ext.ui.text.CommentScanner;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 import de.walware.statet.r.sweave.ITexRweaveCoreAccess;
@@ -139,7 +138,7 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 		}
 		
 		public CommentScanner getCommentScanner() {
-			return fCommentScanner;
+			return (CommentScanner) getScanner(IRDocumentPartitions.R_COMMENT);
 		}
 		
 		@Override
@@ -179,8 +178,6 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 	
 	private ITexRweaveCoreAccess fCoreAccess;
 	
-	private RChunkControlCodeScanner fChunkControlScanner;
-	
 	private ITextDoubleClickStrategy fTexDoubleClickStrategy;
 	private ITextDoubleClickStrategy fRDoubleClickStrategy;
 	
@@ -204,18 +201,15 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 				colorManager,
 				IStatetUIPreferenceConstants.EDITING_DECO_PREFERENCES,
 				IStatetUIPreferenceConstants.EDITING_ASSIST_PREFERENCES );
-		setScanners(createScanners());
+		initScanners();
 	}
 	
-	protected ITokenScanner[] createScanners() {
+	protected void initScanners() {
 		final IPreferenceStore store = getPreferences();
 		final ColorManager colorManager = getColorManager();
 		
-		fChunkControlScanner = new RChunkControlCodeScanner(colorManager, store);
-		
-		return new ITokenScanner[] {
-				fChunkControlScanner,
-		};
+		addScanner(Rweave.CHUNK_CONTROL_CONTENT_TYPE,
+				new RChunkControlCodeScanner(colorManager, store) );
 	}
 	
 	protected void setCoreAccess(final ITexRweaveCoreAccess coreAccess) {
@@ -252,6 +246,21 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 		return Rweave.ALL_PARTITION_TYPES;
 	}
 	
+	@Override
+	protected void initPresentationReconciler(final PresentationReconciler reconciler) {
+		{	final DefaultDamagerRepairer dr = new DefaultDamagerRepairer(
+					getScanner(Rweave.CHUNK_CONTROL_CONTENT_TYPE) );
+			reconciler.setDamager(dr, Rweave.CHUNK_CONTROL_CONTENT_TYPE);
+			reconciler.setRepairer(dr, Rweave.CHUNK_CONTROL_CONTENT_TYPE);
+		}
+		{	final DefaultDamagerRepairer dr = new DefaultDamagerRepairer(fRConfig.getCommentScanner());
+			reconciler.setDamager(dr, Rweave.CHUNK_COMMENT_CONTENT_TYPE);
+			reconciler.setRepairer(dr, Rweave.CHUNK_COMMENT_CONTENT_TYPE);
+		}
+		fRConfig.initPresentationReconciler(reconciler);
+		fTexConfig.initPresentationReconciler(reconciler);
+	}
+	
 	
 	@Override
 	public ICharPairMatcher createPairMatcher() {
@@ -280,24 +289,6 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 		}
 	}
 	
-	@Override
-	public IPresentationReconciler getPresentationReconciler(final ISourceViewer sourceViewer) {
-		final PresentationReconciler reconciler = new PresentationReconciler();
-		reconciler.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-		
-		DefaultDamagerRepairer dr = new DefaultDamagerRepairer(fChunkControlScanner);
-		reconciler.setDamager(dr, Rweave.CHUNK_CONTROL_CONTENT_TYPE);
-		reconciler.setRepairer(dr, Rweave.CHUNK_CONTROL_CONTENT_TYPE);
-		
-		dr = new DefaultDamagerRepairer(fRConfig.getCommentScanner());
-		reconciler.setDamager(dr, Rweave.CHUNK_COMMENT_CONTENT_TYPE);
-		reconciler.setRepairer(dr, Rweave.CHUNK_COMMENT_CONTENT_TYPE);
-		
-		fRConfig.initDefaultPresentationReconciler(reconciler);
-		fTexConfig.initDefaultPresentationReconciler(reconciler);
-		
-		return reconciler;
-	}
 	
 	@Override
 	public int getTabWidth(final ISourceViewer sourceViewer) {
