@@ -69,7 +69,7 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 	};
 	private static final String[] COLORED_POST_TAGS = { "</span>" }; //$NON-NLS-1$
 	
-	public static void appendCssColor(final StringBuilder sb, final RGB color) {
+	private static void appendCssColor(final StringBuilder sb, final RGB color) {
 		sb.append('#');
 		String s = Integer.toHexString(color.red);
 		if (s.length() == 1) {
