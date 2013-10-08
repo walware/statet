@@ -62,6 +62,9 @@
          point="de.walware.ecommons.ltk.modelTypes">
       <modelType
             id="ltx-rweave">
+         <secondaryType
+               modelTypeId="r">
+         </secondaryType>
       </modelType>
       <contentType
             contentTypeId="de.walware.statet.r.contentTypes.LtxRweave"
