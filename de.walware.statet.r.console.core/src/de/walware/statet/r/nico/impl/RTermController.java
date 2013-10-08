@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2007-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
+ * Copyright (c) 2007-2013 Stephan Wahlbrink (www.walware.de/goto/opensource)
+ * and others. All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
@@ -51,6 +51,8 @@ import de.walware.statet.nico.core.runtime.IRequireSynch;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolStatus;
+import de.walware.statet.nico.core.runtime.ToolStreamMonitor;
+import de.walware.statet.nico.core.runtime.ToolStreamProxy;
 
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RWorkspace;
@@ -84,6 +86,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 		
 		@Override
 		public void run() {
+			final ToolStreamProxy streams = getStreams();
 			boolean locked = false;
 			try {
 				boolean canRead = false;
@@ -103,7 +106,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 								locked = true;
 							}
 							final String s = new String(b, 0, n);
-							fDefaultOutputStream.append(s, SubmitType.CONSOLE, 0);
+							streams.getOutputStreamMonitor().append(s, SubmitType.CONSOLE, 0);
 							n = s.length();
 							if (n >= 2 && s.charAt(--n) == ' ' && (s.charAt(--n) == '>' || s.charAt(n) == '+')) {
 								hasNoOutput++;
@@ -350,14 +353,15 @@ public class RTermController extends AbstractRController implements IRequireSync
 	
 	@Override
 	protected void doBeforeSubmitL() {
+		final ToolStreamProxy streams = getStreams();
+		final SubmitType submitType = getCurrentSubmitType();
 		// adds control stream
 		// without prompt
-		final SubmitType type = getCurrentSubmitType();
 		try {
 			fProcessOutputThread.streamLock.lock();
-			fInputStream.append(fCurrentInput, type,
+			streams.getInputStreamMonitor().append(fCurrentInput, submitType,
 					(fCurrentPrompt.meta & IConsoleService.META_HISTORY_DONTADD) );
-			fInputStream.append(fWorkspaceData.getLineSeparator(), type,
+			streams.getInputStreamMonitor().append(fWorkspaceData.getLineSeparator(), submitType,
 					IConsoleService.META_HISTORY_DONTADD);
 		}
 		finally {
@@ -397,6 +401,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 	
 	@Override
 	public Pattern synch(final IProgressMonitor monitor) throws CoreException {
+		final ToolStreamMonitor stream = getStreams().getOutputStreamMonitor();
 		final String stamp = "Synch"+System.nanoTime(); //$NON-NLS-1$
 		final AtomicBoolean patternFound = new AtomicBoolean(false);
 		final IStreamListener listener = new IStreamListener() {
@@ -418,13 +423,13 @@ public class RTermController extends AbstractRController implements IRequireSync
 			}
 			
 			private void found() {
-				fDefaultOutputStream.removeListener(this);
+				stream.removeListener(this);
 				patternFound.set(true);
 			}
 			
 		};
 		try {
-			fDefaultOutputStream.addListener(listener);
+			stream.addListener(listener);
 			submitToConsole("cat(\""+stamp+"\\n\");", monitor); //$NON-NLS-1$ //$NON-NLS-2$
 			while (!patternFound.get()) {
 				if (monitor.isCanceled()) {
@@ -440,11 +445,12 @@ public class RTermController extends AbstractRController implements IRequireSync
 			return Pattern.compile("(?:"+Pattern.quote(getWorkspaceData().getDefaultPrompt().text) + ")?"+stamp); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		finally {
-			fDefaultOutputStream.removeListener(listener);
+			stream.removeListener(listener);
 		}
 	}
 	
 	private StringBuilder readOutputLine(final String command, final IProgressMonitor monitor) throws CoreException {
+		final ToolStreamMonitor stream = getStreams().getOutputStreamMonitor();
 		final StringBuilder output = new StringBuilder();
 		final AtomicBoolean patternFound = new AtomicBoolean(false);
 		final IStreamListener listener = new IStreamListener() {
@@ -462,14 +468,14 @@ public class RTermController extends AbstractRController implements IRequireSync
 			}
 			
 			private void found() {
-				fDefaultOutputStream.removeListener(this);
+				stream.removeListener(this);
 				patternFound.set(true);
 			}
 			
 		};
 		synch(monitor);
 		try {
-			fDefaultOutputStream.addListener(listener);
+			stream.addListener(listener);
 			if (monitor.isCanceled()) {
 				return null;
 			}
@@ -488,7 +494,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 			return output;
 		}
 		finally {
-			fDefaultOutputStream.removeListener(listener);
+			stream.removeListener(listener);
 		}
 	}
 	

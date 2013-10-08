@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Wahlbrink - extended for StatET
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.console;
@@ -31,40 +32,45 @@ import de.walware.statet.nico.ui.NicoUI;
 public final class NIConsoleOutputStream {
 	
 	
-	public static final String INFO_STREAM_ID = NicoUI.PLUGIN_ID+".InfoStream"; //$NON-NLS-1$
-	public static final String INPUT_STREAM_ID = IDebugUIConstants.ID_STANDARD_INPUT_STREAM;
-	public static final String OUTPUT_STREAM_ID = IDebugUIConstants.ID_STANDARD_OUTPUT_STREAM;
-	public static final String ERROR_STREAM_ID = IDebugUIConstants.ID_STANDARD_ERROR_STREAM;
+	public static final String INFO_STREAM_ID= NicoUI.PLUGIN_ID+".InfoStream"; //$NON-NLS-1$
+	public static final String INPUT_STREAM_ID= IDebugUIConstants.ID_STANDARD_INPUT_STREAM;
+	public static final String OUTPUT_STREAM_ID= IDebugUIConstants.ID_STANDARD_OUTPUT_STREAM;
+	public static final String ERROR_STREAM_ID= IDebugUIConstants.ID_STANDARD_ERROR_STREAM;
+	public static final String SYSTEM_OUTPUT_STREAM_ID= NicoUI.PLUGIN_ID+".SystemOutputStream"; //$NON-NLS-1$
 	
 	
 	/**
 	 * The console this stream is attached to.
 	 */
-	private final NIConsole fConsole;
+	private final NIConsole console;
 	
 	/**
 	 * The console's document partitioner.
 	 */
-	private NIConsolePartitioner fPartitioner;
+	private NIConsolePartitioner partitioner;
 	
-	private final String fId;
+	/**
+	 * The id of the stream
+	 */
+	private final String id;
 	
 	/**
 	 * Flag indicating whether this stream has been closed.
 	 */
-	private boolean fClosed = false;
+	private boolean closed= false;
 	
 	/**
 	 * The color used to decorate data written to this stream.
 	 */
-	private Color fColor;
+	private Color color;
 	
 	/**
 	 * The font style used to decorate data written to this stream.
 	 */
-	private int fFontStyle;
+	private int fontStyle;
 	
-	private boolean fPrependCR;
+	
+	private boolean prependCR;
 	
 	
 	/**
@@ -74,14 +80,14 @@ public final class NIConsoleOutputStream {
 	 * @param streamId 
 	 */
 	NIConsoleOutputStream(final NIConsole console, final String streamId) {
-		fConsole = console;
-		fPartitioner = console.getPartitioner();
-		fId = streamId;
+		this.console= console;
+		this.partitioner= console.getPartitioner();
+		this.id= streamId;
 	}
 	
 	
 	public String getId() {
-		return fId;
+		return this.id;
 	}
 	
 	/**
@@ -90,7 +96,7 @@ public final class NIConsoleOutputStream {
 	 * @return the font style used to decorate data written to this stream
 	 */
 	public int getFontStyle() {
-		return fFontStyle;
+		return this.fontStyle;
 	}
 	
 	/**
@@ -99,10 +105,10 @@ public final class NIConsoleOutputStream {
 	 * @param newFontStyle the font style to be used to decorate data written to this stream
 	 */
 	public void setFontStyle(final int newFontStyle) {
-		if (newFontStyle != fFontStyle) {
-			final int old = fFontStyle;
-			fFontStyle = newFontStyle;
-			fConsole.firePropertyChange(this, IConsoleConstants.P_FONT_STYLE, new Integer(old), new Integer(fFontStyle));
+		if (newFontStyle != this.fontStyle) {
+			final int old= this.fontStyle;
+			this.fontStyle= newFontStyle;
+			this.console.firePropertyChange(this, IConsoleConstants.P_FONT_STYLE, new Integer(old), new Integer(this.fontStyle));
 		}
 	}
 	
@@ -113,10 +119,10 @@ public final class NIConsoleOutputStream {
 	 * @param newColor color of this stream, or <code>null</code>
 	 */
 	public void setColor(final Color newColor) {
-		final Color old = fColor;
+		final Color old= this.color;
 		if (old == null || !old.equals(newColor)) {
-			fColor = newColor;
-			fConsole.firePropertyChange(this, IConsoleConstants.P_STREAM_COLOR, old, newColor);
+			this.color= newColor;
+			this.console.firePropertyChange(this, IConsoleConstants.P_STREAM_COLOR, old, newColor);
 		}
 	}
 	
@@ -127,7 +133,7 @@ public final class NIConsoleOutputStream {
 	 * @return the color of this stream, or <code>null</code>
 	 */
 	public Color getColor() {
-		return fColor;
+		return this.color;
 	}
 	
 	/**
@@ -136,7 +142,7 @@ public final class NIConsoleOutputStream {
 	 * @return true is the stream has been closed, false otherwise.
 	 */
 	public synchronized boolean isClosed() {
-		return fClosed;
+		return this.closed;
 	}
 	
 //	public synchronized void close() throws IOException {
@@ -144,24 +150,24 @@ public final class NIConsoleOutputStream {
 //			throw new IOException("Output Stream is closed"); //$NON-NLS-1$
 //		}
 //		if (fPrependCR) { // force writing of last /r
-//			fPrependCR = false;
+//			fPrependCR= false;
 //			notifyParitioner("\r"); //$NON-NLS-1$
 //		}
 //		fConsole.streamClosed(this);
-//		fClosed = true;
-//		fPartitioner = null;
+//		fClosed= true;
+//		fPartitioner= null;
 //	}
 	
 	synchronized void close() {
-		fClosed = true;
-		if (fPrependCR) { // force writing of last /r
-			fPrependCR = false;
+		this.closed= true;
+		if (this.prependCR) { // force writing of last /r
+			this.prependCR= false;
 			try {
 				notifyParitioner("\r"); //$NON-NLS-1$
 			}
 			catch (final IOException e) {}
 		}
-		fPartitioner = null;
+		this.partitioner= null;
 	}
 	
 	/**
@@ -171,24 +177,24 @@ public final class NIConsoleOutputStream {
 	 * @throws IOException if the stream is closed.
 	 */
 	public synchronized void write(String text) throws IOException {
-		if(fClosed) {
+		if(this.closed) {
 			throw new IOException("Output Stream is closed"); //$NON-NLS-1$
 		}
-		if (fPrependCR){
-			text = "\r"+text; //$NON-NLS-1$
-			fPrependCR = false;
+		if (this.prependCR){
+			text= "\r"+text; //$NON-NLS-1$
+			this.prependCR= false;
 		}
 		if (text.endsWith("\r")) { //$NON-NLS-1$
-			fPrependCR = true;
-			text = text.substring(0, text.length()-1);
+			this.prependCR= true;
+			text= text.substring(0, text.length()-1);
 		}
 		notifyParitioner(text);
 	}
 	
 	private void notifyParitioner(final String encodedString) throws IOException {
-		fPartitioner.streamAppended(this, encodedString);
+		this.partitioner.streamAppended(this, encodedString);
 		
-		ConsolePlugin.getDefault().getConsoleManager().warnOfContentChange(fConsole);
+		ConsolePlugin.getDefault().getConsoleManager().warnOfContentChange(this.console);
 	}
 	
 }

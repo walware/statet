@@ -22,10 +22,11 @@ import org.eclipse.debug.core.model.IStreamsProxy;
 public class ToolStreamProxy implements IStreamsProxy {
 	
 	
-	private final ToolStreamMonitor fInputMonitor = new ToolStreamMonitor();
-	private final ToolStreamMonitor fInfoMonitor = new ToolStreamMonitor();
-	private final ToolStreamMonitor fOutputMonitor = new ToolStreamMonitor();
-	private final ToolStreamMonitor fErrorMonitor = new ToolStreamMonitor();
+	private final ToolStreamMonitor inputMonitor = new ToolStreamMonitor();
+	private final ToolStreamMonitor infoMonitor = new ToolStreamMonitor();
+	private final ToolStreamMonitor standardOutputMonitor = new ToolStreamMonitor();
+	private final ToolStreamMonitor standardErrorMonitor = new ToolStreamMonitor();
+	private final ToolStreamMonitor systemOutputMonitor = new ToolStreamMonitor();
 	
 	
 	public ToolStreamProxy() {
@@ -38,32 +39,34 @@ public class ToolStreamProxy implements IStreamsProxy {
 	}
 	
 	public ToolStreamMonitor getInputStreamMonitor() {
-		return fInputMonitor;
+		return this.inputMonitor;
 	}
 	
 	public ToolStreamMonitor getInfoStreamMonitor() {
-		return fInfoMonitor;
+		return this.infoMonitor;
 	}
 	
 	@Override
 	public ToolStreamMonitor getOutputStreamMonitor() {
-		return fOutputMonitor;
+		return this.standardOutputMonitor;
 	}
 	
 	@Override
 	public ToolStreamMonitor getErrorStreamMonitor() {
-		return fErrorMonitor;
+		return this.standardErrorMonitor;
+	}
+	
+	public ToolStreamMonitor getSystemOutputMonitor() {
+		return this.systemOutputMonitor;
 	}
 	
 	
-	/**
-	 * 
-	 */
 	public void dispose() {
-		fInputMonitor.dispose();
-		fInfoMonitor.dispose();
-		fOutputMonitor.dispose();
-		fErrorMonitor.dispose();
+		inputMonitor.dispose();
+		infoMonitor.dispose();
+		standardOutputMonitor.dispose();
+		standardErrorMonitor.dispose();
+		systemOutputMonitor.dispose();
 	}
 	
 }

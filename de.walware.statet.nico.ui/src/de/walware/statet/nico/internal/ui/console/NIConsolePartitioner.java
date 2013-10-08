@@ -384,7 +384,7 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 		}
 		
 		void append(final String moreText) {
-			text.append(moreText);
+			this.text.append(moreText);
 			fBuffer += moreText.length();
 		}
 	}
@@ -494,7 +494,7 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 		 * @param offset trims output up to the line containing the given offset
 		 */
 		public void setOffset(final int offset) {
-			truncateOffset = offset;
+			this.truncateOffset = offset;
 		}
 		
 		@Override
@@ -514,10 +514,10 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 			}
 			
 			final int length = fDocument.getLength();
-			if (truncateOffset < length) {
+			if (this.truncateOffset < length) {
 				synchronized (fOverflowLock) {
 					try {
-						if (truncateOffset < 0) {
+						if (this.truncateOffset < 0) {
 							// clear
 							setUpdateInProgress(true);
 							fDocument.set(""); //$NON-NLS-1$
@@ -526,7 +526,7 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 						}
 						else {
 							// overflow
-							final int cutoffLine = fDocument.getLineOfOffset(truncateOffset);
+							final int cutoffLine = fDocument.getLineOfOffset(this.truncateOffset);
 							final int cutOffset = fDocument.getLineOffset(cutoffLine);
 							
 							// set the new length of the first partition
@@ -573,7 +573,9 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 		for (int i = 0; i < computedPartitions.length; i++) {
 			final int rangeStart = Math.max(computedPartitions[i].getOffset(), offset);
 			final int rangeLength = computedPartitions[i].getLength();
-			styles[i] = new StyleRange(rangeStart, rangeLength, computedPartitions[i].fOutputStream.getColor(), null, computedPartitions[i].fOutputStream.getFontStyle());
+			styles[i] = new StyleRange(rangeStart, rangeLength,
+					computedPartitions[i].fOutputStream.getColor(), null,
+					computedPartitions[i].fOutputStream.getFontStyle() );
 		}
 		return styles;
 	}

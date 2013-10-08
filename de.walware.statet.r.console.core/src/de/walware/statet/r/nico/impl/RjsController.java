@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2008-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
+ * Copyright (c) 2008-2013 Stephan Wahlbrink (www.walware.de/goto/opensource)
+ * and others. All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
@@ -57,7 +57,9 @@ import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
 
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
+import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.runtime.ToolStreamProxy;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 
 import de.walware.rj.RjException;
@@ -69,6 +71,7 @@ import de.walware.rj.data.RReference;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 import de.walware.rj.eclient.graphics.comclient.ERClientGraphicActions;
 import de.walware.rj.server.ConsoleEngine;
+import de.walware.rj.server.ConsoleWriteCmdItem;
 import de.walware.rj.server.DbgCmdItem;
 import de.walware.rj.server.FxCallback;
 import de.walware.rj.server.RjsComConfig;
@@ -248,18 +251,22 @@ public class RjsController extends AbstractRDbgController
 		}
 		
 		@Override
-		protected void writeStdOutput(final String text) {
+		protected void writeConsoleOutput(final byte streamId, final String text) {
 			try {
-				fDefaultOutputStream.append(text, getCurrentSubmitType(), 0);
-			}
-			catch (final Exception e) {
-			}
-		}
-		
-		@Override
-		protected void writeErrOutput(final String text) {
-			try {
-				fErrorOutputStream.append(text, getCurrentSubmitType(), 0);
+				final ToolStreamProxy streams = getStreams();
+				final SubmitType submitType = getCurrentSubmitType();
+				
+				switch (streamId) {
+				case ConsoleWriteCmdItem.R_OUTPUT:
+					streams.getOutputStreamMonitor().append(text, submitType, 0);
+					return;
+				case ConsoleWriteCmdItem.R_ERROR:
+					streams.getErrorStreamMonitor().append(text, submitType, 0);
+					return;
+				default:
+					streams.getSystemOutputMonitor().append(text, submitType, 0);
+					return;
+				}
 			}
 			catch (final Exception e) {
 			}
@@ -268,7 +275,10 @@ public class RjsController extends AbstractRDbgController
 		@Override
 		protected void showMessage(final String text) {
 			try {
-				fInfoStream.append(text, getCurrentSubmitType(), 0);
+				final ToolStreamProxy streams = getStreams();
+				final SubmitType submitType = getCurrentSubmitType();
+				
+				streams.getInfoStreamMonitor().append(text, submitType, 0);
 			}
 			catch (final Exception e) {
 			}

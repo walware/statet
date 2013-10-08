@@ -80,6 +80,7 @@ import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.console.actions.ClearOutputAction;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
@@ -96,6 +97,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
 import de.walware.ecommons.text.ui.TextViewerAction;
+import de.walware.ecommons.text.ui.TextViewerEditorColorUpdater;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.SharedUIResources;
@@ -480,6 +482,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fOutputViewer = new OutputViewer(fControl, fConsole);
 		final GridData outputGD = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fOutputViewer.getControl().setLayoutData(outputGD);
+		
+		new TextViewerEditorColorUpdater(fOutputViewer, EditorsUI.getPreferenceStore());
 		
 		fOutputViewer.getTextWidget().addKeyListener(new KeyListener() {
 			@Override
@@ -1064,15 +1068,16 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			final Object source = event.getSource();
 			final String property = event.getProperty();
 			
-			if (source.equals(fConsole) && IConsoleConstants.P_FONT.equals(property)) {
+			if (source.equals(fConsole) && property.equals(IConsoleConstants.P_FONT)) {
 				final Font font = fConsole.getFont();
 				fOutputViewer.setFont(font);
 				fInputGroup.setFont(font);
 				fResizer.fontChanged();
 				fControl.layout();
 			}
-			else if (IConsoleConstants.P_FONT_STYLE.equals(property)) {
+			else if (property.equals(IConsoleConstants.P_FONT_STYLE)) {
 				fControl.redraw();
+				fOutputViewer.getTextWidget().redraw();
 			}
 			else if (property.equals(IConsoleConstants.P_STREAM_COLOR)) {
 				fOutputViewer.getTextWidget().redraw();

@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2005-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
+ * Copyright (c) 2005-2013 Stephan Wahlbrink (www.walware.de/goto/opensource)
+ * and others. All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
@@ -410,11 +410,7 @@ public abstract class ToolController implements IConsoleService {
 	protected static final int SUSPENDED_TOPLEVEL = 0x1;
 	protected static final int SUSPENDED_DEEPLEVEL = 0x2;
 	
-	private ToolStreamProxy fStreams;
-	protected ToolStreamMonitor fInputStream;
-	protected ToolStreamMonitor fInfoStream;
-	protected ToolStreamMonitor fDefaultOutputStream;
-	protected ToolStreamMonitor fErrorOutputStream;
+	private ToolStreamProxy streams;
 	
 	protected final ToolProcess fProcess;
 	protected final Queue fQueue;
@@ -466,11 +462,7 @@ public abstract class ToolController implements IConsoleService {
 		fProcess = process;
 		fProcess.fInitData = initData;
 		
-		fStreams = new ToolStreamProxy();
-		fInputStream = fStreams.getInputStreamMonitor();
-		fInfoStream = fStreams.getInfoStreamMonitor();
-		fDefaultOutputStream = fStreams.getOutputStreamMonitor();
-		fErrorOutputStream = fStreams.getErrorStreamMonitor();
+		streams = new ToolStreamProxy();
 		
 		fQueue = process.getQueue();
 		fToolStatusListeners.add(fProcess);
@@ -543,7 +535,7 @@ public abstract class ToolController implements IConsoleService {
 	
 	
 	public final ToolStreamProxy getStreams() {
-		return fStreams;
+		return streams;
 	}
 	
 	@Override
@@ -1630,12 +1622,8 @@ public abstract class ToolController implements IConsoleService {
 	 * after the tool is terminated.
 	 */
 	protected void clear() {
-		fStreams.dispose();
-		fStreams = null;
-		fInputStream = null;
-		fInfoStream = null;
-		fDefaultOutputStream = null;
-		fErrorOutputStream = null;
+		streams.dispose();
+		streams = null;
 		
 		final IDisposable[] disposables = fDisposables.toArray();
 		for (final IDisposable disposable : disposables) {
@@ -1773,12 +1761,14 @@ public abstract class ToolController implements IConsoleService {
 	}
 	
 	protected void doBeforeSubmitL() {
-		final SubmitType type = getCurrentSubmitType();
-		fInfoStream.append(fCurrentPrompt.text, type,
+		final ToolStreamProxy streams = getStreams();
+		final SubmitType submitType = getCurrentSubmitType();
+		
+		streams.getInfoStreamMonitor().append(fCurrentPrompt.text, submitType,
 				fCurrentPrompt.meta);
-		fInputStream.append(fCurrentInput, type,
+		streams.getInputStreamMonitor().append(fCurrentInput, submitType,
 				(fCurrentPrompt.meta & IConsoleService.META_HISTORY_DONTADD) );
-		fInputStream.append(fWorkspaceData.getLineSeparator(), type,
+		streams.getInputStreamMonitor().append(fWorkspaceData.getLineSeparator(), submitType,
 				IConsoleService.META_HISTORY_DONTADD);
 	}
 	

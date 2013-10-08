@@ -216,15 +216,23 @@
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
-      <page id="de.walware.statet.nico.preferencePages.ResourceMappings"
+      <page
+            id="de.walware.statet.nico.preferencePages.ResourceMappings"
             category="de.walware.statet.base.preferencePages.RunDebug"
             class="de.walware.statet.nico.internal.ui.preferences.ResourceMappingPreferencePage"
             name="%preferencePages_ResourceMappings_name">
       </page>
-      <page id="de.walware.statet.nico.preferencePages.Console"
+      <page
+            id="de.walware.statet.nico.preferencePages.Console"
             category="de.walware.statet.base.preferencePages.RunDebug"
             class="de.walware.statet.nico.internal.ui.preferences.ConsolePreferencePage"
             name="%preferencePages_Console_name">
+      </page>
+      <page
+            id="de.walware.statet.nico.preferencePages.ConsoleTextStyles"
+            category="de.walware.statet.base.preferencePages.RunDebug"
+            class="de.walware.statet.nico.internal.ui.preferences.ConsoleTextStylesPreferencePage"
+            name="%preferencePages_ConsoleTextStyles_name">
       </page>
    </extension>
    <extension

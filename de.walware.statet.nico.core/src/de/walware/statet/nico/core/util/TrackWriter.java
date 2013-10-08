@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
+ * Copyright (c) 2009-2013 Stephan Wahlbrink (www.walware.de/goto/opensource)
+ * and others. All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
@@ -164,6 +164,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 				}
 				streams.getOutputStreamMonitor().addListener(fOutputListener, submitTypes);
 				streams.getErrorStreamMonitor().addListener(this, submitTypes);
+				streams.getSystemOutputMonitor().addListener(fOutputListener, submitTypes);
 			}
 			
 			if (fConfig.getPrependTimestamp()) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2013 Stephan Wahlbrink (www.walware.de/goto/opensource)
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -71,6 +71,12 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 		public void settingsChanged(final Set<String> groupIds) {
 			if (groupIds.contains(ConsolePreferences.GROUP_ID)) {
 				updateSettings();
+			}
+			if (groupIds.contains(ConsolePreferences.OUTPUT_TEXTSTYLE_GROUP_ID)) {
+				final NIConsoleColorAdapter adapter = fAdapter;
+				if (adapter != null) {
+					adapter.updateSettings();
+				}
 			}
 		}
 		
@@ -168,10 +174,6 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 	
 	protected void updateSettings() {
 		updateWatermarks();
-		final NIConsoleColorAdapter adapter = fAdapter;
-		if (adapter != null) {
-			adapter.updateSettings();
-		}
 	}
 	
 	protected void updateWatermarks() {
@@ -252,7 +254,8 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 	}
 	
 	
-	public void connect(final ToolStreamMonitor streamMonitor, final String streamId, final EnumSet<SubmitType> filter) {
+	public void connect(final ToolStreamMonitor streamMonitor, final String streamId,
+			final EnumSet<SubmitType> filter) {
 		synchronized (fStreams) {
 			if (fStreamsClosed) {
 				return;
@@ -261,7 +264,6 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 			NIConsoleOutputStream stream = fStreams.get(streamId);
 			if (stream == null) {
 				stream = new NIConsoleOutputStream(this, streamId);
-				stream.setColor(fAdapter.getColor(streamId));
 				fStreams.put(streamId, stream);
 			}
 			

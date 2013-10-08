@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2010-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
+ * Copyright (c) 2010-2013 Stephan Wahlbrink (www.walware.de/goto/opensource)
+ * and others. All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
@@ -39,6 +39,7 @@ import de.walware.ecommons.ts.IToolService;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolStatus;
+import de.walware.statet.nico.core.runtime.ToolStreamProxy;
 
 import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RObject;
@@ -314,11 +315,13 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	
 	@Override
 	protected boolean runConsoleCommandInSuspend(final String input) {
+		final ToolStreamProxy streams = getStreams();
+		
 		if ((getPrompt().meta & META_PROMPT_SUSPENDED) != 0) {
 			final String trimmed = input.trim();
 			final char c;
 			if (trimmed.isEmpty()) {
-				fDefaultOutputStream.append(fLineSeparator, SubmitType.OTHER, 0);
+				streams.getOutputStreamMonitor().append(fLineSeparator, SubmitType.OTHER, 0);
 				// revert counter?
 				return false;
 			}

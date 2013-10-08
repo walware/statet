@@ -1,0 +1,20 @@
+Console version 1.23
+Copyright (C) 2013 Software Demo Foundation
+Platform: Best OS x64
+
+> x <- rnorm(10)
+> x
+ [1]  0.78788886 -0.30274491 -0.17211930  0.19308976 -1.56702369
+ [6]  0.98229226 -0.91650906  0.79236971 -0.53522991 -0.06502675
+> summary(x)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-1.5670 -0.4771 -0.1186 -0.0803  0.6392  0.9823
+> xx
+Error: object 'xx' not found
+> 
+> system("ls")
+my-script1.R                 report.html
+my-functions.R               results.txt
+mydata.csv
+> q()
+Save workspace image? [y/n/c]: n

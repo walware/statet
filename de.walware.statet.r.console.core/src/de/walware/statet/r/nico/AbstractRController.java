@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2005-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
+ * Copyright (c) 2005-2013 Stephan Wahlbrink (www.walware.de/goto/opensource)
+ * and others. All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
@@ -30,6 +30,7 @@ import de.walware.ecommons.ts.IToolService;
 import de.walware.statet.nico.core.runtime.ITrack;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
+import de.walware.statet.nico.core.runtime.ToolStreamProxy;
 import de.walware.statet.nico.core.util.TrackWriter;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 
@@ -128,11 +129,13 @@ public abstract class AbstractRController extends ToolController
 	}
 	
 	protected void postCancelTask(final int options, final IProgressMonitor monitor) throws CoreException {
+		final ToolStreamProxy streams = getStreams();
+		final SubmitType submitType = getCurrentSubmitType();
 		final String text = fCurrentPrompt.text + (
 				((fCurrentPrompt.meta & IRBasicAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) ?
 						"(Input cancelled)" : "(Command cancelled)") + 
 						fLineSeparator;
-		fInfoStream.append(text, getCurrentSubmitType(), fCurrentPrompt.meta);
+		streams.getInfoStreamMonitor().append(text, submitType, fCurrentPrompt.meta);
 	}
 	
 	public boolean supportsBusy() {
