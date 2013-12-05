@@ -605,4 +605,20 @@ abstract class RSourceElementByElementAccess
 				&& (getElementName().equals(other.getElementName()));
 	}
 	
+	
+	@Override
+	public String toString() {
+		final StringBuilder sb= new StringBuilder(getClass().getSimpleName());
+		sb.append(" (RSourceElementByElementAccess)"); //$NON-NLS-1$
+		final RElementName elementName= getElementName();
+		if (elementName != null) {
+			sb.append(' ').append(elementName);
+		}
+		else {
+			sb.append(" <unnamed>"); //$NON-NLS-1$
+		}
+		
+		return sb.toString();
+	}
+	
 }

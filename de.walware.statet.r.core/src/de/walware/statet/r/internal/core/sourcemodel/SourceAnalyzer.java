@@ -144,6 +144,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	private static class SourceElementBuilder extends ReturnValue {
 		
+		
 		private final SourceElementBuilder parent;
 		private final IBuildSourceFrameElement element;
 		private final List<RSourceElementByElementAccess> children;
@@ -151,13 +152,24 @@ public class SourceAnalyzer extends RAstVisitor {
 		private final List<ElementAccess> toCheck;
 		private final BuildSourceFrame envir;
 		
+		
 		SourceElementBuilder(final IBuildSourceFrameElement element, final SourceElementBuilder parent, final BuildSourceFrame envir) {
 			super(RETURN_SOURCE_CONTAINTER);
-			this.element = element;
-			this.parent = parent;
-			this.children = new ArrayList<RSourceElementByElementAccess>();
-			this.toCheck = new ArrayList<ElementAccess>();
-			this.envir = envir;
+			this.element= element;
+			this.parent= parent;
+			this.children= new ArrayList<RSourceElementByElementAccess>();
+			this.toCheck= new ArrayList<ElementAccess>();
+			this.envir= envir;
+		}
+		
+		
+		@Override
+		public String toString() {
+			final StringBuilder sb= new StringBuilder("SourceAnalyzer$SourceElementBuilder"); //$NON-NLS-1$
+			sb.append("\n\tfor= ").append(this.element); //$NON-NLS-1$
+			sb.append("\n\tin= ").append(this.envir); //$NON-NLS-1$
+			
+			return sb.toString();
 		}
 		
 	}

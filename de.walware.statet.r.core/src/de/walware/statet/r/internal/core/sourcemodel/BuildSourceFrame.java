@@ -54,23 +54,35 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 	
 	static class ElementAccessList {
 		
+		
 		final String name;
 		final List<ElementAccess> entries;
 		IRFrame frame;
 		int isCreated;
 		
+		
 		public ElementAccessList(final String name) {
-			this.name = name;
-			this.entries = new ArrayList<ElementAccess>(4);
-			this.isCreated = CREATED_NO;
+			this.name= name;
+			this.entries= new ArrayList<ElementAccess>(4);
+			this.isCreated= CREATED_NO;
 		}
 		
 		
 		public void postAdd(final ElementAccess access) {
-			access.fShared = this;
-			entries.add(access);
+			access.fShared= this;
+			this.entries.add(access);
 			access.fFullNode.addAttachment(access);
 		}
+		
+		
+		@Override
+		public String toString() {
+			final StringBuilder sb= new StringBuilder(this.name);
+			sb.append(" (").append(this.entries.size()).append(')'); //$NON-NLS-1$
+			
+			return sb.toString();
+		}
+		
 	}
 	
 	static class RunScope extends BuildSourceFrame {
@@ -436,6 +448,21 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 			}
 			return children;
 		}
+	}
+	
+	
+	@Override
+	public String toString() {
+		final StringBuilder sb= new StringBuilder(getClass().getSimpleName());
+		final RElementName elementName= getElementName();
+		if (elementName != null) {
+			sb.append(' ').append(elementName);
+		}
+		else {
+			sb.append(" <unnamed>"); //$NON-NLS-1$
+		}
+		
+		return sb.toString();
 	}
 	
 }

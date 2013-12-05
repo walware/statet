@@ -19,6 +19,7 @@ import de.walware.ecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
@@ -69,6 +70,21 @@ final class RSourceUnitElement extends RSourceFileElement implements IBuildSourc
 			return fSourceNode;
 		}
 		return null;
+	}
+	
+	
+	@Override
+	public String toString() {
+		final StringBuilder sb= new StringBuilder("RSourceUnitElement"); //$NON-NLS-1$
+		final RElementName elementName= getElementName();
+		if (elementName != null) {
+			sb.append(' ').append(elementName);
+		}
+		else {
+			sb.append(" <unnamed>"); //$NON-NLS-1$
+		}
+		
+		return sb.toString();
 	}
 	
 }
