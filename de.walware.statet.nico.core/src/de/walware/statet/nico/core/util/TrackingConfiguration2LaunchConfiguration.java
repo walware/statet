@@ -51,7 +51,7 @@ public class TrackingConfiguration2LaunchConfiguration {
 		trackingConfig.setTrackStreamOutputTruncate(launchConfig.getAttribute(id+'.'+TRACK_STREAM_OUTPUT_TRUNCATE, false));
 		trackingConfig.setTrackStreamOutputTruncateLines(launchConfig.getAttribute(id+'.'+TRACK_STREAM_OUTPUT_TRUNCATE_LINES, 1000000));
 		
-		final List<String> submitTypeNames = launchConfig.getAttribute(id+'.'+SUBMIT_TYPES, (List<?>) null);
+		final List<String> submitTypeNames = launchConfig.getAttribute(id+'.'+SUBMIT_TYPES, (List<String>) null);
 		if (submitTypeNames != null) {
 			final EnumSet<SubmitType> submitTypes = EnumSet.noneOf(SubmitType.class);
 			for (final String name : submitTypeNames) {

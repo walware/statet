@@ -251,7 +251,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			return;
 		}
 		
-		final Map<String, Object> reconnect = configuration.getAttribute(IRemoteEngineController.LAUNCH_RECONNECT_ATTRIBUTE, (Map<String, Object>) null);
+		final Map reconnect = configuration.getAttribute(IRemoteEngineController.LAUNCH_RECONNECT_ATTRIBUTE, (Map) null);
 		final ToolProcess prevProcess;
 		boolean prevProcessDisposeFinally = true;
 		if (reconnect != null) {
