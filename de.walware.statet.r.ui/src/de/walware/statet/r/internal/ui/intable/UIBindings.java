@@ -246,17 +246,17 @@ public class UIBindings {
 //			uiBindingRegistry.registerKeyBinding(new KeyEventMatcher(SWT.CONTROL, SWT.CR), action);
 			
 			// mouse
-			uiBindingRegistry.registerFirstSingleClickBinding(
+			uiBindingRegistry.registerMouseDownBinding(
 					new MouseEventMatcher(MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT,
 							GridRegion.BODY, IMouseEventMatcher.LEFT_BUTTON ),
 					new SelectCellAction());
 			
-			uiBindingRegistry.registerSingleClickBinding(
+			uiBindingRegistry.registerMouseDownBinding(
 					new MouseEventMatcher(MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT,
 							GridRegion.COLUMN_HEADER, IMouseEventMatcher.LEFT_BUTTON ),
 					new ViewportSelectDimPositionsAction(HORIZONTAL));
 			
-			uiBindingRegistry.registerSingleClickBinding(
+			uiBindingRegistry.registerMouseDownBinding(
 					new MouseEventMatcher(MouseEventMatcher.WILDCARD_MASK | SWT.CTRL | SWT.SHIFT,
 							GridRegion.ROW_HEADER, IMouseEventMatcher.LEFT_BUTTON ),
 					new ViewportSelectDimPositionsAction(VERTICAL));

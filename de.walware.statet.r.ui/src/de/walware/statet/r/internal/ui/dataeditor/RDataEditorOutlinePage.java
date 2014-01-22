@@ -11,9 +11,7 @@
 
 package de.walware.statet.r.internal.ui.dataeditor;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.action.IMenuManager;
@@ -24,6 +22,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.nebula.widgets.nattable.coordinate.RangeList;
 
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.actions.SimpleContributionItem;
@@ -313,11 +312,11 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 			@Override
 			protected void execute() throws ExecutionException {
 				final IStructuredSelection selection = (IStructuredSelection) getViewer().getSelection();
-				final List<Long> columnIndexes = new ArrayList<Long>();
+				final RangeList columnIndexes = new RangeList();
 				for (final Iterator<?> iterator = selection.iterator(); iterator.hasNext();) {
 					final Object element = iterator.next();
 					if (element instanceof RDataTableColumn) {
-						columnIndexes.add(((RDataTableColumn) element).getIndex());
+						columnIndexes.values().add(((RDataTableColumn) element).getIndex());
 					}
 					else {
 						return;

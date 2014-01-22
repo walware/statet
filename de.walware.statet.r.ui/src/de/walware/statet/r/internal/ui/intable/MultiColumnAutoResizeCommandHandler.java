@@ -12,6 +12,8 @@
 package de.walware.statet.r.internal.ui.intable;
 
 import org.eclipse.nebula.widgets.nattable.command.AbstractLayerCommandHandler;
+import org.eclipse.nebula.widgets.nattable.coordinate.IValueIterator;
+import org.eclipse.nebula.widgets.nattable.coordinate.RangeList.ValueIterator;
 import org.eclipse.nebula.widgets.nattable.resize.command.AutoResizeColumnsCommand;
 
 
@@ -33,8 +35,8 @@ public class MultiColumnAutoResizeCommandHandler extends AbstractLayerCommandHan
 	
 	@Override
 	protected boolean doCommand(final AutoResizeColumnsCommand command) {
-		for (final long columnPosition : command.getColumnPositions()) {
-			fDataLayer.setColumnWidthToAutoWidth(columnPosition);
+		for (final IValueIterator posIter = new ValueIterator(command.getPositions()); posIter.hasNext(); ) {
+			fDataLayer.setColumnWidthToAutoWidth(posIter.nextValue());
 		}
 		return true;
 	}

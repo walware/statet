@@ -32,6 +32,7 @@ import org.eclipse.nebula.widgets.nattable.config.LayoutSizeConfig;
 import org.eclipse.nebula.widgets.nattable.coordinate.Orientation;
 import org.eclipse.nebula.widgets.nattable.coordinate.PositionCoordinate;
 import org.eclipse.nebula.widgets.nattable.coordinate.Range;
+import org.eclipse.nebula.widgets.nattable.coordinate.RangeList;
 import org.eclipse.nebula.widgets.nattable.copy.command.CopyDataCommandHandler;
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
 import org.eclipse.nebula.widgets.nattable.data.ISpanningDataProvider;
@@ -869,12 +870,14 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		}
 	}
 	
-	public void selectColumns(final Collection<Long> indexes) {
+	public void selectColumns(final Collection<Range> indexes) {
 		if (fTable != null) {
+			final RangeList columns = RangeList.toRangeList(indexes);
 //			final long rowIndex = fTableBodyLayerStack.getViewportLayer().getRowIndexByPosition(0);
 			final long rowIndex = 0;
-			fTable.doCommand(new SelectColumnsCommand(
-					fTableLayers.selectionLayer, indexes, rowIndex, 0));
+			fTable.doCommand(new SelectColumnsCommand(fTableLayers.selectionLayer,
+					columns, rowIndex, 0,
+					!(columns.isEmpty()) ? columns.values().first() : SelectionLayer.NO_SELECTION ));
 		}
 	}
 	
