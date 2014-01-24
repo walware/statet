@@ -1,13 +1,14 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
+
 package de.walware.statet.rtm.ggplot.impl;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -28,6 +29,7 @@ import de.walware.statet.rtm.rtdata.RtDataFactory;
 import de.walware.statet.rtm.rtdata.RtDataPackage;
 import de.walware.statet.rtm.rtdata.types.RTypedExpr;
 
+
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model object '<em><b>Geom Line Layer</b></em>'.
@@ -42,7 +44,7 @@ import de.walware.statet.rtm.rtdata.types.RTypedExpr;
  *   <li>{@link de.walware.statet.rtm.ggplot.impl.GeomLineLayerImpl#getAlpha <em>Alpha</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class GeomLineLayerImpl extends XYVarLayerImpl implements GeomLineLayer {
@@ -160,6 +162,7 @@ public class GeomLineLayerImpl extends XYVarLayerImpl implements GeomLineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Stat getStat() {
 		return stat;
 	}
@@ -174,7 +177,12 @@ public class GeomLineLayerImpl extends XYVarLayerImpl implements GeomLineLayer {
 		stat = newStat;
 		if (eNotificationRequired()) {
 			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_LINE_LAYER__STAT, oldStat, newStat);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
+			if (msgs == null) {
+				msgs = notification;
+			}
+			else {
+				msgs.add(notification);
+			}
 		}
 		return msgs;
 	}
@@ -184,18 +192,24 @@ public class GeomLineLayerImpl extends XYVarLayerImpl implements GeomLineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStat(Stat newStat) {
 		if (newStat != stat) {
 			NotificationChain msgs = null;
-			if (stat != null)
+			if (stat != null) {
 				msgs = ((InternalEObject)stat).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GEOM_LINE_LAYER__STAT, null, msgs);
-			if (newStat != null)
+			}
+			if (newStat != null) {
 				msgs = ((InternalEObject)newStat).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GEOM_LINE_LAYER__STAT, null, msgs);
+			}
 			msgs = basicSetStat(newStat, msgs);
-			if (msgs != null) msgs.dispatch();
+			if (msgs != null) {
+				msgs.dispatch();
+			}
 		}
-		else if (eNotificationRequired())
+		else if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_LINE_LAYER__STAT, newStat, newStat));
+		}
 	}
 
 	/**
@@ -203,6 +217,7 @@ public class GeomLineLayerImpl extends XYVarLayerImpl implements GeomLineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getLineType() {
 		return lineType;
 	}
@@ -212,11 +227,13 @@ public class GeomLineLayerImpl extends XYVarLayerImpl implements GeomLineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setLineType(RTypedExpr newLineType) {
 		RTypedExpr oldLineType = lineType;
 		lineType = newLineType;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_LINE_LAYER__LINE_TYPE, oldLineType, lineType));
+		}
 	}
 
 	/**
@@ -224,6 +241,7 @@ public class GeomLineLayerImpl extends XYVarLayerImpl implements GeomLineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getSize() {
 		return size;
 	}
@@ -233,11 +251,13 @@ public class GeomLineLayerImpl extends XYVarLayerImpl implements GeomLineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSize(RTypedExpr newSize) {
 		RTypedExpr oldSize = size;
 		size = newSize;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_LINE_LAYER__SIZE, oldSize, size));
+		}
 	}
 
 	/**
@@ -245,6 +265,7 @@ public class GeomLineLayerImpl extends XYVarLayerImpl implements GeomLineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getColor() {
 		return color;
 	}
@@ -254,11 +275,13 @@ public class GeomLineLayerImpl extends XYVarLayerImpl implements GeomLineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setColor(RTypedExpr newColor) {
 		RTypedExpr oldColor = color;
 		color = newColor;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_LINE_LAYER__COLOR, oldColor, color));
+		}
 	}
 
 	/**
@@ -266,6 +289,7 @@ public class GeomLineLayerImpl extends XYVarLayerImpl implements GeomLineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getAlpha() {
 		return alpha;
 	}
@@ -275,11 +299,13 @@ public class GeomLineLayerImpl extends XYVarLayerImpl implements GeomLineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setAlpha(RTypedExpr newAlpha) {
 		RTypedExpr oldAlpha = alpha;
 		alpha = newAlpha;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_LINE_LAYER__ALPHA, oldAlpha, alpha));
+		}
 	}
 
 	/**
@@ -481,7 +507,9 @@ public class GeomLineLayerImpl extends XYVarLayerImpl implements GeomLineLayer {
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (lineType: "); //$NON-NLS-1$

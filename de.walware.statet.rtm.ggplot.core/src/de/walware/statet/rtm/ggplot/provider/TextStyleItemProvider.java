@@ -1,15 +1,15 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
-package de.walware.statet.rtm.ggplot.provider;
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
 
+package de.walware.statet.rtm.ggplot.provider;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,6 +34,7 @@ import de.walware.statet.rtm.base.util.RtItemLabelUtils;
 import de.walware.statet.rtm.ggplot.GGPlotPackage;
 import de.walware.statet.rtm.ggplot.TextStyle;
 import de.walware.statet.rtm.ggplot.core.RtGGPlotCorePlugin;
+
 
 /**
  * This is the item provider adapter for a {@link de.walware.statet.rtm.ggplot.TextStyle} object.

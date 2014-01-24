@@ -1,13 +1,14 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
+
 package de.walware.statet.rtm.ftable.impl;
 
 import org.eclipse.emf.ecore.EAttribute;
@@ -19,6 +20,7 @@ import de.walware.statet.rtm.ftable.FTable;
 import de.walware.statet.rtm.ftable.FTableFactory;
 import de.walware.statet.rtm.ftable.FTablePackage;
 import de.walware.statet.rtm.rtdata.RtDataPackage;
+
 
 /**
  * <!-- begin-user-doc -->
@@ -73,7 +75,9 @@ public class FTablePackageImpl extends EPackageImpl implements FTablePackage {
 	 * @generated
 	 */
 	public static FTablePackage init() {
-		if (isInited) return (FTablePackage)EPackage.Registry.INSTANCE.getEPackage(FTablePackage.eNS_URI);
+		if (isInited) {
+			return (FTablePackage)EPackage.Registry.INSTANCE.getEPackage(FTablePackage.eNS_URI);
+		}
 
 		// Obtain or create and register package
 		FTablePackageImpl theFTablePackage = (FTablePackageImpl)(EPackage.Registry.INSTANCE.get(eNS_URI) instanceof FTablePackageImpl ? EPackage.Registry.INSTANCE.get(eNS_URI) : new FTablePackageImpl());
@@ -103,6 +107,7 @@ public class FTablePackageImpl extends EPackageImpl implements FTablePackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getFTable() {
 		return fTableEClass;
 	}
@@ -112,6 +117,7 @@ public class FTablePackageImpl extends EPackageImpl implements FTablePackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFTable_Data() {
 		return (EAttribute)fTableEClass.getEStructuralFeatures().get(0);
 	}
@@ -121,6 +127,7 @@ public class FTablePackageImpl extends EPackageImpl implements FTablePackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFTable_DataFilter() {
 		return (EAttribute)fTableEClass.getEStructuralFeatures().get(1);
 	}
@@ -130,6 +137,7 @@ public class FTablePackageImpl extends EPackageImpl implements FTablePackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFTable_ColVars() {
 		return (EAttribute)fTableEClass.getEStructuralFeatures().get(2);
 	}
@@ -139,6 +147,7 @@ public class FTablePackageImpl extends EPackageImpl implements FTablePackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFTable_RowVars() {
 		return (EAttribute)fTableEClass.getEStructuralFeatures().get(3);
 	}
@@ -148,6 +157,7 @@ public class FTablePackageImpl extends EPackageImpl implements FTablePackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FTableFactory getFTableFactory() {
 		return (FTableFactory)getEFactoryInstance();
 	}
@@ -167,7 +177,9 @@ public class FTablePackageImpl extends EPackageImpl implements FTablePackage {
 	 * @generated
 	 */
 	public void createPackageContents() {
-		if (isCreated) return;
+		if (isCreated) {
+			return;
+		}
 		isCreated = true;
 
 		// Create classes and their features
@@ -193,7 +205,9 @@ public class FTablePackageImpl extends EPackageImpl implements FTablePackage {
 	 * @generated
 	 */
 	public void initializePackageContents() {
-		if (isInitialized) return;
+		if (isInitialized) {
+			return;
+		}
 		isInitialized = true;
 
 		// Initialize package

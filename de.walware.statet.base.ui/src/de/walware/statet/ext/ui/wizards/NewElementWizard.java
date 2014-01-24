@@ -1,13 +1,13 @@
-/*******************************************************************************
- * Copyright (c) 2005-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- *******************************************************************************/
+/*=============================================================================#
+ # Copyright (c) 2005-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
 
 package de.walware.statet.ext.ui.wizards;
 
@@ -189,10 +189,12 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 			}
 			catch (final CoreException e) {
 				// If the file already existed locally, just refresh to get contents
-				if (e.getStatus().getCode() == IResourceStatus.PATH_OCCUPIED)
+				if (e.getStatus().getCode() == IResourceStatus.PATH_OCCUPIED) {
 					fileHandle.refreshLocal(IResource.DEPTH_ZERO, null);
-				else
+				}
+				else {
 					throw e;
+				}
 			}
 			
 		}
@@ -266,8 +268,8 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 		protected IPath fNewPath;
 		
 		private IProject fCachedProjectHandle;
-		private IProject[] fRefProjects;
-		private IWorkingSet[] fWorkingSets;
+		private final IProject[] fRefProjects;
+		private final IWorkingSet[] fWorkingSets;
 		
 		public ProjectCreator(final String name, final IPath path,
 				final IProject[] projects, final IWorkingSet[] workingSets) {
@@ -287,8 +289,9 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 		 * @return the project resource handle
 		 */
 		public IProject getProjectHandle() {
-			if (fCachedProjectHandle == null)
+			if (fCachedProjectHandle == null) {
 				fCachedProjectHandle = ResourcesPlugin.getWorkspace().getRoot().getProject(fProjectName);
+			}
 			
 			return fCachedProjectHandle;
 		}
@@ -479,8 +482,9 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 	protected ISchedulingRule createRule(IResource resource) {
 		IResource parent = resource.getParent();
 		while (parent != null) {
-			if (parent.exists())
+			if (parent.exists()) {
 				return resource.getWorkspace().getRuleFactory().createRule(resource);
+			}
 			resource = parent;
 			parent = parent.getParent();
 		}

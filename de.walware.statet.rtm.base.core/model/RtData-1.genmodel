@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel"
-    copyrightText="Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).&#xD;&#xA;All rights reserved. This program and the accompanying materials&#xD;&#xA;are made available under the terms of the Eclipse Public License v1.0&#xD;&#xA;which accompanies this distribution, and is available at&#xD;&#xA;http://www.eclipse.org/legal/epl-v10.html&#xD;&#xA;&#xD;&#xA;Contributors:&#xD;&#xA;    Stephan Wahlbrink - initial API and implementation&#xD;&#xA;"
+    copyrightText="Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.&#xA;All rights reserved. This program and the accompanying materials&#xA;are made available under the terms of the Eclipse Public License v1.0&#xA;which accompanies this distribution, and is available at&#xA;http://www.eclipse.org/legal/epl-v10.html&#xA;&#xA;Contributors:&#xA;    Stephan Wahlbrink - initial API and implementation&#xA;"
     modelDirectory="/de.walware.statet.rtm.base.core/src" editDirectory="/de.walware.statet.rtm.base.core/src"
     modelPluginID="de.walware.statet.rtm.base.core" modelName="RtData" modelPluginClass="de.walware.statet.rtm.base.core.RtModelCorePlugin"
     editPluginClass="de.walware.statet.rtm.base.core.RtModelCorePlugin" nonNLSMarkers="true"

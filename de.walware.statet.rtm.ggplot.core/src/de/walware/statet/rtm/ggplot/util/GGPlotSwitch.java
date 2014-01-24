@@ -1,13 +1,13 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
 
 package de.walware.statet.rtm.ggplot.util;
 
@@ -110,306 +110,596 @@ public class GGPlotSwitch<T> extends Switch<T> {
 			case GGPlotPackage.GG_PLOT: {
 				GGPlot ggPlot = (GGPlot)theEObject;
 				T result = caseGGPlot(ggPlot);
-				if (result == null) result = casePropDataProvider(ggPlot);
-				if (result == null) result = casePropXVarProvider(ggPlot);
-				if (result == null) result = casePropYVarProvider(ggPlot);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = casePropDataProvider(ggPlot);
+				}
+				if (result == null) {
+					result = casePropXVarProvider(ggPlot);
+				}
+				if (result == null) {
+					result = casePropYVarProvider(ggPlot);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.LAYER: {
 				Layer layer = (Layer)theEObject;
 				T result = caseLayer(layer);
-				if (result == null) result = casePropDataProvider(layer);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = casePropDataProvider(layer);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.XVAR_LAYER: {
 				XVarLayer xVarLayer = (XVarLayer)theEObject;
 				T result = caseXVarLayer(xVarLayer);
-				if (result == null) result = caseLayer(xVarLayer);
-				if (result == null) result = casePropXVarProvider(xVarLayer);
-				if (result == null) result = casePropGroupVarProvider(xVarLayer);
-				if (result == null) result = casePropDataProvider(xVarLayer);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseLayer(xVarLayer);
+				}
+				if (result == null) {
+					result = casePropXVarProvider(xVarLayer);
+				}
+				if (result == null) {
+					result = casePropGroupVarProvider(xVarLayer);
+				}
+				if (result == null) {
+					result = casePropDataProvider(xVarLayer);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.XY_VAR_LAYER: {
 				XYVarLayer xyVarLayer = (XYVarLayer)theEObject;
 				T result = caseXYVarLayer(xyVarLayer);
-				if (result == null) result = caseLayer(xyVarLayer);
-				if (result == null) result = casePropXVarProvider(xyVarLayer);
-				if (result == null) result = casePropYVarProvider(xyVarLayer);
-				if (result == null) result = casePropGroupVarProvider(xyVarLayer);
-				if (result == null) result = casePropDataProvider(xyVarLayer);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseLayer(xyVarLayer);
+				}
+				if (result == null) {
+					result = casePropXVarProvider(xyVarLayer);
+				}
+				if (result == null) {
+					result = casePropYVarProvider(xyVarLayer);
+				}
+				if (result == null) {
+					result = casePropGroupVarProvider(xyVarLayer);
+				}
+				if (result == null) {
+					result = casePropDataProvider(xyVarLayer);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.GEOM_ABLINE_LAYER: {
 				GeomAblineLayer geomAblineLayer = (GeomAblineLayer)theEObject;
 				T result = caseGeomAblineLayer(geomAblineLayer);
-				if (result == null) result = caseLayer(geomAblineLayer);
-				if (result == null) result = casePropLineTypeProvider(geomAblineLayer);
-				if (result == null) result = casePropSizeProvider(geomAblineLayer);
-				if (result == null) result = casePropColorProvider(geomAblineLayer);
-				if (result == null) result = casePropAlphaProvider(geomAblineLayer);
-				if (result == null) result = casePropDataProvider(geomAblineLayer);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseLayer(geomAblineLayer);
+				}
+				if (result == null) {
+					result = casePropLineTypeProvider(geomAblineLayer);
+				}
+				if (result == null) {
+					result = casePropSizeProvider(geomAblineLayer);
+				}
+				if (result == null) {
+					result = casePropColorProvider(geomAblineLayer);
+				}
+				if (result == null) {
+					result = casePropAlphaProvider(geomAblineLayer);
+				}
+				if (result == null) {
+					result = casePropDataProvider(geomAblineLayer);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.GEOM_BAR_LAYER: {
 				GeomBarLayer geomBarLayer = (GeomBarLayer)theEObject;
 				T result = caseGeomBarLayer(geomBarLayer);
-				if (result == null) result = caseXYVarLayer(geomBarLayer);
-				if (result == null) result = casePropStatProvider(geomBarLayer);
-				if (result == null) result = casePropColorProvider(geomBarLayer);
-				if (result == null) result = casePropFillProvider(geomBarLayer);
-				if (result == null) result = casePropAlphaProvider(geomBarLayer);
-				if (result == null) result = caseLayer(geomBarLayer);
-				if (result == null) result = casePropXVarProvider(geomBarLayer);
-				if (result == null) result = casePropYVarProvider(geomBarLayer);
-				if (result == null) result = casePropGroupVarProvider(geomBarLayer);
-				if (result == null) result = casePropDataProvider(geomBarLayer);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseXYVarLayer(geomBarLayer);
+				}
+				if (result == null) {
+					result = casePropStatProvider(geomBarLayer);
+				}
+				if (result == null) {
+					result = casePropColorProvider(geomBarLayer);
+				}
+				if (result == null) {
+					result = casePropFillProvider(geomBarLayer);
+				}
+				if (result == null) {
+					result = casePropAlphaProvider(geomBarLayer);
+				}
+				if (result == null) {
+					result = caseLayer(geomBarLayer);
+				}
+				if (result == null) {
+					result = casePropXVarProvider(geomBarLayer);
+				}
+				if (result == null) {
+					result = casePropYVarProvider(geomBarLayer);
+				}
+				if (result == null) {
+					result = casePropGroupVarProvider(geomBarLayer);
+				}
+				if (result == null) {
+					result = casePropDataProvider(geomBarLayer);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.GEOM_BOXPLOT_LAYER: {
 				GeomBoxplotLayer geomBoxplotLayer = (GeomBoxplotLayer)theEObject;
 				T result = caseGeomBoxplotLayer(geomBoxplotLayer);
-				if (result == null) result = caseXVarLayer(geomBoxplotLayer);
-				if (result == null) result = casePropColorProvider(geomBoxplotLayer);
-				if (result == null) result = casePropFillProvider(geomBoxplotLayer);
-				if (result == null) result = casePropAlphaProvider(geomBoxplotLayer);
-				if (result == null) result = caseLayer(geomBoxplotLayer);
-				if (result == null) result = casePropXVarProvider(geomBoxplotLayer);
-				if (result == null) result = casePropGroupVarProvider(geomBoxplotLayer);
-				if (result == null) result = casePropDataProvider(geomBoxplotLayer);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseXVarLayer(geomBoxplotLayer);
+				}
+				if (result == null) {
+					result = casePropColorProvider(geomBoxplotLayer);
+				}
+				if (result == null) {
+					result = casePropFillProvider(geomBoxplotLayer);
+				}
+				if (result == null) {
+					result = casePropAlphaProvider(geomBoxplotLayer);
+				}
+				if (result == null) {
+					result = caseLayer(geomBoxplotLayer);
+				}
+				if (result == null) {
+					result = casePropXVarProvider(geomBoxplotLayer);
+				}
+				if (result == null) {
+					result = casePropGroupVarProvider(geomBoxplotLayer);
+				}
+				if (result == null) {
+					result = casePropDataProvider(geomBoxplotLayer);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.GEOM_HISTOGRAM_LAYER: {
 				GeomHistogramLayer geomHistogramLayer = (GeomHistogramLayer)theEObject;
 				T result = caseGeomHistogramLayer(geomHistogramLayer);
-				if (result == null) result = caseXVarLayer(geomHistogramLayer);
-				if (result == null) result = casePropColorProvider(geomHistogramLayer);
-				if (result == null) result = casePropFillProvider(geomHistogramLayer);
-				if (result == null) result = casePropAlphaProvider(geomHistogramLayer);
-				if (result == null) result = caseLayer(geomHistogramLayer);
-				if (result == null) result = casePropXVarProvider(geomHistogramLayer);
-				if (result == null) result = casePropGroupVarProvider(geomHistogramLayer);
-				if (result == null) result = casePropDataProvider(geomHistogramLayer);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseXVarLayer(geomHistogramLayer);
+				}
+				if (result == null) {
+					result = casePropColorProvider(geomHistogramLayer);
+				}
+				if (result == null) {
+					result = casePropFillProvider(geomHistogramLayer);
+				}
+				if (result == null) {
+					result = casePropAlphaProvider(geomHistogramLayer);
+				}
+				if (result == null) {
+					result = caseLayer(geomHistogramLayer);
+				}
+				if (result == null) {
+					result = casePropXVarProvider(geomHistogramLayer);
+				}
+				if (result == null) {
+					result = casePropGroupVarProvider(geomHistogramLayer);
+				}
+				if (result == null) {
+					result = casePropDataProvider(geomHistogramLayer);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.GEOM_LINE_LAYER: {
 				GeomLineLayer geomLineLayer = (GeomLineLayer)theEObject;
 				T result = caseGeomLineLayer(geomLineLayer);
-				if (result == null) result = caseXYVarLayer(geomLineLayer);
-				if (result == null) result = casePropStatProvider(geomLineLayer);
-				if (result == null) result = casePropLineTypeProvider(geomLineLayer);
-				if (result == null) result = casePropSizeProvider(geomLineLayer);
-				if (result == null) result = casePropColorProvider(geomLineLayer);
-				if (result == null) result = casePropAlphaProvider(geomLineLayer);
-				if (result == null) result = caseLayer(geomLineLayer);
-				if (result == null) result = casePropXVarProvider(geomLineLayer);
-				if (result == null) result = casePropYVarProvider(geomLineLayer);
-				if (result == null) result = casePropGroupVarProvider(geomLineLayer);
-				if (result == null) result = casePropDataProvider(geomLineLayer);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseXYVarLayer(geomLineLayer);
+				}
+				if (result == null) {
+					result = casePropStatProvider(geomLineLayer);
+				}
+				if (result == null) {
+					result = casePropLineTypeProvider(geomLineLayer);
+				}
+				if (result == null) {
+					result = casePropSizeProvider(geomLineLayer);
+				}
+				if (result == null) {
+					result = casePropColorProvider(geomLineLayer);
+				}
+				if (result == null) {
+					result = casePropAlphaProvider(geomLineLayer);
+				}
+				if (result == null) {
+					result = caseLayer(geomLineLayer);
+				}
+				if (result == null) {
+					result = casePropXVarProvider(geomLineLayer);
+				}
+				if (result == null) {
+					result = casePropYVarProvider(geomLineLayer);
+				}
+				if (result == null) {
+					result = casePropGroupVarProvider(geomLineLayer);
+				}
+				if (result == null) {
+					result = casePropDataProvider(geomLineLayer);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.GEOM_POINT_LAYER: {
 				GeomPointLayer geomPointLayer = (GeomPointLayer)theEObject;
 				T result = caseGeomPointLayer(geomPointLayer);
-				if (result == null) result = caseXYVarLayer(geomPointLayer);
-				if (result == null) result = casePropShapeProvider(geomPointLayer);
-				if (result == null) result = casePropSizeProvider(geomPointLayer);
-				if (result == null) result = casePropColorProvider(geomPointLayer);
-				if (result == null) result = casePropFillProvider(geomPointLayer);
-				if (result == null) result = casePropAlphaProvider(geomPointLayer);
-				if (result == null) result = caseLayer(geomPointLayer);
-				if (result == null) result = casePropXVarProvider(geomPointLayer);
-				if (result == null) result = casePropYVarProvider(geomPointLayer);
-				if (result == null) result = casePropGroupVarProvider(geomPointLayer);
-				if (result == null) result = casePropDataProvider(geomPointLayer);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseXYVarLayer(geomPointLayer);
+				}
+				if (result == null) {
+					result = casePropShapeProvider(geomPointLayer);
+				}
+				if (result == null) {
+					result = casePropSizeProvider(geomPointLayer);
+				}
+				if (result == null) {
+					result = casePropColorProvider(geomPointLayer);
+				}
+				if (result == null) {
+					result = casePropFillProvider(geomPointLayer);
+				}
+				if (result == null) {
+					result = casePropAlphaProvider(geomPointLayer);
+				}
+				if (result == null) {
+					result = caseLayer(geomPointLayer);
+				}
+				if (result == null) {
+					result = casePropXVarProvider(geomPointLayer);
+				}
+				if (result == null) {
+					result = casePropYVarProvider(geomPointLayer);
+				}
+				if (result == null) {
+					result = casePropGroupVarProvider(geomPointLayer);
+				}
+				if (result == null) {
+					result = casePropDataProvider(geomPointLayer);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.GEOM_TEXT_LAYER: {
 				GeomTextLayer geomTextLayer = (GeomTextLayer)theEObject;
 				T result = caseGeomTextLayer(geomTextLayer);
-				if (result == null) result = caseXYVarLayer(geomTextLayer);
-				if (result == null) result = caseTextStyle(geomTextLayer);
-				if (result == null) result = casePropAlphaProvider(geomTextLayer);
-				if (result == null) result = caseLayer(geomTextLayer);
-				if (result == null) result = casePropXVarProvider(geomTextLayer);
-				if (result == null) result = casePropYVarProvider(geomTextLayer);
-				if (result == null) result = casePropGroupVarProvider(geomTextLayer);
-				if (result == null) result = casePropSizeProvider(geomTextLayer);
-				if (result == null) result = casePropColorProvider(geomTextLayer);
-				if (result == null) result = casePropDataProvider(geomTextLayer);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseXYVarLayer(geomTextLayer);
+				}
+				if (result == null) {
+					result = caseTextStyle(geomTextLayer);
+				}
+				if (result == null) {
+					result = casePropAlphaProvider(geomTextLayer);
+				}
+				if (result == null) {
+					result = caseLayer(geomTextLayer);
+				}
+				if (result == null) {
+					result = casePropXVarProvider(geomTextLayer);
+				}
+				if (result == null) {
+					result = casePropYVarProvider(geomTextLayer);
+				}
+				if (result == null) {
+					result = casePropGroupVarProvider(geomTextLayer);
+				}
+				if (result == null) {
+					result = casePropSizeProvider(geomTextLayer);
+				}
+				if (result == null) {
+					result = casePropColorProvider(geomTextLayer);
+				}
+				if (result == null) {
+					result = casePropDataProvider(geomTextLayer);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.GEOM_SMOOTH_LAYER: {
 				GeomSmoothLayer geomSmoothLayer = (GeomSmoothLayer)theEObject;
 				T result = caseGeomSmoothLayer(geomSmoothLayer);
-				if (result == null) result = caseXYVarLayer(geomSmoothLayer);
-				if (result == null) result = casePropSizeProvider(geomSmoothLayer);
-				if (result == null) result = casePropColorProvider(geomSmoothLayer);
-				if (result == null) result = casePropFillProvider(geomSmoothLayer);
-				if (result == null) result = casePropAlphaProvider(geomSmoothLayer);
-				if (result == null) result = caseLayer(geomSmoothLayer);
-				if (result == null) result = casePropXVarProvider(geomSmoothLayer);
-				if (result == null) result = casePropYVarProvider(geomSmoothLayer);
-				if (result == null) result = casePropGroupVarProvider(geomSmoothLayer);
-				if (result == null) result = casePropDataProvider(geomSmoothLayer);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseXYVarLayer(geomSmoothLayer);
+				}
+				if (result == null) {
+					result = casePropSizeProvider(geomSmoothLayer);
+				}
+				if (result == null) {
+					result = casePropColorProvider(geomSmoothLayer);
+				}
+				if (result == null) {
+					result = casePropFillProvider(geomSmoothLayer);
+				}
+				if (result == null) {
+					result = casePropAlphaProvider(geomSmoothLayer);
+				}
+				if (result == null) {
+					result = caseLayer(geomSmoothLayer);
+				}
+				if (result == null) {
+					result = casePropXVarProvider(geomSmoothLayer);
+				}
+				if (result == null) {
+					result = casePropYVarProvider(geomSmoothLayer);
+				}
+				if (result == null) {
+					result = casePropGroupVarProvider(geomSmoothLayer);
+				}
+				if (result == null) {
+					result = casePropDataProvider(geomSmoothLayer);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.GEOM_TILE_LAYER: {
 				GeomTileLayer geomTileLayer = (GeomTileLayer)theEObject;
 				T result = caseGeomTileLayer(geomTileLayer);
-				if (result == null) result = caseXYVarLayer(geomTileLayer);
-				if (result == null) result = casePropLineTypeProvider(geomTileLayer);
-				if (result == null) result = casePropColorProvider(geomTileLayer);
-				if (result == null) result = casePropFillProvider(geomTileLayer);
-				if (result == null) result = casePropAlphaProvider(geomTileLayer);
-				if (result == null) result = caseLayer(geomTileLayer);
-				if (result == null) result = casePropXVarProvider(geomTileLayer);
-				if (result == null) result = casePropYVarProvider(geomTileLayer);
-				if (result == null) result = casePropGroupVarProvider(geomTileLayer);
-				if (result == null) result = casePropDataProvider(geomTileLayer);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseXYVarLayer(geomTileLayer);
+				}
+				if (result == null) {
+					result = casePropLineTypeProvider(geomTileLayer);
+				}
+				if (result == null) {
+					result = casePropColorProvider(geomTileLayer);
+				}
+				if (result == null) {
+					result = casePropFillProvider(geomTileLayer);
+				}
+				if (result == null) {
+					result = casePropAlphaProvider(geomTileLayer);
+				}
+				if (result == null) {
+					result = caseLayer(geomTileLayer);
+				}
+				if (result == null) {
+					result = casePropXVarProvider(geomTileLayer);
+				}
+				if (result == null) {
+					result = casePropYVarProvider(geomTileLayer);
+				}
+				if (result == null) {
+					result = casePropGroupVarProvider(geomTileLayer);
+				}
+				if (result == null) {
+					result = casePropDataProvider(geomTileLayer);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.GEOM_VIOLIN_LAYER: {
 				GeomViolinLayer geomViolinLayer = (GeomViolinLayer)theEObject;
 				T result = caseGeomViolinLayer(geomViolinLayer);
-				if (result == null) result = caseXYVarLayer(geomViolinLayer);
-				if (result == null) result = casePropLineTypeProvider(geomViolinLayer);
-				if (result == null) result = casePropColorProvider(geomViolinLayer);
-				if (result == null) result = casePropFillProvider(geomViolinLayer);
-				if (result == null) result = casePropAlphaProvider(geomViolinLayer);
-				if (result == null) result = caseLayer(geomViolinLayer);
-				if (result == null) result = casePropXVarProvider(geomViolinLayer);
-				if (result == null) result = casePropYVarProvider(geomViolinLayer);
-				if (result == null) result = casePropGroupVarProvider(geomViolinLayer);
-				if (result == null) result = casePropDataProvider(geomViolinLayer);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseXYVarLayer(geomViolinLayer);
+				}
+				if (result == null) {
+					result = casePropLineTypeProvider(geomViolinLayer);
+				}
+				if (result == null) {
+					result = casePropColorProvider(geomViolinLayer);
+				}
+				if (result == null) {
+					result = casePropFillProvider(geomViolinLayer);
+				}
+				if (result == null) {
+					result = casePropAlphaProvider(geomViolinLayer);
+				}
+				if (result == null) {
+					result = caseLayer(geomViolinLayer);
+				}
+				if (result == null) {
+					result = casePropXVarProvider(geomViolinLayer);
+				}
+				if (result == null) {
+					result = casePropYVarProvider(geomViolinLayer);
+				}
+				if (result == null) {
+					result = casePropGroupVarProvider(geomViolinLayer);
+				}
+				if (result == null) {
+					result = casePropDataProvider(geomViolinLayer);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.FACET_LAYOUT: {
 				FacetLayout facetLayout = (FacetLayout)theEObject;
 				T result = caseFacetLayout(facetLayout);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.GRID_FACET_LAYOUT: {
 				GridFacetLayout gridFacetLayout = (GridFacetLayout)theEObject;
 				T result = caseGridFacetLayout(gridFacetLayout);
-				if (result == null) result = caseFacetLayout(gridFacetLayout);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseFacetLayout(gridFacetLayout);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.WRAP_FACET_LAYOUT: {
 				WrapFacetLayout wrapFacetLayout = (WrapFacetLayout)theEObject;
 				T result = caseWrapFacetLayout(wrapFacetLayout);
-				if (result == null) result = caseFacetLayout(wrapFacetLayout);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseFacetLayout(wrapFacetLayout);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.STAT: {
 				Stat stat = (Stat)theEObject;
 				T result = caseStat(stat);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.IDENTITY_STAT: {
 				IdentityStat identityStat = (IdentityStat)theEObject;
 				T result = caseIdentityStat(identityStat);
-				if (result == null) result = caseStat(identityStat);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseStat(identityStat);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.SUMMARY_STAT: {
 				SummaryStat summaryStat = (SummaryStat)theEObject;
 				T result = caseSummaryStat(summaryStat);
-				if (result == null) result = caseStat(summaryStat);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = caseStat(summaryStat);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.TEXT_STYLE: {
 				TextStyle textStyle = (TextStyle)theEObject;
 				T result = caseTextStyle(textStyle);
-				if (result == null) result = casePropSizeProvider(textStyle);
-				if (result == null) result = casePropColorProvider(textStyle);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = casePropSizeProvider(textStyle);
+				}
+				if (result == null) {
+					result = casePropColorProvider(textStyle);
+				}
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.PROP_DATA_PROVIDER: {
 				PropDataProvider propDataProvider = (PropDataProvider)theEObject;
 				T result = casePropDataProvider(propDataProvider);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.PROP_XVAR_PROVIDER: {
 				PropXVarProvider propXVarProvider = (PropXVarProvider)theEObject;
 				T result = casePropXVarProvider(propXVarProvider);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.PROP_YVAR_PROVIDER: {
 				PropYVarProvider propYVarProvider = (PropYVarProvider)theEObject;
 				T result = casePropYVarProvider(propYVarProvider);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.PROP_STAT_PROVIDER: {
 				PropStatProvider propStatProvider = (PropStatProvider)theEObject;
 				T result = casePropStatProvider(propStatProvider);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.PROP_GROUP_VAR_PROVIDER: {
 				PropGroupVarProvider propGroupVarProvider = (PropGroupVarProvider)theEObject;
 				T result = casePropGroupVarProvider(propGroupVarProvider);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.PROP_SHAPE_PROVIDER: {
 				PropShapeProvider propShapeProvider = (PropShapeProvider)theEObject;
 				T result = casePropShapeProvider(propShapeProvider);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.PROP_LINE_TYPE_PROVIDER: {
 				PropLineTypeProvider propLineTypeProvider = (PropLineTypeProvider)theEObject;
 				T result = casePropLineTypeProvider(propLineTypeProvider);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.PROP_SIZE_PROVIDER: {
 				PropSizeProvider propSizeProvider = (PropSizeProvider)theEObject;
 				T result = casePropSizeProvider(propSizeProvider);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.PROP_COLOR_PROVIDER: {
 				PropColorProvider propColorProvider = (PropColorProvider)theEObject;
 				T result = casePropColorProvider(propColorProvider);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.PROP_FILL_PROVIDER: {
 				PropFillProvider propFillProvider = (PropFillProvider)theEObject;
 				T result = casePropFillProvider(propFillProvider);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			case GGPlotPackage.PROP_ALPHA_PROVIDER: {
 				PropAlphaProvider propAlphaProvider = (PropAlphaProvider)theEObject;
 				T result = casePropAlphaProvider(propAlphaProvider);
-				if (result == null) result = defaultCase(theEObject);
+				if (result == null) {
+					result = defaultCase(theEObject);
+				}
 				return result;
 			}
 			default: return defaultCase(theEObject);

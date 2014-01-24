@@ -1,13 +1,14 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
+
 package de.walware.statet.rtm.ggplot.impl;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -24,6 +25,7 @@ import de.walware.statet.rtm.rtdata.RtDataFactory;
 import de.walware.statet.rtm.rtdata.RtDataPackage;
 import de.walware.statet.rtm.rtdata.types.RTypedExpr;
 
+
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model object '<em><b>Geom Abline Layer</b></em>'.
@@ -39,7 +41,7 @@ import de.walware.statet.rtm.rtdata.types.RTypedExpr;
  *   <li>{@link de.walware.statet.rtm.ggplot.impl.GeomAblineLayerImpl#getSlopeVar <em>Slope Var</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class GeomAblineLayerImpl extends LayerImpl implements GeomAblineLayer {
@@ -187,6 +189,7 @@ public class GeomAblineLayerImpl extends LayerImpl implements GeomAblineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getLineType() {
 		return lineType;
 	}
@@ -196,11 +199,13 @@ public class GeomAblineLayerImpl extends LayerImpl implements GeomAblineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setLineType(RTypedExpr newLineType) {
 		RTypedExpr oldLineType = lineType;
 		lineType = newLineType;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_ABLINE_LAYER__LINE_TYPE, oldLineType, lineType));
+		}
 	}
 
 	/**
@@ -208,6 +213,7 @@ public class GeomAblineLayerImpl extends LayerImpl implements GeomAblineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getSize() {
 		return size;
 	}
@@ -217,11 +223,13 @@ public class GeomAblineLayerImpl extends LayerImpl implements GeomAblineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSize(RTypedExpr newSize) {
 		RTypedExpr oldSize = size;
 		size = newSize;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_ABLINE_LAYER__SIZE, oldSize, size));
+		}
 	}
 
 	/**
@@ -229,6 +237,7 @@ public class GeomAblineLayerImpl extends LayerImpl implements GeomAblineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getColor() {
 		return color;
 	}
@@ -238,11 +247,13 @@ public class GeomAblineLayerImpl extends LayerImpl implements GeomAblineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setColor(RTypedExpr newColor) {
 		RTypedExpr oldColor = color;
 		color = newColor;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_ABLINE_LAYER__COLOR, oldColor, color));
+		}
 	}
 
 	/**
@@ -250,6 +261,7 @@ public class GeomAblineLayerImpl extends LayerImpl implements GeomAblineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getAlpha() {
 		return alpha;
 	}
@@ -259,11 +271,13 @@ public class GeomAblineLayerImpl extends LayerImpl implements GeomAblineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setAlpha(RTypedExpr newAlpha) {
 		RTypedExpr oldAlpha = alpha;
 		alpha = newAlpha;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_ABLINE_LAYER__ALPHA, oldAlpha, alpha));
+		}
 	}
 
 	/**
@@ -271,6 +285,7 @@ public class GeomAblineLayerImpl extends LayerImpl implements GeomAblineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getInterceptVar() {
 		return interceptVar;
 	}
@@ -280,11 +295,13 @@ public class GeomAblineLayerImpl extends LayerImpl implements GeomAblineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setInterceptVar(RTypedExpr newInterceptVar) {
 		RTypedExpr oldInterceptVar = interceptVar;
 		interceptVar = newInterceptVar;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_ABLINE_LAYER__INTERCEPT_VAR, oldInterceptVar, interceptVar));
+		}
 	}
 
 	/**
@@ -292,6 +309,7 @@ public class GeomAblineLayerImpl extends LayerImpl implements GeomAblineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getSlopeVar() {
 		return slopeVar;
 	}
@@ -301,11 +319,13 @@ public class GeomAblineLayerImpl extends LayerImpl implements GeomAblineLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSlopeVar(RTypedExpr newSlopeVar) {
 		RTypedExpr oldSlopeVar = slopeVar;
 		slopeVar = newSlopeVar;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_ABLINE_LAYER__SLOPE_VAR, oldSlopeVar, slopeVar));
+		}
 	}
 
 	/**
@@ -491,7 +511,9 @@ public class GeomAblineLayerImpl extends LayerImpl implements GeomAblineLayer {
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (lineType: "); //$NON-NLS-1$

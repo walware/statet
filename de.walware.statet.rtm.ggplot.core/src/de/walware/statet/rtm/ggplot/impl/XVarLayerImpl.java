@@ -1,13 +1,14 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
+
 package de.walware.statet.rtm.ggplot.impl;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -20,6 +21,7 @@ import de.walware.statet.rtm.ggplot.PropXVarProvider;
 import de.walware.statet.rtm.ggplot.XVarLayer;
 import de.walware.statet.rtm.rtdata.types.RTypedExpr;
 
+
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model object '<em><b>XVar Layer</b></em>'.
@@ -31,7 +33,7 @@ import de.walware.statet.rtm.rtdata.types.RTypedExpr;
  *   <li>{@link de.walware.statet.rtm.ggplot.impl.XVarLayerImpl#getGroupVar <em>Group Var</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public abstract class XVarLayerImpl extends LayerImpl implements XVarLayer {
@@ -99,6 +101,7 @@ public abstract class XVarLayerImpl extends LayerImpl implements XVarLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getGroupVar() {
 		return groupVar;
 	}
@@ -108,11 +111,13 @@ public abstract class XVarLayerImpl extends LayerImpl implements XVarLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setGroupVar(RTypedExpr newGroupVar) {
 		RTypedExpr oldGroupVar = groupVar;
 		groupVar = newGroupVar;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.XVAR_LAYER__GROUP_VAR, oldGroupVar, groupVar));
+		}
 	}
 
 	/**
@@ -120,6 +125,7 @@ public abstract class XVarLayerImpl extends LayerImpl implements XVarLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getXVar() {
 		return xVar;
 	}
@@ -129,11 +135,13 @@ public abstract class XVarLayerImpl extends LayerImpl implements XVarLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setXVar(RTypedExpr newXVar) {
 		RTypedExpr oldXVar = xVar;
 		xVar = newXVar;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.XVAR_LAYER__XVAR, oldXVar, xVar));
+		}
 	}
 
 	/**
@@ -255,7 +263,9 @@ public abstract class XVarLayerImpl extends LayerImpl implements XVarLayer {
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (xVar: "); //$NON-NLS-1$

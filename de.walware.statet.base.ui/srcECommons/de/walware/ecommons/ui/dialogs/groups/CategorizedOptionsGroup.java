@@ -1,13 +1,13 @@
-/*******************************************************************************
- * Copyright (c) 2005-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- *******************************************************************************/
+/*=============================================================================#
+ # Copyright (c) 2005-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
 
 package de.walware.ecommons.ui.dialogs.groups;
 
@@ -38,9 +38,9 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 	public static class CategorizedItem {
 
 		private int fCategoryIndex;
-		private String fName;
+		private final String fName;
 		
-		public CategorizedItem(String name) {
+		public CategorizedItem(final String name) {
 			
 			fName = name;
 		}
@@ -50,7 +50,7 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 			return fName;
 		}
 
-		private void setCategory(int index) {
+		private void setCategory(final int index) {
 			
 			fCategoryIndex = index;
 		}
@@ -64,9 +64,10 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 	private class CategorizedItemLabelProvider extends LabelProvider {
 
 		@Override
-		public String getText(Object element) {
-			if (element instanceof String) // Category
+		public String getText(final Object element) {
+			if (element instanceof String) {
 				return (String) element;
+			}
 			return ((CategorizedItem) element).getName(); // ItemT
 		}
 	}
@@ -78,26 +79,26 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 		}
 
 		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 		}
 
 		@Override
-		public Object[] getElements(Object inputElement) {
+		public Object[] getElements(final Object inputElement) {
 			
 			return fCategorys;
 		}
 
 		@Override
-		public boolean hasChildren(Object element) {
+		public boolean hasChildren(final Object element) {
 
 			return element instanceof String;
 		}
 
 		@Override
-		public Object[] getChildren(Object parentElement) {
+		public Object[] getChildren(final Object parentElement) {
 			
 			if (parentElement instanceof String) {
-				int idx = getIndexOfCategory(parentElement);
+				final int idx = getIndexOfCategory(parentElement);
 				return fCategoryChilds[idx];
 			}
 			
@@ -105,12 +106,13 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 		}
 
 		@Override
-		public Object getParent(Object element) {
+		public Object getParent(final Object element) {
 			
-			if (element instanceof String)
+			if (element instanceof String) {
 				return null;
+			}
 			
-			int idx = ((CategorizedItem) element).getCategoryIndex();
+			final int idx = ((CategorizedItem) element).getCategoryIndex();
 			return fCategorys[idx];
 		}
 	}
@@ -118,14 +120,14 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 	public String[] fCategorys;
 	public ItemT[][] fCategoryChilds;
 	
-	public CategorizedOptionsGroup(boolean grabSelectionHorizontal, boolean grabVertical) {
+	public CategorizedOptionsGroup(final boolean grabSelectionHorizontal, final boolean grabVertical) {
 		super(grabSelectionHorizontal, grabVertical);
 	}
 	
 	@Override
-	protected TreeViewer createSelectionViewer(Composite parent) {
+	protected TreeViewer createSelectionViewer(final Composite parent) {
 		
-		TreeViewer viewer = new TreeViewer(parent, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		final TreeViewer viewer = new TreeViewer(parent, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		viewer.setLabelProvider(new CategorizedItemLabelProvider());
 
 		return viewer;
@@ -134,17 +136,20 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 	@Override
 	protected GridData createSelectionGridData() {
 		
-		GridData gd = super.createSelectionGridData();
+		final GridData gd = super.createSelectionGridData();
 		
-		Control control = getStructuredViewer().getControl();
-		PixelConverter pixel = new PixelConverter(control);
+		final Control control = getStructuredViewer().getControl();
+		final PixelConverter pixel = new PixelConverter(control);
 		gd.heightHint = pixel.convertHeightInCharsToPixels(9);
 		int maxWidth = 0;
-		for (CategorizedItem item : getListModel())
+		for (final CategorizedItem item : getListModel()) {
 			maxWidth = Math.max(maxWidth, pixel.convertWidthInCharsToPixels(item.getName().length()));
-		ScrollBar vBar = ((Scrollable) control).getVerticalBar();
+		}
+		final ScrollBar vBar = ((Scrollable) control).getVerticalBar();
 		if (vBar != null)
+		 {
 			maxWidth += vBar.getSize().x * 4; // scrollbars and tree indentation guess
+		}
 		gd.widthHint = maxWidth;
 		
 		return gd;
@@ -161,15 +166,17 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 		
 		return new IDoubleClickListener() {
 			@Override
-			public void doubleClick(DoubleClickEvent event) {
-				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+			public void doubleClick(final DoubleClickEvent event) {
+				final IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				if (selection != null && selection.size() == 1) {
-					Object item = selection.getFirstElement();
+					final Object item = selection.getFirstElement();
 					if (item instanceof String) {
-						if (getStructuredViewer().getExpandedState(item))
+						if (getStructuredViewer().getExpandedState(item)) {
 							getStructuredViewer().collapseToLevel(item, TreeViewer.ALL_LEVELS);
-						else
+						}
+						else {
 							getStructuredViewer().expandToLevel(item, 1);
+						}
 					}
 					else {
 						handleDoubleClick(getSingleItem(selection), selection);
@@ -186,7 +193,7 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 		getStructuredViewer().getControl().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				TreeViewer viewer = getStructuredViewer();
+				final TreeViewer viewer = getStructuredViewer();
 				if (viewer != null && UIAccess.isOkToUse(viewer)) {
 					viewer.setSelection(new StructuredSelection(fCategorys[0]));
 				}
@@ -195,7 +202,7 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 	}
 	
 	@Override
-	public ItemT getSingleItem(IStructuredSelection selection) {
+	public ItemT getSingleItem(final IStructuredSelection selection) {
 		
 		if (selection.getFirstElement() instanceof String) {
 			return null;
@@ -214,11 +221,12 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 		}
 	}
 	
-	public int getIndexOfCategory(Object category) {
+	public int getIndexOfCategory(final Object category) {
 		
 		for (int i = 0; i < fCategorys.length; i++) {
-			if (fCategorys[i] == category)
+			if (fCategorys[i] == category) {
 				return i;
+			}
 		}
 		return -1;
 	}

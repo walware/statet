@@ -1,13 +1,14 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
+
 package de.walware.statet.rtm.ggplot.provider;
 
 import java.util.ArrayList;
@@ -452,6 +453,7 @@ public class GGPlotItemProviderAdapterFactory extends GGPlotAdapterFactory imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ComposeableAdapterFactory getRootAdapterFactory() {
 		return parentAdapterFactory == null ? this : parentAdapterFactory.getRootAdapterFactory();
 	}
@@ -462,6 +464,7 @@ public class GGPlotItemProviderAdapterFactory extends GGPlotAdapterFactory imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setParentAdapterFactory(ComposedAdapterFactory parentAdapterFactory) {
 		this.parentAdapterFactory = parentAdapterFactory;
 	}
@@ -510,6 +513,7 @@ public class GGPlotItemProviderAdapterFactory extends GGPlotAdapterFactory imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void addListener(INotifyChangedListener notifyChangedListener) {
 		changeNotifier.addListener(notifyChangedListener);
 	}
@@ -520,6 +524,7 @@ public class GGPlotItemProviderAdapterFactory extends GGPlotAdapterFactory imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void removeListener(INotifyChangedListener notifyChangedListener) {
 		changeNotifier.removeListener(notifyChangedListener);
 	}
@@ -530,6 +535,7 @@ public class GGPlotItemProviderAdapterFactory extends GGPlotAdapterFactory imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void fireNotifyChanged(Notification notification) {
 		changeNotifier.fireNotifyChanged(notification);
 
@@ -544,23 +550,56 @@ public class GGPlotItemProviderAdapterFactory extends GGPlotAdapterFactory imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void dispose() {
-		if (ggPlotItemProvider != null) ggPlotItemProvider.dispose();
-		if (geomAblineLayerItemProvider != null) geomAblineLayerItemProvider.dispose();
-		if (geomBarLayerItemProvider != null) geomBarLayerItemProvider.dispose();
-		if (geomBoxplotLayerItemProvider != null) geomBoxplotLayerItemProvider.dispose();
-		if (geomHistogramLayerItemProvider != null) geomHistogramLayerItemProvider.dispose();
-		if (geomLineLayerItemProvider != null) geomLineLayerItemProvider.dispose();
-		if (geomPointLayerItemProvider != null) geomPointLayerItemProvider.dispose();
-		if (geomTextLayerItemProvider != null) geomTextLayerItemProvider.dispose();
-		if (geomSmoothLayerItemProvider != null) geomSmoothLayerItemProvider.dispose();
-		if (geomTileLayerItemProvider != null) geomTileLayerItemProvider.dispose();
-		if (geomViolinLayerItemProvider != null) geomViolinLayerItemProvider.dispose();
-		if (gridFacetLayoutItemProvider != null) gridFacetLayoutItemProvider.dispose();
-		if (wrapFacetLayoutItemProvider != null) wrapFacetLayoutItemProvider.dispose();
-		if (identityStatItemProvider != null) identityStatItemProvider.dispose();
-		if (summaryStatItemProvider != null) summaryStatItemProvider.dispose();
-		if (textStyleItemProvider != null) textStyleItemProvider.dispose();
+		if (ggPlotItemProvider != null) {
+			ggPlotItemProvider.dispose();
+		}
+		if (geomAblineLayerItemProvider != null) {
+			geomAblineLayerItemProvider.dispose();
+		}
+		if (geomBarLayerItemProvider != null) {
+			geomBarLayerItemProvider.dispose();
+		}
+		if (geomBoxplotLayerItemProvider != null) {
+			geomBoxplotLayerItemProvider.dispose();
+		}
+		if (geomHistogramLayerItemProvider != null) {
+			geomHistogramLayerItemProvider.dispose();
+		}
+		if (geomLineLayerItemProvider != null) {
+			geomLineLayerItemProvider.dispose();
+		}
+		if (geomPointLayerItemProvider != null) {
+			geomPointLayerItemProvider.dispose();
+		}
+		if (geomTextLayerItemProvider != null) {
+			geomTextLayerItemProvider.dispose();
+		}
+		if (geomSmoothLayerItemProvider != null) {
+			geomSmoothLayerItemProvider.dispose();
+		}
+		if (geomTileLayerItemProvider != null) {
+			geomTileLayerItemProvider.dispose();
+		}
+		if (geomViolinLayerItemProvider != null) {
+			geomViolinLayerItemProvider.dispose();
+		}
+		if (gridFacetLayoutItemProvider != null) {
+			gridFacetLayoutItemProvider.dispose();
+		}
+		if (wrapFacetLayoutItemProvider != null) {
+			wrapFacetLayoutItemProvider.dispose();
+		}
+		if (identityStatItemProvider != null) {
+			identityStatItemProvider.dispose();
+		}
+		if (summaryStatItemProvider != null) {
+			summaryStatItemProvider.dispose();
+		}
+		if (textStyleItemProvider != null) {
+			textStyleItemProvider.dispose();
+		}
 	}
 
 }

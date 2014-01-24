@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("RGWConnector")]
 [assembly: AssemblyDescription("Connector for R-GUI on Windows")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("WalWare/StatET-Project (www.walware.de/goto/statet)")]
+[assembly: AssemblyCompany("WalWare.de")]
 [assembly: AssemblyProduct("RGWConnector")]
 [assembly: AssemblyCopyright("Copyright © 2005-2007 Stephan Wahlbrink")]
 [assembly: AssemblyTrademark("")]

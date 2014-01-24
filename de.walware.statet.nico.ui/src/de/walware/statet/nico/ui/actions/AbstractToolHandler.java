@@ -1,13 +1,13 @@
-/*******************************************************************************
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- *******************************************************************************/
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
 
 package de.walware.statet.nico.ui.actions;
 
@@ -28,36 +28,36 @@ public abstract class AbstractToolHandler extends AbstractHandler {
 	private final String fRequiredFeatureSet;
 	
 	
-	protected AbstractToolHandler(String mainType) {
+	protected AbstractToolHandler(final String mainType) {
 		this(mainType, null);
 	}
 	
-	protected AbstractToolHandler(String mainType, String featureSet) {
+	protected AbstractToolHandler(final String mainType, final String featureSet) {
 		fRequiredMainType = mainType;
 		fRequiredFeatureSet = featureSet;
 	}
 	
 	
 	@Override
-	public void setEnabled(Object evaluationContext) {
-		ITool tool = (ITool) HandlerUtil.getVariable(evaluationContext, ToolSourceProvider.ACTIVE_TOOL_NAME);
+	public void setEnabled(final Object evaluationContext) {
+		final ITool tool = (ITool) HandlerUtil.getVariable(evaluationContext, ToolSourceProvider.ACTIVE_TOOL_NAME);
 		setBaseEnabled(isValid(tool));
 	}
 	
-	protected boolean isValid(ITool tool) {
+	protected boolean isValid(final ITool tool) {
 		return (tool != null
 				&& (fRequiredMainType == null || tool.getMainType() == fRequiredMainType)
 				&& (fRequiredFeatureSet == null || tool.isProvidingFeatureSet(fRequiredFeatureSet))
 				&& isSupported(tool) );
 	}
 	
-	protected boolean isSupported(ITool tool) {
+	protected boolean isSupported(final ITool tool) {
 		return !tool.isTerminated();
 	}
 	
 	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		ITool tool = (ITool) HandlerUtil.getVariable(event, ToolSourceProvider.ACTIVE_TOOL_NAME);
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
+		final ITool tool = (ITool) HandlerUtil.getVariable(event, ToolSourceProvider.ACTIVE_TOOL_NAME);
 		if (!isValid(tool)) {
 			return null;
 		}

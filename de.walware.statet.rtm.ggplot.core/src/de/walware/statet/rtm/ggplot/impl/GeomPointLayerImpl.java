@@ -1,13 +1,14 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
+
 package de.walware.statet.rtm.ggplot.impl;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -25,6 +26,7 @@ import de.walware.statet.rtm.rtdata.RtDataFactory;
 import de.walware.statet.rtm.rtdata.RtDataPackage;
 import de.walware.statet.rtm.rtdata.types.RTypedExpr;
 
+
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model object '<em><b>Geom Point Layer</b></em>'.
@@ -41,7 +43,7 @@ import de.walware.statet.rtm.rtdata.types.RTypedExpr;
  *   <li>{@link de.walware.statet.rtm.ggplot.impl.GeomPointLayerImpl#getPositionYJitter <em>Position YJitter</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer {
@@ -209,6 +211,7 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getColor() {
 		return color;
 	}
@@ -218,11 +221,13 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setColor(RTypedExpr newColor) {
 		RTypedExpr oldColor = color;
 		color = newColor;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_POINT_LAYER__COLOR, oldColor, color));
+		}
 	}
 
 	/**
@@ -230,6 +235,7 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getFill() {
 		return fill;
 	}
@@ -239,11 +245,13 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFill(RTypedExpr newFill) {
 		RTypedExpr oldFill = fill;
 		fill = newFill;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_POINT_LAYER__FILL, oldFill, fill));
+		}
 	}
 
 	/**
@@ -251,6 +259,7 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getAlpha() {
 		return alpha;
 	}
@@ -260,11 +269,13 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setAlpha(RTypedExpr newAlpha) {
 		RTypedExpr oldAlpha = alpha;
 		alpha = newAlpha;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_POINT_LAYER__ALPHA, oldAlpha, alpha));
+		}
 	}
 
 	/**
@@ -272,6 +283,7 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getShape() {
 		return shape;
 	}
@@ -281,11 +293,13 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setShape(RTypedExpr newShape) {
 		RTypedExpr oldShape = shape;
 		shape = newShape;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_POINT_LAYER__SHAPE, oldShape, shape));
+		}
 	}
 
 	/**
@@ -293,6 +307,7 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getSize() {
 		return size;
 	}
@@ -302,11 +317,13 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSize(RTypedExpr newSize) {
 		RTypedExpr oldSize = size;
 		size = newSize;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_POINT_LAYER__SIZE, oldSize, size));
+		}
 	}
 
 	/**
@@ -314,6 +331,7 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getPositionXJitter() {
 		return positionXJitter;
 	}
@@ -323,11 +341,13 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setPositionXJitter(RTypedExpr newPositionXJitter) {
 		RTypedExpr oldPositionXJitter = positionXJitter;
 		positionXJitter = newPositionXJitter;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_POINT_LAYER__POSITION_XJITTER, oldPositionXJitter, positionXJitter));
+		}
 	}
 
 	/**
@@ -335,6 +355,7 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getPositionYJitter() {
 		return positionYJitter;
 	}
@@ -344,11 +365,13 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setPositionYJitter(RTypedExpr newPositionYJitter) {
 		RTypedExpr oldPositionYJitter = positionYJitter;
 		positionYJitter = newPositionYJitter;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_POINT_LAYER__POSITION_YJITTER, oldPositionYJitter, positionYJitter));
+		}
 	}
 
 	/**
@@ -556,7 +579,9 @@ public class GeomPointLayerImpl extends XYVarLayerImpl implements GeomPointLayer
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (shape: "); //$NON-NLS-1$

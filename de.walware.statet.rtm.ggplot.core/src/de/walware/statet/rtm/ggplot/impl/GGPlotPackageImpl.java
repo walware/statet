@@ -1,13 +1,13 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
 
 package de.walware.statet.rtm.ggplot.impl;
 
@@ -324,7 +324,9 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * @generated
 	 */
 	public static GGPlotPackage init() {
-		if (isInited) return (GGPlotPackage)EPackage.Registry.INSTANCE.getEPackage(GGPlotPackage.eNS_URI);
+		if (isInited) {
+			return (GGPlotPackage)EPackage.Registry.INSTANCE.getEPackage(GGPlotPackage.eNS_URI);
+		}
 
 		// Obtain or create and register package
 		GGPlotPackageImpl theGGPlotPackage = (GGPlotPackageImpl)(EPackage.Registry.INSTANCE.get(eNS_URI) instanceof GGPlotPackageImpl ? EPackage.Registry.INSTANCE.get(eNS_URI) : new GGPlotPackageImpl());
@@ -364,6 +366,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getGGPlot_DataFilter() {
 		return (EAttribute)ggPlotEClass.getEStructuralFeatures().get(0);
 	}
@@ -463,6 +466,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getGGPlot_AxXTextStyle() {
 		return (EReference)ggPlotEClass.getEStructuralFeatures().get(10);
 	}
@@ -472,6 +476,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getGGPlot_AxYTextStyle() {
 		return (EReference)ggPlotEClass.getEStructuralFeatures().get(11);
 	}
@@ -601,6 +606,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getFacetLayout() {
 		return facetLayoutEClass;
 	}
@@ -610,6 +616,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getGridFacetLayout() {
 		return gridFacetLayoutEClass;
 	}
@@ -619,6 +626,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getGridFacetLayout_ColVars() {
 		return (EAttribute)gridFacetLayoutEClass.getEStructuralFeatures().get(0);
 	}
@@ -628,6 +636,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getGridFacetLayout_RowVars() {
 		return (EAttribute)gridFacetLayoutEClass.getEStructuralFeatures().get(1);
 	}
@@ -637,6 +646,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getWrapFacetLayout() {
 		return wrapFacetLayoutEClass;
 	}
@@ -646,6 +656,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getWrapFacetLayout_ColVars() {
 		return (EAttribute)wrapFacetLayoutEClass.getEStructuralFeatures().get(0);
 	}
@@ -655,6 +666,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getWrapFacetLayout_ColNum() {
 		return (EAttribute)wrapFacetLayoutEClass.getEStructuralFeatures().get(1);
 	}
@@ -674,6 +686,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTextStyle_FontFamily() {
 		return (EAttribute)textStyleEClass.getEStructuralFeatures().get(0);
 	}
@@ -683,6 +696,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTextStyle_FontFace() {
 		return (EAttribute)textStyleEClass.getEStructuralFeatures().get(1);
 	}
@@ -722,6 +736,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getStat() {
 		return statEClass;
 	}
@@ -731,6 +746,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getIdentityStat() {
 		return identityStatEClass;
 	}
@@ -740,6 +756,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getSummaryStat() {
 		return summaryStatEClass;
 	}
@@ -749,6 +766,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSummaryStat_YFun() {
 		return (EAttribute)summaryStatEClass.getEStructuralFeatures().get(0);
 	}
@@ -818,6 +836,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getPropStatProvider() {
 		return propStatProviderEClass;
 	}
@@ -827,6 +846,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getPropStatProvider_Stat() {
 		return (EReference)propStatProviderEClass.getEStructuralFeatures().get(0);
 	}
@@ -836,6 +856,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getPropGroupVarProvider() {
 		return propGroupVarProviderEClass;
 	}
@@ -845,6 +866,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getPropGroupVarProvider_GroupVar() {
 		return (EAttribute)propGroupVarProviderEClass.getEStructuralFeatures().get(0);
 	}
@@ -894,6 +916,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getPropAlphaProvider() {
 		return propAlphaProviderEClass;
 	}
@@ -903,6 +926,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getPropAlphaProvider_Alpha() {
 		return (EAttribute)propAlphaProviderEClass.getEStructuralFeatures().get(0);
 	}
@@ -932,6 +956,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getPropLineTypeProvider() {
 		return propLineTypeProviderEClass;
 	}
@@ -941,6 +966,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getPropLineTypeProvider_LineType() {
 		return (EAttribute)propLineTypeProviderEClass.getEStructuralFeatures().get(0);
 	}
@@ -1060,7 +1086,9 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * @generated
 	 */
 	public void createPackageContents() {
-		if (isCreated) return;
+		if (isCreated) {
+			return;
+		}
 		isCreated = true;
 
 		// Create classes and their features
@@ -1183,7 +1211,9 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 	 * @generated
 	 */
 	public void initializePackageContents() {
-		if (isInitialized) return;
+		if (isInitialized) {
+			return;
+		}
 		isInitialized = true;
 
 		// Initialize package
@@ -1199,87 +1229,87 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 		// Set bounds for type parameters
 
 		// Add supertypes to classes
-		ggPlotEClass.getESuperTypes().add(this.getPropDataProvider());
-		ggPlotEClass.getESuperTypes().add(this.getPropXVarProvider());
-		ggPlotEClass.getESuperTypes().add(this.getPropYVarProvider());
-		layerEClass.getESuperTypes().add(this.getPropDataProvider());
-		xVarLayerEClass.getESuperTypes().add(this.getLayer());
-		xVarLayerEClass.getESuperTypes().add(this.getPropXVarProvider());
-		xVarLayerEClass.getESuperTypes().add(this.getPropGroupVarProvider());
-		xyVarLayerEClass.getESuperTypes().add(this.getLayer());
-		xyVarLayerEClass.getESuperTypes().add(this.getPropXVarProvider());
-		xyVarLayerEClass.getESuperTypes().add(this.getPropYVarProvider());
-		xyVarLayerEClass.getESuperTypes().add(this.getPropGroupVarProvider());
-		geomAblineLayerEClass.getESuperTypes().add(this.getLayer());
-		geomAblineLayerEClass.getESuperTypes().add(this.getPropLineTypeProvider());
-		geomAblineLayerEClass.getESuperTypes().add(this.getPropSizeProvider());
-		geomAblineLayerEClass.getESuperTypes().add(this.getPropColorProvider());
-		geomAblineLayerEClass.getESuperTypes().add(this.getPropAlphaProvider());
-		geomBarLayerEClass.getESuperTypes().add(this.getXYVarLayer());
-		geomBarLayerEClass.getESuperTypes().add(this.getPropStatProvider());
-		geomBarLayerEClass.getESuperTypes().add(this.getPropColorProvider());
-		geomBarLayerEClass.getESuperTypes().add(this.getPropFillProvider());
-		geomBarLayerEClass.getESuperTypes().add(this.getPropAlphaProvider());
-		geomBoxplotLayerEClass.getESuperTypes().add(this.getXVarLayer());
-		geomBoxplotLayerEClass.getESuperTypes().add(this.getPropColorProvider());
-		geomBoxplotLayerEClass.getESuperTypes().add(this.getPropFillProvider());
-		geomBoxplotLayerEClass.getESuperTypes().add(this.getPropAlphaProvider());
-		geomHistogramLayerEClass.getESuperTypes().add(this.getXVarLayer());
-		geomHistogramLayerEClass.getESuperTypes().add(this.getPropColorProvider());
-		geomHistogramLayerEClass.getESuperTypes().add(this.getPropFillProvider());
-		geomHistogramLayerEClass.getESuperTypes().add(this.getPropAlphaProvider());
-		geomLineLayerEClass.getESuperTypes().add(this.getXYVarLayer());
-		geomLineLayerEClass.getESuperTypes().add(this.getPropStatProvider());
-		geomLineLayerEClass.getESuperTypes().add(this.getPropLineTypeProvider());
-		geomLineLayerEClass.getESuperTypes().add(this.getPropSizeProvider());
-		geomLineLayerEClass.getESuperTypes().add(this.getPropColorProvider());
-		geomLineLayerEClass.getESuperTypes().add(this.getPropAlphaProvider());
-		geomPointLayerEClass.getESuperTypes().add(this.getXYVarLayer());
-		geomPointLayerEClass.getESuperTypes().add(this.getPropShapeProvider());
-		geomPointLayerEClass.getESuperTypes().add(this.getPropSizeProvider());
-		geomPointLayerEClass.getESuperTypes().add(this.getPropColorProvider());
-		geomPointLayerEClass.getESuperTypes().add(this.getPropFillProvider());
-		geomPointLayerEClass.getESuperTypes().add(this.getPropAlphaProvider());
-		geomTextLayerEClass.getESuperTypes().add(this.getXYVarLayer());
-		geomTextLayerEClass.getESuperTypes().add(this.getTextStyle());
-		geomTextLayerEClass.getESuperTypes().add(this.getPropAlphaProvider());
-		geomSmoothLayerEClass.getESuperTypes().add(this.getXYVarLayer());
-		geomSmoothLayerEClass.getESuperTypes().add(this.getPropSizeProvider());
-		geomSmoothLayerEClass.getESuperTypes().add(this.getPropColorProvider());
-		geomSmoothLayerEClass.getESuperTypes().add(this.getPropFillProvider());
-		geomSmoothLayerEClass.getESuperTypes().add(this.getPropAlphaProvider());
-		geomTileLayerEClass.getESuperTypes().add(this.getXYVarLayer());
-		geomTileLayerEClass.getESuperTypes().add(this.getPropLineTypeProvider());
-		geomTileLayerEClass.getESuperTypes().add(this.getPropColorProvider());
-		geomTileLayerEClass.getESuperTypes().add(this.getPropFillProvider());
-		geomTileLayerEClass.getESuperTypes().add(this.getPropAlphaProvider());
-		geomViolinLayerEClass.getESuperTypes().add(this.getXYVarLayer());
-		geomViolinLayerEClass.getESuperTypes().add(this.getPropLineTypeProvider());
-		geomViolinLayerEClass.getESuperTypes().add(this.getPropColorProvider());
-		geomViolinLayerEClass.getESuperTypes().add(this.getPropFillProvider());
-		geomViolinLayerEClass.getESuperTypes().add(this.getPropAlphaProvider());
-		gridFacetLayoutEClass.getESuperTypes().add(this.getFacetLayout());
-		wrapFacetLayoutEClass.getESuperTypes().add(this.getFacetLayout());
-		identityStatEClass.getESuperTypes().add(this.getStat());
-		summaryStatEClass.getESuperTypes().add(this.getStat());
-		textStyleEClass.getESuperTypes().add(this.getPropSizeProvider());
-		textStyleEClass.getESuperTypes().add(this.getPropColorProvider());
+		ggPlotEClass.getESuperTypes().add(getPropDataProvider());
+		ggPlotEClass.getESuperTypes().add(getPropXVarProvider());
+		ggPlotEClass.getESuperTypes().add(getPropYVarProvider());
+		layerEClass.getESuperTypes().add(getPropDataProvider());
+		xVarLayerEClass.getESuperTypes().add(getLayer());
+		xVarLayerEClass.getESuperTypes().add(getPropXVarProvider());
+		xVarLayerEClass.getESuperTypes().add(getPropGroupVarProvider());
+		xyVarLayerEClass.getESuperTypes().add(getLayer());
+		xyVarLayerEClass.getESuperTypes().add(getPropXVarProvider());
+		xyVarLayerEClass.getESuperTypes().add(getPropYVarProvider());
+		xyVarLayerEClass.getESuperTypes().add(getPropGroupVarProvider());
+		geomAblineLayerEClass.getESuperTypes().add(getLayer());
+		geomAblineLayerEClass.getESuperTypes().add(getPropLineTypeProvider());
+		geomAblineLayerEClass.getESuperTypes().add(getPropSizeProvider());
+		geomAblineLayerEClass.getESuperTypes().add(getPropColorProvider());
+		geomAblineLayerEClass.getESuperTypes().add(getPropAlphaProvider());
+		geomBarLayerEClass.getESuperTypes().add(getXYVarLayer());
+		geomBarLayerEClass.getESuperTypes().add(getPropStatProvider());
+		geomBarLayerEClass.getESuperTypes().add(getPropColorProvider());
+		geomBarLayerEClass.getESuperTypes().add(getPropFillProvider());
+		geomBarLayerEClass.getESuperTypes().add(getPropAlphaProvider());
+		geomBoxplotLayerEClass.getESuperTypes().add(getXVarLayer());
+		geomBoxplotLayerEClass.getESuperTypes().add(getPropColorProvider());
+		geomBoxplotLayerEClass.getESuperTypes().add(getPropFillProvider());
+		geomBoxplotLayerEClass.getESuperTypes().add(getPropAlphaProvider());
+		geomHistogramLayerEClass.getESuperTypes().add(getXVarLayer());
+		geomHistogramLayerEClass.getESuperTypes().add(getPropColorProvider());
+		geomHistogramLayerEClass.getESuperTypes().add(getPropFillProvider());
+		geomHistogramLayerEClass.getESuperTypes().add(getPropAlphaProvider());
+		geomLineLayerEClass.getESuperTypes().add(getXYVarLayer());
+		geomLineLayerEClass.getESuperTypes().add(getPropStatProvider());
+		geomLineLayerEClass.getESuperTypes().add(getPropLineTypeProvider());
+		geomLineLayerEClass.getESuperTypes().add(getPropSizeProvider());
+		geomLineLayerEClass.getESuperTypes().add(getPropColorProvider());
+		geomLineLayerEClass.getESuperTypes().add(getPropAlphaProvider());
+		geomPointLayerEClass.getESuperTypes().add(getXYVarLayer());
+		geomPointLayerEClass.getESuperTypes().add(getPropShapeProvider());
+		geomPointLayerEClass.getESuperTypes().add(getPropSizeProvider());
+		geomPointLayerEClass.getESuperTypes().add(getPropColorProvider());
+		geomPointLayerEClass.getESuperTypes().add(getPropFillProvider());
+		geomPointLayerEClass.getESuperTypes().add(getPropAlphaProvider());
+		geomTextLayerEClass.getESuperTypes().add(getXYVarLayer());
+		geomTextLayerEClass.getESuperTypes().add(getTextStyle());
+		geomTextLayerEClass.getESuperTypes().add(getPropAlphaProvider());
+		geomSmoothLayerEClass.getESuperTypes().add(getXYVarLayer());
+		geomSmoothLayerEClass.getESuperTypes().add(getPropSizeProvider());
+		geomSmoothLayerEClass.getESuperTypes().add(getPropColorProvider());
+		geomSmoothLayerEClass.getESuperTypes().add(getPropFillProvider());
+		geomSmoothLayerEClass.getESuperTypes().add(getPropAlphaProvider());
+		geomTileLayerEClass.getESuperTypes().add(getXYVarLayer());
+		geomTileLayerEClass.getESuperTypes().add(getPropLineTypeProvider());
+		geomTileLayerEClass.getESuperTypes().add(getPropColorProvider());
+		geomTileLayerEClass.getESuperTypes().add(getPropFillProvider());
+		geomTileLayerEClass.getESuperTypes().add(getPropAlphaProvider());
+		geomViolinLayerEClass.getESuperTypes().add(getXYVarLayer());
+		geomViolinLayerEClass.getESuperTypes().add(getPropLineTypeProvider());
+		geomViolinLayerEClass.getESuperTypes().add(getPropColorProvider());
+		geomViolinLayerEClass.getESuperTypes().add(getPropFillProvider());
+		geomViolinLayerEClass.getESuperTypes().add(getPropAlphaProvider());
+		gridFacetLayoutEClass.getESuperTypes().add(getFacetLayout());
+		wrapFacetLayoutEClass.getESuperTypes().add(getFacetLayout());
+		identityStatEClass.getESuperTypes().add(getStat());
+		summaryStatEClass.getESuperTypes().add(getStat());
+		textStyleEClass.getESuperTypes().add(getPropSizeProvider());
+		textStyleEClass.getESuperTypes().add(getPropColorProvider());
 
 		// Initialize classes, features, and operations; add parameters
 		initEClass(ggPlotEClass, GGPlot.class, "GGPlot", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS); //$NON-NLS-1$
 		initEAttribute(getGGPlot_DataFilter(), theRtDataPackage.getRDataFilter(), "dataFilter", null, 0, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
 		initEAttribute(getGGPlot_MainTitle(), theRtDataPackage.getRLabel(), "mainTitle", null, 0, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
-		initEReference(getGGPlot_MainTitleStyle(), this.getTextStyle(), null, "mainTitleStyle", null, 1, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
-		initEReference(getGGPlot_Facet(), this.getFacetLayout(), null, "facet", null, 0, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
+		initEReference(getGGPlot_MainTitleStyle(), getTextStyle(), null, "mainTitleStyle", null, 1, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
+		initEReference(getGGPlot_Facet(), getFacetLayout(), null, "facet", null, 0, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
 		initEAttribute(getGGPlot_AxXLim(), theRtDataPackage.getRNumRange(), "axXLim", null, 0, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
 		initEAttribute(getGGPlot_AxYLim(), theRtDataPackage.getRNumRange(), "axYLim", null, 0, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
 		initEAttribute(getGGPlot_AxXLabel(), theRtDataPackage.getRLabel(), "axXLabel", null, 0, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, !IS_ORDERED); //$NON-NLS-1$
 		initEAttribute(getGGPlot_AxYLabel(), theRtDataPackage.getRLabel(), "axYLabel", null, 0, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, !IS_ORDERED); //$NON-NLS-1$
-		initEReference(getGGPlot_AxXLabelStyle(), this.getTextStyle(), null, "axXLabelStyle", null, 1, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
-		initEReference(getGGPlot_AxYLabelStyle(), this.getTextStyle(), null, "axYLabelStyle", null, 1, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
-		initEReference(getGGPlot_AxXTextStyle(), this.getTextStyle(), null, "axXTextStyle", null, 1, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
-		initEReference(getGGPlot_AxYTextStyle(), this.getTextStyle(), null, "axYTextStyle", null, 1, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
-		initEReference(getGGPlot_Layers(), this.getLayer(), null, "layers", null, 0, -1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
+		initEReference(getGGPlot_AxXLabelStyle(), getTextStyle(), null, "axXLabelStyle", null, 1, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
+		initEReference(getGGPlot_AxYLabelStyle(), getTextStyle(), null, "axYLabelStyle", null, 1, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
+		initEReference(getGGPlot_AxXTextStyle(), getTextStyle(), null, "axXTextStyle", null, 1, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
+		initEReference(getGGPlot_AxYTextStyle(), getTextStyle(), null, "axYTextStyle", null, 1, 1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
+		initEReference(getGGPlot_Layers(), getLayer(), null, "layers", null, 0, -1, GGPlot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
 
 		initEClass(layerEClass, Layer.class, "Layer", IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS); //$NON-NLS-1$
 
@@ -1346,7 +1376,7 @@ public class GGPlotPackageImpl extends EPackageImpl implements GGPlotPackage {
 		initEAttribute(getPropYVarProvider_YVar(), theRtDataPackage.getRVar(), "yVar", null, 0, 1, PropYVarProvider.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
 
 		initEClass(propStatProviderEClass, PropStatProvider.class, "PropStatProvider", IS_ABSTRACT, IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS); //$NON-NLS-1$
-		initEReference(getPropStatProvider_Stat(), this.getStat(), null, "stat", null, 0, 1, PropStatProvider.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
+		initEReference(getPropStatProvider_Stat(), getStat(), null, "stat", null, 0, 1, PropStatProvider.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$
 
 		initEClass(propGroupVarProviderEClass, PropGroupVarProvider.class, "PropGroupVarProvider", IS_ABSTRACT, IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS); //$NON-NLS-1$
 		initEAttribute(getPropGroupVarProvider_GroupVar(), theRtDataPackage.getRVar(), "groupVar", null, 0, 1, PropGroupVarProvider.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$

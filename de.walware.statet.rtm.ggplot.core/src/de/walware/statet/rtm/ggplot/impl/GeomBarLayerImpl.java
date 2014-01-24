@@ -1,13 +1,14 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
+
 package de.walware.statet.rtm.ggplot.impl;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -27,6 +28,7 @@ import de.walware.statet.rtm.rtdata.RtDataFactory;
 import de.walware.statet.rtm.rtdata.RtDataPackage;
 import de.walware.statet.rtm.rtdata.types.RTypedExpr;
 
+
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model object '<em><b>Geom Bar Layer</b></em>'.
@@ -40,7 +42,7 @@ import de.walware.statet.rtm.rtdata.types.RTypedExpr;
  *   <li>{@link de.walware.statet.rtm.ggplot.impl.GeomBarLayerImpl#getAlpha <em>Alpha</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class GeomBarLayerImpl extends XYVarLayerImpl implements GeomBarLayer {
@@ -138,6 +140,7 @@ public class GeomBarLayerImpl extends XYVarLayerImpl implements GeomBarLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getColor() {
 		return color;
 	}
@@ -147,11 +150,13 @@ public class GeomBarLayerImpl extends XYVarLayerImpl implements GeomBarLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setColor(RTypedExpr newColor) {
 		RTypedExpr oldColor = color;
 		color = newColor;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_BAR_LAYER__COLOR, oldColor, color));
+		}
 	}
 
 	/**
@@ -159,6 +164,7 @@ public class GeomBarLayerImpl extends XYVarLayerImpl implements GeomBarLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getFill() {
 		return fill;
 	}
@@ -168,11 +174,13 @@ public class GeomBarLayerImpl extends XYVarLayerImpl implements GeomBarLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFill(RTypedExpr newFill) {
 		RTypedExpr oldFill = fill;
 		fill = newFill;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_BAR_LAYER__FILL, oldFill, fill));
+		}
 	}
 
 	/**
@@ -180,6 +188,7 @@ public class GeomBarLayerImpl extends XYVarLayerImpl implements GeomBarLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getAlpha() {
 		return alpha;
 	}
@@ -189,11 +198,13 @@ public class GeomBarLayerImpl extends XYVarLayerImpl implements GeomBarLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setAlpha(RTypedExpr newAlpha) {
 		RTypedExpr oldAlpha = alpha;
 		alpha = newAlpha;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_BAR_LAYER__ALPHA, oldAlpha, alpha));
+		}
 	}
 
 	/**
@@ -215,6 +226,7 @@ public class GeomBarLayerImpl extends XYVarLayerImpl implements GeomBarLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Stat getStat() {
 		return stat;
 	}
@@ -229,7 +241,12 @@ public class GeomBarLayerImpl extends XYVarLayerImpl implements GeomBarLayer {
 		stat = newStat;
 		if (eNotificationRequired()) {
 			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_BAR_LAYER__STAT, oldStat, newStat);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
+			if (msgs == null) {
+				msgs = notification;
+			}
+			else {
+				msgs.add(notification);
+			}
 		}
 		return msgs;
 	}
@@ -239,18 +256,24 @@ public class GeomBarLayerImpl extends XYVarLayerImpl implements GeomBarLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStat(Stat newStat) {
 		if (newStat != stat) {
 			NotificationChain msgs = null;
-			if (stat != null)
+			if (stat != null) {
 				msgs = ((InternalEObject)stat).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GEOM_BAR_LAYER__STAT, null, msgs);
-			if (newStat != null)
+			}
+			if (newStat != null) {
 				msgs = ((InternalEObject)newStat).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GEOM_BAR_LAYER__STAT, null, msgs);
+			}
 			msgs = basicSetStat(newStat, msgs);
-			if (msgs != null) msgs.dispatch();
+			if (msgs != null) {
+				msgs.dispatch();
+			}
 		}
-		else if (eNotificationRequired())
+		else if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_BAR_LAYER__STAT, newStat, newStat));
+		}
 	}
 
 	/**
@@ -416,7 +439,9 @@ public class GeomBarLayerImpl extends XYVarLayerImpl implements GeomBarLayer {
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (color: "); //$NON-NLS-1$

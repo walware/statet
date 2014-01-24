@@ -1,13 +1,13 @@
-/*******************************************************************************
- * Copyright (c) 2005-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- *******************************************************************************/
+/*=============================================================================#
+ # Copyright (c) 2005-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
 
 package de.walware.statet.ext.ui.text;
 
@@ -52,7 +52,7 @@ public class CommentScanner extends AbstractRuleBasedScanner
 	
 	private static class TaskTagRule extends WordRule {
 		
-		private IToken fToken;
+		private final IToken fToken;
 		
 		public TaskTagRule(final IToken token, final IToken defaultToken) {
 			super(new TaskTagDetector(), defaultToken);
@@ -73,8 +73,8 @@ public class CommentScanner extends AbstractRuleBasedScanner
 	
 	private TaskTagRule fTaskTagRule;
 	
-	private String fCommentTokenKey;
-	private String fTaskTokenKey;
+	private final String fCommentTokenKey;
+	private final String fTaskTokenKey;
 	
 	
 	public CommentScanner(final ColorManager colorManager, final IPreferenceStore preferenceStore, final IPreferenceAccess corePrefs,

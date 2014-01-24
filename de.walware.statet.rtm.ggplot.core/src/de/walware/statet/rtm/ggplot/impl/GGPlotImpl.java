@@ -1,13 +1,13 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
 
 package de.walware.statet.rtm.ggplot.impl;
 
@@ -58,7 +58,7 @@ import de.walware.statet.rtm.rtdata.types.RTypedExpr;
  *   <li>{@link de.walware.statet.rtm.ggplot.impl.GGPlotImpl#getLayers <em>Layers</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class GGPlotImpl extends EObjectImpl implements GGPlot {
@@ -372,8 +372,9 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	public void setData(RTypedExpr newData) {
 		RTypedExpr oldData = data;
 		data = newData;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__DATA, oldData, data));
+		}
 	}
 
 	/**
@@ -395,8 +396,9 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	public void setXVar(RTypedExpr newXVar) {
 		RTypedExpr oldXVar = xVar;
 		xVar = newXVar;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__XVAR, oldXVar, xVar));
+		}
 	}
 
 	/**
@@ -418,8 +420,9 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	public void setYVar(RTypedExpr newYVar) {
 		RTypedExpr oldYVar = yVar;
 		yVar = newYVar;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__YVAR, oldYVar, yVar));
+		}
 	}
 
 	/**
@@ -427,6 +430,7 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getDataFilter() {
 		return dataFilter;
 	}
@@ -436,11 +440,13 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDataFilter(RTypedExpr newDataFilter) {
 		RTypedExpr oldDataFilter = dataFilter;
 		dataFilter = newDataFilter;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__DATA_FILTER, oldDataFilter, dataFilter));
+		}
 	}
 
 	/**
@@ -462,8 +468,9 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	public void setMainTitle(RTypedExpr newMainTitle) {
 		RTypedExpr oldMainTitle = mainTitle;
 		mainTitle = newMainTitle;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__MAIN_TITLE, oldMainTitle, mainTitle));
+		}
 	}
 
 	/**
@@ -486,7 +493,12 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 		mainTitleStyle = newMainTitleStyle;
 		if (eNotificationRequired()) {
 			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__MAIN_TITLE_STYLE, oldMainTitleStyle, newMainTitleStyle);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
+			if (msgs == null) {
+				msgs = notification;
+			}
+			else {
+				msgs.add(notification);
+			}
 		}
 		return msgs;
 	}
@@ -500,15 +512,20 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	public void setMainTitleStyle(TextStyle newMainTitleStyle) {
 		if (newMainTitleStyle != mainTitleStyle) {
 			NotificationChain msgs = null;
-			if (mainTitleStyle != null)
+			if (mainTitleStyle != null) {
 				msgs = ((InternalEObject)mainTitleStyle).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GG_PLOT__MAIN_TITLE_STYLE, null, msgs);
-			if (newMainTitleStyle != null)
+			}
+			if (newMainTitleStyle != null) {
 				msgs = ((InternalEObject)newMainTitleStyle).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GG_PLOT__MAIN_TITLE_STYLE, null, msgs);
+			}
 			msgs = basicSetMainTitleStyle(newMainTitleStyle, msgs);
-			if (msgs != null) msgs.dispatch();
+			if (msgs != null) {
+				msgs.dispatch();
+			}
 		}
-		else if (eNotificationRequired())
+		else if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__MAIN_TITLE_STYLE, newMainTitleStyle, newMainTitleStyle));
+		}
 	}
 
 	/**
@@ -531,7 +548,12 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 		facet = newFacet;
 		if (eNotificationRequired()) {
 			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__FACET, oldFacet, newFacet);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
+			if (msgs == null) {
+				msgs = notification;
+			}
+			else {
+				msgs.add(notification);
+			}
 		}
 		return msgs;
 	}
@@ -541,18 +563,24 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFacet(FacetLayout newFacet) {
 		if (newFacet != facet) {
 			NotificationChain msgs = null;
-			if (facet != null)
+			if (facet != null) {
 				msgs = ((InternalEObject)facet).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GG_PLOT__FACET, null, msgs);
-			if (newFacet != null)
+			}
+			if (newFacet != null) {
 				msgs = ((InternalEObject)newFacet).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GG_PLOT__FACET, null, msgs);
+			}
 			msgs = basicSetFacet(newFacet, msgs);
-			if (msgs != null) msgs.dispatch();
+			if (msgs != null) {
+				msgs.dispatch();
+			}
 		}
-		else if (eNotificationRequired())
+		else if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__FACET, newFacet, newFacet));
+		}
 	}
 
 	/**
@@ -574,8 +602,9 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	public void setAxXLim(RTypedExpr newAxXLim) {
 		RTypedExpr oldAxXLim = axXLim;
 		axXLim = newAxXLim;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__AX_XLIM, oldAxXLim, axXLim));
+		}
 	}
 
 	/**
@@ -597,8 +626,9 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	public void setAxYLim(RTypedExpr newAxYLim) {
 		RTypedExpr oldAxYLim = axYLim;
 		axYLim = newAxYLim;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__AX_YLIM, oldAxYLim, axYLim));
+		}
 	}
 
 	/**
@@ -620,8 +650,9 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	public void setAxXLabel(RTypedExpr newAxXLabel) {
 		RTypedExpr oldAxXLabel = axXLabel;
 		axXLabel = newAxXLabel;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__AX_XLABEL, oldAxXLabel, axXLabel));
+		}
 	}
 
 	/**
@@ -643,8 +674,9 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	public void setAxYLabel(RTypedExpr newAxYLabel) {
 		RTypedExpr oldAxYLabel = axYLabel;
 		axYLabel = newAxYLabel;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__AX_YLABEL, oldAxYLabel, axYLabel));
+		}
 	}
 
 	/**
@@ -667,7 +699,12 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 		axXLabelStyle = newAxXLabelStyle;
 		if (eNotificationRequired()) {
 			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__AX_XLABEL_STYLE, oldAxXLabelStyle, newAxXLabelStyle);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
+			if (msgs == null) {
+				msgs = notification;
+			}
+			else {
+				msgs.add(notification);
+			}
 		}
 		return msgs;
 	}
@@ -681,15 +718,20 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	public void setAxXLabelStyle(TextStyle newAxXLabelStyle) {
 		if (newAxXLabelStyle != axXLabelStyle) {
 			NotificationChain msgs = null;
-			if (axXLabelStyle != null)
+			if (axXLabelStyle != null) {
 				msgs = ((InternalEObject)axXLabelStyle).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GG_PLOT__AX_XLABEL_STYLE, null, msgs);
-			if (newAxXLabelStyle != null)
+			}
+			if (newAxXLabelStyle != null) {
 				msgs = ((InternalEObject)newAxXLabelStyle).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GG_PLOT__AX_XLABEL_STYLE, null, msgs);
+			}
 			msgs = basicSetAxXLabelStyle(newAxXLabelStyle, msgs);
-			if (msgs != null) msgs.dispatch();
+			if (msgs != null) {
+				msgs.dispatch();
+			}
 		}
-		else if (eNotificationRequired())
+		else if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__AX_XLABEL_STYLE, newAxXLabelStyle, newAxXLabelStyle));
+		}
 	}
 
 	/**
@@ -712,7 +754,12 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 		axYLabelStyle = newAxYLabelStyle;
 		if (eNotificationRequired()) {
 			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__AX_YLABEL_STYLE, oldAxYLabelStyle, newAxYLabelStyle);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
+			if (msgs == null) {
+				msgs = notification;
+			}
+			else {
+				msgs.add(notification);
+			}
 		}
 		return msgs;
 	}
@@ -726,15 +773,20 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	public void setAxYLabelStyle(TextStyle newAxYLabelStyle) {
 		if (newAxYLabelStyle != axYLabelStyle) {
 			NotificationChain msgs = null;
-			if (axYLabelStyle != null)
+			if (axYLabelStyle != null) {
 				msgs = ((InternalEObject)axYLabelStyle).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GG_PLOT__AX_YLABEL_STYLE, null, msgs);
-			if (newAxYLabelStyle != null)
+			}
+			if (newAxYLabelStyle != null) {
 				msgs = ((InternalEObject)newAxYLabelStyle).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GG_PLOT__AX_YLABEL_STYLE, null, msgs);
+			}
 			msgs = basicSetAxYLabelStyle(newAxYLabelStyle, msgs);
-			if (msgs != null) msgs.dispatch();
+			if (msgs != null) {
+				msgs.dispatch();
+			}
 		}
-		else if (eNotificationRequired())
+		else if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__AX_YLABEL_STYLE, newAxYLabelStyle, newAxYLabelStyle));
+		}
 	}
 
 	/**
@@ -757,7 +809,12 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 		axXTextStyle = newAxXTextStyle;
 		if (eNotificationRequired()) {
 			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__AX_XTEXT_STYLE, oldAxXTextStyle, newAxXTextStyle);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
+			if (msgs == null) {
+				msgs = notification;
+			}
+			else {
+				msgs.add(notification);
+			}
 		}
 		return msgs;
 	}
@@ -771,15 +828,20 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	public void setAxXTextStyle(TextStyle newAxXTextStyle) {
 		if (newAxXTextStyle != axXTextStyle) {
 			NotificationChain msgs = null;
-			if (axXTextStyle != null)
+			if (axXTextStyle != null) {
 				msgs = ((InternalEObject)axXTextStyle).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GG_PLOT__AX_XTEXT_STYLE, null, msgs);
-			if (newAxXTextStyle != null)
+			}
+			if (newAxXTextStyle != null) {
 				msgs = ((InternalEObject)newAxXTextStyle).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GG_PLOT__AX_XTEXT_STYLE, null, msgs);
+			}
 			msgs = basicSetAxXTextStyle(newAxXTextStyle, msgs);
-			if (msgs != null) msgs.dispatch();
+			if (msgs != null) {
+				msgs.dispatch();
+			}
 		}
-		else if (eNotificationRequired())
+		else if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__AX_XTEXT_STYLE, newAxXTextStyle, newAxXTextStyle));
+		}
 	}
 
 	/**
@@ -802,7 +864,12 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 		axYTextStyle = newAxYTextStyle;
 		if (eNotificationRequired()) {
 			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__AX_YTEXT_STYLE, oldAxYTextStyle, newAxYTextStyle);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
+			if (msgs == null) {
+				msgs = notification;
+			}
+			else {
+				msgs.add(notification);
+			}
 		}
 		return msgs;
 	}
@@ -816,15 +883,20 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	public void setAxYTextStyle(TextStyle newAxYTextStyle) {
 		if (newAxYTextStyle != axYTextStyle) {
 			NotificationChain msgs = null;
-			if (axYTextStyle != null)
+			if (axYTextStyle != null) {
 				msgs = ((InternalEObject)axYTextStyle).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GG_PLOT__AX_YTEXT_STYLE, null, msgs);
-			if (newAxYTextStyle != null)
+			}
+			if (newAxYTextStyle != null) {
 				msgs = ((InternalEObject)newAxYTextStyle).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - GGPlotPackage.GG_PLOT__AX_YTEXT_STYLE, null, msgs);
+			}
 			msgs = basicSetAxYTextStyle(newAxYTextStyle, msgs);
-			if (msgs != null) msgs.dispatch();
+			if (msgs != null) {
+				msgs.dispatch();
+			}
 		}
-		else if (eNotificationRequired())
+		else if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GG_PLOT__AX_YTEXT_STYLE, newAxYTextStyle, newAxYTextStyle));
+		}
 	}
 
 	/**
@@ -1127,7 +1199,9 @@ public class GGPlotImpl extends EObjectImpl implements GGPlot {
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (data: "); //$NON-NLS-1$

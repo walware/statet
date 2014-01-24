@@ -1,13 +1,14 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
+
 package de.walware.statet.rtm.ggplot.impl;
 
 import java.util.Collection;
@@ -23,6 +24,7 @@ import de.walware.statet.rtm.ggplot.GGPlotPackage;
 import de.walware.statet.rtm.ggplot.WrapFacetLayout;
 import de.walware.statet.rtm.rtdata.types.RTypedExpr;
 
+
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model object '<em><b>Wrap Facet Layout</b></em>'.
@@ -34,7 +36,7 @@ import de.walware.statet.rtm.rtdata.types.RTypedExpr;
  *   <li>{@link de.walware.statet.rtm.ggplot.impl.WrapFacetLayoutImpl#getColNum <em>Col Num</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class WrapFacetLayoutImpl extends EObjectImpl implements WrapFacetLayout {
@@ -92,6 +94,7 @@ public class WrapFacetLayoutImpl extends EObjectImpl implements WrapFacetLayout 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EList<RTypedExpr> getColVars() {
 		if (colVars == null) {
 			colVars = new EDataTypeUniqueEList<RTypedExpr>(RTypedExpr.class, this, GGPlotPackage.WRAP_FACET_LAYOUT__COL_VARS);
@@ -104,6 +107,7 @@ public class WrapFacetLayoutImpl extends EObjectImpl implements WrapFacetLayout 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getColNum() {
 		return colNum;
 	}
@@ -113,11 +117,13 @@ public class WrapFacetLayoutImpl extends EObjectImpl implements WrapFacetLayout 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setColNum(RTypedExpr newColNum) {
 		RTypedExpr oldColNum = colNum;
 		colNum = newColNum;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.WRAP_FACET_LAYOUT__COL_NUM, oldColNum, colNum));
+		}
 	}
 
 	/**
@@ -197,7 +203,9 @@ public class WrapFacetLayoutImpl extends EObjectImpl implements WrapFacetLayout 
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (colVars: "); //$NON-NLS-1$

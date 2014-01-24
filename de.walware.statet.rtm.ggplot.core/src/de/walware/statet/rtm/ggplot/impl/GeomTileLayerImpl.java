@@ -1,13 +1,14 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
+
 package de.walware.statet.rtm.ggplot.impl;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -24,6 +25,7 @@ import de.walware.statet.rtm.rtdata.RtDataFactory;
 import de.walware.statet.rtm.rtdata.RtDataPackage;
 import de.walware.statet.rtm.rtdata.types.RTypedExpr;
 
+
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model object '<em><b>Geom Tile Layer</b></em>'.
@@ -37,7 +39,7 @@ import de.walware.statet.rtm.rtdata.types.RTypedExpr;
  *   <li>{@link de.walware.statet.rtm.ggplot.impl.GeomTileLayerImpl#getAlpha <em>Alpha</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class GeomTileLayerImpl extends XYVarLayerImpl implements GeomTileLayer {
@@ -145,6 +147,7 @@ public class GeomTileLayerImpl extends XYVarLayerImpl implements GeomTileLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getLineType() {
 		return lineType;
 	}
@@ -154,11 +157,13 @@ public class GeomTileLayerImpl extends XYVarLayerImpl implements GeomTileLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setLineType(RTypedExpr newLineType) {
 		RTypedExpr oldLineType = lineType;
 		lineType = newLineType;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_TILE_LAYER__LINE_TYPE, oldLineType, lineType));
+		}
 	}
 
 	/**
@@ -166,6 +171,7 @@ public class GeomTileLayerImpl extends XYVarLayerImpl implements GeomTileLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getColor() {
 		return color;
 	}
@@ -175,11 +181,13 @@ public class GeomTileLayerImpl extends XYVarLayerImpl implements GeomTileLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setColor(RTypedExpr newColor) {
 		RTypedExpr oldColor = color;
 		color = newColor;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_TILE_LAYER__COLOR, oldColor, color));
+		}
 	}
 
 	/**
@@ -187,6 +195,7 @@ public class GeomTileLayerImpl extends XYVarLayerImpl implements GeomTileLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getFill() {
 		return fill;
 	}
@@ -196,11 +205,13 @@ public class GeomTileLayerImpl extends XYVarLayerImpl implements GeomTileLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFill(RTypedExpr newFill) {
 		RTypedExpr oldFill = fill;
 		fill = newFill;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_TILE_LAYER__FILL, oldFill, fill));
+		}
 	}
 
 	/**
@@ -208,6 +219,7 @@ public class GeomTileLayerImpl extends XYVarLayerImpl implements GeomTileLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getAlpha() {
 		return alpha;
 	}
@@ -217,11 +229,13 @@ public class GeomTileLayerImpl extends XYVarLayerImpl implements GeomTileLayer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setAlpha(RTypedExpr newAlpha) {
 		RTypedExpr oldAlpha = alpha;
 		alpha = newAlpha;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.GEOM_TILE_LAYER__ALPHA, oldAlpha, alpha));
+		}
 	}
 
 	/**
@@ -387,7 +401,9 @@ public class GeomTileLayerImpl extends XYVarLayerImpl implements GeomTileLayer {
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (lineType: "); //$NON-NLS-1$

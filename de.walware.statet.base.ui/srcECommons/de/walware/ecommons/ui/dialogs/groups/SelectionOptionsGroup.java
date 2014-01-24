@@ -1,13 +1,13 @@
-/*******************************************************************************
- * Copyright (c) 2005-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- *******************************************************************************/
+/*=============================================================================#
+ # Copyright (c) 2005-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
 
 package de.walware.ecommons.ui.dialogs.groups;
 
@@ -23,14 +23,14 @@ import org.eclipse.swt.widgets.Control;
 
 public abstract class SelectionOptionsGroup<ItemT extends Object> implements OptionsGroup {
 
-	private boolean fGrabSelectionHorizontal;
-	private boolean fGrabVertical;
+	private final boolean fGrabSelectionHorizontal;
+	private final boolean fGrabVertical;
 	
-	private List<ItemT> fSelectionModel = new ArrayList<ItemT>();
+	private final List<ItemT> fSelectionModel = new ArrayList<ItemT>();
 	private Composite fComposite;
 	
 	
-	public SelectionOptionsGroup(boolean grabSelectionHorizontal, boolean grabVertical) {
+	public SelectionOptionsGroup(final boolean grabSelectionHorizontal, final boolean grabVertical) {
 		fGrabSelectionHorizontal = grabSelectionHorizontal;
 		fGrabVertical = grabVertical;
 	}
@@ -42,15 +42,15 @@ public abstract class SelectionOptionsGroup<ItemT extends Object> implements Opt
 
 
 	@Override
-	public void createGroup(Composite parent, int hSpan) {
-		Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), 2);
+	public void createGroup(final Composite parent, final int hSpan) {
+		final Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), 2);
 		fComposite = layouter.composite;
 		fComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, fGrabVertical, hSpan, 1));
 				
-		Control selectionControl = createSelectionControl(fComposite);
+		final Control selectionControl = createSelectionControl(fComposite);
 		selectionControl.setLayoutData(createSelectionGridData());
 
-		Control optionControl = createOptionsControl(fComposite);
+		final Control optionControl = createOptionsControl(fComposite);
 		optionControl.setLayoutData(createOptionsGridData());
 	}
 

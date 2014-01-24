@@ -1,13 +1,14 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
+
 package de.walware.statet.rtm.ftable.impl;
 
 import java.util.Collection;
@@ -23,6 +24,7 @@ import de.walware.statet.rtm.ftable.FTable;
 import de.walware.statet.rtm.ftable.FTablePackage;
 import de.walware.statet.rtm.rtdata.types.RTypedExpr;
 
+
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model object '<em><b>FTable</b></em>'.
@@ -37,7 +39,7 @@ import de.walware.statet.rtm.rtdata.types.RTypedExpr;
  * </ul>
  * </p>
  *
- * @generated
+ # @generated
  */
 public class FTableImpl extends EObjectImpl implements FTable {
 	/**
@@ -119,6 +121,7 @@ public class FTableImpl extends EObjectImpl implements FTable {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getData() {
 		return data;
 	}
@@ -128,11 +131,13 @@ public class FTableImpl extends EObjectImpl implements FTable {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setData(RTypedExpr newData) {
 		RTypedExpr oldData = data;
 		data = newData;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, FTablePackage.FTABLE__DATA, oldData, data));
+		}
 	}
 
 	/**
@@ -140,6 +145,7 @@ public class FTableImpl extends EObjectImpl implements FTable {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getDataFilter() {
 		return dataFilter;
 	}
@@ -149,11 +155,13 @@ public class FTableImpl extends EObjectImpl implements FTable {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDataFilter(RTypedExpr newDataFilter) {
 		RTypedExpr oldDataFilter = dataFilter;
 		dataFilter = newDataFilter;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, FTablePackage.FTABLE__DATA_FILTER, oldDataFilter, dataFilter));
+		}
 	}
 
 	/**
@@ -161,6 +169,7 @@ public class FTableImpl extends EObjectImpl implements FTable {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EList<RTypedExpr> getColVars() {
 		if (colVars == null) {
 			colVars = new EDataTypeUniqueEList<RTypedExpr>(RTypedExpr.class, this, FTablePackage.FTABLE__COL_VARS);
@@ -173,6 +182,7 @@ public class FTableImpl extends EObjectImpl implements FTable {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EList<RTypedExpr> getRowVars() {
 		if (rowVars == null) {
 			rowVars = new EDataTypeUniqueEList<RTypedExpr>(RTypedExpr.class, this, FTablePackage.FTABLE__ROW_VARS);
@@ -278,7 +288,9 @@ public class FTableImpl extends EObjectImpl implements FTable {
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (data: "); //$NON-NLS-1$

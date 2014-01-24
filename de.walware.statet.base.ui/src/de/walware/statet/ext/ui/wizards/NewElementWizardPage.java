@@ -1,13 +1,13 @@
-/*******************************************************************************
- * Copyright (c) 2005-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- *******************************************************************************/
+/*=============================================================================#
+ # Copyright (c) 2005-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
 
 package de.walware.statet.ext.ui.wizards;
 
@@ -71,8 +71,9 @@ public abstract class NewElementWizardPage extends WizardPage {
 			
 			final IProject project = container.getProject();
 			try {
-				if (project.hasNature(StatetProject.NATURE_ID))
+				if (project.hasNature(StatetProject.NATURE_ID)) {
 					return true;
+				}
 			} catch (final CoreException e) {	}
 			
 			return false;
@@ -111,8 +112,9 @@ public abstract class NewElementWizardPage extends WizardPage {
 			
 			fContainerGroup.setListener(this);
 			boolean enableFilter = true;
-			if (getDialogSettings().get(DIALOGSETTING_ENABLEFILTER) != null)
+			if (getDialogSettings().get(DIALOGSETTING_ENABLEFILTER) != null) {
 				enableFilter = getDialogSettings().getBoolean(DIALOGSETTING_ENABLEFILTER);
+			}
 			fContainerGroup.setToggleFilter(new StatetProjectFilter(), enableFilter);
 			
 			fResourceNameControl = layouter.addLabeledTextControl(getNewFileLabel());
@@ -143,8 +145,9 @@ public abstract class NewElementWizardPage extends WizardPage {
 		protected void initFields() {
 			IPath path = null;
 			
-			if (fContainerFullPath != null)
+			if (fContainerFullPath != null) {
 				path = fContainerFullPath;
+			}
 			else {
 				final Iterator<?> it = fResourceSelection.iterator();
 				if (it.hasNext()) {
@@ -156,18 +159,22 @@ public abstract class NewElementWizardPage extends WizardPage {
 						selectedResource = (IResource) ((IAdaptable) object).getAdapter(IResource.class);
 					}
 					if (selectedResource != null) {
-						if (selectedResource.getType() == IResource.FILE)
+						if (selectedResource.getType() == IResource.FILE) {
 							selectedResource = selectedResource.getParent();
-						if (selectedResource.isAccessible())
+						}
+						if (selectedResource.isAccessible()) {
 							path = selectedResource.getFullPath();
+						}
 					}
 				}
 			}
-			if (path != null)
+			if (path != null) {
 				fContainerGroup.selectContainer(path);
+			}
 			
-			if (fResourceName != null)
+			if (fResourceName != null) {
 				fResourceNameControl.setText(fResourceName);
+			}
 		}
 		
 		@Override
@@ -229,8 +236,9 @@ public abstract class NewElementWizardPage extends WizardPage {
 		 */
 		public String getResourceName() {
 			String name = fResourceName;
-			if (!name.endsWith(fResourceNameDefaultSuffix))
+			if (!name.endsWith(fResourceNameDefaultSuffix)) {
 				name += fResourceNameDefaultSuffix;
+			}
 			
 			return name;
 		}
@@ -245,16 +253,19 @@ public abstract class NewElementWizardPage extends WizardPage {
 		 */
 		public IStatus validate() {
 			// don't attempt to validate controls until they have been created
-			if (fContainerGroup == null)
+			if (fContainerGroup == null) {
 				return null;
+			}
 			
 			final IStatus containerSelectionStatus = ContainerSelectionComposite.validate(fContainerFullPath);
-			if (containerSelectionStatus.matches(IStatus.ERROR))
+			if (containerSelectionStatus.matches(IStatus.ERROR)) {
 				return containerSelectionStatus;
+			}
 			
 			final IStatus resourceNameStatus = validateResourceName(fResourceName);
-			if (resourceNameStatus == null || resourceNameStatus.matches(IStatus.ERROR))
+			if (resourceNameStatus == null || resourceNameStatus.matches(IStatus.ERROR)) {
 				return resourceNameStatus;
+			}
 			
 			final IPath path = fContainerGroup.getContainerFullPath().append(getResourceName());
 			
@@ -264,18 +275,21 @@ public abstract class NewElementWizardPage extends WizardPage {
 		
 		protected IStatus validateResourceName(final String resourceName) {
 			if (resourceName == null || resourceName.trim().isEmpty()) {
-				if (fResourceNameEdited)
+				if (fResourceNameEdited) {
 					return new StatusInfo(IStatus.ERROR, NLS.bind(
 							StatetWizardsMessages.ResourceGroup_error_EmptyName,
 							SharedMessages.Resources_File));
-				else
+				}
+				else {
 					return null;
+				}
 			}
 			
-			if (!(new Path("")).isValidSegment(resourceName)) //$NON-NLS-1$
+			if (!(new Path("")).isValidSegment(resourceName)) {
 				return new StatusInfo(IStatus.ERROR, NLS.bind(
 						StatetWizardsMessages.ResourceGroup_error_InvalidFilename,
 						resourceName));
+			}
 			
 			return new StatusInfo();
 		}
@@ -299,8 +313,9 @@ public abstract class NewElementWizardPage extends WizardPage {
 			
 			if ( // !allowExistingResources && 
 					workspace.getRoot().getFolder(resourcePath).exists() 
-					|| workspace.getRoot().getFile(resourcePath).exists())
+					|| workspace.getRoot().getFile(resourcePath).exists()) {
 				return new StatusInfo(IStatus.ERROR, StatetWizardsMessages.ResourceGroup_error_ResourceExists);
+			}
 			
 			return new StatusInfo();
 		}
@@ -387,8 +402,9 @@ public abstract class NewElementWizardPage extends WizardPage {
 			status = new StatusInfo();
 		}
 		final Control control = getControl();
-		if (control != null && control.isVisible())
+		if (control != null && control.isVisible()) {
 			StatusInfo.applyToStatusLine(this, status);
+		}
 	}
 	
 }

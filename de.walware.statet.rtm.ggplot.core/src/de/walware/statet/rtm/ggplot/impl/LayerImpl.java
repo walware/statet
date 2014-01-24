@@ -1,13 +1,14 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
+
 package de.walware.statet.rtm.ggplot.impl;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -19,6 +20,7 @@ import de.walware.statet.rtm.ggplot.GGPlotPackage;
 import de.walware.statet.rtm.ggplot.Layer;
 import de.walware.statet.rtm.rtdata.types.RTypedExpr;
 
+
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model object '<em><b>Layer</b></em>'.
@@ -29,7 +31,7 @@ import de.walware.statet.rtm.rtdata.types.RTypedExpr;
  *   <li>{@link de.walware.statet.rtm.ggplot.impl.LayerImpl#getData <em>Data</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public abstract class LayerImpl extends EObjectImpl implements Layer {
@@ -77,6 +79,7 @@ public abstract class LayerImpl extends EObjectImpl implements Layer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getData() {
 		return data;
 	}
@@ -86,11 +89,13 @@ public abstract class LayerImpl extends EObjectImpl implements Layer {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setData(RTypedExpr newData) {
 		RTypedExpr oldData = data;
 		data = newData;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.LAYER__DATA, oldData, data));
+		}
 	}
 
 	/**
@@ -158,7 +163,9 @@ public abstract class LayerImpl extends EObjectImpl implements Layer {
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (data: "); //$NON-NLS-1$

@@ -1,13 +1,14 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
+
 package de.walware.statet.rtm.ggplot.impl;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -21,6 +22,7 @@ import de.walware.statet.rtm.ggplot.TextStyle;
 import de.walware.statet.rtm.rtdata.RtDataFactory;
 import de.walware.statet.rtm.rtdata.RtDataPackage;
 import de.walware.statet.rtm.rtdata.types.RTypedExpr;
+
 
 /**
  * <!-- begin-user-doc -->
@@ -38,7 +40,7 @@ import de.walware.statet.rtm.rtdata.types.RTypedExpr;
  *   <li>{@link de.walware.statet.rtm.ggplot.impl.TextStyleImpl#getAngle <em>Angle</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class TextStyleImpl extends EObjectImpl implements TextStyle {
@@ -206,6 +208,7 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getSize() {
 		return size;
 	}
@@ -215,11 +218,13 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSize(RTypedExpr newSize) {
 		RTypedExpr oldSize = size;
 		size = newSize;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.TEXT_STYLE__SIZE, oldSize, size));
+		}
 	}
 
 	/**
@@ -227,6 +232,7 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getColor() {
 		return color;
 	}
@@ -236,11 +242,13 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setColor(RTypedExpr newColor) {
 		RTypedExpr oldColor = color;
 		color = newColor;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.TEXT_STYLE__COLOR, oldColor, color));
+		}
 	}
 
 	/**
@@ -248,6 +256,7 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getFontFamily() {
 		return fontFamily;
 	}
@@ -257,11 +266,13 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFontFamily(RTypedExpr newFontFamily) {
 		RTypedExpr oldFontFamily = fontFamily;
 		fontFamily = newFontFamily;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.TEXT_STYLE__FONT_FAMILY, oldFontFamily, fontFamily));
+		}
 	}
 
 	/**
@@ -269,6 +280,7 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getFontFace() {
 		return fontFace;
 	}
@@ -278,11 +290,13 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFontFace(RTypedExpr newFontFace) {
 		RTypedExpr oldFontFace = fontFace;
 		fontFace = newFontFace;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.TEXT_STYLE__FONT_FACE, oldFontFace, fontFace));
+		}
 	}
 
 	/**
@@ -290,6 +304,7 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getHJust() {
 		return hJust;
 	}
@@ -299,11 +314,13 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setHJust(RTypedExpr newHJust) {
 		RTypedExpr oldHJust = hJust;
 		hJust = newHJust;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.TEXT_STYLE__HJUST, oldHJust, hJust));
+		}
 	}
 
 	/**
@@ -311,6 +328,7 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getVJust() {
 		return vJust;
 	}
@@ -320,11 +338,13 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setVJust(RTypedExpr newVJust) {
 		RTypedExpr oldVJust = vJust;
 		vJust = newVJust;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.TEXT_STYLE__VJUST, oldVJust, vJust));
+		}
 	}
 
 	/**
@@ -332,6 +352,7 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getAngle() {
 		return angle;
 	}
@@ -341,11 +362,13 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setAngle(RTypedExpr newAngle) {
 		RTypedExpr oldAngle = angle;
 		angle = newAngle;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.TEXT_STYLE__ANGLE, oldAngle, angle));
+		}
 	}
 
 	/**
@@ -505,7 +528,9 @@ public class TextStyleImpl extends EObjectImpl implements TextStyle {
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (size: "); //$NON-NLS-1$

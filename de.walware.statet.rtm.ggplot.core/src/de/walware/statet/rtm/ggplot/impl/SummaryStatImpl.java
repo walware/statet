@@ -1,13 +1,14 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
+
 package de.walware.statet.rtm.ggplot.impl;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -17,6 +18,7 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import de.walware.statet.rtm.ggplot.GGPlotPackage;
 import de.walware.statet.rtm.ggplot.SummaryStat;
 import de.walware.statet.rtm.rtdata.types.RTypedExpr;
+
 
 /**
  * <!-- begin-user-doc -->
@@ -28,7 +30,7 @@ import de.walware.statet.rtm.rtdata.types.RTypedExpr;
  *   <li>{@link de.walware.statet.rtm.ggplot.impl.SummaryStatImpl#getYFun <em>YFun</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class SummaryStatImpl extends StatImpl implements SummaryStat {
@@ -76,6 +78,7 @@ public class SummaryStatImpl extends StatImpl implements SummaryStat {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RTypedExpr getYFun() {
 		return yFun;
 	}
@@ -85,11 +88,13 @@ public class SummaryStatImpl extends StatImpl implements SummaryStat {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setYFun(RTypedExpr newYFun) {
 		RTypedExpr oldYFun = yFun;
 		yFun = newYFun;
-		if (eNotificationRequired())
+		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, GGPlotPackage.SUMMARY_STAT__YFUN, oldYFun, yFun));
+		}
 	}
 
 	/**
@@ -157,7 +162,9 @@ public class SummaryStatImpl extends StatImpl implements SummaryStat {
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (yFun: "); //$NON-NLS-1$

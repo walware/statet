@@ -1,13 +1,13 @@
-/*******************************************************************************
- * Copyright (c) 2005-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- *******************************************************************************/
+/*=============================================================================#
+ # Copyright (c) 2005-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
 
 package de.walware.ecommons.ui.dialogs.groups;
 
@@ -37,11 +37,11 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 		}
 
 		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 		}
 		
 		@Override
-		public Object[] getElements(Object inputElement) {
+		public Object[] getElements(final Object inputElement) {
 			return getListModel().toArray();
 		}
 	}
@@ -50,19 +50,19 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	private SelectionT fSelectionViewer;
 	
 	
-	public StructuredSelectionOptionsGroup(boolean grabSelectionHorizontal, boolean grabVertical) {
+	public StructuredSelectionOptionsGroup(final boolean grabSelectionHorizontal, final boolean grabVertical) {
 		super(grabSelectionHorizontal, grabVertical);
 	}
 	
 	@Override
-	protected Control createSelectionControl(Composite parent) {
+	protected Control createSelectionControl(final Composite parent) {
 		fSelectionViewer = createSelectionViewer(parent);
 		fSelectionViewer.setContentProvider(createContentProvider());
 		fSelectionViewer.addSelectionChangedListener(createSelectionChangeListener());
 		fSelectionViewer.addDoubleClickListener(createDoubleClickListener());
 		fSelectionViewer.getControl().addKeyListener(new KeyAdapter() {
 			@Override
-			public void keyPressed(KeyEvent e) {
+			public void keyPressed(final KeyEvent e) {
 				handleKeyPressed(e);
 			}
 		});
@@ -78,8 +78,8 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	protected ISelectionChangedListener createSelectionChangeListener() {
 		return new ISelectionChangedListener() {
 			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+			public void selectionChanged(final SelectionChangedEvent event) {
+				final IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				handleSelection(getSingleItem(selection), selection);
 			}
 		};
@@ -88,8 +88,8 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	protected IDoubleClickListener createDoubleClickListener() {
 		return new IDoubleClickListener() {
 			@Override
-			public void doubleClick(DoubleClickEvent event) {
-				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+			public void doubleClick(final DoubleClickEvent event) {
+				final IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				handleDoubleClick(getSingleItem(selection), selection);
 			}
 		};
@@ -112,7 +112,7 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	}
 
 	public void reselect() {
-		IStructuredSelection selection = getSelectedItems();
+		final IStructuredSelection selection = getSelectedItems();
 		handleSelection(getSingleItem(selection), selection);
 	}
 	
@@ -121,7 +121,7 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	 * <p>
 	 * Default-Implementierung macht nichts.
 	 */
-	protected void handleSelection(ItemT item, IStructuredSelection rawSelection) {
+	protected void handleSelection(final ItemT item, final IStructuredSelection rawSelection) {
 	}
 
 	/**
@@ -130,7 +130,7 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	 * Default Implementierung macht nichts.
 	 * @param item
 	 */
-	protected void handleDoubleClick(ItemT item, IStructuredSelection rawSelection) {
+	protected void handleDoubleClick(final ItemT item, final IStructuredSelection rawSelection) {
 	}
 
 	/**
@@ -138,7 +138,7 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	 * <p>
 	 * Standard-Implementierung macht nichts.
 	 */
-	protected void handleKeyPressed(KeyEvent event) {
+	protected void handleKeyPressed(final KeyEvent event) {
 	}
 
 	
@@ -146,7 +146,7 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 		return (IStructuredSelection) fSelectionViewer.getSelection();
 	}
 	
-	public ItemT getSingleItem(IStructuredSelection selection) {
+	public ItemT getSingleItem(final IStructuredSelection selection) {
 		if (selection.size() == 1) {
 			return (ItemT) selection.getFirstElement(); 
 		}

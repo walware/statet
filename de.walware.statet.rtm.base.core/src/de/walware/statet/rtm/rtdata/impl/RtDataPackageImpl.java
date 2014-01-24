@@ -1,14 +1,13 @@
-/**
- * Copyright (c) 2012-2013 WalWare/StatET-Project (www.walware.de/goto/statet).
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Stephan Wahlbrink - initial API and implementation
- * 
- */
+/*=============================================================================#
+ # Copyright (c) 2012-2014 Stephan Wahlbrink (WalWare.de) and others.
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ #=============================================================================*/
 
 package de.walware.statet.rtm.rtdata.impl;
 
@@ -172,7 +171,9 @@ public class RtDataPackageImpl extends EPackageImpl implements RtDataPackage {
 	 * @generated
 	 */
 	public static RtDataPackage init() {
-		if (isInited) return (RtDataPackage)EPackage.Registry.INSTANCE.getEPackage(RtDataPackage.eNS_URI);
+		if (isInited) {
+			return (RtDataPackage)EPackage.Registry.INSTANCE.getEPackage(RtDataPackage.eNS_URI);
+		}
 
 		// Obtain or create and register package
 		RtDataPackageImpl theRtDataPackage = (RtDataPackageImpl)(EPackage.Registry.INSTANCE.get(eNS_URI) instanceof RtDataPackageImpl ? EPackage.Registry.INSTANCE.get(eNS_URI) : new RtDataPackageImpl());
@@ -219,6 +220,7 @@ public class RtDataPackageImpl extends EPackageImpl implements RtDataPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EDataType getRDataFilter() {
 		return rDataFilterEDataType;
 	}
@@ -238,6 +240,7 @@ public class RtDataPackageImpl extends EPackageImpl implements RtDataPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EDataType getRAlpha() {
 		return rAlphaEDataType;
 	}
@@ -257,6 +260,7 @@ public class RtDataPackageImpl extends EPackageImpl implements RtDataPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EDataType getRPlotLineType() {
 		return rPlotLineTypeEDataType;
 	}
@@ -266,6 +270,7 @@ public class RtDataPackageImpl extends EPackageImpl implements RtDataPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EDataType getRFontFamily() {
 		return rFontFamilyEDataType;
 	}
@@ -315,6 +320,7 @@ public class RtDataPackageImpl extends EPackageImpl implements RtDataPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EDataType getRFunction() {
 		return rFunctionEDataType;
 	}
@@ -324,6 +330,7 @@ public class RtDataPackageImpl extends EPackageImpl implements RtDataPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EDataType getRLabel() {
 		return rLabelEDataType;
 	}
@@ -363,7 +370,9 @@ public class RtDataPackageImpl extends EPackageImpl implements RtDataPackage {
 	 * @generated
 	 */
 	public void createPackageContents() {
-		if (isCreated) return;
+		if (isCreated) {
+			return;
+		}
 		isCreated = true;
 
 		// Create data types
@@ -399,7 +408,9 @@ public class RtDataPackageImpl extends EPackageImpl implements RtDataPackage {
 	 * @generated
 	 */
 	public void initializePackageContents() {
-		if (isInitialized) return;
+		if (isInitialized) {
+			return;
+		}
 		isInitialized = true;
 
 		// Initialize package
