@@ -44,6 +44,7 @@ import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.model.RProblemReporter;
 import de.walware.statet.r.core.rsource.ast.FCall.Arg;
+import de.walware.statet.r.core.rsource.ast.FCall.Args;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RScanner;
@@ -246,9 +247,10 @@ public class LtxRweaveSuModelContainer extends LtxSuModelContainer<ILtxRweaveSou
 					
 					RElementName name = null;
 					IRegion nameRegion = null;
-					if (rChunk.fWeaveArgs != null && rChunk.fWeaveArgs.hasChildren()) {
-						final Arg arg = rChunk.fWeaveArgs.getChild(0);
-						if (!arg.hasName() && arg.hasValue() && arg.getValueChild().getNodeType() == NodeType.SYMBOL) {
+					if (rChunk.fWeaveArgs != null) {
+						final Arg arg= getLabelArg(rChunk.fWeaveArgs);
+						if (arg != null && arg.hasValue()
+								&& arg.getValueChild().getNodeType() == NodeType.SYMBOL) {
 							final RAstNode nameNode = arg.getValueChild();
 							name = RElementName.create(RElementName.MAIN_DEFAULT, nameNode.getText());
 							nameRegion = nameNode;
@@ -271,6 +273,22 @@ public class LtxRweaveSuModelContainer extends LtxSuModelContainer<ILtxRweaveSou
 					elements, level, monitor );
 			texModel.addAttachment(modelInfo);
 			adapter.setRModel(modelInfo);
+		}
+		
+		private Arg getLabelArg(final Args weaveArgs) {
+			if (!weaveArgs.hasChildren()) {
+				return null;
+			}
+			for (int i= 0; i < weaveArgs.getChildCount(); i++) {
+				final Arg arg= weaveArgs.getChild(i);
+				if ((arg.hasName()) ?
+						(arg.getNameChild().getNodeType() == NodeType.SYMBOL
+								&& "label".equals(arg.getNameChild().getText()) ) : //$NON-NLS-1$
+						(i == 0) ) {
+					return arg;
+				}
+			}
+			return null;
 		}
 		
 		public void reportEmbeddedProblems(final LtxRweaveSuModelContainer adapter,
