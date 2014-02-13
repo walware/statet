@@ -12,7 +12,7 @@
 package de.walware.statet.r.core.model;
 
 import de.walware.ecommons.ltk.IProblemRequestor;
-import de.walware.ecommons.ltk.SourceContentLines;
+import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.r.core.rsource.ast.RAstNode;
@@ -29,12 +29,12 @@ public class RProblemReporter {
 	}
 	
 	
-	public void run(final IRSourceUnit su, final SourceContentLines content,
+	public void run(final IRSourceUnit su, final SourceContent content,
 			final RAstNode node, final IProblemRequestor problemRequestor) {
 		fSyntaxProblemReporter.run(su, content, node, problemRequestor);
 	}
 	
-	public void run(final IRSourceUnit su, final SourceContentLines content,
+	public void run(final IRSourceUnit su, final SourceContent content,
 			final IAstNode node, final IProblemRequestor problemRequestor) {
 		if (node instanceof RAstNode) {
 			run(su, content, (RAstNode) node, problemRequestor);

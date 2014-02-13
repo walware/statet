@@ -22,7 +22,6 @@ import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.SourceContent;
-import de.walware.ecommons.ltk.SourceContentLines;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.text.FixInterningStringCache;
 import de.walware.ecommons.text.IStringCache;
@@ -292,7 +291,7 @@ public class LtxRweaveSuModelContainer extends LtxSuModelContainer<ILtxRweaveSou
 		}
 		
 		public void reportEmbeddedProblems(final LtxRweaveSuModelContainer adapter,
-				final SourceContentLines content, final ILtxModelInfo texModel,
+				final SourceContent content, final ILtxModelInfo texModel,
 				final IProblemRequestor problemRequestor,
 				final int level, final IProgressMonitor monitor) {
 			final IRModelInfo rModel = getRModel(texModel);
@@ -353,7 +352,7 @@ public class LtxRweaveSuModelContainer extends LtxSuModelContainer<ILtxRweaveSou
 	}
 	
 	@Override
-	public void reportEmbeddedProblems(final SourceContentLines content, final ILtxModelInfo texModel,
+	public void reportEmbeddedProblems(final SourceContent content, final ILtxModelInfo texModel,
 			final IProblemRequestor problemRequestor,
 			final int level, final IProgressMonitor monitor) {
 		getReconciler().reportEmbeddedProblems(this, content, texModel, problemRequestor,

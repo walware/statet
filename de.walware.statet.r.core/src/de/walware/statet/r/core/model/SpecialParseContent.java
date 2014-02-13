@@ -17,12 +17,18 @@ import de.walware.ecommons.ltk.SourceContent;
 public class SpecialParseContent extends SourceContent {
 	
 	
-	public final int offset;
+	private final int offset;
 	
 	
 	public SpecialParseContent(final long stamp, final String content, final int offset) {
 		super(stamp, content);
+		
 		this.offset = offset;
+	}
+	
+	
+	public final int getOffset() {
+		return this.offset;
 	}
 	
 	

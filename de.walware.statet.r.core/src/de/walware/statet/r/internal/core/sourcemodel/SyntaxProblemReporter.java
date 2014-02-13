@@ -56,7 +56,6 @@ import de.walware.ecommons.ltk.IProblem;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.SourceContent;
-import de.walware.ecommons.ltk.SourceContentLines;
 import de.walware.ecommons.ltk.core.impl.Problem;
 import de.walware.ecommons.text.ILineInformation;
 
@@ -116,7 +115,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	private static final int MASK = 0x00ffffff;
 	
 	private ISourceUnit fCurrentUnit;
-	private SourceContent fCurrentContent;
+	private String fCurrentText;
 	private ILineInformation fCurrentLines;
 	private IProblemRequestor fCurrentRequestor;
 	
@@ -131,12 +130,12 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	}
 	
 	
-	public void run(final IRSourceUnit su, final SourceContentLines content,
+	public void run(final IRSourceUnit su, final SourceContent content,
 			final RAstNode node, final IProblemRequestor problemRequestor) {
 		try {
 			fCurrentUnit = su;
-			fCurrentContent = content;
-			fCurrentLines = content.lines;
+			fCurrentText = content.getText();
+			fCurrentLines = content.getLines();
 //			fCurrentDoc = unit.getDocument(null);
 //			fMaxOffset = fCurrentDoc.getLength();
 			fCurrentRequestor = problemRequestor;
@@ -184,7 +183,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		sb.append("  Node: ").append(node);
 		sb.append(" (").append(node.getOffset()).append(", ").append(node.getLength()).append(')'); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append('\n');
-		if (fCurrentContent != null) {
+		if (fCurrentText != null) {
 			try {
 				final int line = fCurrentLines.getLineOfOffset(node.getOffset());
 				sb.append("  Line ").append((line+1)).append(" (offset )").append(fCurrentLines.getLineOffset(line)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -193,7 +192,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				final int firstLine = Math.max(0, line-2);
 				final int lastLine = Math.min(fCurrentLines.getNumberOfLines()-1, fCurrentLines.getLineOfOffset(line)+2);
 				sb.append("  Source (line ").append((firstLine+1)).append('-').append((lastLine)).append("): \n"); //$NON-NLS-1$ //$NON-NLS-2$
-				sb.append(fCurrentContent.text.substring(fCurrentLines.getLineOffset(firstLine),
+				sb.append(fCurrentText.substring(fCurrentLines.getLineOffset(firstLine),
 						fCurrentLines.getLineOffset(lastLine) ));
 			}
 			catch (final BadLocationException e) {
@@ -1085,11 +1084,11 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		}
 		else {
 			if (node.getLength() > FULL_TEXT_LIMIT) {
-				return fCurrentContent.text.substring(node.getOffset(),
+				return fCurrentText.substring(node.getOffset(),
 						node.getOffset()+FULL_TEXT_LIMIT ) + '…';
 			}
 			else {
-				return fCurrentContent.text.substring(node.getOffset(), node.getStopOffset());
+				return fCurrentText.substring(node.getOffset(), node.getStopOffset());
 			}
 		}
 	}
@@ -1106,11 +1105,11 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		}
 		else {
 			if (node.getLength() > START_TEXT_LIMIT) {
-				return fCurrentContent.text.substring(node.getOffset(),
+				return fCurrentText.substring(node.getOffset(),
 						node.getOffset()+START_TEXT_LIMIT) + '…';
 			}
 			else {
-				return fCurrentContent.text.substring(node.getOffset(), node.getStopOffset());
+				return fCurrentText.substring(node.getOffset(), node.getStopOffset());
 			}
 		}
 	}
@@ -1121,8 +1120,8 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		if (startOffset < 0) {
 			startOffset = 0;
 		}
-		if (stopOffset > fCurrentContent.text.length()) {
-			stopOffset = fCurrentContent.text.length();
+		if (stopOffset > fCurrentText.length()) {
+			stopOffset = fCurrentText.length();
 		}
 		fProblemBuffer.add(new Problem(RModel.TYPE_ID, severity, code, message, fCurrentUnit,
 				startOffset, stopOffset ));

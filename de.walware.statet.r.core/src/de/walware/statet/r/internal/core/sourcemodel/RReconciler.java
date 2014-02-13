@@ -22,7 +22,6 @@ import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.SourceContent;
-import de.walware.ecommons.ltk.SourceContentLines;
 import de.walware.ecommons.text.FixInterningStringCache;
 import de.walware.ecommons.text.IStringCache;
 import de.walware.ecommons.text.LineInformationCreator;
@@ -58,8 +57,6 @@ public class RReconciler {
 		
 		public SourceParseInput parseInput;
 		public int parseOffset;
-		
-		private SourceContentLines contentLines;
 		
 		public AstInfo ast;
 		
@@ -98,16 +95,6 @@ public class RReconciler {
 		f3ProblemReporter = new RProblemReporter();
 	}
 	
-	
-	protected SourceContentLines getContentLines(final Data data) {
-		if (data.contentLines == null) {
-			synchronized (fLineInformationCreator) {
-				data.contentLines = new SourceContentLines(data.content,
-						fLineInformationCreator.create(data.content.text) );
-			}
-		}
-		return data.contentLines;
-	}
 	
 	/** for editor reconciling */
 	public IRModelInfo reconcile(final RSuModelContainer adapter,
@@ -160,7 +147,7 @@ public class RReconciler {
 						&& data.newModel == adapter.getCurrentModel() ) {
 					problemRequestor = adapter.createProblemRequestor(data.ast.stamp);
 					if (problemRequestor != null) {
-						f3ProblemReporter.run(su, getContentLines(data),
+						f3ProblemReporter.run(su, data.content,
 								(RAstNode) data.ast.root, problemRequestor );
 					}
 				}
@@ -185,8 +172,8 @@ public class RReconciler {
 		if (data.parseInput == null) {
 			if (data.content instanceof SpecialParseContent) {
 				final SpecialParseContent parseContent = (SpecialParseContent) data.content;
-				data.parseInput = new PartialStringParseInput(data.content.text, parseContent.offset);
-				data.parseOffset = parseContent.offset;
+				data.parseInput = new PartialStringParseInput(data.content.text, parseContent.getOffset());
+				data.parseOffset = parseContent.getOffset();
 			}
 			else {
 				data.parseInput = new StringParseInput(data.content.text);

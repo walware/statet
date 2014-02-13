@@ -73,6 +73,13 @@ public class RdParser {
 			return fOffsets.get(line);
 		}
 		
+		@Override
+		public int getLineLength(final int line) throws BadLocationException {
+			return (line + 1 == fOffsets.size()) ?
+					(fContent.length - fOffsets.get(line)) :
+					(this.fOffsets.get(line + 1) - this.fOffsets.get(line) );
+		}
+		
 	}
 	
 	

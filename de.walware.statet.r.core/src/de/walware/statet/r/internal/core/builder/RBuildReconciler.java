@@ -119,7 +119,7 @@ public class RBuildReconciler extends RReconciler {
 			try {
 				final List<RAstNode> comments = ((SourceComponent) data.ast.root).getComments();
 				fTaskScanner.setup((IResource) su.getResource());
-				final ILineInformation lines = getContentLines(data).lines;
+				final ILineInformation lines = data.content.getLines();
 				for (final RAstNode comment : comments) {
 						final int offset = comment.getOffset()+1;
 						fTaskScanner.checkForTasks(data.content.text.substring(
