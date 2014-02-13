@@ -14,7 +14,7 @@ package de.walware.statet.rtm.ftable.core;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 
 import de.walware.statet.rtm.base.util.IRExprTypesProvider;
 import de.walware.statet.rtm.base.util.RExprType;
@@ -32,20 +32,20 @@ public class FTableExprTypesProvider implements IRExprTypesProvider {
 	private static final RExprTypes T_DATA_VAR = new RExprTypes(
 			RExprType.DATAFRAME_COLUMN_TYPE );
 	
-	private static final RExprTypes T_LABEL = new RExprTypes(new ConstList<RExprType>(
+	private static final RExprTypes T_LABEL = new RExprTypes(new ConstArrayList<RExprType>(
 			RExprType.TEXT_VALUE_TYPE,
 			RExprType.EXPR_VALUE_TYPE ), 0 );
 	
-	private static final RExprTypes T_LABEL_VAR = new RExprTypes(new ConstList<RExprType>(
+	private static final RExprTypes T_LABEL_VAR = new RExprTypes(new ConstArrayList<RExprType>(
 			RExprType.TEXT_VALUE_TYPE,
 			RExprType.EXPR_VALUE_TYPE,
 			RExprType.DATAFRAME_COLUMN_TYPE), 2 );
 	
-	private static final RExprTypes T_COLOR_VAR = new RExprTypes(new ConstList<RExprType>(
+	private static final RExprTypes T_COLOR_VAR = new RExprTypes(new ConstArrayList<RExprType>(
 			RExprType.EXPR_COLOR_VALUE_TYPE,
 			RExprType.DATAFRAME_COLUMN_TYPE ), 0 );
 	
-	private static final RExprTypes T_OTHER_VAR = new RExprTypes(new ConstList<RExprType>(
+	private static final RExprTypes T_OTHER_VAR = new RExprTypes(new ConstArrayList<RExprType>(
 			RExprType.EXPR_VALUE_TYPE,
 			RExprType.DATAFRAME_COLUMN_TYPE ), 0 );
 	

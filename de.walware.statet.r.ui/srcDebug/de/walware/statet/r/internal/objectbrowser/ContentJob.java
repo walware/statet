@@ -25,7 +25,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.dialogs.SearchPattern;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -347,7 +347,7 @@ class ContentJob extends Job implements ToolWorkspace.Listener {
 				
 				final ICombinedRElement[] array = elements.toArray(new ICombinedRElement[elements.size()]);
 				Arrays.sort(array, ObjectBrowserView.ELEMENTNAME_COMPARATOR);
-				this.userspaceInput = new ConstList<ICombinedRElement>(array);
+				this.userspaceInput = new ConstArrayList<ICombinedRElement>(array);
 			}
 			else {
 				this.userspaceInput = null;

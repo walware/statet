@@ -14,7 +14,7 @@ package de.walware.statet.r.internal.core.renv;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 
 import de.walware.statet.r.core.renv.IRLibraryGroup;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
@@ -49,7 +49,7 @@ public abstract class RLibraryGroup implements IRLibraryGroup {
 			for (int i = 0; i < copies.length; i++) {
 				copies[i] = new RLibraryLocation(locations.get(i));
 			}
-			return new ConstList<IRLibraryLocation>(copies);
+			return new ConstArrayList<IRLibraryLocation>(copies);
 		}
 		
 		public Final(final String id, final String label, final List<IRLibraryLocation> libraries) {

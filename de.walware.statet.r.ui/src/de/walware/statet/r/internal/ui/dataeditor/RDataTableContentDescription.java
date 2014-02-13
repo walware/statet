@@ -14,7 +14,7 @@ package de.walware.statet.r.internal.ui.dataeditor;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ts.ITool;
 
 import de.walware.rj.data.RObject;
@@ -79,15 +79,15 @@ public final class RDataTableContentDescription {
 	
 	
 	void setColumnHeaderRows(final RDataTableColumn... dataColumns) {
-		fColumnHeaderRows = new ConstList<RDataTableColumn>(dataColumns);
+		fColumnHeaderRows = new ConstArrayList<RDataTableColumn>(dataColumns);
 	}
 	
 	void setRowHeaderColumns(final RDataTableColumn... dataColumns) {
-		fRowHeaderColumns = new ConstList<RDataTableColumn>(dataColumns);
+		fRowHeaderColumns = new ConstArrayList<RDataTableColumn>(dataColumns);
 	}
 	
 	void setDataColumns(final RDataTableColumn... dataColumns) {
-		fDataColumns = new ConstList<RDataTableColumn>(dataColumns);
+		fDataColumns = new ConstArrayList<RDataTableColumn>(dataColumns);
 	}
 	
 	void setVariables(final IRDataTableVariable... variables) {

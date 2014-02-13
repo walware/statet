@@ -61,7 +61,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.io.FileValidator;
 import de.walware.ecommons.ts.ITool;
@@ -107,13 +107,13 @@ class RweaveTexTool implements Runnable, IProcess {
 	private static final int TICKS_REST = 10;
 	
 	
-	public static final List<String> SWEAVE_FOLDER_VARNAMES = new ConstList<String>(
+	public static final List<String> SWEAVE_FOLDER_VARNAMES = new ConstArrayList<String>(
 			VARNAME_SWEAVE_FILE );
-	public static final List<String> SWEAVE_COMMAND_VARNAMES = new ConstList<String>(
+	public static final List<String> SWEAVE_COMMAND_VARNAMES = new ConstArrayList<String>(
 			VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE, VARNAME_OUTPUT_FILE );
-	public static final List<String> OUTPUT_DIR_VARNAMES = new ConstList<String>(
+	public static final List<String> OUTPUT_DIR_VARNAMES = new ConstArrayList<String>(
 			VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE );
-	public static final List<String> TEX_COMMAND_VARNAMES = new ConstList<String>(
+	public static final List<String> TEX_COMMAND_VARNAMES = new ConstArrayList<String>(
 			VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE, VARNAME_OUTPUT_FILE );
 	
 	

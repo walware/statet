@@ -45,7 +45,7 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ui.sourceediting.ISmartInsertSettings;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
@@ -829,7 +829,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		
 		final RBracketLevel level = new RBracketLevel(fDocument,
 				fScanner.getPartitioningConfig().getPartitioning(),
-				new ConstList<LinkedPosition>(position),
+				new ConstArrayList<LinkedPosition>(position),
 				((fViewer instanceof InputSourceViewer) ? RBracketLevel.CONSOLE_MODE : 0)
 						| (mode & 0xffff0000) );
 		

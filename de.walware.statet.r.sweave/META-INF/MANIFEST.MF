@@ -25,7 +25,7 @@ Require-Bundle: de.walware.statet.base.ui;bundle-version="[3.4.0,3.5.0)",
  de.walware.docmlet.tex.ui;bundle-version="1.0.5"
 Import-Package: com.ibm.icu.text;version="4.4.2.2",
  de.walware.ecommons,
- de.walware.ecommons.collections,
+ de.walware.ecommons.collections;version="1.1.0",
  de.walware.ecommons.databinding,
  de.walware.ecommons.io,
  de.walware.ecommons.preferences,

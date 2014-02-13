@@ -67,7 +67,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 import de.walware.ecommons.FastList;
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.ui.IElementNameProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
@@ -976,7 +976,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			final ICombinedRElement rElement = ContentProvider.getCombinedRElement(object);
 			names.add(rElement.getElementName());
 		}
-		return RElementName.concat(new ConstList<RElementName>(names));
+		return RElementName.concat(new ConstArrayList<RElementName>(names));
 	}
 	
 }

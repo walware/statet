@@ -17,7 +17,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.link.LinkedPosition;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.text.ui.BracketLevel;
 
 
@@ -232,7 +232,7 @@ public final class RBracketLevel extends BracketLevel {
 	
 	public RBracketLevel(final IDocument document, final String partitioning, final InBracketPosition position,
 			final boolean consoleMode, final boolean autoDelete) {
-		this(document, partitioning, new ConstList<LinkedPosition>(position),
+		this(document, partitioning, new ConstArrayList<LinkedPosition>(position),
 				((consoleMode) ? CONSOLE_MODE : 0) | ((autoDelete) ? AUTODELETE : 0));
 	}
 	

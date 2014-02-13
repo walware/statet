@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.walware.ecommons.collections.CollectionUtils;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.ltk.IModelElement;
 
@@ -40,16 +42,16 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 	static final int CREATED_IMPORTED = 4;
 	
 	
-	private static final ConstList<BuildSourceFrame> NO_PARENTS = new ConstList<BuildSourceFrame>();
+	private static final ConstList<BuildSourceFrame> NO_PARENTS = CollectionUtils.emptyConstList();
 	
 	
 	public static String createId(final int type, final String name, final int alt) {
 		if (type == IRFrame.PACKAGE && name != null) {
-			return "package:"+name;
+			return "package:" + name; //$NON-NLS-1$
 		}
 		return (name != null) ? 
-				Integer.toHexString(type)+":`"+name+'`' : //$NON-NLS-1$
-				Integer.toHexString(type)+":#"+Integer.toHexString(alt); //$NON-NLS-1$
+				Integer.toHexString(type) + ":`" + name + '`' : //$NON-NLS-1$
+				Integer.toHexString(type) + ":#" + Integer.toHexString(alt); //$NON-NLS-1$
 	}
 	
 	static class ElementAccessList {
@@ -321,7 +323,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		fType = type;
 		fId = id;
 		if (parents != null) {
-			fParents = new ConstList<BuildSourceFrame>(parents);
+			fParents = new ConstArrayList<BuildSourceFrame>(parents);
 		}
 		else {
 			fParents = NO_PARENTS;
@@ -332,12 +334,9 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 	
 	void addFrameElement(final IBuildSourceFrameElement element) {
 		final int length = fElements.size();
-		final IBuildSourceFrameElement[] elements = new IBuildSourceFrameElement[length+1];
-		for (int i = 0; i < length; i++) {
-			elements[i] = fElements.get(i);
-		}
+		final IBuildSourceFrameElement[] elements = fElements.toArray(new IBuildSourceFrameElement[length+1]);
 		elements[length] = element;
-		fElements = new ConstList<IBuildSourceFrameElement>(elements);
+		fElements = new ConstArrayList<IBuildSourceFrameElement>(elements);
 	}
 	
 	abstract void add(final String name, final ElementAccess access);

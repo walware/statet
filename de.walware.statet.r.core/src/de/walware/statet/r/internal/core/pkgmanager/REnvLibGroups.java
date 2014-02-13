@@ -23,7 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.io.FileUtil;
 
 import de.walware.rj.data.RCharacterStore;
@@ -133,19 +133,19 @@ public class REnvLibGroups {
 				}
 			}
 		}
-		fGroups = new ConstList<IRLibraryGroup>(
+		fGroups = new ConstArrayList<IRLibraryGroup>(
 				new RLibraryGroup.Final(RLibraryGroup.R_OTHER,
 						RLibraryGroup.getLabel(RLibraryGroup.R_OTHER),
-						new ConstList<IRLibraryLocation>(groups[0]) ),
+						new ConstArrayList<IRLibraryLocation>(groups[0]) ),
 				new RLibraryGroup.Final(RLibraryGroup.R_USER,
 						RLibraryGroup.getLabel(RLibraryGroup.R_USER),
-						new ConstList<IRLibraryLocation>(groups[1]) ),
+						new ConstArrayList<IRLibraryLocation>(groups[1]) ),
 				new RLibraryGroup.Final(RLibraryGroup.R_SITE,
 						RLibraryGroup.getLabel(RLibraryGroup.R_SITE),
-						new ConstList<IRLibraryLocation>(groups[2]) ),
+						new ConstArrayList<IRLibraryLocation>(groups[2]) ),
 				new RLibraryGroup.Final(RLibraryGroup.R_DEFAULT,
 						RLibraryGroup.getLabel(RLibraryGroup.R_DEFAULT),
-						new ConstList<IRLibraryLocation>(groups[3]) ));
+						new ConstArrayList<IRLibraryLocation>(groups[3]) ));
 	}
 	
 	public REnvLibGroups(final IREnvConfiguration config) {

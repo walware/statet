@@ -40,7 +40,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.CollectionUtils;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -83,9 +84,9 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 	private static List<String> toList(final String input) {
 		final String[] array = SEPARATOR_PATTERN.split(input);
 		if (array.length == 1 && array[0].isEmpty()) {
-			return new ConstList<String>();
+			return CollectionUtils.emptyConstList();
 		}
-		return new ConstList<String>(array);
+		return new ConstArrayList<String>(array);
 	}
 	
 	private static String[] notNull(final String[] array) {
@@ -95,9 +96,9 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 	private RHelpSearchQuery loadQuery(final IDialogSettings settings) {
 		final int type = settings.getInt("type"); //$NON-NLS-1$
 		final String text = settings.get("text"); //$NON-NLS-1$
-		final List<String> fields = new ConstList<String>(settings.getArray("fields")); //$NON-NLS-1$
-		final List<String> keywords = new ConstList<String>(settings.getArray("keywords")); //$NON-NLS-1$
-		final List<String> packages = new ConstList<String>(settings.getArray("packages")); //$NON-NLS-1$
+		final List<String> fields = new ConstArrayList<String>(settings.getArray("fields")); //$NON-NLS-1$
+		final List<String> keywords = new ConstArrayList<String>(settings.getArray("keywords")); //$NON-NLS-1$
+		final List<String> packages = new ConstArrayList<String>(settings.getArray("packages")); //$NON-NLS-1$
 		return new RHelpSearchQuery(type, text, fields, keywords, packages, null);
 	}
 	

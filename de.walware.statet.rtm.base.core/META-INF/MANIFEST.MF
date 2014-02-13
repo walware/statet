@@ -19,4 +19,4 @@ Export-Package: de.walware.ecommons.emf.core.util,
  de.walware.statet.rtm.rtdata,
  de.walware.statet.rtm.rtdata.impl,
  de.walware.statet.rtm.rtdata.types
-Import-Package: de.walware.ecommons.collections;version="1.0.0"
+Import-Package: de.walware.ecommons.collections;version="1.1.0"

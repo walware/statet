@@ -16,7 +16,8 @@ import java.util.List;
 
 import org.eclipse.jface.text.IRegion;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.CollectionUtils;
+import de.walware.ecommons.collections.ConstArrayList;
 
 import de.walware.statet.r.core.model.IRCompositeSourceElement;
 import de.walware.statet.r.core.model.IRLangSourceElement;
@@ -38,7 +39,7 @@ public class RSourceCompositeElement extends RSourceFileElement
 			final List<? extends RChunkBuildElement> elements, final IRegion sourceRange) {
 		super(su, envir);
 		
-		fElementsProtected = new ConstList<RChunkBuildElement>(elements);
+		fElementsProtected = CollectionUtils.asConstList(elements);
 		fSourceRange = sourceRange;
 	}
 	
@@ -80,7 +81,7 @@ public class RSourceCompositeElement extends RSourceFileElement
 						children[i++] = child;
 					}
 				}
-				fAllSourceChildrenProtected = new ConstList<IRLangSourceElement>(children);
+				fAllSourceChildrenProtected = new ConstArrayList<IRLangSourceElement>(children);
 			}
 			return fAllSourceChildrenProtected;
 		}

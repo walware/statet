@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.IStatusChangeListener;
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.databinding.NotEmptyValidator;
 import de.walware.ecommons.databinding.URLValidator;
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
@@ -359,7 +359,7 @@ class RRepoConfigurationBlock extends ManagedConfigurationBlock implements IActi
 		for (int i = 0; i < R_SIZE; i++) {
 			final RRepo[] array = (RRepo[]) fLists[i].toArray(new RRepo[fLists[i].size()]);
 			Arrays.sort(array, COMPARATOR);
-			setPrefValue(PREFS[i], new ConstList<RRepo>(array));
+			setPrefValue(PREFS[i], new ConstArrayList<RRepo>(array));
 		}
 		super.updatePreferences();
 	}

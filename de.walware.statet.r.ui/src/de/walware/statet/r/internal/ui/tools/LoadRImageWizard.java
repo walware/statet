@@ -30,7 +30,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
@@ -44,7 +44,7 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 public class LoadRImageWizard extends Wizard {
 	
 	
-	private static final List<String[]> RIMAGE_FILE_FILTERS = new ConstList<String[]>(
+	private static final List<String[]> RIMAGE_FILE_FILTERS = new ConstArrayList<String[]>(
 			new String[] { "*.RData", Messages.LoadData_Wizard_File_RImages_name } ); //$NON-NLS-1$
 	
 	private class SelectFileDialog extends WizardPage {

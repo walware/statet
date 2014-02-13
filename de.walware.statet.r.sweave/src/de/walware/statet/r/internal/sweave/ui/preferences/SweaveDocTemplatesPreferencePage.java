@@ -17,7 +17,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.templates.persistence.TemplatePersistenceData;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ltk.ui.templates.CodeTemplatesConfigurationBlock;
 import de.walware.ecommons.ltk.ui.templates.CodeTemplatesConfigurationBlock.ITemplateContribution;
@@ -41,7 +41,7 @@ public class SweaveDocTemplatesPreferencePage extends ConfigurationBlockPreferen
 	
 	private static final String LTK_RWEAVE_NEWDOC_GROUP_ID = "ltx-rweave.NewDoc"; //$NON-NLS-1$
 	
-	private static final List<String> GROUP_IDS = new ConstList<String>(
+	private static final List<String> GROUP_IDS = new ConstArrayList<String>(
 			LTK_RWEAVE_NEWDOC_GROUP_ID
 	);
 	

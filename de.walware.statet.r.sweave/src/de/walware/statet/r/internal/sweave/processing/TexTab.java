@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.databinding.jface.RadioGroupObservable;
 import de.walware.ecommons.databinding.jface.SWTMultiEnabledObservable;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
@@ -237,7 +237,7 @@ public class TexTab extends LaunchConfigTabWithDbc {
 		};
 		fOutputDirControl.setShowInsertVariable(true,
 				DialogUtil.DEFAULT_INTERACTIVE_FILTERS,
-				new ConstList<IStringVariable>(
+				new ConstArrayList<IStringVariable>(
 						RweaveTexLaunchDelegate.VARIABLE_SWEAVE_FILE,
 						RweaveTexLaunchDelegate.VARIABLE_LATEX_FILE ));
 		fOutputDirControl.getValidator().setOnEmpty(IStatus.OK);

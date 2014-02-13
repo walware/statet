@@ -29,7 +29,7 @@ import org.eclipse.debug.core.DebugPlugin;
 
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
 import de.walware.ecommons.ts.ISystemRunnable;
@@ -473,7 +473,7 @@ public class ToolWorkspace {
 	}
 	
 	public List<IDynamicVariable> getStringVariables() {
-		return new ConstList<IDynamicVariable>(fStringVariables.toArray());
+		return new ConstArrayList<IDynamicVariable>(fStringVariables.toArray());
 	}
 	
 	protected void dispose() {

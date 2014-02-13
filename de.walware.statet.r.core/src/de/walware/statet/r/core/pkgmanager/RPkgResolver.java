@@ -28,7 +28,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 
 import de.walware.rj.renv.IRPkg;
 import de.walware.rj.renv.RNumVersion;
@@ -200,7 +200,7 @@ public class RPkgResolver {
 		fSelected = pkgs;
 		final String[] names = pkgs.keySet().toArray(new String[pkgs.size()]);
 		Arrays.sort(names);
-		fSelectedNames = new ConstList<String>(names);
+		fSelectedNames = new ConstArrayList<String>(names);
 		
 		fRequired = new HashMap<String, List<? extends IRPkgData>>();
 		fAddRequired = true;

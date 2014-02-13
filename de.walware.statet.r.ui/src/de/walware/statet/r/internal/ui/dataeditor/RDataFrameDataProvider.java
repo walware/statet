@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 
 import de.walware.rj.data.RDataFrame;
 import de.walware.rj.data.UnexpectedRDataException;
@@ -51,7 +51,7 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 		final RDataTableColumn[] dataColumns = new RDataTableColumn[columnCount];
 		for (int i = 0; i < columnCount; i++) {
 			final String columnName = struct.getColumnNames().getChar(i);
-			final RElementName elementName = RElementName.concat(new ConstList<RElementName>(BASE_NAME,
+			final RElementName elementName = RElementName.concat(new ConstArrayList<RElementName>(BASE_NAME,
 					RElementName.create(RElementName.SUB_NAMEDPART, columnName, i+1 )));
 			dataColumns[i] = createColumn(struct.getColumn(i),
 					fInput.getFullName() + "[[" + (i+1) + "]]", elementName, i, columnName,

@@ -30,7 +30,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
@@ -229,8 +229,8 @@ class SaveUtil {
 			}
 		}
 		return new REnvHelp(rEnvConfig.getReference(), docDir,
-				new ConstList<IRHelpKeyword.Group>(keywordGroups),
-				new ConstList<IRPackageHelp>(packageHelps) );
+				new ConstArrayList<IRHelpKeyword.Group>(keywordGroups),
+				new ConstArrayList<IRPackageHelp>(packageHelps) );
 	}
 	
 	private void saveKeywordGroup(final IRHelpKeyword.Group group, final FIO fio)
@@ -254,7 +254,7 @@ class SaveUtil {
 			keywords[i] = loadKeyword(fio);
 		}
 		return new RHelpKeywordGroup(label, description,
-				new ConstList<IRHelpKeyword>(keywords) );
+				new ConstArrayList<IRHelpKeyword>(keywords) );
 	}
 	
 	private void saveKeyword(final IRHelpKeyword keyword, final FIO fio)
@@ -279,7 +279,7 @@ class SaveUtil {
 			nestedKeywords[i] = loadKeyword(fio);
 		}
 		return new RHelpKeyword(keyword, description,
-				new ConstList<IRHelpKeyword>(nestedKeywords) );
+				new ConstArrayList<IRHelpKeyword>(nestedKeywords) );
 	}
 	
 	private void savePackage(final IRPackageHelp packageHelp, final FIO fio)
@@ -304,7 +304,7 @@ class SaveUtil {
 		final int count = fio.in.readInt();
 		final IRHelpPage[] pages = new IRHelpPage[count];
 		final RPackageHelp pkg = new RPackageHelp(name, title, version, rEnvConfig.getReference(),
-				new ConstList<IRHelpPage>(pages));
+				new ConstArrayList<IRHelpPage>(pages));
 		for (int i = 0; i < count; i++) {
 			pages[i] = loadPage(pkg, fio);
 		}

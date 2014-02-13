@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.FastList;
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
@@ -256,19 +256,19 @@ public class FilterSet {
 		switch (column.getVarType()) {
 		case IRDataTableVariable.LOGI:
 		case IRDataTableVariable.RAW:
-			return new ConstList<FilterType>(FilterType.LEVEL);
+			return new ConstArrayList<FilterType>(FilterType.LEVEL);
 		case IRDataTableVariable.FACTOR:
 			if (((RFactorStore) column.getDataStore()).isOrdered()) {
-				return new ConstList<FilterType>(FilterType.LEVEL, FilterType.INTERVAL);
+				return new ConstArrayList<FilterType>(FilterType.LEVEL, FilterType.INTERVAL);
 			}
-			return new ConstList<FilterType>(FilterType.LEVEL);
+			return new ConstArrayList<FilterType>(FilterType.LEVEL);
 		case IRDataTableVariable.INT:
 		case IRDataTableVariable.NUM:
 		case IRDataTableVariable.DATE:
 		case IRDataTableVariable.DATETIME:
-			return new ConstList<FilterType>(FilterType.INTERVAL, FilterType.LEVEL);
+			return new ConstArrayList<FilterType>(FilterType.INTERVAL, FilterType.LEVEL);
 		case IRDataTableVariable.CHAR:
-			return new ConstList<FilterType>(FilterType.TEXT, FilterType.LEVEL);
+			return new ConstArrayList<FilterType>(FilterType.TEXT, FilterType.LEVEL);
 		default:
 			return null;
 		}
@@ -316,7 +316,7 @@ public class FilterSet {
 	}
 	
 	public synchronized List<VariableFilter> getFilters() {
-		return new ConstList<VariableFilter>(fFilters);
+		return new ConstArrayList<VariableFilter>(fFilters);
 	}
 	
 	

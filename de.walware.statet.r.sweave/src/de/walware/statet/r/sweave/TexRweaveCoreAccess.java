@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 
 import de.walware.docmlet.tex.core.ITexCoreAccess;
@@ -33,7 +33,7 @@ import de.walware.statet.r.internal.sweave.ISweaveLtxCommands;
 public class TexRweaveCoreAccess implements ITexRweaveCoreAccess {
 	
 	
-	private static final List<TexCommand> LTX_SWEAVE_COMMAND_LIST = new ConstList<TexCommand>( // ASorted
+	private static final List<TexCommand> LTX_SWEAVE_COMMAND_LIST = new ConstArrayList<TexCommand>( // ASorted
 			ISweaveLtxCommands.SWEAVE_Sexpr_COMMANDS,
 			ISweaveLtxCommands.SWEAVE_SweaveOpts_COMMANDS );
 	
@@ -106,12 +106,12 @@ public class TexRweaveCoreAccess implements ITexRweaveCoreAccess {
 	}
 	
 	private List<TexCommand> addSweaveList(final List<TexCommand> org) {
-		return ConstList.concat(org, LTX_SWEAVE_COMMAND_LIST);
+		return ConstArrayList.concat(org, LTX_SWEAVE_COMMAND_LIST);
 	}
 	
 	private List<TexCommand> addSweaveListASorted(final List<TexCommand> org) {
-		final ConstList<TexCommand> list = ConstList.concat(org, LTX_SWEAVE_COMMAND_LIST);
-		ConstList.sort(list, null);
+		final ConstArrayList<TexCommand> list = ConstArrayList.concat(org, LTX_SWEAVE_COMMAND_LIST);
+		ConstArrayList.sort(list, null);
 		return list;
 	}
 	

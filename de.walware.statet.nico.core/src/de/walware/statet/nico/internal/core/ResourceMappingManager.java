@@ -39,7 +39,7 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.net.resourcemapping.IResourceMapping;
 import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingOrder;
@@ -133,8 +133,8 @@ public class ResourceMappingManager implements IResourceMappingManager {
 				final IResourceMapping[] list1 = lists[0].toArray(new IResourceMapping[lists[0].size()]);
 				Arrays.sort(list0, LOCAL_COMPARATOR);
 				Arrays.sort(list1, REMOTE_COMPARATOR);
-				lists[ResourceMappingOrder.LOCAL.ordinal()] = new ConstList<IResourceMapping>(list0);
-				lists[ResourceMappingOrder.REMOTE.ordinal()] = new ConstList<IResourceMapping>(list1);
+				lists[ResourceMappingOrder.LOCAL.ordinal()] = new ConstArrayList<IResourceMapping>(list0);
+				lists[ResourceMappingOrder.REMOTE.ordinal()] = new ConstArrayList<IResourceMapping>(list1);
 			}
 			
 			synchronized(ResourceMappingManager.this) {
@@ -199,7 +199,7 @@ public class ResourceMappingManager implements IResourceMappingManager {
 			Arrays.sort(array, DEFAULT_COMPARATOR);
 			
 			synchronized (this) {
-				fList = new ConstList<ResourceMapping>(array);
+				fList = new ConstArrayList<ResourceMapping>(array);
 				fUpdateJob.cancel();
 				fUpdateJob.schedule();
 			}

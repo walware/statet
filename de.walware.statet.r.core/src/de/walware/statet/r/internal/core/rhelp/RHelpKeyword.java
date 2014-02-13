@@ -14,7 +14,7 @@ package de.walware.statet.r.internal.core.rhelp;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 
 import de.walware.statet.r.core.rhelp.IRHelpKeyword;
 
@@ -66,7 +66,7 @@ public class RHelpKeyword implements IRHelpKeyword {
 			fNested = Collections.emptyList();
 		}
 		else {
-			fNested = new ConstList<IRHelpKeyword>(fNested);
+			fNested = new ConstArrayList<IRHelpKeyword>(fNested);
 			for (int i = 0; i < fNested.size(); i++) {
 				((RHelpKeyword) fNested.get(i)).freeze();
 			}

@@ -41,6 +41,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.text.HtmlParseInput;
 
@@ -49,7 +50,6 @@ import de.walware.rj.renv.IRPackageDescription;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.rhelp.IRHelpKeyword;
-import de.walware.statet.r.core.rhelp.IRHelpKeyword.Group;
 import de.walware.statet.r.core.rhelp.IRHelpKeywordNode;
 import de.walware.statet.r.core.rhelp.IRPackageHelp;
 import de.walware.statet.r.internal.core.RCorePlugin;
@@ -448,7 +448,7 @@ public class REnvIndexWriter implements IREnvIndex {
 				group.freeze();
 			}
 			
-			final ConstList<Group> keywords = new ConstList<IRHelpKeyword.Group>(values.toArray(new IRHelpKeyword.Group[values.size()]));
+			final ConstList<IRHelpKeyword.Group> keywords = new ConstArrayList<IRHelpKeyword.Group>(values);
 			for (final Iterator<IRPackageHelp> iter = fPackages.values().iterator(); iter.hasNext(); ) {
 				if (iter.next() == null) {
 					iter.remove();
@@ -456,7 +456,7 @@ public class REnvIndexWriter implements IREnvIndex {
 			}
 			final IRPackageHelp[] array = fPackages.values().toArray(new IRPackageHelp[fPackages.size()]);
 			Arrays.sort(array);
-			final ConstList<IRPackageHelp> packages = new ConstList<IRPackageHelp>(array);
+			final ConstList<IRPackageHelp> packages = new ConstArrayList<IRPackageHelp>(array);
 			
 			final REnvHelp help = new REnvHelp(fREnvConfig.getReference(), fDocDir, keywords, packages);
 			

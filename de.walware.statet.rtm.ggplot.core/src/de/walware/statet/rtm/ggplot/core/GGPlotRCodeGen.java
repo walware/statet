@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.collections.IntArrayMap;
 import de.walware.ecommons.collections.IntMap;
@@ -174,7 +175,9 @@ public class GGPlotRCodeGen extends AbstractRCodeGenerator {
 		}
 	}
 	
-	private static final List<String> DIRECT_TYPES = new ConstList<String>(RTypedExpr.R, RTypedExpr.CHAR);
+	private static final ConstList<String> DIRECT_TYPES = new ConstArrayList<String>(
+			RTypedExpr.R,
+			RTypedExpr.CHAR );
 	
 	private static void appendDirectProperties(final FunBuilder fun, final EObject obj, final List<Property> properties) {
 		for (final Property property : properties) {

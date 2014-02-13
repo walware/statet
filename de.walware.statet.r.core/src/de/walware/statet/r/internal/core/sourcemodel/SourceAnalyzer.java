@@ -25,7 +25,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.OperationCanceledException;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceStructElement;
@@ -663,7 +663,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		for (final BuildSourceFrame si : fDependencyEnvironments.values()) {
 			si.runLateResolve(false);
 		}
-		fTopLevelEnvir.fParents = ConstList.concat(fDependencyEnvironments.values().toArray(), fTopLevelEnvir.fParents);
+		fTopLevelEnvir.fParents = ConstArrayList.concat(fDependencyEnvironments.values().toArray(), fTopLevelEnvir.fParents);
 		for (final BuildSourceFrame si : fFrames.values()) {
 			si.runLateResolve(false);
 		}
@@ -721,7 +721,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				final RSourceElementByElementAccess[] finalChildren = seb.children.toArray(new RSourceElementByElementAccess[seb.children.size()]);
 				Arrays.sort(finalChildren, SOURCEELEMENT_SORTER);
 				if (finalChildren.length > 0) {
-					seb.element.setSourceChildren(new ConstList<IRLangSourceElement>(finalChildren));
+					seb.element.setSourceChildren(new ConstArrayList<IRLangSourceElement>(finalChildren));
 				}
 				
 				commonNames.clear();
@@ -1753,7 +1753,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				
 				final BuildSourceFrame envir = getPkgEnvir(packageName);
 				if (!fGlobalEnvir.fParents.contains(envir)) {
-					fGlobalEnvir.fParents = ConstList.concat(envir, fGlobalEnvir.fParents);
+					fGlobalEnvir.fParents = ConstArrayList.concat(envir, fGlobalEnvir.fParents);
 				}
 				
 				fArgValueToIgnore.add(nameValue);

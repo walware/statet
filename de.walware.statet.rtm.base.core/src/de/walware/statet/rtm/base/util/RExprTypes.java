@@ -13,7 +13,7 @@ package de.walware.statet.rtm.base.util;
 
 import java.util.List;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 
 
 public class RExprTypes {
@@ -25,7 +25,7 @@ public class RExprTypes {
 	
 	
 	public RExprTypes(final RExprType type) {
-		this(new ConstList<RExprType>(type), type.getTypeKey());
+		this(new ConstArrayList<RExprType>(type), type.getTypeKey());
 	}
 	
 	public RExprTypes(final List<RExprType> types, final int defaultTypeIdx) {

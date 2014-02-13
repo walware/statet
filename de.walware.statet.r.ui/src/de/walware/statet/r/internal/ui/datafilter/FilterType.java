@@ -13,7 +13,7 @@ package de.walware.statet.r.internal.ui.datafilter;
 
 import java.util.List;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 
 
 public class FilterType {
@@ -23,7 +23,7 @@ public class FilterType {
 	public static final FilterType INTERVAL = new FilterType(1, Messages.IntervalFilter_label);
 	public static final FilterType TEXT = new FilterType(2, Messages.TextFilter_label);
 	
-	public static final List<FilterType> TYPES = new ConstList<FilterType>(LEVEL, INTERVAL, TEXT);
+	public static final List<FilterType> TYPES = new ConstArrayList<FilterType>(LEVEL, INTERVAL, TEXT);
 	
 	
 	private final int fId;

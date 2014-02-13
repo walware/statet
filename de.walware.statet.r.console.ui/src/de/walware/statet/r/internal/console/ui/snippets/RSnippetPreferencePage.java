@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ltk.ui.templates.CodeTemplatesConfigurationBlock;
 import de.walware.ecommons.ltk.ui.templates.CodeTemplatesConfigurationBlock.TemplateStoreContribution;
@@ -59,7 +59,7 @@ public class RSnippetPreferencePage
 	
 	private static final String R_SNIPPET_GROUP_ID = "r.ConsoleSnippet"; //$NON-NLS-1$
 	
-	private static final List<String> GROUP_IDS = new ConstList<String>(
+	private static final List<String> GROUP_IDS = new ConstArrayList<String>(
 			R_SNIPPET_GROUP_ID
 	);
 	

@@ -13,7 +13,7 @@ package de.walware.statet.r.core.pkgmanager;
 
 import java.util.List;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 
 import de.walware.statet.r.internal.core.pkgmanager.FullRPkgSet;
 
@@ -23,7 +23,7 @@ public interface IRPkgSet {
 	
 	interface Ext extends IRPkgSet {
 		
-		List<String> DEFAULT_PRIORITIES = new ConstList<String>(
+		List<String> DEFAULT_PRIORITIES = new ConstArrayList<String>(
 				"base", "recommended", "other"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		
 		

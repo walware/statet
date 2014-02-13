@@ -54,7 +54,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.io.FileValidator;
 import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditor;
@@ -298,7 +298,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 				"Working Directory");
 		fDirControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		fDirControl.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS,
-				new ConstList<IStringVariable>(RweaveTexLaunchDelegate.VARIABLE_SWEAVE_FILE) );
+				new ConstArrayList<IStringVariable>(RweaveTexLaunchDelegate.VARIABLE_SWEAVE_FILE) );
 		
 		return group;
 	}

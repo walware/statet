@@ -24,7 +24,7 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ts.IQueue;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.IToolRunnable;
@@ -319,7 +319,7 @@ public final class Queue implements IQueue {
 		synchronized (to) {
 			to.checkIOCache();
 			if (to == this && fInsertIndex >= 0) {
-				fList.addAll(fInsertIndex, new ConstList<IToolRunnable>(array));
+				fList.addAll(fInsertIndex, new ConstArrayList<IToolRunnable>(array));
 				for (int i = 0; i < array.length; i++) {
 					array[i].changed(IToolRunnable.MOVING_TO, to.fProcess);
 				}
@@ -328,7 +328,7 @@ public final class Queue implements IQueue {
 				fInsertIndex += array.length;
 			}
 			else {
-				to.fList.addAll(new ConstList<IToolRunnable>(array));
+				to.fList.addAll(new ConstArrayList<IToolRunnable>(array));
 				for (int i = 0; i < array.length; i++) {
 					array[i].changed(IToolRunnable.MOVING_TO, to.fProcess);
 				}
@@ -364,7 +364,7 @@ public final class Queue implements IQueue {
 		
 		synchronized (to) {
 			to.checkIOCache();
-			to.fList.addAll(new ConstList<IToolRunnable>(array));
+			to.fList.addAll(new ConstArrayList<IToolRunnable>(array));
 			for (int i = 0; i < array.length; i++) {
 				array[i].changed(IToolRunnable.MOVING_TO, to.fProcess);
 			}
@@ -492,7 +492,7 @@ public final class Queue implements IQueue {
 				fList.add(fInsertIndex, runnables[0]);
 			}
 			else {
-				fList.addAll(fInsertIndex, new ConstList<IToolRunnable>(runnables));
+				fList.addAll(fInsertIndex, new ConstArrayList<IToolRunnable>(runnables));
 			}
 			addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
 					new Delta(IToolRunnable.ADDING_TO, fInsertIndex, runnables));
@@ -503,7 +503,7 @@ public final class Queue implements IQueue {
 				fList.add(runnables[0]);
 			}
 			else {
-				fList.addAll(new ConstList<IToolRunnable>(runnables));
+				fList.addAll(new ConstArrayList<IToolRunnable>(runnables));
 			}
 			addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
 					new Delta(IToolRunnable.ADDING_TO, -1, runnables));

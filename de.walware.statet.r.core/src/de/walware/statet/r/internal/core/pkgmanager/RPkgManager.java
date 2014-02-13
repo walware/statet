@@ -34,7 +34,7 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 
 import de.walware.ecommons.FastList;
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference.StringPref2;
@@ -438,7 +438,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		}
 		
 		SelectedRepos selected = fSelectedRepos;
-		fAllCRAN = ConstList.concat(fCustomCRAN, fRCRAN);
+		fAllCRAN = ConstArrayList.concat(fCustomCRAN, fRCRAN);
 		
 		RRepo selectedCRAN = selected.getCRANMirror();
 		if (selected.getCRANMirror() != null) {
@@ -464,7 +464,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		
 		
 		RRepo selectedBioC = selected.getBioCMirror();
-		fAllBioC = ConstList.concat(fCustomBioC, fRBioC);
+		fAllBioC = ConstArrayList.concat(fCustomBioC, fRBioC);
 		if (selectedBioC != null) {
 			selectedBioC = Util.findRepo(fAllBioC, selectedBioC);
 		}

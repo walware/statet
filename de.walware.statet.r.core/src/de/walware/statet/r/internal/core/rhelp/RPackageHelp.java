@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.collections.ConstList;
 
 import de.walware.rj.renv.IRPackageDescription;
@@ -114,7 +115,7 @@ public class RPackageHelp implements IRPackageHelp {
 	public void freeze() {
 		final IRHelpPage[] array = fHelpPages.toArray(new IRHelpPage[fHelpPages.size()]);
 		Arrays.sort(array);
-		fHelpPages = new ConstList<IRHelpPage>(array);
+		fHelpPages = new ConstArrayList<IRHelpPage>(array);
 	}
 	
 	

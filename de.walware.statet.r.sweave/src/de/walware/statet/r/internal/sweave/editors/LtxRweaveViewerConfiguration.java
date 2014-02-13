@@ -34,7 +34,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ltk.ui.sourceediting.EcoReconciler2;
 import de.walware.ecommons.ltk.ui.sourceediting.EditorInformationProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
@@ -352,12 +352,12 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 		
 		final ContentAssistProcessor texProcessor = (ContentAssistProcessor) assistant.getContentAssistProcessor(ITexDocumentConstants.LTX_DEFAULT_EXPL_CONTENT_TYPE);
 		texProcessor.addCategory(new ContentAssistCategory(ITexDocumentConstants.LTX_DEFAULT_EXPL_CONTENT_TYPE,
-				new ConstList<IContentAssistComputer>(chunkComputer)));
+				new ConstArrayList<IContentAssistComputer>(chunkComputer)));
 		texProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '\\', '<' });
 		
 		final ContentAssistProcessor mathProcessor = (ContentAssistProcessor) assistant.getContentAssistProcessor(ITexDocumentConstants.LTX_MATH_CONTENT_TYPE);
 		mathProcessor.addCategory(new ContentAssistCategory(ITexDocumentConstants.LTX_MATH_CONTENT_TYPE,
-				new ConstList<IContentAssistComputer>(chunkComputer)));
+				new ConstArrayList<IContentAssistComputer>(chunkComputer)));
 		mathProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '\\', '<' });
 		
 		fRConfig.initDefaultContentAssist(assistant);
@@ -365,7 +365,7 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 		final ContentAssistProcessor controlProcessor = new ContentAssistProcessor(assistant,
 				Rweave.CHUNK_CONTROL_CONTENT_TYPE, SweavePlugin.getDefault().getTexEditorContentAssistRegistry(), getSourceEditor());
 		controlProcessor.addCategory(new ContentAssistCategory(Rweave.CHUNK_CONTROL_CONTENT_TYPE,
-				new ConstList<IContentAssistComputer>(chunkComputer)));
+				new ConstArrayList<IContentAssistComputer>(chunkComputer)));
 		assistant.setContentAssistProcessor(controlProcessor, Rweave.CHUNK_CONTROL_CONTENT_TYPE);
 		
 		return assistant;

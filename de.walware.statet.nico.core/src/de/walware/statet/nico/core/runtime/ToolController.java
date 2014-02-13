@@ -35,7 +35,7 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.IDisposable;
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.CollectionUtils;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolCommandHandler;
@@ -762,10 +762,7 @@ public abstract class ToolController implements IConsoleService {
 	}
 	
 	protected void setTracks(List<? extends ITrack> tracks) {
-		if (!(tracks instanceof ConstList<?>)) {
-			tracks = new ConstList<ITrack>(tracks);
-		}
-		fProcess.setTracks(tracks);
+		fProcess.setTracks(CollectionUtils.asConstList(tracks));
 	}
 	
 	protected final void beginInternalTask() {

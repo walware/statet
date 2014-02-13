@@ -23,7 +23,7 @@ import java.util.List;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.text.IStringCache;
 import de.walware.ecommons.text.NoStringCache;
@@ -86,7 +86,7 @@ public class RoxygenScanner {
 			}
 			finishTag();
 			
-			comment.fTags = new ConstList<DocuTag>(fList);
+			comment.fTags = new ConstArrayList<DocuTag>(fList);
 		}
 		finally {
 			fList.clear();

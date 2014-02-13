@@ -17,7 +17,7 @@ import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 
 import de.walware.statet.rtm.rtdata.types.RTypedExpr;
 
@@ -266,7 +266,7 @@ public abstract class AbstractRCodeGenerator {
 	
 	
 	public List<String> getRequiredPkgs() {
-		return new ConstList<String>(fRequiredPkgs);
+		return new ConstArrayList<String>(fRequiredPkgs);
 	}
 	
 	public String getRCode() {

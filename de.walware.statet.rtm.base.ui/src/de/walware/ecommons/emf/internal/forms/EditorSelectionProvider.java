@@ -21,7 +21,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.forms.editor.IFormPage;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.emf.ui.forms.EFEditor;
 import de.walware.ecommons.ui.util.PostSelectionProviderProxy;
 
@@ -71,7 +71,7 @@ public class EditorSelectionProvider extends PostSelectionProviderProxy {
 			final List list = ((IStructuredSelection) selection).toList();
 			if (base != null && !list.contains(base)) {
 				return new StructuredSelection(
-						ConstList.<Object>concat(base, list) );
+						ConstArrayList.<Object>concat(base, list) );
 			}
 		}
 		return selection;

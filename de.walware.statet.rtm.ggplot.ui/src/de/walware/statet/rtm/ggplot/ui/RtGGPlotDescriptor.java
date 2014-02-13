@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.emf.core.util.RuleSet;
 
@@ -36,7 +37,7 @@ public class RtGGPlotDescriptor implements IRtDescriptor {
 	
 	private static final String XMI_FILE_EXTENSION = "Rtx-ggplot"; //$NON-NLS-1$
 	
-	private static final ConstList<String> FILE_EXTENSIONS = new ConstList<String>(XMI_FILE_EXTENSION);
+	private static final ConstList<String> FILE_EXTENSIONS = new ConstArrayList<String>(XMI_FILE_EXTENSION);
 	
 	
 	public RtGGPlotDescriptor() {

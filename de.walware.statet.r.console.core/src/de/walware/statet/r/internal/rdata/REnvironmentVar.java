@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.REnvironment;
@@ -297,7 +297,7 @@ public final class REnvironmentVar extends CombinedElement
 			return Collections.emptyList();
 		}
 		if (filter == null) {
-			return new ConstList<IRLangElement>(this.components);
+			return new ConstArrayList<IRLangElement>(this.components);
 		}
 		else {
 			final List<CombinedElement> list = new ArrayList<CombinedElement>();

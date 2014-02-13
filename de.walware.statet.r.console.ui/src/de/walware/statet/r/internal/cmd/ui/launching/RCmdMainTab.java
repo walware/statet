@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.AbstractSettingsModelObject;
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.debug.ui.HelpRequestor;
 import de.walware.ecommons.debug.ui.InputArgumentsComposite;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
@@ -253,7 +253,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 				ResourceInputComposite.MODE_FILE | ResourceInputComposite.MODE_OPEN,
 				""); //$NON-NLS-1$
 		fResourceControl.setShowInsertVariable(true,
-				new ConstList<VariableFilter>(DialogUtil.EXCLUDE_JAVA_FILTER), null);
+				new ConstArrayList<VariableFilter>(DialogUtil.EXCLUDE_JAVA_FILTER), null);
 		fResourceControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 	}
 	

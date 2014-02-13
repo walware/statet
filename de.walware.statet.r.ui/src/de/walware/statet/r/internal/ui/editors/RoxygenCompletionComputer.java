@@ -21,7 +21,7 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ltk.ui.LTKUI;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
@@ -88,7 +88,7 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 		for (int i = 0; i < commands.length; i++) {
 			commands[i] = '@' + TAGS[i];
 		}
-		TAG_COMMANDS = new ConstList<String>(commands);
+		TAG_COMMANDS = new ConstArrayList<String>(commands);
 	}
 	
 	private static class TagProposal extends RKeywordCompletionProposal {

@@ -11,8 +11,6 @@
 
 package de.walware.statet.r.ui.graphics;
 
-import java.util.List;
-
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.resource.JFaceResources;
@@ -35,6 +33,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.ui.dialogs.ToolPopup;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -122,8 +121,10 @@ public class RFontFamilyChooser extends ToolPopup {
 	protected static abstract class GenericTab extends ToolTab {
 		
 		
-		private static final List<String> VALUES = new ConstList<String>(
-				"serif", "sansserif", "mono"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		private static final ConstList<String> VALUES = new ConstArrayList<String>(
+				"serif", //$NON-NLS-1$
+				"sansserif", //$NON-NLS-1$
+				"mono" ); //$NON-NLS-1$
 		
 		private Button[] fButtons;
 		

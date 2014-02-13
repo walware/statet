@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.IStringVariable;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 
 import de.walware.statet.nico.core.NicoVariables;
 import de.walware.statet.nico.core.runtime.IConsoleService;
@@ -86,7 +86,7 @@ public class RWorkspace extends ToolWorkspace {
 		
 	}
 	
-	public static final List<IStringVariable> ADDITIONAL_R_VARIABLES = new ConstList<IStringVariable>(
+	public static final List<IStringVariable> ADDITIONAL_R_VARIABLES = new ConstArrayList<IStringVariable>(
 			NicoVariables.SESSION_STARTUP_DATE_VARIABLE,
 			NicoVariables.SESSION_STARTUP_TIME_VARIABLE,
 			NicoVariables.SESSION_CONNECTION_DATE_VARIABLE,

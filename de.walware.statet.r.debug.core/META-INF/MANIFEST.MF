@@ -16,7 +16,7 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
  de.walware.statet.r.core,
  de.walware.statet.r.console.core
 Import-Package: de.walware.ecommons,
- de.walware.ecommons.collections;version="1.0.0",
+ de.walware.ecommons.collections;version="1.1.0",
  de.walware.ecommons.io,
  de.walware.ecommons.models.core.util,
  de.walware.ecommons.preferences,

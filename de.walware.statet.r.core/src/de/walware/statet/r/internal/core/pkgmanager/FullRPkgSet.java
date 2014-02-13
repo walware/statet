@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 
 import de.walware.rj.renv.IRPkg;
 import de.walware.rj.renv.RNumVersion;
@@ -93,7 +93,7 @@ public class FullRPkgSet implements IRPkgSet.Ext {
 	
 	
 	private List<RPkgList<RPkgData>> getAll() {
-		return ConstList.<RPkgList<RPkgData>>concat((List) fInstalled.getAll(), fAvailable.getAll());
+		return ConstArrayList.<RPkgList<RPkgData>>concat((List) fInstalled.getAll(), fAvailable.getAll());
 	}
 	
 	@Override

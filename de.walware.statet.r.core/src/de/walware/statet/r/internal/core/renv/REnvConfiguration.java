@@ -41,7 +41,7 @@ import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
@@ -139,17 +139,17 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 				final List<IRLibraryLocation> libs = NO_LIBS;
 				groups[i] = new RLibraryGroup.Final(id, RLibraryGroup.getLabel(id), libs);
 			}
-			DEFAULT_LIBS_INIT = new ConstList<IRLibraryGroup>(groups);
+			DEFAULT_LIBS_INIT = new ConstArrayList<IRLibraryGroup>(groups);
 		}
 		{	final IRLibraryGroup[] groups = new IRLibraryGroup[DEFAULT_LIBS_IDS.length];
 			for (int i = 0; i < DEFAULT_LIBS_IDS.length; i++) {
 				final String id = DEFAULT_LIBS_IDS[i];
 				final List<IRLibraryLocation> libs;
 				if (id == IRLibraryGroup.R_DEFAULT) {
-					libs = new ConstList<IRLibraryLocation>(createDefaultLocation());
+					libs = new ConstArrayList<IRLibraryLocation>(createDefaultLocation());
 				}
 				else if (id == IRLibraryGroup.R_SITE) {
-					libs = new ConstList<IRLibraryLocation>(new RLibraryLocation(
+					libs = new ConstArrayList<IRLibraryLocation>(new RLibraryLocation(
 							IRLibraryLocation.USER, IRLibraryGroup.DEFAULTLOCATION_R_SITE, null ));
 				}
 				else {
@@ -157,7 +157,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 				}
 				groups[i] = new RLibraryGroup.Final(id, RLibraryGroup.getLabel(id), libs);
 			}
-			DEFAULT_LIBS_DEFAULTS = new ConstList<IRLibraryGroup>(groups);
+			DEFAULT_LIBS_DEFAULTS = new ConstArrayList<IRLibraryGroup>(groups);
 		}
 	}
 	
@@ -343,7 +343,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 					}
 				}
 				groups.add(new RLibraryGroup.Final(id, label,
-						new ConstList<IRLibraryLocation>(tmpList)) );
+						new ConstArrayList<IRLibraryLocation>(tmpList)) );
 			}
 			else {
 				// unknown group
@@ -558,7 +558,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 					}
 				}
 				groups.add(new RLibraryGroup.Final(id, RLibraryGroup.getLabel(id),
-						new ConstList<IRLibraryLocation>(libs)) );
+						new ConstArrayList<IRLibraryLocation>(libs)) );
 			}
 			fRLibraries = Collections.unmodifiableList(groups);
 		}
@@ -573,7 +573,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		for (int i = 0; i < groups.length; i++) {
 			groups[i] = new RLibraryGroup.Final((RLibraryGroup) source.get(i));
 		}
-		return new ConstList<IRLibraryGroup>(groups);
+		return new ConstArrayList<IRLibraryGroup>(groups);
 	}
 	
 	@Override
