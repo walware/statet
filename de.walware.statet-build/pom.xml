@@ -23,7 +23,6 @@
 		<module>../de.walware.statet.r.debug.core</module>
 		<module>../de.walware.statet.r.debug.ui</module>
 		<module>../de.walware.statet.r.launching.winrgui</module>
-		<module>../de.walware.statet.r.xterm</module>
 		<module>../de.walware.statet.r.doc</module>
 		
 		<module>../../texlipse/net.sourceforge.texlipse</module>
