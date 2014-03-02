@@ -7,7 +7,7 @@ Bundle-Version: 3.4.0.qualifier
 Bundle-Activator: de.walware.statet.r.internal.console.core.RConsoleCorePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: de.walware.statet.base.core;bundle-version="[3.4.0,3.5.0)",
  de.walware.statet.nico.core,
  de.walware.statet.r.core,

@@ -50,7 +50,7 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGr
 			return fName;
 		}
 
-		private void setCategory(final int index) {
+		protected void setCategory(final int index) {
 			
 			fCategoryIndex = index;
 		}

@@ -7,7 +7,7 @@ Bundle-Name: R Task Model: Base UI
 Bundle-Activator: de.walware.statet.rtm.base.ui.RtModelUIPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,
  org.eclipse.core.resources,
  de.walware.statet.rtm.base.core;bundle-version="1.0.0",

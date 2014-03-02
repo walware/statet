@@ -7,7 +7,7 @@ Bundle-Name: R Task Model: 'ggplot2'
 Bundle-Activator: de.walware.statet.rtm.ggplot.core.RtGGPlotCorePlugin$Implementation
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.emf.ecore.xmi;visibility:=reexport,
