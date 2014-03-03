@@ -22,8 +22,9 @@ import de.walware.docmlet.tex.core.TexCore;
 
 import de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory;
 
+import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.sweave.TexRweaveCoreAccess;
 
 
@@ -40,7 +41,7 @@ public class LtxRweaveTemplatesProvider implements ICodeGenerationTemplatesCateg
 	
 	@Override
 	public String getProjectNatureId() {
-		return RProject.NATURE_ID;
+		return RProjects.R_NATURE_ID;
 	}
 	
 	@Override
@@ -55,7 +56,7 @@ public class LtxRweaveTemplatesProvider implements ICodeGenerationTemplatesCateg
 	
 	@Override
 	public SourceEditorViewerConfigurator getEditTemplateDialogConfiguator(final TemplateVariableProcessor processor, final IProject project) {
-		final RProject rProject = RProject.getRProject(project);
+		final IRProject rProject= RProjects.getRProject(project);
 		return new LtxRweaveTemplateConfigurator(new TexRweaveCoreAccess(
 						TexCore.getWorkbenchAccess(),
 						(rProject != null) ? rProject : RCore.getWorkbenchAccess() ),

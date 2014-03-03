@@ -36,7 +36,8 @@ import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.text.ui.OpenFileHyperlink;
 
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.IRProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 
 
@@ -116,7 +117,7 @@ public class RFileHyperlinkDetector extends AbstractHyperlinkDetector {
 					final IResource resource = ((IWorkspaceSourceUnit) su).getResource();
 					final IProject project = resource.getProject();
 					if (project != null) {
-						final RProject rProject = RProject.getRProject(project);
+						final IRProject rProject = RProjects.getRProject(project);
 						if (rProject != null) {
 							relativeBase = rProject.getBaseContainer();
 						}

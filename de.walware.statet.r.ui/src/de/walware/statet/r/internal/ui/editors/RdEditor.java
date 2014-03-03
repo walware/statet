@@ -18,7 +18,8 @@ import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.SharedUIResources;
 
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.IRProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.RdSourceViewerConfiguration;
 import de.walware.statet.r.ui.editors.RdSourceViewerConfigurator;
@@ -58,7 +59,7 @@ public class RdEditor extends SourceEditor1 {
 	
 	@Override
 	protected void setupConfiguration(final IEditorInput newInput) {
-		fRdConfig.setSource((RProject) getProject(newInput, RProject.NATURE_ID));
+		fRdConfig.setSource((IRProject) getProject(newInput, RProjects.R_NATURE_ID));
 	}
 	
 	@Override

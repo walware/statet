@@ -31,8 +31,9 @@ import de.walware.ecommons.ICommonStatusConstants;
 
 import de.walware.statet.base.core.preferences.StatetCorePreferenceNodes;
 
+import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.internal.core.builder.RBuilder;
 
 
@@ -80,7 +81,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	}
 	
 	
-	private RProject fRProject;
+	private IRProject fRProject;
 	private SettingsListener fSettingsListener;
 	private ExceptionCollector fExceptions;
 	
@@ -108,11 +109,11 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 		try {
 			fSettingsListener = new SettingsListener();
 			
-			fRProject = (RProject) getProject().getNature(RProject.NATURE_ID);
+			fRProject = (IRProject) getProject().getNature(RProjects.R_NATURE_ID);
 			if (fRProject == null) {
 				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "R Project Nature is missing", null)); //$NON-NLS-1$
 			}
-			fRProject.getStatetProject().addPreferenceNodeListener(
+			fRProject.addPreferenceNodeListener(
 					StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER,
 					fSettingsListener);
 			fRBuilder = new RBuilder();

@@ -26,7 +26,7 @@ import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
 import de.walware.statet.ext.ui.wizards.StatetWizardsMessages;
 
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.RUI;
 
@@ -74,7 +74,7 @@ public class NewRProjectWizard extends NewElementWizard {
 				) {
 			@Override
 			protected void doConfigProject(final IProject project, final IProgressMonitor monitor) throws CoreException {
-				RProject.addNature(fNewRProject.getProjectHandle(), monitor);
+				RProjects.setupRProject(fNewRProject.getProjectHandle(), monitor);
 			}
 		};
 		

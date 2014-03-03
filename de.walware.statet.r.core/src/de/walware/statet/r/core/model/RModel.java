@@ -22,10 +22,12 @@ import org.eclipse.core.runtime.CoreException;
 import de.walware.ecommons.ltk.ISourceElement;
 import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 
+import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.FilteredFrame;
+import de.walware.statet.r.internal.core.RProject;
 
 
 /**
@@ -34,28 +36,28 @@ import de.walware.statet.r.internal.core.FilteredFrame;
 public class RModel {
 	
 	
-	public static final String TYPE_ID = "r"; //$NON-NLS-1$
+	public static final String TYPE_ID= "r"; //$NON-NLS-1$
 	
 	
 	public static IRFrameInSource searchFrame(RAstNode node) {
 		while (node != null) {
-			final Object[] attachments = node.getAttachments();
+			final Object[] attachments= node.getAttachments();
 			for (final Object attachment : attachments) {
 				if (attachment instanceof IRFrameInSource) {
 					return (IRFrameInSource) attachment;
 				}
 			}
-			node = node.getRParent();
+			node= node.getRParent();
 		}
 		return null;
 	}
 	
 	public static List<IRFrame> createDirectFrameList(final IRFrame frame) {
-		final ArrayList<IRFrame> list = new ArrayList<IRFrame>();
-		int idx = 0;
+		final ArrayList<IRFrame> list= new ArrayList<>();
+		int idx= 0;
 		list.add(frame);
 		while (idx < list.size()) {
-			final List<? extends IRFrame> ps = list.get(idx++).getPotentialParents();
+			final List<? extends IRFrame> ps= list.get(idx++).getPotentialParents();
 			for (final IRFrame p : ps) {
 				if (!list.contains(p)) {
 					list.add(p);
@@ -65,22 +67,22 @@ public class RModel {
 		return list;
 	}
 	
-	public static List<IRFrame> createProjectFrameList(RProject project1,
+	public static List<IRFrame> createProjectFrameList(IRProject project1,
 			final IRSourceUnit exclude, Set<String> packages) throws CoreException {
-		final ArrayList<IRFrame> list = new ArrayList<IRFrame>();
-		final IRModelManager manager = RCore.getRModelManager();
+		final ArrayList<IRFrame> list= new ArrayList<>();
+		final IRModelManager manager= RCore.getRModelManager();
 		if (project1 == null && exclude instanceof IWorkspaceSourceUnit) {
-			project1 = RProject.getRProject(((IWorkspaceSourceUnit) exclude).getResource().getProject());
+			project1= RProjects.getRProject(((IWorkspaceSourceUnit) exclude).getResource().getProject());
 		}
 		if (project1 == null) {
 			return list;
 		}
 		if (packages == null) {
-			packages = new HashSet<String>();
+			packages= new HashSet<>();
 		}
 		IRFrame frame;
 		
-		frame = manager.getProjectFrame(project1);
+		frame= manager.getProjectFrame(project1);
 		if (frame != null) {
 			if (frame.getFrameType() == IRFrame.PACKAGE) {
 				packages.add(frame.getElementName().getSegmentName());
@@ -88,19 +90,19 @@ public class RModel {
 			list.add(new FilteredFrame(frame, exclude));
 		}
 		
-		final List<RProject> projects = new ArrayList<RProject>();
+		final List<IRProject> projects= new ArrayList<>();
 		try {
-			final IProject[] referencedProjects = project1.getProject().getReferencedProjects();
+			final IProject[] referencedProjects= project1.getProject().getReferencedProjects();
 			for (final IProject referencedProject : referencedProjects) {
-				final RProject rProject = RProject.getRProject(referencedProject);
+				final IRProject rProject= RProject.getRProject(referencedProject);
 				if (rProject != null) {
 					projects.add(rProject);
 				}
 			}
 		} catch (final CoreException e) {}
-		for (int i = 0; i < projects.size(); i++) {
-			final RProject project = projects.get(i);
-			frame = manager.getProjectFrame(project);
+		for (int i= 0; i < projects.size(); i++) {
+			final IRProject project= projects.get(i);
+			frame= manager.getProjectFrame(project);
 			if (frame != null) {
 				if (frame.getFrameType() == IRFrame.PACKAGE) {
 					packages.add(frame.getElementName().getSegmentName());
@@ -108,9 +110,9 @@ public class RModel {
 				list.add(frame);
 			}
 			try {
-				final IProject[] referencedProjects = project.getProject().getReferencedProjects();
+				final IProject[] referencedProjects= project.getProject().getReferencedProjects();
 				for (final IProject referencedProject : referencedProjects) {
-					final RProject rProject = RProject.getRProject(referencedProject);
+					final IRProject rProject= RProject.getRProject(referencedProject);
 					if (rProject != null && !projects.contains(rProject)) {
 						projects.add(rProject);
 					}
@@ -123,16 +125,16 @@ public class RModel {
 	public static List<ISourceElement> searchDeclaration(final RElementAccess access,
 			final IRSourceUnit su) throws CoreException {
 		assert (access != null);
-		final List<ISourceElement> list = new ArrayList<ISourceElement>();
+		final List<ISourceElement> list= new ArrayList<>();
 		
-		final IRFrame suFrame = access.getFrame();
-		final List<IRFrame> directFrames = RModel.createDirectFrameList(suFrame);
+		final IRFrame suFrame= access.getFrame();
+		final List<IRFrame> directFrames= RModel.createDirectFrameList(suFrame);
 		for (final IRFrame frame : directFrames) {
 			if (checkFrame(frame, access, list)) {
 				return list;
 			}
 		}
-		final List<IRFrame> projectFrames = RModel.createProjectFrameList(null, su, null);
+		final List<IRFrame> projectFrames= RModel.createProjectFrameList(null, su, null);
 		for (final IRFrame frame : projectFrames) {
 			if (checkFrame(frame, access, list)) {
 				return list;
@@ -142,9 +144,9 @@ public class RModel {
 	}
 	
 	private static boolean checkFrame(final IRFrame frame, final RElementAccess access, final List<ISourceElement> list) {
-		final List<? extends IRElement> elements = frame.getModelChildren(null);
+		final List<? extends IRElement> elements= frame.getModelChildren(null);
 		for (final IRElement element : elements) {
-			final RElementName name = element.getElementName();
+			final RElementName name= element.getElementName();
 			if (name != null && name.equals(access)
 					&& element instanceof ISourceElement) {
 				list.add((ISourceElement) element);
@@ -152,7 +154,7 @@ public class RModel {
 		}
 		
 		if (!list.isEmpty()) {
-			final ISourceElement first = list.get(0);
+			final ISourceElement first= list.get(0);
 			switch (first.getElementType()  & IRElement.MASK_C2) {
 			case IRElement.R_S4METHOD:
 			case IRElement.R_GENERAL_VARIABLE:

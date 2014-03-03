@@ -18,7 +18,7 @@ import de.walware.ecommons.tasklist.TaskTag;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.IRProject;
 
 
 public class RTaskMarkerHandler extends TaskMarkerHandler {
@@ -32,7 +32,7 @@ public class RTaskMarkerHandler extends TaskMarkerHandler {
 	}
 	
 	
-	public void init(final RProject project) {
+	public void init(final IRProject project) {
 		final TaskTagsPreferences taskPrefs = new TaskTagsPreferences(project.getPrefs());
 		final List<TaskTag> taskTags= taskPrefs.getTaskTags();
 		initTaskPattern(taskTags);

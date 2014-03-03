@@ -28,8 +28,9 @@ import de.walware.ecommons.templates.TemplateVariableProcessor;
 
 import de.walware.docmlet.tex.core.TexCore;
 
+import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.internal.sweave.LtxRweaveTemplateConfigurator;
 import de.walware.statet.r.internal.sweave.NewSweaveDocGenerateWizardPage;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
@@ -76,7 +77,7 @@ public class SweaveDocTemplatesPreferencePage extends ConfigurationBlockPreferen
 		@Override
 		public SourceEditorViewerConfigurator createViewerConfiguator(final TemplatePersistenceData data,
 				final TemplateVariableProcessor templateProcessor, final IProject project) {
-			final RProject rProject = RProject.getRProject(project);
+			final IRProject rProject = RProjects.getRProject(project);
 			return new LtxRweaveTemplateConfigurator(new TexRweaveCoreAccess(
 							TexCore.getWorkbenchAccess(),
 							(rProject != null) ? rProject : RCore.getWorkbenchAccess() ),

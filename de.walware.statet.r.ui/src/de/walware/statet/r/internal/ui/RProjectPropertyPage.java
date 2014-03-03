@@ -11,8 +11,6 @@
 
 package de.walware.statet.r.internal.ui;
 
-import static de.walware.statet.r.core.RProject.PREF_BASE_FOLDER;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +38,8 @@ import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.preferences.ui.PropertyAndPreferencePage;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.IRProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -81,13 +80,13 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 	
 	private Text fPkgNameControl;
 	
-	private final RProject fRProject;
+	private final IRProject fRProject;
 	
 	
 	public RProjectConfigurationBlock(final IProject project, final IStatusChangeListener statusListener) {
 		super(project, statusListener);
 		
-		fRProject = RProject.getRProject(project);
+		fRProject = RProjects.getRProject(project);
 	}
 	
 	
@@ -95,7 +94,7 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 	protected void createBlockArea(final Composite pageComposite) {
 		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
 		
-		prefs.put(PREF_BASE_FOLDER, null);
+		prefs.put(IRProject.BASE_FOLDER_PREF, null);
 		
 		setupPreferenceManager(prefs);
 		
@@ -141,7 +140,7 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected void updateControls() {
-		final String value = getPreferenceValue(PREF_BASE_FOLDER);
+		final String value = getPreferenceValue(IRProject.BASE_FOLDER_PREF);
 		if (value != null) {
 			final IPath basePath = Path.fromPortableString(value);
 			fProjectComposite.setBaseContainer(basePath);
@@ -159,10 +158,10 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 	protected void updatePreferences() {
 		final IPath basePath = fProjectComposite.getBaseContainer();
 		if (basePath != null) {
-			setPrefValue(PREF_BASE_FOLDER, basePath.toPortableString());
+			setPrefValue(IRProject.BASE_FOLDER_PREF, basePath.toPortableString());
 		}
 		else {
-			setPrefValue(PREF_BASE_FOLDER, null);
+			setPrefValue(IRProject.BASE_FOLDER_PREF, null);
 		}
 		
 		super.updatePreferences();

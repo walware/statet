@@ -12,11 +12,9 @@
 package de.walware.statet.base.core;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
@@ -26,25 +24,12 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
-import de.walware.ecommons.resources.ProjectUtil;
 
 
 public class StatetProject implements IProjectNature, IPreferenceAccess {
 	
 	
 	public static final String NATURE_ID = "de.walware.statet.base.StatetNature"; //$NON-NLS-1$
-	
-	
-	public static void addNature(final IProject project, final IProgressMonitor monitor) throws CoreException {
-		if (!project.hasNature(NATURE_ID)) {
-			IProjectDescription description = project.getDescription();
-			description = ProjectUtil.appendNature(description, NATURE_ID);
-			project.setDescription(description, monitor);
-		} 
-		else {
-			monitor.done();
-		}
-	}
 	
 	
 	protected IProject fProject;

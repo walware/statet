@@ -25,7 +25,7 @@
          name="R Project Nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
-         <run class="de.walware.statet.r.core.RProject"/>
+         <run class="de.walware.statet.r.internal.core.RProject"/>
       </runtime>
       <requires-nature id="de.walware.statet.base.StatetNature"/>
       <builder id="de.walware.statet.r.builders.RSupport"/>
@@ -36,7 +36,7 @@
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="de.walware.statet.r.core.RPkgProject">
+               class="de.walware.statet.r.internal.core.RPkgProject">
          </run>
       </runtime>
       <requires-nature

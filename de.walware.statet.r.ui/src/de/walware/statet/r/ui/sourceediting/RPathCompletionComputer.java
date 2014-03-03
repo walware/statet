@@ -46,7 +46,8 @@ import de.walware.ecommons.ts.ITool;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
 import de.walware.statet.r.console.core.RProcess;
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.IRProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.ui.RUI;
 
@@ -88,7 +89,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 			final ISourceUnit su = editor.getSourceUnit();
 			if (su instanceof IWorkspaceSourceUnit) {
 				final IResource resource = ((IWorkspaceSourceUnit) su).getResource();
-				final RProject project = RProject.getRProject(resource.getProject());
+				final IRProject project = RProjects.getRProject(resource.getProject());
 				fBaseResource = (project != null) ? project.getBaseContainer() : null;
 				if (fBaseResource == null) {
 					fBaseResource = resource.getParent();

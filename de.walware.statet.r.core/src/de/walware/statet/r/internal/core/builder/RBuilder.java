@@ -39,8 +39,9 @@ import org.eclipse.osgi.util.NLS;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.ltk.LTK;
 
+import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
@@ -63,8 +64,8 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 	}
 	
 	
-	private final List<String> fRemovedRSU = new ArrayList<String>();
-	private final ArrayList<IRWorkspaceSourceUnit> fToUpdateRSU = new ArrayList<IRWorkspaceSourceUnit>();
+	private final List<String> fRemovedRSU = new ArrayList<>();
+	private final ArrayList<IRWorkspaceSourceUnit> fToUpdateRSU = new ArrayList<>();
 	
 	private final RModelManager fModelManager;
 	
@@ -76,7 +77,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 	}
 	
 	
-	public IStatus buildIncremental(final RProject project, final IResourceDelta delta, final IProgressMonitor monitor) {
+	public IStatus buildIncremental(final IRProject project, final IResourceDelta delta, final IProgressMonitor monitor) {
 		fStatusCollector = new MultiStatus(RCore.PLUGIN_ID, 0, "R build status for "+project.getProject().getName(), null);
 		final SubMonitor progress = SubMonitor.convert(monitor);
 		try {
@@ -138,7 +139,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 			case IResourceDelta.REMOVED:
 				if ((delta.getFlags() & IResourceDelta.MOVED_TO) != 0) {
 					final IResource movedTo = resource.getWorkspace().getRoot().findMember(delta.getMovedToPath());
-					if (movedTo != null && !movedTo.getProject().hasNature(RProject.NATURE_ID)) {
+					if (movedTo != null && !movedTo.getProject().hasNature(RProjects.R_NATURE_ID)) {
 						clearMarkers(movedTo);
 					}
 				}
@@ -156,7 +157,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 		}
 	}
 	
-	public IStatus buildFull(final RProject project, final IProgressMonitor monitor) {
+	public IStatus buildFull(final IRProject project, final IProgressMonitor monitor) {
 		fStatusCollector = new MultiStatus(RCore.PLUGIN_ID, 0, "R build status for "+project.getProject().getName(), null);
 		final SubMonitor progress = SubMonitor.convert(monitor);
 		try {
@@ -230,7 +231,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 	
 	private final RTaskMarkerHandler fTaskMarkerHandler = new RTaskMarkerHandler();
 	
-	protected void initRd(final RProject project) {
+	protected void initRd(final IRProject project) {
 		fTaskMarkerHandler.init(project);
 	}
 	

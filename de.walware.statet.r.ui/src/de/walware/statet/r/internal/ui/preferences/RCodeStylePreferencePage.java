@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 
 import de.walware.ecommons.preferences.ui.PropertyAndPreferencePage;
 
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RProjects;
 
 
 /**
@@ -44,7 +44,7 @@ public class RCodeStylePreferencePage extends PropertyAndPreferencePage<RCodeSty
 	
 	@Override
 	protected boolean isProjectSupported(final IProject project) throws CoreException {
-		return project.hasNature(RProject.NATURE_ID);
+		return project.hasNature(RProjects.R_NATURE_ID);
 	}
 	
 	@Override

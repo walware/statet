@@ -28,8 +28,8 @@ import org.eclipse.core.runtime.Status;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.text.ILineInformation;
 
+import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.model.IRClass;
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
@@ -73,7 +73,7 @@ public class RBuildReconciler extends RReconciler {
 	}
 	
 	
-	public void init(final RProject project, final MultiStatus status) throws CoreException {
+	public void init(final IRProject project, final MultiStatus status) throws CoreException {
 		this.taskScanner.init(project);
 		this.statusCollector= status;
 	}

@@ -20,8 +20,9 @@ import de.walware.ecommons.ltk.core.impl.GenericResourceSourceUnit;
 import de.walware.docmlet.tex.core.TexCore;
 
 import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.sweave.ILtxRweaveSourceUnit;
@@ -57,7 +58,7 @@ public class LtxRweaveDocUnit extends GenericResourceSourceUnit
 	public ITexRweaveCoreAccess getRCoreAccess() {
 		ITexRweaveCoreAccess coreAccess = fCoreAccess;
 		if (coreAccess == null) {
-			final RProject rProject = RProject.getRProject(getResource().getProject());
+			final IRProject rProject = RProjects.getRProject(getResource().getProject());
 			coreAccess = new TexRweaveCoreAccess(TexCore.getWorkbenchAccess(),
 					(rProject != null) ? rProject : RCore.getWorkbenchAccess() );
 			synchronized (this) {

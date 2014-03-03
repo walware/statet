@@ -27,7 +27,7 @@ import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 public class RResourceDecorator extends BaseLabelProvider implements ILightweightLabelDecorator {
 	
 	
-	private static final Path OVR_PATH = new Path("icons/ovr_16"); //$NON-NLS-1$
+	private static final Path OVR_PATH= new Path("icons/ovr_16"); //$NON-NLS-1$
 	
 	
 	private static ImageDescriptor fPackageProjectOverlay;
@@ -48,7 +48,7 @@ public class RResourceDecorator extends BaseLabelProvider implements ILightweigh
 		}
 		if (project != null) {
 			try {
-				if (project.hasNature(de.walware.statet.r.core.RPkgProject.NATURE_ID)) {
+				if (project.hasNature(de.walware.statet.r.core.RProjects.R_PKG_NATURE_ID)) {
 					decoration.addOverlay(getPackageProjectOverlay(), IDecoration.TOP_LEFT);
 				}
 			}
@@ -65,8 +65,8 @@ public class RResourceDecorator extends BaseLabelProvider implements ILightweigh
 	}
 	
 	private ImageDescriptor createOverlayDescriptor(final String id) {
-		final URL url = FileLocator.find(Platform.getBundle(de.walware.statet.r.ui.RUI.PLUGIN_ID),
-				OVR_PATH.append(id + ".png"), null );
+		final URL url= FileLocator.find(Platform.getBundle(de.walware.statet.r.ui.RUI.PLUGIN_ID),
+				OVR_PATH.append(id + ".png"), null ); //$NON-NLS-1$
 		return ImageDescriptor.createFromURL(url);
 	}
 	

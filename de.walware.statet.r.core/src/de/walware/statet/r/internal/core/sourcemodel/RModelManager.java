@@ -26,7 +26,7 @@ import de.walware.ecommons.ltk.WorkingContext;
 import de.walware.ecommons.ltk.core.impl.AbstractModelManager;
 import de.walware.ecommons.ltk.core.impl.SourceUnitModelContainer;
 
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRModelManager;
@@ -149,7 +149,7 @@ public class RModelManager extends AbstractModelManager implements IRModelManage
 	
 	
 	@Override
-	public IRFrame getProjectFrame(final RProject project) throws CoreException {
+	public IRFrame getProjectFrame(final IRProject project) throws CoreException {
 		return fIndex.getProjectFrame(project.getProject());
 	}
 	

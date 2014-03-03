@@ -26,7 +26,7 @@ import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory;
 
 import de.walware.statet.r.core.IRCoreAccess;
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.RdSourceViewerConfiguration;
 import de.walware.statet.r.ui.editors.RdSourceViewerConfigurator;
@@ -72,7 +72,7 @@ public class RdCodeTemplatesProvider implements ICodeGenerationTemplatesCategory
 	
 	@Override
 	public String getProjectNatureId() {
-		return RProject.NATURE_ID;
+		return RProjects.R_NATURE_ID;
 	}
 	
 	@Override
@@ -87,7 +87,7 @@ public class RdCodeTemplatesProvider implements ICodeGenerationTemplatesCategory
 	
 	@Override
 	public SourceEditorViewerConfigurator getEditTemplateDialogConfiguator(final TemplateVariableProcessor processor, final IProject project) {
-		return new RdTemplateConfigurator(RProject.getRProject(project), processor);
+		return new RdTemplateConfigurator(RProjects.getRProject(project), processor);
 	}
 	
 }

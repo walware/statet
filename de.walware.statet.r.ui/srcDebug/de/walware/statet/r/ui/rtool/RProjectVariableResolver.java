@@ -21,7 +21,8 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ui.workbench.ResourceVariableResolver;
 
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.IRProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.internal.ui.rtools.Messages;
 import de.walware.statet.r.ui.RUI;
 
@@ -40,7 +41,7 @@ public class RProjectVariableResolver extends ResourceVariableResolver.ProjectVa
 	
 	@Override
 	public String resolveValue(final IDynamicVariable variable, final String argument) throws CoreException {
-		final RProject rProject = getRProject(variable, argument);
+		final IRProject rProject = getRProject(variable, argument);
 		if (variable.getName().equals(R_PKG_BASE_PATH_NAME)) {
 			IContainer container = rProject.getBaseContainer();
 			if (container == null) {
@@ -61,7 +62,7 @@ public class RProjectVariableResolver extends ResourceVariableResolver.ProjectVa
 	}
 	
 	
-	protected RProject getRProject(final IDynamicVariable variable, final String argument)
+	protected IRProject getRProject(final IDynamicVariable variable, final String argument)
 			throws CoreException {
 		final IProject project = (IProject) getResource(variable, argument);
 		if (!project.exists()) {
@@ -69,9 +70,9 @@ public class RProjectVariableResolver extends ResourceVariableResolver.ProjectVa
 					NLS.bind(Messages.Variable_error_InvalidProject_NotExists_message, 
 							variable.getName(), project.getName() )));
 		}
-		final RProject rProject;
-		if (!project.hasNature(RProject.NATURE_ID)
-				|| (rProject = RProject.getRProject(project)) == null) {
+		final IRProject rProject;
+		if (!project.hasNature(RProjects.R_NATURE_ID)
+				|| (rProject = RProjects.getRProject(project)) == null) {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID,
 					NLS.bind(Messages.Variable_error_InvalidProject_NotExists_message, 
 							variable.getName(), project.getName() )));

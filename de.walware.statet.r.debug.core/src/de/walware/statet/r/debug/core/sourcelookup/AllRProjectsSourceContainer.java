@@ -24,14 +24,14 @@ import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourceContainerType;
 import org.eclipse.debug.core.sourcelookup.containers.CompositeSourceContainer;
 
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.internal.debug.core.sourcelookup.Messages;
 
 
 public class AllRProjectsSourceContainer extends CompositeSourceContainer implements IRSourceContainer {
 	
 	
-	public static final String TYPE_ID = "de.walware.statet.r.sourceContainers.AllRProjectsType"; //$NON-NLS-1$
+	public static final String TYPE_ID= "de.walware.statet.r.sourceContainers.AllRProjectsType"; //$NON-NLS-1$
 	
 	
 	public AllRProjectsSourceContainer() {
@@ -50,12 +50,12 @@ public class AllRProjectsSourceContainer extends CompositeSourceContainer implem
 	
 	@Override
 	protected ISourceContainer[] createSourceContainers() throws CoreException {
-		final List<ISourceContainer> list = new ArrayList<ISourceContainer>();
-		final IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		final List<ISourceContainer> list= new ArrayList<>();
+		final IProject[] projects= ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		for (final IProject project : projects) {
 			try {
-				if (project.isOpen() && project.hasNature(RProject.NATURE_ID)) {
-					final ISourceContainer container = new RProjectSourceContainer(project, false);
+				if (project.isOpen() && project.hasNature(RProjects.R_NATURE_ID)) {
+					final ISourceContainer container= new RProjectSourceContainer(project, false);
 					container.init(getDirector());
 					list.add(container);
 				}
@@ -68,9 +68,9 @@ public class AllRProjectsSourceContainer extends CompositeSourceContainer implem
 	
 	@Override
 	public Object findSourceElement(final URI fileUri, final IFile[] fileInWorkspace) throws CoreException {
-		final ISourceContainer[] containers = getSourceContainers();
-		for (int i = 0; i < containers.length; i++) {
-			final Object element = ((RProjectSourceContainer) containers[i]).findSourceElement(
+		final ISourceContainer[] containers= getSourceContainers();
+		for (int i= 0; i < containers.length; i++) {
+			final Object element= ((RProjectSourceContainer) containers[i]).findSourceElement(
 					fileUri, fileInWorkspace );
 			if (element != null) {
 				return element;
@@ -81,8 +81,8 @@ public class AllRProjectsSourceContainer extends CompositeSourceContainer implem
 	
 	@Override
 	public void findSourceElement(final IPath path, final List<Object> elements) throws CoreException {
-		final ISourceContainer[] containers = getSourceContainers();
-		for (int i = 0; i < containers.length; i++) {
+		final ISourceContainer[] containers= getSourceContainers();
+		for (int i= 0; i < containers.length; i++) {
 			((RProjectSourceContainer) containers[i]).findSourceElement(path, elements);
 		}
 	}

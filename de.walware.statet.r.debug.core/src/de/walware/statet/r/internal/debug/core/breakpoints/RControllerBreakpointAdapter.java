@@ -72,7 +72,8 @@ import de.walware.rj.server.dbg.TracepointStatesUpdate;
 
 import de.walware.statet.r.console.core.RDbg;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.IRProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRModelManager;
@@ -289,7 +290,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 					
 					if (newPackages != null) {
 						final IBreakpoint[] breakpoints = fBreakpointManager.getBreakpoints(RDebugModel.IDENTIFIER);
-						final Map<IProject, RProject> rProjects = new HashMap<IProject, RProject>();
+						final Map<IProject, IRProject> rProjects = new HashMap<>();
 						for (int i = 0; i < breakpoints.length; i++) {
 							if (breakpoints[i] instanceof IRLineBreakpoint) {
 								final IRLineBreakpoint lineBreakpoint = (IRLineBreakpoint) breakpoints[i];
@@ -298,9 +299,9 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 									continue;
 								}
 								final IProject project = marker.getResource().getProject();
-								RProject rProject = rProjects.get(project);
+								IRProject rProject = rProjects.get(project);
 								if (rProject == null) {
-									rProject = RProject.getRProject(project);
+									rProject = RProjects.getRProject(project);
 									if (rProject == null) {
 										continue; // ?
 									}

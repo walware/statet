@@ -20,13 +20,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.IRProject;
 
 
 public interface IRModelManager extends IModelManager {
 	
 	
-	IRFrame getProjectFrame(RProject project) throws CoreException;
+	IRFrame getProjectFrame(IRProject project) throws CoreException;
 	
 	IRModelInfo reconcile(IRSourceUnit su, ISourceUnitModelInfo modelInfo,
 			List<? extends RChunkElement> chunks,

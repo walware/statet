@@ -20,7 +20,7 @@ import de.walware.ecommons.templates.TemplateVariableProcessor;
 
 import de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory;
 
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
 
@@ -37,7 +37,7 @@ public class RCodeTemplatesProvider implements ICodeGenerationTemplatesCategory 
 	
 	@Override
 	public String getProjectNatureId() {
-		return RProject.NATURE_ID;
+		return RProjects.R_NATURE_ID;
 	}
 	
 	@Override
@@ -52,7 +52,7 @@ public class RCodeTemplatesProvider implements ICodeGenerationTemplatesCategory 
 	
 	@Override
 	public SourceEditorViewerConfigurator getEditTemplateDialogConfiguator(final TemplateVariableProcessor processor, final IProject project) {
-		return new RTemplateSourceViewerConfigurator(RProject.getRProject(project), processor);
+		return new RTemplateSourceViewerConfigurator(RProjects.getRProject(project), processor);
 	}
 	
 }

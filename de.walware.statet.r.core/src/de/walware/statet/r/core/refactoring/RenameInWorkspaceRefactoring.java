@@ -48,8 +48,9 @@ import de.walware.ecommons.ltk.core.refactoring.SourceUnitChange;
 import de.walware.ecommons.ltk.core.refactoring.TextChangeCompatibility;
 import de.walware.ecommons.ltk.core.refactoring.TextChangeManager;
 
+import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
 import de.walware.statet.r.core.model.IRModelInfo;
@@ -65,6 +66,7 @@ import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.refactoring.Messages;
 
+
 public class RenameInWorkspaceRefactoring extends Refactoring {
 	
 	
@@ -75,12 +77,12 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 		LOCAL,
 	};
 	
-	private static final int FOUND_NONE = 0;
-	private static final int FOUND_READ = 1;
-	private static final int FOUND_WRITE = 2;
+	private static final int FOUND_NONE= 0;
+	private static final int FOUND_READ= 1;
+	private static final int FOUND_WRITE= 2;
 	
 	
-	private final RRefactoringAdapter fAdapter = new RRefactoringAdapter();
+	private final RRefactoringAdapter fAdapter= new RRefactoringAdapter();
 	private final ElementSet fElementSet;
 	
 	private IRegion fSelectionRegion;
@@ -106,11 +108,11 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	 * @param region (selected) region of an occurrence of the variable
 	 */
 	public RenameInWorkspaceRefactoring(final IRWorkspaceSourceUnit su, final IRegion region) {
-		fSourceUnit = su;
-		fElementSet = new ElementSet(new Object[] { su });
+		fSourceUnit= su;
+		fElementSet= new ElementSet(new Object[] { su });
 		
 		if (region != null && region.getOffset() >= 0 && region.getLength() >= 0) {
-			fSelectionRegion = region;
+			fSelectionRegion= region;
 		}
 	}
 	
@@ -121,11 +123,11 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	 * @param region (selected) region of an occurrence of the variable
 	 */
 	public RenameInWorkspaceRefactoring(final IRWorkspaceSourceUnit su, final RAstNode node) {
-		fSourceUnit = su;
-		fElementSet = new ElementSet(new Object[] { su });
+		fSourceUnit= su;
+		fElementSet= new ElementSet(new Object[] { su });
 		
 		if (node.getNodeType() == NodeType.SYMBOL || node.getNodeType() == NodeType.STRING_CONST) {
-			fInitialSymbolNode = node;
+			fInitialSymbolNode= node;
 		}
 	}
 	
@@ -141,23 +143,23 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	
 	@Override
 	public RefactoringStatus checkInitialConditions(final IProgressMonitor monitor) throws CoreException {
-		final SubMonitor progress = SubMonitor.convert(monitor, 6);
+		final SubMonitor progress= SubMonitor.convert(monitor, 6);
 		try {
-			RAstNode node = null;
+			RAstNode node= null;
 			if (fSelectionRegion != null) {
 				fSourceUnit.connect(progress.newChild(1));
 				try {
-					final AbstractDocument document = fSourceUnit.getDocument(monitor);
-					final RHeuristicTokenScanner scanner = fAdapter.getScanner(fSourceUnit);
+					final AbstractDocument document= fSourceUnit.getDocument(monitor);
+					final RHeuristicTokenScanner scanner= fAdapter.getScanner(fSourceUnit);
 					
-					final IRegion region = fAdapter.trimToAstRegion(document,
+					final IRegion region= fAdapter.trimToAstRegion(document,
 							fSelectionRegion, scanner );
 					
-					final IRModelInfo modelInfo = (IRModelInfo) fSourceUnit.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, progress.newChild(1));
+					final IRModelInfo modelInfo= (IRModelInfo) fSourceUnit.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, progress.newChild(1));
 					if (modelInfo != null) {
-						final AstInfo ast = modelInfo.getAst();
+						final AstInfo ast= modelInfo.getAst();
 						if (ast != null) {
-							node = (RAstNode) AstSelection.search(ast.root,
+							node= (RAstNode) AstSelection.search(ast.root,
 									region.getOffset(), region.getOffset()+region.getLength(),
 									AstSelection.MODE_COVERING_SAME_LAST ).getCovering();
 						}
@@ -169,7 +171,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 			}
 			
 			if (node != null) {
-				fInitialSymbolNode = RRefactoringAdapter.getPotentialNameNode(node, false);
+				fInitialSymbolNode= RRefactoringAdapter.getPotentialNameNode(node, false);
 			}
 			
 			if (fInitialSymbolNode == null) {
@@ -178,7 +180,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 			if (fSourceUnit.getResource() == null || fSourceUnit.getResource().getProject() == null) {
 				return RefactoringStatus.createFatalErrorStatus("The file is not in the workspace");
 			}
-			final RefactoringStatus result = new RefactoringStatus();
+			final RefactoringStatus result= new RefactoringStatus();
 			fAdapter.checkInitialToModify(result, fElementSet);
 			if (result.hasFatalError()) {
 				return result;
@@ -193,7 +195,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	}
 	
 	private void checkVariable(final RefactoringStatus result) {
-		final RElementAccess currentAccess = RRefactoringAdapter.searchElementAccessOfNameNode(fInitialSymbolNode);
+		final RElementAccess currentAccess= RRefactoringAdapter.searchElementAccessOfNameNode(fInitialSymbolNode);
 		if (currentAccess == null) {
 			result.merge(RefactoringStatus.createFatalErrorStatus("Failed to detect variable information."));
 			return;
@@ -206,19 +208,19 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 			result.merge(RefactoringStatus.createFatalErrorStatus(Messages.RenameInWorkspace_error_InvalidSelection_message));
 			return;
 		}
-		final IRFrame frame = currentAccess.getFrame();
+		final IRFrame frame= currentAccess.getFrame();
 		if (frame == null || (frame.getFrameType() != IRFrame.PACKAGE && frame.getFrameType() != IRFrame.PROJECT)) {
-			fMode = Mode.LOCAL;
-			fAvailableModes = EnumSet.of(Mode.LOCAL);
+			fMode= Mode.LOCAL;
+			fAvailableModes= EnumSet.of(Mode.LOCAL);
 		}
 		else {
-			fMode = Mode.COMPLETE;
-			fAvailableModes = EnumSet.of(Mode.COMPLETE, Mode.CURRENT_AND_REFERENCING, Mode.CURRENT);
+			fMode= Mode.COMPLETE;
+			fAvailableModes= EnumSet.of(Mode.COMPLETE, Mode.CURRENT_AND_REFERENCING, Mode.CURRENT);
 		}
-		fInitialAccess = currentAccess;
-		fName = RElementName.cloneSegment(currentAccess);
-		fNamespace = (currentAccess.getNamespace() != null) ? RElementName.cloneSegment(currentAccess.getNamespace()) : null;
-		fVariableName = currentAccess.getDisplayName();
+		fInitialAccess= currentAccess;
+		fName= RElementName.cloneSegment(currentAccess);
+		fNamespace= (currentAccess.getNamespace() != null) ? RElementName.cloneSegment(currentAccess.getNamespace()) : null;
+		fVariableName= currentAccess.getDisplayName();
 	}
 	
 	public String getCurrentName() {
@@ -230,7 +232,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	}
 	
 	public RefactoringStatus checkNewName(final String name) {
-		final String message = fAdapter.validateIdentifier(name, "The variable name");
+		final String message= fAdapter.validateIdentifier(name, "The variable name");
 		if (message != null) {
 			return RefactoringStatus.createFatalErrorStatus(message);
 		}
@@ -238,7 +240,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	}
 	
 	public void setNewName(final String name) {
-		fVariableName = name;
+		fVariableName= name;
 	}
 	
 	public EnumSet<Mode> getAvailableModes() {
@@ -250,26 +252,26 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	}
 	
 	public void setMode(final Mode mode) {
-		fMode = mode;
+		fMode= mode;
 	}
 	
 	@Override
 	public RefactoringStatus checkFinalConditions(final IProgressMonitor monitor) throws CoreException {
-		final SubMonitor progress = SubMonitor.convert(monitor, RefactoringMessages.Common_FinalCheck_label, 100);
+		final SubMonitor progress= SubMonitor.convert(monitor, RefactoringMessages.Common_FinalCheck_label, 100);
 		try {
-			final RefactoringStatus status = checkNewName(fVariableName);
+			final RefactoringStatus status= checkNewName(fVariableName);
 			
 			if (fMode == Mode.LOCAL) {
-				fChanges = createLocalChanges(progress.newChild(90));
+				fChanges= createLocalChanges(progress.newChild(90));
 				
 				fAdapter.checkFinalToModify(status, fElementSet, progress.newChild(2));
 			}
 			else {
-				final TextChangeManager manager = new TextChangeManager();
+				final TextChangeManager manager= new TextChangeManager();
 				createChanges(status, manager, progress.newChild(90));
-				fChanges = manager.getAllChanges();
+				fChanges= manager.getAllChanges();
 				
-				final ElementSet elements = new ElementSet(manager.getAllSourceUnits());
+				final ElementSet elements= new ElementSet(manager.getAllSourceUnits());
 				fAdapter.checkFinalToModify(status, elements, progress.newChild(2));
 			}
 			
@@ -285,16 +287,16 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	
 	@Override
 	public Change createChange(final IProgressMonitor monitor) throws CoreException {
-		final SubMonitor progress = SubMonitor.convert(monitor, RefactoringMessages.Common_CreateChanges_label, 3);
+		final SubMonitor progress= SubMonitor.convert(monitor, RefactoringMessages.Common_CreateChanges_label, 3);
 		try {
-			final Map<String, String> arguments = new HashMap<String, String>();
-			final String description = NLS.bind(Messages.RenameInWorkspace_Descriptor_description, '`'+getNewName()+'`');
-			final IProject resource = fElementSet.getSingleProject();
-			final String project = (resource != null) ? resource.getName() : null;
-			final String source = (project != null) ? NLS.bind(RefactoringMessages.Common_Source_Project_label, project) : RefactoringMessages.Common_Source_Workspace_label;
-			final int flags = 0;
-			final String comment = ""; //$NON-NLS-1$
-			final CommonRefactoringDescriptor descriptor = new CommonRefactoringDescriptor(
+			final Map<String, String> arguments= new HashMap<>();
+			final String description= NLS.bind(Messages.RenameInWorkspace_Descriptor_description, '`'+getNewName()+'`');
+			final IProject resource= fElementSet.getSingleProject();
+			final String project= (resource != null) ? resource.getName() : null;
+			final String source= (project != null) ? NLS.bind(RefactoringMessages.Common_Source_Project_label, project) : RefactoringMessages.Common_Source_Workspace_label;
+			final int flags= 0;
+			final String comment= ""; //$NON-NLS-1$
+			final CommonRefactoringDescriptor descriptor= new CommonRefactoringDescriptor(
 					getIdentifier(), project, description, comment, arguments, flags);
 			
 			return new RefactoringChange(descriptor,
@@ -308,24 +310,24 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	
 	
 	private Change[] createLocalChanges(final SubMonitor progress) {
-		final TextFileChange change = new SourceUnitChange(fSourceUnit);
+		final TextFileChange change= new SourceUnitChange(fSourceUnit);
 		if (fSourceUnit.getWorkingContext() == LTK.EDITOR_CONTEXT) {
 			change.setSaveMode(TextFileChange.LEAVE_DIRTY);
 		}
 		
 		fSourceUnit.connect(progress.newChild(1));
 		try {
-			final RElementAccess[] accessList = fInitialAccess.getAllInUnit();
+			final RElementAccess[] accessList= fInitialAccess.getAllInUnit();
 			
-			final String unquoted = RRefactoringAdapter.getUnquotedIdentifier(fVariableName);
-			final String quoted = RRefactoringAdapter.getQuotedIdentifier(fVariableName);
-			final boolean isQuoted = (fVariableName.charAt(0) == '`');
+			final String unquoted= RRefactoringAdapter.getUnquotedIdentifier(fVariableName);
+			final String quoted= RRefactoringAdapter.getQuotedIdentifier(fVariableName);
+			final boolean isQuoted= (fVariableName.charAt(0) == '`');
 			
-			for (int i = 0; i < accessList.length; i++) {
-				final RAstNode nameNode = accessList[i].getNameNode();
-				final String text = (isQuoted && nameNode.getNodeType() == NodeType.SYMBOL && nameNode.getOperator(0) == RTerminal.SYMBOL) ?
+			for (int i= 0; i < accessList.length; i++) {
+				final RAstNode nameNode= accessList[i].getNameNode();
+				final String text= (isQuoted && nameNode.getNodeType() == NodeType.SYMBOL && nameNode.getOperator(0) == RTerminal.SYMBOL) ?
 						fVariableName : unquoted;
-				final IRegion nameRegion = RAst.getElementNameRegion(nameNode);
+				final IRegion nameRegion= RAst.getElementNameRegion(nameNode);
 				TextChangeCompatibility.addTextEdit(change, Messages.RenameInWorkspace_Changes_ReplaceOccurrence_name,
 						new ReplaceEdit(nameRegion.getOffset(), nameRegion.getLength(), text));
 			}
@@ -339,31 +341,31 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	private void createChanges(final RefactoringStatus status, final TextChangeManager manager, final SubMonitor progress) throws BadLocationException, CoreException {
 		progress.beginTask(RefactoringMessages.Common_CreateChanges_label, 100);
 		
-		final List<RProject> allProjects = new ArrayList<RProject>();
-		final List<List<ISourceUnit>> allProjectsSus = new ArrayList<List<ISourceUnit>>();
-		final List<RProject> definitionProjects = new ArrayList<RProject>();
-		final List<RProject> textChangeProjects = new ArrayList<RProject>();
+		final List<IRProject> allProjects= new ArrayList<>();
+		final List<List<ISourceUnit>> allProjectsSus= new ArrayList<>();
+		final List<IRProject> definitionProjects= new ArrayList<>();
+		final List<IRProject> textChangeProjects= new ArrayList<>();
 		
 		try {
-			final Set<String> packages = new HashSet<String>();
+			final Set<String> packages= new HashSet<>();
 			packages.add(null);
 			String specificPackage;
 			if (fNamespace != null && fNamespace.getType() == RElementName.MAIN_PACKAGE) {
-				specificPackage = fNamespace.getDisplayName();
+				specificPackage= fNamespace.getDisplayName();
 				// search for specified package
 				packages.add(specificPackage);
 			}
 			else {
-				specificPackage = null;
+				specificPackage= null;
 				// search in default frames
 			}
 			
-			final RProject initialProject = RProject.getRProject(fSourceUnit.getResource().getProject());
+			final IRProject initialProject= RProjects.getRProject(fSourceUnit.getResource().getProject());
 			{	// start with current project
 				allProjects.add(initialProject);
-				final List<ISourceUnit> sus = loadSus(initialProject, allProjectsSus, true, progress.newChild(3));
+				final List<ISourceUnit> sus= loadSus(initialProject, allProjectsSus, true, progress.newChild(3));
 				sus.add(fSourceUnit);
-				final TextFileChange textFileChange = manager.get(fSourceUnit);
+				final TextFileChange textFileChange= manager.get(fSourceUnit);
 				if (fSourceUnit.getWorkingContext() == LTK.EDITOR_CONTEXT) {
 					textFileChange.setSaveMode(TextFileChange.LEAVE_DIRTY);
 				}
@@ -372,24 +374,24 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 			progress.worked(5);
 			
 			{	// referenced projects
-				final SubMonitor p = progress.newChild(40);
-				for (int i = 0; i < allProjects.size(); i++) {
+				final SubMonitor p= progress.newChild(40);
+				for (int i= 0; i < allProjects.size(); i++) {
 					p.setWorkRemaining(allProjects.size()-i);
 					
-					final RProject project = allProjects.get(i);
+					final IRProject project= allProjects.get(i);
 					List<ISourceUnit> sus;
 					if (i < allProjectsSus.size()) {
-						sus = allProjectsSus.get(i);
+						sus= allProjectsSus.get(i);
 					}
 					else {
-						sus = loadSus(project, allProjectsSus, false, progress.newChild(3));
+						sus= loadSus(project, allProjectsSus, false, progress.newChild(3));
 					}
 					if (sus != null) {
-						final int found = searchDefinition(project, sus, specificPackage, progress.newChild(5));
+						final int found= searchDefinition(project, sus, specificPackage, progress.newChild(5));
 						if (found > 0) {
 							definitionProjects.add(project);
 							if (specificPackage == null) {
-								final String packageName = project.getPackageName();
+								final String packageName= project.getPackageName();
 								if (packageName != null) {
 									packages.add("package:"+packageName);
 								}
@@ -414,7 +416,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 				textChangeProjects.addAll(definitionProjects);
 			}
 			else {
-				for (int i = 0; i < allProjects.size(); i++) {
+				for (int i= 0; i < allProjects.size(); i++) {
 					if (allProjectsSus.get(i) != null) {
 						textChangeProjects.add(allProjects.get(i));
 					}
@@ -423,18 +425,18 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 			progress.worked(5);
 			
 			{	// referencing occurrences - create text changes
-				final SubMonitor p = progress.newChild(40);
-				for (int i = 0; i < textChangeProjects.size(); i++) {
+				final SubMonitor p= progress.newChild(40);
+				for (int i= 0; i < textChangeProjects.size(); i++) {
 					p.setWorkRemaining(textChangeProjects.size()-i);
-					final RProject project = textChangeProjects.get(i);
-					final int idx = allProjects.indexOf(project);
+					final IRProject project= textChangeProjects.get(i);
+					final int idx= allProjects.indexOf(project);
 					List<ISourceUnit> sus;
 					if (idx >= 0) {
-						sus = allProjectsSus.get(idx);
+						sus= allProjectsSus.get(idx);
 					}
 					else {
 						allProjects.add(project);
-						sus = loadSus(project, allProjectsSus, false, progress.newChild(3));
+						sus= loadSus(project, allProjectsSus, false, progress.newChild(3));
 					}
 					createChanges(sus, manager, packages, progress.newChild(5));
 					if (fMode != Mode.CURRENT) {
@@ -462,11 +464,11 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 		}
 	}
 	
-	private void addReferencedProjects(final RProject initialProject, final List<RProject> projects) throws CoreException {
-		final IProject[] referencedProjects = initialProject.getProject().getReferencedProjects();
+	private void addReferencedProjects(final IRProject initialProject, final List<IRProject> projects) throws CoreException {
+		final IProject[] referencedProjects= initialProject.getProject().getReferencedProjects();
 		for (final IProject referencedProject : referencedProjects) {
 			if (referencedProject.isOpen()) {
-				final RProject project = RProject.getRProject(referencedProject);
+				final IRProject project= RProjects.getRProject(referencedProject);
 				if (project != null && !projects.contains(project)) {
 					projects.add(project);
 				}
@@ -474,11 +476,11 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 		}
 	}
 	
-	private void addReferencingProjects(final RProject initialProject, final List<RProject> projects) throws CoreException {
-		final IProject[] referencedProjects = initialProject.getProject().getReferencingProjects();
+	private void addReferencingProjects(final IRProject initialProject, final List<IRProject> projects) throws CoreException {
+		final IProject[] referencedProjects= initialProject.getProject().getReferencingProjects();
 		for (final IProject referencedProject : referencedProjects) {
 			if (referencedProject.isOpen()) {
-				final RProject project = RProject.getRProject(referencedProject);
+				final IRProject project= RProjects.getRProject(referencedProject);
 				if (project != null && !projects.contains(project)) {
 					projects.add(project);
 				}
@@ -486,23 +488,23 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 		}
 	}
 	
-	private List<ISourceUnit> loadSus(final RProject project, final List<List<ISourceUnit>> projectsSus, final boolean force, final SubMonitor progress) throws CoreException {
-		final List<String> suIds = RCore.getRModelManager().findReferencingSourceUnits(project.getProject(), fName);
-		final ISourceUnitManager suManager = LTK.getSourceUnitManager(); 
+	private List<ISourceUnit> loadSus(final IRProject project, final List<List<ISourceUnit>> projectsSus, final boolean force, final SubMonitor progress) throws CoreException {
+		final List<String> suIds= RCore.getRModelManager().findReferencingSourceUnits(project.getProject(), fName);
+		final ISourceUnitManager suManager= LTK.getSourceUnitManager(); 
 		if (suIds != null && suIds.size() > 0) {
-			int remaining = suIds.size();
-			final List<ISourceUnit> sus = new ArrayList<ISourceUnit>();
+			int remaining= suIds.size();
+			final List<ISourceUnit> sus= new ArrayList<>();
 			projectsSus.add(sus);
 			for (final String suId : suIds) {
 				progress.setWorkRemaining(3*(remaining--));
 				if (!suId.equals(fSourceUnit.getId())) {
-					ISourceUnit su = null;
+					ISourceUnit su= null;
 					try {
-						su = suManager.getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, suId, true, progress.newChild(1));
+						su= suManager.getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, suId, true, progress.newChild(1));
 						if (su != null) {
-							final ISourceUnit su2 = suManager.getSourceUnit(RModel.TYPE_ID, LTK.EDITOR_CONTEXT, su, true, progress.newChild(1));
+							final ISourceUnit su2= suManager.getSourceUnit(RModel.TYPE_ID, LTK.EDITOR_CONTEXT, su, true, progress.newChild(1));
 							if (su2 != null) {
-								su = su2;
+								su= su2;
 							}
 							sus.add(su);
 						}
@@ -518,7 +520,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 			return sus;
 		}
 		else if (force) {
-			final List<ISourceUnit> sus = new ArrayList<ISourceUnit>(1);
+			final List<ISourceUnit> sus= new ArrayList<>(1);
 			projectsSus.add(sus);
 			return sus;
 		}
@@ -528,9 +530,9 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 		}
 	}
 	
-	private int searchDefinition(final RProject project, final List<ISourceUnit> sus,
+	private int searchDefinition(final IRProject project, final List<ISourceUnit> sus,
 			final String specificPackage, final SubMonitor progress) {
-		final String packageName = project.getPackageName();
+		final String packageName= project.getPackageName();
 		if (specificPackage != null && packageName != null
 				&& specificPackage.equals("package:"+packageName)) {
 			progress.setWorkRemaining(2);
@@ -542,7 +544,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 		}
 		else {
 			progress.setWorkRemaining(1);
-			boolean found = false;
+			boolean found= false;
 			for (final ISourceUnit su : sus) {
 				found |= searchDefinition(su, specificPackage, progress.newChild(1));
 			}
@@ -555,16 +557,16 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 		progress.setWorkRemaining(10);
 		su.connect(progress.newChild(1));
 		try {
-			final IRModelInfo modelInfo = (IRModelInfo) su.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, progress.newChild(3));
+			final IRModelInfo modelInfo= (IRModelInfo) su.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, progress.newChild(3));
 			final IRFrame frame;
 			if (specificPackage == null) {
-				frame = modelInfo.getTopFrame();
+				frame= modelInfo.getTopFrame();
 			}
 			else {
-				frame = modelInfo.getReferencedFrames().get(specificPackage);
+				frame= modelInfo.getReferencedFrames().get(specificPackage);
 			}
 			if (frame instanceof IRFrameInSource) {
-				final List<? extends RElementAccess> allAccess = ((IRFrameInSource) frame).getAllAccessOf(fName.getSegmentName());
+				final List<? extends RElementAccess> allAccess= ((IRFrameInSource) frame).getAllAccessOf(fName.getSegmentName());
 				if (allAccess != null) {
 					for (final RElementAccess access : allAccess) {
 						if (access.isWriteAccess() && access.getNextSegment() == null) {
@@ -586,10 +588,10 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 			final Set<String> packages,
 			final SubMonitor progress) throws BadLocationException {
 		if (sus != null) {
-			int remaining = sus.size();
+			int remaining= sus.size();
 			for (final ISourceUnit su : sus) {
 				progress.setWorkRemaining(remaining--);
-				final TextFileChange change = manager.get(su);
+				final TextFileChange change= manager.get(su);
 				createChanges(su, change, packages, progress.newChild(1));
 			}
 		}
@@ -598,26 +600,26 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	private int createChanges(final ISourceUnit su, final TextFileChange change,
 			final Set<String> packages, final SubMonitor progress) throws BadLocationException {
 		progress.setWorkRemaining(10);
-		int found = FOUND_NONE;
+		int found= FOUND_NONE;
 		su.connect(progress.newChild(1));
 		try {
-			final IRModelInfo modelInfo = (IRModelInfo) su.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, progress.newChild(1));
+			final IRModelInfo modelInfo= (IRModelInfo) su.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, progress.newChild(1));
 			
-			final String unquoted = RRefactoringAdapter.getUnquotedIdentifier(fVariableName);
-			final String quoted = RRefactoringAdapter.getQuotedIdentifier(fVariableName);
-			final boolean isQuoted = (fVariableName.charAt(0) == '`');
+			final String unquoted= RRefactoringAdapter.getUnquotedIdentifier(fVariableName);
+			final String quoted= RRefactoringAdapter.getQuotedIdentifier(fVariableName);
+			final boolean isQuoted= (fVariableName.charAt(0) == '`');
 			
-			final List<List<? extends RElementAccess>> allFrameAccess = new ArrayList<List<? extends RElementAccess>>();
+			final List<List<? extends RElementAccess>> allFrameAccess= new ArrayList<>();
 			for (final String packageId : packages) {
 				final IRFrame frame;
 				if (packageId == null) {
-					frame = modelInfo.getTopFrame();
+					frame= modelInfo.getTopFrame();
 				}
 				else {
-					frame = modelInfo.getReferencedFrames().get(packageId);
+					frame= modelInfo.getReferencedFrames().get(packageId);
 				}
 				if (frame instanceof IRFrameInSource) {
-					final List<? extends RElementAccess> allAccess = ((IRFrameInSource) frame).getAllAccessOf(fName.getSegmentName());
+					final List<? extends RElementAccess> allAccess= ((IRFrameInSource) frame).getAllAccessOf(fName.getSegmentName());
 					if (allAccess != null && allAccess.size() > 0) {
 						allFrameAccess.add(allAccess);
 					}
@@ -626,10 +628,10 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 			for (final List<? extends RElementAccess> allAccess : allFrameAccess) {
 				for (final RElementAccess access : allAccess) {
 					found |= (access.isWriteAccess() && access.getNextSegment() == null) ? FOUND_WRITE : FOUND_READ;
-					final RAstNode nameNode = access.getNameNode();
-					final String text = (isQuoted && nameNode.getNodeType() == NodeType.SYMBOL && nameNode.getOperator(0) == RTerminal.SYMBOL) ?
+					final RAstNode nameNode= access.getNameNode();
+					final String text= (isQuoted && nameNode.getNodeType() == NodeType.SYMBOL && nameNode.getOperator(0) == RTerminal.SYMBOL) ?
 							fVariableName : unquoted;
-					final IRegion nameRegion = RAst.getElementNameRegion(nameNode);
+					final IRegion nameRegion= RAst.getElementNameRegion(nameNode);
 					TextChangeCompatibility.addTextEdit(change, Messages.RenameInWorkspace_Changes_ReplaceOccurrence_name,
 							new ReplaceEdit(nameRegion.getOffset(), nameRegion.getLength(), text));
 				}

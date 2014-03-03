@@ -49,14 +49,15 @@ import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitManager;
 import de.walware.ecommons.ltk.LTK;
 
+import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.model.RSuModelContainer;
 import de.walware.statet.r.internal.core.RCorePlugin;
+import de.walware.statet.r.internal.core.RProject;
 import de.walware.statet.r.internal.core.builder.CompositeFrame;
 import de.walware.statet.r.internal.core.builder.RBuildReconciler;
 import de.walware.statet.r.internal.core.builder.RUnitElement;
@@ -400,7 +401,7 @@ public class RModelIndex {
 	
 	public void update(final IProject project, final List<String> remove,
 			final List<IRWorkspaceSourceUnit> update, final MultiStatus status, final IProgressMonitor progress) throws CoreException {
-		final RProject rProject = RProject.getRProject(project);
+		final IRProject rProject = RProject.getRProject(project);
 		if (rProject == null) {
 			clear(project);
 			return;
@@ -586,7 +587,7 @@ public class RModelIndex {
 		}
 	}
 	
-	private CompositeFrame getFrame(final IProject project, final Proj proj, RProject rProject,
+	private CompositeFrame getFrame(final IProject project, final Proj proj, IRProject rProject,
 			Connection connection, final IProgressMonitor monitor) throws SQLException, CoreException {
 		CompositeFrame frame = fElementsList.get(proj);
 		if (frame == null && project.isOpen()) {
@@ -840,7 +841,7 @@ public class RModelIndex {
 		}
 	}
 	
-	public void updateProjectConfig(final RProject rProject, final String packageName) {
+	public void updateProjectConfig(final IRProject rProject, final String packageName) {
 		final IProject project = rProject.getProject();
 		final Proj projectId = fProjectIds.get(project.getName());
 		if (projectId != null) {

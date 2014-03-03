@@ -21,7 +21,7 @@ import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.DeleteParticipant;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.sourcemodel.RModelIndex;
 
@@ -64,7 +64,9 @@ public class RModelDeleteParticipant extends DeleteParticipant {
 		@Override
 		public Change perform(final IProgressMonitor monitor) throws CoreException {
 			final RModelIndex index = RCorePlugin.getDefault().getRModelManager().getIndex();
-			index.updateProjectConfigRemoved(fProject);
+			if (index != null) {
+				index.updateProjectConfigRemoved(fProject);
+			}
 			
 			return null;
 		}
@@ -94,7 +96,7 @@ public class RModelDeleteParticipant extends DeleteParticipant {
 	protected boolean initialize(final Object element) {
 		if (element instanceof IProject) {
 			try {
-				if (((IProject) element).hasNature(RProject.NATURE_ID)) {
+				if (((IProject) element).hasNature(RProjects.R_NATURE_ID)) {
 					fProject = (IProject) element;
 					return true;
 				}
