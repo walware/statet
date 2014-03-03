@@ -11,18 +11,20 @@
 
 package de.walware.statet.base.core.preferences;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.Assert;
-
+import de.walware.ecommons.collections.CollectionUtils;
 import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.EnumListPref;
 import de.walware.ecommons.preferences.Preference.StringArrayPref;
+import de.walware.ecommons.tasklist.TaskPriority;
+import de.walware.ecommons.tasklist.TaskTag;
 
 
 public class TaskTagsPreferences {
@@ -34,26 +36,8 @@ public class TaskTagsPreferences {
 	
 	public static final StringArrayPref PREF_TAGS = new StringArrayPref(
 			StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER, KEY_TAGS);
-	public static final EnumListPref<TaskPriority> PREF_PRIORITIES = new EnumListPref<TaskPriority>(
+	public static final EnumListPref<TaskPriority> PREF_PRIORITIES = new EnumListPref<>(
 			StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER, KEY_PRIORITIES, TaskPriority.class);
-	
-	
-	public static enum TaskPriority {
-		
-		HIGH (IMarker.PRIORITY_HIGH), 
-		NORMAL (IMarker.PRIORITY_NORMAL), 
-		LOW (IMarker.PRIORITY_LOW);
-		
-		private int fPriority;
-		
-		TaskPriority(final int priority) {
-			fPriority = priority;
-		}
-		
-		public int getMarkerPriority() {
-			return fPriority;
-		}
-	};
 	
 	
 	public static String[] loadTagsOnly(final IPreferenceAccess prefs) {
@@ -61,27 +45,25 @@ public class TaskTagsPreferences {
 	}
 	
 	
-	private String[] fTags;
-	private TaskPriority[] fPrios;
+	private final ConstList<TaskTag> taskTags;
 	
 	
 	/**
 	 * Creates preferences with the specified values.
 	 * 
-	 * @param tags
-	 * @param priorities
+	 * @param taskTags
 	 */
-	public TaskTagsPreferences(final String[] tags, final TaskPriority[] priorities) {
-		setup(tags, priorities);
+	public TaskTagsPreferences(final Collection<TaskTag> taskTags) {
+		this.taskTags= CollectionUtils.asConstList(taskTags);
 	}
 	
 	/**
 	 * Creates preferences with default values.
 	 */
 	public TaskTagsPreferences() {
-		setup(	new String[] { "TODO", "FIXME" }, //$NON-NLS-1$ //$NON-NLS-2$
-				new TaskPriority[] { TaskPriority.NORMAL, TaskPriority.NORMAL }
-		);
+		this(new ConstArrayList<>(
+				new TaskTag("TODO", TaskPriority.NORMAL), //$NON-NLS-1$
+				new TaskTag("FIXME", TaskPriority.NORMAL) )); //$NON-NLS-1$
 	}
 	
 	/**
@@ -90,26 +72,40 @@ public class TaskTagsPreferences {
 	 * @param prefs
 	 */
 	public TaskTagsPreferences(final IPreferenceAccess prefs) {
-		final String[] tags = loadTagsOnly(prefs);
-		final List<TaskPriority> prios = prefs.getPreferenceValue(PREF_PRIORITIES);
+		final String[] keywords = prefs.getPreferenceValue(PREF_TAGS);
+		final List<TaskPriority> priorities = prefs.getPreferenceValue(PREF_PRIORITIES);
 		
-		setup(tags, prios.toArray(new TaskPriority[prios.size()]));
-	}
-	
-	private void setup(final String[] tags, final TaskPriority[] priorities) {
-		
-		Assert.isLegal(tags.length == priorities.length, "Invalid preference values for task tags.");  //$NON-NLS-1$
-		fTags = tags;
-		fPrios = priorities;
+		if (keywords.length == priorities.size()) {
+			TaskTag[] array= new TaskTag[keywords.length];
+			for (int i= 0; i < array.length; i++) {
+				array[i]= new TaskTag(keywords[i], priorities.get(i));
+			}
+			this.taskTags= new ConstArrayList<>(array);
+		}
+		else {
+			this.taskTags= CollectionUtils.emptyConstList();
+		}
 	}
 	
 	
 	public String[] getTags() {
-		return fTags;
+		final String[] array= new String[this.taskTags.size()];
+		for (int i= 0; i < array.length; i++) {
+			array[i]= this.taskTags.get(i).getKeyword();
+		}
+		return array;
 	}
 	
 	public TaskPriority[] getPriorities() {
-		return fPrios;
+		final TaskPriority[] array= new TaskPriority[this.taskTags.size()];
+		for (int i= 0; i < array.length; i++) {
+			array[i]= this.taskTags.get(i).getPriority();
+		}
+		return array;
+	}
+	
+	public List<TaskTag> getTaskTags() {
+		return this.taskTags;
 	}
 	
 	
@@ -119,8 +115,8 @@ public class TaskTagsPreferences {
 	 * <p>Note: Intended to usage in preference/property page only.</p>
 	 */
 	public Map<Preference<?>, Object> addPreferencesToMap(final Map<Preference<?>, Object> map) {
-		map.put(PREF_TAGS, fTags);
-		map.put(PREF_PRIORITIES, new ConstArrayList<TaskPriority>(fPrios));
+		map.put(PREF_TAGS, getTags());
+		map.put(PREF_PRIORITIES, new ConstArrayList<>(getPriorities()));
 		return map;
 	}
 	

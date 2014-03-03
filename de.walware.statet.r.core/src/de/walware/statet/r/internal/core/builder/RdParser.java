@@ -88,7 +88,7 @@ public class RdParser {
 	
 	private enum Last { NONE, NEWLINE, BACKSLASH };
 	
-	private TaskMarkerHandler fMarkers;
+	private RTaskMarkerHandler fMarkers;
 	private char[] fContent;
 	
 	private int fCurrentOffset = 0;
@@ -97,7 +97,7 @@ public class RdParser {
 	private LineInformation fLineStructure;
 	
 	
-	public RdParser(final char[] content, final TaskMarkerHandler markers) {
+	public RdParser(final char[] content, final RTaskMarkerHandler markers) {
 		fContent = content;
 		fMarkers = markers;
 		fLineStructure = new LineInformation();

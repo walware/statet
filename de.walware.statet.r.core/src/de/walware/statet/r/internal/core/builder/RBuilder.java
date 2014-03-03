@@ -228,7 +228,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 	
 /*-- Rd --*/
 	
-	private final TaskMarkerHandler fTaskMarkerHandler = new TaskMarkerHandler();
+	private final RTaskMarkerHandler fTaskMarkerHandler = new RTaskMarkerHandler();
 	
 	protected void initRd(final RProject project) {
 		fTaskMarkerHandler.init(project);

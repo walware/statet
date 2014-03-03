@@ -41,7 +41,6 @@ import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.model.RSuModelContainer;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
-import de.walware.statet.r.internal.core.sourcemodel.RModelIndex;
 import de.walware.statet.r.internal.core.sourcemodel.RModelManager;
 import de.walware.statet.r.internal.core.sourcemodel.RReconciler;
 
@@ -49,6 +48,7 @@ import de.walware.statet.r.internal.core.sourcemodel.RReconciler;
 public class RBuildReconciler extends RReconciler {
 	
 	
+	private final RTaskMarkerHandler taskScanner;
 	public static class Result {
 		
 		public final RUnitElement exportedElement;
@@ -62,79 +62,79 @@ public class RBuildReconciler extends RReconciler {
 	}
 	
 	
-	private final RModelIndex fIndex;
-	private final TaskMarkerHandler fTaskScanner;
 	
-	private MultiStatus fStatusCollector;
+	private MultiStatus statusCollector;
 	
 	
 	public RBuildReconciler(final RModelManager manager) {
 		super(manager);
 		
-		fIndex = manager.getIndex();
-		fTaskScanner = new TaskMarkerHandler();
+		this.taskScanner= new RTaskMarkerHandler();
 	}
 	
 	
 	public void init(final RProject project, final MultiStatus status) throws CoreException {
-		fTaskScanner.init(project);
-		fStatusCollector = status;
+		this.taskScanner.init(project);
+		this.statusCollector= status;
 	}
 	
 	/** for file build 
 	 * @throws CoreException
 	 **/
 	public Result build(final RSuModelContainer adapter, final IProgressMonitor monitor) {
-		final IRSourceUnit su = adapter.getSourceUnit();
-		final int type = (su.getModelTypeId().equals(RModel.TYPE_ID) ? su.getElementType() : 0);
+		final IRSourceUnit su= adapter.getSourceUnit();
+		final int type= (su.getModelTypeId().equals(RModel.TYPE_ID) ? su.getElementType() : 0);
 		if (type == 0) {
 			return null;
 		}
-		if (fStop || monitor.isCanceled()) {
+		if (this.fStop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
 		
-		final Data data = new Data(adapter, monitor);
+		final Data data= new Data(adapter, monitor);
+		if (data.content == null) {
+			return null;
+		}
 		
-		if (fStop || monitor.isCanceled()) {
+		if (this.fStop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
 		
 		updateAst(data, monitor);
 		
-		if (fStop || monitor.isCanceled()) {
+		if (this.fStop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
 		
 		updateModel(data);
 		
-		if (fStop || monitor.isCanceled()) {
+		if (this.fStop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
 		
-//		final IProblemRequestor problemRequestor = su.getProblemRequestor();
+//		final IProblemRequestor problemRequestor= su.getProblemRequestor();
 //		if (problemRequestor != null) {
 			initParseInput(data);
 //			problemRequestor.beginReportingSequence();
 			try {
-				final List<RAstNode> comments = ((SourceComponent) data.ast.root).getComments();
-				fTaskScanner.setup((IResource) su.getResource());
-				final ILineInformation lines = data.content.getLines();
+				final List<RAstNode> comments= ((SourceComponent) data.ast.root).getComments();
+				this.taskScanner.setup((IResource) su.getResource());
+				final ILineInformation lines= data.content.getLines();
 				for (final RAstNode comment : comments) {
-						final int offset = comment.getOffset()+1;
-						fTaskScanner.checkForTasks(data.content.text.substring(
+						final int offset= comment.getOffset()+1;
+						this.taskScanner.checkForTasks(data.content.text.substring(
 								offset, offset+comment.getLength()-1 ), offset, lines );
 				}
 			}
 			catch (final Exception e) {
-				fStatusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
+				this.statusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
 						ICommonStatusConstants.BUILD_ERROR, "Failed to create task marker(s).", e));
 			}
 //			f2SyntaxReporter.run(su, ast, problemRequestor);
 //			problemRequestor.endReportingSequence();
 //		}
 		
-		if (fStop || monitor.isCanceled()) {
+		if (this.fStop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
 		return createResult(data);
