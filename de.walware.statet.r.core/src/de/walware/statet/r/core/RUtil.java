@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.core;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.regex.Pattern;
 
 
@@ -113,6 +115,50 @@ public class RUtil {
 			}
 		}
 		return result.toString();
+	}
+	
+	
+	public static String formatVarName(final String name) {
+		return '\'' + name + '\'';
+	}
+	
+	public static String formatVarNames(final Collection<String> names) {
+		return formatVarNames(names, "", ", "); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	public static String formatVarNames(final Collection<String> names,
+			final String prefix, final String separator) {
+		final int size= names.size();
+		if (names.size() == 0) {
+			return ""; //$NON-NLS-1$
+		}
+		final StringBuilder sb= new StringBuilder(size * (10 + prefix.length() + separator.length()));
+		final Iterator<String> iter= names.iterator();
+		if (prefix.isEmpty()) {
+			sb.append('\'');
+			sb.append(iter.next());
+			sb.append('\'');
+			while (iter.hasNext()) {
+				sb.append(separator);
+				sb.append('\'');
+				sb.append(iter.next());
+				sb.append('\'');
+			}
+		}
+		else {
+			sb.append(prefix);
+			sb.append('\'');
+			sb.append(iter.next());
+			sb.append('\'');
+			while (iter.hasNext()) {
+				sb.append(separator);
+				sb.append(prefix);
+				sb.append('\'');
+				sb.append(iter.next());
+				sb.append('\'');
+			}
+		}
+		return sb.toString();
 	}
 	
 }

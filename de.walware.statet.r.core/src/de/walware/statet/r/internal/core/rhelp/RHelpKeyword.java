@@ -22,38 +22,38 @@ import de.walware.statet.r.core.rhelp.IRHelpKeyword;
 public class RHelpKeyword implements IRHelpKeyword {
 	
 	
-	private final String fKeyword;
-	private final String fDescription;
-	private List<IRHelpKeyword> fNested;
+	private final String keyword;
+	private final String description;
+	private List<IRHelpKeyword> nested;
 	
 	
 	public RHelpKeyword(final String keyword, final String description,
 			final List<IRHelpKeyword> childs) {
-		fKeyword = keyword;
-		fDescription = description;
-		fNested = childs;
+		this.keyword= keyword;
+		this.description= description;
+		this.nested= childs;
 	}
 	
 	
 	@Override
 	public String getKeyword() {
-		return fKeyword;
+		return this.keyword;
 	}
 	
 	@Override
 	public String getDescription() {
-		return fDescription;
+		return this.description;
 	}
 	
 	@Override
 	public List<IRHelpKeyword> getNestedKeywords() {
-		return fNested;
+		return this.nested;
 	}
 	
 	@Override
 	public IRHelpKeyword getNestedKeyword(final String keyword) {
-		for (int i = 0; i < fNested.size(); i++) {
-			final IRHelpKeyword node = fNested.get(i);
+		for (int i= 0; i < this.nested.size(); i++) {
+			final IRHelpKeyword node= this.nested.get(i);
 			if (node.getKeyword().equals(keyword)) {
 				return node;
 			}
@@ -62,13 +62,13 @@ public class RHelpKeyword implements IRHelpKeyword {
 	}
 	
 	public void freeze() {
-		if (fNested.size() == 0) {
-			fNested = Collections.emptyList();
+		if (this.nested.size() == 0) {
+			this.nested= Collections.emptyList();
 		}
 		else {
-			fNested = new ConstArrayList<IRHelpKeyword>(fNested);
-			for (int i = 0; i < fNested.size(); i++) {
-				((RHelpKeyword) fNested.get(i)).freeze();
+			this.nested= new ConstArrayList<IRHelpKeyword>(this.nested);
+			for (int i= 0; i < this.nested.size(); i++) {
+				((RHelpKeyword) this.nested.get(i)).freeze();
 			}
 		}
 	}
@@ -76,7 +76,12 @@ public class RHelpKeyword implements IRHelpKeyword {
 	
 	@Override
 	public int hashCode() {
-		return fKeyword.hashCode();
+		return this.keyword.hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return this.keyword;
 	}
 	
 }

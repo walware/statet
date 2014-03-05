@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.net.proxy.IProxyService;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
@@ -137,8 +135,6 @@ public class RCorePlugin extends Plugin {
 		fWorkspaceCoreAccess = new CoreAccess(PreferencesUtil.getInstancePrefs());
 		fRModelManager = new RModelManager();
 		fResourceTracker = new ResourceTracker(fRModelManager);
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(fResourceTracker,
-				IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.PRE_DELETE );
 		
 		fREnvPkgManager = new REnvPkgManager(fREnvManager);
 		fRHelpManager = new RHelpManager();
@@ -158,7 +154,7 @@ public class RCorePlugin extends Plugin {
 			}
 			if (fResourceTracker != null) {
 				try {
-					ResourcesPlugin.getWorkspace().removeResourceChangeListener(fResourceTracker);
+					fResourceTracker.dispose();
 				}
 				catch (final Exception e) {}
 				fResourceTracker = null;

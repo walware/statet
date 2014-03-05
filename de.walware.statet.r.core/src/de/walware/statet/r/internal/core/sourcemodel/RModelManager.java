@@ -14,7 +14,6 @@ package de.walware.statet.r.internal.core.sourcemodel;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -46,7 +45,7 @@ public class RModelManager extends AbstractModelManager implements IRModelManage
 		
 		public RContextItem(final WorkingContext context) {
 			super(context);
-			this.worksheets = new HashMap<String, ISourceUnit>();
+			this.worksheets = new HashMap<>();
 		}
 		
 	}
@@ -135,11 +134,6 @@ public class RModelManager extends AbstractModelManager implements IRModelManage
 		}
 	}
 	
-	public IRModelInfo reconcile2(final RSuModelContainer adapter, final int level,
-			final IProgressMonitor monitor) {
-		return fReconciler.reconcile(adapter, level, monitor);
-	}
-	
 	@Override
 	public IRModelInfo reconcile(final IRSourceUnit su, final ISourceUnitModelInfo modelInfo,
 			final List<? extends RChunkElement> chunks,
@@ -149,13 +143,14 @@ public class RModelManager extends AbstractModelManager implements IRModelManage
 	
 	
 	@Override
-	public IRFrame getProjectFrame(final IRProject project) throws CoreException {
-		return fIndex.getProjectFrame(project.getProject());
+	public IRFrame getProjectFrame(final IRProject rProject) throws CoreException {
+		return fIndex.getProjectFrame(rProject);
 	}
 	
 	@Override
-	public List<String> findReferencingSourceUnits(final IProject project, final RElementName name) throws CoreException {
-		return fIndex.findReferencingSourceUnits(project, name);
+	public List<ISourceUnit> findReferencingSourceUnits(final IRProject rProject, final RElementName name,
+			final IProgressMonitor monitor) throws CoreException {
+		return fIndex.findReferencingSourceUnits(rProject, name, monitor);
 	}
 	
 }

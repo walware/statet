@@ -22,38 +22,38 @@ import de.walware.statet.r.core.rhelp.IRHelpKeyword;
 public class RHelpKeywordGroup implements IRHelpKeyword.Group {
 	
 	
-	private final String fLabel;
-	private final String fDescription;
-	private List<IRHelpKeyword> fNested;
+	private final String label;
+	private final String description;
+	private List<IRHelpKeyword> nested;
 	
 	
 	public RHelpKeywordGroup(final String label, final String description,
 			final List<IRHelpKeyword> keywords) {
-		fLabel = label;
-		fDescription = description;
-		fNested = keywords;
+		this.label= label;
+		this.description= description;
+		this.nested= keywords;
 	}
 	
 	
 	@Override
 	public String getLabel() {
-		return fLabel;
+		return this.label;
 	}
 	
 	@Override
 	public String getDescription() {
-		return fDescription;
+		return this.description;
 	}
 	
 	@Override
 	public List<IRHelpKeyword> getNestedKeywords() {
-		return fNested;
+		return this.nested;
 	}
 	
 	@Override
 	public IRHelpKeyword getNestedKeyword(final String keyword) {
-		for (int i = 0; i < fNested.size(); i++) {
-			final IRHelpKeyword node = fNested.get(i);
+		for (int i= 0; i < this.nested.size(); i++) {
+			final IRHelpKeyword node= this.nested.get(i);
 			if (node.getKeyword().equals(keyword)) {
 				return node;
 			}
@@ -62,13 +62,13 @@ public class RHelpKeywordGroup implements IRHelpKeyword.Group {
 	}
 	
 	public void freeze() {
-		if (fNested.size() == 0) {
-			fNested = Collections.emptyList();
+		if (this.nested.size() == 0) {
+			this.nested= Collections.emptyList();
 		}
 		else {
-			fNested = new ConstArrayList<IRHelpKeyword>(fNested);
-			for (int i = 0; i < fNested.size(); i++) {
-				((RHelpKeyword) fNested.get(i)).freeze();
+			this.nested= new ConstArrayList<IRHelpKeyword>(this.nested);
+			for (int i= 0; i < this.nested.size(); i++) {
+				((RHelpKeyword) this.nested.get(i)).freeze();
 			}
 		}
 	}
@@ -76,13 +76,13 @@ public class RHelpKeywordGroup implements IRHelpKeyword.Group {
 	
 	@Override
 	public int hashCode() {
-		return fLabel.hashCode();
+		return this.label.hashCode();
 	}
 	
 	@Override
 	public boolean equals(final Object obj) {
 		return (this == obj || (obj instanceof IRHelpKeyword.Group
-				&& fLabel.equals(((RHelpKeywordGroup) obj).getLabel()) ));
+				&& this.label.equals(((RHelpKeywordGroup) obj).getLabel()) ));
 	}
 	
 }

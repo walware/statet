@@ -12,6 +12,8 @@
 package de.walware.statet.r.core.refactoring;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -22,8 +24,11 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.TextEdit;
 
 import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.LTK;
+import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringAdapter;
 import de.walware.ecommons.text.IPartitionConstraint;
 import de.walware.ecommons.text.IndentUtil;
@@ -35,7 +40,6 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
-import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
@@ -124,6 +128,36 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		}
 		
 		return new Region(start, stop-start);
+	}
+	
+	public RAstNode searchPotentialNameNode(final ISourceUnit su, IRegion region,
+			final boolean allowAssignRegion, final IProgressMonitor monitor) {
+		final SubMonitor progress = SubMonitor.convert(monitor, 5);
+		
+		su.connect(progress.newChild(1));
+		try {
+			final AbstractDocument document = su.getDocument(progress.newChild(1));
+			final RHeuristicTokenScanner scanner = getScanner(su);
+			
+			region = trimToAstRegion(document, region, scanner);
+			
+			final ISourceUnitModelInfo modelInfo = su.getModelInfo(RModel.TYPE_ID,
+					IModelManager.MODEL_FILE, progress.newChild(1) );
+			if (modelInfo != null) {
+				final AstSelection astSelection = AstSelection.search(modelInfo.getAst().root,
+						region.getOffset(), region.getOffset() + region.getLength(),
+						AstSelection.MODE_COVERING_SAME_LAST );
+				if (astSelection.getCovering() instanceof RAstNode) {
+					final RAstNode node = (RAstNode) astSelection.getCovering();
+					return getPotentialNameNode(node, allowAssignRegion);
+				}
+			}
+			return null;
+		}
+		finally {
+			progress.setWorkRemaining(1);
+			su.disconnect(progress.newChild(1));
+		}
 	}
 	
 	public IRegion expandSelectionRegion(final AbstractDocument document, final IRegion region,
@@ -233,23 +267,6 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		default:
 			return null;
 		}
-	}
-	
-	static RElementAccess searchElementAccessOfNameNode(final RAstNode symbolNode) {
-		RAstNode node = symbolNode;
-		while (node != null) {
-			final Object[] attachments = node.getAttachments();
-			for (final Object attachment : attachments) {
-				if (attachment instanceof RElementAccess) {
-					final RElementAccess access = (RElementAccess) attachment;
-					if (access.getNameNode() == symbolNode) {
-						return access;
-					}
-				}
-			}
-			node = node.getRParent();
-		}
-		return null;
 	}
 	
 	public static String getQuotedIdentifier(final String identifier) {

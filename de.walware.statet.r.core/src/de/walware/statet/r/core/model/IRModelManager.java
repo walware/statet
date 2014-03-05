@@ -13,11 +13,11 @@ package de.walware.statet.r.core.model;
 
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.ecommons.ltk.IModelManager;
+import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 
 import de.walware.statet.r.core.IRProject;
@@ -26,12 +26,13 @@ import de.walware.statet.r.core.IRProject;
 public interface IRModelManager extends IModelManager {
 	
 	
-	IRFrame getProjectFrame(IRProject project) throws CoreException;
+	IRFrame getProjectFrame(IRProject rProject) throws CoreException;
 	
 	IRModelInfo reconcile(IRSourceUnit su, ISourceUnitModelInfo modelInfo,
 			List<? extends RChunkElement> chunks,
 			int level, IProgressMonitor monitor);
 	
-	List<String> findReferencingSourceUnits(IProject project, RElementName name) throws CoreException;
+	List<ISourceUnit> findReferencingSourceUnits(IRProject rProject, RElementName name,
+			IProgressMonitor monitor) throws CoreException;
 	
 }

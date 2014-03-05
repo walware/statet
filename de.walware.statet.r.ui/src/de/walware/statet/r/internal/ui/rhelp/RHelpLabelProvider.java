@@ -12,6 +12,7 @@
 package de.walware.statet.r.internal.ui.rhelp;
 
 import org.eclipse.jface.viewers.ColumnViewer;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
@@ -25,6 +26,7 @@ import org.eclipse.swt.graphics.Image;
 
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
 import de.walware.ecommons.ui.SharedUIResources;
+import de.walware.ecommons.workbench.search.ui.TextSearchLabelUtil;
 
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
@@ -36,12 +38,9 @@ import de.walware.statet.r.core.rhelp.IRPackageHelp;
 import de.walware.statet.r.ui.RUI;
 
 
-public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabelProvider {
+public class RHelpLabelProvider extends StyledCellLabelProvider
+		implements ILabelProvider, IStyledLabelProvider {
 	
-	
-	public static final String HIGHLIGHT_BG_COLOR_NAME = "org.eclipse.jdt.ui.ColoredLabels.match_highlight"; //$NON-NLS-1$
-	
-	public static final Styler HIGHLIGHT_STYLE = StyledString.createColorRegistryStyler(null, HIGHLIGHT_BG_COLOR_NAME);
 	
 	private static final String TITLE_SEP = " – "; //$NON-NLS-1$
 	
@@ -66,7 +65,7 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 			if (endIdx < 0) {
 				return;
 			}
-			string.append(text.substring(startIdx, endIdx), HIGHLIGHT_STYLE);
+			string.append(text.substring(startIdx, endIdx), TextSearchLabelUtil.HIGHLIGHT_STYLE);
 			endIdx += 11;
 		}
 		if (endIdx < text.length()) {
@@ -129,9 +128,10 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 	
 	@Override
 	public Image getImage(Object element) {
-		if (element instanceof RHelpSearchUIMatch) {
-			element = ((RHelpSearchUIMatch) element).getRHelpMatch().getPage();
+		if (element instanceof RHelpSearchMatch) {
+			element = ((RHelpSearchMatch) element).getRHelpMatch().getPage();
 		}
+		
 		if (element instanceof IRHelpPage) {
 			if (fPageImage == null || fPageImage.isDisposed()) {
 				fPageImage = RUI.getImage(RUI.IMG_OBJ_R_HELP_PAGE);
@@ -144,9 +144,18 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 			}
 			return fPackageImage;
 		}
+		
 		else if (element instanceof IREnvConfiguration || element instanceof IREnv) {
 			return RUI.getImage(RUI.IMG_OBJ_R_RUNTIME_ENV);
 		}
+		
+		else if (element instanceof IRHelpSearchMatch.MatchFragment) {
+			if (fLineImage == null) {
+				fLineImage= SharedUIResources.getImages().get(SharedUIResources.OBJ_LINE_MATCH_IMAGE_ID);
+			}
+			return fLineImage;
+		}
+		
 		else {
 			return null;
 		}
@@ -154,8 +163,8 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 	
 	@Override
 	public String getText(Object element) {
-		if (element instanceof RHelpSearchUIMatch) {
-			element = ((RHelpSearchUIMatch) element).getRHelpMatch().getPage();
+		if (element instanceof RHelpSearchMatch) {
+			element = ((RHelpSearchMatch) element).getRHelpMatch().getPage();
 		}
 		if (element instanceof IRHelpPage) {
 			final StringBuilder sb = new StringBuilder(32);
@@ -195,6 +204,7 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 			}
 			return sb.toString();
 		}
+		
 		else if (element instanceof IREnvConfiguration) {
 			final IREnvConfiguration rEnv = (IREnvConfiguration) element;
 			return rEnv.getName();
@@ -204,6 +214,7 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 			final String name = rEnv.getName();
 			return (name != null) ? name : ""; //$NON-NLS-1$
 		}
+		
 		else if (element instanceof IRHelpKeyword.Group) {
 			final IRHelpKeyword.Group group = (IRHelpKeyword.Group) element;
 			return group.getLabel() + TITLE_SEP + group.getDescription();
@@ -212,11 +223,13 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 			final IRHelpKeyword keyword = (IRHelpKeyword) element;
 			return keyword.getKeyword() + TITLE_SEP + keyword.getDescription();
 		}
+		
 		else if (element instanceof IRHelpSearchMatch.MatchFragment) {
 			final IRHelpSearchMatch.MatchFragment fragment = (MatchFragment) element;
 			return IRHelpSearchMatch.ALL_TAGS_PATTERN.matcher(fragment.getText())
 					.replaceAll(""); //$NON-NLS-1$
 		}
+		
 		else if (element instanceof Object[]) {
 			final Object[] array = (Object[]) element;
 			return array[array.length-1].toString();
@@ -243,38 +256,12 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 		}
 	}
 	
+	@Override
 	public StyledString getStyledText(final Object element) {
 		final StyledString text = new StyledString();
 		
-		if (element instanceof RHelpSearchUIMatch) {
-			append(text, ((RHelpSearchUIMatch) element).getRHelpMatch());
-		}
-		else if (element instanceof IRHelpPage) {
-			append(text, (IRHelpPage) element);
-		}
-		else if (element instanceof IRPackageHelp) {
-			append(text, (IRPackageHelp) element);
-		}
-		else if (element instanceof IREnvConfiguration) {
-			final IREnvConfiguration rEnv = (IREnvConfiguration) element;
-			text.append(rEnv.getName());
-		}
-		else if (element instanceof IREnv) {
-			final IREnv rEnv = (IREnv) element;
-			append(text, rEnv);
-		}
-		else if (element instanceof Object[]) {
-			final Object[] array = (Object[]) element;
-			text.append(array[array.length-1].toString());
-		}
-		else {
-			text.append(element.toString());
-		}
-		
-		return text;
-	}
-	
-	protected void append(final StyledString text, final IRHelpSearchMatch match) {
+		if (element instanceof RHelpSearchMatch) {
+			final IRHelpSearchMatch match= ((RHelpSearchMatch) element).getRHelpMatch();
 		final IRHelpPage page = match.getPage();
 		text.append(page.getName(), fDefaultStyler);
 		if (fWithTitle && page.getTitle().length() > 0) {
@@ -291,8 +278,8 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 			text.append(")", StyledString.COUNTER_STYLER); //$NON-NLS-1$
 		}
 	}
-	
-	protected void append(final StyledString text, final IRHelpPage page) {
+		else if (element instanceof IRHelpPage) {
+			final IRHelpPage page= (IRHelpPage) element;
 		text.append(page.getName(), fDefaultStyler);
 		if (fWithTitle && page.getTitle().length() > 0) {
 			text.append(TITLE_SEP, fDefaultStyler);
@@ -303,8 +290,8 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 			text.append(page.getPackage().getName(), StyledString.QUALIFIER_STYLER);
 		}
 	}
-	
-	protected void append(final StyledString text, final IRPackageHelp packageHelp) {
+		else if (element instanceof IRPackageHelp) {
+			final IRPackageHelp packageHelp= (IRPackageHelp) element;
 		text.append(packageHelp.getName(), fDefaultStyler);
 		if (packageHelp == fFocusObject && packageHelp.getTitle().length() > 0) {
 			text.append(TITLE_SEP, fDefaultStyler);
@@ -312,52 +299,6 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 		}
 	}
 	
-	protected void append(final StyledString text, final IREnv rEnv) {
-		final String name = rEnv.getName();
-		text.append((name != null) ? name : "", fDefaultStyler); //$NON-NLS-1$
-	}
-	
-	
-	@Override
-	public void update(final ViewerCell cell) {
-		final StyledString text = new StyledString();
-		Image image = null;
-		
-		final Object element = cell.getElement();
-		if (element instanceof RHelpSearchUIMatch) {
-			final IRHelpSearchMatch match = ((RHelpSearchUIMatch) element).getRHelpMatch();
-			if (fPageImage == null) {
-				fPageImage = RUI.getImage(RUI.IMG_OBJ_R_HELP_PAGE);
-			}
-			image = fPageImage;
-			append(text, match);
-		}
-		else if (element instanceof IRHelpPage) {
-			final IRHelpPage page = (IRHelpPage) element;
-			if (fPageImage == null) {
-				fPageImage = RUI.getImage(RUI.IMG_OBJ_R_HELP_PAGE);
-			}
-			image = fPageImage;
-			append(text, page);
-		}
-		else if (element instanceof IRPackageHelp) {
-			final IRPackageHelp packageHelp = (IRPackageHelp) element;
-			if (fPackageImage == null) {
-				fPackageImage = RUI.getImage(RUI.IMG_OBJ_R_PACKAGE);
-			}
-			image = fPackageImage;
-			append(text, packageHelp);
-		}
-		else if (element instanceof IREnvConfiguration) {
-			final IREnvConfiguration rEnv = (IREnvConfiguration) element;
-			image = RUI.getImage(RUI.IMG_OBJ_R_RUNTIME_ENV);
-			text.append(rEnv.getName());
-		}
-		else if (element instanceof IREnv) {
-			final IREnv rEnv = (IREnv) element;
-			image = RUI.getImage(RUI.IMG_OBJ_R_RUNTIME_ENV);
-			append(text, rEnv);
-		}
 		else if (element instanceof IRHelpKeyword.Group) {
 			final IRHelpKeyword.Group group = (IRHelpKeyword.Group) element;
 			text.append(group.getLabel());
@@ -368,16 +309,28 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 			text.append(keyword.getKeyword());
 			text.append(" - " + keyword.getDescription(), StyledString.QUALIFIER_STYLER); //$NON-NLS-1$
 		}
+		
+		else if (element instanceof IREnvConfiguration) {
+			final IREnvConfiguration rEnv= (IREnvConfiguration) element;
+			text.append(rEnv.getName());
+		}
+		else if (element instanceof IREnv) {
+			final IREnv rEnv= (IREnv) element;
+			final String name = rEnv.getName();
+			text.append((name != null) ? name : "", fDefaultStyler); //$NON-NLS-1$
+		}
+		
 		else if (element instanceof IRHelpSearchMatch.MatchFragment) {
 			final IRHelpSearchMatch.MatchFragment fragment = (MatchFragment) element;
-			if (fLineImage == null) {
-				fLineImage = SharedUIResources.getImages().get(SharedUIResources.OBJ_LINE_MATCH_IMAGE_ID);
+			{	final String fieldLabel= fragment.getFieldLabel();
+				if (fieldLabel != null) {
+					text.append(fieldLabel, StyledString.QUALIFIER_STYLER);
+					text.append(": ", StyledString.QUALIFIER_STYLER); //$NON-NLS-1$
+				}
 			}
-			image = fLineImage;
-			text.append(fragment.getFieldLabel(), StyledString.QUALIFIER_STYLER);
-			text.append(": ", StyledString.QUALIFIER_STYLER); //$NON-NLS-1$
 			append(text, fragment);
 		}
+		
 		else if (element instanceof Object[]) {
 			final Object[] array = (Object[]) element;
 			text.append(array[array.length-1].toString());
@@ -385,6 +338,16 @@ public class RHelpLabelProvider extends StyledCellLabelProvider implements ILabe
 		else {
 			text.append(element.toString());
 		}
+		
+		return text;
+	}
+	
+	
+	@Override
+	public void update(final ViewerCell cell) {
+		final Object element= cell.getElement();
+		final Image image= getImage(element);
+		final StyledString text= getStyledText(element);
 		
 		cell.setImage(image);
 		cell.setText(text.getString());

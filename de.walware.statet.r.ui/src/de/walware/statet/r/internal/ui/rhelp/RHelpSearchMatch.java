@@ -16,42 +16,46 @@ import org.eclipse.search.ui.text.Match;
 import de.walware.statet.r.core.rhelp.IRHelpSearchMatch;
 
 
-public class RHelpSearchUIMatch extends Match implements Comparable<RHelpSearchUIMatch> {
+public class RHelpSearchMatch extends Match implements Comparable<RHelpSearchMatch> {
 	
 	
-	private final IRHelpSearchMatch fRMatch;
+	private final IRHelpSearchMatch coreMatch;
 	
 	
-	public RHelpSearchUIMatch(final IRHelpSearchMatch rMatch) {
-		super(rMatch.getPage(), Match.UNIT_CHARACTER, 0, 0);
-		fRMatch = rMatch;
+	public RHelpSearchMatch(final IRHelpSearchMatch rMatch) {
+		super(rMatch.getPage().getPackage(), Match.UNIT_CHARACTER, 0, 0);
+		this.coreMatch= rMatch;
 	}
 	
-	
-	@Override
-	public RHelpSearchUIMatch getElement() {
-		return this;
-	}
 	
 	public IRHelpSearchMatch getRHelpMatch() {
-		return fRMatch;
+		return this.coreMatch;
 	}
 	
 	
 	@Override
 	public int hashCode() {
-		return fRMatch.hashCode();
+		return this.coreMatch.hashCode();
 	}
 	
 	@Override
 	public boolean equals(final Object obj) {
-		return ((obj instanceof RHelpSearchUIMatch)
-				&& fRMatch.equals(((RHelpSearchUIMatch) obj).getRHelpMatch()) );
+		if (this == obj) {
+			return true;
+		}
+		return ((obj instanceof RHelpSearchMatch)
+				&& this.coreMatch.equals(((RHelpSearchMatch) obj).getRHelpMatch()) );
 	}
 	
 	@Override
-	public int compareTo(final RHelpSearchUIMatch o) {
-		return fRMatch.getPage().compareTo(o.getRHelpMatch().getPage());
+	public int compareTo(final RHelpSearchMatch o) {
+		return this.coreMatch.getPage().compareTo(o.getRHelpMatch().getPage());
+	}
+	
+	
+	@Override
+	public String toString() {
+		return this.coreMatch.toString();
 	}
 	
 }

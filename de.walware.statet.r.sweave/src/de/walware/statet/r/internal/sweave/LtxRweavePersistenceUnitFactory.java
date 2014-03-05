@@ -16,7 +16,7 @@ import org.eclipse.core.resources.IFile;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.core.impl.AbstractFilePersistenceSourceUnitFactory;
 
-import de.walware.statet.r.internal.sweave.model.LtxRweaveDocUnit;
+import de.walware.statet.r.internal.sweave.model.LtxRweaveSourceUnit;
 
 
 public class LtxRweavePersistenceUnitFactory extends AbstractFilePersistenceSourceUnitFactory {
@@ -28,7 +28,7 @@ public class LtxRweavePersistenceUnitFactory extends AbstractFilePersistenceSour
 	
 	@Override
 	protected ISourceUnit createSourceUnit(final String id, final IFile file) {
-		return new LtxRweaveDocUnit(id, file);
+		return new LtxRweaveSourceUnit(id, file);
 	}
 	
 }

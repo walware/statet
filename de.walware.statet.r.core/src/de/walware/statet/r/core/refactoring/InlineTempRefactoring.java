@@ -33,9 +33,7 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
-import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.LTK;
-import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.core.ElementSet;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringDescriptor;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringChange;
@@ -44,13 +42,11 @@ import de.walware.ecommons.ltk.core.refactoring.SourceUnitChange;
 import de.walware.ecommons.ltk.core.refactoring.TextChangeCompatibility;
 
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.model.IRFrame;
-import de.walware.statet.r.core.model.IRModelInfo;
-import de.walware.statet.r.core.model.IRModelManager;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
-import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.Assignment;
 import de.walware.statet.r.core.rsource.ast.NodeType;
@@ -75,7 +71,7 @@ public class InlineTempRefactoring extends Refactoring {
 	
 	/**
 	 * Creates a new inline constant refactoring.
-	 * @param unit the source unit
+	 * @param su the source unit
 	 * @param region (selected) region of an occurrence of the variable
 	 */
 	public InlineTempRefactoring(final IRSourceUnit su, final IRegion region) {
@@ -105,33 +101,10 @@ public class InlineTempRefactoring extends Refactoring {
 	public RefactoringStatus checkInitialConditions(final IProgressMonitor monitor) throws CoreException {
 		final SubMonitor progress = SubMonitor.convert(monitor, 6);
 		try {
-			RAstNode node = null;
 			if (fSelectionRegion != null) {
-				fSourceUnit.connect(progress.newChild(1));
-				try {
-					final AbstractDocument document = fSourceUnit.getDocument(monitor);
-					final RHeuristicTokenScanner scanner = fAdapter.getScanner(fSourceUnit);
-					final IRegion region = fAdapter.trimToAstRegion(document,
-							fSelectionRegion, scanner );
-					
-					final IRModelInfo modelInfo = (IRModelInfo) fSourceUnit.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, progress.newChild(1));
-					if (modelInfo != null) {
-						final AstInfo ast = modelInfo.getAst();
-						if (ast != null) {
-							node = (RAstNode) AstSelection.search(ast.root,
-									region.getOffset(), region.getOffset()+region.getLength(),
-									AstSelection.MODE_COVERING_SAME_LAST ).getCovering();
-						}
-					}
+				fSymbolNode = fAdapter.searchPotentialNameNode(fSourceUnit, fSelectionRegion,
+						true, progress.newChild(4) );
 				}
-				finally {
-					fSourceUnit.disconnect(progress.newChild(1));
-				}
-			}
-			if (node != null) {
-				fSymbolNode = RRefactoringAdapter.getPotentialNameNode(node, true);
-			}
-			
 			if (fSymbolNode == null) {
 				return RefactoringStatus.createFatalErrorStatus(Messages.InlineTemp_error_InvalidSelection_message);
 			}
@@ -150,7 +123,7 @@ public class InlineTempRefactoring extends Refactoring {
 	}
 	
 	private void checkVariable(final RefactoringStatus result) {
-		final RElementAccess currentAccess = RRefactoringAdapter.searchElementAccessOfNameNode(fSymbolNode);
+		final RElementAccess currentAccess = RElementAccess.getMainElementAccessOfNameNode(fSymbolNode);
 		if (currentAccess == null) {
 			result.merge(RefactoringStatus.createFatalErrorStatus("Failed to detect variable information."));
 			return;
@@ -256,7 +229,8 @@ public class InlineTempRefactoring extends Refactoring {
 			createChanges(textFileChange, progress.newChild(1));
 			
 			final Map<String, String> arguments = new HashMap<String, String>();
-			final String description = NLS.bind(Messages.InlineTemp_Descriptor_description, '`'+getVariableName()+'`');
+			final String description = NLS.bind(Messages.InlineTemp_Descriptor_description,
+					RUtil.formatVarName(getVariableName()) );
 			final IProject resource = fElementSet.getSingleProject();
 			final String project = (resource != null) ? resource.getName() : null;
 			final String source = (project != null) ? NLS.bind(RefactoringMessages.Common_Source_Project_label, project) : RefactoringMessages.Common_Source_Workspace_label;

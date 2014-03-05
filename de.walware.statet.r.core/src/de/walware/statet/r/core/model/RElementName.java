@@ -672,7 +672,15 @@ public abstract class RElementName implements IElementName {
 		}
 	}
 	
-	public static RElementName cloneName(RElementName name, final boolean withNamespace) {
+	/**
+	 * Creates a copy of the specified element name.
+	 * 
+	 * @param name the element name to copy
+	 * @param withNamespace to include the namespace in the copy, if available
+	 * @return the copy of the element name
+	 */
+	public static RElementName cloneName(RElementName name,
+			final boolean withNamespace) {
 		if (name == null) {
 			return null;
 		}
@@ -692,6 +700,42 @@ public abstract class RElementName implements IElementName {
 		return main;
 	}
 	
+	/**
+	 * Creates a copy of segments of the specified element. The copy starts with the first element
+	 * of the element name and ends at the specified end segment (exclusive).
+	 * 
+	 * @param name the element name to copy
+	 * @param end the end segment or <code>null</code>, to copy the complete name
+	 * @param withNamespace to include the namespace in the copy, if available
+	 * @return the copy of the element name
+	 */
+	public static RElementName cloneSegments(RElementName name, final RElementName end,
+			final boolean withNamespace) {
+		if (name == null) {
+			return null;
+		}
+		RElementName namespace = (withNamespace) ? name.getNamespace() : null;
+		if (namespace != null) {
+			namespace = new DefaultImpl(namespace.getType(), namespace.getSegmentName(), null);
+		}
+		final DefaultImpl main = new DefaultImpl(name.getType(), namespace, name.getSegmentName(), null);
+		DefaultImpl last = main;
+		name = name.getNextSegment();
+		while (name != null && name != end) {
+			final DefaultImpl copy = name.cloneSegment0(null);
+			last.fNextSegment = copy;
+			last = copy;
+			name = name.getNextSegment();
+		}
+		return main;
+	}
+	
+	/**
+	 * Creates a copy of the first segment of the specified element name.
+	 * 
+	 * @param name the element name to copy
+	 * @return the copy of the element name
+	 */
 	public static RElementName cloneSegment(final RElementName name) {
 		return name.cloneSegment0(null);
 	}

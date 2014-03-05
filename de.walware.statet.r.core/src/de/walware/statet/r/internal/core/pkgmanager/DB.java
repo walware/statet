@@ -45,27 +45,109 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 
 final class DB {
 	
-	private static final String SCHEMA = "RENV";
-	private static final String PKGS_TABLE = SCHEMA + ".PKGS";
-	private static final String LIBPATHS_TABLE = SCHEMA + ".LIBPATHS";
-	
-	private static final String DEFINE_LIBPATHS_1 = "create table " + LIBPATHS_TABLE + " (" +
-				" LIB_ID int not null generated always as identity primary key," +
-				" LIB_PATH varchar(4096) not null unique," +
-				" STAMP bigint" +
-			")";
-	
-	private static final String DEFINE_PKGS_1 = "create table " + PKGS_TABLE + " (" +
-				" LIB_ID int not null references " + LIBPATHS_TABLE + " on delete cascade," +
-				" NAME varchar(64) not null," +
-				" VERSION varchar(64) not null," +
-				" BUILT varchar(256) not null," +
-				" TITLE varchar(256) not null," +
-				" FLAGS int," +
-				" INST_STAMP bigint," +
-				" REPO_ID varchar(256)," +
-				" primary key (LIB_ID, NAME)" +
-			")";
+	/** DB definitions */
+	@SuppressWarnings({ "hiding", "nls" })
+	private static final class REnv { // SCHMEMA
+		
+		static final String NAME= "RENV";
+		
+		static final class LibPaths {
+			
+			static final String NAME= "LIBPATHS";
+			static final String QNAME= REnv.NAME+'.'+NAME;
+			
+			static final String COL_ID= "LIB_ID";
+			static final String COL_LIB_PATH= "LIB_PATH";
+			static final String COL_STAMP= "STAMP";
+			
+			static final String DEFINE_1 = "create table " + QNAME + " ("
+						+ COL_ID        + " int not null "
+								+ "primary key "
+								+ "generated always as identity, "
+						+ COL_LIB_PATH      + " varchar(4096) not null unique, "
+						+ COL_STAMP         + " bigint"
+					+ ")";
+			
+			static final String OP_insert= "insert into " + QNAME + " ("
+						+ COL_LIB_PATH + ") "
+					+ "values (?)";
+			
+			static final String OP_delete_byPath= "delete from " + QNAME + " "
+					+ "where (" + COL_LIB_PATH + " = ?)";
+			
+			static final String OP_getAll= "select "
+						+ COL_ID + ", "
+						+ COL_LIB_PATH + " "
+					+ "from " + QNAME;
+			
+		}
+		
+		static final class Pkgs {
+			
+			static final String NAME= "PKGS";
+			static final String QNAME= REnv.NAME+'.'+NAME;
+			
+			static final String COL_LIB_ID= "LIB_ID";
+			static final String COL_NAME= "NAME";
+			static final String COL_VERSION= "VERSION";
+			static final String COL_BUILT= "BUILT";
+			static final String COL_TITLE= "TITLE";
+			static final String COL_FLAGS= "FLAGS";
+			static final String COL_INST_STAMP= "INST_STAMP";
+			static final String COL_REPO_ID= "REPO_ID";
+			
+			static final String DEFINE_1 = "create table " + QNAME + " ("
+						+ COL_LIB_ID        + " int not null "
+								+ "references " + LibPaths.QNAME + " on delete cascade, "
+						+ COL_NAME          + " varchar(64) not null, "
+						+ COL_VERSION       + " varchar(64) not null, "
+						+ COL_BUILT         + " varchar(256) not null, "
+						+ COL_TITLE         + " varchar(256) not null, "
+						+ COL_FLAGS         + " int, "
+						+ COL_INST_STAMP    + " bigint, "
+						+ COL_REPO_ID       + " varchar(256), "
+						+ "primary key ("
+							+ COL_LIB_ID + ", "
+							+ COL_NAME + ")"
+					+ ")";
+			
+			static final String OP_insert= "insert into " + QNAME + " ("
+						+ COL_LIB_ID + ", "
+						+ COL_NAME + ", "
+						+ COL_VERSION + ", "
+						+ COL_BUILT + ", "
+						+ COL_TITLE + ", "
+						+ COL_FLAGS + ", "
+						+ COL_INST_STAMP + ", "
+						+ COL_REPO_ID + ") "
+					+ "values (? , ?, ?, ?, ?, ?, ?, ?)";
+			
+			static final String OP_update= "update " + QNAME + " set "
+						+ COL_VERSION + " = ?, "
+						+ COL_BUILT + " = ?, "
+						+ COL_TITLE + " = ?, "
+						+ COL_FLAGS + " = ?, "
+						+ COL_INST_STAMP + " = ?, "
+						+ COL_REPO_ID +" = ? "
+					+ "where (" + COL_LIB_ID + " = ? and " + COL_NAME + " = ?)";
+			
+			static final String OP_delete= "delete from " + QNAME + " "
+					+ "where (" + COL_LIB_ID + " = ? and " + COL_NAME + " = ?)"; 
+			
+			static final String OP_get_ofLib= "select "
+						+ COL_NAME + ", "
+						+ COL_VERSION + ", "
+						+ COL_BUILT + ", "
+						+ COL_TITLE + ", "
+						+ COL_FLAGS + ", "
+						+ COL_INST_STAMP + ", "
+						+ COL_REPO_ID + " "
+					+ "from " + QNAME + " "
+					+ "where (" + COL_LIB_ID + " = ?)";
+			
+		}
+		
+	}
 	
 	private static IRLibraryLocation getLibLocation(final List<? extends IRLibraryGroup> envLibs, final String path) {
 		for (final IRLibraryGroup group : envLibs) {
@@ -80,7 +162,7 @@ final class DB {
 	
 	static DB create(final IREnv rEnv, final IFileStore parent) {
 		try {
-			final File file = parent.getChild("db").toLocalFile(EFS.NONE, null);
+			final File file = parent.getChild("db").toLocalFile(EFS.NONE, null); //$NON-NLS-1$
 			final ConnectionFactory connectionFactory = EmbeddedDB.createConnectionFactory(file.getAbsolutePath());
 			
 			return new DB(rEnv, connectionFactory);
@@ -94,7 +176,7 @@ final class DB {
 	
 	private final IREnv fREnv;
 	
-	private final Map<String, Integer> fLibIdMap = new HashMap<String, Integer>();
+	private final Map<String, Integer> fLibIdMap = new HashMap<>();
 	
 	private final ConnectionFactory fConnectionFactory;
 	private Connection fConnection;
@@ -149,47 +231,41 @@ final class DB {
 			List<String> removeLibPath = null;
 			
 			final Connection connection = getConnection();
-			final Statement libStatement = connection.createStatement();
-			
-			final ResultSet libResult = libStatement.executeQuery("select" +
-					" LIB_PATH, LIB_ID" +
-					" from " + LIBPATHS_TABLE );
-			
-			final PreparedStatement pkgStatement = connection.prepareStatement("select" +
-					" NAME, VERSION, BUILT, TITLE, FLAGS, INST_STAMP, REPO_ID" +
-					" from " + PKGS_TABLE + 
-					" where (LIB_ID = ?)");
-			
-			while (libResult.next()) {
-				final String libPath = libResult.getString(1);
-				final IRLibraryLocation location = getLibLocation(envLibs, libPath);
-				if (location == null) {
-					if (removeLibPath == null) {
-						removeLibPath = new ArrayList<String>();
+			try (
+				final Statement libStatement= connection.createStatement();
+				final PreparedStatement pkgStatement= connection.prepareStatement(
+						REnv.Pkgs.OP_get_ofLib )
+			) {
+				final ResultSet libResult = libStatement.executeQuery(REnv.LibPaths.OP_getAll);
+				
+				while (libResult.next()) {
+					final String libPath = libResult.getString(2);
+					final IRLibraryLocation location = getLibLocation(envLibs, libPath);
+					if (location == null) {
+						if (removeLibPath == null) {
+							removeLibPath = new ArrayList<>();
+						}
+						removeLibPath.add(libPath);
 					}
-					removeLibPath.add(libPath);
-				}
-				else {
-					final int id = libResult.getInt(2);
-					fLibIdMap.put(location.getDirectoryPath(), id);
-					
-					final RPkgList<RPkgInfo> list = new RPkgList<RPkgInfo>(16);
-					newPkgs.getInstalled().add(location.getDirectoryPath(), list);
-					
-					pkgStatement.setInt(1, id);
-					final ResultSet pkgResult = pkgStatement.executeQuery();
-					while (pkgResult.next()) {
-						final RPkgInfo pkg = new RPkgInfo(pkgResult.getString(1),
-								RNumVersion.create(pkgResult.getString(2)),
-								pkgResult.getString(3), pkgResult.getString(4), location,
-								pkgResult.getInt(5), pkgResult.getLong(6), pkgResult.getString(7) );
-						list.add(pkg);
+					else {
+						final int id = libResult.getInt(1);
+						fLibIdMap.put(location.getDirectoryPath(), id);
+						
+						final RPkgList<RPkgInfo> list = new RPkgList<>(16);
+						newPkgs.getInstalled().add(location.getDirectoryPath(), list);
+						
+						pkgStatement.setInt(1, id);
+						final ResultSet pkgResult = pkgStatement.executeQuery();
+						while (pkgResult.next()) {
+							final RPkgInfo pkg = new RPkgInfo(pkgResult.getString(1),
+									RNumVersion.create(pkgResult.getString(2)),
+									pkgResult.getString(3), pkgResult.getString(4), location,
+									pkgResult.getInt(5), pkgResult.getLong(6), pkgResult.getString(7) );
+							list.add(pkg);
+						}
 					}
 				}
 			}
-			
-			pkgStatement.close();
-			libStatement.close();
 			
 			if (removeLibPath != null) {
 				clean(removeLibPath);
@@ -208,23 +284,20 @@ final class DB {
 	}
 	
 	private void checkDB() throws SQLException {
-		final Connection connection = getConnection();
+		final Connection connection= getConnection();
 		
-		final ResultSet schemas = connection.getMetaData().getSchemas(null, SCHEMA);
+		final ResultSet schemas= connection.getMetaData().getSchemas(null, REnv.NAME);
 		while (schemas.next()) {
-			if (SCHEMA.equals(schemas.getString(1))) {
+			if (REnv.NAME.equals(schemas.getString(1))) {
 				return;
 			}
 		}
 		
-		final Statement statement = connection.createStatement();
-		try {
-			statement.execute(DEFINE_LIBPATHS_1);
-			statement.execute(DEFINE_PKGS_1);
+		try (final Statement statement= connection.createStatement()) {
+			statement.execute(REnv.LibPaths.DEFINE_1);
+			statement.execute(REnv.Pkgs.DEFINE_1);
 			
 			connection.commit();
-			
-			statement.close();
 		}
 		catch (final SQLException e) {
 			closeOnError();
@@ -233,19 +306,15 @@ final class DB {
 	}
 	
 	private void clean(final List<String> removeLibPath) throws SQLException {
-		final Connection connection = getConnection();
-		final PreparedStatement statement = connection.prepareStatement("delete" +
-				" from " + LIBPATHS_TABLE +
-				" where (LIB_PATH = ?)" );
-		try {
+		final Connection connection= getConnection();
+		try (final PreparedStatement statement= connection.prepareStatement(
+				REnv.LibPaths.OP_delete_byPath )) {
 			for (final String libPath : removeLibPath) {
 				statement.setString(1, libPath);
 				statement.execute();
 			}
 			
 			connection.commit();
-			
-			statement.close();
 		}
 		catch (final SQLException e) {
 			closeOnError();
@@ -260,9 +329,7 @@ final class DB {
 			final RPkgChangeSet changeSet = change.fInstalledPkgs;
 			if (!changeSet.fDeleted.isEmpty()) {
 				if (fPkgDeleteStatement == null) {
-					fPkgDeleteStatement = connection.prepareStatement("delete" +
-							" from " + PKGS_TABLE +
-							" where (LIB_ID = ? and NAME = ?)" );
+					fPkgDeleteStatement = connection.prepareStatement(REnv.Pkgs.OP_delete);
 				}
 				for (final IRPkgInfo pkg : changeSet.fDeleted) {
 					final Integer id = fLibIdMap.get(pkg.getLibraryLocation().getDirectoryPath());
@@ -274,10 +341,7 @@ final class DB {
 			}
 			if (!changeSet.fAdded.isEmpty()) {
 				if (fPkgAddStatement == null) {
-					fPkgAddStatement = connection.prepareStatement("insert" +
-							" into " + PKGS_TABLE + 
-							" (LIB_ID, NAME, VERSION, BUILT, TITLE, FLAGS, INST_STAMP, REPO_ID)" +
-							" VALUES (? , ?, ?, ?, ?, ?, ?, ?)");
+					fPkgAddStatement = connection.prepareStatement(REnv.Pkgs.OP_insert);
 				}
 				for (final IRPkgInfo pkg : changeSet.fAdded) {
 					Integer id = fLibIdMap.get(pkg.getLibraryLocation().getDirectoryPath());
@@ -298,10 +362,7 @@ final class DB {
 			}
 			if (!changeSet.fChanged.isEmpty()) {
 				if (fPkgChangeStatement == null) {
-					fPkgChangeStatement = connection.prepareStatement("update" +
-							" " + PKGS_TABLE +
-							" set VERSION = ?, BUILT = ?, TITLE = ?, FLAGS = ?, INST_STAMP = ?, REPO_ID = ?" +
-							" where (LIB_ID = ? and NAME = ?)");
+					fPkgChangeStatement = connection.prepareStatement(REnv.Pkgs.OP_update);
 				}
 				for (final IRPkgInfo pkg : changeSet.fChanged) {
 					final Integer id = fLibIdMap.get(pkg.getLibraryLocation().getDirectoryPath());
@@ -331,16 +392,14 @@ final class DB {
 	
 	private Integer addLib(final Connection connection, final IRLibraryLocation location) throws SQLException {
 		if (fLibAddStatement == null) {
-			fLibAddStatement = connection.prepareStatement("insert" +
-					" into " + LIBPATHS_TABLE +
-					" (LIB_PATH)" +
-					" VALUES (?)", new String[] { "LIB_ID" });
+			fLibAddStatement= connection.prepareStatement(REnv.LibPaths.OP_insert,
+					new String[] { REnv.LibPaths.COL_ID } );
 		}
 		fLibAddStatement.setString(1, location.getDirectoryPath());
 		fLibAddStatement.execute();
-		final ResultSet resultSet = fLibAddStatement.getGeneratedKeys();
-		if (resultSet.next()) {
-			final Integer id = resultSet.getInt(1);
+		final ResultSet result= fLibAddStatement.getGeneratedKeys();
+		if (result.next()) {
+			final Integer id= result.getInt(1);
 			fLibIdMap.put(location.getDirectoryPath(), id);
 			return id;
 		}

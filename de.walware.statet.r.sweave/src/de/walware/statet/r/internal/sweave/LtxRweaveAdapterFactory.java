@@ -13,23 +13,26 @@ package de.walware.statet.r.internal.sweave;
 
 import org.eclipse.core.runtime.IAdapterFactory;
 
+import de.walware.docmlet.tex.core.TexBuildParticipant;
 import de.walware.docmlet.tex.core.text.LtxHeuristicTokenScanner;
 
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
+import de.walware.statet.r.internal.sweave.model.LtxRweaveTexBuildParticipant;
 import de.walware.statet.r.sweave.text.Rweave;
 import de.walware.statet.r.sweave.text.RweaveChunkHeuristicScanner;
 
 
-public class ModelAdapterFactory implements IAdapterFactory {
+public class LtxRweaveAdapterFactory implements IAdapterFactory {
 	
 	
 	private static final Class<?>[] ADAPTERS = new Class<?>[] {
 		RHeuristicTokenScanner.class,
 		LtxHeuristicTokenScanner.class,
+		TexBuildParticipant.class,
 	};
 	
 	
-	public ModelAdapterFactory() {
+	public LtxRweaveAdapterFactory() {
 	}
 	
 	
@@ -45,6 +48,9 @@ public class ModelAdapterFactory implements IAdapterFactory {
 		}
 		if (LtxHeuristicTokenScanner.class.equals(adapterType)) {
 			return new LtxHeuristicTokenScanner(Rweave.LTX_PARTITIONING_CONFIG);
+		}
+		if (TexBuildParticipant.class.equals(adapterType)) {
+			return new LtxRweaveTexBuildParticipant();
 		}
 		return null;
 	}

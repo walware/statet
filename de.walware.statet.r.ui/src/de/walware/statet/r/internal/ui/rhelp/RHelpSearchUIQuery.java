@@ -32,29 +32,29 @@ import de.walware.statet.r.ui.RUI;
 public class RHelpSearchUIQuery implements ISearchQuery {
 	
 	
-	private final RHelpSearchQuery fQuery;
+	private final RHelpSearchQuery query;
 	
-	private RHelpSearchUIResult fResult;
+	private RHelpSearchResult result;
 	
 	
 	public RHelpSearchUIQuery(final RHelpSearchQuery.Compiled coreQuery) {
 		if (coreQuery == null) {
 			throw new NullPointerException();
 		}
-		fQuery = coreQuery;
+		this.query= coreQuery;
 	}
 	
 	
 	@Override
 	public IStatus run(final IProgressMonitor monitor) throws OperationCanceledException {
 		synchronized (this) {
-			if (fResult == null) {
-				fResult = new RHelpSearchUIResult(this);
+			if (this.result == null) {
+				this.result= new RHelpSearchResult(this);
 			}
-			fResult.init(fQuery.getREnv());
+			this.result.init(this.query.getREnv());
 		}
 		
-		final IRHelpSearchRequestor requestor = new IRHelpSearchRequestor() {
+		final IRHelpSearchRequestor requestor= new IRHelpSearchRequestor() {
 			@Override
 			public int maxFragments() {
 				return PreferencesUtil.getInstancePrefs().getPreferenceValue(
@@ -62,18 +62,18 @@ public class RHelpSearchUIQuery implements ISearchQuery {
 			}
 			@Override
 			public void matchFound(final IRHelpSearchMatch match) {
-				fResult.addMatch(new RHelpSearchUIMatch(match));
+				RHelpSearchUIQuery.this.result.addMatch(new RHelpSearchMatch(match));
 			}
 		};
 		try {
-			RCore.getRHelpManager().search(fQuery, requestor, monitor);
+			RCore.getRHelpManager().search(this.query, requestor, monitor);
 			return Status.OK_STATUS;
 		}
 		catch (final CoreException e) {
 			if (e.getStatus().getSeverity() == IStatus.CANCEL) {
 				throw new OperationCanceledException();
 			}
-			return new Status(IStatus.ERROR, RUI.PLUGIN_ID, "An error occurred when performing R help search: " + getLongLabel());
+			return new Status(IStatus.ERROR, RUI.PLUGIN_ID, "An error occurred when performing R help search: " + getSearchLabel());
 		}
 	}
 	
@@ -82,10 +82,10 @@ public class RHelpSearchUIQuery implements ISearchQuery {
 		return Messages.Search_Query_label;
 	}
 	
-	public String getLongLabel() {
-		final String searchString = fQuery.getSearchString();
+	public String getSearchLabel() {
+		final String searchString= this.query.getSearchString();
 		if (searchString.length() > 0) {
-			switch (fQuery.getSearchType()) {
+			switch (this.query.getSearchType()) {
 			case RHelpSearchQuery.TOPIC_SEARCH:
 				return NLS.bind(Messages.Search_PatternInTopics_label, searchString);
 			case RHelpSearchQuery.FIELD_SEARCH:
@@ -97,7 +97,7 @@ public class RHelpSearchUIQuery implements ISearchQuery {
 	
 	@Override
 	public boolean canRerun() {
-		return fQuery.getREnv().getConfig() != null;
+		return this.query.getREnv().getConfig() != null;
 	}
 	
 	@Override
@@ -108,17 +108,17 @@ public class RHelpSearchUIQuery implements ISearchQuery {
 	@Override
 	public ISearchResult getSearchResult() {
 		synchronized (this) {
-			if (fResult == null) {
-				fResult = new RHelpSearchUIResult(this);
-				fResult.init(fQuery.getREnv());
+			if (this.result == null) {
+				this.result= new RHelpSearchResult(this);
+				this.result.init(this.query.getREnv());
 			}
+			return this.result;
 		}
-		return fResult;
 	}
 	
 	
 	public RHelpSearchQuery getRHelpQuery() {
-		return fQuery;
+		return this.query;
 	}
 	
 }

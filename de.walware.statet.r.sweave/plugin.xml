@@ -62,9 +62,8 @@
          point="de.walware.ecommons.ltk.modelTypes">
       <modelType
             id="ltx-rweave">
-         <secondaryType
-               modelTypeId="r">
-         </secondaryType>
+         <baseType modelTypeId="ltx"/>
+         <secondaryType modelTypeId="r"/>
       </modelType>
       <contentType
             contentTypeId="de.walware.statet.r.contentTypes.LtxRweave"
@@ -83,12 +82,15 @@
          point="de.walware.ecommons.ltk.modelAdapters">
       <adapterFactory
             modelTypeId="ltx-rweave"
-            class="de.walware.statet.r.internal.sweave.ModelAdapterFactory">
+            class="de.walware.statet.r.internal.sweave.LtxRweaveAdapterFactory">
          <adapter
                type="de.walware.statet.r.core.rsource.RHeuristicTokenScanner">
          </adapter>
          <adapter
                type="de.walware.docmlet.tex.core.text.LtxHeuristicTokenScanner">
+         </adapter>
+         <adapter
+               type="de.walware.docmlet.tex.core.TexBuildParticipant">
          </adapter>
       </adapterFactory>
    </extension>
@@ -157,6 +159,8 @@
             </with>
          </activeWhen>
       </handler>
+      
+      <!-- navigate -->
       <handler
             commandId="org.eclipse.jdt.ui.edit.text.java.open.editor"
             class="de.walware.statet.r.internal.sweave.editors.LtxRweaveOpenDeclarationHandler">
@@ -168,9 +172,35 @@
             </with>
          </activeWhen>
       </handler>
+      
+      <!-- search -->
+      <handler
+            commandId="de.walware.ecommons.ltk.commands.SearchAllElementAccess"
+            class="de.walware.statet.r.internal.sweave.editors.ltx.ElementSearchHandler">
+         <activeWhen>
+            <with variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.LtxRweave">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="de.walware.ecommons.ltk.commands.SearchWriteElementAccess"
+            class="de.walware.statet.r.internal.sweave.editors.ltx.ElementSearchHandler">
+         <activeWhen>
+            <with variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.LtxRweave">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
+   
    <extension
          point="org.eclipse.ui.menus">
+      <!-- navigate -->
       <menuContribution
             locationURI="menu:navigate?after=open.ext">
          <command
@@ -187,6 +217,49 @@
             </visibleWhen>
          </command>
       </menuContribution>
+      
+      <!-- search -->
+      <menuContribution
+            locationURI="menu:org.eclipse.search.menu?endof=contextMenuActionsGroup">
+         <menu
+               id="de.walware.statet.r.menus.SweaveSearchAllAccess"
+               label="%menus_Search_AllAccess_name"
+               mnemonic="%menus_Search_AllAccess_mnemonic">
+            <dynamic
+                  id="de.walware.ecommons.ltk.commands.SearchAllElementAccess"
+                  class="de.walware.statet.r.internal.sweave.editors.ltx.ElementSearchContributionItem">
+            </dynamic>
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activePartId">
+                  <equals
+                        value="de.walware.statet.r.editors.LtxRweave">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </menu>
+         <menu
+               id="de.walware.statet.r.menus.SweaveSearchWriteAccess"
+               label="%menus_Search_WriteAccess_name"
+               mnemonic="%menus_Search_WriteAccess_mnemonic">
+            <dynamic
+                  id="de.walware.ecommons.ltk.commands.SearchWriteElementAccess"
+                  class="de.walware.statet.r.internal.sweave.editors.ltx.ElementSearchContributionItem">
+            </dynamic>
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activePartId">
+                  <equals
+                        value="de.walware.statet.r.editors.LtxRweave">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </menu>
+      </menuContribution>
+      
+      <!-- context -->
       <menuContribution
             locationURI="popup:de.walware.statet.r.sweave.menus.LtxRweaveEditorContextMenu?after=group.edit">
          <command
@@ -203,7 +276,7 @@
          </command-->
       </menuContribution>
    </extension>
-      <extension
+   <extension
          point="org.eclipse.ui.popupMenus">
       <viewerContribution
             id="de.walware.statet.r.legacy.RweaveTexEditorRulerMenuCommonContribution"

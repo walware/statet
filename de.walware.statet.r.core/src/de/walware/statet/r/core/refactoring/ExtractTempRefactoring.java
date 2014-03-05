@@ -46,6 +46,7 @@ import de.walware.ecommons.ltk.core.refactoring.SourceUnitChange;
 import de.walware.ecommons.ltk.core.refactoring.TextChangeCompatibility;
 
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRModelManager;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -101,7 +102,7 @@ public class ExtractTempRefactoring extends Refactoring {
 	
 	/**
 	 * Creates a new extract temp refactoring.
-	 * @param unit the source unit
+	 * @param su the source unit
 	 * @param region (selected) regino of the expression to extract
 	 */
 	public ExtractTempRefactoring(final IRSourceUnit su, final IRegion region) {
@@ -310,7 +311,9 @@ public class ExtractTempRefactoring extends Refactoring {
 			createChanges(textFileChange, progress.newChild(1));
 			
 			final Map<String, String> arguments = new HashMap<String, String>();
-			final String description = NLS.bind(Messages.ExtractTemp_Descriptor_description, RRefactoringAdapter.getQuotedIdentifier(fTempName));
+			final String varName = RRefactoringAdapter.getUnquotedIdentifier(fTempName);
+			final String description = NLS.bind(Messages.ExtractTemp_Descriptor_description,
+					RUtil.formatVarName(varName) );
 			final IProject resource = fElementSet.getSingleProject();
 			final String project = (resource != null) ? resource.getName() : null;
 			final String source = (project != null) ? NLS.bind(RefactoringMessages.Common_Source_Project_label, project) : RefactoringMessages.Common_Source_Workspace_label;

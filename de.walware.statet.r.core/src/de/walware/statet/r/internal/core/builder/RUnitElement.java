@@ -29,7 +29,9 @@ import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementName;
+import de.walware.statet.r.core.model.RModel;
 
 
 public class RUnitElement implements IRLangElement, Serializable {
@@ -38,7 +40,7 @@ public class RUnitElement implements IRLangElement, Serializable {
 	private static final long serialVersionUID = 2909953007129363256L;
 	
 	
-	public static RUnitElement read(final ISourceUnit su, final CompositeFrame envir, final InputStream input) throws IOException, ClassNotFoundException {
+	public static RUnitElement read(final IRSourceUnit su, final CompositeFrame envir, final InputStream input) throws IOException, ClassNotFoundException {
 		final ObjectInputStream o = new ObjectInputStream(input);
 		final RUnitElement element = (RUnitElement) o.readObject();
 		element.fSourceUnit = su;
@@ -52,7 +54,7 @@ public class RUnitElement implements IRLangElement, Serializable {
 	List<IRLangElement> fElements;
 	
 	
-	public RUnitElement(final ISourceUnit su, final List<IRLangElement> children) {
+	public RUnitElement(final IRSourceUnit su, final List<IRLangElement> children) {
 		fSourceUnit = su;
 		fElements = Collections.unmodifiableList(children);
 	}
@@ -63,7 +65,7 @@ public class RUnitElement implements IRLangElement, Serializable {
 	
 	@Override
 	public String getModelTypeId() {
-		return null;
+		return RModel.TYPE_ID;
 	}
 	
 	@Override

@@ -21,112 +21,120 @@ public class RHelpSearchMatch implements IRHelpSearchMatch {
 	public static class Fragment implements MatchFragment {
 		
 		
-		private final String fField;
-		private final String fText;
+		private final String field;
+		private final String text;
 		
 		
 		public Fragment(final IRHelpSearchMatch match, final String field, final String text) {
-			fField = field;
-			fText = text;
+			this.field= field;
+			this.text= text;
 		}
 		
 		
 		@Override
 		public String getField() {
-			return fField;
+			return this.field;
 		}
 		
 		@Override
 		public String getFieldLabel() {
-			if (fField == IREnvIndex.ALIAS_FIELD_NAME || fField == IREnvIndex.ALIAS_TXT_FIELD_NAME) {
+			if (this.field == IREnvIndex.ALIAS_FIELD_NAME || this.field == IREnvIndex.ALIAS_TXT_FIELD_NAME) {
 				return "Topic";
 			}
-			if (fField == IREnvIndex.TITLE_TXT_FIELD_NAME) {
+			if (this.field == IREnvIndex.TITLE_TXT_FIELD_NAME) {
 				return "Title";
 			}
-			if (fField == IREnvIndex.CONCEPT_TXT_FIELD_NAME) {
+			if (this.field == IREnvIndex.CONCEPT_TXT_FIELD_NAME) {
 				return "Concept";
 			}
-			if (fField == IREnvIndex.DESCRIPTION_TXT_FIELD_NAME) {
+			if (this.field == IREnvIndex.DESCRIPTION_TXT_FIELD_NAME) {
 				return "Description";
 			}
-			if (fField == IREnvIndex.AUTHORS_TXT_FIELD_NAME) {
+			if (this.field == IREnvIndex.AUTHORS_TXT_FIELD_NAME) {
 				return "Author(s)";
 			}
-			if (fField == IREnvIndex.EXAMPLES_TXT_FIELD_NAME) {
+			if (this.field == IREnvIndex.EXAMPLES_TXT_FIELD_NAME) {
 				return "Examples";
 			}
-			return "";
+			return null;
 		}
 		
 		@Override
 		public String getText() {
-			return fText;
+			return this.text;
 		}
 		
 		
 		@Override
 		public String toString() {
-			final StringBuilder sb = new StringBuilder();
-			sb.append(fField);
+			final StringBuilder sb= new StringBuilder();
+			sb.append(this.field);
 			sb.append(": "); //$NON-NLS-1$
-			sb.append(fText);
+			sb.append(this.text);
 			return sb.toString();
 		}
 		
 	}
 	
 	
-	private final IRHelpPage fPage;
-	private final float fScore;
-	private MatchFragment[] fBestFragments;
-	private int fTotalMatches = -1;
+	private final IRHelpPage page;
+	private final float score;
+	private MatchFragment[] bestFragments;
+	private int totalMatches= -1;
 	
 	
 	public RHelpSearchMatch(final IRHelpPage page, final float score) {
-		fPage = page;
-		fScore = score;
+		this.page= page;
+		this.score= score;
 	}
 	
 	
 	public void setBestFragments(final MatchFragment[] fragments) {
-		fBestFragments = fragments;
+		this.bestFragments= fragments;
 	}
 	
 	public void setTotalMatches(final int totalMatches) {
-		fTotalMatches = totalMatches;
+		this.totalMatches= totalMatches;
 	}
 	
 	@Override
 	public IRHelpPage getPage() {
-		return fPage;
+		return this.page;
 	}
 	
 	@Override
 	public float getScore() {
-		return fScore;
+		return this.score;
 	}
 	
 	@Override
 	public int getMatchesCount() {
-		return fTotalMatches;
+		return this.totalMatches;
 	}
 	
 	@Override
 	public MatchFragment[] getBestFragments() {
-		return fBestFragments;
+		return this.bestFragments;
 	}
 	
 	
 	@Override
 	public int hashCode() {
-		return fPage.hashCode();
+		return this.page.hashCode();
 	}
 	
 	@Override
 	public boolean equals(final Object obj) {
 		return (obj instanceof IRHelpSearchMatch
-				&& fPage.equals(((IRHelpSearchMatch) obj).getPage()) );
+				&& this.page.equals(((IRHelpSearchMatch) obj).getPage()) );
+	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder sb= new StringBuilder();
+		sb.append(getPage());
+		sb.append(" (score= ").append(getScore()).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
+		return sb.toString();
 	}
 	
 }

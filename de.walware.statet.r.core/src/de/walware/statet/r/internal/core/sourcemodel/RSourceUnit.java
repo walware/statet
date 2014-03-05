@@ -30,21 +30,13 @@ import de.walware.statet.r.core.model.RSuModelContainer;
 public final class RSourceUnit extends RResourceUnit implements IRWorkspaceSourceUnit {
 	
 	
-	private final RSuModelContainer fModel = new RSuModelContainer(this);
+	private final RSuModelContainer model= new RSuModelContainer(this);
 	
 	
 	public RSourceUnit(final String id, final IFile file) {
 		super(id, file);
 	}
 	
-	
-	@Override
-	protected void unregister() {
-		super.unregister();
-		synchronized (fModel) {
-			fModel.clear();
-		}
-	}
 	
 	@Override
 	public String getModelTypeId() {
@@ -63,9 +55,16 @@ public final class RSourceUnit extends RResourceUnit implements IRWorkspaceSourc
 	
 	
 	@Override
+	protected void unregister() {
+		super.unregister();
+		
+		this.model.clear();
+	}
+	
+	@Override
 	public AstInfo getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
-		final AstInfo ast = fModel.getCurrentAst();
-		final long stamp = getResource().getModificationStamp();
+		final AstInfo ast= this.model.getCurrentAst();
+		final long stamp= getResource().getModificationStamp();
 		if (ast != null && ast.stamp == stamp) {
 			return ast;
 		}
@@ -76,7 +75,7 @@ public final class RSourceUnit extends RResourceUnit implements IRWorkspaceSourc
 	@Override
 	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
-			return fModel.getModelInfo(syncLevel, monitor);
+			return this.model.getModelInfo(syncLevel, monitor);
 		}
 		return null;
 	}
@@ -89,7 +88,7 @@ public final class RSourceUnit extends RResourceUnit implements IRWorkspaceSourc
 	@Override
 	public Object getAdapter(final Class required) {
 		if (RSuModelContainer.class.equals(required)) {
-			return fModel;
+			return this.model;
 		}
 		return super.getAdapter(required);
 	}

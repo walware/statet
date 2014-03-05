@@ -24,13 +24,53 @@ import de.walware.statet.r.core.rsource.ast.RAstNode;
 public abstract class RElementAccess extends RElementName {
 	
 	
-	public static final Comparator<RElementAccess> NAME_POSITION_COMPARATOR = 
+	public static final Comparator<RElementAccess> NAME_POSITION_COMPARATOR= 
 		new Comparator<RElementAccess>() {
 			@Override
 			public int compare(final RElementAccess o1, final RElementAccess o2) {
 				return (o1.getNameNode().getOffset() - o2.getNameNode().getOffset()); 
 			}
 	};
+	
+	public static RElementAccess getMainElementAccessOfNameNode(final RAstNode nameNode) {
+		RAstNode node= nameNode;
+		while (node != null) {
+			final Object[] attachments= node.getAttachments();
+			for (final Object attachment : attachments) {
+				if (attachment instanceof RElementAccess) {
+					RElementAccess access= (RElementAccess) attachment;
+					do {
+						if (access.getNameNode() == nameNode) {
+							return (RElementAccess) attachment;
+						}
+						access= access.getNextSegment();
+					} while (access != null);
+				}
+			}
+			node= node.getRParent();
+		}
+		return null;
+	}
+	
+	public static RElementAccess getElementAccessOfNameNode(final RAstNode nameNode) {
+		RAstNode node= nameNode;
+		while (node != null) {
+			final Object[] attachments= node.getAttachments();
+			for (final Object attachment : attachments) {
+				if (attachment instanceof RElementAccess) {
+					RElementAccess access= (RElementAccess) attachment;
+					do {
+						if (access.getNameNode() == nameNode) {
+							return access;
+						}
+						access= access.getNextSegment();
+					} while (access != null);
+				}
+			}
+			node= node.getRParent();
+		}
+		return null;
+	}
 	
 	
 	public abstract IRFrame getFrame();

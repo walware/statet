@@ -47,6 +47,7 @@ import de.walware.ecommons.ltk.core.refactoring.TextChangeCompatibility;
 
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.ArgsDefinition.Arg;
 import de.walware.statet.r.core.model.IRElement;
@@ -134,7 +135,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 	
 	/**
 	 * Creates a new converting refactoring.
-	 * @param unit the source unit
+	 * @param su the source unit
 	 * @param region (selected) region of the function to convert
 	 */
 	public FunctionToS4MethodRefactoring(final IRSourceUnit su, final IRegion selection) {
@@ -306,7 +307,9 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 			createChanges(textFileChange, progress.newChild(1));
 			
 			final Map<String, String> arguments = new HashMap<String, String>();
-			final String description = NLS.bind(Messages.FunctionToS4Method_Descriptor_description, RRefactoringAdapter.getQuotedIdentifier(fFunctionName));
+			final String varName = RRefactoringAdapter.getUnquotedIdentifier(fFunctionName);
+			final String description = NLS.bind(Messages.FunctionToS4Method_Descriptor_description,
+					RUtil.formatVarName(varName) );
 			final IProject resource = fElementSet.getSingleProject();
 			final String project = (resource != null) ? resource.getName() : null;
 			final String source = (project != null) ? NLS.bind(RefactoringMessages.Common_Source_Project_label, project) : RefactoringMessages.Common_Source_Workspace_label;

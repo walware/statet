@@ -275,23 +275,50 @@
             description="%categorys.RSource.description">
       </context>
    </extension>
+   
+   <extension
+         point="org.eclipse.ui.handlers">
+      <!-- navigate -->
+      <handler
+            commandId="org.eclipse.jdt.ui.edit.text.java.open.editor"
+            class="de.walware.statet.r.ui.sourceediting.ROpenDeclarationHandler">
+         <activeWhen>
+            <with variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.R">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      
+      <!-- search -->
+      <handler
+            commandId="de.walware.ecommons.ltk.commands.SearchAllElementAccess"
+            class="de.walware.statet.r.ui.editors.RElementSearchHandler">
+         <activeWhen>
+            <with variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.R">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="de.walware.ecommons.ltk.commands.SearchWriteElementAccess"
+            class="de.walware.statet.r.ui.editors.RElementSearchHandler">
+         <activeWhen>
+            <with variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.R">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+   </extension>
+   
    <extension
          point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="popup:de.walware.statet.r.menus.REditorContextMenu?after=group.edit">
-         <command
-               commandId="de.walware.ecommons.ltk.commands.ToggleComment"
-               id="de.walware.ecommons.ltk.commands.ToggleComment"
-               mnemonic="%menus_REditorContext_ToggleComment_mnemonic"
-               style="push">
-         </command>
-         <command
-               commandId="de.walware.ecommons.ltk.commands.CorrectIndent"
-               id="de.walware.ecommons.ltk.commands.CorrectIndent"
-               mnemonic="%menus_REditorContext_CorrectIndent_mnemonic"
-               style="push">
-         </command>
-      </menuContribution>
+      <!-- source -->
       <menuContribution
             locationURI="menu:de.walware.statet.base.menus.MainStatSource?after=comment.add">
          <command
@@ -395,6 +422,8 @@
                visible="false">
          </separator>
       </menuContribution>
+      
+      <!-- navigate -->
       <menuContribution
             locationURI="menu:navigate?after=open.ext">
          <command
@@ -427,7 +456,87 @@
             </visibleWhen>
          </command>
       </menuContribution>
+      
+      <!-- search -->
+      <menuContribution
+            locationURI="menu:org.eclipse.search.menu?endof=contextMenuActionsGroup">
+         <menu
+               id="de.walware.statet.r.menus.RSearchAllAccess"
+               label="%menus_Search_AllAccess_name"
+               mnemonic="%menus_Search_AllAccess_mnemonic">
+            <dynamic
+                  id="de.walware.ecommons.ltk.commands.SearchAllElementAccess"
+                  class="de.walware.statet.r.ui.editors.RElementSearchContributionItem$All">
+            </dynamic>
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activePartId">
+                  <equals
+                        value="de.walware.statet.r.editors.R">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </menu>
+         <menu
+               id="de.walware.statet.r.menus.RSearchWriteAccess"
+               label="%menus_Search_WriteAccess_name"
+               mnemonic="%menus_Search_WriteAccess_mnemonic">
+            <dynamic
+                  id="de.walware.ecommons.ltk.commands.SearchWriteElementAccess"
+                  class="de.walware.statet.r.ui.editors.RElementSearchContributionItem$Write">
+            </dynamic>
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activePartId">
+                  <equals
+                        value="de.walware.statet.r.editors.R">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </menu>
+      </menuContribution>
+      
+      <!-- context -->
+      <menuContribution
+            locationURI="popup:de.walware.statet.r.menus.REditorContextMenu?after=group.edit">
+         <command
+               commandId="de.walware.ecommons.ltk.commands.ToggleComment"
+               id="de.walware.ecommons.ltk.commands.ToggleComment"
+               mnemonic="%menus_REditorContext_ToggleComment_mnemonic"
+               style="push">
+         </command>
+         <command
+               commandId="de.walware.ecommons.ltk.commands.CorrectIndent"
+               id="de.walware.ecommons.ltk.commands.CorrectIndent"
+               mnemonic="%menus_REditorContext_CorrectIndent_mnemonic"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="popup:de.walware.statet.r.menus.REditorContextMenu?endof=search">
+         <menu
+               id="de.walware.statet.r.menus.SearchAllAccess"
+               label="%menus_Search_AllAccess_name"
+               mnemonic="%menus_Search_AllAccess_mnemonic">
+            <dynamic
+                  id="de.walware.ecommons.ltk.commands.SearchAllElementAccess"
+                  class="de.walware.statet.r.ui.editors.RElementSearchContributionItem$All">
+            </dynamic>
+         </menu>
+         <menu
+               id="de.walware.statet.r.menus.SearchWriteAccess"
+               label="%menus_Search_WriteAccess_name"
+               mnemonic="%menus_Search_WriteAccess_mnemonic">
+            <dynamic
+                  id="de.walware.ecommons.ltk.commands.SearchWriteElementAccess"
+                  class="de.walware.statet.r.ui.editors.RElementSearchContributionItem$Write">
+            </dynamic>
+         </menu>
+      </menuContribution>
    </extension>
+   
    <extension
          point="org.eclipse.ui.popupMenus">
       <viewerContribution
@@ -466,17 +575,6 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            commandId="org.eclipse.jdt.ui.edit.text.java.open.editor"
-            class="de.walware.statet.r.ui.sourceediting.ROpenDeclarationHandler">
-         <activeWhen>
-            <with variable="activePartId">
-               <equals
-                     value="de.walware.statet.r.editors.R">
-               </equals>
-            </with>
-         </activeWhen>
-      </handler>
-      <handler
             commandId="org.eclipse.jdt.ui.edit.text.java.toggleMarkOccurrences"
             class="de.walware.statet.r.internal.ui.editors.RToggleMarkOccurrencesHandler">
          <activeWhen>
@@ -509,6 +607,7 @@
             </with>
          </activeWhen>
       </handler>
+      
       <handler
             class="de.walware.statet.r.internal.ui.editors.GenerateRoxygenElementComment"
             commandId="de.walware.ecommons.ltk.commands.GenerateElementComment">
@@ -877,6 +976,14 @@
             contentTypeId="de.walware.statet.r.contentTypes.Rd">
       </contentTypeBinding>
    </extension>
+   <extension
+         point="org.eclipse.search.searchResultViewPages">
+      <viewPage
+            id="de.walware.statet.r.searchResults.RElementViewPage"
+            searchResultClass="de.walware.statet.r.internal.ui.search.RElementSearchResult"
+            class="de.walware.statet.r.internal.ui.search.RElementSearchResultPage">
+      </viewPage>
+   </extension>
 
    <!-- R Help -->
    <extension
@@ -938,9 +1045,9 @@
    <extension
          point="org.eclipse.search.searchResultViewPages">
       <viewPage
-            class="de.walware.statet.r.internal.ui.rhelp.RHelpSearchResultPage"
-            id="de.walware.statet.r.searchResultView.RHelpResultPage"
-            searchResultClass="de.walware.statet.r.internal.ui.rhelp.RHelpSearchUIResult">
+            id="de.walware.statet.r.searchResults.RHelpViewPage"
+            searchResultClass="de.walware.statet.r.internal.ui.rhelp.RHelpSearchResult"
+            class="de.walware.statet.r.internal.ui.rhelp.RHelpSearchResultPage">
       </viewPage>
    </extension>
    <extension

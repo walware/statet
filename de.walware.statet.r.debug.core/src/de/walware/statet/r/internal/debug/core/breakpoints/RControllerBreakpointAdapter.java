@@ -143,7 +143,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 		}
 		
 		public IResource getResource() {
-			return resource;
+			return this.resource;
 		}
 		
 	}
@@ -170,7 +170,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 		
 		@Override
 		public boolean isInstalled() {
-			return (installed != null);
+			return (this.installed != null);
 		}
 		
 		@Override
@@ -190,17 +190,17 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 	
 	private boolean fInitialized;
 	
-	private final List<IRLineBreakpoint> fPositionUpdatesBreakpoints = new ArrayList<IRLineBreakpoint>();
-	private final List<UpdateData> fPositionUpdatesElements = new ArrayList<UpdateData>();
+	private final List<IRLineBreakpoint> fPositionUpdatesBreakpoints = new ArrayList<>();
+	private final List<UpdateData> fPositionUpdatesElements = new ArrayList<>();
 	private final Object fPositionUpdatesLock = fPositionUpdatesBreakpoints;
 	
-	private final List<IRLineBreakpoint> fStateUpdatesBreakpoints = new ArrayList<IRLineBreakpoint>();
-	private final Map<IResource, List<TracepointState>> fStateUpdatesMap = new HashMap<IResource, List<TracepointState>>();
+	private final List<IRLineBreakpoint> fStateUpdatesBreakpoints = new ArrayList<>();
+	private final Map<IResource, List<TracepointState>> fStateUpdatesMap = new HashMap<>();
 	private final Object fStateUpdatesLock = fStateUpdatesBreakpoints;
 	
 	private final IToolRunnable fUpdateRunnable = new ISystemRunnable() {
 		
-		private List<String> fKnownPackages = new ArrayList<String>();
+		private List<String> fKnownPackages = new ArrayList<>();
 		
 		@Override
 		public String getTypeId() {
@@ -269,7 +269,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 			try {
 				final List<? extends ICombinedREnvironment> environments = fController.getWorkspaceData().getRSearchEnvironments();
 				if (environments != null) {
-					final List<String> packages = new ArrayList<String>(environments.size() - 1);
+					final List<String> packages = new ArrayList<>(environments.size() - 1);
 					List<String> newPackages = null;
 					for (final ICombinedREnvironment environment : environments) {
 						if (environment.getSpecialType() == REnvironment.ENVTYPE_PACKAGE) {
@@ -277,7 +277,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 							packages.add(pkgName);
 							if (fKnownPackages != null && !fKnownPackages.contains(pkgName)) {
 								if (newPackages == null) {
-									newPackages = new ArrayList<String>(4);
+									newPackages = new ArrayList<>(4);
 								}
 								newPackages.add(pkgName);
 							}
@@ -290,7 +290,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 					
 					if (newPackages != null) {
 						final IBreakpoint[] breakpoints = fBreakpointManager.getBreakpoints(RDebugModel.IDENTIFIER);
-						final Map<IProject, IRProject> rProjects = new HashMap<>();
+						final Map<IProject, IRProject> rProjects = new HashMap<IProject, IRProject>();
 						for (int i = 0; i < breakpoints.length; i++) {
 							if (breakpoints[i] instanceof IRLineBreakpoint) {
 								final IRLineBreakpoint lineBreakpoint = (IRLineBreakpoint) breakpoints[i];
@@ -519,7 +519,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 						}
 					}
 					if (map != null) {
-						final ArrayList<Element> list = new ArrayList<Element>(map.size());
+						final ArrayList<Element> list = new ArrayList<>(map.size());
 						addElements(list, map, false);
 						if (!list.isEmpty()) {
 							return new ElementTracepointInstallationRequest(list);
@@ -583,7 +583,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 				}
 			}
 			if (map != null) {
-				final ArrayList<Element> list = new ArrayList<Element>(map.size());
+				final ArrayList<Element> list = new ArrayList<>(map.size());
 				addElements(list, map, false);
 				if (!list.isEmpty()) {
 					return new ElementTracepointInstallationRequest(list);
@@ -627,7 +627,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 			elementsToUpdate = fPositionUpdatesElements.toArray(new UpdateData[fPositionUpdatesElements.size()]);
 			fPositionUpdatesElements.clear();
 		}
-		final Map<IResource, Map<String, Element>> resourceMap = new HashMap<IResource, Map<String, Element>>();
+		final Map<IResource, Map<String, Element>> resourceMap = new HashMap<>();
 		// by resources
 		for (int i = 0; i < breakpointsToUpdate.length; i++) {
 			if (breakpointsToUpdate[i] instanceof IRLineBreakpoint) {
@@ -662,7 +662,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 			final UpdateData updateData = elementsToUpdate[i];
 			Map<String, Element> map = resourceMap.get(updateData.resource);
 			if (map == null) {
-				map = new HashMap<String, Element>();
+				map = new HashMap<>();
 				resourceMap.put(updateData.resource, map);
 			}
 			map.put(updateData.elementId, null);
@@ -744,7 +744,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 			n += map.size();
 		}
 		
-		final List<Element> list = new ArrayList<Element>(n);
+		final List<Element> list = new ArrayList<>(n);
 		for (final Entry<IResource, Map<String, Element>> resourceEntry : resourceMap.entrySet()) {
 			addElements(list, resourceEntry.getValue(), true);
 		}
@@ -816,14 +816,14 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 					if (oldData != null && oldData.installed != null
 							&& oldData.installed.getElementId().equals(current.getElementId())) {
 						if (cleanup == null) {
-							cleanup = new ArrayList<Element>(l-i);
+							cleanup = new ArrayList<>(l-i);
 						}
 						if (!contains(cleanup, oldData.installed)) {
 							cleanup.add(oldData.installed);
 						}
 					}
 					if (updated == null) {
-						updated = new ArrayList<IRLineBreakpoint>(l-i);
+						updated = new ArrayList<>(l-i);
 						updated.add(lineBreakpoint);
 					}
 				}
@@ -1127,7 +1127,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 				}
 				List<TracepointState> list = fStateUpdatesMap.get(marker.getResource());
 				if (list == null) {
-					list = new ArrayList<TracepointState>(8);
+					list = new ArrayList<>(8);
 					fStateUpdatesMap.put(marker.getResource(), list);
 				}
 				for (int i = 0; i < list.size(); i++) {
@@ -1145,7 +1145,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 		}
 		fStateUpdatesBreakpoints.clear();
 		
-		final List<TracepointState> list = new ArrayList<TracepointState>();
+		final List<TracepointState> list = new ArrayList<>();
 		for (final Iterator<List<TracepointState>> iter = fStateUpdatesMap.values().iterator();
 				iter.hasNext(); ) {
 			final TracepointState[] states;

@@ -56,7 +56,7 @@ public class RCore {
 		return RCorePlugin.getDefault().getRModelManager();
 	}
 	
-	public static IRPkgManager getRPkgManager(IREnv env) {
+	public static IRPkgManager getRPkgManager(final IREnv env) {
 		return RCorePlugin.getDefault().getREnvPkgManager().getManager(env);
 	}
 	

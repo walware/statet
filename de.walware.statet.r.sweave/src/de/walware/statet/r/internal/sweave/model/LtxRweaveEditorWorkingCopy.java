@@ -13,13 +13,11 @@ package de.walware.statet.r.internal.sweave.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
-import de.walware.ecommons.ltk.ui.GenericEditorWorkspaceSourceUnitWorkingCopy;
+import de.walware.ecommons.ltk.ui.GenericEditorWorkspaceSourceUnitWorkingCopy2;
 
-import de.walware.docmlet.tex.core.model.LtxSuModelContainer;
-import de.walware.docmlet.tex.core.model.TexModel;
+import de.walware.docmlet.tex.core.model.ILtxWorkspaceSourceUnit;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
@@ -27,24 +25,26 @@ import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.sweave.ILtxRweaveSourceUnit;
 import de.walware.statet.r.sweave.ITexRweaveCoreAccess;
-import de.walware.statet.r.sweave.Sweave;
 
 
-public class LtxRweaveEditorWorkingCopy extends GenericEditorWorkspaceSourceUnitWorkingCopy
-		implements ILtxRweaveSourceUnit, IRWorkspaceSourceUnit {
-	
-	
-	private final LtxRweaveSuModelContainer fModel = new LtxRweaveSuModelContainer(this);
+public class LtxRweaveEditorWorkingCopy
+		extends GenericEditorWorkspaceSourceUnitWorkingCopy2<LtxRweaveSuModelContainer>
+		implements ILtxRweaveSourceUnit, ILtxWorkspaceSourceUnit, IRWorkspaceSourceUnit {
 	
 	
 	public LtxRweaveEditorWorkingCopy(final IRWorkspaceSourceUnit from) {
 		super(from);
 	}
 	
+	@Override
+	protected LtxRweaveSuModelContainer createModelContainer() {
+		return new LtxRweaveSuModelContainer(this);
+	}
+	
 	
 	@Override
 	public ITexRweaveCoreAccess getRCoreAccess() {
-		return ((ILtxRweaveSourceUnit) fFrom).getRCoreAccess();
+		return ((ILtxRweaveSourceUnit) getUnderlyingUnit()).getRCoreAccess();
 	}
 	
 	@Override
@@ -54,14 +54,14 @@ public class LtxRweaveEditorWorkingCopy extends GenericEditorWorkspaceSourceUnit
 	
 	@Override
 	public ITexRweaveCoreAccess getTexCoreAccess() {
-		return ((ILtxRweaveSourceUnit) fFrom).getTexCoreAccess();
+		return ((ILtxRweaveSourceUnit) getUnderlyingUnit()).getTexCoreAccess();
 	}
 	
 	
 	@Override
 	protected void register() {
 		super.register();
-		final IModelManager rManager = RCore.getRModelManager();
+		final IModelManager rManager= RCore.getRModelManager();
 		if (rManager != null) {
 			rManager.deregisterDependentUnit(this);
 		}
@@ -69,7 +69,7 @@ public class LtxRweaveEditorWorkingCopy extends GenericEditorWorkspaceSourceUnit
 	
 	@Override
 	protected void unregister() {
-		final IModelManager rManager = RCore.getRModelManager();
+		final IModelManager rManager= RCore.getRModelManager();
 		if (rManager != null) {
 			rManager.deregisterDependentUnit(this);
 		}
@@ -78,33 +78,11 @@ public class LtxRweaveEditorWorkingCopy extends GenericEditorWorkspaceSourceUnit
 	
 	
 	@Override
-	public AstInfo getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
-		if (type == null || type == TexModel.LTX_TYPE_ID || type == Sweave.LTX_R_MODEL_TYPE_ID) {
-			return fModel.getAstInfo(ensureSync, monitor);
-		}
-		if (type == RModel.TYPE_ID) {
-			return null;
-		}
-		return null;
-	}
-	
-	@Override
 	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
-		if (type == null || type == TexModel.LTX_TYPE_ID || type == Sweave.LTX_R_MODEL_TYPE_ID) {
-			return fModel.getModelInfo(syncLevel, monitor);
-		}
 		if (type == RModel.TYPE_ID) {
-			return fModel.getRModelInfo(syncLevel, monitor);
+			return getModelContainer().getRModelInfo(syncLevel, monitor);
 		}
-		return null;
-	}
-	
-	@Override
-	public Object getAdapter(final Class required) {
-		if (LtxSuModelContainer.class.equals(required)) {
-			return fModel;
-		}
-		return super.getAdapter(required);
+		return super.getModelInfo(type, syncLevel, monitor);
 	}
 	
 	@Override

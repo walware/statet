@@ -17,6 +17,14 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	
 	
+	public static String SearchScope_Workspace_label;
+	public static String SearchScope_CurrentAndReferencingProjects_label;
+	public static String SearchScope_CurrentProject_label;
+	public static String SearchScope_CurrentFile_label;
+	public static String SearchScope_LocalFrame_label;
+	
+	public static String SearchProcessor_label;
+	
 	public static String RenameInWorkspace_label;
 	public static String RenameInWorkspace_Descriptor_description;
 	public static String RenameInWorkspace_error_InvalidSelection_message;

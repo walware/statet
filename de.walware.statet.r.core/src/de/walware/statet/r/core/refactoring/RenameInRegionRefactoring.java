@@ -13,10 +13,8 @@ package de.walware.statet.r.core.refactoring;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +47,7 @@ import de.walware.ecommons.ltk.core.refactoring.SourceUnitChange;
 import de.walware.ecommons.ltk.core.refactoring.TextChangeCompatibility;
 
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
 import de.walware.statet.r.core.model.IRModelInfo;
@@ -181,7 +180,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 	
 	/**
 	 * Creates a new rename refactoring.
-	 * @param unit the source unit
+	 * @param su the source unit
 	 * @param region (selected) region
 	 */
 	public RenameInRegionRefactoring(final IRSourceUnit su, final IRegion region) {
@@ -321,7 +320,8 @@ public class RenameInRegionRefactoring extends Refactoring {
 			final List<String> variableNames = createChanges(textFileChange, progress.newChild(1));
 			
 			final Map<String, String> arguments = new HashMap<String, String>();
-			final String description = NLS.bind(Messages.RenameInRegion_Descriptor_description, toCommaSeparatedListing(variableNames));
+			final String description = NLS.bind(Messages.RenameInRegion_Descriptor_description,
+					RUtil.formatVarNames(variableNames));
 			final IProject resource = fElementSet.getSingleProject();
 			final String project = (resource != null) ? resource.getName() : null;
 			final String source = (project != null) ? NLS.bind(RefactoringMessages.Common_Source_Project_label, project) : RefactoringMessages.Common_Source_Workspace_label;
@@ -363,15 +363,14 @@ public class RenameInRegionRefactoring extends Refactoring {
 			final TextFileChange change, final List<String> names) {
 		for (final Variable variable : frameList.values()) {
 			if (variable.fNewName != null) {
-				final RElementName oldName = RElementName.create(RElementName.MAIN_DEFAULT,
-						RRefactoringAdapter.getUnquotedIdentifier(variable.fName) );
-				final String oldDisplay = oldName.getDisplayName();
+				final String oldName= RRefactoringAdapter.getUnquotedIdentifier(variable.fName);
+				final String oldMsgName= RUtil.formatVarName(oldName);
 				final boolean isQuoted = (variable.fNewName.charAt(0) == '`');
 				final GroupCategorySet set = new GroupCategorySet(new GroupCategory(
 						((IRFrameInSource) variable.getParent()).getFrameId() + '$' + variable.fName,
-						NLS.bind(Messages.RenameInRegion_Changes_VariableGroup_name, oldDisplay), "")); //$NON-NLS-1$
+						NLS.bind(Messages.RenameInRegion_Changes_VariableGroup_name, oldMsgName), "")); //$NON-NLS-1$
 				final String message = NLS.bind(Messages.RenameInRegion_Changes_ReplaceOccurrence_name,
-						oldDisplay);
+						oldMsgName);
 				
 				for (final RElementAccess access : variable.fAccessList) {
 					final RAstNode nameNode = access.getNameNode();
@@ -385,7 +384,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 							new ReplaceEdit(nameRegion.getOffset(), nameRegion.getLength(), text), set);
 					
 				}
-				names.add(oldDisplay);
+				names.add(oldName);
 			}
 			if (!variable.fSubVariables.isEmpty()) {
 				createSubChanges(variable, change, names);
@@ -394,19 +393,18 @@ public class RenameInRegionRefactoring extends Refactoring {
 	}
 	
 	private void createSubChanges(final Variable parent, final TextFileChange change, final List<String> names) {
-		final String parentDisplay = RElementName.create(RElementName.MAIN_DEFAULT,
-				RRefactoringAdapter.getUnquotedIdentifier(parent.fName) ).getDisplayName() ;
+		final String parentMsgName= RUtil.formatVarName(
+				RRefactoringAdapter.getUnquotedIdentifier(parent.fName) );
 		for (final Variable variable : parent.fSubVariables.values()) {
 			if (variable.fNewName != null) {
-				final RElementName oldName = RElementName.create(RElementName.MAIN_DEFAULT,
-						RRefactoringAdapter.getUnquotedIdentifier(variable.fName) );
-				final String oldDisplay = oldName.getDisplayName();
+				final String oldName= RRefactoringAdapter.getUnquotedIdentifier(variable.fName);
+				final String oldMsgName= RUtil.formatVarName(oldName);
 				final boolean isQuoted = (variable.fNewName.charAt(0) == '`');
 				final GroupCategorySet set = new GroupCategorySet(new GroupCategory(
 						((IRFrameInSource) parent.getParent()).getFrameId() + '$' + parent.fName,
-						NLS.bind(Messages.RenameInRegion_Changes_VariableGroup_name, parentDisplay), "")); //$NON-NLS-1$
+						NLS.bind(Messages.RenameInRegion_Changes_VariableGroup_name, parentMsgName), "")); //$NON-NLS-1$
 				final String message = NLS.bind(Messages.RenameInRegion_Changes_ReplaceOccurrenceOf_name,
-						oldDisplay, parentDisplay );
+						oldMsgName, parentMsgName );
 				
 				for (final RElementAccess access : variable.fAccessList) {
 					final RAstNode nameNode = access.getNameNode();
@@ -419,24 +417,9 @@ public class RenameInRegionRefactoring extends Refactoring {
 					TextChangeCompatibility.addTextEdit(change, message,
 							new ReplaceEdit(nameRegion.getOffset(), nameRegion.getLength(), text), set);
 				}
-				names.add(oldDisplay);
+				names.add(oldName);
 			}
 		}
-	}
-	
-	
-	public static String toCommaSeparatedListing(final Collection<String> strings) {
-		if (strings.size() == 0) {
-			return ""; //$NON-NLS-1$
-		}
-		final StringBuilder sb = new StringBuilder();
-		final Iterator<String> iterator = strings.iterator();
-		sb.append(iterator.next());
-		while (iterator.hasNext()) {
-			sb.append(", "); //$NON-NLS-1$
-			sb.append(iterator.next());
-		}
-		return sb.toString();
 	}
 	
 }

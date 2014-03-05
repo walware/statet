@@ -300,7 +300,7 @@ public class LtxRweaveEditor extends SourceEditor1 implements ILtxRweaveEditor {
 			handlerService.activateHandler(LTKUI.INSERT_ASSIGNMENT_COMMAND_ID, handler);
 			markAsStateDependentHandler(handler, true);
 		}
-		{	final IHandler2 handler = new LtxRweaveForwardHandler(this, null,
+		{	final IHandler2 handler = new ForwardHandler(this, null,
 					new SpecificContentAssistHandler(this,
 							RUIPlugin.getDefault().getREditorContentAssistRegistry() ));
 			handlerService.activateHandler(ISourceEditorCommandIds.SPECIFIC_CONTENT_ASSIST_COMMAND_ID, handler);

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -140,6 +141,15 @@ public class CompositeFrame implements IRFrame {
 	
 	public RUnitElement removeModelElement(final String suId) {
 		return fModelElements.remove(suId);
+	}
+	
+	public void removeModelElements(final String modelTypeId) {
+		for (final Iterator<RUnitElement> iter= fModelElements.values().iterator(); iter.hasNext(); ) {
+			final RUnitElement unitElement= iter.next();
+			if (unitElement.getModelTypeId() == modelTypeId) {
+				iter.remove();
+			}
+		}
 	}
 	
 }

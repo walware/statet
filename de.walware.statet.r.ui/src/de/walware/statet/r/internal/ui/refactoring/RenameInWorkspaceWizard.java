@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.internal.ui.refactoring;
 
-import java.util.EnumSet;
+import java.util.List;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
@@ -42,9 +42,9 @@ import org.eclipse.swt.widgets.Text;
 import de.walware.ecommons.ltk.ui.refactoring.RefactoringBasedStatus;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
+import de.walware.statet.r.core.refactoring.RElementSearchProcessor.Mode;
 import de.walware.statet.r.core.refactoring.RRefactoringAdapter;
 import de.walware.statet.r.core.refactoring.RenameInWorkspaceRefactoring;
-import de.walware.statet.r.core.refactoring.RenameInWorkspaceRefactoring.Mode;
 
 
 public class RenameInWorkspaceWizard extends RefactoringWizard {
@@ -98,62 +98,62 @@ public class RenameInWorkspaceWizard extends RefactoringWizard {
 			{	final Group group = new Group(composite, SWT.NONE);
 				group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
 				group.setText("Scope:");
-				group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 1));
+				group.setLayout(LayoutUtil.createGroupGrid(1));
 				
-				final EnumSet<Mode> modes = refactoring.getAvailableModes();
-				if (modes.contains(Mode.COMPLETE)) {
+				final List<Mode> modes = refactoring.getAvailableModes();
+				if (modes.contains(Mode.WORKSPACE)) {
 					final Button button = new Button(group, SWT.RADIO);
 					button.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-					button.setText("C&omplete project tree.");
+					button.setText("&Workspace (complete project tree)");
 					button.addSelectionListener(new SelectionAdapter() {
 						@Override
 						public void widgetSelected(final SelectionEvent e) {
-							getRefactoring().setMode(Mode.COMPLETE);
+							getRefactoring().setMode(Mode.WORKSPACE);
 						}
 					});
-					if (refactoring.getMode() == Mode.COMPLETE) {
+					if (refactoring.getMode() == Mode.WORKSPACE) {
 						button.setSelection(true);
 					}
 				}
-				if (modes.contains(Mode.CURRENT_AND_REFERENCING)) {
+				if (modes.contains(Mode.CURRENT_AND_REFERENCING_PROJECTS)) {
 					final Button button = new Button(group, SWT.RADIO);
 					button.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-					button.setText("Current and &referencing projects.");
+					button.setText("Current and &referencing projects");
 					button.addSelectionListener(new SelectionAdapter() {
 						@Override
 						public void widgetSelected(final SelectionEvent e) {
-							getRefactoring().setMode(Mode.CURRENT_AND_REFERENCING);
+							getRefactoring().setMode(Mode.CURRENT_AND_REFERENCING_PROJECTS);
 						}
 					});
-					if (refactoring.getMode() == Mode.CURRENT_AND_REFERENCING) {
+					if (refactoring.getMode() == Mode.CURRENT_AND_REFERENCING_PROJECTS) {
 						button.setSelection(true);
 					}
 				}
-				if (modes.contains(Mode.CURRENT)) {
+				if (modes.contains(Mode.CURRENT_PROJECT)) {
 					final Button button = new Button(group, SWT.RADIO);
 					button.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-					button.setText("C&urrent project.");
+					button.setText("C&urrent project");
 					button.addSelectionListener(new SelectionAdapter() {
 						@Override
 						public void widgetSelected(final SelectionEvent e) {
-							getRefactoring().setMode(Mode.CURRENT);
+							getRefactoring().setMode(Mode.CURRENT_PROJECT);
 						}
 					});
-					if (refactoring.getMode() == Mode.CURRENT) {
+					if (refactoring.getMode() == Mode.CURRENT_PROJECT) {
 						button.setSelection(true);
 					}
 				}
-				if (modes.contains(Mode.LOCAL)) {
+				if (modes.contains(Mode.LOCAL_FRAME)) {
 					final Button button = new Button(group, SWT.RADIO);
 					button.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 					button.setText("&Local frame.");
 					button.addSelectionListener(new SelectionAdapter() {
 						@Override
 						public void widgetSelected(final SelectionEvent e) {
-							getRefactoring().setMode(Mode.LOCAL);
+							getRefactoring().setMode(Mode.LOCAL_FRAME);
 						}
 					});
-					if (refactoring.getMode() == Mode.LOCAL) {
+					if (refactoring.getMode() == Mode.LOCAL_FRAME) {
 						button.setSelection(true);
 					}
 				}

@@ -136,7 +136,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 			fCurrentUnit = su;
 			fCurrentText = content.getText();
 			fCurrentLines = content.getLines();
-//			fCurrentDoc = unit.getDocument(null);
+//			fCurrentDoc = su.getDocument(null);
 //			fMaxOffset = fCurrentDoc.getLength();
 			fCurrentRequestor = problemRequestor;
 			node.acceptInR(this);

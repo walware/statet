@@ -24,7 +24,7 @@ import org.eclipse.debug.ui.sourcelookup.AbstractSourceContainerBrowser;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.widgets.Shell;
 
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.debug.core.sourcelookup.RProjectSourceContainer;
 import de.walware.statet.r.internal.debug.ui.ProjectSelectionDialog;
 
@@ -73,7 +73,7 @@ public class RProjectSourceContainerBrowser extends AbstractSourceContainerBrows
 		final List<IProject> collected = new ArrayList<IProject>();
 		for (final IProject project : projects) {
 			try {
-				if (project.hasNature(RProject.NATURE_ID)) {
+				if (project.hasNature(RProjects.R_NATURE_ID)) {
 					collected.add(project);
 				}
 			}

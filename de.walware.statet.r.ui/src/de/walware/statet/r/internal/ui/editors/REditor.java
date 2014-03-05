@@ -269,6 +269,8 @@ public class REditor extends SourceEditor1 implements IREditor {
 		super.editorContextMenuAboutToShow(m);
 		final IRSourceUnit su = getSourceUnit();
 		
+		m.insertBefore(SharedUIResources.ADDITIONS_MENU_ID, new Separator("search")); //$NON-NLS-1$
+		
 		m.insertBefore(SharedUIResources.ADDITIONS_MENU_ID, new Separator(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID));
 		final IContributionItem additions = m.find(SharedUIResources.ADDITIONS_MENU_ID);
 		if (additions != null) {

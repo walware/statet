@@ -40,24 +40,24 @@ import de.walware.statet.r.core.renv.IREnv;
 public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSourceUnit {
 	
 	
-	private final RConsole fRConsole;
+	private final RConsole rConsole;
 	
-	private final RSuModelContainer fModel = new RSuModelContainer(this) {
+	private final RSuModelContainer model = new RSuModelContainer(this) {
 		
 		@Override
 		public SourceContent getParseContent(final IProgressMonitor monitor) {
 			Object lock = null;
-			if (fDocument instanceof ISynchronizable) {
-				lock = ((ISynchronizable) fDocument).getLockObject();
+			if (RConsoleSourceUnit.this.fDocument instanceof ISynchronizable) {
+				lock = ((ISynchronizable) RConsoleSourceUnit.this.fDocument).getLockObject();
 			}
 			if (lock == null) {
 				lock = new Object();
 			}
 			synchronized (lock) {
 				return new SpecialParseContent(
-						fDocument.getModificationStamp(),
-						fDocument.getMasterDocument().get(),
-						-fDocument.getOffsetInMasterDocument() );
+						RConsoleSourceUnit.this.fDocument.getModificationStamp(),
+						RConsoleSourceUnit.this.fDocument.getMasterDocument().get(),
+						-RConsoleSourceUnit.this.fDocument.getOffsetInMasterDocument() );
 			}
 		}
 	};
@@ -65,7 +65,7 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSo
 	
 	public RConsoleSourceUnit(final RConsolePage page, final InputDocument document) {
 		super(page.toString(), document);
-		fRConsole = page.getConsole();
+		this.rConsole = page.getConsole();
 	}
 	
 	
@@ -82,22 +82,24 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSo
 	
 	@Override
 	public void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
-		RCore.getRModelManager().reconcile(fModel, (reconcileLevel | IModelManager.RECONCILER),
+		RCore.getRModelManager().reconcile(this.model, (reconcileLevel | IModelManager.RECONCILER),
 				monitor );
 	}
 	
 	@Override
-	public AstInfo getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
-		if (type == null || type.equals(RModel.TYPE_ID)) {
-			return fModel.getAstInfo(ensureSync, monitor);
+	public AstInfo getAstInfo(final String type, final boolean ensureSync,
+			final IProgressMonitor monitor) {
+		if (type == null || this.model.isContainerFor(type)) {
+			return this.model.getAstInfo(ensureSync, monitor);
 		}
 		return null;
 	}
 	
 	@Override
-	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
-		if (type == null || type.equals(RModel.TYPE_ID)) {
-			return fModel.getModelInfo(syncLevel, monitor);
+	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel,
+			final IProgressMonitor monitor) {
+		if (type == null || this.model.isContainerFor(type)) {
+			return this.model.getModelInfo(syncLevel, monitor);
 		}
 		return null;
 	}
@@ -109,12 +111,12 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSo
 	
 	@Override
 	public IRCoreAccess getRCoreAccess() {
-		return fRConsole;
+		return this.rConsole;
 	}
 	
 	@Override
 	public IREnv getREnv() {
-		final IREnv rEnv = (IREnv) fRConsole.getProcess().getAdapter(IREnv.class);
+		final IREnv rEnv = (IREnv) this.rConsole.getProcess().getAdapter(IREnv.class);
 		return (rEnv != null) ? rEnv : RCore.getREnvManager().getDefault();
 	}
 	
@@ -127,6 +129,5 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSo
 	public List<? extends IModelElement> getModelChildren(final Filter filter) {
 		return null;
 	}
-	
 	
 }

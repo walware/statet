@@ -87,7 +87,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 				throw new OperationCanceledException();
 			}
 			
-			fModelManager.getIndex().update(project.getProject(), fRemovedRSU, fToUpdateRSU, fStatusCollector, progress);
+			fModelManager.getIndex().update(project, fRemovedRSU, fToUpdateRSU, fStatusCollector, progress);
 		}
 		catch (final CoreException e) {
 			fStatusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
@@ -114,7 +114,6 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 			case IResourceDelta.ADDED:
 			case IResourceDelta.CHANGED:
 				if (resource instanceof IFile) {
-					clearMarkers(resource);
 					final IFile file = (IFile) resource;
 					final IContentDescription contentDescription = file.getContentDescription();
 					if (contentDescription == null) {
@@ -125,11 +124,13 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 						return true;
 					}
 					if (IRSourceUnit.R_CONTENT.equals(contentType.getId())) {
-						final IRWorkspaceSourceUnit unit = (IRWorkspaceSourceUnit) LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, file, true, null);
-						fToUpdateRSU.add(unit);
+						clearMarkers(resource);
+						final IRWorkspaceSourceUnit su = (IRWorkspaceSourceUnit) LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, file, true, null);
+						fToUpdateRSU.add(su);
 						return true;
 					}
 					if (IRSourceUnit.RD_CONTENT.equals(contentType.getId())) {
+						clearMarkers(resource);
 						doParseRd(file);
 						return true;
 					}
@@ -167,7 +168,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 				throw new OperationCanceledException();
 			}
 			
-			fModelManager.getIndex().update(project.getProject(), null, fToUpdateRSU, fStatusCollector, progress);
+			fModelManager.getIndex().update(project, null, fToUpdateRSU, fStatusCollector, progress);
 		}
 		catch (final CoreException e) {
 			fStatusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
@@ -187,7 +188,6 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 	
 	@Override
 	public boolean visit(final IResource resource) throws CoreException {
-		clearMarkers(resource);
 		try {
 			if (resource instanceof IFile) {
 				final IFile file = (IFile) resource;
@@ -200,13 +200,15 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 					return true;
 				}
 				if (IRSourceUnit.R_CONTENT.equals(contentType.getId())) {
-					final IRWorkspaceSourceUnit unit = (IRWorkspaceSourceUnit) LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, file, true, null);
-					if (unit != null) {
-						fToUpdateRSU.add(unit);
+					clearMarkers(resource);
+					final IRWorkspaceSourceUnit su = (IRWorkspaceSourceUnit) LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, file, true, null);
+					if (su != null) {
+						fToUpdateRSU.add(su);
 					}
 					return true;
 				}
 				if (IRSourceUnit.RD_CONTENT.equals(contentType.getId())) {
+					clearMarkers(resource);
 					doParseRd(file);
 					return true;
 				}

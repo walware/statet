@@ -20,15 +20,24 @@ import de.walware.statet.r.core.RCore;
 public class RSuModelContainer extends SourceUnitModelContainer<IRSourceUnit, IRModelInfo> {
 	
 	
-	public RSuModelContainer(final IRSourceUnit su) {
-		super(su);
+	public RSuModelContainer(final IRSourceUnit sourceUnit) {
+		super(sourceUnit);
 	}
 	
+	
+	@Override
+	public boolean isContainerFor(final String modelTypeId) {
+		return (modelTypeId == RModel.TYPE_ID);
+	}
+	
+	@Override
+	public Class<?> getAdapterClass() {
+		return RSuModelContainer.class;
+	}
 	
 	@Override
 	protected IModelManager getModelManager() {
 		return RCore.getRModelManager();
 	}
-	
 	
 }

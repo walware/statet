@@ -11,11 +11,7 @@
 
 package de.walware.statet.r.internal.core.builder;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -30,12 +26,7 @@ import de.walware.ecommons.text.ILineInformation;
 
 import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.model.IRClass;
-import de.walware.statet.r.core.model.IRElement;
-import de.walware.statet.r.core.model.IRFrame;
-import de.walware.statet.r.core.model.IRFrameInSource;
-import de.walware.statet.r.core.model.IRLangElement;
-import de.walware.statet.r.core.model.IRMethod;
+import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.model.RSuModelContainer;
@@ -49,19 +40,6 @@ public class RBuildReconciler extends RReconciler {
 	
 	
 	private final RTaskMarkerHandler taskScanner;
-	public static class Result {
-		
-		public final RUnitElement exportedElement;
-		public final Set<String> defaultNames;
-		
-		public Result(final RUnitElement root, final Set<String> defaultNames) {
-			this.exportedElement = root;
-			this.defaultNames = defaultNames;
-		}
-		
-	}
-	
-	
 	
 	private MultiStatus statusCollector;
 	
@@ -81,13 +59,13 @@ public class RBuildReconciler extends RReconciler {
 	/** for file build 
 	 * @throws CoreException
 	 **/
-	public Result build(final RSuModelContainer adapter, final IProgressMonitor monitor) {
+	public IRModelInfo build(final RSuModelContainer adapter, final IProgressMonitor monitor) {
 		final IRSourceUnit su= adapter.getSourceUnit();
 		final int type= (su.getModelTypeId().equals(RModel.TYPE_ID) ? su.getElementType() : 0);
 		if (type == 0) {
 			return null;
 		}
-		if (this.fStop || monitor.isCanceled()) {
+		if (this.stop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
 		
@@ -96,19 +74,19 @@ public class RBuildReconciler extends RReconciler {
 			return null;
 		}
 		
-		if (this.fStop || monitor.isCanceled()) {
+		if (this.stop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
 		
 		updateAst(data, monitor);
 		
-		if (this.fStop || monitor.isCanceled()) {
+		if (this.stop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
 		
 		updateModel(data);
 		
-		if (this.fStop || monitor.isCanceled()) {
+		if (this.stop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
 		
@@ -134,48 +112,10 @@ public class RBuildReconciler extends RReconciler {
 //			problemRequestor.endReportingSequence();
 //		}
 		
-		if (this.fStop || monitor.isCanceled()) {
+		if (this.stop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
-		return createResult(data);
-	}
-	
-	private Result createResult(final Data data) {
-		if (data.newModel == null) {
-			return null;
-		}
-		
-		final IRFrameInSource topFrame = data.newModel.getTopFrame();
-		final List<? extends IRLangElement> children = topFrame.getModelChildren(null);
-		if (children == null) {
-			return null;
-		}
-		final ArrayList<IRLangElement> exports = new ArrayList<IRLangElement>(children.size());
-		final RUnitElement root = new RUnitElement(data.adapter.getSourceUnit(), exports);
-		for (final IRLangElement element : children) {
-			final int type = element.getElementType();
-			switch (type & IRElement.MASK_C1) {
-			case IRElement.C1_METHOD:
-				exports.add(new ExportedRMethod(root, (IRMethod) element));
-				break;
-			case IRElement.C1_CLASS:
-				exports.add(new ExportedRClass(root, (IRClass) element));
-				break;
-			case IRElement.C1_VARIABLE:
-				exports.add(new ExportedRElement(root, element));
-				break;
-			default:
-				continue;
-			}
-		}
-		final Set<String> names = new HashSet<String>();
-		names.addAll(data.newModel.getTopFrame().getAllAccessNames());
-		final Map<String, ? extends IRFrame> frames = data.newModel.getReferencedFrames();
-		for (final IRFrame frame : frames.values()) {
-			names.addAll(((IRFrameInSource) frame).getAllAccessNames());
-		}
-		
-		return new Result(root, names);
+		return data.newModel;
 	}
 	
 }

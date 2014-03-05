@@ -13,10 +13,8 @@ package de.walware.statet.r.internal.ui;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelManager;
-import de.walware.ecommons.ltk.ISourceUnitModelInfo;
-import de.walware.ecommons.ltk.ui.GenericEditorWorkspaceSourceUnitWorkingCopy;
+import de.walware.ecommons.ltk.ui.GenericEditorWorkspaceSourceUnitWorkingCopy2;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
@@ -30,21 +28,25 @@ import de.walware.statet.r.core.renv.IREnv;
 /**
  * R source unit working copy which can be processed by the model manager.
  */
-public class REditorWorkingCopy extends GenericEditorWorkspaceSourceUnitWorkingCopy
+public class REditorWorkingCopy
+		extends GenericEditorWorkspaceSourceUnitWorkingCopy2<RSuModelContainer>
 		implements IRWorkspaceSourceUnit {
-	
-	
-	private final RSuModelContainer fModel = new RUISuModelContainer(this);
 	
 	
 	public REditorWorkingCopy(final IRWorkspaceSourceUnit from) {
 		super(from);
 	}
 	
+	@Override
+	protected RSuModelContainer createModelContainer() {
+		return new RSuModelContainer(this);
+	}
+	
 	
 	@Override
 	protected final void register() {
 		super.register();
+		
 		if (!getModelTypeId().equals(RModel.TYPE_ID)) {
 			RCore.getRModelManager().registerDependentUnit(this);
 		}
@@ -53,6 +55,7 @@ public class REditorWorkingCopy extends GenericEditorWorkspaceSourceUnitWorkingC
 	@Override
 	protected final void unregister() {
 		super.unregister();
+		
 		if (!getModelTypeId().equals(RModel.TYPE_ID)) {
 			RCore.getRModelManager().deregisterDependentUnit(this);
 		}
@@ -60,43 +63,18 @@ public class REditorWorkingCopy extends GenericEditorWorkspaceSourceUnitWorkingC
 	
 	@Override
 	public IRCoreAccess getRCoreAccess() {
-		return ((IRSourceUnit) fFrom).getRCoreAccess();
+		return ((IRSourceUnit) getUnderlyingUnit()).getRCoreAccess();
 	}
 	
 	@Override
 	public IREnv getREnv() {
-		return ((IRSourceUnit) fFrom).getREnv();
+		return ((IRSourceUnit) getUnderlyingUnit()).getREnv();
 	}
 	
 	@Override
 	public void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
-		RCore.getRModelManager().reconcile(fModel, (reconcileLevel | IModelManager.RECONCILER),
-				monitor );
-	}
-	
-	@Override
-	public AstInfo getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
-		if (type == null || type.equals(RModel.TYPE_ID)) {
-			return fModel.getAstInfo(ensureSync, monitor);
-		}
-		return null;
-	}
-	
-	@Override
-	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
-		if (type == null || type.equals(RModel.TYPE_ID)) {
-			return fModel.getModelInfo(syncLevel, monitor);
-		}
-		return null;
-	}
-	
-	
-	@Override
-	public Object getAdapter(final Class required) {
-		if (RSuModelContainer.class.equals(required)) {
-			return fModel;
-		}
-		return super.getAdapter(required);
+		RCore.getRModelManager().reconcile(getModelContainer(),
+				(reconcileLevel | IModelManager.RECONCILER), monitor );
 	}
 	
 }
