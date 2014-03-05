@@ -93,134 +93,143 @@ public class LtxRweaveSuModelContainer extends LtxSuModelContainer<ILtxRweaveSou
 			for (final Embedded texNode : list) {
 				if (texNode.getText() == RModel.TYPE_ID) {
 					final RChunkNode rChunk= new RChunkNode(texNode);
-					rChunk.fStartOffset= texNode.getOffset();
-					rChunk.fStopOffset= texNode.getStopOffset();
+					rChunk.startOffset= texNode.getOffset();
+					rChunk.stopOffset= texNode.getStopOffset();
 					texNode.setForeignNode(rChunk);
 					
-					input.init(texNode.getOffset(), texNode.getStopOffset());
-					int num= 0;
 					final IRegion startRegion;
-					if (input.get(num+1) == '<' && input.get(num+2) == '<') {
-						input.consume(2);
-						SEARCH_START: while (true) {
-							final int c= input.get(++num);
-							switch (c) {
-							case SourceParseInput.EOF:
-							case '\r':
-							case '\n':
-								num--;
-								break SEARCH_START;
-							case '>':
-								switch (input.get(num+1)) {
-								case '>':
-								case '\n':
+					final List<IRegion> rCode= new ArrayList<>(4);
+					
+					if (texNode.isInline()) {
+						startRegion= null;
+						rCode.add(new Region(texNode.getOffset(), texNode.getLength()));
+					}
+					else { // chunk
+						input.init(texNode.getOffset(), texNode.getStopOffset());
+						int num= 0;
+						if (input.get(num+1) == '<' && input.get(num+2) == '<') {
+							input.consume(2);
+							SEARCH_START: while (true) {
+								final int c= input.get(++num);
+								switch (c) {
+								case SourceParseInput.EOF:
 								case '\r':
+								case '\n':
 									num--;
 									break SEARCH_START;
+								case '>':
+									switch (input.get(num+1)) {
+									case '>':
+									case '\n':
+									case '\r':
+										num--;
+										break SEARCH_START;
+									}
+									continue SEARCH_START;
+								default:
+									continue SEARCH_START;
 								}
-								continue SEARCH_START;
-							default:
-								continue SEARCH_START;
 							}
+							final int length= input.getLength(num);
+							startRegion= new Region(input.getIndex(), length);
+							input.consume(num, length);
+							num= 0;
 						}
-						final int length= input.getLength(num);
-						startRegion= new Region(input.getIndex(), length);
-						input.consume(num, length);
-						num= 0;
-					}
-					else {
-						startRegion= new Region(texNode.getOffset(), 0);
-					}
-					final List<IRegion> rCode= new ArrayList<>();
-					boolean newLine= false;
-					boolean inR= false;
-					SEARCH_SECTIONS: while (true) {
-						if (newLine) {
-							switch (input.get(++num)) {
-							case SourceParseInput.EOF:
-								if (inR) {
-									final int length= input.getLength(num-1);
-									rCode.add(new Region(input.getIndex(), length));
-								}
-								break SEARCH_SECTIONS;
-							case '<':
-								if (input.get(num+1) == '<') {
+						else {
+							startRegion= new Region(texNode.getOffset(), 0);
+						}
+						boolean newLine= false;
+						boolean inR= false;
+						SEARCH_SECTIONS: while (true) {
+							if (newLine) {
+								switch (input.get(++num)) {
+								case SourceParseInput.EOF:
+									if (inR) {
+										final int length= input.getLength(num-1);
+										rCode.add(new Region(input.getIndex(), length));
+									}
+									break SEARCH_SECTIONS;
+								case '<':
+									if (input.get(num+1) == '<') {
+										if (inR) {
+											final int length= input.getLength(num-1);
+											rCode.add(new Region(input.getIndex(), length));
+											input.consume(num-1, length);
+											num= 2;
+											inR= false;
+										}
+										newLine= false;
+										continue SEARCH_SECTIONS;
+									}
+									if (!inR) {
+										input.consume(num-1);
+										num= 1;
+										inR= true;
+									}
+									newLine= false;
+									continue SEARCH_SECTIONS;
+								case '@':
 									if (inR) {
 										final int length= input.getLength(num-1);
 										rCode.add(new Region(input.getIndex(), length));
 										input.consume(num-1, length);
-										num= 2;
+										num= 1;
 										inR= false;
+									}
+									input.consume(num);
+									num= 0;
+									newLine= false;
+									continue SEARCH_SECTIONS;
+								case '\r':
+								case '\n':
+									if (!inR) {
+										input.consume(num-1);
+										num= 1;
+										inR= true;
+									}
+									continue SEARCH_SECTIONS;
+								default:
+									if (!inR) {
+										input.consume(num-1);
+										num= 1;
+										inR= true;
 									}
 									newLine= false;
 									continue SEARCH_SECTIONS;
 								}
-								if (!inR) {
-									input.consume(num-1);
-									num= 1;
-									inR= true;
+							}
+							else {
+								switch (input.get(++num)) {
+								case SourceParseInput.EOF:
+									if (inR) {
+										final int length= input.getLength(num-1);
+										rCode.add(new Region(input.getIndex(), length));
+									}
+									break SEARCH_SECTIONS;
+								case '\r':
+									if (input.get(num+1) == '\n') {
+										num++;
+									}
+									//$FALL-THROUGH$
+								case '\n':
+									newLine= true;
+									continue SEARCH_SECTIONS;
+								default:
+									continue SEARCH_SECTIONS;
 								}
-								newLine= false;
-								continue SEARCH_SECTIONS;
-							case '@':
-								if (inR) {
-									final int length= input.getLength(num-1);
-									rCode.add(new Region(input.getIndex(), length));
-									input.consume(num-1, length);
-									num= 1;
-									inR= false;
-								}
-								input.consume(num);
-								num= 0;
-								newLine= false;
-								continue SEARCH_SECTIONS;
-							case '\r':
-							case '\n':
-								if (!inR) {
-									input.consume(num-1);
-									num= 1;
-									inR= true;
-								}
-								continue SEARCH_SECTIONS;
-							default:
-								if (!inR) {
-									input.consume(num-1);
-									num= 1;
-									inR= true;
-								}
-								newLine= false;
-								continue SEARCH_SECTIONS;
 							}
 						}
-						else {
-							switch (input.get(++num)) {
-							case SourceParseInput.EOF:
-								if (inR) {
-									final int length= input.getLength(num-1);
-									rCode.add(new Region(input.getIndex(), length));
-								}
-								break SEARCH_SECTIONS;
-							case '\r':
-								if (input.get(num+1) == '\n') {
-									num++;
-								}
-								//$FALL-THROUGH$
-							case '\n':
-								newLine= true;
-								continue SEARCH_SECTIONS;
-							default:
-								continue SEARCH_SECTIONS;
-							}
-						}
+						
 					}
-					
-					rChunk.fWeaveArgs= scanner.scanFCallArgs(startRegion.getOffset(), startRegion.getLength(), true);
+					if (startRegion != null) {
+						rChunk.weaveArgs= scanner.scanFCallArgs(startRegion.getOffset(), startRegion.getLength(), true);
+					}
 					final SourceComponent[] rCodeNodes= new SourceComponent[rCode.size()];
 					for (int j= 0; j < rCodeNodes.length; j++) {
 						final IRegion region= rCode.get(j);
 						rCodeNodes[j]= scanner.scanSourceRange(rChunk, region.getOffset(), region.getLength(), true);
 					}
-					rChunk.fRSources= rCodeNodes;
+					rChunk.rSources= rCodeNodes;
 				}
 			}
 		}
@@ -234,42 +243,54 @@ public class LtxRweaveSuModelContainer extends LtxSuModelContainer<ILtxRweaveSou
 			}
 			
 			int chunkCount= 0;
-			final List<TexRChunkElement> elements= new ArrayList<>(list.size());
+			final List<TexRChunkElement> chunkElements= new ArrayList<>();
+			final List<SourceComponent> inlineNodes= new ArrayList<>();
+			
 			for (final EmbeddedReconcileItem item : list) {
 				if (item.getTypeId() == RModel.TYPE_ID) {
-					chunkCount++;
 					final Embedded texNode= item.getAstNode();
 					final RChunkNode rChunk= (RChunkNode) texNode.getForeignNode();
 					if (rChunk == null) {
 						continue;
 					}
 					
-					RElementName name= null;
-					IRegion nameRegion= null;
-					if (rChunk.fWeaveArgs != null) {
-						final Arg arg= getLabelArg(rChunk.fWeaveArgs);
-						if (arg != null && arg.hasValue()
-								&& arg.getValueChild().getNodeType() == NodeType.SYMBOL) {
-							final RAstNode nameNode= arg.getValueChild();
-							name= RElementName.create(RElementName.MAIN_DEFAULT, nameNode.getText());
-							nameRegion= nameNode;
+					if (texNode.isInline()) {
+						if (rChunk.rSources.length == 1) {
+							inlineNodes.add(rChunk.rSources[0]);
 						}
 					}
-					if (name == null) {
-						name= RElementName.create(RElementName.MAIN_OTHER, "#"+Integer.toString(chunkCount)); //$NON-NLS-1$
-						nameRegion= new Region(texNode.getOffset()+2, 0);
+					else {
+						chunkCount++;
+						
+						RElementName name= null;
+						IRegion nameRegion= null;
+						if (rChunk.weaveArgs != null) {
+							final Arg arg= getLabelArg(rChunk.weaveArgs);
+							if (arg != null && arg.hasValue()
+									&& arg.getValueChild().getNodeType() == NodeType.SYMBOL) {
+								final RAstNode nameNode= arg.getValueChild();
+								name= RElementName.create(RElementName.MAIN_DEFAULT, nameNode.getText());
+								nameRegion= nameNode;
+							}
+						}
+						if (name == null) {
+							name= RElementName.create(RElementName.MAIN_OTHER, "#"+Integer.toString(chunkCount)); //$NON-NLS-1$
+							nameRegion= new Region(texNode.getOffset()+2, 0);
+						}
+						final TexRChunkElement element= new TexRChunkElement(item.getModelRefElement(),
+								rChunk, name, nameRegion );
+						item.setModelTypeElement(element);
+						chunkElements.add(element);
 					}
-					final TexRChunkElement element= new TexRChunkElement(item.getModelRefElement(), rChunk, name, nameRegion);
-					item.setModelTypeElement(element);
-					elements.add(element);
 				}
 			}
-			if (elements.isEmpty()) {
+			
+			if (chunkElements.isEmpty() && inlineNodes.isEmpty()) {
 				return;
 			}
 			
 			final IRModelInfo modelInfo= this.rManager.reconcile(adapter.getSourceUnit(), texModel,
-					elements, level, monitor );
+					chunkElements, inlineNodes, level, monitor );
 			texModel.addAttachment(modelInfo);
 			adapter.setRModel(modelInfo);
 		}

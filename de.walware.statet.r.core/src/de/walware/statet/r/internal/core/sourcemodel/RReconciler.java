@@ -157,10 +157,10 @@ public class RReconciler {
 	}
 	
 	public IRModelInfo reconcile(final IRSourceUnit su, final ISourceUnitModelInfo modelInfo,
-			final List<? extends RChunkElement> chunks,
+			final List<? extends RChunkElement> chunkElements, final List<? extends SourceComponent> inlineNodes,
 			final int level, final IProgressMonitor monitor) {
 		synchronized (this.f2ModelLock) {
-			return updateModel(su, modelInfo, chunks);
+			return updateModel(su, modelInfo, chunkElements, inlineNodes);
 		}
 	}
 	
@@ -241,15 +241,15 @@ public class RReconciler {
 	}
 	
 	private IRModelInfo updateModel(final IRSourceUnit su, final ISourceUnitModelInfo modelInfo,
-			final List<? extends RChunkElement> chunks) {
+			final List<? extends RChunkElement> chunkElements,
+			final List<? extends SourceComponent> inlineNodes) {
 		IRModelInfo model;
 		try {
 			final AstInfo ast= modelInfo.getAst();
 			this.f2ScopeAnalyzer.beginChunkSession(su, ast);
-			for (int i= 0; i < chunks.size(); i++) {
-				final RChunkElement element= chunks.get(i);
+			for (final RChunkElement chunkElement : chunkElements) {
 				final SourceComponent[] rootNodes;
-				{	final Object source= element.getAdapter(SourceComponent.class);
+				{	final Object source= chunkElement.getAdapter(SourceComponent.class);
 					if (source instanceof SourceComponent) {
 						rootNodes= new SourceComponent[] { (SourceComponent) source };
 					}
@@ -260,7 +260,10 @@ public class RReconciler {
 						continue;
 					}
 				}
-				this.f2ScopeAnalyzer.processChunk(element, rootNodes);
+				this.f2ScopeAnalyzer.processChunk(chunkElement, rootNodes);
+			}
+			for (final SourceComponent inlineNode : inlineNodes) {
+				this.f2ScopeAnalyzer.processInlineNode(inlineNode);
 			}
 		}
 		finally {

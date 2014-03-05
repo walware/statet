@@ -26,17 +26,17 @@ import de.walware.statet.r.core.rsource.ast.SourceComponent;
 public class RChunkNode implements IAstNode {
 	
 	
-	private final IAstNode fParent;
+	private final IAstNode parent;
 	// start/stop control chunk
-	Args fWeaveArgs;
-	SourceComponent[] fRSources;
+	Args weaveArgs;
+	SourceComponent[] rSources;
 	
-	int fStartOffset;
-	int fStopOffset;
+	int startOffset;
+	int stopOffset;
 	
 	
 	RChunkNode(final IAstNode parent) {
-		fParent = parent;
+		this.parent= parent;
 	}
 	
 	
@@ -48,12 +48,12 @@ public class RChunkNode implements IAstNode {
 	
 	@Override
 	public IAstNode getParent() {
-		return fParent;
+		return this.parent;
 	}
 	
 	@Override
 	public IAstNode getRoot() {
-		return fParent.getRoot();
+		return this.parent.getRoot();
 	}
 	
 	
@@ -64,24 +64,24 @@ public class RChunkNode implements IAstNode {
 	
 	@Override
 	public int getChildCount() {
-		return fRSources.length+1;
+		return this.rSources.length+1;
 	}
 	
 	@Override
 	public IAstNode getChild(final int index) {
 		if (index == 0) {
-			return fWeaveArgs;
+			return this.weaveArgs;
 		}
-		return fRSources[index-1];
+		return this.rSources[index-1];
 	}
 	
 	@Override
 	public int getChildIndex(final IAstNode element) {
-		if (fWeaveArgs == element) {
+		if (this.weaveArgs == element) {
 			return 0;
 		}
-		for (int i = 0; i < fRSources.length; i++) {
-			if (fRSources[i] == element) {
+		for (int i= 0; i < this.rSources.length; i++) {
+			if (this.rSources[i] == element) {
 				return i+1;
 			}
 		}
@@ -96,8 +96,10 @@ public class RChunkNode implements IAstNode {
 	
 	@Override
 	public void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		visitor.visit(fWeaveArgs);
-		for (final SourceComponent node : fRSources) {
+		if (this.weaveArgs != null) {
+			visitor.visit(this.weaveArgs);
+		}
+		for (final SourceComponent node : this.rSources) {
 			visitor.visit(node);
 		}
 	}
@@ -105,17 +107,17 @@ public class RChunkNode implements IAstNode {
 	
 	@Override
 	public int getOffset() {
-		return fStartOffset;
+		return this.startOffset;
 	}
 	
 	@Override
 	public int getStopOffset() {
-		return fStopOffset;
+		return this.stopOffset;
 	}
 	
 	@Override
 	public int getLength() {
-		return fStopOffset-fStartOffset;
+		return this.stopOffset-this.startOffset;
 	}
 	
 }

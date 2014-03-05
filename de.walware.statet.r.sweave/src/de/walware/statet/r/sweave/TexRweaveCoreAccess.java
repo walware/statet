@@ -33,54 +33,54 @@ import de.walware.statet.r.internal.sweave.ISweaveLtxCommands;
 public class TexRweaveCoreAccess implements ITexRweaveCoreAccess {
 	
 	
-	private static final List<TexCommand> LTX_SWEAVE_COMMAND_LIST = new ConstArrayList<TexCommand>( // ASorted
+	private static final List<TexCommand> LTX_SWEAVE_COMMAND_LIST= new ConstArrayList<>( // ASorted
 			ISweaveLtxCommands.SWEAVE_Sexpr_COMMANDS,
 			ISweaveLtxCommands.SWEAVE_SweaveOpts_COMMANDS );
 	
-	private static final WeakHashMap<TexCommandSet, TexCommandSet> COMMAND_CACHE = new WeakHashMap<TexCommandSet, TexCommandSet>();
+	private static final WeakHashMap<TexCommandSet, TexCommandSet> COMMAND_CACHE= new WeakHashMap<>();
 	
 	
-	private final ITexCoreAccess fTexAccess;
-	private final IRCoreAccess fRAccess;
+	private final ITexCoreAccess texAccess;
+	private final IRCoreAccess rAccess;
 	
-	private TexCommandSet fTexCommandSetOrg;
-	private volatile TexCommandSet fTexCommandSet;
+	private TexCommandSet texCommandSetOrg;
+	private volatile TexCommandSet texCommandSet;
 	
 	
 	public TexRweaveCoreAccess(final ITexCoreAccess tex, final IRCoreAccess r) {
 		if (tex == null) {
-			throw new NullPointerException("tex");
+			throw new NullPointerException("tex"); //$NON-NLS-1$
 		}
 		if (r == null) {
-			throw new NullPointerException("r");
+			throw new NullPointerException("r"); //$NON-NLS-1$
 		}
-		fTexAccess = tex;
-		fRAccess = r;
+		this.texAccess= tex;
+		this.rAccess= r;
 	}
 	
 	
 	@Override
 	public IPreferenceAccess getPrefs() {
-		return fRAccess.getPrefs(); // TODO
+		return this.rAccess.getPrefs(); // TODO
 	}
 	
 	@Override
 	public TexCommandSet getTexCommandSet() {
-		if (fTexCommandSetOrg != fTexAccess.getTexCommandSet()) {
+		if (this.texCommandSetOrg != this.texAccess.getTexCommandSet()) {
 			updateTexCommandSet();
 		}
-		return fTexCommandSet;
+		return this.texCommandSet;
 	}
 	
 	private void updateTexCommandSet() {
 		synchronized (COMMAND_CACHE) { 
-			final TexCommandSet org = fTexAccess.getTexCommandSet();
-			if (fTexCommandSetOrg == org) {
+			final TexCommandSet org= this.texAccess.getTexCommandSet();
+			if (this.texCommandSetOrg == org) {
 				return;
 			}
-			TexCommandSet set = COMMAND_CACHE.get(org);
+			TexCommandSet set= COMMAND_CACHE.get(org);
 			if (set == null) {
-				set = new TexCommandSet(addSweaveList(org.getAllLtxCommands()), org.getAllLtxEnvs(),
+				set= new TexCommandSet(addSweaveList(org.getAllLtxCommands()), org.getAllLtxEnvs(),
 						org.getLtxTextEnvMap(), org.getLtxTextEnvsASorted(),
 						addSweaveMap(org.getLtxTextCommandsASorted()), addSweaveListASorted(org.getLtxTextCommandsASorted()),
 						org.getLtxPreambleCommandMap(), org.getLtxPreambleCommandsASorted(),
@@ -89,13 +89,13 @@ public class TexRweaveCoreAccess implements ITexRweaveCoreAccess {
 						org.getLtxInternEnvMap() );
 				COMMAND_CACHE.put(org, set);
 			}
-			fTexCommandSet = set;
-			fTexCommandSetOrg = org;
+			this.texCommandSet= set;
+			this.texCommandSetOrg= org;
 		}
 	}
 	
 	private Map<String, TexCommand> addSweaveMap(final List<TexCommand> org) {
-		final Map<String, TexCommand> map = new IdentityHashMap<String, TexCommand>(org.size() + 2);
+		final Map<String, TexCommand> map= new IdentityHashMap<>(org.size() + 2);
 		for (final TexCommand command : org) {
 			map.put(command.getControlWord(), command);
 		}
@@ -110,7 +110,7 @@ public class TexRweaveCoreAccess implements ITexRweaveCoreAccess {
 	}
 	
 	private List<TexCommand> addSweaveListASorted(final List<TexCommand> org) {
-		final ConstArrayList<TexCommand> list = ConstArrayList.concat(org, LTX_SWEAVE_COMMAND_LIST);
+		final ConstArrayList<TexCommand> list= ConstArrayList.concat(org, LTX_SWEAVE_COMMAND_LIST);
 		ConstArrayList.sort(list, null);
 		return list;
 	}
@@ -118,12 +118,12 @@ public class TexRweaveCoreAccess implements ITexRweaveCoreAccess {
 	
 	@Override
 	public TexCodeStyleSettings getTexCodeStyle() {
-		return fTexAccess.getTexCodeStyle();
+		return this.texAccess.getTexCodeStyle();
 	}
 	
 	@Override
 	public RCodeStyleSettings getRCodeStyle() {
-		return fRAccess.getRCodeStyle();
+		return this.rAccess.getRCodeStyle();
 	}
 	
 }

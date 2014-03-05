@@ -91,30 +91,30 @@ import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAcce
 public class SourceAnalyzer extends RAstVisitor {
 	
 	
-	private static final int S_GLOBAL = 0;
-	private static final int S_LOCAL = 1;
-	private static final int S_SEARCH = 2;
+	private static final int S_GLOBAL= 0;
+	private static final int S_LOCAL= 1;
+	private static final int S_SEARCH= 2;
 	
-	private static final int RETURN_SOURCE_CONTAINTER = 1;
-	private static final int RETURN_METHOD_SIGNATURE = 2;
-	private static final int RETURN_STRING_ARRAY = 3;
-	private static final int REG_CLASS_REPRESENTATION = 4;
-	private static final int REG_CLASS_PROTOTYPE = 5;
+	private static final int RETURN_SOURCE_CONTAINTER= 1;
+	private static final int RETURN_METHOD_SIGNATURE= 2;
+	private static final int RETURN_STRING_ARRAY= 3;
+	private static final int REG_CLASS_REPRESENTATION= 4;
+	private static final int REG_CLASS_PROTOTYPE= 5;
 	
-	private static final int[] NO_REQUESTS = { };
-	private static final int[] STRING_ARRAY_REQUEST = {
+	private static final int[] NO_REQUESTS= { };
+	private static final int[] STRING_ARRAY_REQUEST= {
 		RETURN_STRING_ARRAY };
-	private static final int[] SIGNATURE_REQUESTS = {
+	private static final int[] SIGNATURE_REQUESTS= {
 		RETURN_METHOD_SIGNATURE, RETURN_STRING_ARRAY };
-	private static final int[] REPRESENTATION_REQUEST = {
+	private static final int[] REPRESENTATION_REQUEST= {
 		REG_CLASS_REPRESENTATION };
-	private static final int[] PROTOTYPE_REQUEST = {
+	private static final int[] PROTOTYPE_REQUEST= {
 		REG_CLASS_PROTOTYPE };
 	
-	private static final Integer FIRST = Integer.valueOf(0);
+	private static final Integer FIRST= Integer.valueOf(0);
 	
 	
-	private static final Comparator<ISourceStructElement> SOURCEELEMENT_SORTER = new Comparator<ISourceStructElement>() {
+	private static final Comparator<ISourceStructElement> SOURCEELEMENT_SORTER= new Comparator<ISourceStructElement>() {
 		@Override
 		public int compare(final ISourceStructElement e1, final ISourceStructElement e2) {
 			return (e1.getSourceRange().getOffset() - e2.getSourceRange().getOffset());
@@ -127,7 +127,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		final int returnType;
 		
 		ReturnValue(final int returnType) {
-			this.returnType = returnType;
+			this.returnType= returnType;
 		}
 	}
 	
@@ -137,7 +137,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		NodeArray(final int returnType, final RAstNode[] array) {
 			super(returnType);
-			this.array = array;
+			this.array= array;
 		}
 	}
 	
@@ -153,12 +153,13 @@ public class SourceAnalyzer extends RAstVisitor {
 		private final BuildSourceFrame envir;
 		
 		
-		SourceElementBuilder(final IBuildSourceFrameElement element, final SourceElementBuilder parent, final BuildSourceFrame envir) {
+		SourceElementBuilder(final IBuildSourceFrameElement element,
+				final SourceElementBuilder parent, final BuildSourceFrame envir) {
 			super(RETURN_SOURCE_CONTAINTER);
 			this.element= element;
 			this.parent= parent;
-			this.children= new ArrayList<RSourceElementByElementAccess>();
-			this.toCheck= new ArrayList<ElementAccess>();
+			this.children= new ArrayList<>();
+			this.toCheck= new ArrayList<>();
 			this.envir= envir;
 		}
 		
@@ -182,8 +183,8 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		Signature(final ElementAccess[] argNameAccess, final String[] classNames) {
 			super(RETURN_METHOD_SIGNATURE);
-			this.argNameAccess = argNameAccess;
-			this.classNames = classNames;
+			this.argNameAccess= argNameAccess;
+			this.classNames= classNames;
 		}
 		
 	}
@@ -197,20 +198,20 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		@Override
 		public IRModelInfo getModelInfo() {
-			return fModelInfo;
+			return this.fModelInfo;
 		}
 		
 		@Override
 		public void createSelfAccess(final IRLangSourceElement element, final RAstNode symbol) {
-			final String text = symbol.getText();
+			final String text= symbol.getText();
 			if (text == null) {
 				return;
 			}
-			final RElementAccess elementAccess = ((RSourceElementByElementAccess) element).getAccess();
+			final RElementAccess elementAccess= ((RSourceElementByElementAccess) element).getAccess();
 			if (elementAccess != null
 					&& text.equals(elementAccess.getSegmentName())
 					&& elementAccess.getNextSegment() == null ) {
-				final ElementAccess access = new ElementAccess.Default(symbol.getRParent(), symbol);
+				final ElementAccess access= new ElementAccess.Default(symbol.getRParent(), symbol);
 				((ElementAccess) elementAccess).fShared.postAdd(access);
 				return;
 			}
@@ -218,40 +219,40 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		@Override
 		public void createNamespaceImportAccess(final RAstNode symbol) {
-			final String text = symbol.getText();
+			final String text= symbol.getText();
 			if (text == null) {
 				return;
 			}
-			final ElementAccess access = new ElementAccess.Package(symbol.getRParent(), symbol);
+			final ElementAccess access= new ElementAccess.Package(symbol.getRParent(), symbol);
 			access.fFlags |= ElementAccess.A_IMPORT;
-			fModelInfo.fPackageRefs.add(text, access);
+			this.fModelInfo.fPackageRefs.add(text, access);
 		}
 		
 		@Override
 		public void createNamespaceObjectImportAccess(final IRFrameInSource namespace, final RAstNode symbol) {
-			final String text = symbol.getText();
+			final String text= symbol.getText();
 			if (text == null) {
 				return;
 			}
 			if (namespace instanceof BuildSourceFrame) {
-				final ElementAccess access = new ElementAccess.Default(symbol.getRParent(), symbol);
+				final ElementAccess access= new ElementAccess.Default(symbol.getRParent(), symbol);
 				
-				final BuildSourceFrame namespaceFrame = (BuildSourceFrame) namespace;
-				final ElementAccessList namespaceList = namespaceFrame.fData.get(text);
+				final BuildSourceFrame namespaceFrame= (BuildSourceFrame) namespace;
+				final ElementAccessList namespaceList= namespaceFrame.fData.get(text);
 				
-				final BuildSourceFrame next = fModelInfo.fLocalFrames.values().iterator().next();
-				final ElementAccessList defaultList = next.fData.get(text);
+				final BuildSourceFrame next= this.fModelInfo.fLocalFrames.values().iterator().next();
+				final ElementAccessList defaultList= next.fData.get(text);
 				if (defaultList != null && defaultList.isCreated < BuildSourceFrame.CREATED_RESOLVED) {
 					next.fData.remove(text);
 					if (namespaceList != null) {
 						namespaceList.entries.addAll(defaultList.entries);
 						for (final ElementAccess defaultAccess : defaultList.entries) {
-							defaultAccess.fShared = namespaceList;
+							defaultAccess.fShared= namespaceList;
 						}
 						namespaceList.postAdd(access);
 					}
 					else {
-						defaultList.frame = namespaceFrame;
+						defaultList.frame= namespaceFrame;
 						defaultList.postAdd(access);
 						namespaceFrame.fData.put(text, defaultList);
 					}
@@ -261,8 +262,8 @@ public class SourceAnalyzer extends RAstVisitor {
 						namespaceList.postAdd(access);
 					}
 					else {
-						final ElementAccessList accessList = new BuildSourceFrame.ElementAccessList(text);
-						accessList.frame = namespaceFrame;
+						final ElementAccessList accessList= new BuildSourceFrame.ElementAccessList(text);
+						accessList.frame= namespaceFrame;
 						accessList.postAdd(access);
 						namespaceFrame.fData.put(text, accessList);
 					}
@@ -272,11 +273,11 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		@Override
 		public IRFrameInSource getNamespaceFrame(final String name) {
-			final String id = BuildSourceFrame.createId(IRFrame.PACKAGE, name, -1);
-			BuildSourceFrame frame = fModelInfo.fNamespaceFrames.get(id);
+			final String id= BuildSourceFrame.createId(IRFrame.PACKAGE, name, -1);
+			BuildSourceFrame frame= this.fModelInfo.fNamespaceFrames.get(id);
 			if (frame == null) {
-				frame = new BuildSourceFrame.DefScope(IRFrame.PACKAGE, id, name, null);
-				fModelInfo.fNamespaceFrames.put(id, frame);
+				frame= new BuildSourceFrame.DefScope(IRFrame.PACKAGE, id, name, null);
+				this.fModelInfo.fNamespaceFrames.put(id, frame);
 				return frame;
 			}
 			return null;
@@ -284,19 +285,19 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		@Override
 		public void createSlotAccess(final RClass rClass, final RAstNode symbol) {
-			final String text = symbol.getText();
+			final String text= symbol.getText();
 			if (text == null) {
 				return;
 			}
-			final ElementAccessList accessList = rClass.getBuildFrame().fData.get(text);
+			final ElementAccessList accessList= rClass.getBuildFrame().fData.get(text);
 			if (accessList == null) {
 				return;
 			}
-			final List<? extends IRLangSourceElement> children = rClass.getSourceChildren(null);
+			final List<? extends IRLangSourceElement> children= rClass.getSourceChildren(null);
 			for (final IRLangSourceElement child : children) {
 				if (child.getElementType() == IRElement.R_S4SLOT
 						&& text.equals(child.getElementName().getSegmentName())) {
-					final ElementAccess access = new ElementAccess.Slot(symbol.getRParent(), symbol);
+					final ElementAccess access= new ElementAccess.Slot(symbol.getRParent(), symbol);
 					accessList.postAdd(access);
 					return;
 				}
@@ -305,19 +306,19 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		@Override
 		public void createArgAccess(final RMethod rMethod, final RAstNode symbol) {
-			final String text = symbol.getText();
+			final String text= symbol.getText();
 			if (text == null) {
 				return;
 			}
-			final ElementAccessList accessList = rMethod.getBuildFrame().fData.get(text);
+			final ElementAccessList accessList= rMethod.getBuildFrame().fData.get(text);
 			if (accessList == null) {
 				return;
 			}
-			final List<? extends IRLangSourceElement> children = rMethod.getSourceChildren(null);
+			final List<? extends IRLangSourceElement> children= rMethod.getSourceChildren(null);
 			for (final IRLangSourceElement child : children) {
 				if (child.getElementType() == IRElement.R_ARGUMENT
 						&& text.equals(child.getElementName().getSegmentName())) {
-					final ElementAccess access = new ElementAccess.Default(symbol.getRParent(), symbol);
+					final ElementAccess access= new ElementAccess.Default(symbol.getRParent(), symbol);
 					access.fFlags |= ElementAccess.A_ARG;
 					accessList.postAdd(access);
 					return;
@@ -327,15 +328,15 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		@Override
 		public void createRSourceRegion(final RAstNode node) {
-			if (!fRoxygenExamples) {
-				fCounter = 0;
+			if (!SourceAnalyzer.this.roxygenExamples) {
+				this.fCounter= 0;
 				cleanup();
 				init();
-				fRoxygenExamples = true;
+				SourceAnalyzer.this.roxygenExamples= true;
 			}
 			try {
-				final RoxygenRCodeElement element = new RoxygenRCodeElement(fModelInfo.getSourceElement(), fCounter++, fTopLevelEnvir, node);
-				enterElement(element, fTopLevelEnvir, node);
+				final RoxygenRCodeElement element= new RoxygenRCodeElement(this.fModelInfo.getSourceElement(), this.fCounter++, SourceAnalyzer.this.topLevelEnvir, node);
+				enterElement(element, SourceAnalyzer.this.topLevelEnvir, node);
 				node.acceptInRChildren(SourceAnalyzer.this);
 				leaveElement();
 			}
@@ -343,244 +344,244 @@ public class SourceAnalyzer extends RAstVisitor {
 		}
 		
 		public void update(final RSourceModelInfo modelInfo) {
-			fModelInfo = modelInfo;
-			fRoxygenAnalyzer.updateModel(fRoxygenAdapter);
+			this.fModelInfo= modelInfo;
+			SourceAnalyzer.this.roxygenAnalyzer.updateModel(SourceAnalyzer.this.roxygenAdapter);
 		}
 		
 	}
 	
 	
-	private IRSourceUnit fSourceUnit;
-	private List<RChunkBuildElement> fChunkElements;
-	private AstInfo fAst;
+	private IRSourceUnit sourceUnit;
+	private List<RChunkBuildElement> chunkElements;
+	private AstInfo ast;
 	
-	private int fAnonymCount;
-	private final ArrayList<String> fIdComponents = new ArrayList<String>(32);
-	private LinkedHashMap<String, BuildSourceFrame> fFrames;
-	private Map<String, BuildSourceFrame> fDependencyEnvironments;
-	private final ArrayList<BuildSourceFrame> fCurrentEnvironments = new ArrayList<BuildSourceFrame>(32);
-	private BuildSourceFrame fGlobalEnvir;
-	private BuildSourceFrame fGenericDefaultEnvir;
-	private BuildSourceFrame fTopLevelEnvir;
-	private BuildSourceFrame fTopScope;
-	private PackageReferences fPackageRefs;
+	private int anonymCount;
+	private final ArrayList<String> idComponents= new ArrayList<>(32);
+	private LinkedHashMap<String, BuildSourceFrame> frames;
+	private Map<String, BuildSourceFrame> dependencyEnvironments;
+	private final ArrayList<BuildSourceFrame> currentEnvironments= new ArrayList<>(32);
+	private BuildSourceFrame globalEnvir;
+	private BuildSourceFrame genericDefaultEnvir;
+	private BuildSourceFrame topLevelEnvir;
+	private BuildSourceFrame topScope;
+	private PackageReferences packageRefs;
 	
-	private final LinkedList<RAstNode> fArgValueToIgnore = new LinkedList<RAstNode>();
-	private int[] fRequest = NO_REQUESTS;
-	private Object fReturnValue;
+	private final LinkedList<RAstNode> argValueToIgnore= new LinkedList<>();
+	private int[] request= NO_REQUESTS;
+	private Object returnValue;
 	
-	private final ArrayList<SourceElementBuilder> fSourceContainerBuilders = new ArrayList<SourceElementBuilder>();
-	private SourceElementBuilder fCurrentSourceContainerBuilder;
+	private final ArrayList<SourceElementBuilder> sourceContainerBuilders= new ArrayList<>();
+	private SourceElementBuilder currentSourceContainerBuilder;
 	
-	private RCoreFunctions fConfiguredRDef;
-	private final Map<String, IFCallAnalyzer> fFCallAnalyzers = new HashMap<String, IFCallAnalyzer>();
-	private IFCallAnalyzer fFCallFallback;
-	private final IFCallAnalyzer fFCallNoAnalysis = new IFCallAnalyzer() {
+	private RCoreFunctions configuredRDef;
+	private final Map<String, IFCallAnalyzer> fCallAnalyzers= new HashMap<>();
+	private IFCallAnalyzer fCallFallback;
+	private final IFCallAnalyzer fCallNoAnalysis= new IFCallAnalyzer() {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
+			SourceAnalyzer.this.request= NO_REQUESTS;
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 	};
 	
-	private final RoxygenAnalyzer fRoxygenAnalyzer;
-	private final RoxygenAdapter fRoxygenAdapter;
-	private boolean fRoxygenExamples;
+	private final RoxygenAnalyzer roxygenAnalyzer;
+	private final RoxygenAdapter roxygenAdapter;
+	private boolean roxygenExamples;
 	
-	private final HashMap<String, Integer> fCommonNames = new HashMap<String, Integer>();
-	private final HashMap<String, Integer> fClassNames = new HashMap<String, Integer>();
-	private final HashMap<String, Integer> fImportNames = new HashMap<String, Integer>();
+	private final HashMap<String, Integer> commonNames= new HashMap<>();
+	private final HashMap<String, Integer> classNames= new HashMap<>();
+	private final HashMap<String, Integer> importNames= new HashMap<>();
 	
 	
 	public SourceAnalyzer() {
 		configure(RCoreFunctions.DEFAULT);
-		fRoxygenAnalyzer = new RoxygenAnalyzer();
-		fRoxygenAdapter = new RoxygenAdapter();
+		this.roxygenAnalyzer= new RoxygenAnalyzer();
+		this.roxygenAdapter= new RoxygenAdapter();
 	}
 	
 	public void configure(final RCoreFunctions rdef) {
-		fConfiguredRDef = rdef;
-		fFCallAnalyzers.clear();
+		this.configuredRDef= rdef;
+		this.fCallAnalyzers.clear();
 		IFCallAnalyzer analyzer;
 		
-		fFCallAnalyzers.put(RCoreFunctions.BASE_ASSIGN_NAME, new BaseAssign(rdef));
-		analyzer = new BaseRemove(rdef);
-		fFCallAnalyzers.put(RCoreFunctions.BASE_REMOVE_NAME, analyzer);
-		fFCallAnalyzers.put(RCoreFunctions.BASE_REMOVE_ALIAS_RM, analyzer);
-		fFCallAnalyzers.put(RCoreFunctions.BASE_EXISTS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_ASSIGN_NAME, new BaseAssign(rdef));
+		analyzer= new BaseRemove(rdef);
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_REMOVE_NAME, analyzer);
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_REMOVE_ALIAS_RM, analyzer);
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_EXISTS_NAME,
 				new BaseExists(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.BASE_GET_NAME, 
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_GET_NAME, 
 				new BaseGet(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.BASE_SAVE_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_SAVE_NAME,
 				new BaseSave(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.BASE_CALL_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_CALL_NAME,
 				new BaseCall(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.BASE_DOCALL_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_DOCALL_NAME,
 				new BaseDoCall(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.BASE_LIBRARY_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_LIBRARY_NAME,
 				new BaseLibrary(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.BASE_REQUIRE_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_REQUIRE_NAME,
 				new BaseRequire(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.BASE_GLOBALENV_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_GLOBALENV_NAME,
 				new BaseGlobalenv(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.BASE_TOPENV_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_TOPENV_NAME,
 				new BaseTopenv(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.BASE_C_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_C_NAME,
 				new BaseC(rdef));
 		
-		fFCallAnalyzers.put(RCoreFunctions.BASE_USEMETHOD_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_USEMETHOD_NAME,
 				new CommonDefBased(rdef.BASE_USEMETHOD_args));
-		fFCallAnalyzers.put(RCoreFunctions.BASE_NEXTMETHOD_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_NEXTMETHOD_NAME,
 				new CommonDefBased(rdef.BASE_NEXTMETHOD_args));
-		fFCallAnalyzers.put(RCoreFunctions.UTILS_METHODS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.UTILS_METHODS_NAME,
 				new CommonDefBased(rdef.UTILS_METHODS_args));
 		
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_SETGENERIC_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SETGENERIC_NAME,
 				new MethodsSetGeneric(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_SETGROUPGENERIC_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SETGROUPGENERIC_NAME,
 				new MethodsSetGroupGeneric(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_REMOVEGENERIC_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_REMOVEGENERIC_NAME,
 				new MethodsRemoveGeneric(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_ISGENERIC_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_ISGENERIC_NAME,
 				new CommonDefBased(rdef.METHODS_ISGENERIC_args));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_ISGROUP_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_ISGROUP_NAME,
 				new CommonDefBased(rdef.METHODS_ISGROUP_args));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_SIGNATURE_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SIGNATURE_NAME,
 				new MethodsSignature(rdef));
 		
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_SETCLASS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SETCLASS_NAME,
 				new MethodsSetClass(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_SETCLASSUNION_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SETCLASSUNION_NAME,
 				new MethodsSetClassUnion(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_REPRESENTATION_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_REPRESENTATION_NAME,
 				new MethodsRepresentation(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_PROTOTYPE_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_PROTOTYPE_NAME,
 				new MethodsPrototype(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_SETIS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SETIS_NAME,
 				new MethodsSetIs(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_REMOVECLASS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_REMOVECLASS_NAME,
 				new MethodsRemoveClass(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_RESETCLASS_NAME,
-				fFCallNoAnalysis);
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_SETAS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_RESETCLASS_NAME,
+				this.fCallNoAnalysis);
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SETAS_NAME,
 				new MethodsSetAs(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_SETVALIDITY_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SETVALIDITY_NAME,
 				new MethodsSetValidity(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_ISCLASS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_ISCLASS_NAME,
 				new CommonDefBased(rdef.METHODS_ISCLASS_args));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_GETCLASS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_GETCLASS_NAME,
 				new MethodsGetClass(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_GETCLASSDEF_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_GETCLASSDEF_NAME,
 				new MethodsGetClassDef(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_FINDCLASS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_FINDCLASS_NAME,
 				new MethodsFindClass(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_EXTENDS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_EXTENDS_NAME,
 				new CommonDefBased(rdef.METHODS_EXTENDS_args));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_IS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_IS_NAME,
 				new CommonDefBased(rdef.METHODS_IS_args));
 		
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_NEW_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_NEW_NAME,
 				new MethodsNew(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_AS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_AS_NAME,
 				new MethodsAs(rdef));
 		
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_SETMETHOD_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SETMETHOD_NAME,
 				new MethodsSetMethod(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_REMOVEMETHOD_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_REMOVEMETHOD_NAME,
 				new MethodsRemoveMethod(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_REMOVEMETHODS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_REMOVEMETHODS_NAME,
 				new MethodsRemoveMethods(rdef));
 		
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_HASMETHOD_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_HASMETHOD_NAME,
 				new CommonDefBased(rdef.METHODS_HASMETHOD_args));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_EXISTSMETHOD_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_EXISTSMETHOD_NAME,
 				new CommonDefBased(rdef.METHODS_EXISTSMETHOD_args));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_GETMETHOD_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_GETMETHOD_NAME,
 				new MethodsGetMethod(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_SELECTMETHOD_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SELECTMETHOD_NAME,
 				new MethodsSelectMethod(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_GETMETHODS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_GETMETHODS_NAME,
 				new MethodsGetMethods(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_FINDMETHOD_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_FINDMETHOD_NAME,
 				new MethodsFindMethod(rdef));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_DUMPMETHOD_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_DUMPMETHOD_NAME,
 				new CommonDefBased(rdef.METHODS_DUMPMETHOD_args));
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_DUMPMETHODS_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_DUMPMETHODS_NAME,
 				new CommonDefBased(rdef.METHODS_DUMPMETHOD_args));
 		
-		fFCallAnalyzers.put(RCoreFunctions.METHODS_SLOT_NAME,
+		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SLOT_NAME,
 				new MethodsSlot(rdef));
 		
 		// DEBUG
-//		final Set<String> test = new HashSet<String>();
+//		final Set<String> test= new HashSet<String>();
 //		test.addAll(rdef.getKnownFunctions());
 //		test.removeAll(fFCallAnalyzers.keySet());
 //		System.out.println("nonregistered RCoreFunctions: " + test.toString());
 		
-		fFCallFallback = new NoDefFallback();
+		this.fCallFallback= new NoDefFallback();
 	}
 	
 	
 	public IRModelInfo createModel(final IRSourceUnit u, final AstInfo ast) {
 		if (!(ast.root instanceof SourceComponent)) {
-			throw new IllegalArgumentException("ast");
+			throw new IllegalArgumentException("ast"); //$NON-NLS-1$
 		}
-		final SourceComponent root = (SourceComponent) ast.root;
-		fAnonymCount = 0;
-		fSourceUnit = u;
+		final SourceComponent root= (SourceComponent) ast.root;
+		this.anonymCount= 0;
+		this.sourceUnit= u;
 		
 		try {
 			init();
 			
-			final RSourceUnitElement fileElement = new RSourceUnitElement(fSourceUnit, fTopLevelEnvir, root);
-			enterElement(fileElement, fTopLevelEnvir, root);
+			final RSourceUnitElement fileElement= new RSourceUnitElement(this.sourceUnit, this.topLevelEnvir, root);
+			enterElement(fileElement, this.topLevelEnvir, root);
 			root.acceptInRChildren(this);
 			leaveElement();
 			
 			finish();
-			fAst = new AstInfo(AstInfo.LEVEL_MODEL_DEFAULT, ast);
-			final RSourceModelInfo modelInfo = new RSourceModelInfo(fAst, fFrames, fTopLevelEnvir,
-					fPackageRefs, fDependencyEnvironments, fileElement );
+			this.ast= new AstInfo(AstInfo.LEVEL_MODEL_DEFAULT, ast);
+			final RSourceModelInfo modelInfo= new RSourceModelInfo(this.ast, this.frames, this.topLevelEnvir,
+					this.packageRefs, this.dependencyEnvironments, fileElement );
 			
-			fRoxygenExamples = false;
-			fRoxygenAdapter.update(modelInfo);
-			if (fRoxygenExamples) {
+			this.roxygenExamples= false;
+			this.roxygenAdapter.update(modelInfo);
+			if (this.roxygenExamples) {
 				finish();
-				for (final Iterator<Entry<String, ElementAccessList>> iter = fTopLevelEnvir.fData.entrySet().iterator(); iter.hasNext(); ) {
-					final Entry<String, ElementAccessList> entry = iter.next();
-					final String name = entry.getKey();
-					final ElementAccessList docuList = entry.getValue();
+				for (final Iterator<Entry<String, ElementAccessList>> iter= this.topLevelEnvir.fData.entrySet().iterator(); iter.hasNext(); ) {
+					final Entry<String, ElementAccessList> entry= iter.next();
+					final String name= entry.getKey();
+					final ElementAccessList docuList= entry.getValue();
 					if (docuList.isCreated == BuildSourceFrame.CREATED_NO) {
 						iter.remove();
-						final ElementAccessList modelList = modelInfo.fTopFrame.fData.get(name);
+						final ElementAccessList modelList= modelInfo.fTopFrame.fData.get(name);
 						if (modelList != null) {
 							for (final ElementAccess access : docuList.entries) {
-								access.fShared = modelList;
+								access.fShared= modelList;
 							}
 							modelList.entries.addAll(docuList.entries);
 						}
 						else {
-							docuList.frame = modelInfo.fTopFrame;
+							docuList.frame= modelInfo.fTopFrame;
 							modelInfo.fTopFrame.fData.put(name, docuList);
 						}
 					}
 				}
-				for (final Iterator<Entry<String, ElementAccessList>> iter = fPackageRefs.fData.entrySet().iterator(); iter.hasNext(); ) {
-					final Entry<String, ElementAccessList> entry = iter.next();
-					final String name = entry.getKey();
-					final ElementAccessList docuList = entry.getValue();
+				for (final Iterator<Entry<String, ElementAccessList>> iter= this.packageRefs.fData.entrySet().iterator(); iter.hasNext(); ) {
+					final Entry<String, ElementAccessList> entry= iter.next();
+					final String name= entry.getKey();
+					final ElementAccessList docuList= entry.getValue();
 					if (docuList.isCreated == BuildSourceFrame.CREATED_NO) {
 						iter.remove();
-						final ElementAccessList modelList = modelInfo.fPackageRefs.fData.get(name);
+						final ElementAccessList modelList= modelInfo.fPackageRefs.fData.get(name);
 						if (modelList != null) {
 							for (final ElementAccess access : docuList.entries) {
-								access.fShared = modelList;
+								access.fShared= modelList;
 							}
 							modelList.entries.addAll(docuList.entries);
 						}
 						else {
-							docuList.frame = modelInfo.fTopFrame;
+							docuList.frame= modelInfo.fTopFrame;
 							modelInfo.fPackageRefs.fData.put(name, docuList);
 						}
 					}
@@ -593,33 +594,40 @@ public class SourceAnalyzer extends RAstVisitor {
 		catch (final InvocationTargetException e) {}
 		finally {
 			cleanup();
-			fSourceUnit = null;
+			this.sourceUnit= null;
 		}
 		return null;
 	}
 	
 	
 	public void beginChunkSession(final IRSourceUnit su, final AstInfo ast) {
-		fAnonymCount = 0;
-		fSourceUnit = su;
-		fAst = ast;
-		if (fChunkElements == null) {
-			fChunkElements = new ArrayList<RChunkBuildElement>();
+		this.anonymCount= 0;
+		this.sourceUnit= su;
+		this.ast= ast;
+		if (this.chunkElements == null) {
+			this.chunkElements= new ArrayList<>();
 		}
 		
 		init();
 	}
 	
-	public void processChunk(final RChunkBuildElement element,
-			final SourceComponent[] rootNodes) {
+	public void processChunk(final RChunkBuildElement element, final SourceComponent[] rootNodes) {
 		try {
-			fChunkElements.add(element);
-			for (int i = 0; i < rootNodes.length; i++) {
-				element.fEnvir = fTopLevelEnvir;
-				enterElement(element, fTopLevelEnvir, rootNodes[i]);
+			this.chunkElements.add(element);
+			for (int i= 0; i < rootNodes.length; i++) {
+				element.fEnvir= this.topLevelEnvir;
+				enterElement(element, this.topLevelEnvir, rootNodes[i]);
 				rootNodes[i].acceptInRChildren(this);
 				leaveElement();
 			}
+		}
+		catch (final OperationCanceledException e) {}
+		catch (final InvocationTargetException e) {}
+	}
+	
+	public void processInlineNode(final SourceComponent rootNode) {
+		try {
+			rootNode.acceptInRChildren(this);
 		}
 		catch (final OperationCanceledException e) {}
 		catch (final InvocationTargetException e) {}
@@ -629,78 +637,81 @@ public class SourceAnalyzer extends RAstVisitor {
 		try {
 			finish();
 			
-			final RSourceModelInfo modelInfo = new RSourceModelInfo(fAst, fFrames, fTopLevelEnvir,
-					fPackageRefs, fDependencyEnvironments, new RSourceCompositeElement(
-							fSourceUnit, fTopLevelEnvir, fChunkElements, fAst.root) );
+			final RSourceModelInfo modelInfo= new RSourceModelInfo(this.ast, this.frames,
+					this.topLevelEnvir, this.packageRefs, this.dependencyEnvironments,
+					new RSourceCompositeElement(this.sourceUnit, this.topLevelEnvir,
+							this.chunkElements, this.ast.root ));
 			return modelInfo;
 		}
 		finally {
 			cleanup();
-			fSourceUnit = null;
-			fChunkElements.clear();
+			this.sourceUnit= null;
+			this.chunkElements.clear();
 		}
 	}
 	
 	
 	private void init() {
-		fFrames = new LinkedHashMap<String, BuildSourceFrame>();
-		fDependencyEnvironments = new HashMap<String, BuildSourceFrame>();
-		final String projId = (fSourceUnit instanceof IWorkspaceSourceUnit) ?
-				((IWorkspaceSourceUnit) fSourceUnit).getResource().getProject().getName() :
-				"<noproject:"+fSourceUnit.getElementName(); //$NON-NLS-1$
+		this.frames= new LinkedHashMap<>();
+		this.dependencyEnvironments= new HashMap<>();
+		final String projId= (this.sourceUnit instanceof IWorkspaceSourceUnit) ?
+				((IWorkspaceSourceUnit) this.sourceUnit).getResource().getProject().getName() :
+				"<noproject:"+this.sourceUnit.getElementName(); //$NON-NLS-1$
 		
-		final BuildSourceFrame fileEnvir = new BuildSourceFrame.DefScope(IRFrame.PROJECT, BuildSourceFrame.createId(IRFrame.PROJECT, projId, 0), null, new BuildSourceFrame[0]); // ref projects
+		final BuildSourceFrame fileEnvir= new BuildSourceFrame.DefScope(IRFrame.PROJECT,
+				BuildSourceFrame.createId(IRFrame.PROJECT, projId, 0), null,
+				new BuildSourceFrame[0] ); // ref projects
 		
-		fCurrentEnvironments.add(fileEnvir);
-		fGenericDefaultEnvir = fTopLevelEnvir = fGlobalEnvir = fileEnvir;
-		fPackageRefs = new PackageReferences();
-		fTopScope = fCurrentEnvironments.get(fCurrentEnvironments.size()-1);
+		this.currentEnvironments.add(fileEnvir);
+		this.genericDefaultEnvir= this.topLevelEnvir= this.globalEnvir= fileEnvir;
+		this.packageRefs= new PackageReferences();
+		this.topScope= this.currentEnvironments.get(this.currentEnvironments.size()-1);
 		
-		fIdComponents.add(projId);
+		this.idComponents.add(projId);
 	}
 	
 	private void finish() {
-		for (final BuildSourceFrame si : fDependencyEnvironments.values()) {
+		for (final BuildSourceFrame si : this.dependencyEnvironments.values()) {
 			si.runLateResolve(false);
 		}
-		fTopLevelEnvir.fParents = ConstArrayList.concat(fDependencyEnvironments.values().toArray(), fTopLevelEnvir.fParents);
-		for (final BuildSourceFrame si : fFrames.values()) {
+		this.topLevelEnvir.fParents= ConstArrayList.concat(this.dependencyEnvironments.values().toArray(), this.topLevelEnvir.fParents);
+		for (final BuildSourceFrame si : this.frames.values()) {
 			si.runLateResolve(false);
 		}
 		
-		final HashMap<String, Integer> commonNames = fCommonNames;
-		final HashMap<String, Integer> classNames = fClassNames;
-		final HashMap<String, Integer> importNames = fImportNames;
-		int anonymous = 0;
+		final HashMap<String, Integer> commonNames= this.commonNames;
+		final HashMap<String, Integer> classNames= this.classNames;
+		final HashMap<String, Integer> importNames= this.importNames;
+		int anonymous= 0;
 		try {
-			for (final SourceElementBuilder seb : fSourceContainerBuilders) {
+			for (final SourceElementBuilder seb : this.sourceContainerBuilders) {
 				if (seb.element.getElementName() == null
 						&& seb.element instanceof RSourceElementByElementAccess.RMethod) {
-					final RSourceElementByElementAccess.RMethod element = (RSourceElementByElementAccess.RMethod) seb.element;
-					element.fOccurrenceCount = anonymous++;
+					final RSourceElementByElementAccess.RMethod element= (RSourceElementByElementAccess.RMethod) seb.element;
+					element.fOccurrenceCount= anonymous++;
 					registerAnonFunctionElement(element, seb.envir);
 				}
 				for (final RSourceElementByElementAccess element : seb.children) {
-					final String name = element.getElementName().getDisplayName();
+					final String name= element.getElementName().getDisplayName();
 					final HashMap<String, Integer> names;
 					switch (element.fType & IModelElement.MASK_C1) {
 					case IModelElement.C1_CLASS:
-						names = classNames;
+						names= classNames;
 						break;
 					case IModelElement.C1_IMPORT:
-						names = importNames;
+						names= importNames;
 						break;
 					default:
-						names = commonNames;
+						names= commonNames;
 						break;
 					}
-					final Integer occ = names.get(name);
+					final Integer occ= names.get(name);
 					if (occ == null) {
 						names.put(name, FIRST);
 					}
 					else {
 						names.put(name, Integer.valueOf(
-								(element.fOccurrenceCount = occ + 1) ));
+								(element.fOccurrenceCount= occ + 1) ));
 					}
 				}
 				for (final ElementAccess access : seb.toCheck) {
@@ -710,7 +721,7 @@ public class SourceAnalyzer extends RAstVisitor {
 						}
 						commonNames.put(access.getSegmentName(), null);
 						seb.children.add(new RSourceElementByElementAccess.RVariable(seb.element,
-								(seb.envir != fTopLevelEnvir) ? IRElement.R_GENERAL_LOCAL_VARIABLE : IRElement.R_GENERAL_VARIABLE, access));
+								(seb.envir != this.topLevelEnvir) ? IRElement.R_GENERAL_LOCAL_VARIABLE : IRElement.R_GENERAL_VARIABLE, access));
 					}
 					else {
 	//					seb.children.add(new RSourceElementFromElementAccess.RVariable(seb.element,
@@ -718,7 +729,7 @@ public class SourceAnalyzer extends RAstVisitor {
 					}
 				}
 				
-				final RSourceElementByElementAccess[] finalChildren = seb.children.toArray(new RSourceElementByElementAccess[seb.children.size()]);
+				final RSourceElementByElementAccess[] finalChildren= seb.children.toArray(new RSourceElementByElementAccess[seb.children.size()]);
 				Arrays.sort(finalChildren, SOURCEELEMENT_SORTER);
 				if (finalChildren.length > 0) {
 					seb.element.setSourceChildren(new ConstArrayList<IRLangSourceElement>(finalChildren));
@@ -729,17 +740,17 @@ public class SourceAnalyzer extends RAstVisitor {
 				importNames.clear();
 			}
 			
-			if (fChunkElements != null && !fChunkElements.isEmpty()) {
-				final HashMap<String, Integer> names = commonNames;
-				for (final RChunkBuildElement element : fChunkElements) {
-					final String name = element.getElementName().getDisplayName();
-					final Integer occ = names.get(name);
+			if (this.chunkElements != null && !this.chunkElements.isEmpty()) {
+				final HashMap<String, Integer> names= commonNames;
+				for (final RChunkBuildElement element : this.chunkElements) {
+					final String name= element.getElementName().getDisplayName();
+					final Integer occ= names.get(name);
 					if (occ == null) {
 						names.put(name, FIRST);
 					}
 					else {
 						names.put(name, Integer.valueOf(
-								(element.fOccurrenceCount = occ + 1) ));
+								(element.fOccurrenceCount= occ + 1) ));
 					}
 				}
 			}
@@ -752,21 +763,21 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	private void cleanup() {
-		clean(fCurrentEnvironments);
-		clean(fIdComponents);
-		fArgValueToIgnore.clear();
-		clean(fSourceContainerBuilders);
+		clean(this.currentEnvironments);
+		clean(this.idComponents);
+		this.argValueToIgnore.clear();
+		clean(this.sourceContainerBuilders);
 		
-		fAst = null;
-		fGenericDefaultEnvir = null;
-		fGlobalEnvir = null;
-		fPackageRefs = null;
-		fTopLevelEnvir = null;
-		fFrames = null;
-		fDependencyEnvironments = null;
+		this.ast= null;
+		this.genericDefaultEnvir= null;
+		this.globalEnvir= null;
+		this.packageRefs= null;
+		this.topLevelEnvir= null;
+		this.frames= null;
+		this.dependencyEnvironments= null;
 		
-		fReturnValue = null;
-		fCurrentSourceContainerBuilder = null;
+		this.returnValue= null;
+		this.currentSourceContainerBuilder= null;
 	}
 	
 	private void clean(final ArrayList<?> list) {
@@ -782,11 +793,11 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	
 	private BuildSourceFrame getPkgEnvir(final String name) {
-		final String id = BuildSourceFrame.createId(IRFrame.PACKAGE, name, ++fAnonymCount);
-		BuildSourceFrame envir = fDependencyEnvironments.get(id);
+		final String id= BuildSourceFrame.createId(IRFrame.PACKAGE, name, ++this.anonymCount);
+		BuildSourceFrame envir= this.dependencyEnvironments.get(id);
 		if (envir == null) {
-			envir = new BuildSourceFrame.DefScope(IRFrame.PACKAGE, id, name, new BuildSourceFrame[0]);
-			fDependencyEnvironments.put(id, envir);
+			envir= new BuildSourceFrame.DefScope(IRFrame.PACKAGE, id, name, new BuildSourceFrame[0]);
+			this.dependencyEnvironments.put(id, envir);
 		}
 		return envir;
 	}
@@ -797,13 +808,13 @@ public class SourceAnalyzer extends RAstVisitor {
 		}
 		switch (search) {
 		case S_LOCAL:
-			fTopScope.add(name, access);
+			this.topScope.add(name, access);
 			return;
 		case S_GLOBAL:
-			fGlobalEnvir.add(name, access);
+			this.globalEnvir.add(name, access);
 			return;
 		case S_SEARCH:
-			fTopScope.addLateResolve(name, access);
+			this.topScope.addLateResolve(name, access);
 			return;
 		default:
 			throw new IllegalArgumentException("Illegal mode"); //$NON-NLS-1$
@@ -811,47 +822,47 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	private ElementAccess registerSimpleClassAccessInEnvir(final RAstNode refNode, final RAstNode nameNode) {
-		final ElementAccess access = new ElementAccess.Class(refNode);
-		access.fFlags = ElementAccess.A_READ;
-		access.fNameNode = nameNode;
-		fGenericDefaultEnvir.addClass(nameNode.getText(), access);
+		final ElementAccess access= new ElementAccess.Class(refNode);
+		access.fFlags= ElementAccess.A_READ;
+		access.fNameNode= nameNode;
+		this.genericDefaultEnvir.addClass(nameNode.getText(), access);
 		
 		return access;
 	}
 	
 	protected final void enterElement(final IBuildSourceFrameElement element, final BuildSourceFrame envir, final RAstNode node) {
-		fCurrentSourceContainerBuilder = new SourceElementBuilder(element, fCurrentSourceContainerBuilder, envir);
+		this.currentSourceContainerBuilder= new SourceElementBuilder(element, this.currentSourceContainerBuilder, envir);
 		envir.addFrameElement(element);
-		fFrames.put(envir.getFrameId(), envir);
+		this.frames.put(envir.getFrameId(), envir);
 		node.addAttachment(envir);
-		fSourceContainerBuilders.add(fCurrentSourceContainerBuilder);
+		this.sourceContainerBuilders.add(this.currentSourceContainerBuilder);
 	}
 	
 	protected final void leaveElement() {
-		fCurrentSourceContainerBuilder = fCurrentSourceContainerBuilder.parent;
+		this.currentSourceContainerBuilder= this.currentSourceContainerBuilder.parent;
 	}
 	
 	private Object registerSourceElement(final Object value, final ElementAccess access) {
 		if (value instanceof RSourceElementByElementAccess) {
-			final RSourceElementByElementAccess element = (RSourceElementByElementAccess) value;
+			final RSourceElementByElementAccess element= (RSourceElementByElementAccess) value;
 			if ((element.getElementType() & IModelElement.MASK_C1) == IModelElement.C1_METHOD) {
 				registerFunctionElement((RMethod) value, element.getElementType(), access, null);
 				return null;
 			}
 			
 			element.setAccess(access);
-			fCurrentSourceContainerBuilder.children.add(element);
+			this.currentSourceContainerBuilder.children.add(element);
 			access.getNode().addAttachment(element);
 			return null;
 		}
 		else if (access.getSegmentName() != null && access.getType() == RElementName.MAIN_DEFAULT && access.fNextSegment == null) {
-			fCurrentSourceContainerBuilder.toCheck.add(access);
+			this.currentSourceContainerBuilder.toCheck.add(access);
 		}
 		return value;
 	}
 	
 	private void registerAnonFunctionElement(final RMethod rMethod, final IRFrame frame) {
-		final AnonymousAccess access = new AnonymousAccess(rMethod.getFDefNode(), frame);
+		final AnonymousAccess access= new AnonymousAccess(rMethod.getFDefNode(), frame);
 		rMethod.complete(access, createMethodArgDef(rMethod.getFDefNode(), null));
 		access.getNode().addAttachment(rMethod);
 	}
@@ -859,7 +870,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	private void registerFunctionElement(final RMethod rMethod, int type,
 			final ElementAccess access, final Signature sig) {
 		if (rMethod.getElementType() == IRElement.R_COMMON_FUNCTION) {
-			final IRFrame frame = access.getFrame();
+			final IRFrame frame= access.getFrame();
 			if (frame != null && (frame.getFrameType() == IRFrame.FUNCTION || frame.getFrameType() == IRFrame.CLASS)) {
 				// make sure it is marked as local
 				type |= 0x1;
@@ -867,8 +878,8 @@ public class SourceAnalyzer extends RAstVisitor {
 		}
 		rMethod.complete(type, access, createMethodArgDef(rMethod.getFDefNode(), sig));
 		if (sig != null && sig.argNameAccess != null) {
-			final BuildSourceFrame buildFrame = rMethod.getBuildFrame();
-			for (int i = 0; i < sig.argNameAccess.length; i++) {
+			final BuildSourceFrame buildFrame= rMethod.getBuildFrame();
+			for (int i= 0; i < sig.argNameAccess.length; i++) {
 				if (sig.argNameAccess[i] != null) {
 					buildFrame.add(sig.argNameAccess[i].fNameNode.getText(), sig.argNameAccess[i]);
 				}
@@ -876,29 +887,29 @@ public class SourceAnalyzer extends RAstVisitor {
 		}
 		
 		access.fFlags |= ElementAccess.A_FUNC;
-		fCurrentSourceContainerBuilder.children.add(rMethod);
+		this.currentSourceContainerBuilder.children.add(rMethod);
 		access.getNode().addAttachment(rMethod);
 	}
 	
 	private void registerFunctionElement(final RMethod rMethod) {
-		fCurrentSourceContainerBuilder.children.add(rMethod);
+		this.currentSourceContainerBuilder.children.add(rMethod);
 		rMethod.getAccess().getNode().addAttachment(rMethod);
 	}
 	
 	
 	private void registerClassElement(final RClass rClass) {
-		fCurrentSourceContainerBuilder.children.add(rClass);
+		this.currentSourceContainerBuilder.children.add(rClass);
 		rClass.getAccess().getNode().addAttachment(rClass);
 	}
 	
 	private void registerClassExtElement(final RClassExt rClassExt) {
-		fCurrentSourceContainerBuilder.children.add(rClassExt);
+		this.currentSourceContainerBuilder.children.add(rClassExt);
 		rClassExt.getAccess().getNode().addAttachment(rClassExt);
 	}
 	
 	private boolean isRequested(final int requestId) {
-		for (int i = 0; i < fRequest.length; i++) {
-			if (fRequest[i] == requestId) {
+		for (int i= 0; i < this.request.length; i++) {
+			if (this.request[i] == requestId) {
 				return true;
 			}
 		}
@@ -914,16 +925,16 @@ public class SourceAnalyzer extends RAstVisitor {
 	@Override
 	public void visit(final Assignment node) throws InvocationTargetException {
 		// Value
-		fReturnValue = null;
+		this.returnValue= null;
 		node.getSourceChild().acceptInR(this);
-		final Object returnValue = fReturnValue;
+		final Object returnValue= this.returnValue;
 		
 		// TODO add direct support for fcall() <- source
-		final RAstNode target = node.getTargetChild();
-		final ElementAccess access = new ElementAccess.Default(node);
-		access.fFlags = ElementAccess.A_WRITE;
+		final RAstNode target= node.getTargetChild();
+		final ElementAccess access= new ElementAccess.Default(node);
+		access.fFlags= ElementAccess.A_WRITE;
 		
-		final String name = resolveElementName(target, access, true);
+		final String name= resolveElementName(target, access, true);
 		if (name != null || returnValue instanceof RSourceElementByElementAccess) {
 			// Resolve
 			int mode;
@@ -931,147 +942,147 @@ public class SourceAnalyzer extends RAstVisitor {
 				switch (node.getOperator(0)) {
 				case ARROW_LEFT_D:
 				case ARROW_RIGHT_D:
-					mode = S_SEARCH;
+					mode= S_SEARCH;
 					break;
 				default:
-					mode = S_LOCAL;
+					mode= S_LOCAL;
 					break;
 				}
 			}
 			else {
-				mode = S_SEARCH;
+				mode= S_SEARCH;
 			}
 			registerInEnvir(mode, name, access);
 			
-			fReturnValue = registerSourceElement(returnValue, access);
+			this.returnValue= registerSourceElement(returnValue, access);
 		}
 		else {
-			fReturnValue = null;
+			this.returnValue= null;
 		}
 	}
 	
 	@Override
 	public void visit(final CForLoop node) throws InvocationTargetException {
-		final Symbol symbol = node.getVarChild();
-		final ElementAccess access = new ElementAccess.Default(symbol);
-		access.fFlags = ElementAccess.A_WRITE;
-		final String name = resolveElementName(symbol, access, false);
+		final Symbol symbol= node.getVarChild();
+		final ElementAccess access= new ElementAccess.Default(symbol);
+		access.fFlags= ElementAccess.A_WRITE;
+		final String name= resolveElementName(symbol, access, false);
 		if (name != null) {
 			registerInEnvir(S_LOCAL, name, access);
 		}
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.getCondChild().acceptInR(this);
 		node.getContChild().acceptInR(this);
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	
 	@Override
 	public void visit(final FDef node) throws InvocationTargetException {
-		final BuildSourceFrame envir = new BuildSourceFrame.DefScope(IRFrame.FUNCTION,
-				BuildSourceFrame.createId(IRFrame.FUNCTION, null, ++fAnonymCount),
-				null, new BuildSourceFrame[] { fTopScope });
-		fCurrentEnvironments.add(envir);
-		fTopScope = envir;
+		final BuildSourceFrame envir= new BuildSourceFrame.DefScope(IRFrame.FUNCTION,
+				BuildSourceFrame.createId(IRFrame.FUNCTION, null, ++this.anonymCount),
+				null, new BuildSourceFrame[] { this.topScope } );
+		this.currentEnvironments.add(envir);
+		this.topScope= envir;
 		
-		final RMethod rMethod = new RMethod(fCurrentSourceContainerBuilder.element, envir, node);
+		final RMethod rMethod= new RMethod(this.currentSourceContainerBuilder.element, envir, node);
 		enterElement(rMethod, envir, node);
 		
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
 		leaveElement();
 		
-		fCurrentEnvironments.remove(envir);
-		fTopScope = fCurrentEnvironments.get(fCurrentEnvironments.size()-1);
+		this.currentEnvironments.remove(envir);
+		this.topScope= this.currentEnvironments.get(this.currentEnvironments.size()-1);
 		
-		fReturnValue = rMethod;
+		this.returnValue= rMethod;
 	}
 	
 	@Override
 	public void visit(final FDef.Arg node) throws InvocationTargetException {
-		final RAstNode nameNode = node.getNameChild();
+		final RAstNode nameNode= node.getNameChild();
 		if ((nameNode.getStatusCode() & IRSourceConstants.STATUSFLAG_REAL_ERROR) == 0) {
-			final ElementAccess access = new ElementAccess.Default(node);
-			access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_ARG;
-			access.fNameNode = nameNode;
+			final ElementAccess access= new ElementAccess.Default(node);
+			access.fFlags= ElementAccess.A_WRITE | ElementAccess.A_ARG;
+			access.fNameNode= nameNode;
 			registerInEnvir(S_LOCAL, nameNode.getText(), access);
 			
-			fCurrentSourceContainerBuilder.children.add(new RSourceElementByElementAccess.RVariable(
-					fCurrentSourceContainerBuilder.element, IRElement.R_ARGUMENT, access));
+			this.currentSourceContainerBuilder.children.add(new RSourceElementByElementAccess.RVariable(
+					this.currentSourceContainerBuilder.element, IRElement.R_ARGUMENT, access));
 		}
 		
 		if (node.hasDefault()) {
 			node.getDefaultChild().acceptInR(this);
 		}
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	@Override
 	public void visit(final FCall node) throws InvocationTargetException {
 		// Resolve
-		final RAstNode ref = node.getRefChild();
-		final ElementAccess access = new ElementAccess.Default(node, ref);
-		access.fFlags = ElementAccess.A_CALL | ElementAccess.A_FUNC;
+		final RAstNode ref= node.getRefChild();
+		final ElementAccess access= new ElementAccess.Default(node, ref);
+		access.fFlags= ElementAccess.A_CALL | ElementAccess.A_FUNC;
 		
-		final String name = resolveElementName(node.getRefChild(), access, true);
+		final String name= resolveElementName(node.getRefChild(), access, true);
 		if (name != null) {
 			registerInEnvir(S_SEARCH, name, access);
 		}
 		final boolean write;
-		final RAstNode parent = node.getRParent();
+		final RAstNode parent= node.getRParent();
 		if (parent instanceof Assignment) {
-			write = (((Assignment) parent).getTargetChild() == node);
+			write= (((Assignment) parent).getTargetChild() == node);
 		}
 		else {
-			write = false;
+			write= false;
 		}
 		
-		IFCallAnalyzer specialist = null;
+		IFCallAnalyzer specialist= null;
 		if (name != null) {
-			specialist = fFCallAnalyzers.get(name);
+			specialist= this.fCallAnalyzers.get(name);
 		}
 		if (specialist == null) {
-			specialist = fFCallFallback;
+			specialist= this.fCallFallback;
 		}
 		specialist.visit(node, write);
 	}
 	
 	@Override
 	public void visit(final FCall.Arg node) throws InvocationTargetException {
-		final RAstNode valueNode = node.getValueChild();
+		final RAstNode valueNode= node.getValueChild();
 		if (valueNode != null) {
-			if (!fArgValueToIgnore.remove(valueNode)) {
+			if (!this.argValueToIgnore.remove(valueNode)) {
 				valueNode.acceptInR(this);
 			}
 		}
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	public RMethod visitAndCheckValue(final FCall.Arg node, final String name) throws InvocationTargetException {
 		assert (name != null);
 		if (node != null) {
-			final RAstNode valueNode = node.getValueChild();
+			final RAstNode valueNode= node.getValueChild();
 			if (valueNode != null) {
 				valueNode.acceptInR(this);
-				fArgValueToIgnore.add(valueNode);
-				if (fReturnValue instanceof RMethod) {
-					final RMethod rMethod = (RMethod) fReturnValue;
+				this.argValueToIgnore.add(valueNode);
+				if (this.returnValue instanceof RMethod) {
+					final RMethod rMethod= (RMethod) this.returnValue;
 					
-					final ElementAccess access = new ElementAccess.Default(node);
-					access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_FUNC;
-					access.fNameNode = node.getNameChild();
-					fCurrentSourceContainerBuilder.envir.addRunResolve(name, access);
+					final ElementAccess access= new ElementAccess.Default(node);
+					access.fFlags= ElementAccess.A_WRITE | ElementAccess.A_FUNC;
+					access.fNameNode= node.getNameChild();
+					this.currentSourceContainerBuilder.envir.addRunResolve(name, access);
 					
 					registerFunctionElement(rMethod, IRElement.R_COMMON_LOCAL_FUNCTION, access, null);
-					fReturnValue = null;
+					this.returnValue= null;
 					return rMethod;
 				}
 				else {
-					fReturnValue = null;
+					this.returnValue= null;
 				}
 			}
 		}
@@ -1080,7 +1091,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	@Override
 	public void visit(final SubIndexed.Arg node) throws InvocationTargetException {
-		final RAstNode valueNode = node.getValueChild();
+		final RAstNode valueNode= node.getValueChild();
 		if (valueNode != null) {
 			valueNode.acceptInR(this);
 		}
@@ -1088,198 +1099,199 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	@Override
 	public void visit(final NSGet node) throws InvocationTargetException {
-		final ElementAccess access = new ElementAccess.Default(node);
-		access.fFlags = ElementAccess.A_READ;
-		final String name = resolveElementName(node, access);
+		final ElementAccess access= new ElementAccess.Default(node);
+		access.fFlags= ElementAccess.A_READ;
+		final String name= resolveElementName(node, access);
 		if (name != null) {
 			registerInEnvir(S_LOCAL, name, access);
 		}
 		
-		fReturnValue = access;
+		this.returnValue= access;
 	}
 	
 	@Override
 	public void visit(final Symbol node) throws InvocationTargetException {
-		final ElementAccess access = new ElementAccess.Default(node);
-		access.fFlags = ElementAccess.A_READ;
-		final String name = resolveElementName(node, access);
+		final ElementAccess access= new ElementAccess.Default(node);
+		access.fFlags= ElementAccess.A_READ;
+		final String name= resolveElementName(node, access);
 		if (name != null) {
 			registerInEnvir(S_SEARCH, name, access);
 			
 			if (name.equals(".GlobalEnv")) {
-				fReturnValue = fGlobalEnvir;
+				this.returnValue= this.globalEnvir;
 				return;
 			}
 		}
 		
-		fReturnValue = access;
+		this.returnValue= access;
 	}
 	
 	@Override
 	public void visit(final SubNamed node) throws InvocationTargetException {
-		final ElementAccess access = new ElementAccess.Default(node);
-		access.fFlags = ElementAccess.A_READ;
-		final String name = resolvePartName(node, access);
+		final ElementAccess access= new ElementAccess.Default(node);
+		access.fFlags= ElementAccess.A_READ;
+		final String name= resolvePartName(node, access);
 		if (name != null) {
 			registerInEnvir(S_SEARCH, name, access);
 		}
 		
-		fReturnValue = access;
+		this.returnValue= access;
 	}
 	
 	@Override
 	public void visit(final SubIndexed node) throws InvocationTargetException {
-		final ElementAccess access = new ElementAccess.Default(node);
-		access.fFlags = ElementAccess.A_READ;
-		final String name = resolveElementName(node, access);
+		final ElementAccess access= new ElementAccess.Default(node);
+		access.fFlags= ElementAccess.A_READ;
+		final String name= resolveElementName(node, access);
 		if (name != null) {
 			registerInEnvir(S_SEARCH, name, access);
 		}
 		
-		fReturnValue = access;
+		this.returnValue= access;
 	}
 	
 	@Override
 	public void visit(final Model node) throws InvocationTargetException {
 		node.acceptInRChildren(this);
-		fReturnValue = node;
+		this.returnValue= node;
 	}
 	
 	
 	@Override
 	public void visit(final Help node) throws InvocationTargetException {
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	@Override
 	public void visit(final StringConst node) throws InvocationTargetException {
-		for (int i = 0; i < fRequest.length; i++) {
-			if (fRequest[i] == RETURN_STRING_ARRAY) {
-				fReturnValue = new NodeArray(RETURN_STRING_ARRAY, new StringConst[] { node });
+		for (int i= 0; i < this.request.length; i++) {
+			if (this.request[i] == RETURN_STRING_ARRAY) {
+				this.returnValue= new NodeArray(RETURN_STRING_ARRAY, new StringConst[] { node });
 				return;
 			}
 		}
-		fReturnValue = node;
+		this.returnValue= node;
 	}
 	
 	@Override
 	public void visit(final NumberConst node) throws InvocationTargetException {
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	@Override
 	public void visit(final NullConst node) throws InvocationTargetException {
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	
 	@Override
 	public void visit(final Special node) throws InvocationTargetException {
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	@Override
 	public void visit(final Sign node) throws InvocationTargetException {
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	@Override
 	public void visit(final Power node) throws InvocationTargetException {
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	@Override
 	public void visit(final Arithmetic node) throws InvocationTargetException {
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	@Override
 	public void visit(final Seq node) throws InvocationTargetException {
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	@Override
 	public void visit(final Relational node) throws InvocationTargetException {
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	@Override
 	public void visit(final Logical node) throws InvocationTargetException {
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	@Override
 	public void visit(final CIfElse node) throws InvocationTargetException {
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	@Override
 	public void visit(final CRepeatLoop node) throws InvocationTargetException {
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	@Override
 	public void visit(final CWhileLoop node) throws InvocationTargetException {
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	@Override
 	public void visit(final CLoopCommand node) throws InvocationTargetException {
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	@Override
 	public void visit(final Dummy node) throws InvocationTargetException {
-		fRequest = NO_REQUESTS;
+		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
-		fReturnValue = null;
+		this.returnValue= null;
 	}
 	
 	
-	private String resolveElementName(final RAstNode node, final ElementAccess access, final boolean allowString) throws InvocationTargetException {
+	private String resolveElementName(final RAstNode node, final ElementAccess access,
+			final boolean allowString) throws InvocationTargetException {
 		switch (node.getNodeType()) {
 		case SYMBOL:
 			return resolveElementName((Symbol) node, access);
 		case STRING_CONST:
 			if (allowString && ((node.getStatusCode() & IRSourceConstants.STATUSFLAG_REAL_ERROR) == 0)) {
-				access.fNameNode = node;
+				access.fNameNode= node;
 				return node.getText();
 			}
 			return null;
@@ -1305,15 +1317,16 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	private String resolveElementName(final Symbol node, final ElementAccess access) {
 		if ((node.getStatusCode() & IRSourceConstants.STATUSFLAG_REAL_ERROR) == 0) {
-			access.fNameNode = node;
+			access.fNameNode= node;
 			return node.getText();
 		}
 		return null;
 	}
 	
-	private String resolveElementName(final SubIndexed node, final ElementAccess access) throws InvocationTargetException {
-		final RAstNode child = node.getRefChild();
-		final String name = resolveElementName(child, access, false);
+	private String resolveElementName(final SubIndexed node, final ElementAccess access)
+			throws InvocationTargetException {
+		final RAstNode child= node.getRefChild();
+		final String name= resolveElementName(child, access, false);
 		node.getArgsChild().acceptInR(this);
 		if (name != null) {
 			access.fFlags |= ElementAccess.A_SUB;
@@ -1324,9 +1337,10 @@ public class SourceAnalyzer extends RAstVisitor {
 		return null;
 	}
 	
-	private String resolvePartName(final SubNamed node, final ElementAccess access) throws InvocationTargetException {
-		final RAstNode child = node.getRefChild();
-		final String name = resolveElementName(child, access, false);
+	private String resolvePartName(final SubNamed node, final ElementAccess access)
+			throws InvocationTargetException {
+		final RAstNode child= node.getRefChild();
+		final String name= resolveElementName(child, access, false);
 		if (name != null) {
 			access.fFlags |= ElementAccess.A_SUB;
 			access.appendSubElement(new SubNamedPartSyntacticElementAccess(access, node));
@@ -1335,9 +1349,10 @@ public class SourceAnalyzer extends RAstVisitor {
 		return null;
 	}
 	
-	private String resolveSlotName(final SubNamed node, final ElementAccess access) throws InvocationTargetException {
-		final RAstNode child = node.getRefChild();
-		final String name = resolveElementName(child, access, false);
+	private String resolveSlotName(final SubNamed node, final ElementAccess access)
+			throws InvocationTargetException {
+		final RAstNode child= node.getRefChild();
+		final String name= resolveElementName(child, access, false);
 		if (name != null) {
 			access.fFlags |= ElementAccess.A_SUB;
 			access.appendSubElement(new SubNamedSlotSyntacticElementAccess(access, node));
@@ -1347,24 +1362,24 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	private String resolveElementName(final NSGet node, final ElementAccess access) {
-		final RAstNode namespaceChild = node.getNamespaceChild();
-		String namespaceName = null;
+		final RAstNode namespaceChild= node.getNamespaceChild();
+		String namespaceName= null;
 		if (isValidPackageName(namespaceChild)) {
-			namespaceName = namespaceChild.getText();
-			final ElementAccess packageAccess = new ElementAccess.Package(access.fFullNode, namespaceChild);
-			fPackageRefs.add(namespaceName, packageAccess);
+			namespaceName= namespaceChild.getText();
+			final ElementAccess packageAccess= new ElementAccess.Package(access.fFullNode, namespaceChild);
+			this.packageRefs.add(namespaceName, packageAccess);
 		}
 		// register explicit
 		BuildSourceFrame envir;
 		if (namespaceName != null &&
 				((node.getElementChild().getStatusCode() & IRSourceConstants.STATUSFLAG_REAL_ERROR) == 0)) {
-			envir = getPkgEnvir(namespaceName);
+			envir= getPkgEnvir(namespaceName);
 		}
 		else {
-			envir = fTopScope;
+			envir= this.topScope;
 		}
-		access.fNameNode = node.getElementChild();
-		final String name = access.fNameNode.getText();
+		access.fNameNode= node.getElementChild();
+		final String name= access.fNameNode.getText();
 		envir.add(name, access);
 		return null; // prevent registering in top env
 	}
@@ -1389,27 +1404,27 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	protected class CommonVarNamedRead implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_name;
-		private final int fArgIdx_scope;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_name;
+		private final int argIdx_scope;
 		
 		protected CommonVarNamedRead(final ArgsDefinition argsDef, final String nameArgName, final String scopeArgName) {
-			fArgsDef = argsDef;
-			fArgIdx_name = fArgsDef.indexOf(nameArgName);
-			fArgIdx_scope = fArgsDef.indexOf(scopeArgName);
+			this.argsDef= argsDef;
+			this.argIdx_name= this.argsDef.indexOf(nameArgName);
+			this.argIdx_scope= this.argsDef.indexOf(scopeArgName);
 		}
 		
 		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode nameValue = args.getArgValueNode(fArgIdx_name);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode nameValue= args.getArgValueNode(this.argIdx_name);
 			
 			if (nameValue != null && nameValue.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Default(node);
-				access.fFlags = ElementAccess.A_READ;
-				access.fNameNode = nameValue;
-				final BuildSourceFrame envir = readScopeArgs(args.getArgValueNode(fArgIdx_scope), fTopScope);
+				final ElementAccess access= new ElementAccess.Default(node);
+				access.fFlags= ElementAccess.A_READ;
+				access.fNameNode= nameValue;
+				final BuildSourceFrame envir= readScopeArgs(args.getArgValueNode(this.argIdx_scope), SourceAnalyzer.this.topScope);
 				if (evalBoolean(args.getArgValueNode("inherits"), false)) {
 					envir.addLateResolve(nameValue.getText(), access);
 				}
@@ -1417,63 +1432,63 @@ public class SourceAnalyzer extends RAstVisitor {
 					envir.add(nameValue.getText(), access);
 				}
 				
-				fArgValueToIgnore.add(nameValue);
+				SourceAnalyzer.this.argValueToIgnore.add(nameValue);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
 	
 	protected final class CommonDefBased implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
+		private final ArgsDefinition argsDef;
 		
 		public CommonDefBased(final ArgsDefinition argsDef) {
-			fArgsDef = argsDef;
+			this.argsDef= argsDef;
 		}
 		
 		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
 			
-			ITER_ARGS: for (int i = 0; i < args.allocatedArgs.length; i++) {
-				final RAstNode argValue = args.getArgValueNode(i);
+			ITER_ARGS: for (int i= 0; i < args.allocatedArgs.length; i++) {
+				final RAstNode argValue= args.getArgValueNode(i);
 				if (argValue != null) {
-					if ((fArgsDef.get(i).type & ArgsDefinition.METHOD_NAME) != 0
+					if ((this.argsDef.get(i).type & ArgsDefinition.METHOD_NAME) != 0
 							&& argValue.getNodeType() == NodeType.STRING_CONST) {
-						final ElementAccess access = new ElementAccess.Default(node);
-						access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC;
-						access.fNameNode = argValue;
-						fGenericDefaultEnvir.addLateResolve(argValue.getText(), access);
+						final ElementAccess access= new ElementAccess.Default(node);
+						access.fFlags= ElementAccess.A_READ | ElementAccess.A_FUNC;
+						access.fNameNode= argValue;
+						SourceAnalyzer.this.genericDefaultEnvir.addLateResolve(argValue.getText(), access);
 						
-						fArgValueToIgnore.add(argValue);
+						SourceAnalyzer.this.argValueToIgnore.add(argValue);
 						continue ITER_ARGS;
 					}
-					if ((fArgsDef.get(i).type & ArgsDefinition.CLASS_NAME) != 0
+					if ((this.argsDef.get(i).type & ArgsDefinition.CLASS_NAME) != 0
 							&& argValue.getNodeType() == NodeType.STRING_CONST) {
 						registerSimpleClassAccessInEnvir(node, argValue);
 						
-						fArgValueToIgnore.add(argValue);
+						SourceAnalyzer.this.argValueToIgnore.add(argValue);
 						continue ITER_ARGS;
 					}
-					if ((fArgsDef.get(i).type & ArgsDefinition.UNSPECIFIC_NAME) != 0
+					if ((this.argsDef.get(i).type & ArgsDefinition.UNSPECIFIC_NAME) != 0
 							&& argValue.getNodeType() == NodeType.STRING_CONST) {
-						final ElementAccess access = new ElementAccess.Default(node);
-						access.fFlags = ElementAccess.A_READ;
-						access.fNameNode = argValue;
-						fTopScope.addLateResolve(argValue.getText(), access);
+						final ElementAccess access= new ElementAccess.Default(node);
+						access.fFlags= ElementAccess.A_READ;
+						access.fNameNode= argValue;
+						SourceAnalyzer.this.topScope.addLateResolve(argValue.getText(), access);
 						
-						fArgValueToIgnore.add(argValue);
+						SourceAnalyzer.this.argValueToIgnore.add(argValue);
 						continue ITER_ARGS;
 					}
 				}
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
@@ -1481,37 +1496,37 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	protected final class BaseAssign implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_x;
-		private final int fArgIdx_value;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_x;
+		private final int argIdx_value;
 		
 		
 		public BaseAssign(final RCoreFunctions rdef) {
-			fArgsDef = rdef.BASE_ASSIGN_args;
-			fArgIdx_x = fArgsDef.indexOf("x");
-			fArgIdx_value = fArgsDef.indexOf("value");
+			this.argsDef= rdef.BASE_ASSIGN_args;
+			this.argIdx_x= this.argsDef.indexOf("x");
+			this.argIdx_value= this.argsDef.indexOf("value");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fReturnValue = null;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode xNode = args.getArgValueNode(fArgIdx_x);
-			final RAstNode valueNode = args.getArgValueNode(fArgIdx_value);
+			SourceAnalyzer.this.returnValue= null;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode xNode= args.getArgValueNode(this.argIdx_x);
+			final RAstNode valueNode= args.getArgValueNode(this.argIdx_value);
 			
-			Object returnValue = null;
+			Object returnValue= null;
 			if (valueNode != null) {
 				valueNode.acceptInR(SourceAnalyzer.this);
-				returnValue = fReturnValue;
-				fReturnValue = null;
-				fArgValueToIgnore.add(valueNode);
+				returnValue= SourceAnalyzer.this.returnValue;
+				SourceAnalyzer.this.returnValue= null;
+				SourceAnalyzer.this.argValueToIgnore.add(valueNode);
 			}
 			if (xNode != null && xNode.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Default(node);
-				access.fFlags = ElementAccess.A_WRITE;
-				access.fNameNode = xNode;
+				final ElementAccess access= new ElementAccess.Default(node);
+				access.fFlags= ElementAccess.A_WRITE;
+				access.fNameNode= xNode;
 				
-				final BuildSourceFrame envir = readScopeArgs(args.getArgValueNode("pos"), fTopScope);
+				final BuildSourceFrame envir= readScopeArgs(args.getArgValueNode("pos"), SourceAnalyzer.this.topScope);
 				if (evalBoolean(args.getArgValueNode("inherits"), false)) {
 					envir.addLateResolve(xNode.getText(), access);
 				}
@@ -1519,39 +1534,39 @@ public class SourceAnalyzer extends RAstVisitor {
 					envir.add(xNode.getText(), access);
 				}
 				
-				returnValue = registerSourceElement(returnValue, access);
+				returnValue= registerSourceElement(returnValue, access);
 			}
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = returnValue;
+			SourceAnalyzer.this.returnValue= returnValue;
 		}
 		
 	}
 	
 	protected final class BaseRemove implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
+		private final ArgsDefinition argsDef;
 		
 		public BaseRemove(final RCoreFunctions rdef) {
-			fArgsDef = rdef.BASE_REMOVE_args;
+			this.argsDef= rdef.BASE_REMOVE_args;
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
 			
 			if (args.ellipsisArgs.length > 0) {
-				for (int i = 0; i < args.ellipsisArgs.length; i++) {
-					final FCall.Arg argNode = args.ellipsisArgs[i];
+				for (int i= 0; i < args.ellipsisArgs.length; i++) {
+					final FCall.Arg argNode= args.ellipsisArgs[i];
 					if (argNode.hasValue()) {
-						final RAstNode valueNode = argNode.getValueChild();
+						final RAstNode valueNode= argNode.getValueChild();
 						switch (valueNode.getNodeType()) {
 						case SYMBOL:
 						case STRING_CONST:
-							final ElementAccess access = new ElementAccess.Default(node);
-							access.fFlags = ElementAccess.A_DELETE;
-							access.fNameNode = valueNode;
-							final BuildSourceFrame envir = readScopeArgs(args.getArgValueNode("pos"), fTopScope);
+							final ElementAccess access= new ElementAccess.Default(node);
+							access.fFlags= ElementAccess.A_DELETE;
+							access.fNameNode= valueNode;
+							final BuildSourceFrame envir= readScopeArgs(args.getArgValueNode("pos"), SourceAnalyzer.this.topScope);
 							if (evalBoolean(args.getArgValueNode("inherits"), false)) {
 								envir.addLateResolve(valueNode.getText(), access);
 							}
@@ -1559,7 +1574,7 @@ public class SourceAnalyzer extends RAstVisitor {
 								envir.add(valueNode.getText(), access);
 							}
 							
-							fArgValueToIgnore.add(valueNode);
+							SourceAnalyzer.this.argValueToIgnore.add(valueNode);
 							break;
 						}
 					}
@@ -1567,7 +1582,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
@@ -1582,27 +1597,27 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	protected final class BaseGet implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_x;
-		private final int fArgIdx_scope;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_x;
+		private final int argIdx_scope;
 		
 		public BaseGet(final RCoreFunctions rdef) {
-			fArgsDef = rdef.BASE_GET_args;
-			fArgIdx_x = fArgsDef.indexOf("x");
-			fArgIdx_scope = fArgsDef.indexOf("pos");
+			this.argsDef= rdef.BASE_GET_args;
+			this.argIdx_x= this.argsDef.indexOf("x");
+			this.argIdx_scope= this.argsDef.indexOf("pos");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode xNode = args.getArgValueNode(fArgIdx_x);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode xNode= args.getArgValueNode(this.argIdx_x);
 			
 			if (xNode != null && xNode.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Default(node);
-				access.fFlags = ElementAccess.A_READ;
-				access.fNameNode = xNode;
-				final BuildSourceFrame envir = readScopeArgs(args.getArgValueNode(fArgIdx_scope), fTopScope);
+				final ElementAccess access= new ElementAccess.Default(node);
+				access.fFlags= ElementAccess.A_READ;
+				access.fNameNode= xNode;
+				final BuildSourceFrame envir= readScopeArgs(args.getArgValueNode(this.argIdx_scope), SourceAnalyzer.this.topScope);
 				if (evalBoolean(args.getArgValueNode("inherits"), true)) {
 					envir.addLateResolve(xNode.getText(), access);
 				}
@@ -1610,42 +1625,42 @@ public class SourceAnalyzer extends RAstVisitor {
 					envir.add(xNode.getText(), access);
 				}
 				
-				fArgValueToIgnore.add(xNode);
+				SourceAnalyzer.this.argValueToIgnore.add(xNode);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
 	
 	protected final class BaseSave implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
+		private final ArgsDefinition argsDef;
 		
 		public BaseSave(final RCoreFunctions rdef) {
-			fArgsDef = rdef.BASE_SAVE_args;
+			this.argsDef= rdef.BASE_SAVE_args;
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
 			
 			if (args.ellipsisArgs.length > 0) {
-				for (int i = 0; i < args.ellipsisArgs.length; i++) {
-					final FCall.Arg argNode = args.ellipsisArgs[i];
+				for (int i= 0; i < args.ellipsisArgs.length; i++) {
+					final FCall.Arg argNode= args.ellipsisArgs[i];
 					if (argNode.hasValue()) {
-						final RAstNode valueNode = argNode.getValueChild();
+						final RAstNode valueNode= argNode.getValueChild();
 						switch (valueNode.getNodeType()) {
 						case SYMBOL:
 						case STRING_CONST:
-							final ElementAccess access = new ElementAccess.Default(node);
-							access.fFlags = ElementAccess.A_READ;
-							access.fNameNode = valueNode;
-							fTopScope.addLateResolve(valueNode.getText(), access);
+							final ElementAccess access= new ElementAccess.Default(node);
+							access.fFlags= ElementAccess.A_READ;
+							access.fNameNode= valueNode;
+							SourceAnalyzer.this.topScope.addLateResolve(valueNode.getText(), access);
 							
-							fArgValueToIgnore.add(valueNode);
+							SourceAnalyzer.this.argValueToIgnore.add(valueNode);
 							break;
 						}
 					}
@@ -1653,114 +1668,114 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
 	
 	protected final class BaseCall implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_fName;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_fName;
 		
 		public BaseCall(final RCoreFunctions rdef) {
-			fArgsDef = rdef.BASE_CALL_args;
-			fArgIdx_fName = fArgsDef.indexOf("name");
+			this.argsDef= rdef.BASE_CALL_args;
+			this.argIdx_fName= this.argsDef.indexOf("name");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode nameNode = args.getArgValueNode(fArgIdx_fName);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode nameNode= args.getArgValueNode(this.argIdx_fName);
 			
 			if (nameNode != null && nameNode.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Default(node);
-				access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC;
-				access.fNameNode = nameNode;
-				fTopScope.addLateResolve(nameNode.getText(), access);
+				final ElementAccess access= new ElementAccess.Default(node);
+				access.fFlags= ElementAccess.A_READ | ElementAccess.A_FUNC;
+				access.fNameNode= nameNode;
+				SourceAnalyzer.this.topScope.addLateResolve(nameNode.getText(), access);
 				
-				fArgValueToIgnore.add(nameNode);
+				SourceAnalyzer.this.argValueToIgnore.add(nameNode);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
 	
 	protected final class BaseDoCall implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_fName;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_fName;
 		
 		public BaseDoCall(final RCoreFunctions rdef) {
-			fArgsDef = rdef.BASE_DOCALL_args;
-			fArgIdx_fName = fArgsDef.indexOf("what");
+			this.argsDef= rdef.BASE_DOCALL_args;
+			this.argIdx_fName= this.argsDef.indexOf("what");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode nameNode = args.getArgValueNode(fArgIdx_fName);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode nameNode= args.getArgValueNode(this.argIdx_fName);
 			
 			if (nameNode != null) {
-				final ElementAccess access = new ElementAccess.Default(node, nameNode);
-				access.fFlags = ElementAccess.A_CALL | ElementAccess.A_FUNC;
-				final String name = resolveElementName(nameNode, access, true);
+				final ElementAccess access= new ElementAccess.Default(node, nameNode);
+				access.fFlags= ElementAccess.A_CALL | ElementAccess.A_FUNC;
+				final String name= resolveElementName(nameNode, access, true);
 				if (name != null) {
-					fTopScope.addLateResolve(name, access);
+					SourceAnalyzer.this.topScope.addLateResolve(name, access);
 				}
-				fArgValueToIgnore.add(nameNode);
+				SourceAnalyzer.this.argValueToIgnore.add(nameNode);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
 	
 	private abstract class BaseCommonPackageLoad implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_packageName;
-		private final int fArgIdx_stringOnly;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_packageName;
+		private final int argIdx_stringOnly;
 		
 		public BaseCommonPackageLoad(final ArgsDefinition argsDef) {
-			fArgsDef = argsDef;
-			fArgIdx_packageName = fArgsDef.indexOf("package");
-			fArgIdx_stringOnly = fArgsDef.indexOf("character.only");
+			this.argsDef= argsDef;
+			this.argIdx_packageName= this.argsDef.indexOf("package");
+			this.argIdx_stringOnly= this.argsDef.indexOf("character.only");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
+			SourceAnalyzer.this.request= NO_REQUESTS;
 			
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode nameValue = args.getArgValueNode(fArgIdx_packageName);
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode nameValue= args.getArgValueNode(this.argIdx_packageName);
 			if (nameValue != null 
 					&& (nameValue.getNodeType() == NodeType.STRING_CONST
-						|| (!evalBoolean(args.getArgNode(fArgIdx_stringOnly), false) && nameValue.getNodeType() == NodeType.SYMBOL))
+						|| (!evalBoolean(args.getArgNode(this.argIdx_stringOnly), false) && nameValue.getNodeType() == NodeType.SYMBOL))
 					&& isValidPackageName(nameValue)) {
-				final String packageName = nameValue.getText();
-				final ElementAccess access = new ElementAccess.Package(
+				final String packageName= nameValue.getText();
+				final ElementAccess access= new ElementAccess.Package(
 						node, nameValue);
 				access.fFlags |= ElementAccess.A_IMPORT;
-				fPackageRefs.add(packageName, access);
-				final RPkgImport rImport = new RPkgImport(fCurrentSourceContainerBuilder.element, access);
-				fCurrentSourceContainerBuilder.children.add(rImport);
+				SourceAnalyzer.this.packageRefs.add(packageName, access);
+				final RPkgImport rImport= new RPkgImport(SourceAnalyzer.this.currentSourceContainerBuilder.element, access);
+				SourceAnalyzer.this.currentSourceContainerBuilder.children.add(rImport);
 				
-				final BuildSourceFrame envir = getPkgEnvir(packageName);
-				if (!fGlobalEnvir.fParents.contains(envir)) {
-					fGlobalEnvir.fParents = ConstArrayList.concat(envir, fGlobalEnvir.fParents);
+				final BuildSourceFrame envir= getPkgEnvir(packageName);
+				if (!SourceAnalyzer.this.globalEnvir.fParents.contains(envir)) {
+					SourceAnalyzer.this.globalEnvir.fParents= ConstArrayList.concat(envir, SourceAnalyzer.this.globalEnvir.fParents);
 				}
 				
-				fArgValueToIgnore.add(nameValue);
+				SourceAnalyzer.this.argValueToIgnore.add(nameValue);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = fGlobalEnvir;
+			SourceAnalyzer.this.returnValue= SourceAnalyzer.this.globalEnvir;
 		}
 		
 	}
@@ -1789,9 +1804,9 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
+			SourceAnalyzer.this.request= NO_REQUESTS;
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = fGlobalEnvir;
+			SourceAnalyzer.this.returnValue= SourceAnalyzer.this.globalEnvir;
 		}
 		
 	}
@@ -1803,126 +1818,126 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-//			final RAstNode envir = resolveEnvir(argValues, fArgsDef);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+//			final RAstNode envir= resolveEnvir(argValues, this.argsDef);
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = fTopLevelEnvir;
+			SourceAnalyzer.this.returnValue= SourceAnalyzer.this.topLevelEnvir;
 		}
 		
 	}
 	
 	protected final class BaseC implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
+		private final ArgsDefinition argsDef;
 		
 		public BaseC(final RCoreFunctions rdef) {
-			fArgsDef = rdef.BASE_C_args;
+			this.argsDef= rdef.BASE_C_args;
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			Object returnValue = null;
-			REQUEST: for (int i = 0; i < fRequest.length; i++) {
-				if (fRequest[i] == RETURN_STRING_ARRAY) {
-					final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-					final RAstNode[] array = new RAstNode[args.ellipsisArgs.length];
-					for (int j = 0; j < array.length; j++) {
-						final FCall.Arg argNode = args.ellipsisArgs[j];
+			Object returnValue= null;
+			REQUEST: for (int i= 0; i < SourceAnalyzer.this.request.length; i++) {
+				if (SourceAnalyzer.this.request[i] == RETURN_STRING_ARRAY) {
+					final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+					final RAstNode[] array= new RAstNode[args.ellipsisArgs.length];
+					for (int j= 0; j < array.length; j++) {
+						final FCall.Arg argNode= args.ellipsisArgs[j];
 						if (argNode.hasValue()) {
-							final RAstNode valueNode = argNode.getValueChild();
+							final RAstNode valueNode= argNode.getValueChild();
 							if (valueNode.getNodeType() == NodeType.STRING_CONST) {
-								array[j] = valueNode;
-								fArgValueToIgnore.add(valueNode);
+								array[j]= valueNode;
+								SourceAnalyzer.this.argValueToIgnore.add(valueNode);
 							}
 							else {
 								break REQUEST;
 							}
 						}
 					}
-					returnValue = new NodeArray(RETURN_STRING_ARRAY, array);
+					returnValue= new NodeArray(RETURN_STRING_ARRAY, array);
 					break REQUEST;
 				}
 			}
-			fRequest = NO_REQUESTS;
+			SourceAnalyzer.this.request= NO_REQUESTS;
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = returnValue;
+			SourceAnalyzer.this.returnValue= returnValue;
 		}
 		
 	}
 	
 	private abstract class MethodsCommonSetGeneric implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_fName;
-		private final int fArgIdx_def;
-		private final int fArgIdx_useAsDefault;
-		private final int fArgIdx_genericFunction;
-		private final int fArgIdx_signature;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_fName;
+		private final int argIdx_def;
+		private final int argIdx_useAsDefault;
+		private final int argIdx_genericFunction;
+		private final int argIdx_signature;
 		
 		protected MethodsCommonSetGeneric(final ArgsDefinition argsDef) {
-			fArgsDef = argsDef;
-			fArgIdx_fName = fArgsDef.indexOf("name");
-			fArgIdx_def = fArgsDef.indexOf("def");
-			fArgIdx_useAsDefault = fArgsDef.indexOf("useAsDefault");
-			fArgIdx_genericFunction = fArgsDef.indexOf("genericFunction");
-			fArgIdx_signature = fArgsDef.indexOf("signature");
+			this.argsDef= argsDef;
+			this.argIdx_fName= this.argsDef.indexOf("name");
+			this.argIdx_def= this.argsDef.indexOf("def");
+			this.argIdx_useAsDefault= this.argsDef.indexOf("useAsDefault");
+			this.argIdx_genericFunction= this.argsDef.indexOf("genericFunction");
+			this.argIdx_signature= this.argsDef.indexOf("signature");
 		}
 		
 		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode fNameNode = args.getArgValueNode(fArgIdx_fName);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode fNameNode= args.getArgValueNode(this.argIdx_fName);
 			
 			if (fNameNode != null && fNameNode.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Default(node);
-				access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_FUNC;
-				access.fNameNode = fNameNode;
-				fTopLevelEnvir.add(fNameNode.getText(), access);
+				final ElementAccess access= new ElementAccess.Default(node);
+				access.fFlags= ElementAccess.A_WRITE | ElementAccess.A_FUNC;
+				access.fNameNode= fNameNode;
+				SourceAnalyzer.this.topLevelEnvir.add(fNameNode.getText(), access);
 				
-				fArgValueToIgnore.add(fNameNode);
+				SourceAnalyzer.this.argValueToIgnore.add(fNameNode);
 				
-				final BuildSourceFrame envir = new BuildSourceFrame.RunScope(IRFrame.FUNCTION, BuildSourceFrame.createId(IRFrame.FUNCTION, access.getSegmentName(), ++fAnonymCount), fTopScope);
-				final RMethod rMethod = new RMethod(fCurrentSourceContainerBuilder.element, 
+				final BuildSourceFrame envir= new BuildSourceFrame.RunScope(IRFrame.FUNCTION, BuildSourceFrame.createId(IRFrame.FUNCTION, access.getSegmentName(), ++SourceAnalyzer.this.anonymCount), SourceAnalyzer.this.topScope);
+				final RMethod rMethod= new RMethod(SourceAnalyzer.this.currentSourceContainerBuilder.element, 
 						IRElement.R_GENERIC_FUNCTION, access, envir);
 				registerFunctionElement(rMethod);
 				
 				enterElement(rMethod, envir, node);
 				
-				final RMethod defMethod = visitAndCheckValue(args.getArgNode(fArgIdx_def), "def");
-				final RMethod defaultMethod = visitAndCheckValue(args.getArgNode(fArgIdx_useAsDefault), "useAsDefault");
-				visitAndCheckValue(args.getArgNode(fArgIdx_genericFunction), "genericFunction");
+				final RMethod defMethod= visitAndCheckValue(args.getArgNode(this.argIdx_def), "def");
+				final RMethod defaultMethod= visitAndCheckValue(args.getArgNode(this.argIdx_useAsDefault), "useAsDefault");
+				visitAndCheckValue(args.getArgNode(this.argIdx_genericFunction), "genericFunction");
 				
-				final RAstNode signatureValue = args.getArgValueNode(fArgIdx_signature);
-				RAstNode[] signatureArgNodes = null;
+				final RAstNode signatureValue= args.getArgValueNode(this.argIdx_signature);
+				RAstNode[] signatureArgNodes= null;
 				if (signatureValue != null) {
-					fRequest = STRING_ARRAY_REQUEST;
-					fReturnValue = null;
+					SourceAnalyzer.this.request= STRING_ARRAY_REQUEST;
+					SourceAnalyzer.this.returnValue= null;
 					signatureValue.acceptInR(SourceAnalyzer.this);
-					fArgValueToIgnore.add(signatureValue);
-					if (fReturnValue instanceof ReturnValue && ((ReturnValue) fReturnValue).returnType == RETURN_STRING_ARRAY) {
-						signatureArgNodes = ((NodeArray) fReturnValue).array;
+					SourceAnalyzer.this.argValueToIgnore.add(signatureValue);
+					if (SourceAnalyzer.this.returnValue instanceof ReturnValue && ((ReturnValue) SourceAnalyzer.this.returnValue).returnType == RETURN_STRING_ARRAY) {
+						signatureArgNodes= ((NodeArray) SourceAnalyzer.this.returnValue).array;
 					}
-					fReturnValue = null;
+					SourceAnalyzer.this.returnValue= null;
 				}
 				
-				ArgsDefinition baseDef = null;
+				ArgsDefinition baseDef= null;
 				ArgsDefinition methodDef;
 				if (defMethod != null) {
-					baseDef = defMethod.getArgsDefinition();
+					baseDef= defMethod.getArgsDefinition();
 				}
 				if (defaultMethod != null && (baseDef == null || baseDef.size() == 0)) {
-					baseDef = defaultMethod.getArgsDefinition();
+					baseDef= defaultMethod.getArgsDefinition();
 				}
 				if (baseDef != null && baseDef.size() > 0) {
-					final ArgsBuilder argsBuilder = new ArgsBuilder();
+					final ArgsBuilder argsBuilder= new ArgsBuilder();
 					// we copy the names
 					if (signatureArgNodes != null) { // explicit
-						ARGS: for (int i = 0; i < baseDef.size(); i++) {
-							final String name = baseDef.get(i).name;
+						ARGS: for (int i= 0; i < baseDef.size(); i++) {
+							final String name= baseDef.get(i).name;
 							if (name != null) {
-								for (int j = 0; j < signatureArgNodes.length; j++) {
+								for (int j= 0; j < signatureArgNodes.length; j++) {
 									if (name.equals(signatureArgNodes[j].getText())) {
 										argsBuilder.add(name, 0, "<?>");
 										continue ARGS;
@@ -1939,8 +1954,8 @@ public class SourceAnalyzer extends RAstVisitor {
 						argsBuilder.add("...", 0, "<?>");
 					}
 					else {
-						ARGS: for (int i = 0; i < baseDef.size(); i++) {
-							final String name = baseDef.get(i).name;
+						ARGS: for (int i= 0; i < baseDef.size(); i++) {
+							final String name= baseDef.get(i).name;
 							if (name != null) {
 								if (!name.equals("...")) {
 									argsBuilder.add(name, 0, "<?>");
@@ -1953,10 +1968,10 @@ public class SourceAnalyzer extends RAstVisitor {
 							continue ARGS;
 						}
 					}
-					methodDef = argsBuilder.toDef();
+					methodDef= argsBuilder.toDef();
 				}
 				else {
-					methodDef = new ArgsDefinition();
+					methodDef= new ArgsDefinition();
 				}
 				rMethod.complete(methodDef);
 				
@@ -1967,7 +1982,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			else {
 				node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
 			}
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
@@ -1990,284 +2005,284 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	protected final class MethodsRemoveGeneric implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_fName;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_fName;
 		
 		public MethodsRemoveGeneric(final RCoreFunctions rdef) {
-			fArgsDef = rdef.METHODS_SETGROUPGENERIC_args;
-			fArgIdx_fName = fArgsDef.indexOf("f");
+			this.argsDef= rdef.METHODS_SETGROUPGENERIC_args;
+			this.argIdx_fName= this.argsDef.indexOf("f");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode fNameNode = args.getArgValueNode(fArgIdx_fName);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode fNameNode= args.getArgValueNode(this.argIdx_fName);
 			
 			if (fNameNode != null && fNameNode.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Default(node);
-				access.fFlags = ElementAccess.A_DELETE | ElementAccess.A_FUNC;
-				access.fNameNode = fNameNode;
-				fGenericDefaultEnvir.add(fNameNode.getText(), access);
+				final ElementAccess access= new ElementAccess.Default(node);
+				access.fFlags= ElementAccess.A_DELETE | ElementAccess.A_FUNC;
+				access.fNameNode= fNameNode;
+				SourceAnalyzer.this.genericDefaultEnvir.add(fNameNode.getText(), access);
 				
-				fArgValueToIgnore.add(fNameNode);
+				SourceAnalyzer.this.argValueToIgnore.add(fNameNode);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
 	
 	protected final class MethodsSignature implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
+		private final ArgsDefinition argsDef;
 		
 		public MethodsSignature(final RCoreFunctions rdef) {
-			fArgsDef = rdef.METHODS_SIGNATURE_args;
+			this.argsDef= rdef.METHODS_SIGNATURE_args;
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			Object returnValue = null;
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			Object returnValue= null;
 			
 			if (args.ellipsisArgs.length > 0) {
-				final ElementAccess[] argNameNodes = new ElementAccess[args.ellipsisArgs.length];
-				final String[] classNames = new String[args.ellipsisArgs.length];
-				for (int i = 0; i < args.ellipsisArgs.length; i++) {
-					final FCall.Arg arg = args.ellipsisArgs[i];
+				final ElementAccess[] argNameNodes= new ElementAccess[args.ellipsisArgs.length];
+				final String[] classNames= new String[args.ellipsisArgs.length];
+				for (int i= 0; i < args.ellipsisArgs.length; i++) {
+					final FCall.Arg arg= args.ellipsisArgs[i];
 					if (arg.hasName() && arg.getNameChild().getText() != null) {
-						argNameNodes[i] = new ElementAccess.Default(node, arg.getNameChild());
-						argNameNodes[i].fFlags = ElementAccess.A_ARG;
+						argNameNodes[i]= new ElementAccess.Default(node, arg.getNameChild());
+						argNameNodes[i].fFlags= ElementAccess.A_ARG;
 					}
 					if (arg.hasValue()) {
-						final RAstNode value = arg.getValueChild();
+						final RAstNode value= arg.getValueChild();
 						if (value.getNodeType() == NodeType.STRING_CONST) {
-							classNames[i] = value.getText();
+							classNames[i]= value.getText();
 							registerSimpleClassAccessInEnvir(node, value);
-							fArgValueToIgnore.add(value);
+							SourceAnalyzer.this.argValueToIgnore.add(value);
 						}
 					}
 				}
-				returnValue = new Signature(argNameNodes, classNames);
+				returnValue= new Signature(argNameNodes, classNames);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = returnValue;
+			SourceAnalyzer.this.returnValue= returnValue;
 		}
 		
 	}
 	
 	protected final class MethodsSetClass implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_className;
-		private final int fArgIdx_superClasses;
-		private final int fArgIdx_representation;
-		private final int fArgIdx_prototype;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_className;
+		private final int argIdx_superClasses;
+		private final int argIdx_representation;
+		private final int argIdx_prototype;
 		
 		public MethodsSetClass(final RCoreFunctions rdef) {
-			fArgsDef = rdef.METHODS_SETCLASS_args;
-			fArgIdx_className = fArgsDef.indexOf("Class");
-			fArgIdx_superClasses = fArgsDef.indexOf("contains");
-			fArgIdx_representation = fArgsDef.indexOf("representation");
-			fArgIdx_prototype = fArgsDef.indexOf("prototype");
+			this.argsDef= rdef.METHODS_SETCLASS_args;
+			this.argIdx_className= this.argsDef.indexOf("Class");
+			this.argIdx_superClasses= this.argsDef.indexOf("contains");
+			this.argIdx_representation= this.argsDef.indexOf("representation");
+			this.argIdx_prototype= this.argsDef.indexOf("prototype");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
 			
-			final ElementAccess access = new ElementAccess.Class(node);
-			access.fFlags = ElementAccess.A_WRITE;
+			final ElementAccess access= new ElementAccess.Class(node);
+			access.fFlags= ElementAccess.A_WRITE;
 			String name;
-			final RAstNode classNameValue = args.getArgValueNode(fArgIdx_className);
+			final RAstNode classNameValue= args.getArgValueNode(this.argIdx_className);
 			if (classNameValue != null && classNameValue.getNodeType() == NodeType.STRING_CONST) {
-				name = classNameValue.getText();
-				access.fNameNode = classNameValue;
-				fArgValueToIgnore.add(classNameValue);
+				name= classNameValue.getText();
+				access.fNameNode= classNameValue;
+				SourceAnalyzer.this.argValueToIgnore.add(classNameValue);
 			}
 			else {
-				name = null;
+				name= null;
 			}
-			fGenericDefaultEnvir.addClass(name, access);
+			SourceAnalyzer.this.genericDefaultEnvir.addClass(name, access);
 			
-			final BuildSourceFrame envir = new BuildSourceFrame.RunScope(IRFrame.CLASS, BuildSourceFrame.createId(IRFrame.CLASS, access.getSegmentName(), ++fAnonymCount), 
-					fTopScope);
+			final BuildSourceFrame envir= new BuildSourceFrame.RunScope(IRFrame.CLASS, BuildSourceFrame.createId(IRFrame.CLASS, access.getSegmentName(), ++SourceAnalyzer.this.anonymCount), 
+					SourceAnalyzer.this.topScope);
 			
-			final RClass rClass = new RSourceElementByElementAccess.RClass(fCurrentSourceContainerBuilder.element, access, envir);
+			final RClass rClass= new RSourceElementByElementAccess.RClass(SourceAnalyzer.this.currentSourceContainerBuilder.element, access, envir);
 			registerClassElement(rClass);
 			enterElement(rClass, envir, node);
 			
-			final RAstNode representationValue = args.getArgValueNode(fArgIdx_representation);
+			final RAstNode representationValue= args.getArgValueNode(this.argIdx_representation);
 			if (representationValue != null) {
-				fRequest = REPRESENTATION_REQUEST;
+				SourceAnalyzer.this.request= REPRESENTATION_REQUEST;
 				representationValue.acceptInR(SourceAnalyzer.this);
 				
-				fArgValueToIgnore.add(representationValue);
-				fRequest = NO_REQUESTS;
+				SourceAnalyzer.this.argValueToIgnore.add(representationValue);
+				SourceAnalyzer.this.request= NO_REQUESTS;
 			}
 			
-			final RAstNode superClasses = args.getArgValueNode(fArgIdx_superClasses);
+			final RAstNode superClasses= args.getArgValueNode(this.argIdx_superClasses);
 			if (superClasses != null) {
-				fRequest = STRING_ARRAY_REQUEST;
-				fReturnValue = null;
+				SourceAnalyzer.this.request= STRING_ARRAY_REQUEST;
+				SourceAnalyzer.this.returnValue= null;
 				superClasses.acceptInR(SourceAnalyzer.this);
-				fArgValueToIgnore.add(superClasses);
-				if (fReturnValue instanceof ReturnValue && ((ReturnValue) fReturnValue).returnType == RETURN_STRING_ARRAY) {
-					final RAstNode refNode = args.allocatedArgs[fArgIdx_superClasses];
-					final RAstNode[] superClassNameNodes = ((NodeArray) fReturnValue).array;
-					final String[] names = new String[superClassNameNodes.length];
-					for (int i = 0; i < superClassNameNodes.length; i++) {
-						final ElementAccess superClassAccess = registerSimpleClassAccessInEnvir(refNode, superClassNameNodes[i]);
-						names[i] = superClassAccess.getSegmentName();
+				SourceAnalyzer.this.argValueToIgnore.add(superClasses);
+				if (SourceAnalyzer.this.returnValue instanceof ReturnValue && ((ReturnValue) SourceAnalyzer.this.returnValue).returnType == RETURN_STRING_ARRAY) {
+					final RAstNode refNode= args.allocatedArgs[this.argIdx_superClasses];
+					final RAstNode[] superClassNameNodes= ((NodeArray) SourceAnalyzer.this.returnValue).array;
+					final String[] names= new String[superClassNameNodes.length];
+					for (int i= 0; i < superClassNameNodes.length; i++) {
+						final ElementAccess superClassAccess= registerSimpleClassAccessInEnvir(refNode, superClassNameNodes[i]);
+						names[i]= superClassAccess.getSegmentName();
 					}
 					rClass.addSuperClasses(names);
 				}
-				fRequest = NO_REQUESTS;
-				fReturnValue = null;
+				SourceAnalyzer.this.request= NO_REQUESTS;
+				SourceAnalyzer.this.returnValue= null;
 			}
 			
-			final RAstNode prototypeValue = args.getArgValueNode(fArgIdx_prototype);
+			final RAstNode prototypeValue= args.getArgValueNode(this.argIdx_prototype);
 			if (prototypeValue != null) {
-				fRequest = PROTOTYPE_REQUEST;
+				SourceAnalyzer.this.request= PROTOTYPE_REQUEST;
 				prototypeValue.acceptInR(SourceAnalyzer.this);
 				
-				fArgValueToIgnore.add(prototypeValue);
-				fRequest = NO_REQUESTS;
+				SourceAnalyzer.this.argValueToIgnore.add(prototypeValue);
+				SourceAnalyzer.this.request= NO_REQUESTS;
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
 			
 			leaveElement();
 			
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
 	
 	protected final class MethodsSetClassUnion implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_className;
-		private final int fArgIdx_superClassNames;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_className;
+		private final int argIdx_superClassNames;
 		
 		public MethodsSetClassUnion(final RCoreFunctions rdef) {
-			fArgsDef = rdef.METHODS_SETCLASSUNION_args;
-			fArgIdx_className = fArgsDef.indexOf("name");
-			fArgIdx_superClassNames = fArgsDef.indexOf("members");
+			this.argsDef= rdef.METHODS_SETCLASSUNION_args;
+			this.argIdx_className= this.argsDef.indexOf("name");
+			this.argIdx_superClassNames= this.argsDef.indexOf("members");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode classNameValue = args.getArgValueNode(fArgIdx_className);
-			final RAstNode superClassNamesValue = args.getArgValueNode(fArgIdx_superClassNames);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode classNameValue= args.getArgValueNode(this.argIdx_className);
+			final RAstNode superClassNamesValue= args.getArgValueNode(this.argIdx_superClassNames);
 			
-			final ElementAccess access = new ElementAccess.Class(node);
+			final ElementAccess access= new ElementAccess.Class(node);
 			final String name;
-			access.fFlags = ElementAccess.A_WRITE;
+			access.fFlags= ElementAccess.A_WRITE;
 			if (classNameValue != null && classNameValue.getNodeType() == NodeType.STRING_CONST) {
-				name = classNameValue.getText();
-				access.fNameNode = classNameValue;
-				fArgValueToIgnore.add(classNameValue);
+				name= classNameValue.getText();
+				access.fNameNode= classNameValue;
+				SourceAnalyzer.this.argValueToIgnore.add(classNameValue);
 			}
 			else {
-				name = null;
+				name= null;
 			}
-			fGenericDefaultEnvir.addClass(name, access);
+			SourceAnalyzer.this.genericDefaultEnvir.addClass(name, access);
 			
-			final BuildSourceFrame envir = new BuildSourceFrame.RunScope(IRFrame.CLASS, BuildSourceFrame.createId(IRFrame.CLASS, access.getSegmentName(), ++fAnonymCount), 
-					fTopScope);
-			final RClass rClass = new RSourceElementByElementAccess.RClass(fCurrentSourceContainerBuilder.element, access, envir);
+			final BuildSourceFrame envir= new BuildSourceFrame.RunScope(IRFrame.CLASS, BuildSourceFrame.createId(IRFrame.CLASS, access.getSegmentName(), ++SourceAnalyzer.this.anonymCount), 
+					SourceAnalyzer.this.topScope);
+			final RClass rClass= new RSourceElementByElementAccess.RClass(SourceAnalyzer.this.currentSourceContainerBuilder.element, access, envir);
 			registerClassElement(rClass);
 			enterElement(rClass, envir, node);
 			
 			if (superClassNamesValue != null) {
-				fRequest = STRING_ARRAY_REQUEST;
-				fReturnValue = null;
+				SourceAnalyzer.this.request= STRING_ARRAY_REQUEST;
+				SourceAnalyzer.this.returnValue= null;
 				superClassNamesValue.acceptInR(SourceAnalyzer.this);
-				fArgValueToIgnore.add(superClassNamesValue);
-				if (fReturnValue instanceof ReturnValue && ((ReturnValue) fReturnValue).returnType == RETURN_STRING_ARRAY) {
-					final RAstNode refNode = args.allocatedArgs[fArgIdx_superClassNames];
-					final RAstNode[] superClassNameNodes = ((NodeArray) fReturnValue).array;
-					final String[] names = new String[superClassNameNodes.length];
-					for (int i = 0; i < superClassNameNodes.length; i++) {
-						final ElementAccess superClassAccess = registerSimpleClassAccessInEnvir(refNode, superClassNameNodes[i]);
-						names[i] = superClassAccess.getSegmentName();
+				SourceAnalyzer.this.argValueToIgnore.add(superClassNamesValue);
+				if (SourceAnalyzer.this.returnValue instanceof ReturnValue && ((ReturnValue) SourceAnalyzer.this.returnValue).returnType == RETURN_STRING_ARRAY) {
+					final RAstNode refNode= args.allocatedArgs[this.argIdx_superClassNames];
+					final RAstNode[] superClassNameNodes= ((NodeArray) SourceAnalyzer.this.returnValue).array;
+					final String[] names= new String[superClassNameNodes.length];
+					for (int i= 0; i < superClassNameNodes.length; i++) {
+						final ElementAccess superClassAccess= registerSimpleClassAccessInEnvir(refNode, superClassNameNodes[i]);
+						names[i]= superClassAccess.getSegmentName();
 					}
 					rClass.addSuperClasses(names);
 				}
-				fRequest = NO_REQUESTS;
-				fReturnValue = null;
+				SourceAnalyzer.this.request= NO_REQUESTS;
+				SourceAnalyzer.this.returnValue= null;
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
 			
 			leaveElement();
 			
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
 	
 	protected final class MethodsRepresentation implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
+		private final ArgsDefinition argsDef;
 		
 		public MethodsRepresentation(final RCoreFunctions rdef) {
-			fArgsDef = rdef.METHODS_REPRESENTATION_args;
+			this.argsDef= rdef.METHODS_REPRESENTATION_args;
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			final boolean requested = (fRequest == REPRESENTATION_REQUEST // || isRequested(REG_CLASS_REPRESENTATION)
-					&& fCurrentSourceContainerBuilder.element.getElementType() == IRElement.R_S4CLASS);
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
+			final boolean requested= (SourceAnalyzer.this.request == REPRESENTATION_REQUEST // || isRequested(REG_CLASS_REPRESENTATION)
+					&& SourceAnalyzer.this.currentSourceContainerBuilder.element.getElementType() == IRElement.R_S4CLASS);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
 			
 			if (args.ellipsisArgs.length > 0) {
-				final RSourceElementByElementAccess.RClass rClass = requested ?
-								(RSourceElementByElementAccess.RClass) fCurrentSourceContainerBuilder.element : null;
-				final String[] superClassNames = new String[args.ellipsisArgs.length];
+				final RSourceElementByElementAccess.RClass rClass= requested ?
+								(RSourceElementByElementAccess.RClass) SourceAnalyzer.this.currentSourceContainerBuilder.element : null;
+				final String[] superClassNames= new String[args.ellipsisArgs.length];
 				
-				for (int i = 0; i < args.ellipsisArgs.length; i++) {
-					final FCall.Arg arg = args.ellipsisArgs[i];
+				for (int i= 0; i < args.ellipsisArgs.length; i++) {
+					final FCall.Arg arg= args.ellipsisArgs[i];
 					if (arg.hasName()) { // slot
-						final RAstNode nameNode = arg.getNameChild();
-						RSlot slot = null;
+						final RAstNode nameNode= arg.getNameChild();
+						RSlot slot= null;
 						if (rClass != null) {
-							final ElementAccess.Slot access = new ElementAccess.Slot(arg);
-							access.fFlags = ElementAccess.A_WRITE;
-							access.fNameNode = nameNode;
-							fCurrentSourceContainerBuilder.envir.addRunResolve(nameNode.getText(), access);
-							slot = new RSourceElementByElementAccess.RSlot(rClass, access);
-							fCurrentSourceContainerBuilder.children.add(slot);
+							final ElementAccess.Slot access= new ElementAccess.Slot(arg);
+							access.fFlags= ElementAccess.A_WRITE;
+							access.fNameNode= nameNode;
+							SourceAnalyzer.this.currentSourceContainerBuilder.envir.addRunResolve(nameNode.getText(), access);
+							slot= new RSourceElementByElementAccess.RSlot(rClass, access);
+							SourceAnalyzer.this.currentSourceContainerBuilder.children.add(slot);
 						}
 						if (arg.hasValue()) {
-							final RAstNode valueNode = arg.getValueChild();
+							final RAstNode valueNode= arg.getValueChild();
 							if (valueNode.getNodeType() == NodeType.STRING_CONST) {
 								registerSimpleClassAccessInEnvir(arg, valueNode);
 								if (slot != null) {
 									slot.completeType(valueNode.getText());
 								}
-								fArgValueToIgnore.add(valueNode);
+								SourceAnalyzer.this.argValueToIgnore.add(valueNode);
 							}
 						}
 					}
 					else { // superclasses (like setClass arg contains)
 						if (arg.hasValue()) {
-							final RAstNode value = arg.getValueChild();
+							final RAstNode value= arg.getValueChild();
 							if (value.getNodeType() == NodeType.STRING_CONST) {
 								registerSimpleClassAccessInEnvir(arg, value);
 								if (rClass != null) {
-									superClassNames[i] = value.getText();
+									superClassNames[i]= value.getText();
 								}
-								fArgValueToIgnore.add(value);
+								SourceAnalyzer.this.argValueToIgnore.add(value);
 							}
 						}
 					}
@@ -2278,52 +2293,52 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
 	
 	protected final class MethodsPrototype implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
+		private final ArgsDefinition argsDef;
 		
 		public MethodsPrototype(final RCoreFunctions rdef) {
-			fArgsDef = rdef.METHODS_PROTOTYPE_args;
+			this.argsDef= rdef.METHODS_PROTOTYPE_args;
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			final boolean requested = (fRequest == PROTOTYPE_REQUEST // || isRequested(REG_CLASS_REPRESENTATION)
-					&& fCurrentSourceContainerBuilder.element.getElementType() == IRElement.R_S4CLASS);
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
+			final boolean requested= (SourceAnalyzer.this.request == PROTOTYPE_REQUEST // || isRequested(REG_CLASS_REPRESENTATION)
+					&& SourceAnalyzer.this.currentSourceContainerBuilder.element.getElementType() == IRElement.R_S4CLASS);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
 			
 			if (args.ellipsisArgs.length > 0) {
-				final RSourceElementByElementAccess.RClass classDef = requested ?
-						(RSourceElementByElementAccess.RClass) fCurrentSourceContainerBuilder.element : null;
-				for (int i = 0; i < args.ellipsisArgs.length; i++) {
-					final FCall.Arg arg = args.ellipsisArgs[i];
+				final RSourceElementByElementAccess.RClass classDef= requested ?
+						(RSourceElementByElementAccess.RClass) SourceAnalyzer.this.currentSourceContainerBuilder.element : null;
+				for (int i= 0; i < args.ellipsisArgs.length; i++) {
+					final FCall.Arg arg= args.ellipsisArgs[i];
 					if (arg.hasName()) { // slot
-						final RAstNode slotNameNode = arg.getNameChild();
-						final String slotName = slotNameNode.getText();
-						RSlot slot = null;
+						final RAstNode slotNameNode= arg.getNameChild();
+						final String slotName= slotNameNode.getText();
+						RSlot slot= null;
 						if (classDef != null && slotName != null) {
-							final ElementAccess.Slot access = new ElementAccess.Slot(arg);
-							access.fFlags = ElementAccess.A_WRITE;
-							access.fNameNode = slotNameNode;
-							fCurrentSourceContainerBuilder.envir.addRunResolve(slotName, access);
-							for (final RSourceElementByElementAccess child : fCurrentSourceContainerBuilder.children) {
+							final ElementAccess.Slot access= new ElementAccess.Slot(arg);
+							access.fFlags= ElementAccess.A_WRITE;
+							access.fNameNode= slotNameNode;
+							SourceAnalyzer.this.currentSourceContainerBuilder.envir.addRunResolve(slotName, access);
+							for (final RSourceElementByElementAccess child : SourceAnalyzer.this.currentSourceContainerBuilder.children) {
 								if (child.getElementType() == IRElement.R_S4SLOT
 										&& slotName.equals(child.getElementName().getSegmentName()) ) {
-									slot = (RSlot) child;
+									slot= (RSlot) child;
 									break;
 								}
 							}
 						}
 						if (arg.hasValue()) {
-//							final RAstNode valueNode = arg.getValueChild();
+//							final RAstNode valueNode= arg.getValueChild();
 //							if (slot != null) {
-//								slot.fPrototypeCode = value.toString();
+//								slot.fPrototypeCode= value.toString();
 //							}
 						}
 					}
@@ -2333,57 +2348,57 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
 	
 	protected final class MethodsSetIs implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_className;
-		private final int fArgIdx_classToExtendName;
-		private final int fArgIdx_testF;
-		private final int fArgIdx_coerceF;
-		private final int fArgIdx_replaceF;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_className;
+		private final int argIdx_classToExtendName;
+		private final int argIdx_testF;
+		private final int argIdx_coerceF;
+		private final int argIdx_replaceF;
 		
 		public MethodsSetIs(final RCoreFunctions rdef) {
-			fArgsDef = rdef.METHODS_SETIS_args;
-			fArgIdx_className = fArgsDef.indexOf("class1");
-			fArgIdx_classToExtendName = fArgsDef.indexOf("class2");
-			fArgIdx_testF = fArgsDef.indexOf("test");
-			fArgIdx_coerceF = fArgsDef.indexOf("coerce");
-			fArgIdx_replaceF = fArgsDef.indexOf("replace");
+			this.argsDef= rdef.METHODS_SETIS_args;
+			this.argIdx_className= this.argsDef.indexOf("class1");
+			this.argIdx_classToExtendName= this.argsDef.indexOf("class2");
+			this.argIdx_testF= this.argsDef.indexOf("test");
+			this.argIdx_coerceF= this.argsDef.indexOf("coerce");
+			this.argIdx_replaceF= this.argsDef.indexOf("replace");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode classNameNode = args.getArgValueNode(fArgIdx_className);
-			final RAstNode cToExtendNameNode = args.getArgValueNode(fArgIdx_classToExtendName);
-			RClassExt rClassExt = null;
-			BuildSourceFrame envir = null;
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode classNameNode= args.getArgValueNode(this.argIdx_className);
+			final RAstNode cToExtendNameNode= args.getArgValueNode(this.argIdx_classToExtendName);
+			RClassExt rClassExt= null;
+			BuildSourceFrame envir= null;
 			
 			if (classNameNode != null && classNameNode.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Class(node);
-				access.fFlags = ElementAccess.A_WRITE;
-				access.fNameNode = classNameNode;
-				fGenericDefaultEnvir.addClass(classNameNode.getText(), access);
+				final ElementAccess access= new ElementAccess.Class(node);
+				access.fFlags= ElementAccess.A_WRITE;
+				access.fNameNode= classNameNode;
+				SourceAnalyzer.this.genericDefaultEnvir.addClass(classNameNode.getText(), access);
 				
-				fArgValueToIgnore.add(classNameNode);
+				SourceAnalyzer.this.argValueToIgnore.add(classNameNode);
 				
-				envir = new BuildSourceFrame.RunScope(IRFrame.FUNCTION, BuildSourceFrame.createId(IRFrame.FUNCTION, access.getSegmentName(), ++fAnonymCount), fTopScope);
-				rClassExt = new RClassExt(fCurrentSourceContainerBuilder.element, access, envir, "setIs");
+				envir= new BuildSourceFrame.RunScope(IRFrame.FUNCTION, BuildSourceFrame.createId(IRFrame.FUNCTION, access.getSegmentName(), ++SourceAnalyzer.this.anonymCount), SourceAnalyzer.this.topScope);
+				rClassExt= new RClassExt(SourceAnalyzer.this.currentSourceContainerBuilder.element, access, envir, "setIs");
 				registerClassExtElement(rClassExt);
 			}
 			if (cToExtendNameNode != null && cToExtendNameNode.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Class(node);
-				access.fFlags = ElementAccess.A_READ;
-				access.fNameNode = cToExtendNameNode;
-				fGenericDefaultEnvir.addClass(cToExtendNameNode.getText(), access);
+				final ElementAccess access= new ElementAccess.Class(node);
+				access.fFlags= ElementAccess.A_READ;
+				access.fNameNode= cToExtendNameNode;
+				SourceAnalyzer.this.genericDefaultEnvir.addClass(cToExtendNameNode.getText(), access);
 				
-				fArgValueToIgnore.add(classNameNode);
+				SourceAnalyzer.this.argValueToIgnore.add(classNameNode);
 				
 				if (rClassExt != null) {
 					rClassExt.complete(classNameNode.getText());
@@ -2393,9 +2408,9 @@ public class SourceAnalyzer extends RAstVisitor {
 			if (rClassExt != null) {
 				enterElement(rClassExt, envir, node);
 				
-				visitAndCheckValue(args.allocatedArgs[fArgIdx_testF], "test");
-				visitAndCheckValue(args.allocatedArgs[fArgIdx_coerceF], "coerce");
-				visitAndCheckValue(args.allocatedArgs[fArgIdx_replaceF], "replace");
+				visitAndCheckValue(args.allocatedArgs[this.argIdx_testF], "test");
+				visitAndCheckValue(args.allocatedArgs[this.argIdx_coerceF], "coerce");
+				visitAndCheckValue(args.allocatedArgs[this.argIdx_replaceF], "replace");
 				
 				node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
 				
@@ -2404,7 +2419,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			else {
 				node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
 			}
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 			return;
 		}
 		
@@ -2413,31 +2428,31 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	protected final class MethodsRemoveClass implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_className;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_className;
 		
 		public MethodsRemoveClass(final RCoreFunctions rdef) {
-			fArgsDef = rdef.METHODS_REMOVECLASS_args;
-			fArgIdx_className = fArgsDef.indexOf("Class");
+			this.argsDef= rdef.METHODS_REMOVECLASS_args;
+			this.argIdx_className= this.argsDef.indexOf("Class");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode classNameNode = args.getArgValueNode(fArgIdx_className);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode classNameNode= args.getArgValueNode(this.argIdx_className);
 			
 			if (classNameNode != null && classNameNode.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Class(node);
-				access.fFlags = ElementAccess.A_DELETE;
-				access.fNameNode = classNameNode;
-				fGenericDefaultEnvir.addClass(classNameNode.getText(), access);
+				final ElementAccess access= new ElementAccess.Class(node);
+				access.fFlags= ElementAccess.A_DELETE;
+				access.fNameNode= classNameNode;
+				SourceAnalyzer.this.genericDefaultEnvir.addClass(classNameNode.getText(), access);
 				
-				fArgValueToIgnore.add(classNameNode);
+				SourceAnalyzer.this.argValueToIgnore.add(classNameNode);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 			return;
 		}
 		
@@ -2445,42 +2460,42 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	protected final class MethodsSetAs implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_className;
-		private final int fArgIdx_toClass;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_className;
+		private final int argIdx_toClass;
 		
 		public MethodsSetAs(final RCoreFunctions rdef) {
-			fArgsDef = rdef.METHODS_SETAS_args;
-			fArgIdx_className = fArgsDef.indexOf("from");
-			fArgIdx_toClass = fArgsDef.indexOf("to");
+			this.argsDef= rdef.METHODS_SETAS_args;
+			this.argIdx_className= this.argsDef.indexOf("from");
+			this.argIdx_toClass= this.argsDef.indexOf("to");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode classNameNode = args.getArgValueNode(fArgIdx_className);
-			final RAstNode toClassNode = args.getArgValueNode(fArgIdx_toClass);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode classNameNode= args.getArgValueNode(this.argIdx_className);
+			final RAstNode toClassNode= args.getArgValueNode(this.argIdx_toClass);
 			
 			if (classNameNode != null && classNameNode.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Class(node);
-				access.fFlags = ElementAccess.A_WRITE;
-				access.fNameNode = classNameNode;
-				fGenericDefaultEnvir.addClass(classNameNode.getText(), access);
+				final ElementAccess access= new ElementAccess.Class(node);
+				access.fFlags= ElementAccess.A_WRITE;
+				access.fNameNode= classNameNode;
+				SourceAnalyzer.this.genericDefaultEnvir.addClass(classNameNode.getText(), access);
 				
-				fArgValueToIgnore.add(classNameNode);
+				SourceAnalyzer.this.argValueToIgnore.add(classNameNode);
 			}
 			if (toClassNode != null && toClassNode.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Class(node);
-				access.fFlags = ElementAccess.A_READ;
-				access.fNameNode = toClassNode;
-				fGenericDefaultEnvir.addClass(toClassNode.getText(), access);
+				final ElementAccess access= new ElementAccess.Class(node);
+				access.fFlags= ElementAccess.A_READ;
+				access.fNameNode= toClassNode;
+				SourceAnalyzer.this.genericDefaultEnvir.addClass(toClassNode.getText(), access);
 				
-				fArgValueToIgnore.add(toClassNode);
+				SourceAnalyzer.this.argValueToIgnore.add(toClassNode);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 			return;
 		}
 		
@@ -2488,31 +2503,31 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	protected final class MethodsSetValidity implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_className;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_className;
 		
 		public MethodsSetValidity(final RCoreFunctions rdef) {
-			fArgsDef = rdef.METHODS_SETVALIDITY_args;
-			fArgIdx_className = fArgsDef.indexOf("Class");
+			this.argsDef= rdef.METHODS_SETVALIDITY_args;
+			this.argIdx_className= this.argsDef.indexOf("Class");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode classNameNode = args.getArgValueNode(fArgIdx_className);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode classNameNode= args.getArgValueNode(this.argIdx_className);
 			
 			if (classNameNode != null && classNameNode.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Class(node);
-				access.fFlags = ElementAccess.A_WRITE;
-				access.fNameNode = classNameNode;
-				fGenericDefaultEnvir.addClass(classNameNode.getText(), access);
+				final ElementAccess access= new ElementAccess.Class(node);
+				access.fFlags= ElementAccess.A_WRITE;
+				access.fNameNode= classNameNode;
+				SourceAnalyzer.this.genericDefaultEnvir.addClass(classNameNode.getText(), access);
 				
-				fArgValueToIgnore.add(classNameNode);
+				SourceAnalyzer.this.argValueToIgnore.add(classNameNode);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 			return;
 		}
 		
@@ -2520,27 +2535,27 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	private abstract class MethodsCommonClassRead implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_className;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_className;
 		
 		protected MethodsCommonClassRead(final ArgsDefinition argsDef, final String classNameNodeName) {
-			fArgsDef = argsDef;
-			fArgIdx_className = fArgsDef.indexOf(classNameNodeName);
+			this.argsDef= argsDef;
+			this.argIdx_className= this.argsDef.indexOf(classNameNodeName);
 		}
 		
 		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode classNameNode = args.getArgValueNode(fArgIdx_className);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode classNameNode= args.getArgValueNode(this.argIdx_className);
 			
 			if (classNameNode != null && classNameNode.getNodeType() == NodeType.STRING_CONST) {
 				registerSimpleClassAccessInEnvir(node, classNameNode);
-				fArgValueToIgnore.add(classNameNode);
+				SourceAnalyzer.this.argValueToIgnore.add(classNameNode);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
@@ -2587,155 +2602,155 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	protected final class MethodsSetMethod implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_fName;
-		private final int fArgIdx_signature;
-		private final int fArgIdx_fDef;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_fName;
+		private final int argIdx_signature;
+		private final int argIdx_fDef;
 		
 		public MethodsSetMethod(final RCoreFunctions rdef) {
-			fArgsDef = rdef.METHODS_SETMETHOD_args;
-			fArgIdx_fName = fArgsDef.indexOf("f");
-			fArgIdx_signature = fArgsDef.indexOf("signature");
-			fArgIdx_fDef = fArgsDef.indexOf("definition");
+			this.argsDef= rdef.METHODS_SETMETHOD_args;
+			this.argIdx_fName= this.argsDef.indexOf("f");
+			this.argIdx_signature= this.argsDef.indexOf("signature");
+			this.argIdx_fDef= this.argsDef.indexOf("definition");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode fNameArg = args.getArgValueNode(fArgIdx_fName);
-			final RAstNode fDefArg = args.getArgValueNode(fArgIdx_fDef);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode fNameArg= args.getArgValueNode(this.argIdx_fName);
+			final RAstNode fDefArg= args.getArgValueNode(this.argIdx_fDef);
 			
 			if (fNameArg != null && fNameArg.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Default(node);
-				access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_FUNC;
-				access.fNameNode = fNameArg;
-				fGenericDefaultEnvir.add(fNameArg.getText(), access);
+				final ElementAccess access= new ElementAccess.Default(node);
+				access.fFlags= ElementAccess.A_WRITE | ElementAccess.A_FUNC;
+				access.fNameNode= fNameArg;
+				SourceAnalyzer.this.genericDefaultEnvir.add(fNameArg.getText(), access);
 				
-				fArgValueToIgnore.add(fNameArg);
+				SourceAnalyzer.this.argValueToIgnore.add(fNameArg);
 				
-				final Signature sig = readSignature(node, args.getArgValueNode(fArgIdx_signature));
-				fReturnValue = null;
+				final Signature sig= readSignature(node, args.getArgValueNode(this.argIdx_signature));
+				SourceAnalyzer.this.returnValue= null;
 				if (fDefArg != null) {
 					fDefArg.acceptInR(SourceAnalyzer.this);
-					fArgValueToIgnore.add(fDefArg);
+					SourceAnalyzer.this.argValueToIgnore.add(fDefArg);
 				}
 				RMethod rMethod;
-				if (fReturnValue instanceof RMethod) {
-					rMethod = (RMethod) fReturnValue;
+				if (SourceAnalyzer.this.returnValue instanceof RMethod) {
+					rMethod= (RMethod) SourceAnalyzer.this.returnValue;
 					registerFunctionElement(rMethod, IRElement.R_S4METHOD, access, sig);
 				}
 				else {
-					final BuildSourceFrame envir = new BuildSourceFrame.DefScope(IRFrame.FUNCTION,
-							BuildSourceFrame.createId(IRFrame.FUNCTION, access.getSegmentName(), ++fAnonymCount),
-							access.getSegmentName(), new BuildSourceFrame[] { fTopLevelEnvir });
-					rMethod = new RMethod(fCurrentSourceContainerBuilder.element, IRElement.R_S4METHOD, access, envir);
+					final BuildSourceFrame envir= new BuildSourceFrame.DefScope(IRFrame.FUNCTION,
+							BuildSourceFrame.createId(IRFrame.FUNCTION, access.getSegmentName(), ++SourceAnalyzer.this.anonymCount),
+							access.getSegmentName(), new BuildSourceFrame[] { SourceAnalyzer.this.topLevelEnvir });
+					rMethod= new RMethod(SourceAnalyzer.this.currentSourceContainerBuilder.element, IRElement.R_S4METHOD, access, envir);
 					enterElement(rMethod, envir, node);
 					leaveElement();
 					registerFunctionElement(rMethod, IRElement.R_S4METHOD, access, sig);
 				}
-				fReturnValue = null;
+				SourceAnalyzer.this.returnValue= null;
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
 	
 	protected final class MethodsRemoveMethod implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_fName;
-		private final int fArgIdx_signature;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_fName;
+		private final int argIdx_signature;
 		
 		public MethodsRemoveMethod(final RCoreFunctions rdef) {
-			fArgsDef = rdef.METHODS_REMOVEMETHOD_args;
-			fArgIdx_fName = fArgsDef.indexOf("f");
-			fArgIdx_signature = fArgsDef.indexOf("signature");
+			this.argsDef= rdef.METHODS_REMOVEMETHOD_args;
+			this.argIdx_fName= this.argsDef.indexOf("f");
+			this.argIdx_signature= this.argsDef.indexOf("signature");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode fNameArg = args.getArgValueNode(fArgIdx_fName);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode fNameArg= args.getArgValueNode(this.argIdx_fName);
 			
 			if (fNameArg != null && fNameArg.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Default(node);
-				access.fFlags = ElementAccess.A_DELETE | ElementAccess.A_FUNC;
-				access.fNameNode = fNameArg;
-				fGenericDefaultEnvir.addLateResolve(fNameArg.getText(), access);
+				final ElementAccess access= new ElementAccess.Default(node);
+				access.fFlags= ElementAccess.A_DELETE | ElementAccess.A_FUNC;
+				access.fNameNode= fNameArg;
+				SourceAnalyzer.this.genericDefaultEnvir.addLateResolve(fNameArg.getText(), access);
 				
-				fArgValueToIgnore.add(fNameArg);
+				SourceAnalyzer.this.argValueToIgnore.add(fNameArg);
 				
-//				final Signature sig = readSignature(node, args.getArgValueNode(fArgIdx_signature));
-//				fReturnValue = null;
+//				final Signature sig= readSignature(node, args.getArgValueNode(this.argIdx_signature));
+//				fReturnValue= null;
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
 	
 	protected final class MethodsRemoveMethods implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_fName;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_fName;
 		
 		public MethodsRemoveMethods(final RCoreFunctions rdef) {
-			fArgsDef = rdef.METHODS_REMOVEMETHODS_args;
-			fArgIdx_fName = fArgsDef.indexOf("f");
+			this.argsDef= rdef.METHODS_REMOVEMETHODS_args;
+			this.argIdx_fName= this.argsDef.indexOf("f");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode fNameArg = args.getArgValueNode(fArgIdx_fName);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode fNameArg= args.getArgValueNode(this.argIdx_fName);
 			
 			if (fNameArg != null && fNameArg.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Default(node);
-				access.fFlags = ElementAccess.A_DELETE | ElementAccess.A_FUNC;
-				access.fNameNode = fNameArg;
-				fGenericDefaultEnvir.addLateResolve(fNameArg.getText(), access);
+				final ElementAccess access= new ElementAccess.Default(node);
+				access.fFlags= ElementAccess.A_DELETE | ElementAccess.A_FUNC;
+				access.fNameNode= fNameArg;
+				SourceAnalyzer.this.genericDefaultEnvir.addLateResolve(fNameArg.getText(), access);
 				
-				fArgValueToIgnore.add(fNameArg);
+				SourceAnalyzer.this.argValueToIgnore.add(fNameArg);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
 	
 	private class MethodsCommonMethodRead implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_fName;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_fName;
 		
 		protected MethodsCommonMethodRead(final ArgsDefinition argsDef, final String fNameNodeName) {
-			fArgsDef = argsDef;
-			fArgIdx_fName = fArgsDef.indexOf(fNameNodeName);
+			this.argsDef= argsDef;
+			this.argIdx_fName= this.argsDef.indexOf(fNameNodeName);
 		}
 		
 		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode fNameNode = args.getArgValueNode(fArgIdx_fName);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode fNameNode= args.getArgValueNode(this.argIdx_fName);
 			
 			if (fNameNode != null && fNameNode.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Default(node);
-				access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC;
-				access.fNameNode = fNameNode;
-				fGenericDefaultEnvir.add(fNameNode.getText(), access);
-				fArgValueToIgnore.add(fNameNode);
+				final ElementAccess access= new ElementAccess.Default(node);
+				access.fFlags= ElementAccess.A_READ | ElementAccess.A_FUNC;
+				access.fNameNode= fNameNode;
+				SourceAnalyzer.this.genericDefaultEnvir.add(fNameNode.getText(), access);
+				SourceAnalyzer.this.argValueToIgnore.add(fNameNode);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
@@ -2774,42 +2789,42 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	protected final class MethodsSlot implements IFCallAnalyzer {
 		
-		private final ArgsDefinition fArgsDef;
-		private final int fArgIdx_object;
-		private final int fArgIdx_slotName;
+		private final ArgsDefinition argsDef;
+		private final int argIdx_object;
+		private final int argIdx_slotName;
 		
 		
 		public MethodsSlot(final RCoreFunctions rdef) {
-			fArgsDef = rdef.METHODS_SLOT_args;
-			fArgIdx_object = fArgsDef.indexOf("object");
-			fArgIdx_slotName = fArgsDef.indexOf("name");
+			this.argsDef= rdef.METHODS_SLOT_args;
+			this.argIdx_object= this.argsDef.indexOf("object");
+			this.argIdx_slotName= this.argsDef.indexOf("name");
 		}
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
-			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-			final RAstNode objectArg = args.getArgValueNode(fArgIdx_object);
-			final RAstNode slotArg = args.getArgValueNode(fArgIdx_slotName);
+			SourceAnalyzer.this.request= NO_REQUESTS;
+			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final RAstNode objectArg= args.getArgValueNode(this.argIdx_object);
+			final RAstNode slotArg= args.getArgValueNode(this.argIdx_slotName);
 			
 			if (objectArg != null && objectArg.getNodeType() == NodeType.SYMBOL) {
-				final ElementAccess access = new ElementAccess.Default(node);
-				access.fFlags = (assignment) ?
+				final ElementAccess access= new ElementAccess.Default(node);
+				access.fFlags= (assignment) ?
 						(ElementAccess.A_WRITE | ElementAccess.A_SUB) :
 						(ElementAccess.A_READ | ElementAccess.A_SUB);
-				access.fNameNode = objectArg;
-				fArgValueToIgnore.add(objectArg);
+				access.fNameNode= objectArg;
+				SourceAnalyzer.this.argValueToIgnore.add(objectArg);
 				
 				if (slotArg != null && slotArg.getNodeType() == NodeType.STRING_CONST) {
-					access.fNextSegment = new SubNamedSlotInFunElementAccess(access, slotArg);
-					fArgValueToIgnore.add(slotArg);
+					access.fNextSegment= new SubNamedSlotInFunElementAccess(access, slotArg);
+					SourceAnalyzer.this.argValueToIgnore.add(slotArg);
 				}
 				
-				fTopScope.addLateResolve(objectArg.getText(), access);
+				SourceAnalyzer.this.topScope.addLateResolve(objectArg.getText(), access);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
@@ -2822,19 +2837,19 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
-			fRequest = NO_REQUESTS;
+			SourceAnalyzer.this.request= NO_REQUESTS;
 			
-			final FCall.Args args = node.getArgsChild();
+			final FCall.Args args= node.getArgsChild();
 			if (args.getChildCount() > 0 && assignment) {
-				final FCall.Arg firstArg = args.getChild(0);
-				final RAstNode argName = firstArg.getNameChild();
-				final RAstNode argValue = firstArg.getValueChild();
+				final FCall.Arg firstArg= args.getChild(0);
+				final RAstNode argName= firstArg.getNameChild();
+				final RAstNode argValue= firstArg.getValueChild();
 				if (firstArg.hasValue()
 						&& (!firstArg.hasName() || argName.getText().equals("x"))) { 
-					final ElementAccess access = new ElementAccess.Default(node);
-					access.fFlags = ElementAccess.A_WRITE;
-					final String mainName = resolveElementName(argValue, access, false);
-					fArgValueToIgnore.add(argValue);
+					final ElementAccess access= new ElementAccess.Default(node);
+					access.fFlags= ElementAccess.A_WRITE;
+					final String mainName= resolveElementName(argValue, access, false);
+					SourceAnalyzer.this.argValueToIgnore.add(argValue);
 					if (mainName != null) {
 						registerInEnvir(S_SEARCH, mainName, access);
 					}
@@ -2842,7 +2857,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			fReturnValue = null;
+			SourceAnalyzer.this.returnValue= null;
 		}
 		
 	}
@@ -2859,10 +2874,10 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 //	protected final class Template2 implements IFCallAnalyzer {
 //		
-//		private final ArgsDefinition fArgsDef;
+//		private final ArgsDefinition argsDef;
 //		
 //		public Template2(final RCoreFunctions rdef) {
-//			fArgsDef = rdef.;
+//			this.argsDef= rdef.;
 //		}
 //		
 //		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
@@ -2872,28 +2887,28 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	private Signature readSignature(final RAstNode refNode, final RAstNode sigNode) throws InvocationTargetException {
 		if (sigNode != null) {
-			fRequest = SIGNATURE_REQUESTS;
-			fReturnValue = null;
+			this.request= SIGNATURE_REQUESTS;
+			this.returnValue= null;
 			sigNode.acceptInR(SourceAnalyzer.this);
-			fArgValueToIgnore.add(sigNode);
-			if (fReturnValue instanceof ReturnValue) {
-				final ReturnValue value = (ReturnValue) fReturnValue;
-				fReturnValue = null;
+			this.argValueToIgnore.add(sigNode);
+			if (this.returnValue instanceof ReturnValue) {
+				final ReturnValue value= (ReturnValue) this.returnValue;
+				this.returnValue= null;
 				if (value.returnType == RETURN_METHOD_SIGNATURE) {
 					return (Signature) value;
 				}
 				if (value.returnType == RETURN_STRING_ARRAY) {
-					final RAstNode[] nodes = ((NodeArray) value).array;
-					final String[] classNames = new String[nodes.length];
-					for (int i = 0; i < nodes.length; i++) {
+					final RAstNode[] nodes= ((NodeArray) value).array;
+					final String[] classNames= new String[nodes.length];
+					for (int i= 0; i < nodes.length; i++) {
 						registerSimpleClassAccessInEnvir(refNode, nodes[i]);
-						classNames[i] = nodes[i].getText();
+						classNames[i]= nodes[i].getText();
 					}
 					return new Signature(null, classNames);
 				}
 			}
 			else {
-				fReturnValue = null;
+				this.returnValue= null;
 				return null;
 			}
 		}
@@ -2901,15 +2916,15 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	public static ArgsDefinition createMethodArgDef(final FDef fdefNode, final Signature sig) {
-		final FDef.Args argList = (fdefNode != null) ? fdefNode.getArgsChild() : null;
-		final ArgsBuilder b = new ArgsBuilder();
+		final FDef.Args argList= (fdefNode != null) ? fdefNode.getArgsChild() : null;
+		final ArgsBuilder b= new ArgsBuilder();
 		if (argList != null) {
-			final int n = argList.getChildCount();
+			final int n= argList.getChildCount();
 			if (sig != null && sig.classNames != null) {
-				ITER_ARGS: for (int i = 0; i < n; i++) {
-					final String argName = argList.getChild(i).getNameChild().getText();
+				ITER_ARGS: for (int i= 0; i < n; i++) {
+					final String argName= argList.getChild(i).getNameChild().getText();
 					if (argName != null && sig.argNameAccess != null) {
-						for (int j = 0; j < sig.argNameAccess.length; j++) {
+						for (int j= 0; j < sig.argNameAccess.length; j++) {
 							if (sig.argNameAccess[j] != null
 									&& argName.equals(sig.argNameAccess[j].fNameNode.getText())) {
 								b.add(argName, 0, sig.classNames[j]);
@@ -2929,8 +2944,8 @@ public class SourceAnalyzer extends RAstVisitor {
 				}
 			}
 			else { // (sig == null || sigClasses == null)
-				ITER_ARGS: for (int i = 0; i < n; i++) {
-					final String argName = argList.getChild(i).getNameChild().getText();
+				ITER_ARGS: for (int i= 0; i < n; i++) {
+					final String argName= argList.getChild(i).getNameChild().getText();
 					b.add(argName, 0, null);
 					continue ITER_ARGS;
 				}
@@ -2938,7 +2953,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		}
 		else { // (argList == null)
 			if (sig != null && sig.argNameAccess != null && sig.classNames != null) {
-				ITER_ARGS: for (int i = 0; i < sig.argNameAccess.length; i++) {
+				ITER_ARGS: for (int i= 0; i < sig.argNameAccess.length; i++) {
 					if (sig.argNameAccess[i] != null) {
 						b.add(sig.argNameAccess[i].fNameNode.getText(), 0, sig.classNames[i]);
 						continue ITER_ARGS;
@@ -2965,36 +2980,36 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	private BuildSourceFrame readScopeArgs(final RAstNode pos, final BuildSourceFrame defaultScope) throws InvocationTargetException {
-		fReturnValue = null;
-		BuildSourceFrame envir = null;
+		this.returnValue= null;
+		BuildSourceFrame envir= null;
 		if (pos != null) {
 			switch (pos.getNodeType()) {
 			case NUM_CONST:
 				if (pos.getText().equals("1")) { // search pos
-					envir = fGlobalEnvir;
+					envir= this.globalEnvir;
 					break;
 				}
 				break;
 			case STRING_CONST: // search name
 				if (pos.getText().equals(".GlobalEnv")) {
-					envir = fGlobalEnvir;
+					envir= this.globalEnvir;
 					break;
 				}
 				if (pos.getText().startsWith("package:")) {
-					envir = getPkgEnvir(pos.getText().substring(8));
+					envir= getPkgEnvir(pos.getText().substring(8));
 					break;
 				}
 				break;
 			default:
 				// check for environment
 				pos.acceptInR(SourceAnalyzer.this);
-				if (fReturnValue instanceof BuildSourceFrame) {
-					envir = (BuildSourceFrame) fReturnValue;
+				if (this.returnValue instanceof BuildSourceFrame) {
+					envir= (BuildSourceFrame) this.returnValue;
 					break;
 				}
 				break;
 			}
-			fArgValueToIgnore.add(pos);
+			this.argValueToIgnore.add(pos);
 		}
 		if (envir != null) {
 			return envir;

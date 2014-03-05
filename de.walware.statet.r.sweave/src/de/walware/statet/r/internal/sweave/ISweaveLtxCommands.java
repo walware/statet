@@ -23,14 +23,14 @@ import de.walware.statet.r.core.model.RModel;
 public interface ISweaveLtxCommands {
 	
 	
-	public static final TexCommand SWEAVE_SweaveOpts_COMMANDS = new TexCommand(0,
-			"SweaveOpts", false, new ConstArrayList<Argument>( //$NON-NLS-1$
-					new Argument("options", Argument.REQUIRED, Argument.NONE)
-			), "Modifies the Sweave options for the rest of the document");
+	TexCommand SWEAVE_SweaveOpts_COMMANDS= new TexCommand(0,
+			"SweaveOpts", false, new ConstArrayList<>( //$NON-NLS-1$
+					new Argument("options", Argument.REQUIRED, Argument.NONE) //$NON-NLS-1$
+			), Messages.LtxCommand_SweaveOpts_description);
 	
-	public static final TexEmbedCommand SWEAVE_Sexpr_COMMANDS = new TexEmbedCommand(0, RModel.TYPE_ID,
-			"Sexpr", false, new ConstArrayList<Argument>( //$NON-NLS-1$
-					new Argument("expression", Argument.REQUIRED, Argument.EMBEDDED)
-			), "Prints the value of a scalar in R");
+	TexEmbedCommand SWEAVE_Sexpr_COMMANDS= new TexEmbedCommand(0, RModel.TYPE_ID,
+			"Sexpr", false, new ConstArrayList<>( //$NON-NLS-1$
+					new Argument("expression", Argument.REQUIRED, Argument.EMBEDDED) //$NON-NLS-1$
+			), Messages.LtxCommand_Sexpr_description);
 	
 }

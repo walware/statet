@@ -21,6 +21,7 @@ import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 
 import de.walware.statet.r.core.IRProject;
+import de.walware.statet.r.core.rsource.ast.SourceComponent;
 
 
 public interface IRModelManager extends IModelManager {
@@ -29,7 +30,7 @@ public interface IRModelManager extends IModelManager {
 	IRFrame getProjectFrame(IRProject rProject) throws CoreException;
 	
 	IRModelInfo reconcile(IRSourceUnit su, ISourceUnitModelInfo modelInfo,
-			List<? extends RChunkElement> chunks,
+			List<? extends RChunkElement> chunks, List<? extends SourceComponent> inlineNodes,
 			int level, IProgressMonitor monitor);
 	
 	List<ISourceUnit> findReferencingSourceUnits(IRProject rProject, RElementName name,

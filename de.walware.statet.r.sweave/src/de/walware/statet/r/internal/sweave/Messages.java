@@ -23,6 +23,9 @@ public class Messages extends NLS {
 	public static String NewSweaveDocWizardPage_description;
 	public static String NewSweaveDocWizardPage_Template_group;
 	
+	public static String LtxCommand_SweaveOpts_description;
+	public static String LtxCommand_Sexpr_description;
+	
 	public static String RChunkLaunch_error_message;
 	
 	public static String Processing_SweaveTab_label;

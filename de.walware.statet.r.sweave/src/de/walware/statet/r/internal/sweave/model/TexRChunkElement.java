@@ -36,7 +36,7 @@ public class TexRChunkElement extends RChunkElement {
 	
 	@Override
 	protected SourceComponent[] getSourceComponents() {
-		return getNode().fRSources;
+		return getNode().rSources;
 	}
 	
 }

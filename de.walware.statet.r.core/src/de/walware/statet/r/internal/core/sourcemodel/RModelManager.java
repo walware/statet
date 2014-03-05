@@ -34,6 +34,7 @@ import de.walware.statet.r.core.model.RChunkElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.model.RSuModelContainer;
+import de.walware.statet.r.core.rsource.ast.SourceComponent;
 
 
 public class RModelManager extends AbstractModelManager implements IRModelManager {
@@ -136,9 +137,9 @@ public class RModelManager extends AbstractModelManager implements IRModelManage
 	
 	@Override
 	public IRModelInfo reconcile(final IRSourceUnit su, final ISourceUnitModelInfo modelInfo,
-			final List<? extends RChunkElement> chunks,
+			final List<? extends RChunkElement> chunks, final List<? extends SourceComponent> inlineNodes,
 			final int level, final IProgressMonitor monitor) {
-		return fReconciler.reconcile(su, modelInfo, chunks, level, monitor);
+		return fReconciler.reconcile(su, modelInfo, chunks, inlineNodes, level, monitor);
 	}
 	
 	
