@@ -88,9 +88,9 @@ import de.walware.ecommons.ui.components.SearchText;
 import de.walware.ecommons.ui.content.IElementFilter;
 import de.walware.ecommons.ui.content.ObservableSetBinding;
 import de.walware.ecommons.ui.content.SearchTextBinding;
-import de.walware.ecommons.ui.content.SetFilter;
+import de.walware.ecommons.ui.content.SetElementFilter;
 import de.walware.ecommons.ui.content.TableFilterController;
-import de.walware.ecommons.ui.content.TextFilterProvider;
+import de.walware.ecommons.ui.content.TextElementFilter;
 import de.walware.ecommons.ui.util.AutoCheckController;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.NestedServices;
@@ -822,7 +822,7 @@ public class PkgTab extends Composite {
 		
 		fFilterController.addFilter(new InstalledFilter());
 		{	// Priority
-			final SetFilter filter = new SetFilter() {
+			final SetElementFilter filter = new SetElementFilter() {
 				@Override
 				protected boolean select(final Collection<?> set, final Object element) {
 					final String name = (String) element;
@@ -844,7 +844,7 @@ public class PkgTab extends Composite {
 			};
 		}
 		{	// Task Views
-			final SetFilter filter = new SetFilter();
+			final SetElementFilter filter = new SetElementFilter();
 			fFilterController.addFilter(filter);
 			new ObservableSetBinding(fFilterController, fFilterRViewsSet, filter) {
 				@Override
@@ -857,7 +857,7 @@ public class PkgTab extends Composite {
 				}
 			};
 		}
-		{	final TextFilterProvider filter = new TextFilterProvider();
+		{	final TextElementFilter filter = new TextElementFilter();
 			fFilterController.addFilter(filter);
 			new SearchTextBinding(fFilterText, fFilterController, filter);
 		}

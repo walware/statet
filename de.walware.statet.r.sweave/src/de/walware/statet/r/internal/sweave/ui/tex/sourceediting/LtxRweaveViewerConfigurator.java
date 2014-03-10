@@ -9,7 +9,7 @@
  #     Stephan Wahlbrink - initial API and implementation
  #=============================================================================*/
 
-package de.walware.statet.r.internal.sweave.editors;
+package de.walware.statet.r.internal.sweave.ui.tex.sourceediting;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -30,6 +30,8 @@ import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.internal.sweave.editors.LtxRweaveDocumentSetupParticipant;
+import de.walware.statet.r.internal.sweave.editors.SweaveEditorOptions;
 import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
 import de.walware.statet.r.sweave.ITexRweaveCoreAccess;
 import de.walware.statet.r.sweave.TexRweaveCoreAccess;
@@ -42,7 +44,7 @@ import de.walware.statet.r.sweave.text.Rweave;
 public class LtxRweaveViewerConfigurator extends SourceEditorViewerConfigurator implements ITexRweaveCoreAccess {
 	
 	
-	private static final Set<String> RESET_GROUP_IDS = new HashSet<String>(Arrays.asList(new String[] {
+	private static final Set<String> RESET_GROUP_IDS= new HashSet<>(Arrays.asList(new String[] {
 			TexCodeStyleSettings.INDENT_GROUP_ID,
 			RCodeStyleSettings.INDENT_GROUP_ID,
 			TaskTagsPreferences.GROUP_ID,
@@ -58,18 +60,18 @@ public class LtxRweaveViewerConfigurator extends SourceEditorViewerConfigurator 
 	public LtxRweaveViewerConfigurator(final ITexRweaveCoreAccess coreAccess,
 			final LtxRweaveViewerConfiguration config) {
 		super(config);
-		fTexCodeStyleCopy = new TexCodeStyleSettings(1);
-		fRCodeStyleCopy = new RCodeStyleSettings(1);
+		this.fTexCodeStyleCopy= new TexCodeStyleSettings(1);
+		this.fRCodeStyleCopy= new RCodeStyleSettings(1);
 		config.setCoreAccess(this);
 		setSource(coreAccess);
 		
-		fTexCodeStyleCopy.load(fSourceCoreAccess.getTexCodeStyle());
-		fTexCodeStyleCopy.resetDirty();
-		fTexCodeStyleCopy.addPropertyChangeListener(this);
+		this.fTexCodeStyleCopy.load(this.fSourceCoreAccess.getTexCodeStyle());
+		this.fTexCodeStyleCopy.resetDirty();
+		this.fTexCodeStyleCopy.addPropertyChangeListener(this);
 		
-		fRCodeStyleCopy.load(fSourceCoreAccess.getRCodeStyle());
-		fRCodeStyleCopy.resetDirty();
-		fRCodeStyleCopy.addPropertyChangeListener(this);
+		this.fRCodeStyleCopy.load(this.fSourceCoreAccess.getRCodeStyle());
+		this.fRCodeStyleCopy.resetDirty();
+		this.fRCodeStyleCopy.addPropertyChangeListener(this);
 	}
 	
 	
@@ -91,11 +93,11 @@ public class LtxRweaveViewerConfigurator extends SourceEditorViewerConfigurator 
 	
 	public void setSource(ITexRweaveCoreAccess newAccess) {
 		if (newAccess == null) {
-			newAccess = new TexRweaveCoreAccess(
+			newAccess= new TexRweaveCoreAccess(
 					TexCore.getWorkbenchAccess(), RCore.getWorkbenchAccess() );
 		}
-		if (fSourceCoreAccess != newAccess) {
-			fSourceCoreAccess = newAccess;
+		if (this.fSourceCoreAccess != newAccess) {
+			this.fSourceCoreAccess= newAccess;
 			handleSettingsChanged(null, null);
 		}
 	}
@@ -105,8 +107,8 @@ public class LtxRweaveViewerConfigurator extends SourceEditorViewerConfigurator 
 	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 		super.handleSettingsChanged(groupIds, options);
 		
-		fTexCodeStyleCopy.resetDirty();
-		fRCodeStyleCopy.resetDirty();
+		this.fTexCodeStyleCopy.resetDirty();
+		this.fRCodeStyleCopy.resetDirty();
 	}
 	
 	@Override
@@ -114,39 +116,39 @@ public class LtxRweaveViewerConfigurator extends SourceEditorViewerConfigurator 
 		super.checkSettingsChanges(groupIds, options);
 		
 		if (groupIds.contains(TexCodeStyleSettings.INDENT_GROUP_ID)) {
-			fTexCodeStyleCopy.load(fSourceCoreAccess.getTexCodeStyle());
+			this.fTexCodeStyleCopy.load(this.fSourceCoreAccess.getTexCodeStyle());
 		}
 		if (groupIds.contains(RCodeStyleSettings.INDENT_GROUP_ID)
 				|| groupIds.contains(RCodeStyleSettings.WS_GROUP_ID)) {
-			fRCodeStyleCopy.load(fSourceCoreAccess.getRCodeStyle());
+			this.fRCodeStyleCopy.load(this.fSourceCoreAccess.getRCodeStyle());
 		}
 		if (groupIds.contains(SweaveEditorOptions.GROUP_ID)) {
-			fUpdateCompleteConfig = true;
+			this.fUpdateCompleteConfig= true;
 		}
 		if (groupIds.contains(RUIPreferenceInitializer.REDITOR_HOVER_GROUP_ID)) {
-			fUpdateInfoHovers = true;
+			this.fUpdateInfoHovers= true;
 		}
 	}
 	
 	
 	@Override
 	public IPreferenceAccess getPrefs() {
-		return fSourceCoreAccess.getPrefs();
+		return this.fSourceCoreAccess.getPrefs();
 	}
 	
 	@Override
 	public RCodeStyleSettings getRCodeStyle() {
-		return fRCodeStyleCopy;
+		return this.fRCodeStyleCopy;
 	}
 	
 	@Override
 	public TexCommandSet getTexCommandSet() {
-		return fSourceCoreAccess.getTexCommandSet();
+		return this.fSourceCoreAccess.getTexCommandSet();
 	}
 	
 	@Override
 	public TexCodeStyleSettings getTexCodeStyle() {
-		return fTexCodeStyleCopy;
+		return this.fTexCodeStyleCopy;
 	}
 	
 }

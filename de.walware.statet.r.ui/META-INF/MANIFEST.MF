@@ -69,4 +69,5 @@ Export-Package: de.walware.statet.r.codegeneration,
  de.walware.statet.r.ui.rtool,
  de.walware.statet.r.ui.sourceediting,
  de.walware.statet.r.ui.text.r,
- de.walware.statet.r.ui.text.rd
+ de.walware.statet.r.ui.text.rd,
+ de.walware.statet.r.ui.util

@@ -36,7 +36,7 @@ public class RQuickOutlineInformationProvider extends QuickInformationProvider {
 	
 	
 	public RQuickOutlineInformationProvider(final ISourceEditor editor, final int viewerOperation) {
-		super(editor, RModel.TYPE_ID, viewerOperation);
+		super(editor, RModel.R_TYPE_ID, viewerOperation);
 	}
 	
 	
@@ -69,7 +69,7 @@ public class RQuickOutlineInformationProvider extends QuickInformationProvider {
 		return new IInformationControlCreator() {
 			@Override
 			public IInformationControl createInformationControl(final Shell parent) {
-				return new RQuickOutlineInformationControl(parent, getModelType(), getCommandId());
+				return new RQuickOutlineInformationControl(parent, getCommandId());
 			}
 		};
 	}

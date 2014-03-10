@@ -36,7 +36,7 @@ import org.eclipse.ui.internal.IWorkbenchHelpContextIds;
 import de.walware.ecommons.ui.components.SearchText;
 import de.walware.ecommons.ui.content.SearchTextBinding;
 import de.walware.ecommons.ui.content.TableFilterController;
-import de.walware.ecommons.ui.content.TextFilterProvider;
+import de.walware.ecommons.ui.content.TextElementFilter;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.CheckboxTableComposite;
@@ -125,7 +125,7 @@ public class PackageSelectionDialog extends SelectionDialog {
 		
 		fFilterController = new TableFilterController(fViewer);
 		
-		{	final TextFilterProvider filter = new TextFilterProvider();
+		{	final TextElementFilter filter = new TextElementFilter();
 			fFilterController.setFilter(0, filter);
 			new SearchTextBinding(fFilterText, fFilterController, filter);
 		}

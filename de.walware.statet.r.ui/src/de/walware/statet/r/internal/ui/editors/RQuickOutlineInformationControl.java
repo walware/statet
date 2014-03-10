@@ -18,12 +18,14 @@ import org.eclipse.ui.dialogs.SearchPattern;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelElement.Filter;
 import de.walware.ecommons.ltk.ui.sourceediting.QuickOutlineInformationControl;
-import de.walware.ecommons.ui.content.TextFilterProvider;
+import de.walware.ecommons.ui.content.ITextElementFilter;
+import de.walware.ecommons.ui.content.TextElementFilter;
 
 import de.walware.statet.r.core.model.IRElement;
-import de.walware.statet.r.internal.ui.RNameSearchPattern;
+import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.ui.RLabelProvider;
 import de.walware.statet.r.ui.sourceediting.ROpenDeclaration;
+import de.walware.statet.r.ui.util.RNameSearchPattern;
 
 
 public class RQuickOutlineInformationControl extends QuickOutlineInformationControl {
@@ -44,14 +46,18 @@ public class RQuickOutlineInformationControl extends QuickOutlineInformationCont
 	}
 	
 	
-	private final ContentFilter contentFilter = new ContentFilter();
+	private final ContentFilter contentFilter= new ContentFilter();
 	
 	
-	public RQuickOutlineInformationControl(final Shell parent, final String modelType,
-			final String commandId) {
-		super(parent, modelType, commandId, new ROpenDeclaration());
+	public RQuickOutlineInformationControl(final Shell parent, final String commandId) {
+		super(parent, commandId, 1, new ROpenDeclaration());
 	}
 	
+	
+	@Override
+	public String getModelTypeId() {
+		return RModel.R_TYPE_ID;
+	}
 	
 	@Override
 	protected Filter getContentFilter() {
@@ -59,8 +65,8 @@ public class RQuickOutlineInformationControl extends QuickOutlineInformationCont
 	}
 	
 	@Override
-	protected TextFilterProvider createNameFilter() {
-		return new TextFilterProvider() {
+	protected ITextElementFilter createNameFilter() {
+		return new TextElementFilter() {
 			@Override
 			protected SearchPattern createSearchPattern() {
 				return new RNameSearchPattern();

@@ -37,7 +37,7 @@ import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
 import de.walware.statet.r.core.data.ICombinedRElement;
-import de.walware.statet.r.internal.ui.RNameSearchPattern;
+import de.walware.statet.r.ui.util.RNameSearchPattern;
 
 
 class ContentJob extends Job implements ToolWorkspace.Listener {

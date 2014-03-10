@@ -22,6 +22,8 @@ import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.docmlet.tex.core.TexCore;
 
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.internal.sweave.ui.tex.sourceediting.LtxRweaveViewerConfiguration;
+import de.walware.statet.r.internal.sweave.ui.tex.sourceediting.LtxRweaveViewerConfigurator;
 import de.walware.statet.r.sweave.TexRweaveCoreAccess;
 
 

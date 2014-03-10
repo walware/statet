@@ -9,7 +9,7 @@
  #     Stephan Wahlbrink - initial API and implementation
  #=============================================================================*/
 
-package de.walware.statet.r.internal.sweave.editors;
+package de.walware.statet.r.internal.sweave.ui.tex.sourceediting;
 
 import java.util.List;
 import java.util.Map;
@@ -40,6 +40,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.EditorInformationProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewer;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistCategory;
@@ -63,6 +64,10 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
+import de.walware.statet.r.internal.sweave.editors.LtxRweaveInformationProvider;
+import de.walware.statet.r.internal.sweave.editors.LtxRweaveQuickAssistProcessor;
+import de.walware.statet.r.internal.sweave.editors.RChunkTemplatesCompletionComputer;
+import de.walware.statet.r.internal.sweave.editors.SweaveEditorOptions;
 import de.walware.statet.r.sweave.ITexRweaveCoreAccess;
 import de.walware.statet.r.sweave.TexRweaveCoreAccess;
 import de.walware.statet.r.sweave.text.LtxRweaveBracketPairMatcher;
@@ -94,7 +99,7 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 		
 		@Override
 		protected IRegion getValidRange(final int offset, final int c) {
-			final ITypedRegion cat = Rweave.R_TEX_CAT_UTIL.getCat(getDocument(), offset);
+			final ITypedRegion cat= Rweave.R_TEX_CAT_UTIL.getCat(getDocument(), offset);
 			if (cat.getType() == Rweave.R_CAT) {
 				return cat;
 			}
@@ -191,11 +196,11 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 			final ITexRweaveCoreAccess coreAccess,
 			final IPreferenceStore preferenceStore, final ColorManager colorManager) {
 		super(sourceEditor);
-		fCoreAccess = (coreAccess != null) ? coreAccess : new TexRweaveCoreAccess(
+		this.fCoreAccess= (coreAccess != null) ? coreAccess : new TexRweaveCoreAccess(
 				TexCore.getWorkbenchAccess(), RCore.getWorkbenchAccess() );
-		fRConfig = new RChunkViewerConfiguration(sourceEditor, fCoreAccess, preferenceStore, colorManager);
-		fRConfig.setHandleDefaultContentType(false);
-		fTexConfig = new TexChunkViewerConfiguration(sourceEditor, fCoreAccess, preferenceStore, colorManager);
+		this.fRConfig= new RChunkViewerConfiguration(sourceEditor, this.fCoreAccess, preferenceStore, colorManager);
+		this.fRConfig.setHandleDefaultContentType(false);
+		this.fTexConfig= new TexChunkViewerConfiguration(sourceEditor, this.fCoreAccess, preferenceStore, colorManager);
 		
 		setup((preferenceStore != null) ? preferenceStore : SweavePlugin.getDefault().getEditorTexRPreferenceStore(),
 				colorManager,
@@ -205,33 +210,33 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 	}
 	
 	protected void initScanners() {
-		final IPreferenceStore store = getPreferences();
-		final ColorManager colorManager = getColorManager();
+		final IPreferenceStore store= getPreferences();
+		final ColorManager colorManager= getColorManager();
 		
 		addScanner(Rweave.CHUNK_CONTROL_CONTENT_TYPE,
 				new RChunkControlCodeScanner(colorManager, store) );
 	}
 	
 	protected void setCoreAccess(final ITexRweaveCoreAccess coreAccess) {
-		fCoreAccess = (coreAccess != null) ? coreAccess : new TexRweaveCoreAccess(
+		this.fCoreAccess= (coreAccess != null) ? coreAccess : new TexRweaveCoreAccess(
 				TexCore.getWorkbenchAccess(), RCore.getWorkbenchAccess() );
-		fRConfig.setCoreAccess(fCoreAccess);
-		fTexConfig.setCoreAccess(fCoreAccess);
+		this.fRConfig.setCoreAccess(this.fCoreAccess);
+		this.fTexConfig.setCoreAccess(this.fCoreAccess);
 	}
 	
 	
 	@Override
 	public List<ISourceEditorAddon> getAddOns() {
-		final List<ISourceEditorAddon> addOns = super.getAddOns();
-		addOns.addAll(fTexConfig.getAddOns());
-		addOns.addAll(fRConfig.getAddOns());
+		final List<ISourceEditorAddon> addOns= super.getAddOns();
+		addOns.addAll(this.fTexConfig.getAddOns());
+		addOns.addAll(this.fRConfig.getAddOns());
 		return addOns;
 	}
 	
 	@Override
 	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
-		fRConfig.handleSettingsChanged(groupIds, options);
-		fTexConfig.handleSettingsChanged(groupIds, options);
+		this.fRConfig.handleSettingsChanged(groupIds, options);
+		this.fTexConfig.handleSettingsChanged(groupIds, options);
 		super.handleSettingsChanged(groupIds, options);
 	}
 	
@@ -248,17 +253,17 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 	
 	@Override
 	protected void initPresentationReconciler(final PresentationReconciler reconciler) {
-		{	final DefaultDamagerRepairer dr = new DefaultDamagerRepairer(
+		{	final DefaultDamagerRepairer dr= new DefaultDamagerRepairer(
 					getScanner(Rweave.CHUNK_CONTROL_CONTENT_TYPE) );
 			reconciler.setDamager(dr, Rweave.CHUNK_CONTROL_CONTENT_TYPE);
 			reconciler.setRepairer(dr, Rweave.CHUNK_CONTROL_CONTENT_TYPE);
 		}
-		{	final DefaultDamagerRepairer dr = new DefaultDamagerRepairer(fRConfig.getCommentScanner());
+		{	final DefaultDamagerRepairer dr= new DefaultDamagerRepairer(this.fRConfig.getCommentScanner());
 			reconciler.setDamager(dr, Rweave.CHUNK_COMMENT_CONTENT_TYPE);
 			reconciler.setRepairer(dr, Rweave.CHUNK_COMMENT_CONTENT_TYPE);
 		}
-		fRConfig.initPresentationReconciler(reconciler);
-		fTexConfig.initPresentationReconciler(reconciler);
+		this.fRConfig.initPresentationReconciler(reconciler);
+		this.fTexConfig.initPresentationReconciler(reconciler);
 	}
 	
 	
@@ -271,19 +276,19 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 	public ITextDoubleClickStrategy getDoubleClickStrategy(final ISourceViewer sourceViewer, final String contentType) {
 		switch (LtxRweaveSwitch.get(contentType)) {
 		case LTX:
-			if (fTexDoubleClickStrategy == null) {
-				fTexDoubleClickStrategy = new LtxDoubleClickStrategy(
+			if (this.fTexDoubleClickStrategy == null) {
+				this.fTexDoubleClickStrategy= new LtxDoubleClickStrategy(
 						new LtxHeuristicTokenScanner(Rweave.LTX_PARTITIONING_CONFIG) );
 			}
-			return fTexDoubleClickStrategy;
+			return this.fTexDoubleClickStrategy;
 		case R:
 		case CHUNK_CONTROL:
-			if (fRDoubleClickStrategy == null) {
-				final RweaveChunkHeuristicScanner scanner = new RweaveChunkHeuristicScanner();
-				fRDoubleClickStrategy = new RDoubleClickStrategy(scanner,
+			if (this.fRDoubleClickStrategy == null) {
+				final RweaveChunkHeuristicScanner scanner= new RweaveChunkHeuristicScanner();
+				this.fRDoubleClickStrategy= new RDoubleClickStrategy(scanner,
 						LtxRweaveBracketPairMatcher.createRChunkPairMatcher(scanner) );
 			}
-			return fRDoubleClickStrategy;
+			return this.fRDoubleClickStrategy;
 		default:
 			return null;
 		}
@@ -292,24 +297,24 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 	
 	@Override
 	public int getTabWidth(final ISourceViewer sourceViewer) {
-		return fTexConfig.getTabWidth(sourceViewer);
+		return this.fTexConfig.getTabWidth(sourceViewer);
 	}
 	
 	@Override
 	public String[] getDefaultPrefixes(final ISourceViewer sourceViewer, final String contentType) {
 		if (Rweave.R_PARTITION_CONSTRAINT.matches(contentType)) {
-			return fRConfig.getDefaultPrefixes(sourceViewer, contentType);
+			return this.fRConfig.getDefaultPrefixes(sourceViewer, contentType);
 		}
-		return fTexConfig.getDefaultPrefixes(sourceViewer, contentType);
+		return this.fTexConfig.getDefaultPrefixes(sourceViewer, contentType);
 	}
 	
 	@Override
 	public String[] getIndentPrefixes(final ISourceViewer sourceViewer, final String contentType) {
 		switch (LtxRweaveSwitch.get(contentType)) {
 		case LTX:
-			return fTexConfig.getIndentPrefixes(sourceViewer, contentType);
+			return this.fTexConfig.getIndentPrefixes(sourceViewer, contentType);
 		case R:
-			return fRConfig.getIndentPrefixes(sourceViewer, contentType);
+			return this.fRConfig.getIndentPrefixes(sourceViewer, contentType);
 		default:
 			return new String[0];
 		}
@@ -319,9 +324,9 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 	public IAutoEditStrategy[] getAutoEditStrategies(final ISourceViewer sourceViewer, final String contentType) {
 		switch (LtxRweaveSwitch.get(contentType)) {
 		case LTX:
-			return fTexConfig.getAutoEditStrategies(sourceViewer, contentType);
+			return this.fTexConfig.getAutoEditStrategies(sourceViewer, contentType);
 		case R:
-			return fRConfig.getAutoEditStrategies(sourceViewer, contentType);
+			return this.fRConfig.getAutoEditStrategies(sourceViewer, contentType);
 		default:
 			return new IAutoEditStrategy[0];
 		}
@@ -329,12 +334,12 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 	
 	
 	protected IReconcilingStrategy getSpellingStrategy(final ISourceViewer sourceViewer) {
-		if (!(fRConfig.getRCoreAccess().getPrefs().getPreferenceValue(SweaveEditorOptions.PREF_SPELLCHECKING_ENABLED)
-				&& fPreferenceStore.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED)) ) {
+		if (!(this.fRConfig.getRCoreAccess().getPrefs().getPreferenceValue(SweaveEditorOptions.PREF_SPELLCHECKING_ENABLED)
+				&& this.fPreferenceStore.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED)) ) {
 			return null;
 		}
-		final SpellingService spellingService = EditorsUI.getSpellingService();
-		if (spellingService.getActiveSpellingEngineDescriptor(fPreferenceStore) == null) {
+		final SpellingService spellingService= EditorsUI.getSpellingService();
+		if (spellingService.getActiveSpellingEngineDescriptor(this.fPreferenceStore) == null) {
 			return null;
 		}
 		return new SpellingReconcileStrategy(sourceViewer, spellingService);
@@ -346,23 +351,23 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 		if (getSourceEditor() == null) {
 			return null;
 		}
-		final RChunkTemplatesCompletionComputer chunkComputer = new RChunkTemplatesCompletionComputer();
+		final RChunkTemplatesCompletionComputer chunkComputer= new RChunkTemplatesCompletionComputer();
 		
-		final ContentAssist assistant = (ContentAssist) fTexConfig.getContentAssistant(sourceViewer);
+		final ContentAssist assistant= (ContentAssist) this.fTexConfig.getContentAssistant(sourceViewer);
 		
-		final ContentAssistProcessor texProcessor = (ContentAssistProcessor) assistant.getContentAssistProcessor(ITexDocumentConstants.LTX_DEFAULT_EXPL_CONTENT_TYPE);
+		final ContentAssistProcessor texProcessor= (ContentAssistProcessor) assistant.getContentAssistProcessor(ITexDocumentConstants.LTX_DEFAULT_EXPL_CONTENT_TYPE);
 		texProcessor.addCategory(new ContentAssistCategory(ITexDocumentConstants.LTX_DEFAULT_EXPL_CONTENT_TYPE,
 				new ConstArrayList<IContentAssistComputer>(chunkComputer)));
 		texProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '\\', '<' });
 		
-		final ContentAssistProcessor mathProcessor = (ContentAssistProcessor) assistant.getContentAssistProcessor(ITexDocumentConstants.LTX_MATH_CONTENT_TYPE);
+		final ContentAssistProcessor mathProcessor= (ContentAssistProcessor) assistant.getContentAssistProcessor(ITexDocumentConstants.LTX_MATH_CONTENT_TYPE);
 		mathProcessor.addCategory(new ContentAssistCategory(ITexDocumentConstants.LTX_MATH_CONTENT_TYPE,
 				new ConstArrayList<IContentAssistComputer>(chunkComputer)));
 		mathProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '\\', '<' });
 		
-		fRConfig.initDefaultContentAssist(assistant);
+		this.fRConfig.initDefaultContentAssist(assistant);
 		
-		final ContentAssistProcessor controlProcessor = new ContentAssistProcessor(assistant,
+		final ContentAssistProcessor controlProcessor= new ContentAssistProcessor(assistant,
 				Rweave.CHUNK_CONTROL_CONTENT_TYPE, SweavePlugin.getDefault().getTexEditorContentAssistRegistry(), getSourceEditor());
 		controlProcessor.addCategory(new ContentAssistCategory(Rweave.CHUNK_CONTROL_CONTENT_TYPE,
 				new ConstArrayList<IContentAssistComputer>(chunkComputer)));
@@ -376,7 +381,7 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 		if (getSourceEditor() == null) {
 			return null;
 		}
-		final QuickAssistAssistant assistant = new QuickAssistAssistant();
+		final QuickAssistAssistant assistant= new QuickAssistAssistant();
 		assistant.setQuickAssistProcessor(new LtxRweaveQuickAssistProcessor(getSourceEditor()));
 		assistant.enableColoredLabels(true);
 		return assistant;
@@ -387,9 +392,9 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 	public int[] getConfiguredTextHoverStateMasks(final ISourceViewer sourceViewer, final String contentType) {
 		switch (LtxRweaveSwitch.get(contentType)) {
 		case LTX:
-			return fTexConfig.getConfiguredTextHoverStateMasks(sourceViewer, contentType);
+			return this.fTexConfig.getConfiguredTextHoverStateMasks(sourceViewer, contentType);
 		case R:
-			return fRConfig.getConfiguredTextHoverStateMasks(sourceViewer, contentType);
+			return this.fRConfig.getConfiguredTextHoverStateMasks(sourceViewer, contentType);
 		default:
 			return null;
 		}
@@ -399,9 +404,9 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 	public ITextHover getTextHover(final ISourceViewer sourceViewer, final String contentType, final int stateMask) {
 		switch (LtxRweaveSwitch.get(contentType)) {
 		case LTX:
-			return fTexConfig.getTextHover(sourceViewer, contentType, stateMask);
+			return this.fTexConfig.getTextHover(sourceViewer, contentType, stateMask);
 		case R:
-			return fRConfig.getTextHover(sourceViewer, contentType, stateMask);
+			return this.fRConfig.getTextHover(sourceViewer, contentType, stateMask);
 		default:
 			return null;
 		}
@@ -409,19 +414,19 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 	
 	@Override
 	protected IInformationProvider getInformationProvider() {
-		return new LtxRweaveInformationProvider(fRConfig.getInformationProvider());
+		return new LtxRweaveInformationProvider(this.fRConfig.getInformationProvider());
 	}
 	
 	
 	@Override
 	public IReconciler getReconciler(final ISourceViewer sourceViewer) {
-		final ISourceEditor editor = getSourceEditor();
+		final ISourceEditor editor= getSourceEditor();
 		if (!(editor instanceof SourceEditor1)) {
 			return null;
 		}
-		final EcoReconciler2 reconciler = (EcoReconciler2) fTexConfig.getReconciler(sourceViewer);
+		final EcoReconciler2 reconciler= (EcoReconciler2) this.fTexConfig.getReconciler(sourceViewer);
 		if (reconciler != null) {
-			final IReconcilingStrategy spellingStrategy = getSpellingStrategy(sourceViewer);
+			final IReconcilingStrategy spellingStrategy= getSpellingStrategy(sourceViewer);
 			if (spellingStrategy != null) {
 				reconciler.addReconcilingStrategy(spellingStrategy);
 			}
@@ -431,7 +436,7 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 	
 	@Override
 	protected Map getHyperlinkDetectorTargets(final ISourceViewer sourceViewer) {
-		final Map<String, Object> targets = super.getHyperlinkDetectorTargets(sourceViewer);
+		final Map<String, Object> targets= super.getHyperlinkDetectorTargets(sourceViewer);
 		targets.put("de.walware.docmlet.tex.editorHyperlinks.TexEditorTarget", getSourceEditor()); //$NON-NLS-1$
 		targets.put("de.walware.statet.r.editorHyperlinks.REditorTarget", getSourceEditor()); //$NON-NLS-1$
 		return targets;
@@ -444,8 +449,24 @@ public class LtxRweaveViewerConfiguration extends SourceEditorViewerConfiguratio
 	
 	@Override
 	public boolean isSmartInsertByDefault() {
-		return fTexConfig.isSmartInsertByDefault()
-				&& fRConfig.isSmartInsertByDefault();
+		return this.fTexConfig.isSmartInsertByDefault()
+				&& this.fRConfig.isSmartInsertByDefault();
+	}
+	
+	
+	@Override
+	protected IInformationProvider getQuickInformationProvider(final ISourceViewer sourceViewer,
+			final int operation) {
+		final ISourceEditor editor= getSourceEditor();
+		if (editor == null) {
+			return null;
+		}
+		switch (operation) {
+		case SourceEditorViewer.SHOW_SOURCE_OUTLINE:
+			return new LtxRQuickOutlineInformationProvider(editor, operation);
+		default:
+			return null;
+		}
 	}
 	
 }

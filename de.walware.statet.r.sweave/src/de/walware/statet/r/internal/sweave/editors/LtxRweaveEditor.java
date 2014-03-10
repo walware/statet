@@ -67,6 +67,8 @@ import de.walware.statet.base.ui.IStatetUIMenuIds;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
+import de.walware.statet.r.internal.sweave.ui.tex.sourceediting.LtxRweaveViewerConfiguration;
+import de.walware.statet.r.internal.sweave.ui.tex.sourceediting.LtxRweaveViewerConfigurator;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.launching.RCodeLaunching;
 import de.walware.statet.r.sweave.ILtxRweaveEditor;

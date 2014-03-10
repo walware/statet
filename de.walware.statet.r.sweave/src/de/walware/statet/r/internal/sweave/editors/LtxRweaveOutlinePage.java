@@ -38,6 +38,7 @@ import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelElement.Filter;
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.ui.sourceediting.OutlineContentProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor2OutlinePage;
 import de.walware.ecommons.ltk.ui.util.ViewerDragSupport;
@@ -59,7 +60,7 @@ import de.walware.statet.base.ui.IStatetUIMenuIds;
 
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
-import de.walware.statet.r.internal.sweave.model.TexRChunkElement;
+import de.walware.statet.r.internal.sweave.ui.tex.sourceediting.LtxROutlineContentProvider;
 import de.walware.statet.r.launching.RCodeLaunching;
 import de.walware.statet.r.sweave.TexRweaveLabelProvider;
 
@@ -86,42 +87,6 @@ public class LtxRweaveOutlinePage extends SourceEditor2OutlinePage {
 	private static Map<String, String> SUBSECTION_PARAMETERS = Collections.singletonMap("type", "subsections"); //$NON-NLS-1$ //$NON-NLS-2$
 	private static Map<String, String> RCHUNK_PARAMETERS = Collections.singletonMap("type", "rchunks"); //$NON-NLS-1$ //$NON-NLS-2$
 	
-	
-	private class ContentProvider extends OutlineContentProvider {
-		
-		ContentProvider() {
-		}
-		
-		@Override
-		public Object getParent(final Object element) {
-			if (element instanceof TexRChunkElement) {
-				return ((TexRChunkElement) element).getSourceParent().getSourceParent();
-			}
-			return super.getParent(element);
-		}
-		
-		@Override
-		public boolean hasChildren(final Object element) {
-			final ISourceStructElement e = (ISourceStructElement) element;
-			if (e.getModelTypeId() == TexModel.LTX_TYPE_ID
-					&& e.getElementType() == ILtxSourceElement.C1_EMBEDDED) {
-				return e.hasSourceChildren(null)
-						&& e.getSourceChildren(null).get(0).hasSourceChildren(getContentFilter());
-			}
-			return e.hasSourceChildren(getContentFilter());
-		}
-		
-		@Override
-		public Object[] getChildren(final Object parentElement) {
-			final ISourceStructElement e = (ISourceStructElement) parentElement;
-			if (e.getModelTypeId() == TexModel.LTX_TYPE_ID
-					&& e.getElementType() == ILtxSourceElement.C1_EMBEDDED) {
-				return e.getSourceChildren(null).get(0).getSourceChildren(getContentFilter()).toArray();
-			}
-			return e.getSourceChildren(getContentFilter()).toArray();
-		}
-		
-	}
 	
 	private class FilterRChunks extends AbstractToggleHandler {
 		
@@ -333,20 +298,13 @@ public class LtxRweaveOutlinePage extends SourceEditor2OutlinePage {
 	
 	
 	@Override
-	protected ILtxModelInfo getModelInfo(final Object input) {
-		final ISourceUnitModelInfo info = super.getModelInfo(input);
-		return (ILtxModelInfo) ((info instanceof ILtxModelInfo) ? info : null);
-	}
-	
-	
-	@Override
 	protected IDialogSettings getDialogSettings() {
 		return DialogUtil.getDialogSettings(SweavePlugin.getDefault(), "SweaveOutlineView"); //$NON-NLS-1$
 	}
 	
 	@Override
 	protected OutlineContentProvider createContentProvider() {
-		return new ContentProvider();
+		return new LtxROutlineContentProvider(new OutlineContent());
 	}
 	
 	@Override
@@ -437,7 +395,7 @@ public class LtxRweaveOutlinePage extends SourceEditor2OutlinePage {
 		if (viewer == null) {
 			return null;
 		}
-		return getModelInfo(viewer.getInput());
+		return (ILtxModelInfo) getModelInfo(viewer.getInput());
 	}
 	
 }

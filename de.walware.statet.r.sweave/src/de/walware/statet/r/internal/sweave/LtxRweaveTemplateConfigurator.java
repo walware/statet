@@ -23,8 +23,8 @@ import de.walware.ecommons.ui.ColorManager;
 import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.r.internal.sweave.editors.LtxRweaveDocumentSetupParticipant;
-import de.walware.statet.r.internal.sweave.editors.LtxRweaveViewerConfiguration;
-import de.walware.statet.r.internal.sweave.editors.LtxRweaveViewerConfigurator;
+import de.walware.statet.r.internal.sweave.ui.tex.sourceediting.LtxRweaveViewerConfiguration;
+import de.walware.statet.r.internal.sweave.ui.tex.sourceediting.LtxRweaveViewerConfigurator;
 import de.walware.statet.r.sweave.ITexRweaveCoreAccess;
 
 
