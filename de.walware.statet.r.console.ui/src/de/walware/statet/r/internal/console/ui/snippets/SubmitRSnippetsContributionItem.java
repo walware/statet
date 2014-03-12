@@ -14,18 +14,15 @@ package de.walware.statet.r.internal.console.ui.snippets;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.commands.IHandler2;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.CompoundContributionItem;
-import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.menus.IWorkbenchContribution;
 import org.eclipse.ui.services.IServiceLocator;
 
-import de.walware.ecommons.ui.actions.HandlerContributionItem;
 import de.walware.ecommons.ui.util.MessageUtil;
 
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
@@ -35,33 +32,31 @@ public class SubmitRSnippetsContributionItem extends CompoundContributionItem
 		implements IWorkbenchContribution {
 	
 	
-	private IServiceLocator fServiceLocator;
+	private IServiceLocator serviceLocator;
 	
-	private final RSnippets fSnippets;
+	private final RSnippets snippets;
 	
 	
 	public SubmitRSnippetsContributionItem() {
-		fSnippets = RConsoleUIPlugin.getDefault().getRSnippets();
+		this.snippets = RConsoleUIPlugin.getDefault().getRSnippets();
 	}
 	
 	
 	@Override
 	public void initialize(final IServiceLocator serviceLocator) {
-		fServiceLocator = serviceLocator;
+		this.serviceLocator = serviceLocator;
 	}
 	
 	@Override
 	protected IContributionItem[] getContributionItems() {
-		final List<Template> filtered = fSnippets.validate(
-				fSnippets.getTemplateStore().getTemplates() );
+		final List<Template> filtered = this.snippets.validate(
+				this.snippets.getTemplateStore().getTemplates() );
 		
-		IServiceLocator serviceLocator = fServiceLocator;
+		IServiceLocator serviceLocator = this.serviceLocator;
 		if (serviceLocator == null) {
 			serviceLocator = PlatformUI.getWorkbench();
 		}
 		final IContributionItem[] items = new IContributionItem[filtered.size()];
-		final IHandler2 handler = (IHandler2) ((ICommandService) serviceLocator.getService(ICommandService.class))
-				.getCommand(RSnippets.SUBMIT_SNIPPET_COMMAND_ID).getHandler();
 		for (int i = 0; i < items.length; i++) {
 			final Template template = filtered.get(i);
 			String label = MessageUtil.escapeForMenu(template.getDescription());
@@ -70,12 +65,12 @@ public class SubmitRSnippetsContributionItem extends CompoundContributionItem
 				mnemonic = Integer.toString(i + 1);
 				label = mnemonic + ' ' + label;
 			}
-			items[i] = new HandlerContributionItem(new CommandContributionItemParameter(
+			items[i] = new CommandContributionItem(new CommandContributionItemParameter(
 					serviceLocator, null, RSnippets.SUBMIT_SNIPPET_COMMAND_ID,
 					Collections.singletonMap(RSnippets.SNIPPET_PAR, template.getName()),
 					null, null, null,
 					label, mnemonic, null,
-					CommandContributionItem.STYLE_PUSH, null, false ), handler);
+					CommandContributionItem.STYLE_PUSH, null, false ));
 		}
 		return items;
 	}
