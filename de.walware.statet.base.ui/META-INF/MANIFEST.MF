@@ -8,7 +8,7 @@ Bundle-Activator: de.walware.statet.base.internal.ui.StatetUIPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.eclipse.platform;bundle-version="3.8.0",
+Require-Bundle: org.eclipse.platform;bundle-version="[4.2.2,4.3.0)",
  org.eclipse.ui;visibility:=reexport,
  de.walware.statet.base.core;bundle-version="[3.3.0,3.4.0)";visibility:=reexport,
  de.walware.ecommons.uimisc;bundle-version="[1.4.0,1.5.0)";visibility:=reexport,
