@@ -13,7 +13,7 @@
 	
 	<groupId>de.walware.statet</groupId>
 	<artifactId>de.walware.statet.r.core</artifactId>
-	<version>3.3.1-SNAPSHOT</version>
+	<version>3.3.2-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
 	
 </project>
