@@ -39,10 +39,13 @@
 		<module>../de.walware.statet.rtm.ggplot.ui</module>
 	</modules>
 	
+	<prerequisites>
+		<maven>3.1.1</maven>
+	</prerequisites>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
-		<tycho.version>0.18.0</tycho.version>
+		<tycho.version>0.19.0</tycho.version>
 		<tycho.scmUrl>scm:git:git://github.com/walware/statet.git</tycho.scmUrl>
 	</properties>
 	
