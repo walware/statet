@@ -173,7 +173,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		}
 		controller.addStartupRunnable(new ConfigRunnable(
 				controller.getTool(),
-				configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RHELP_ENABLED, true),
+				(rEnv != null && configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RHELP_ENABLED, true)),
 				configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RGRAPHICS_ASDEFAULT, true),
 				configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RDBGEXT_ENABLED, true) ));
 		if (isStartup) {
