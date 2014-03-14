@@ -711,11 +711,14 @@ public class SourceAnalyzer extends RAstVisitor {
 				if (finalChildren.length > 0) {
 					seb.element.setSourceChildren(new ConstList<IRLangSourceElement>(finalChildren));
 				}
+				
+				commonNames.clear();
+				classNames.clear();
+				importNames.clear();
 			}
 			
 			if (fChunkElements != null && !fChunkElements.isEmpty()) {
 				final HashMap<String, Integer> names = commonNames;
-				names.clear();
 				for (final RChunkBuildElement element : fChunkElements) {
 					final String name = element.getElementName().getDisplayName();
 					final Integer occ = names.get(name);
