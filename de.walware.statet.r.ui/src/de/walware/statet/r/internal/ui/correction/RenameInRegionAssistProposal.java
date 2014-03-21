@@ -30,17 +30,18 @@ public class RenameInRegionAssistProposal extends CommandAssistProposal {
 	
 	
 	public RenameInRegionAssistProposal(final AssistInvocationContext invocationContext) {
-		super(invocationContext, "de.walware.ecommons.ltk.commands.RefactorRenameInSelectedRegion"); //$NON-NLS-1$
-		fLabel = RUIMessages.Proposal_RenameInRegion_label;
-		fDescription = RUIMessages.Proposal_RenameInRegion_description;
+		super(invocationContext, "de.walware.ecommons.ltk.commands.RefactorRenameInSelectedRegion", //$NON-NLS-1$
+				RUIMessages.Proposal_RenameInRegion_label, RUIMessages.Proposal_RenameInRegion_description );
 	}
 	
 	
 	@Override
 	public void apply(final ITextViewer viewer, final char trigger, final int stateMask, final int offset) {
+		final AssistInvocationContext context= getInvocationContext();
+		
 		RenameInRegionRefactoring refactoring = null;
 		{	final ITextSelection textSelection = (ITextSelection) viewer.getSelectionProvider().getSelection();
-			refactoring = new RenameInRegionRefactoring((IRSourceUnit) fContext.getSourceUnit(),
+			refactoring = new RenameInRegionRefactoring((IRSourceUnit) context.getSourceUnit(),
 					new Region(textSelection.getOffset(), textSelection.getLength()) );
 		}
 		if (refactoring != null) {

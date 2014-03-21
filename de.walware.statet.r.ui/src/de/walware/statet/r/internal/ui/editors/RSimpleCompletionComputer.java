@@ -44,7 +44,7 @@ public class RSimpleCompletionComputer extends SimpleCompletionProposal {
 		// keep in synch with RElementCompletionProposal
 		final int end = Math.max(caretOffset, selection.x + selection.y);
 		if (overwrite) {
-			final RElementCompletionProposal.ApplyData data = new RElementCompletionProposal.ApplyData(fContext);
+			final RElementCompletionProposal.ApplyData data = new RElementCompletionProposal.ApplyData(getInvocationContext());
 			final RHeuristicTokenScanner scanner = data.getScanner();
 			scanner.configure(data.getDocument());
 			final IRegion word = scanner.findRWord(end, false, true);

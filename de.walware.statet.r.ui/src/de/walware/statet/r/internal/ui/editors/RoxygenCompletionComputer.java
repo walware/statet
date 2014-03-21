@@ -112,7 +112,7 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 		protected int computeReplacementLength(final int replacementOffset, final Point selection, final int caretOffset, final boolean overwrite) throws BadLocationException {
 			int end= Math.max(caretOffset, selection.x + selection.y);
 			if (overwrite) {
-				final IDocument document= this.fContext.getSourceViewer().getDocument();
+				final IDocument document= getInvocationContext().getSourceViewer().getDocument();
 				while (end < document.getLength()) {
 					if (Character.isLetterOrDigit(document.getChar(end))) {
 						end++;
@@ -127,9 +127,10 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 		@Override
 		protected void doApply(final char trigger, final int stateMask,
 				final int caretOffset, final int replacementOffset, final int replacementLength) throws BadLocationException {
+			final AssistInvocationContext context= getInvocationContext();
+			final SourceViewer viewer= context.getSourceViewer();
+			final IDocument document= viewer.getDocument();
 			try {
-				final SourceViewer viewer= this.fContext.getSourceViewer();
-				final IDocument document= viewer.getDocument();
 				String replacementString= getReplacementString();
 				final int newCaretOffset= replacementOffset+replacementString.length()+1;
 				if (replacementOffset+replacementLength == document.getLength() || document.getChar(replacementOffset+replacementLength) != ' ') {

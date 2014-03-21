@@ -70,10 +70,10 @@ public class REditorTemplatesCompletionComputer extends TemplatesCompletionCompu
 			final AbstractDocument document = (AbstractDocument) context.getSourceViewer().getDocument();
 			final ITypedRegion partition = document.getPartition(editor.getPartitioning().getPartitioning(), region.getOffset(), true);
 			if (partition.getType() == IRDocumentPartitions.R_ROXYGEN) {
-				return fTypeRegistry.getContextType(REditorTemplatesContextType.ROXYGEN_CONTEXTTYPE);
+				return getTypeRegistry().getContextType(REditorTemplatesContextType.ROXYGEN_CONTEXTTYPE);
 			}
 			else {
-				return fTypeRegistry.getContextType(REditorTemplatesContextType.RCODE_CONTEXTTYPE);
+				return getTypeRegistry().getContextType(REditorTemplatesContextType.RCODE_CONTEXTTYPE);
 			}
 		}
 		catch (final BadPartitioningException e) {} 

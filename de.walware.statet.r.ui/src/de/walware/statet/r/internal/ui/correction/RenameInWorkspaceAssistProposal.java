@@ -28,24 +28,25 @@ import de.walware.statet.r.internal.ui.refactoring.RenameInWorkspaceWizard;
 public class RenameInWorkspaceAssistProposal extends CommandAssistProposal {
 	
 	
-	private final RAstNode fNameNode;
+	private final RAstNode nameNode;
 	
 	
 	public RenameInWorkspaceAssistProposal(final AssistInvocationContext invocationContext,
 			final RAstNode nameNode) {
-		super(invocationContext, "de.walware.ecommons.ltk.commands.RefactorRenameInWorkspace"); //$NON-NLS-1$
-		fLabel = RUIMessages.Proposal_RenameInWorkspace_label;
-		fDescription = RUIMessages.Proposal_RenameInWorkspace_description;
+		super(invocationContext, "de.walware.ecommons.ltk.commands.RefactorRenameInWorkspace", //$NON-NLS-1$
+				RUIMessages.Proposal_RenameInWorkspace_label, RUIMessages.Proposal_RenameInWorkspace_description );
 		
-		fNameNode = nameNode;
+		this.nameNode = nameNode;
 	}
 	
 	
 	@Override
 	public void apply(final ITextViewer viewer, final char trigger, final int stateMask, final int offset) {
+		final AssistInvocationContext context= getInvocationContext();
+		
 		RenameInWorkspaceRefactoring refactoring = null;
-		{	refactoring = new RenameInWorkspaceRefactoring((IRWorkspaceSourceUnit) fContext.getSourceUnit(),
-					fNameNode );
+		{	refactoring = new RenameInWorkspaceRefactoring((IRWorkspaceSourceUnit) context.getSourceUnit(),
+					this.nameNode );
 		}
 		if (refactoring != null) {
 			final RefactoringWizardExecutionHelper executionHelper = new RefactoringWizardExecutionHelper(

@@ -79,7 +79,7 @@ public class RChunkTemplatesCompletionComputer extends TemplatesCompletionComput
 	
 	@Override
 	protected TemplateContextType getContextType(final AssistInvocationContext context, final IRegion region) {
-		return fTypeRegistry.getContextType(LtxRweaveTemplatesContextType.RWEAVETEX_DEFAULT_CONTEXTTYPE);
+		return getTypeRegistry().getContextType(LtxRweaveTemplatesContextType.RWEAVETEX_DEFAULT_CONTEXTTYPE);
 	}
 	
 	@Override

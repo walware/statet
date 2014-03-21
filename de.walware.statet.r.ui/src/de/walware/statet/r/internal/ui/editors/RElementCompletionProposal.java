@@ -57,7 +57,7 @@ import de.walware.statet.r.ui.sourceediting.RAssistInvocationContext;
 import de.walware.statet.r.ui.sourceediting.RBracketLevel;
 
 
-public class RElementCompletionProposal extends ElementNameCompletionProposal
+public class RElementCompletionProposal extends ElementNameCompletionProposal<IRElement>
 		implements ICompletionProposalExtension5 {
 	
 	
@@ -78,12 +78,12 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 		
 		@Override
 		public String getDisplayString() {
-			return fReplacementName.getDisplayName();
+			return getReplacementName().getDisplayName();
 		}
 		
 		@Override
 		public StyledString getStyledDisplayString() {
-			return new StyledString(fReplacementName.getDisplayName());
+			return new StyledString(getReplacementName().getDisplayName());
 		}
 		
 		@Override
@@ -106,7 +106,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 		
 		@Override
 		public boolean validate(final IDocument document, final int offset, final DocumentEvent event) {
-			return (offset == fContext.getInvocationOffset());
+			return (offset == getInvocationContext().getInvocationOffset());
 		}
 		
 		@Override
@@ -115,10 +115,13 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 		}
 		
 		@Override
-		protected void doApply(final char trigger, final int stateMask, final int caretOffset, final int replacementOffset, final int replacementLength) throws BadLocationException {
+		protected void doApply(final char trigger, final int stateMask,
+				final int caretOffset, final int replacementOffset, final int replacementLength)
+				throws BadLocationException {
 			final ApplyData data = getApplyData();
 			setCursorPosition(-1);
-			data.setContextInformation(new RArgumentListContextInformation(getReplacementOffset(), (IRMethod) fElement));
+			data.setContextInformation(new RArgumentListContextInformation(getReplacementOffset(),
+					(IRMethod) getElement() ));
 		}
 		
 	}
@@ -221,7 +224,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 	
 	protected final ApplyData getApplyData() {
 		if (fApplyData == null) {
-			fApplyData = new ApplyData(fContext);
+			fApplyData = new ApplyData(getInvocationContext());
 		}
 		return fApplyData;
 	}
@@ -257,7 +260,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 				length--;
 			}
 			final String prefix = document.get(start, length);
-			final String replacement = fReplacementName.getSegmentName();
+			final String replacement = getReplacementName().getSegmentName();
 			if (new RSymbolComparator.PrefixPattern(prefix).matches(replacement)) {
 				return true;
 			}
@@ -273,15 +276,17 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 		final ApplyData data = getApplyData();
 		final IDocument document = data.getDocument();
 		
+		final IElementName replacementName= getReplacementName();
 		final boolean assignmentFunction = isFunction()
-				&& fReplacementName.getNextSegment() == null
-				&& fReplacementName.getSegmentName().endsWith("<-"); //$NON-NLS-1$
+				&& replacementName.getNextSegment() == null
+				&& replacementName.getSegmentName().endsWith("<-"); //$NON-NLS-1$
 		final IElementName elementName;
 		if (assignmentFunction) {
-			elementName = RElementName.create(RElementName.MAIN_DEFAULT, fReplacementName.getSegmentName().substring(0, fReplacementName.getSegmentName().length()-2));
+			elementName = RElementName.create(RElementName.MAIN_DEFAULT,
+					replacementName.getSegmentName().substring(0, replacementName.getSegmentName().length()-2) );
 		}
 		else {
-			elementName = fReplacementName;
+			elementName = replacementName;
 		}
 		final StringBuilder replacement = new StringBuilder(elementName.getDisplayName());
 		int cursor = replacement.length();
@@ -308,7 +313,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 		}
 		else if (isFunction()) {
 			mode = 1;
-			final IRMethod rMethod = (IRMethod) fElement;
+			final IRMethod rMethod = (IRMethod) getElement();
 			
 			if (replacementOffset+replacementLength < document.getLength()-1
 					&& document.getChar(replacementOffset+replacementLength) == '(') {
@@ -354,6 +359,8 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 	
 	private LinkedModeUI createLinkedMode(final ApplyData util, final int offset, final int mode)
 			throws BadLocationException {
+		final AssistInvocationContext context= getInvocationContext();
+		
 		final LinkedModeModel model = new LinkedModeModel();
 		int pos = 0;
 		
@@ -366,7 +373,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 		model.forceInstall();
 		
 		final RBracketLevel level = new RBracketLevel(util.getDocument(),
-				fContext.getEditor().getPartitioning().getPartitioning(),
+				context.getEditor().getPartitioning().getPartitioning(),
 				position, (util.getViewer() instanceof InputSourceViewer), true);
 		
 		/* create UI */
@@ -379,8 +386,8 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 	}
 	
 	protected boolean isFunction() {
-		return (fElement != null
-				&& (fElement.getElementType() & IRElement.MASK_C1) == IRElement.C1_METHOD);
+		return (getElement() != null
+				&& (getElement().getElementType() & IRElement.MASK_C1) == IRElement.C1_METHOD);
 	}
 	
 	protected boolean isArgumentName() {
@@ -388,7 +395,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 	}
 	
 	protected RCodeStyleSettings getCodeStyleSettings() {
-		final IRCoreAccess access = (IRCoreAccess) fContext.getEditor().getAdapter(IRCoreAccess.class);
+		final IRCoreAccess access = (IRCoreAccess) getInvocationContext().getEditor().getAdapter(IRCoreAccess.class);
 		if (access != null) {
 			return access.getRCodeStyle();
 		}
@@ -404,7 +411,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 	
 	@Override
 	public IInformationControlCreator getInformationControlCreator() {
-		final Shell shell = fContext.getSourceViewer().getTextWidget().getShell();
+		final Shell shell = getInvocationContext().getSourceViewer().getTextWidget().getShell();
 		if (shell == null || !RHelpInfoHoverCreator.isAvailable(shell)) {
 			return null;
 		}
@@ -420,11 +427,11 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 		final IRHelpManager rHelpManager = RCore.getRHelpManager();
 		Object helpObject = null;
 		
-		final RElementName elementName = ((IRElement) fElement).getElementName();
+		final RElementName elementName = getElement().getElementName();
 		if (elementName.getType() == RElementName.MAIN_DEFAULT) {
 			RElementName namespace = elementName.getNamespace();
-			if (namespace == null && (fElement.getModelParent() instanceof IRElement)) {
-				namespace = ((IRElement) fElement).getModelParent().getElementName();
+			if (namespace == null && (getElement().getModelParent() instanceof IRElement)) {
+				namespace = getElement().getModelParent().getElementName();
 			}
 			if (namespace == null || namespace.getType() != RElementName.MAIN_PACKAGE) {
 				return null;
@@ -449,7 +456,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 		}
 		{	final String httpUrl = rHelpManager.toHttpUrl(helpObject, RHelpUIServlet.INFO_TARGET);
 			if (httpUrl != null) {
-				return new RHelpInfoHoverCreator.Data(fContext.getSourceViewer().getTextWidget(),
+				return new RHelpInfoHoverCreator.Data(getInvocationContext().getSourceViewer().getTextWidget(),
 						helpObject, httpUrl );
 			}
 		}
@@ -458,7 +465,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal
 	}
 	
 	protected IREnv getREnv() {
-		final IREnv rEnv = ((RAssistInvocationContext) fContext).getREnv();
+		final IREnv rEnv = ((RAssistInvocationContext) getInvocationContext()).getREnv();
 		return (rEnv != null) ? rEnv : RCore.getREnvManager().getDefault();
 	}
 	
