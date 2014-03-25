@@ -39,7 +39,7 @@ public class REditorWorkingCopy
 	
 	@Override
 	protected RSuModelContainer createModelContainer() {
-		return new RSuModelContainer(this);
+		return new RUISuModelContainer(this);
 	}
 	
 	
