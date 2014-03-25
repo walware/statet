@@ -42,9 +42,9 @@ public class RLibrarySourceContainerBrowser extends
 	private static class EditContainerDialog extends ExtStatusDialog {
 		
 		
-		private ResourceInputComposite fResourceControl;
+		private ResourceInputComposite resourceControl;
 		
-		private final WritableValue fResourceValue;
+		private final WritableValue resourceValue;
 		
 		
 		public EditContainerDialog(final Shell parent, final String location) {
@@ -53,28 +53,28 @@ public class RLibrarySourceContainerBrowser extends
 			setTitle((location == null) ? Messages.RLibrarySourceContainerBrowser_Add_title :
 					Messages.RLibrarySourceContainerBrowser_Edit_title );
 			
-			fResourceValue = new WritableValue(location, String.class);
+			this.resourceValue= new WritableValue(location, String.class);
 		}
 		
 		
 		@Override
 		protected Control createDialogArea(final Composite parent) {
-			final Composite area = new Composite(parent, SWT.NONE);
+			final Composite area= new Composite(parent, SWT.NONE);
 			area.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
 			area.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 1));
 			
-			final Composite composite = area;
-			{	final Label label = new Label(area, SWT.NONE);
+			final Composite composite= area;
+			{	final Label label= new Label(area, SWT.NONE);
 				label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 				label.setText(Messages.RLibrarySourceContainerBrowser_Directory_label+':');
 				
-				fResourceControl = new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
+				this.resourceControl= new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
 						ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
 						Messages.RLibrarySourceContainerBrowser_Directory_label);
-				fResourceControl.setShowInsertVariable(false, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
-				final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-				gd.widthHint = LayoutUtil.hintWidth((Text) fResourceControl.getTextControl(), 60);
-				fResourceControl.setLayoutData(gd);
+				this.resourceControl.setShowInsertVariable(false, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
+				final GridData gd= new GridData(SWT.FILL, SWT.CENTER, true, false);
+				gd.widthHint= LayoutUtil.hintWidth((Text) this.resourceControl.getTextControl(), 60);
+				this.resourceControl.setLayoutData(gd);
 			}
 			
 			applyDialogFont(area);
@@ -84,12 +84,12 @@ public class RLibrarySourceContainerBrowser extends
 		
 		@Override
 		protected void addBindings(final DataBindingSupport db) {
-			db.getContext().bindValue(fResourceControl.getObservable(), fResourceValue,
-					new UpdateValueStrategy().setAfterGetValidator(fResourceControl.getValidator()), null);
+			db.getContext().bindValue(this.resourceControl.getObservable(), this.resourceValue,
+					new UpdateValueStrategy().setAfterGetValidator(this.resourceControl.getValidator()), null);
 		}
 		
 		public String getResult() {
-			return (String) fResourceValue.getValue();
+			return (String) this.resourceValue.getValue();
 		}
 	}
 	
@@ -102,9 +102,9 @@ public class RLibrarySourceContainerBrowser extends
 	@Override
 	public ISourceContainer[] addSourceContainers(final Shell shell,
 			final ISourceLookupDirector director) {
-		final EditContainerDialog dialog = new EditContainerDialog(shell, null);
+		final EditContainerDialog dialog= new EditContainerDialog(shell, null);
 		if (dialog.open() == Dialog.OK) {
-			final String location = dialog.getResult();
+			final String location= dialog.getResult();
 			if (location != null) {
 				return new ISourceContainer[] { new RLibrarySourceContainer(location) };
 			}
@@ -121,10 +121,10 @@ public class RLibrarySourceContainerBrowser extends
 	@Override
 	public ISourceContainer[] editSourceContainers(final Shell shell,
 			final ISourceLookupDirector director, final ISourceContainer[] containers) {
-		final EditContainerDialog dialog = new EditContainerDialog(shell,
+		final EditContainerDialog dialog= new EditContainerDialog(shell,
 				((RLibrarySourceContainer) containers[0]).getLocationPath());
 		if (dialog.open() == Dialog.OK) {
-			final String location = dialog.getResult();
+			final String location= dialog.getResult();
 			if (location != null) {
 				return new ISourceContainer[] { new RLibrarySourceContainer(location) };
 			}

@@ -32,11 +32,11 @@ public class RLibrarySourceContainerTypeDelegate extends AbstractSourceContainer
 	@Override
 	public ISourceContainer createSourceContainer(final String memento)
 			throws CoreException {
-		final Node node = parseDocument(memento);
+		final Node node= parseDocument(memento);
 		if (node.getNodeType() == Node.ELEMENT_NODE) {
-			final Element element = (Element) node;
+			final Element element= (Element) node;
 			if (RLibrarySourceContainer.TYPE_ID.equals(element.getNodeName())) {
-				final String path = element.getAttribute("path"); //$NON-NLS-1$
+				final String path= element.getAttribute("path"); //$NON-NLS-1$
 				if (path == null || path.isEmpty()) {
 					abort(Messages.RLibrarySourceContainer_error_InvalidConfiguration_message, null); 
 				}
@@ -50,9 +50,9 @@ public class RLibrarySourceContainerTypeDelegate extends AbstractSourceContainer
 	
 	@Override
 	public String getMemento(final ISourceContainer container) throws CoreException {
-		final RLibrarySourceContainer rLibraryContainer = (RLibrarySourceContainer) container;
-		final Document document = newDocument();
-		final Element element = document.createElement(RLibrarySourceContainer.TYPE_ID);
+		final RLibrarySourceContainer rLibraryContainer= (RLibrarySourceContainer) container;
+		final Document document= newDocument();
+		final Element element= document.createElement(RLibrarySourceContainer.TYPE_ID);
 		element.setAttribute("path", rLibraryContainer.getLocationPath()); //$NON-NLS-1$
 		document.appendChild(element);
 		return serializeDocument(document);

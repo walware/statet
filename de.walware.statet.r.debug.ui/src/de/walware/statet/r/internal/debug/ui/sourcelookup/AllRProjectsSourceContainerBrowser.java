@@ -29,7 +29,7 @@ public class AllRProjectsSourceContainerBrowser extends AbstractSourceContainerB
 	
 	@Override
 	public boolean canAddSourceContainers(final ISourceLookupDirector director) {
-		final ISourceContainer[] containers = director.getSourceContainers();
+		final ISourceContainer[] containers= director.getSourceContainers();
 		for (final ISourceContainer container : containers) {
 			if (container.getType().getId().equals(AllRProjectsSourceContainer.TYPE_ID)) {
 				return false;
@@ -41,7 +41,7 @@ public class AllRProjectsSourceContainerBrowser extends AbstractSourceContainerB
 	@Override
 	public ISourceContainer[] addSourceContainers(final Shell shell,
 			final ISourceLookupDirector director) {
-		final AllRProjectsSourceContainer container = new AllRProjectsSourceContainer();
+		final AllRProjectsSourceContainer container= new AllRProjectsSourceContainer();
 		container.init(director);
 		return new ISourceContainer[] { container };
 	}

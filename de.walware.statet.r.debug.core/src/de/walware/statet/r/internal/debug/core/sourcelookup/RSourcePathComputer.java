@@ -36,7 +36,7 @@ public class RSourcePathComputer implements ISourcePathComputerDelegate {
 	@Override
 	public ISourceContainer[] computeSourceContainers(final ILaunchConfiguration configuration,
 			final IProgressMonitor monitor) throws CoreException {
-		final IREnv rEnv = RLaunching.readREnv(configuration);
+		final IREnv rEnv= RLaunching.readREnv(configuration);
 		if (rEnv == null) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, 0,
 					Messages.RSourcePathComputer_error_REnvNotFound_message, null)); 

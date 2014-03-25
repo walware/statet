@@ -70,12 +70,12 @@ import de.walware.statet.r.nico.IRSrcref;
 public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 	
 	
-	private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("de.walware.statet.r.debug.sourcelookup")); //$NON-NLS-1$
+	private static final boolean DEBUG= Boolean.parseBoolean(System.getProperty("de.walware.statet.r.debug.sourcelookup")); //$NON-NLS-1$
 	
-	private static final int QUALITY_EXACT_FILE_TIMESTAMP = 23;
-	private static final int QUALITY_EXACT_FILE_CONTENT = 22;
-	private static final int QUALITY_EXACT_FUNCTION_CONTENT = 13;
-	private static final int QUALITY_POSITION_FOUND = 10;
+	private static final int QUALITY_EXACT_FILE_TIMESTAMP=  23;
+	private static final int QUALITY_EXACT_FILE_CONTENT=    22;
+	private static final int QUALITY_EXACT_FUNCTION_CONTENT=13;
+	private static final int QUALITY_POSITION_FOUND=        10;
 	
 	
 	protected static class LookupData {
@@ -88,13 +88,13 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 		List<IStatus> status;
 		
 		public LookupData(final RStackFrame frame) {
-			this.frame = frame;
-			context = this.frame.getContext();
+			this.frame= frame;
+			this.context= this.frame.getContext();
 		}
 		
 		public void addStatus(final IStatus status) {
 			if (this.status == null) {
-				this.status = new ArrayList<IStatus>();
+				this.status= new ArrayList<>();
 			}
 			this.status.add(status);
 		}
@@ -131,51 +131,51 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 	protected class RSourceLookupMatch implements RStackFrame.PositionResolver, IRSourceLookupMatch {
 		
 		
-		private final RStackFrame fFrame;
+		private final RStackFrame frame;
 		
-		private final Object fSourceElement;
+		private final Object sourceElement;
 		
-		private FrameContext fCurrentContext;
-		private int fQuality;
+		private FrameContext currentContext;
+		private int quality;
 		
-		private int fLineNumber;
-		private int fCharStart;
-		private int fCharEnd;
+		private int lineNumber;
+		private int charStart;
+		private int charEnd;
 		
 		
 		public RSourceLookupMatch(final RStackFrame frame, final Object sourceElement) {
-			fFrame = frame;
-			fSourceElement = sourceElement;
+			this.frame= frame;
+			this.sourceElement= sourceElement;
 		}
 		
 		
 		@Override
 		public Object getElement() {
-			return fSourceElement;
+			return this.sourceElement;
 		}
 		
 		@Override
 		public synchronized int getLineNumber() {
-			if (fCurrentContext != fFrame.getContext()) {
+			if (this.currentContext != this.frame.getContext()) {
 				update();
 			}
-			return fLineNumber;
+			return this.lineNumber;
 		}
 		
 		@Override
 		public synchronized int getCharStart() {
-			if (fCurrentContext != fFrame.getContext()) {
+			if (this.currentContext != this.frame.getContext()) {
 				update();
 			}
-			return fCharStart;
+			return this.charStart;
 		}
 		
 		@Override
 		public synchronized int getCharEnd() {
-			if (fCurrentContext != fFrame.getContext()) {
+			if (this.currentContext != this.frame.getContext()) {
 				update();
 			}
-			return fCharEnd;
+			return this.charEnd;
 		}
 		
 		public void install() {
@@ -183,7 +183,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 				RDebugCorePlugin.log(new Status(IStatus.INFO, RDebugCorePlugin.PLUGIN_ID, 0,
 						"Installing " + toString(), null));
 			}
-			fFrame.setPositionResolver(fCurrentContext, this);
+			this.frame.setPositionResolver(this.currentContext, this);
 		}
 		
 		@Override
@@ -192,7 +192,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 		}
 		
 		public void update() {
-			final LookupData data = new LookupData(fFrame);
+			final LookupData data= new LookupData(this.frame);
 			if (data.context != null) {
 				checkPosition(data, this);
 			}
@@ -201,7 +201,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 		
 		@Override
 		public int hashCode() {
-			return fFrame.hashCode() + fSourceElement.hashCode();
+			return this.frame.hashCode() + this.sourceElement.hashCode();
 		}
 		
 		@Override
@@ -212,20 +212,20 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 			if (!(obj instanceof RSourceLookupMatch)) {
 				return false;
 			}
-			final RSourceLookupMatch other = (RSourceLookupMatch) obj;
-			return (fFrame == other.fFrame
-					&& fSourceElement.equals(other.fSourceElement) );
+			final RSourceLookupMatch other= (RSourceLookupMatch) obj;
+			return (this.frame == other.frame
+					&& this.sourceElement.equals(other.sourceElement) );
 		}
 		
 		@Override
 		public String toString() {
-			final StringBuilder sb = new StringBuilder(getClass().getName());
-			sb.append("\n").append("for ").append(fFrame.toString());
-			sb.append("\n").append("source lookup result:");
-			sb.append("\n\t").append("sourceElement= ").append(fSourceElement);
-			sb.append("\n\t").append("lineNumber= ").append(fLineNumber);
-			sb.append("\n\t").append("charStart= ").append(fCharStart);
-			sb.append("\n\t").append("charEnd= ").append(fCharEnd);
+			final StringBuilder sb= new StringBuilder(getClass().getName());
+			sb.append("\n" + "for ").append(this.frame.toString()); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append("\n" + "source lookup result:"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append("\n\t" + "sourceElement= ").append(this.sourceElement); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append("\n\t" + "lineNumber= ").append(this.lineNumber); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append("\n\t" + "charStart= ").append(this.charStart); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append("\n\t" + "charEnd= ").append(this.charEnd); //$NON-NLS-1$ //$NON-NLS-2$
 			return sb.toString();
 		}
 		
@@ -240,8 +240,8 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 	@Override
 	public String getSourceName(final Object object) throws CoreException {
 		if (object instanceof RStackFrame) {
-			final RStackFrame frame = (RStackFrame) object;
-			final FrameContext context = frame.getContext();
+			final RStackFrame frame= (RStackFrame) object;
+			final FrameContext context= frame.getContext();
 			if (context.getFileName() != null) {
 				return context.getFileName();
 			}
@@ -252,12 +252,12 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 	@Override
 	public Object[] findSourceElements(final Object object) throws CoreException {
 		if (object instanceof RStackFrame) {
-			final List<RSourceLookupMatch> matches = new ArrayList<RSourceLookupMatch>();
-			final LookupData data = new LookupData((RStackFrame) object);
+			final List<RSourceLookupMatch> matches= new ArrayList<>();
+			final LookupData data= new LookupData((RStackFrame) object);
 			try {
-				boolean addedFile = false;
-				int bestQuality = -1;
-				final boolean findDuplicates = isFindDuplicates();
+				boolean addedFile= false;
+				int bestQuality= -1;
+				final boolean findDuplicates= isFindDuplicates();
 				if (DEBUG) {
 					data.addStatus(new Status(IStatus.INFO, RDebugCorePlugin.PLUGIN_ID, 0,
 							NLS.bind("Beginning R source lookup for {0}.", object), null));
@@ -270,17 +270,17 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 					return null;
 				}
 				
-				URI fileUri = null;
+				URI fileUri= null;
 				if (data.context.getFileName() != null) {
-					IFile wsFile = null;
-					IFileStore fileStore = null;
+					IFile wsFile= null;
+					IFileStore fileStore= null;
 					try {
-						final RProcess process = data.frame.getDebugTarget().getProcess();
+						final RProcess process= data.frame.getDebugTarget().getProcess();
 						if (process.getWorkspaceData().isRemote()) {
-							fileStore = process.getWorkspaceData().toFileStore(data.context.getFileName());
+							fileStore= process.getWorkspaceData().toFileStore(data.context.getFileName());
 						}
 						else {
-							fileStore = FileUtil.getFileStore(data.context.getFileName());
+							fileStore= FileUtil.getFileStore(data.context.getFileName());
 						}
 					}
 					catch (final Exception e) {
@@ -290,10 +290,10 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 					}
 					try {
 						if (fileStore != null) {
-							fileUri = fileStore.toURI();
+							fileUri= fileStore.toURI();
 						}
 						if (fileUri == null) {
-							fileUri = URIUtil.toURI(data.context.getFileName());
+							fileUri= URIUtil.toURI(data.context.getFileName());
 						}
 					}
 					catch (final Exception e) {
@@ -302,48 +302,47 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 										data.context.getFileName() ), e ));
 					}
 					if (fileUri != null && !fileUri.isAbsolute()) {
-						fileUri = null;
+						fileUri= null;
 					}
 					if (DEBUG) {
-						final StringBuilder sb = new StringBuilder();
-						sb.append("Resolved filenames:\n");
-						sb.append("fileStore= ").append(fileStore != null ? fileStore.toString() : "<missing>");
-						sb.append("\n");
-						sb.append("fileUri= ").append(fileStore != null ? fileUri.toString() : "<missing>");
+						final StringBuilder sb= new StringBuilder();
+						sb.append("Resolved filenames:"); //$NON-NLS-1$
+						sb.append("\n\t" + "fileStore= ").append(fileStore != null ? fileStore.toString() : "<missing>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						sb.append("\n\t" + "fileUri=   ").append(fileUri != null ? fileUri.toString() : "<missing>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						data.addStatus(new Status(IStatus.INFO, RDebugCorePlugin.PLUGIN_ID, 0,
 								sb.toString(), null));
 					}
 					
-					final IPath path = (data.context.getFilePath() != null) ? 
+					final IPath path= (data.context.getFilePath() != null) ? 
 							Path.fromPortableString(data.context.getFilePath()) : null;
-					boolean addedPath = false;
+					boolean addedPath= false;
 					try {
 						if (fileUri != null) {
-							final IFile[] files = ResourcesPlugin.getWorkspace().getRoot()
+							final IFile[] files= ResourcesPlugin.getWorkspace().getRoot()
 									.findFilesForLocationURI(fileUri, IContainer.INCLUDE_HIDDEN);
-							List<Object> elements = null;
+							List<Object> elements= null;
 							if (files.length > 0 && path != null) {
-								for (int i = 0; i < files.length; i++) {
+								for (int i= 0; i < files.length; i++) {
 									if (path.equals(files[i].getFullPath())) {
-										addedPath = true;
-										elements = findSourceElement(fileUri,
+										addedPath= true;
+										elements= findSourceElement(fileUri,
 												new IFile[] { files[i] }, data );
 										break;
 									}
 								}
 							}
 							if (elements == null) {
-								elements = findSourceElement(fileUri, files, data);
+								elements= findSourceElement(fileUri, files, data);
 							}
 							if (elements != null) {
-								addedFile = true;
-								final RSourceLookupMatch match = new RSourceLookupMatch(data.frame, elements.get(0));
+								addedFile= true;
+								final RSourceLookupMatch match= new RSourceLookupMatch(data.frame, elements.get(0));
 								checkPosition(data, match);
 								matches.add(match);
-								bestQuality = Math.max(bestQuality, match.fQuality);
+								bestQuality= Math.max(bestQuality, match.quality);
 							}
 							else if (files.length > 0) {
-								wsFile = files[0];
+								wsFile= files[0];
 							}
 						}
 					}
@@ -357,22 +356,22 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 					if (!addedPath && path != null) {
 						try {
 							if (fileUri != null) {
-								final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-								addedPath = true;
-								List<Object> elements = null;
+								final IFile file= ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+								addedPath= true;
+								List<Object> elements= null;
 								if (file.exists()) {
-									elements = findSourceElement(file.getLocationURI(),
+									elements= findSourceElement(file.getLocationURI(),
 											new IFile[] { file }, data );
 								}
 								if (elements == null) {
-									elements = findSourceElement(path, data);
+									elements= findSourceElement(path, data);
 								}
 								if (elements != null) {
-									for (int i = 0; i < elements.size(); i++) {
-										final RSourceLookupMatch match = new RSourceLookupMatch(data.frame, elements.get(i));
+									for (int i= 0; i < elements.size(); i++) {
+										final RSourceLookupMatch match= new RSourceLookupMatch(data.frame, elements.get(i));
 										checkPosition(data, match);
 										matches.add(match);
-										bestQuality = Math.max(bestQuality, match.fQuality);
+										bestQuality= Math.max(bestQuality, match.quality);
 										if (bestQuality >= QUALITY_EXACT_FILE_CONTENT) {
 											break;
 										}
@@ -392,11 +391,11 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 							&& !addedFile && wsFile != null) {
 						try {
 							if (wsFile.exists()) {
-								addedFile = true;
-								final RSourceLookupMatch match = new RSourceLookupMatch(data.frame, wsFile);
+								addedFile= true;
+								final RSourceLookupMatch match= new RSourceLookupMatch(data.frame, wsFile);
 								checkPosition(data, match);
 								matches.add(match);
-								bestQuality = Math.max(bestQuality, match.fQuality);
+								bestQuality= Math.max(bestQuality, match.quality);
 							}
 						}
 						catch (final Exception e) {
@@ -412,11 +411,11 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 							&& !addedFile && fileStore != null) {
 						try {
 							if (fileStore.fetchInfo().exists()) {
-								addedFile = true;
-								final RSourceLookupMatch match = new RSourceLookupMatch(data.frame, fileStore);
+								addedFile= true;
+								final RSourceLookupMatch match= new RSourceLookupMatch(data.frame, fileStore);
 								checkPosition(data, match);
 								matches.add(match);
-								bestQuality = Math.max(bestQuality, match.fQuality);
+								bestQuality= Math.max(bestQuality, match.quality);
 							}
 						}
 						catch (final Exception e) {
@@ -435,10 +434,10 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 						&& data.context.getSourceCode() != null) {
 					try {
 						createFragment(data);
-						final RSourceLookupMatch match = new RSourceLookupMatch(data.frame, data.fragment);
+						final RSourceLookupMatch match= new RSourceLookupMatch(data.frame, data.fragment);
 						checkPosition(data, match);
 						matches.add(match);
-						bestQuality = Math.max(bestQuality, match.fQuality);
+						bestQuality= Math.max(bestQuality, match.quality);
 					}
 					catch (final Exception e) {
 						if (!findDuplicates && !matches.isEmpty()) {
@@ -458,22 +457,22 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 				else if (DEBUG) {
 					if (matches.isEmpty()) {
 						RDebugCorePlugin.log(new Status(IStatus.INFO, RDebugCorePlugin.PLUGIN_ID, 0,
-								NLS.bind("Could not find R sources ({0}, {1}).",
+								NLS.bind("Could not find R sources ({0}, {1}).", //$NON-NLS-1$
 										data.context.getSourceType(), data.context.getFileName() ), null));
 					}
 					else {
 						RDebugCorePlugin.log(new Status(IStatus.INFO, RDebugCorePlugin.PLUGIN_ID, 0,
-								NLS.bind("Could not find R sources ({0}, {1}).",
+								NLS.bind("Could not find R sources ({0}, {1}).", //$NON-NLS-1$
 										data.context.getSourceType(), data.context.getFileName() ), null));
 					}
 				}
 				
 				if (matches.size() > 0
 						&& (!findDuplicates || matches.size() == 1) ) {
-					RSourceLookupMatch match = null;
-					for (int i = 0; i < matches.size(); i++) {
-						if (matches.get(i).fQuality >= bestQuality) {
-							match = matches.get(i);
+					RSourceLookupMatch match= null;
+					for (int i= 0; i < matches.size(); i++) {
+						if (matches.get(i).quality >= bestQuality) {
+							match= matches.get(i);
 							break;
 						}
 					}
@@ -508,46 +507,46 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 			String fullName;
 			if (data.context.getSourceType() == 2
 					&& data.context.getFileName() != null) {
-				fullName = name = data.context.getFileName();
-				int idx = name.lastIndexOf('/');
-				{	final int idx2 = name.lastIndexOf('\\');
+				fullName= name= data.context.getFileName();
+				int idx= name.lastIndexOf('/');
+				{	final int idx2= name.lastIndexOf('\\');
 					if (idx2 > idx) {
-						idx = idx2;
+						idx= idx2;
 					}
 				}
 				if (idx >= 0) {
-					name = name.substring(idx+1);
+					name= name.substring(idx+1);
 				}
 			}
 			else if (data.context.getCall() != null) {
-				fullName = name = data.context.getCall();
-				final int idx = name.indexOf('(');
+				fullName= name= data.context.getCall();
+				final int idx= name.indexOf('(');
 				if (idx > 0) {
-					name = name.substring(0, idx);
+					name= name.substring(0, idx);
 				}
 			}
 			else {
-				fullName = name = "Frame #" + data.context.getPosition();
+				fullName= name= "Frame #" + data.context.getPosition();
 			}
-			data.fragment = new RRuntimeSourceFragment(
+			data.fragment= new RRuntimeSourceFragment(
 					data.frame.getDebugTarget().getProcess(), name,
 					fullName, data.context.getSourceCode() );
 		}
 	}
 	
 	protected List<Object> findSourceElement(final URI fileUri, final IFile[] fileInWorkspace, final LookupData data) {
-		final ISourceContainer[] containers = getSourceContainers();
-		for (int i = 0; i < containers.length; i++) {
+		final ISourceContainer[] containers= getSourceContainers();
+		for (int i= 0; i < containers.length; i++) {
 			if (containers[i] instanceof IRSourceContainer) {
 				try {
-					final Object element = ((IRSourceContainer) containers[i]).findSourceElement(fileUri, fileInWorkspace);
+					final Object element= ((IRSourceContainer) containers[i]).findSourceElement(fileUri, fileInWorkspace);
 					if (element != null) {
 						if (DEBUG) {
 							data.addStatus(new Status(IStatus.INFO, RDebugCorePlugin.PLUGIN_ID, 0,
 									NLS.bind("Source element found in ''{0}'': {1}",
 											containers[i].getName(), element.toString() ), null ));
 						}
-						final List<Object> list = new ArrayList<Object>(1);
+						final List<Object> list= new ArrayList<>(1);
 						list.add(element);
 						return list;
 					}
@@ -555,7 +554,8 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 				catch (final Exception e) {
 					data.addStatus(new Status(IStatus.WARNING, RDebugCorePlugin.PLUGIN_ID, 0,
 							NLS.bind("An error occurred when the finding source element ''{0}'' in ''{1}''.",
-									(fileUri != null) ? fileUri.toString() : "<missing>", containers[i].getName() ),
+									(fileUri != null) ? fileUri.toString() : "<missing>", //$NON-NLS-1$
+									containers[i].getName() ),
 							e ));
 				}
 			}
@@ -564,10 +564,10 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 	}
 	
 	protected List<Object> findSourceElement(final IPath path, final LookupData data) {
-		final ISourceContainer[] containers = getSourceContainers();
-		final List<Object> elements = new ArrayList<Object>();
-		for (int i = 0; i < containers.length; i++) {
-			int j = 0;
+		final ISourceContainer[] containers= getSourceContainers();
+		final List<Object> elements= new ArrayList<>();
+		for (int i= 0; i < containers.length; i++) {
+			int j= 0;
 			if (containers[i] instanceof IRSourceContainer) {
 				try {
 					((IRSourceContainer) containers[i]).findSourceElement(path, elements);
@@ -594,42 +594,42 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 	}
 	
 	protected int checkPosition(final LookupData data, final RSourceLookupMatch match) {
-		final IProgressMonitor monitor = new NullProgressMonitor();
+		final IProgressMonitor monitor= new NullProgressMonitor();
 		try {
-			match.fCurrentContext = data.context;
-			match.fQuality = -1;
-			match.fCharStart = -1;
-			match.fCharEnd = -1;
-			match.fLineNumber = -1;
+			match.currentContext= data.context;
+			match.quality= -1;
+			match.charStart= -1;
+			match.charEnd= -1;
+			match.lineNumber= -1;
 			
-			ISourceUnit su = null;
-			ISourceUnit fragmentSu = null;
+			ISourceUnit su= null;
+			ISourceUnit fragmentSu= null;
 			try {
-				su = LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID,
-						LTK.PERSISTENCE_CONTEXT, match.fSourceElement, true, monitor);
+				su= LTK.getSourceUnitManager().getSourceUnit(RModel.R_TYPE_ID,
+						LTK.PERSISTENCE_CONTEXT, match.sourceElement, true, monitor);
 			} catch (final Exception e) {}
-			{	final ISourceUnit editorSu = LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID,
-					LTK.EDITOR_CONTEXT, (su != null) ? su : match.fSourceElement, true, monitor);
+			{	final ISourceUnit editorSu= LTK.getSourceUnitManager().getSourceUnit(RModel.R_TYPE_ID,
+					LTK.EDITOR_CONTEXT, (su != null) ? su : match.sourceElement, true, monitor);
 				if (editorSu != null) {
-					su = editorSu;
+					su= editorSu;
 				}
 			}
 			if (su != null) {
 				try {
-					final AbstractDocument suDocument = su.getDocument(monitor);
+					final AbstractDocument suDocument= su.getDocument(monitor);
 					synchronized ((suDocument instanceof ISynchronizable) ?
 							((ISynchronizable) suDocument).getLockObject() : new Object() ) {
-						final SourceCorrection corr = new SourceCorrection();
-						AbstractDocument bDocument = null;
+						final SourceCorrection corr= new SourceCorrection();
+						AbstractDocument bDocument= null;
 						
-						final IRSrcref exprSrcref = (data.context.getExprSrcref() != null) ?
+						final IRSrcref exprSrcref= (data.context.getExprSrcref() != null) ?
 								RDbg.createStatetSrcref(data.context.getExprSrcref()) : null;
 						
 						if (data.context.getFileTimestamp() != 0 && equalTimestamp(
 								RDbg.getTimestamp(su, monitor), data.context.getFileTimestamp() )) {
-							match.fQuality = QUALITY_EXACT_FILE_TIMESTAMP;
-							bDocument = suDocument;
-							final IRSrcref sourceSrcref = RDbg.createStatetSrcref(data.context.getSourceSrcref());
+							match.quality= QUALITY_EXACT_FILE_TIMESTAMP;
+							bDocument= suDocument;
+							final IRSrcref sourceSrcref= RDbg.createStatetSrcref(data.context.getSourceSrcref());
 							if (sourceSrcref != null) {
 								corr.suLineShift= corr.bLineShift= sourceSrcref.getFirstLine();
 								corr.suFirstColumnCharOffset= corr.bFirstColumnCharOffset= computeOffset(
@@ -638,20 +638,20 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 							}
 						}
 						else {
-							final IRSrcref firstSrcref = (data.context.getFirstSrcref() != null) ?
+							final IRSrcref firstSrcref= (data.context.getFirstSrcref() != null) ?
 									RDbg.createStatetSrcref(data.context.getFirstSrcref()) : null;
-							final IRSrcref lastSrcref = (data.context.getLastSrcref() != null) ?
+							final IRSrcref lastSrcref= (data.context.getLastSrcref() != null) ?
 									RDbg.createStatetSrcref(data.context.getLastSrcref()) : null;
 							
 							if (data.context.getSourceType() < 3) {
-								final String suCode = suDocument.get();
+								final String suCode= suDocument.get();
 								if (suCode.equals(data.context.getSourceCode())) {
-									match.fQuality = QUALITY_EXACT_FILE_CONTENT;
-									bDocument = suDocument;
+									match.quality= QUALITY_EXACT_FILE_CONTENT;
+									bDocument= suDocument;
 								}
 								else {
-									bDocument = new Document(data.context.getSourceCode());
-									int end = -1;
+									bDocument= new Document(data.context.getSourceCode());
+									int end= -1;
 									if (firstSrcref != null && lastSrcref != null // body
 											&& firstSrcref.hasBeginDetail()
 											&& lastSrcref.hasEndDetail() ) {
@@ -682,21 +682,21 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 									if (end >= 0) {
 										final String bCode= bDocument.get(corr.bFirstColumnCharOffset,
 												end - corr.bFirstColumnCharOffset );
-										match.fQuality= searchCode(data, corr,
+										match.quality= searchCode(data, corr,
 												suDocument, suCode, bDocument, bCode);
 									}
 								}
 							}
 							else if (data.context.getSourceType() == 3) {
 								createFragment(data);
-								fragmentSu = LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID,
+								fragmentSu= LTK.getSourceUnitManager().getSourceUnit(RModel.R_TYPE_ID,
 										LTK.EDITOR_CONTEXT, data.fragment, true, monitor);
 								if (fragmentSu != null
 										&& firstSrcref != null
 										&& firstSrcref.hasBeginDetail() ) {
-									final ISourceUnitModelInfo modelInfo = fragmentSu.getModelInfo(
-											RModel.TYPE_ID, IModelManager.MODEL_FILE, monitor);
-									final RAstNode body = findFBody(modelInfo);
+									final ISourceUnitModelInfo modelInfo= fragmentSu.getModelInfo(
+											RModel.R_TYPE_ID, IModelManager.MODEL_FILE, monitor);
+									final RAstNode body= findFBody(modelInfo);
 									if (body != null) {
 										bDocument= fragmentSu.getDocument(monitor);
 										corr.firstLine= firstSrcref.getFirstLine();
@@ -705,7 +705,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 										corr.bFirstColumnCharOffset= body.getOffset();
 										corr.bLineShift= bDocument.getLineOfOffset(body.getOffset()) - corr.firstLine;
 										final String bCode= bDocument.get(body.getOffset(), body.getLength());
-										match.fQuality= searchCode(data, corr,
+										match.quality= searchCode(data, corr,
 												suDocument, suDocument.get(), bDocument, bCode);
 									}
 								}
@@ -713,18 +713,18 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 						}
 						
 						if (exprSrcref != null) {
-							match.fLineNumber= exprSrcref.getFirstLine() + corr.suLineShift;
-							if (match.fQuality >= QUALITY_POSITION_FOUND
+							match.lineNumber= exprSrcref.getFirstLine() + corr.suLineShift;
+							if (match.quality >= QUALITY_POSITION_FOUND
 									&& exprSrcref.hasBeginDetail() && exprSrcref.hasEndDetail() ) {
-								match.fCharStart= computeOffset(
+								match.charStart= computeOffset(
 										exprSrcref.getFirstLine(), exprSrcref.getFirstColumn(),
 										bDocument, suDocument, corr, 0 );
-								match.fCharEnd= computeOffset(
+								match.charEnd= computeOffset(
 										exprSrcref.getLastLine(), exprSrcref.getLastColumn(),
 										bDocument, suDocument, corr, 1 );
 							}
 						}
-						return match.fQuality;
+						return match.quality;
 					}
 				}
 				finally {
@@ -746,39 +746,39 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 			final AbstractDocument suDocument, final String suCode,
 			final AbstractDocument bDocument, String bCode) throws BadLocationException {
 		// First match
-		int offset = suCode.indexOf(bCode);
+		int offset= suCode.indexOf(bCode);
 		if (offset < 0
 				&& bDocument.getDefaultLineDelimiter() != suDocument.getDefaultLineDelimiter() ) {
-			bCode = bCode.replace(bDocument.getDefaultLineDelimiter(), suDocument.getDefaultLineDelimiter());
-			offset = suCode.indexOf(bCode);
+			bCode= bCode.replace(bDocument.getDefaultLineDelimiter(), suDocument.getDefaultLineDelimiter());
+			offset= suCode.indexOf(bCode);
 		}
 		if (offset < 0) {
 			return 0;
 		}
 		
-		int firstLine = corr.firstLine;
+		int firstLine= corr.firstLine;
 		if (data.context.getSourceSrcref() != null
 				&& data.context.getSourceSrcref()[Srcref.BEGIN_LINE] > 0) {
-			firstLine += data.context.getSourceSrcref()[Srcref.BEGIN_LINE] - 1;
-//			firstColumn += data.context.sourceSrcref.getBeginColumn();
+			firstLine+= data.context.getSourceSrcref()[Srcref.BEGIN_LINE] - 1;
+//			firstColumn+= data.context.sourceSrcref.getBeginColumn();
 		}
 		// Prefer correct line start, if available
 		if (offset >= 0
 				&& offset < suDocument.getLength() && firstLine < suDocument.getNumberOfLines() ) {
-			final IRegion line = suDocument.getLineInformation(firstLine);
+			final IRegion line= suDocument.getLineInformation(firstLine);
 			if (offset < line.getOffset()) {
-				final int offset2 = suCode.indexOf(bCode, line.getOffset());
+				final int offset2= suCode.indexOf(bCode, line.getOffset());
 				if (offset2 >= 0 && offset2 < line.getOffset()+line.getLength()) {
-					offset = offset2;
+					offset= offset2;
 				}
 			}
 		}
 		
 		if (offset >= 0) {
-			final int suLine = suDocument.getLineOfOffset(offset);
-			corr.suLineShift = suLine - corr.firstLine;
-			corr.suFirstLineCharOffset = suDocument.getLineOffset(suLine);
-			corr.suFirstColumnCharOffset = offset;
+			final int suLine= suDocument.getLineOfOffset(offset);
+			corr.suLineShift= suLine - corr.firstLine;
+			corr.suFirstLineCharOffset= suDocument.getLineOffset(suLine);
+			corr.suFirstColumnCharOffset= offset;
 			return QUALITY_EXACT_FUNCTION_CONTENT;
 		}
 		return 0;
@@ -786,29 +786,29 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 	
 	private Block findFBody(final ISourceUnitModelInfo modelInfo) {
 		if (modelInfo instanceof IRModelInfo && modelInfo.getSourceElement() != null) {
-			FDef fDef = null;
-			final List<? extends IModelElement> children = modelInfo.getSourceElement().getSourceChildren(null);
+			FDef fDef= null;
+			final List<? extends IModelElement> children= modelInfo.getSourceElement().getSourceChildren(null);
 			if (children.size() == 1) {
-				final IModelElement modelElement = children.get(0);
+				final IModelElement modelElement= children.get(0);
 				if (modelElement instanceof IRMethod) {
-					fDef = (FDef) modelElement.getAdapter(FDef.class);
+					fDef= (FDef) modelElement.getAdapter(FDef.class);
 				}
 			}
 			if (fDef == null && (modelInfo.getAst().root instanceof RAstNode)) {
-				final RAstNode node = ((RAstNode) modelInfo.getAst().root).getChild(0);
+				final RAstNode node= ((RAstNode) modelInfo.getAst().root).getChild(0);
 				if (node.getNodeType() == NodeType.F_DEF) {
-					fDef = (FDef) node;
+					fDef= (FDef) node;
 				}
 				if (fDef == null) {
-					final AssignExpr assign = RAst.checkAssign(node);
+					final AssignExpr assign= RAst.checkAssign(node);
 					if (assign != null && assign.valueNode != null
 							&& assign.valueNode.getNodeType() == NodeType.F_DEF) {
-						fDef = (FDef) assign.valueNode;
+						fDef= (FDef) assign.valueNode;
 					}
 				}
 			}
 			if (fDef != null) {
-				final RAstNode body = fDef.getContChild();
+				final RAstNode body= fDef.getContChild();
 				if (body.getNodeType() == NodeType.BLOCK) {
 					return (Block) body;
 				}
@@ -832,25 +832,25 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 	private int computeOffset(final int line, final int column,
 			final AbstractDocument bDocument, final AbstractDocument suDocument,
 			final SourceCorrection corr, final int shift) throws BadLocationException {
-		int charOffset = 0; // offset in line
-		{	int bLine = line;
+		int charOffset= 0; // offset in line
+		{	int bLine= line;
 			if (corr != null) {
-				bLine += corr.bLineShift;
+				bLine+= corr.bLineShift;
 			}
-			final IRegion lineInfo = bDocument.getLineInformation(bLine);
+			final IRegion lineInfo= bDocument.getLineInformation(bLine);
 			
-			int currentColumn = 0;
+			int currentColumn= 0;
 			if (corr != null && line == corr.firstLine) {
-				currentColumn += corr.firstColumn;
+				currentColumn+= corr.firstColumn;
 				if (currentColumn > column) {
 					return -1;
 				}
-				charOffset += corr.bFirstColumnCharOffset - lineInfo.getOffset(); // lineInfo.getOffset == corr.bFirstLineCharOffset
+				charOffset+= corr.bFirstColumnCharOffset - lineInfo.getOffset(); // lineInfo.getOffset == corr.bFirstLineCharOffset
 			}
 			while (currentColumn < column && charOffset < lineInfo.getLength() ) {
-				final char c = bDocument.getChar(lineInfo.getOffset() + charOffset++);
+				final char c= bDocument.getChar(lineInfo.getOffset() + charOffset++);
 				if (c == '\t') {
-					currentColumn += 8 - (currentColumn % 8);
+					currentColumn+= 8 - (currentColumn % 8);
 				}
 				else {
 					currentColumn++;
@@ -858,16 +858,16 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 			}
 		}
 		
-		{	int suLine = line;
+		{	int suLine= line;
 			if (corr != null) {
-				suLine += corr.suLineShift;
+				suLine+= corr.suLineShift;
 			}
-			final IRegion lineInfo = suDocument.getLineInformation(suLine);
+			final IRegion lineInfo= suDocument.getLineInformation(suLine);
 			
 			if (corr != null && line == corr.firstLine) {
-				charOffset += (corr.suFirstColumnCharOffset - corr.suFirstLineCharOffset) - (corr.bFirstColumnCharOffset - corr.bFirstLineCharOffset);
+				charOffset+= (corr.suFirstColumnCharOffset - corr.suFirstLineCharOffset) - (corr.bFirstColumnCharOffset - corr.bFirstLineCharOffset);
 			}
-			charOffset += shift;
+			charOffset+= shift;
 			return lineInfo.getOffset() + Math.min(charOffset, lineInfo.getLength());
 		}
 	}

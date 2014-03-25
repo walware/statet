@@ -40,14 +40,14 @@ public class RProjectSourceContainerBrowser extends AbstractSourceContainerBrows
 	@Override
 	public ISourceContainer[] addSourceContainers(final Shell shell,
 			final ISourceLookupDirector director) {
-		final List<IProject> projects = getPossibleAdditions(director);
-		final ProjectSelectionDialog dialog = new ProjectSelectionDialog(shell, projects);
+		final List<IProject> projects= getPossibleAdditions(director);
+		final ProjectSelectionDialog dialog= new ProjectSelectionDialog(shell, projects);
 		if (dialog.open() == Dialog.OK) {
-			final Set<?> selectedProjects = dialog.getCheckedElements();
-			final List<ISourceContainer> containers = new ArrayList<ISourceContainer>();
+			final Set<?> selectedProjects= dialog.getCheckedElements();
+			final List<ISourceContainer> containers= new ArrayList<ISourceContainer>();
 			for (final IProject project : projects) {
 				if (selectedProjects.contains(project)) {
-					final RProjectSourceContainer container = new RProjectSourceContainer(project, false);
+					final RProjectSourceContainer container= new RProjectSourceContainer(project, false);
 					container.init(director);
 					containers.add(container);
 				}
@@ -58,8 +58,8 @@ public class RProjectSourceContainerBrowser extends AbstractSourceContainerBrows
 	}
 	
 	protected List<IProject> getPossibleAdditions(final ISourceLookupDirector director) {
-		final List<IProject> projects = getRResourceProjects();
-		final ISourceContainer[] containers = director.getSourceContainers();
+		final List<IProject> projects= getRResourceProjects();
+		final ISourceContainer[] containers= director.getSourceContainers();
 		for (final ISourceContainer container : containers) {
 			if (container.getType().getId().equals(RProjectSourceContainer.TYPE_ID)) {
 				projects.remove(((RProjectSourceContainer) container).getProject());
@@ -69,8 +69,8 @@ public class RProjectSourceContainerBrowser extends AbstractSourceContainerBrows
 	}
 	
 	protected List<IProject> getRResourceProjects() {
-		final IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		final List<IProject> collected = new ArrayList<IProject>();
+		final IProject[] projects= ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		final List<IProject> collected= new ArrayList<IProject>();
 		for (final IProject project : projects) {
 			try {
 				if (project.hasNature(RProjects.R_NATURE_ID)) {

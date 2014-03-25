@@ -32,9 +32,9 @@ public class AllRProjectsSourceContainerTypeDelegate extends AbstractSourceConta
 	@Override
 	public ISourceContainer createSourceContainer(final String memento)
 			throws CoreException {
-		final Node node = parseDocument(memento);
+		final Node node= parseDocument(memento);
 		if (node.getNodeType() == Node.ELEMENT_NODE) {
-			final Element element = (Element) node;
+			final Element element= (Element) node;
 			if (AllRProjectsSourceContainer.TYPE_ID.equals(element.getNodeName())) {
 				return new AllRProjectsSourceContainer();
 			}
@@ -46,8 +46,8 @@ public class AllRProjectsSourceContainerTypeDelegate extends AbstractSourceConta
 	
 	@Override
 	public String getMemento(final ISourceContainer container) throws CoreException {
-		final Document document = newDocument();
-		final Element element = document.createElement(AllRProjectsSourceContainer.TYPE_ID);
+		final Document document= newDocument();
+		final Element element= document.createElement(AllRProjectsSourceContainer.TYPE_ID);
 		document.appendChild(element);
 		return serializeDocument(document);
 	}

@@ -30,7 +30,7 @@ public class RSourceLookupAdapterFactory implements IAdapterFactory,
 		IWorkbenchAdapter, IContributorResourceAdapter {
 	
 	
-	private static final Class<?>[] ADAPTERS = new Class<?>[] {
+	private static final Class<?>[] ADAPTERS= new Class<?>[] {
 		IWorkbenchAdapter.class,
 		IContributorResourceAdapter.class,
 	};
@@ -69,13 +69,13 @@ public class RSourceLookupAdapterFactory implements IAdapterFactory,
 	@Override
 	public ImageDescriptor getImageDescriptor(final Object obj) {
 		if (obj instanceof IRSourceLookupMatch) {
-			final Object element = ((IRSourceLookupMatch) obj).getElement();
+			final Object element= ((IRSourceLookupMatch) obj).getElement();
 			if (element instanceof RRuntimeSourceFragment) {
 				return RDebugUIPlugin.getDefault().getImageRegistry().getDescriptor(
 						RDebugUIPlugin.IMG_OBJ_R_SOURCE_FROM_RUNTIME );
 			}
 			if (element instanceof IAdaptable) {
-				final IWorkbenchAdapter adapter = (IWorkbenchAdapter) Platform.getAdapterManager()
+				final IWorkbenchAdapter adapter= (IWorkbenchAdapter) Platform.getAdapterManager()
 						.getAdapter(element, IWorkbenchAdapter.class);
 				if (adapter != null) {
 					return adapter.getImageDescriptor(element);
@@ -88,13 +88,13 @@ public class RSourceLookupAdapterFactory implements IAdapterFactory,
 	@Override
 	public String getLabel(final Object obj) {
 		if (obj instanceof IRSourceLookupMatch) {
-			final Object element = ((IRSourceLookupMatch) obj).getElement();
+			final Object element= ((IRSourceLookupMatch) obj).getElement();
 			if (element instanceof RRuntimeSourceFragment) {
-				final RRuntimeSourceFragment fragment = (RRuntimeSourceFragment) element;
-				return fragment.getName() + "  \u2012  " + fragment.getProcess().getLabel(ITool.DEFAULT_LABEL);
+				final RRuntimeSourceFragment fragment= (RRuntimeSourceFragment) element;
+				return fragment.getName() + "  \u2012  " + fragment.getProcess().getLabel(ITool.DEFAULT_LABEL); //$NON-NLS-1$
 			}
 			if (element instanceof IAdaptable) {
-				final IWorkbenchAdapter adapter = (IWorkbenchAdapter) Platform.getAdapterManager()
+				final IWorkbenchAdapter adapter= (IWorkbenchAdapter) Platform.getAdapterManager()
 						.getAdapter(element, IWorkbenchAdapter.class);
 				if (adapter != null) {
 					return adapter.getLabel(element);
@@ -108,7 +108,7 @@ public class RSourceLookupAdapterFactory implements IAdapterFactory,
 	@Override
 	public IResource getAdaptedResource(final IAdaptable obj) {
 		if (obj instanceof IRSourceLookupMatch) {
-			final Object element = ((IRSourceLookupMatch) obj).getElement();
+			final Object element= ((IRSourceLookupMatch) obj).getElement();
 			if (element instanceof IResource) {
 				return (IResource) element;
 			}

@@ -35,15 +35,15 @@ public class REnvLibraryPathSourceContainerTypeDelegate extends AbstractSourceCo
 	@Override
 	public ISourceContainer createSourceContainer(final String memento)
 			throws CoreException {
-		final Node node = parseDocument(memento);
+		final Node node= parseDocument(memento);
 		if (node.getNodeType() == Node.ELEMENT_NODE) {
-			final Element element = (Element) node;
+			final Element element= (Element) node;
 			if (REnvLibraryPathSourceContainer.TYPE_ID.equals(element.getNodeName())) {
-				final String s = element.getAttribute("rEnv"); //$NON-NLS-1$
+				final String s= element.getAttribute("rEnv"); //$NON-NLS-1$
 				if (s == null || s.isEmpty()) {
 					abort(Messages.REnvLibraryPathSourceContainer_error_InvalidConfiguration_message, null); 
 				}
-				final IREnv rEnv = REnvUtil.decode(s, RCore.getREnvManager());
+				final IREnv rEnv= REnvUtil.decode(s, RCore.getREnvManager());
 				if (rEnv != null) {
 					return new REnvLibraryPathSourceContainer(rEnv);
 				}
@@ -57,9 +57,9 @@ public class REnvLibraryPathSourceContainerTypeDelegate extends AbstractSourceCo
 	
 	@Override
 	public String getMemento(final ISourceContainer container) throws CoreException {
-		final REnvLibraryPathSourceContainer rEnvContainer = (REnvLibraryPathSourceContainer) container;
-		final Document document = newDocument();
-		final Element element = document.createElement(REnvLibraryPathSourceContainer.TYPE_ID);
+		final REnvLibraryPathSourceContainer rEnvContainer= (REnvLibraryPathSourceContainer) container;
+		final Document document= newDocument();
+		final Element element= document.createElement(REnvLibraryPathSourceContainer.TYPE_ID);
 		element.setAttribute("rEnv", REnvUtil.encode(rEnvContainer.getREnv())); //$NON-NLS-1$
 		document.appendChild(element);
 		return serializeDocument(document);
