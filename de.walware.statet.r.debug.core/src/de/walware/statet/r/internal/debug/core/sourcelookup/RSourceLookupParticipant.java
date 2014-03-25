@@ -101,17 +101,24 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 		
 	}
 	
-	protected static class SourceCorrection {
+	private static class SourceCorrection {
 		
+		/** first line of source, same coordinates than expr */
 		int firstLine;
+		/** first column of source in first line */
 		int firstColumn;
 		
+		int bLineShift;
+		/** char offset of column 0 in firstLine in b */
 		int bFirstLineCharOffset;
+		/** char offset of firstColumn in firstLine in b */
 		int bFirstColumnCharOffset;
-		int bExprLineOffset;
+		
+		int suLineShift;
+		/** char offset of column 0 in firstLine in su */
 		int suFirstLineCharOffset;
+		/** char offset of firstColumn in firstLine in su */
 		int suFirstColumnCharOffset;
-		int suExprLineOffset;
 		
 	}
 	
@@ -624,9 +631,10 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 							bDocument = suDocument;
 							final IRSrcref sourceSrcref = RDbg.createStatetSrcref(data.context.getSourceSrcref());
 							if (sourceSrcref != null) {
-								corr.suExprLineOffset = corr.bExprLineOffset = sourceSrcref.getFirstLine();
-								corr.firstLine = sourceSrcref.getFirstLine();
-								corr.firstColumn = sourceSrcref.getFirstColumn();
+								corr.suLineShift= corr.bLineShift= sourceSrcref.getFirstLine();
+								corr.suFirstColumnCharOffset= corr.bFirstColumnCharOffset= computeOffset(
+										sourceSrcref.getFirstLine(), sourceSrcref.getFirstColumn(),
+										bDocument, bDocument, null, 0 );
 							}
 						}
 						else {
@@ -644,37 +652,37 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 								else {
 									bDocument = new Document(data.context.getSourceCode());
 									int end = -1;
-									if (firstSrcref != null && lastSrcref != null
+									if (firstSrcref != null && lastSrcref != null // body
 											&& firstSrcref.hasBeginDetail()
 											&& lastSrcref.hasEndDetail() ) {
-										corr.firstLine = firstSrcref.getFirstLine();
-										corr.firstColumn = firstSrcref.getFirstColumn();
-										corr.bFirstLineCharOffset = bDocument.getLineOffset(corr.firstLine);
-										corr.bFirstColumnCharOffset = fixPosition(corr.firstLine,
-												firstSrcref.getFirstColumn(),
+										corr.firstLine= firstSrcref.getFirstLine();
+										corr.firstColumn= firstSrcref.getFirstColumn();
+										corr.bFirstLineCharOffset= bDocument.getLineOffset(corr.firstLine);
+										corr.bFirstColumnCharOffset= computeOffset(
+												firstSrcref.getFirstLine(), firstSrcref.getFirstColumn(),
 												bDocument, bDocument, null, 0 );
-										end = fixPosition(lastSrcref.getLastLine(),
-												lastSrcref.getLastColumn(),
+										end= computeOffset(
+												lastSrcref.getLastLine(), lastSrcref.getLastColumn(),
 												bDocument, bDocument, null, 1 );
 									}
-									else if (exprSrcref != null
+									else if (exprSrcref != null // expr only
 											&& exprSrcref.hasBeginDetail()
 											&& exprSrcref.hasEndDetail() ) {
-										corr.firstLine = exprSrcref.getFirstLine();
-										corr.firstColumn = exprSrcref.getFirstColumn();
-										corr.bFirstLineCharOffset = bDocument.getLineOffset(corr.firstLine);
-										corr.bFirstColumnCharOffset = fixPosition(corr.firstLine,
-												exprSrcref.getFirstColumn(),
+										corr.firstLine= exprSrcref.getFirstLine();
+										corr.firstColumn= exprSrcref.getFirstColumn();
+										corr.bFirstLineCharOffset= bDocument.getLineOffset(corr.firstLine);
+										corr.bFirstColumnCharOffset= computeOffset(
+												exprSrcref.getFirstLine(), exprSrcref.getFirstColumn(),
 												bDocument, bDocument, null, 0 );
-										end = fixPosition(exprSrcref.getLastLine(),
-												exprSrcref.getLastColumn(),
+										end= computeOffset(
+												exprSrcref.getLastLine(), exprSrcref.getLastColumn(),
 												bDocument, bDocument, null, 1 );
 									}
 									
 									if (end >= 0) {
-										final String bCode = bDocument.get(corr.bFirstColumnCharOffset,
+										final String bCode= bDocument.get(corr.bFirstColumnCharOffset,
 												end - corr.bFirstColumnCharOffset );
-										match.fQuality = searchCode(data, corr,
+										match.fQuality= searchCode(data, corr,
 												suDocument, suCode, bDocument, bCode);
 									}
 								}
@@ -690,16 +698,14 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 											RModel.TYPE_ID, IModelManager.MODEL_FILE, monitor);
 									final RAstNode body = findFBody(modelInfo);
 									if (body != null) {
-										bDocument = fragmentSu.getDocument(monitor);
-										corr.firstLine = firstSrcref.getFirstLine();
-										corr.firstColumn = firstSrcref.getFirstColumn();
-										corr.bFirstLineCharOffset = bDocument.getLineOffset(corr.firstLine);
-										corr.bFirstColumnCharOffset = body.getOffset();
-										corr.bExprLineOffset = bDocument.getLineOfOffset(corr.bFirstColumnCharOffset) -
-												corr.firstLine;
-										final String bCode = bDocument.get(corr.bFirstColumnCharOffset,
-												body.getLength());
-										match.fQuality = searchCode(data, corr,
+										bDocument= fragmentSu.getDocument(monitor);
+										corr.firstLine= firstSrcref.getFirstLine();
+										corr.firstColumn= firstSrcref.getFirstColumn();
+										corr.bFirstLineCharOffset= bDocument.getLineOffset(corr.firstLine);
+										corr.bFirstColumnCharOffset= body.getOffset();
+										corr.bLineShift= bDocument.getLineOfOffset(body.getOffset()) - corr.firstLine;
+										final String bCode= bDocument.get(body.getOffset(), body.getLength());
+										match.fQuality= searchCode(data, corr,
 												suDocument, suDocument.get(), bDocument, bCode);
 									}
 								}
@@ -707,16 +713,14 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 						}
 						
 						if (exprSrcref != null) {
-							match.fLineNumber = exprSrcref.getFirstLine()
-									+ corr.suExprLineOffset;
+							match.fLineNumber= exprSrcref.getFirstLine() + corr.suLineShift;
 							if (match.fQuality >= QUALITY_POSITION_FOUND
-									&& exprSrcref.hasBeginDetail()
-									&& exprSrcref.hasEndDetail() ) {
-								match.fCharStart = fixPosition(exprSrcref.getFirstLine(),
-										exprSrcref.getFirstColumn(),
+									&& exprSrcref.hasBeginDetail() && exprSrcref.hasEndDetail() ) {
+								match.fCharStart= computeOffset(
+										exprSrcref.getFirstLine(), exprSrcref.getFirstColumn(),
 										bDocument, suDocument, corr, 0 );
-								match.fCharEnd = fixPosition(exprSrcref.getLastLine(),
-										exprSrcref.getLastColumn(),
+								match.fCharEnd= computeOffset(
+										exprSrcref.getLastLine(), exprSrcref.getLastColumn(),
 										bDocument, suDocument, corr, 1 );
 							}
 						}
@@ -772,7 +776,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 		
 		if (offset >= 0) {
 			final int suLine = suDocument.getLineOfOffset(offset);
-			corr.suExprLineOffset = suLine - corr.firstLine;
+			corr.suLineShift = suLine - corr.firstLine;
 			corr.suFirstLineCharOffset = suDocument.getLineOffset(suLine);
 			corr.suFirstColumnCharOffset = offset;
 			return QUALITY_EXACT_FUNCTION_CONTENT;
@@ -813,13 +817,25 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 		return null;
 	}
 	
-	private int fixPosition(final int line, final int column, final AbstractDocument bDocument,
-			final AbstractDocument suDocument, final SourceCorrection corr, final int shift)
-			throws BadLocationException {
-		int pos = 0;
+	/**
+	 * Computes the offset for the position specified by line and column
+	 * 
+	 * @param line
+	 * @param column
+	 * @param bDocument
+	 * @param suDocument
+	 * @param corr optional correction
+	 * @param shift optional final shift for char offset
+	 * @return the offset in suDocument
+	 * @throws BadLocationException
+	 */
+	private int computeOffset(final int line, final int column,
+			final AbstractDocument bDocument, final AbstractDocument suDocument,
+			final SourceCorrection corr, final int shift) throws BadLocationException {
+		int charOffset = 0; // offset in line
 		{	int bLine = line;
 			if (corr != null) {
-				bLine += corr.bExprLineOffset;
+				bLine += corr.bLineShift;
 			}
 			final IRegion lineInfo = bDocument.getLineInformation(bLine);
 			
@@ -829,10 +845,10 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 				if (currentColumn > column) {
 					return -1;
 				}
-				pos += corr.bFirstColumnCharOffset - lineInfo.getOffset(); // lineInfo.getOffset == corr.bFirstLineCharOffset
+				charOffset += corr.bFirstColumnCharOffset - lineInfo.getOffset(); // lineInfo.getOffset == corr.bFirstLineCharOffset
 			}
-			while (currentColumn < column && pos < lineInfo.getLength() ) {
-				final char c = bDocument.getChar(lineInfo.getOffset() + pos++);
+			while (currentColumn < column && charOffset < lineInfo.getLength() ) {
+				final char c = bDocument.getChar(lineInfo.getOffset() + charOffset++);
 				if (c == '\t') {
 					currentColumn += 8 - (currentColumn % 8);
 				}
@@ -844,15 +860,15 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 		
 		{	int suLine = line;
 			if (corr != null) {
-				suLine += corr.suExprLineOffset;
+				suLine += corr.suLineShift;
 			}
 			final IRegion lineInfo = suDocument.getLineInformation(suLine);
 			
 			if (corr != null && line == corr.firstLine) {
-				pos += (corr.suFirstColumnCharOffset - corr.suFirstLineCharOffset) - (corr.bFirstColumnCharOffset - corr.bFirstLineCharOffset);
+				charOffset += (corr.suFirstColumnCharOffset - corr.suFirstLineCharOffset) - (corr.bFirstColumnCharOffset - corr.bFirstLineCharOffset);
 			}
-			pos += shift;
-			return lineInfo.getOffset() + Math.min(pos, lineInfo.getLength());
+			charOffset += shift;
+			return lineInfo.getOffset() + Math.min(charOffset, lineInfo.getLength());
 		}
 	}
 	
