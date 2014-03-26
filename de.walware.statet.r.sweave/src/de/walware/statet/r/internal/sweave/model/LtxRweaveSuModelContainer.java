@@ -21,6 +21,7 @@ import org.eclipse.jface.text.Region;
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.text.FixInterningStringCache;
@@ -401,9 +402,12 @@ public class LtxRweaveSuModelContainer extends LtxSuModelContainer<ILtxRweaveSou
 	}
 	
 	@Override
-	protected IProblemRequestor createEditorContextProblemRequestor(final long stamp) {
-		return SweavePlugin.getDefault().getRTexDocumentProvider().createProblemRequestor(
-				getSourceUnit(), stamp );
+	public IProblemRequestor createProblemRequestor(long stamp) {
+		if (getMode() == LTK.EDITOR_CONTEXT) {
+			return SweavePlugin.getDefault().getRTexDocumentProvider().createProblemRequestor(
+					getSourceUnit(), stamp );
+		}
+		return null;
 	}
 	
 }
