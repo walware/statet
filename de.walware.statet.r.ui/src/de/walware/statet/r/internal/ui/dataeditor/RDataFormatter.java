@@ -38,8 +38,8 @@ public class RDataFormatter {
 	
 	public static final int MILLIS_PER_SECOND = 1000;
 	public static final int MILLIS_PER_MINUTE = 60 * MILLIS_PER_SECOND;
-	public static final int MILLIS_PER_HOUR = 60 * 60 * MILLIS_PER_MINUTE;
-	public static final int MILLIS_PER_DAY = MILLIS_PER_HOUR * 24;
+	public static final int MILLIS_PER_HOUR = 60 * MILLIS_PER_MINUTE;
+	public static final int MILLIS_PER_DAY = 24 * MILLIS_PER_HOUR;
 	
 	private static final InfoString NA = new InfoString("NA");
 	
@@ -122,7 +122,7 @@ public class RDataFormatter {
 			}
 			if (fDateFormat != null) {
 				return fDateFormat.format(new Date(
-						((Integer) modelValue).longValue() * fDateValueMillis) );
+						((Integer) modelValue).intValue() * fDateValueMillis) );
 			}
 			return modelValue.toString();
 		}
