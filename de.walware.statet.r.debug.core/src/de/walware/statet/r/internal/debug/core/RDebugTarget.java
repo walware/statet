@@ -33,6 +33,7 @@ import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 import de.walware.statet.nico.core.runtime.ToolStatus;
 
 import de.walware.rj.server.dbg.DbgFilterState;
+import de.walware.rj.server.dbg.DbgRequest;
 
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.debug.core.IRDebugTarget;
@@ -187,6 +188,18 @@ public class RDebugTarget extends RDebugElement implements IRDebugTarget, IStepF
 	}
 	
 	
+	protected void exec(final DbgRequest request) throws DebugException {
+		try {
+			fController.exec(request);
+		}
+		catch (final CoreException e) {
+			throw new DebugException(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID,
+					DebugException.REQUEST_FAILED,
+					"An error occurred when executing debug request in the R engine.",
+					e ));
+		}
+	}
+	
 	@Override
 	public boolean isSuspended() {
 		final RMainThread mainThread = fMainThread;
@@ -225,7 +238,7 @@ public class RDebugTarget extends RDebugElement implements IRDebugTarget, IStepF
 	@Override
 	public void resume() throws DebugException {
 		if (canResume()) {
-			fController.debugResume();
+			exec(new DbgRequest.Resume());
 		}
 	}
 	

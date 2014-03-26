@@ -34,7 +34,9 @@ import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 import de.walware.statet.nico.core.runtime.ToolStatus;
 
 import de.walware.rj.server.dbg.CallStack;
-import de.walware.rj.server.dbg.CallStack.Frame;
+import de.walware.rj.server.dbg.DbgRequest;
+import de.walware.rj.server.dbg.Frame;
+import de.walware.rj.server.dbg.FrameRef;
 
 import de.walware.statet.r.debug.core.IRDebugTarget;
 import de.walware.statet.r.debug.core.IRStackFrame;
@@ -181,7 +183,7 @@ public class RMainThread extends RDebugElement implements IRThread,
 					int m = prevFrameStack.length - 1;
 					final List<RStackFrame> frameStack = new ArrayList<RStackFrame>(l);
 					for (int i = 0; i < l; i++) {
-						CallStack.Frame dbgFrame = stack.getFrames().get(i);
+						Frame dbgFrame = stack.getFrames().get(i);
 						String call;
 						if (i == 0) {
 							call = "[Console]";
@@ -310,6 +312,18 @@ public class RMainThread extends RDebugElement implements IRThread,
 	}
 	
 	
+	protected void exec(final DbgRequest request) throws DebugException {
+		try {
+			fController.exec(request);
+		}
+		catch (final CoreException e) {
+			throw new DebugException(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID,
+					DebugException.REQUEST_FAILED,
+					"An error occurred when executing debug request in the R engine.",
+					e ));
+		}
+	}
+	
 	@Override
 	public boolean isSuspended() {
 		return fIsSuspended;
@@ -335,7 +349,7 @@ public class RMainThread extends RDebugElement implements IRThread,
 	@Override
 	public void resume() throws DebugException {
 		if (canResume()) {
-			fController.debugResume();
+			exec(new DbgRequest.Resume());
 		}
 	}
 	
@@ -365,35 +379,35 @@ public class RMainThread extends RDebugElement implements IRThread,
 	
 	@Override
 	public void stepInto() throws DebugException {
+		if (canStepInto()) {
+			exec(new DbgRequest.StepInto());
+		}
 	}
 	
 	@Override
 	public void stepOver() throws DebugException {
-		if (!canStepOver()) {
-			return;
+		if (canStepOver()) {
+			exec(new DbgRequest.StepOver());
 		}
-		fController.debugStepOver();
-		return;
 	}
 	
 	@Override
 	public void stepReturn() throws DebugException {
-		if (!canStepReturn()) {
-			return;
+		if (canStepReturn()) {
+			stepToFrame(null, 1);
 		}
-		stepToFrame(null, 1);
-		return;
 	}
 	
 	/**
 	 * 
 	 * @param refFrame reference frame, if <code>null</code> current top frame is used
 	 * @param relIdx steps to move (number of index of stack frames, not positions)
+	 * @throws DebugException 
 	 */
-	public void stepToFrame(final RStackFrame refFrame, final int relIdx) {
+	public void stepToFrame(final RStackFrame refFrame, final int relIdx) throws DebugException {
 		List<RStackFrame> frames;
 		synchronized (fFramesLock) {
-			frames = new ConstArrayList<RStackFrame>(fFrames);
+			frames = new ConstArrayList<>(fFrames);
 		}
 		if (frames.isEmpty()) {
 			return;
@@ -404,17 +418,15 @@ public class RMainThread extends RDebugElement implements IRThread,
 			return;
 		}
 		if (refIdx == 0 && relIdx == 0) {
-			if (!canStepOver()) {
-				return;
+			if (canStepOver()) {
+				exec(new DbgRequest.StepOver());
 			}
-			fController.debugStepOver();
 			return;
 		}
-		if (!canStepReturn()) {
-			return;
+		if (canStepReturn()) {
+			exec(new DbgRequest.StepReturn(
+					new FrameRef.ByPosition(frames.get(targetIdx).getPosition()) ));
 		}
-		fController.debugStepToFrame(frames.get(targetIdx).getPosition());
-		return;
 	}
 	
 	

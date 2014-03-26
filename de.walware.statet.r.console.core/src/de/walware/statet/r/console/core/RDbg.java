@@ -15,11 +15,13 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.debug.core.DebugEvent;
 
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 
+import de.walware.rj.server.dbg.DbgRequest;
 import de.walware.rj.server.dbg.SrcfileData;
 import de.walware.rj.server.dbg.Srcref;
 
@@ -121,6 +123,21 @@ public class RDbg {
 				(data[Srcref.BEGIN_COLUMN] > 0) ? data[Srcref.BEGIN_COLUMN] -1 : -1,
 				(data[Srcref.END_LINE] > 0) ? data[Srcref.END_LINE] - 1 : -1,
 				(data[Srcref.END_COLUMN] > 0) ? data[Srcref.END_COLUMN] : -1 );
+	}
+	
+	public static int getResumeEventDetail(final byte op) {
+		switch (op) {
+		case DbgRequest.RESUME:
+			return DebugEvent.CLIENT_REQUEST;
+		case DbgRequest.STEP_INTO:
+			return DebugEvent.STEP_INTO;
+		case DbgRequest.STEP_OVER:
+			return DebugEvent.STEP_OVER;
+		case DbgRequest.STEP_RETURN:
+			return DebugEvent.STEP_RETURN;
+		default:
+			return DebugEvent.UNSPECIFIED;
+		}
 	}
 	
 	

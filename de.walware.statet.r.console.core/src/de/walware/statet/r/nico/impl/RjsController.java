@@ -84,8 +84,10 @@ import de.walware.rj.server.client.FunctionCallImpl;
 import de.walware.rj.server.client.RClientGraphicFactory;
 import de.walware.rj.server.client.RGraphicCreatorImpl;
 import de.walware.rj.server.dbg.CallStack;
+import de.walware.rj.server.dbg.CtrlReport;
 import de.walware.rj.server.dbg.DbgEnablement;
 import de.walware.rj.server.dbg.DbgFilterState;
+import de.walware.rj.server.dbg.DbgRequest;
 import de.walware.rj.server.dbg.ElementTracepointInstallationReport;
 import de.walware.rj.server.dbg.ElementTracepointInstallationRequest;
 import de.walware.rj.server.dbg.FrameContext;
@@ -393,12 +395,12 @@ public class RjsController extends AbstractRDbgController
 		
 		@Override
 		protected void processHotMode() {
-			RjsController.this.runHotModeLoop();
+			runHotModeLoop();
 		}
 		
 		@Override
 		protected void processExtraMode(final int position) {
-			RjsController.this.runSuspendedLoopL(SUSPENDED_DEEPLEVEL);
+			runSuspendedLoopL(SUSPENDED_DEEPLEVEL);
 		}
 		
 		@Override
@@ -852,11 +854,16 @@ public class RjsController extends AbstractRDbgController
 				null, monitor );
 	}
 	
-	
 	@Override
 	protected SetDebugReport doExec(final SetDebugRequest request,
 			final IProgressMonitor monitor) throws CoreException {
 		return (SetDebugReport) fRjs.execSyncDbgOp(DbgCmdItem.OP_SET_DEBUG, request, monitor);
+	}
+	
+	@Override
+	protected CtrlReport doExec(final DbgRequest request,
+			final IProgressMonitor monitor) throws CoreException {
+		return (CtrlReport) fRjs.execSyncDbgOp(request.getOp(), request, monitor);
 	}
 	
 	@Override

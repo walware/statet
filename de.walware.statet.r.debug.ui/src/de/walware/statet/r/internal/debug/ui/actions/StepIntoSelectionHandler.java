@@ -14,7 +14,11 @@ package de.walware.statet.r.internal.debug.ui.actions;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -25,6 +29,7 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ISourceUnit;
@@ -43,6 +48,7 @@ import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.debug.core.IRStackFrame;
+import de.walware.statet.r.internal.debug.ui.RDebugUIPlugin;
 import de.walware.statet.r.internal.debug.ui.RDebugUIUtils;
 import de.walware.statet.r.nico.AbstractRDbgController;
 
@@ -133,6 +139,13 @@ public class StepIntoSelectionHandler extends AbstractHandler {
 			}
 		}
 		catch (final BadLocationException e) {}
+		catch (final CoreException e) {
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RDebugUIPlugin.PLUGIN_ID,
+							DebugException.REQUEST_FAILED,
+							"An error occurred when executing debug request in the R engine.",
+							e ),
+					StatusManager.LOG );
+		}
 	}
 	
 	

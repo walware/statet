@@ -301,15 +301,19 @@ public abstract class ToolController implements IConsoleService {
 	
 	protected abstract class SuspendResumeRunnable extends ControllerSystemRunnable {
 		
-		private final int fDetail;
+		private int detail;
 		
 		public SuspendResumeRunnable(final String id, final String label, final int detail) {
 			super(id, label);
-			fDetail = detail;
+			this.detail= detail;
 		}
 		
 		public SubmitType getSubmitType() {
 			return SubmitType.OTHER;
+		}
+		
+		protected void setDetail(final int detail) {
+			this.detail= detail;
 		}
 		
 		@Override
@@ -331,12 +335,14 @@ public abstract class ToolController implements IConsoleService {
 		
 		@Override
 		public void run(final IToolService adapter,
-				final IProgressMonitor monitor) {
+				final IProgressMonitor monitor) throws CoreException {
 			fSuspendExitRunnable = this;
 			setSuspended(fSuspendedLowerLevel, 0, null);
 		}
 		
-		protected abstract boolean canExec(final IProgressMonitor monitor) throws CoreException;
+		protected boolean canExec(final IProgressMonitor monitor) throws CoreException {
+			return true;
+		}
 		
 		protected abstract void doExec(final IProgressMonitor monitor) throws CoreException;
 		
@@ -345,14 +351,16 @@ public abstract class ToolController implements IConsoleService {
 			final IToolRunnable savedCurrentRunnable = fCurrentRunnable;
 			setCurrentRunnable(this);
 			try {
-				fCurrentInput = print;
+				fCurrentInput= print;
 				doBeforeSubmitL();
 			}
 			finally {
 				setCurrentRunnable(savedCurrentRunnable);
 			}
-			fCurrentInput = send;
-			doSubmitL(monitor);
+			if (send != null) {
+				fCurrentInput= send;
+				doSubmitL(monitor);
+			}
 		}
 		
 	}
@@ -365,7 +373,7 @@ public abstract class ToolController implements IConsoleService {
 		
 		@Override
 		public void run(final IToolService service,
-				final IProgressMonitor monitor) {
+				final IProgressMonitor monitor) throws CoreException {
 			super.run(service, monitor);
 			if (!fIsTerminated) {
 				try {
@@ -378,11 +386,6 @@ public abstract class ToolController implements IConsoleService {
 					}
 				}
 			}
-		}
-		
-		@Override
-		protected boolean canExec(final IProgressMonitor monitor) throws CoreException {
-			return true;
 		}
 		
 		@Override
@@ -1193,7 +1196,7 @@ public abstract class ToolController implements IConsoleService {
 							return;
 						}
 						fSuspendExitDetail = (fCurrentRunnable instanceof ToolController.SuspendResumeRunnable) ?
-								((ToolController.SuspendResumeRunnable) fCurrentRunnable).fDetail :
+								((ToolController.SuspendResumeRunnable) fCurrentRunnable).detail :
 								DebugEvent.EVALUATION;
 					}
 					loopChangeStatus(ToolStatus.STARTED_PROCESSING,
@@ -1391,7 +1394,7 @@ public abstract class ToolController implements IConsoleService {
 		return true;
 	}
 	
-	protected void scheduleSuspendExitRunnable(final SuspendResumeRunnable runnable) {
+	protected void scheduleSuspendExitRunnable(final SuspendResumeRunnable runnable) throws CoreException {
 		synchronized (fQueue) {
 			if (fLoopCurrentLevel == 0) {
 				return;
@@ -1477,7 +1480,7 @@ public abstract class ToolController implements IConsoleService {
 								savedCurrentRunnable : runnable);
 						if (runnable.canExec(savedProgressMonitor)) { // exec resume
 							synchronized (fQueue) {
-								fSuspendExitDetail = runnable.fDetail;
+								fSuspendExitDetail = runnable.detail;
 								loopChangeStatus(ToolStatus.STARTED_PROCESSING, savedProgressMonitor);
 							}
 							runnable.doExec(savedProgressMonitor);

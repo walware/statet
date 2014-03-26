@@ -38,6 +38,7 @@ import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.eclient.AbstractRToolRunnable;
 import de.walware.rj.eclient.IRToolService;
 import de.walware.rj.server.dbg.CallStack;
+import de.walware.rj.server.dbg.Frame;
 import de.walware.rj.server.dbg.FrameContext;
 
 import de.walware.statet.r.console.core.LoadReferenceRunnable;
@@ -182,7 +183,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 	
 	private int fStamp;
 	
-	private CallStack.Frame fDbgFrame;
+	private Frame fDbgFrame;
 	private FrameContext fDbgFrameContext;
 	
 	private final String fCall;
@@ -204,7 +205,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 	
 	
 	public RStackFrame(final IRDebugTarget target, final IRThread thread, final int stamp,
-			final CallStack.Frame dbgFrame, final String call, final String fileName,
+			final Frame dbgFrame, final String call, final String fileName,
 			final IRBreakpointStatus breakpointStatus) {
 		super(target);
 		fThread = thread;
@@ -220,7 +221,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 	
 	
 	public synchronized RStackFrame update(final int stamp,
-			final CallStack.Frame dbgFrame, final String call, final String fileName,
+			final Frame dbgFrame, final String call, final String fileName,
 			final IRBreakpointStatus breakpointStatus) {
 		if (dbgFrame.getHandle() == fDbgFrame.getHandle()
 				&& dbgFrame.getPosition() == fDbgFrame.getPosition()
@@ -358,26 +359,23 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 	
 	@Override
 	public void stepInto() throws DebugException {
-		if (!canStepInto()) {
-			return;
+		if (canStepInto()) {
+			getThread().stepInto();
 		}
-		getThread().stepInto();
 	}
 	
 	@Override
 	public void stepOver() throws DebugException {
-		if (!canStepOver()) {
-			return;
+		if (canStepOver()) {
+			((RMainThread) getThread()).stepToFrame(this, 0);
 		}
-		((RMainThread) getThread()).stepToFrame(this, 0);
 	}
 	
 	@Override
 	public void stepReturn() throws DebugException {
-		if (!canStepReturn()) {
-			return;
+		if (canStepReturn()) {
+			((RMainThread) getThread()).stepToFrame(this, 1);
 		}
-		((RMainThread) getThread()).stepToFrame(this, 1);
 	}
 	
 	
@@ -473,7 +471,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 			fLock.readLock().unlock();
 			fLock.writeLock().lock();
 			try {
-				final CallStack.Frame frame = fDbgFrame;
+				final Frame frame = fDbgFrame;
 				while (fContextRunnable != null && fDbgFrame == frame) {
 					try {
 						fContextWaitCondition.await();

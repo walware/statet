@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.Version;
 
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ltk.ISourceUnit;
@@ -47,12 +48,15 @@ import de.walware.rj.data.RReference;
 import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.data.defaultImpl.RReferenceImpl;
 import de.walware.rj.server.dbg.CallStack;
-import de.walware.rj.server.dbg.CallStack.Frame;
+import de.walware.rj.server.dbg.CtrlReport;
 import de.walware.rj.server.dbg.DbgEnablement;
 import de.walware.rj.server.dbg.DbgFilterState;
+import de.walware.rj.server.dbg.DbgRequest;
 import de.walware.rj.server.dbg.ElementTracepointInstallationReport;
 import de.walware.rj.server.dbg.ElementTracepointInstallationRequest;
+import de.walware.rj.server.dbg.Frame;
 import de.walware.rj.server.dbg.FrameContext;
+import de.walware.rj.server.dbg.FrameRef;
 import de.walware.rj.server.dbg.SetDebugReport;
 import de.walware.rj.server.dbg.SetDebugRequest;
 import de.walware.rj.server.dbg.SrcfileData;
@@ -319,28 +323,42 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 		
 		if ((getPrompt().meta & META_PROMPT_SUSPENDED) != 0) {
 			final String trimmed = input.trim();
-			final char c;
 			if (trimmed.isEmpty()) {
 				streams.getOutputStreamMonitor().append(fLineSeparator, SubmitType.OTHER, 0);
 				// revert counter?
 				return false;
 			}
 			else if (trimmed.length() == 1) {
-				c = trimmed.charAt(0);
-			}
-			else {
-				c = 0;
-			}
-			switch (c) {
-			case 'c':
-				debugResume();
-				return false;
-			case 'Q':
-				debugCancel();
-				return false;
-			case 'n':
-				debugStepOver();
-				return false;
+				try {
+					switch(trimmed.charAt(0)) {
+					case 'Q':
+						debugCancel();
+						return false;
+					case 'c':
+						if (exec(new DbgRequest.Resume())) {
+							return false;
+						}
+						break;
+					case 'n':
+						if (exec(new DbgRequest.StepOver())) {
+							return false;
+						}
+						break;
+					case 's':
+						if (exec(new DbgRequest.StepInto())) {
+							return false;
+						}
+						break;
+					default:
+						break;
+					}
+				}
+				catch (final CoreException e) {
+					RConsoleCorePlugin.log(new Status(IStatus.INFO, RConsoleCorePlugin.PLUGIN_ID, 0,
+							"An error occurred when executing debug request in the R engine.", e ));
+					
+					return false;
+				}
 			}
 		}
 		return true;
@@ -357,27 +375,124 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 		fQueue.addHot(fSuspendRunnable);
 	}
 	
-	public void debugResume() {
-		scheduleSuspendExitRunnable(new SuspendResumeRunnable(RESUME_TYPE_ID, 
-				"Resume", DebugEvent.CLIENT_REQUEST) {
-			@Override
-			protected boolean canExec(final IProgressMonitor monitor) throws CoreException {
-				return ((getPrompt().meta & META_PROMPT_SUSPENDED) != 0);
+	public boolean exec(final DbgRequest request) throws CoreException {
+		
+		class DbgRequestResumeRunnable<R extends DbgRequest> extends SuspendResumeRunnable {
+			
+			
+			public DbgRequestResumeRunnable(final String id, final String label) {
+				super(id, label, RDbg.getResumeEventDetail(request.getOp()));
 			}
+			
+			
+			protected DbgRequest check(final R request, final IProgressMonitor monitor) {
+				return request;
+			}
+			
+			@Override
+			public void run(final IToolService adapter,
+					final IProgressMonitor monitor) throws CoreException {
+				if ((getPrompt().meta & META_PROMPT_SUSPENDED) == 0) {
+					return;
+				}
+				final DbgRequest checkedRequest= check((R) request, monitor);
+				if (checkedRequest == null) {
+					return;
+				}
+				final CtrlReport report= AbstractRDbgController.this.doExec(checkedRequest, monitor);
+				if (!report.isEngineSuspended()) {
+					super.run(adapter, monitor);
+					submitToConsole(getResumeRCommand(report.getOp()), null, monitor);
+					setDetail(RDbg.getResumeEventDetail(report.getOp()));
+				}
+			}
+			
 			@Override
 			protected void doExec(final IProgressMonitor monitor) throws CoreException {
 				fChanged |= RWorkspace.REFRESH_AUTO;
-				fTopLevelBrowserEnabled = false;
-				submitToConsole("c", "c", monitor); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-		});
+			
+			protected String getResumeRCommand(final byte op) {
+				switch (op) {
+				case DbgRequest.RESUME:
+					return "c"; //$NON-NLS-1$
+				case DbgRequest.STEP_INTO:
+					return "s"; //$NON-NLS-1$
+				case DbgRequest.STEP_OVER:
+					return "n"; //$NON-NLS-1$
+				case DbgRequest.STEP_RETURN:
+				default:
+					return "c"; //$NON-NLS-1$
+				}
+			}
+			
+		}
+		
+		switch (request.getOp()) {
+		case DbgRequest.RESUME:
+			scheduleSuspendExitRunnable(new DbgRequestResumeRunnable<DbgRequest.Resume>(
+					RESUME_TYPE_ID, "Resume" ) {
+				
+				@Override
+				protected void doExec(final IProgressMonitor monitor) throws CoreException {
+					super.doExec(monitor);
+					fTopLevelBrowserEnabled= false;
+				}
+				
+			});
+			return true;
+		case DbgRequest.STEP_OVER:
+			scheduleSuspendExitRunnable(new DbgRequestResumeRunnable<DbgRequest.StepOver>(
+					STEP_OVER_TYPE_ID, "Step Over" ));
+			return true;
+		case DbgRequest.STEP_INTO:
+			if ((getPlatform().getRVersion().compareTo(new Version(3, 1, 0)) < 0)) {
+				return false;
+			}
+			scheduleSuspendExitRunnable(new DbgRequestResumeRunnable<DbgRequest.StepInto>(
+					STEP_INTO_TYPE_ID, "Step Into" ));
+			return true;
+		case DbgRequest.STEP_RETURN:
+			scheduleSuspendExitRunnable(new DbgRequestResumeRunnable<DbgRequest.StepReturn>(
+					STEP_RETURN_TYPE_ID, "Step Return" ) {
+				
+				private Frame targetFrame;
+				
+				@Override
+				protected DbgRequest check(final DbgRequest.StepReturn request, final IProgressMonitor monitor) {
+					final CallStack callStack= getCallStack(monitor);
+					if (request.getTarget() instanceof FrameRef.ByPosition) {
+						final int targetPosition= ((FrameRef.ByPosition) request.getTarget()).getPosition();
+						final int n= callStack.getFrames().size();
+						if (targetPosition >= 0 && targetPosition < n - 1) {
+							targetFrame= callStack.getFrames().get(targetPosition);
+						}
+					}
+					else if (request.getTarget() instanceof FrameRef.ByHandle) {
+						final long targetHandle= ((FrameRef.ByHandle) request.getTarget()).getHandle();
+						targetFrame= callStack.findFrame(targetHandle);
+					}
+					return (targetFrame != null) ?
+							new DbgRequest.StepReturn(new FrameRef.ByHandle(targetFrame.getHandle())) :
+							null;
+				}
+				
+				@Override
+				protected void doExec(final IProgressMonitor monitor) throws CoreException {
+					super.doExec(monitor);
+//					if (targetPosition == 0) {
+//						fTopLevelBrowserAction = TOPLEVELBROWSER_ENABLE_COMMANDS;
+//					}
+				}
+				
+			});
+			return true;
+		default:
+			throw new UnsupportedOperationException(request.toString());
+		}
 	}
 	
-	public void debugStepOver() {
-		debugStepOver(false);
-	}
-	
-	public void debugStepInto(final int position, final String fRefCode) {
+	public void debugStepInto(final int position, final String fRefCode) throws CoreException {
 		scheduleSuspendExitRunnable(new SuspendResumeRunnable(STEP_INTO_TYPE_ID,
 				"Step Into", DebugEvent.STEP_OVER) {
 			@Override
@@ -414,66 +529,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 		});
 	}
 	
-	public void debugStepOver(final boolean filter) {
-		scheduleSuspendExitRunnable(new SuspendResumeRunnable(STEP_OVER_TYPE_ID,
-				"Step Over", DebugEvent.STEP_OVER) {
-			@Override
-			protected boolean canExec(final IProgressMonitor monitor) throws CoreException {
-				if ((getPrompt().meta & META_PROMPT_SUSPENDED) != 0) {
-					final CallStack stack = getCallStack(monitor);
-					return (stack != null);
-				}
-				return false;
-			}
-			@Override
-			protected void doExec(final IProgressMonitor monitor) throws CoreException {
-				final CallStack stack = getCallStack(monitor);
-				fChanged |= RWorkspace.REFRESH_AUTO;
-//				if (debug.stack.length == 1
-//						|| (debug.stack.length >= 4 && debug.stack[3].isTopLevelCommand()) ) {
-//					// already suspended
-//					// fTopLevelBrowser = TOPLEVELBROWSER_ENABLE_COMMANDS;
-//					submitToConsole("n", (filter || fQueue.size() > 0) ? "n" : "c", monitor);
-//				}
-//				else {
-				submitToConsole("n", "n", monitor); //$NON-NLS-1$ //$NON-NLS-2$
-//				}
-				return;
-			}
-		});
-	}
-	
-	public void debugStepToFrame(final int toPosition) {
-		scheduleSuspendExitRunnable(new SuspendResumeRunnable(STEP_RETURN_TYPE_ID,
-				"Step Return", DebugEvent.STEP_RETURN) {
-			@Override
-			protected boolean canExec(final IProgressMonitor monitor) throws CoreException {
-				if ((getPrompt().meta & META_PROMPT_SUSPENDED) != 0) {
-					final CallStack stack = getCallStack(monitor);
-					final int n = stack.getFrames().size();
-					return (toPosition >= 0 && toPosition < n - 1 );
-				}
-				return false;
-			}
-			@Override
-			protected void doExec(final IProgressMonitor monitor) throws CoreException {
-				final CallStack stack = getCallStack(monitor);
-				fChanged |= RWorkspace.REFRESH_AUTO;
-				fTopLevelBrowserEnabled = false;
-				if (toPosition == 0 || stack.getFrames().get(toPosition).isTopLevelCommand()) {
-					fTopLevelBrowserAction = TOPLEVELBROWSER_ENABLE_COMMANDS;
-					submitToConsole("c", "c", monitor); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-				else {
-					final int n = stack.getFrames().size();
-					final int relPos = n - 1 - toPosition;
-					submitToConsole("c", "browserSetDebug(n="+(relPos)+"L); c", monitor); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				}
-			}
-		});
-	}
-	
-	public void debugCancel() {
+	public void debugCancel() throws CoreException {
 		scheduleSuspendExitRunnable(new SuspendResumeRunnable(RESUME_TYPE_ID,
 				"Cancel", DebugEvent.CLIENT_REQUEST) {
 			@Override
@@ -485,7 +541,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 				fChanged |= RWorkspace.REFRESH_AUTO;
 				fTopLevelBrowserEnabled = false;
 				fTopLevelBrowserAction = TOPLEVELBROWSER_CHECK_SUBMIT;
-				submitToConsole("Q", "Q", monitor);
+				submitToConsole("Q", "Q", monitor); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		});
 	}
@@ -676,6 +732,12 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			fBreakpointHit = event;
 		}
 	}
+	
+	protected CtrlReport doExec(final DbgRequest request,
+			final IProgressMonitor monitor) throws CoreException {
+		return null;
+	}
+	
 	
 	@Override
 	public boolean acceptNewConsoleCommand() {
