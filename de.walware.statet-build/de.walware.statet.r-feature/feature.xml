@@ -2,7 +2,7 @@
 <feature
       id="de.walware.statet.r"
       label="StatET for R"
-      version="3.4.0.qualifier"
+      version="3.5.0.qualifier"
       provider-name="WalWare.de"
       license-feature="de.walware.opensource.license"
       license-feature-version="1.0.0">

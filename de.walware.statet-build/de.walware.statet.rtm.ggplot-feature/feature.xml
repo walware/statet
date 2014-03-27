@@ -20,7 +20,7 @@
    </license>
 
    <requires>
-      <import feature="de.walware.statet.r" version="3.4.0" match="equivalent" />
+      <import feature="de.walware.statet.r" version="3.5.0" match="equivalent" />
    </requires>
 
    <plugin

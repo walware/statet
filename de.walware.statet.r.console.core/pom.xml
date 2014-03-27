@@ -7,13 +7,13 @@
 	<parent>
 		<groupId>de.walware.statet</groupId>
 		<artifactId>statet</artifactId>
-		<version>3.4-SNAPSHOT</version>
+		<version>3.5-SNAPSHOT</version>
 		<relativePath>../de.walware.statet-build</relativePath>
 	</parent>
 	
 	<groupId>de.walware.statet</groupId>
 	<artifactId>de.walware.statet.r.console.core</artifactId>
-	<version>3.4.0-SNAPSHOT</version>
+	<version>3.5.0-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
 	
 </project>
