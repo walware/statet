@@ -54,7 +54,7 @@ import de.walware.docmlet.tex.core.model.IEmbeddedForeignElement;
 import de.walware.docmlet.tex.core.model.ILtxModelInfo;
 import de.walware.docmlet.tex.core.model.ILtxSourceElement;
 import de.walware.docmlet.tex.core.model.TexModel;
-import de.walware.docmlet.tex.ui.TexImages;
+import de.walware.docmlet.tex.ui.TexUIResources;
 
 import de.walware.statet.base.ui.IStatetUIMenuIds;
 
@@ -132,14 +132,14 @@ public class LtxRweaveOutlinePage extends SourceEditor2OutlinePage {
 					}
 					
 					final ILtxModelInfo modelInfo = getCurrentInputModel();
-					final ImageRegistry texImages = TexImages.getImageRegistry();
+					final TexUIResources texResources = TexUIResources.INSTANCE;
 					final ImageRegistry sweaveImages = SweavePlugin.getDefault().getImageRegistry();
 					if (modelInfo.getMinSectionLevel() > 0) {
 						if (modelInfo.getMinSectionLevel() < TexCommand.CHAPTER_LEVEL
 								&& modelInfo.getMaxSectionLevel() >= TexCommand.CHAPTER_LEVEL) {
 							manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
 									getSite(), null, EXPAND_ELEMENTS_COMMAND_ID, CHAPTER_PARAMETERS,
-									texImages.getDescriptor(TexImages.OBJ_CHAPTER), null, null,
+									texResources.getImageDescriptor(TexUIResources.OBJ_CHAPTER_IMAGE_ID), null, null,
 									"Show all Chapters", "C", null,
 									HandlerContributionItem.STYLE_PUSH, null, false ),
 									fExpandElementsHandler ));
@@ -148,7 +148,7 @@ public class LtxRweaveOutlinePage extends SourceEditor2OutlinePage {
 								&& modelInfo.getMaxSectionLevel() >= TexCommand.SECTION_LEVEL) {
 							manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
 									getSite(), null, EXPAND_ELEMENTS_COMMAND_ID, SECTION_PARAMETERS,
-									texImages.getDescriptor(TexImages.OBJ_SECTION), null, null,
+									texResources.getImageDescriptor(TexUIResources.OBJ_SECTION_IMAGE_ID), null, null,
 									"Show all Sections", "S", null,
 									HandlerContributionItem.STYLE_PUSH, null, false ),
 									fExpandElementsHandler ));
@@ -157,7 +157,7 @@ public class LtxRweaveOutlinePage extends SourceEditor2OutlinePage {
 								&& modelInfo.getMaxSectionLevel() >= TexCommand.SUBSECTION_LEVEL) {
 							manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
 									getSite(), null, EXPAND_ELEMENTS_COMMAND_ID, SUBSECTION_PARAMETERS,
-									texImages.getDescriptor(TexImages.OBJ_SUBSECTION), null, null,
+									texResources.getImageDescriptor(TexUIResources.OBJ_SUBSECTION_IMAGE_ID), null, null,
 									"Show all SubSections", "u", null,
 									HandlerContributionItem.STYLE_PUSH, null, false ),
 									fExpandElementsHandler ));

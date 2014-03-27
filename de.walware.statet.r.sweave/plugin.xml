@@ -87,7 +87,7 @@
                type="de.walware.statet.r.core.rsource.RHeuristicTokenScanner">
          </adapter>
          <adapter
-               type="de.walware.docmlet.tex.core.text.LtxHeuristicTokenScanner">
+               type="de.walware.docmlet.tex.core.source.LtxHeuristicTokenScanner">
          </adapter>
          <adapter
                type="de.walware.docmlet.tex.core.TexBuildParticipant">

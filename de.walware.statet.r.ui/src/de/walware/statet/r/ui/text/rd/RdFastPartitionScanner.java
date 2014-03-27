@@ -23,7 +23,7 @@ import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
-import de.walware.ecommons.text.ui.BufferedDocumentScanner;
+import de.walware.ecommons.text.core.rules.BufferedDocumentScanner;
 
 
 /**

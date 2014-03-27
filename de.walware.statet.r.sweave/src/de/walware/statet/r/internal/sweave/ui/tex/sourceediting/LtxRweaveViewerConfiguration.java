@@ -51,8 +51,8 @@ import de.walware.ecommons.ui.ColorManager;
 
 import de.walware.docmlet.tex.core.ITexCoreAccess;
 import de.walware.docmlet.tex.core.TexCore;
-import de.walware.docmlet.tex.core.text.ITexDocumentConstants;
-import de.walware.docmlet.tex.core.text.LtxHeuristicTokenScanner;
+import de.walware.docmlet.tex.core.source.ITexDocumentConstants;
+import de.walware.docmlet.tex.core.source.LtxHeuristicTokenScanner;
 import de.walware.docmlet.tex.ui.sourceediting.LtxViewerConfiguration;
 import de.walware.docmlet.tex.ui.text.LtxDoubleClickStrategy;
 

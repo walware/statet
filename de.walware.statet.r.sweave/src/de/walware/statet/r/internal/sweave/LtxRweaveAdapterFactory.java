@@ -14,7 +14,7 @@ package de.walware.statet.r.internal.sweave;
 import org.eclipse.core.runtime.IAdapterFactory;
 
 import de.walware.docmlet.tex.core.TexBuildParticipant;
-import de.walware.docmlet.tex.core.text.LtxHeuristicTokenScanner;
+import de.walware.docmlet.tex.core.source.LtxHeuristicTokenScanner;
 
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.sweave.model.LtxRweaveTexBuildParticipant;

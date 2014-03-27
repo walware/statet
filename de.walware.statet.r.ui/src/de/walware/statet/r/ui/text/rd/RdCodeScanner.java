@@ -22,7 +22,7 @@ import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 
 import de.walware.ecommons.text.DefaultWhitespaceDetector;
-import de.walware.ecommons.text.ui.OperatorRule;
+import de.walware.ecommons.text.core.rules.OperatorRule;
 import de.walware.ecommons.text.ui.presentation.AbstractRuleBasedScanner;
 import de.walware.ecommons.ui.ColorManager;
 

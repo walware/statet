@@ -16,7 +16,7 @@ import org.eclipse.jface.text.IDocument;
 import de.walware.ecommons.text.IPartitionConstraint;
 import de.walware.ecommons.text.PartitioningConfiguration;
 
-import de.walware.docmlet.tex.core.text.ITexDocumentConstants;
+import de.walware.docmlet.tex.core.source.ITexDocumentConstants;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 

@@ -14,7 +14,7 @@ package de.walware.statet.r.internal.sweave.editors;
 import de.walware.ecommons.text.Partitioner;
 import de.walware.ecommons.text.PartitionerDocumentSetupParticipant;
 
-import de.walware.docmlet.tex.core.text.ITexDocumentConstants;
+import de.walware.docmlet.tex.core.source.ITexDocumentConstants;
 
 import de.walware.statet.r.sweave.text.CatPartitioner;
 import de.walware.statet.r.sweave.text.LtxChunkPartitionScanner;

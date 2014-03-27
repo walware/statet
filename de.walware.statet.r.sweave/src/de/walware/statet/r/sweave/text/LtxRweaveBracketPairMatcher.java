@@ -16,8 +16,8 @@ import org.eclipse.jface.text.IRegion;
 
 import de.walware.ecommons.text.ICharPairMatcher;
 
-import de.walware.docmlet.tex.core.text.LtxHeuristicTokenScanner;
-import de.walware.docmlet.tex.ui.text.LtxBracketPairMatcher;
+import de.walware.docmlet.tex.core.source.LtxBracketPairMatcher;
+import de.walware.docmlet.tex.core.source.LtxHeuristicTokenScanner;
 
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 

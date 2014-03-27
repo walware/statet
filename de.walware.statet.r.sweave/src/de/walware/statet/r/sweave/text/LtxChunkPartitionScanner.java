@@ -17,8 +17,8 @@ import org.eclipse.jface.text.rules.Token;
 
 import de.walware.ecommons.collections.IntMap;
 
-import de.walware.docmlet.tex.core.text.ITexDocumentConstants;
-import de.walware.docmlet.tex.ui.text.LtxFastPartitionScanner;
+import de.walware.docmlet.tex.core.source.ITexDocumentConstants;
+import de.walware.docmlet.tex.core.source.LtxFastPartitionScanner;
 
 
 /**
@@ -75,7 +75,7 @@ public class LtxChunkPartitionScanner extends LtxFastPartitionScanner
 	
 	@Override
 	protected void searchDefault() {
-		if (fLast == LAST_NEWLINE) {
+		if (this.last == LAST_NEWLINE) {
 			if (readCharsTemp('<', '<')) {
 				fIsInChunk = false;
 				forceReturn(0);
@@ -87,7 +87,7 @@ public class LtxChunkPartitionScanner extends LtxFastPartitionScanner
 	
 	@Override
 	protected void searchMathSpecial() {
-		if (fLast == LAST_NEWLINE) {
+		if (this.last == LAST_NEWLINE) {
 			if (readCharsTemp('<', '<')) {
 				fIsInChunk = false;
 				forceReturn(0);
@@ -99,7 +99,7 @@ public class LtxChunkPartitionScanner extends LtxFastPartitionScanner
 	
 	@Override
 	protected void searchMathEnv() {
-		if (fLast == LAST_NEWLINE) {
+		if (this.last == LAST_NEWLINE) {
 			if (readCharsTemp('<', '<')) {
 				fIsInChunk = false;
 				forceReturn(0);
