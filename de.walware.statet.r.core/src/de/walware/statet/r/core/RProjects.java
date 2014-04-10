@@ -59,7 +59,6 @@ public class RProjects {
 		
 		if (changed) {
 			project.setDescription(description, progress.newChild(8));
-			progress.worked(8);
 		}
 	}
 	
@@ -85,7 +84,6 @@ public class RProjects {
 		
 		if (changed) {
 			project.setDescription(description, progress.newChild(8));
-			progress.worked(8);
 		}
 		
 		progress.setWorkRemaining(2);
