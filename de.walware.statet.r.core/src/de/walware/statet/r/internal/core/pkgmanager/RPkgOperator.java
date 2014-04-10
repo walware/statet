@@ -33,7 +33,7 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.pkgmanager.IRLibPaths;
 import de.walware.statet.r.core.pkgmanager.IRLibPaths.Entry;
-import de.walware.statet.r.core.pkgmanager.IRPkgDescription;
+import de.walware.statet.r.core.pkgmanager.IRPkgInfoAndData;
 import de.walware.statet.r.core.pkgmanager.ISelectedRepos;
 import de.walware.statet.r.core.pkgmanager.RPkgAction;
 import de.walware.statet.r.core.pkgmanager.RPkgUtil;
@@ -221,13 +221,13 @@ public class RPkgOperator {
 		fR.submitToConsole(sb.toString(), monitor);
 	}
 	
-	void loadPkgs(final List<? extends IRPkgDescription> pkgs, final boolean expliciteLocation,
+	void loadPkgs(final List<? extends IRPkgInfoAndData> pkgs, final boolean expliciteLocation,
 			final IRConsoleService r, final IProgressMonitor monitor) throws CoreException {
 		fR = r;
 		try {
 			final StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < pkgs.size(); i++) {
-				final IRPkgDescription pkgData = pkgs.get(i);
+				final IRPkgInfoAndData pkgData = pkgs.get(i);
 				monitor.subTask(NLS.bind("Loading R package '{0}'...", pkgData.getName()));
 				
 				sb.setLength(0);

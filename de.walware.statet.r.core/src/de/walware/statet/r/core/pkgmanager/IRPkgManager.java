@@ -90,12 +90,11 @@ public interface IRPkgManager {
 		IRPkgSet.Ext getExtRPkgSet();
 		List<? extends IRView> getRViews();
 //		List<? extends IRView> getBioCViews();
-		IRLibPaths getRLibPaths();
 		
 		void apply(final ITool rTool);
 		
 		void loadPkgs(final ITool rTool,
-				final List<? extends IRPkgDescription> pkgs, final boolean expliciteLocation);
+				final List<? extends IRPkgInfoAndData> pkgs, final boolean expliciteLocation);
 		
 	}
 	
@@ -111,8 +110,28 @@ public interface IRPkgManager {
 	
 	void clear();
 	
+	/**
+	 * Checks the R environment for changes in R lib paths.
+	 * 
+	 * @param flags {@link #NONE}, {@link #INITIAL}
+	 * @param r an R service of the R environment
+	 * @param monitor
+	 * @throws CoreException
+	 */
 	void check(int flags, RService r, IProgressMonitor monitor) throws CoreException;
 	
+	/**
+	 * Returns the R libPath (state of last check).
+	 * 
+	 * @return the lib path
+	 */
+	IRLibPaths getRLibPaths();
+	
+	/**
+	 * Returns the R package set (state of last check).
+	 * 
+	 * @return the R package set
+	 */
 	IRPkgSet getRPkgSet();
 	
 	IRPkgData addToCache(IFileStore store, IProgressMonitor monitor) throws CoreException;

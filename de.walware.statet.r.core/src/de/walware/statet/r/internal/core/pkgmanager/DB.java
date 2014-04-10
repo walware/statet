@@ -327,11 +327,11 @@ final class DB {
 			final Connection connection = getConnection();
 			
 			final RPkgChangeSet changeSet = change.fInstalledPkgs;
-			if (!changeSet.fDeleted.isEmpty()) {
+			if (!changeSet.deleted.isEmpty()) {
 				if (fPkgDeleteStatement == null) {
 					fPkgDeleteStatement = connection.prepareStatement(REnv.Pkgs.OP_delete);
 				}
-				for (final IRPkgInfo pkg : changeSet.fDeleted) {
+				for (final IRPkgInfo pkg : changeSet.deleted) {
 					final Integer id = fLibIdMap.get(pkg.getLibraryLocation().getDirectoryPath());
 					fPkgDeleteStatement.setInt(1, id.intValue());
 					fPkgDeleteStatement.setString(2, pkg.getName());
@@ -339,11 +339,11 @@ final class DB {
 					fPkgDeleteStatement.execute();
 				}
 			}
-			if (!changeSet.fAdded.isEmpty()) {
+			if (!changeSet.added.isEmpty()) {
 				if (fPkgAddStatement == null) {
 					fPkgAddStatement = connection.prepareStatement(REnv.Pkgs.OP_insert);
 				}
-				for (final IRPkgInfo pkg : changeSet.fAdded) {
+				for (final IRPkgInfo pkg : changeSet.added) {
 					Integer id = fLibIdMap.get(pkg.getLibraryLocation().getDirectoryPath());
 					if (id == null) {
 						id = addLib(connection, pkg.getLibraryLocation());
@@ -360,11 +360,11 @@ final class DB {
 					fPkgAddStatement.execute();
 				}
 			}
-			if (!changeSet.fChanged.isEmpty()) {
+			if (!changeSet.changed.isEmpty()) {
 				if (fPkgChangeStatement == null) {
 					fPkgChangeStatement = connection.prepareStatement(REnv.Pkgs.OP_update);
 				}
-				for (final IRPkgInfo pkg : changeSet.fChanged) {
+				for (final IRPkgInfo pkg : changeSet.changed) {
 					final Integer id = fLibIdMap.get(pkg.getLibraryLocation().getDirectoryPath());
 					fPkgChangeStatement.setInt(7, id.intValue());
 					fPkgChangeStatement.setString(8, pkg.getName());

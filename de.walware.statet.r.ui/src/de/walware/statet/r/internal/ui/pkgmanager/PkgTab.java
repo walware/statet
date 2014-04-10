@@ -103,7 +103,7 @@ import de.walware.rj.renv.IRPkg;
 import de.walware.statet.r.core.pkgmanager.IRLibPaths;
 import de.walware.statet.r.core.pkgmanager.IRLibPaths.Entry;
 import de.walware.statet.r.core.pkgmanager.IRPkgData;
-import de.walware.statet.r.core.pkgmanager.IRPkgDescription;
+import de.walware.statet.r.core.pkgmanager.IRPkgInfoAndData;
 import de.walware.statet.r.core.pkgmanager.IRPkgInfo;
 import de.walware.statet.r.core.pkgmanager.IRPkgList;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
@@ -418,7 +418,7 @@ public class PkgTab extends Composite {
 				@Override
 				public String getToolTipText(final Object element) {
 					final String name = (String) element;
-					final IRPkgDescription v = fPkgSet.getInstalled().getFirstByName(name);
+					final IRPkgInfoAndData v = fPkgSet.getInstalled().getFirstByName(name);
 					if (v != null) {
 						return v.getTitle();
 					}
@@ -563,9 +563,9 @@ public class PkgTab extends Composite {
 	private String getDetailToolTipText(final IRPkgData pkgData) {
 		final StringBuilder sb = new StringBuilder(pkgData.getName());
 		sb.append("\nVersion: ").append(pkgData.getVersion());
-		if (pkgData instanceof IRPkgDescription) {
-			final IRPkgDescription pkgDescr = (IRPkgDescription) pkgData;
-			sb.append("\nBuilt: ").append(((IRPkgDescription) pkgData).getBuilt());
+		if (pkgData instanceof IRPkgInfoAndData) {
+			final IRPkgInfoAndData pkgDescr = (IRPkgInfoAndData) pkgData;
+			sb.append("\nBuilt: ").append(((IRPkgInfoAndData) pkgData).getBuilt());
 			sb.append("\nInstalled: ").append((pkgDescr.getInstallStamp() != 0) ?
 					DateFormat.getDateTimeInstance().format(pkgDescr.getInstallStamp()) : "-" );
 			final RRepo repo = fRPkgManager.getRepo(pkgDescr.getRepoId());
@@ -1041,7 +1041,7 @@ public class PkgTab extends Composite {
 		if (fSelectedPkgName != null) {
 			final String name = fSelectedPkgName;
 			available = fPkgSet.getAvailable().containsByName(name);
-			final IRPkgDescription pkg = fPkgSet.getInstalled().getFirstByName(name);
+			final IRPkgInfoAndData pkg = fPkgSet.getInstalled().getFirstByName(name);
 			if (pkg != null) {
 				allInstalled = true;
 				allRemovable = isModifiable(pkg.getLibraryLocation());
@@ -1069,7 +1069,7 @@ public class PkgTab extends Composite {
 						available = true;
 					}
 					if (allInstalled) {
-						final IRPkgDescription pkg = fPkgSet.getInstalled().getFirstByName(name);
+						final IRPkgInfoAndData pkg = fPkgSet.getInstalled().getFirstByName(name);
 						if (pkg != null) {
 							if (allRemovable) {
 								final IRLibraryLocation libLoc = pkg.getLibraryLocation();
@@ -1170,7 +1170,7 @@ public class PkgTab extends Composite {
 	}
 	
 	private void doUninstall() {
-		final List<? extends IRPkgDescription> pkgs = getSelectedInstalled(
+		final List<? extends IRPkgInfoAndData> pkgs = getSelectedInstalled(
 				new IGetPkgFilter[] {
 						new RequireInstFilter(),
 						new LibSourceFilter(),
@@ -1180,7 +1180,7 @@ public class PkgTab extends Composite {
 			return;
 		}
 		final List<RPkgAction> actions = new ArrayList<RPkgAction>(pkgs.size());
-		for (final IRPkgDescription pkg : pkgs) {
+		for (final IRPkgInfoAndData pkg : pkgs) {
 			actions.add(new RPkgAction.Uninstall(pkg));
 		}
 		fRPkgManager.perform(fDialog.getTool(), actions);
@@ -1190,7 +1190,7 @@ public class PkgTab extends Composite {
 	}
 	
 	private void doLoad() {
-		final List<? extends IRPkgDescription> pkgs = getSelectedInstalled(
+		final List<? extends IRPkgInfoAndData> pkgs = getSelectedInstalled(
 				new IGetPkgFilter[] {
 						new RequireInstFilter(),
 		});
@@ -1219,12 +1219,12 @@ public class PkgTab extends Composite {
 //		updateButtons();
 //	}
 	
-	private List<IRPkgDescription> getSelectedInstalled(final IGetPkgFilter[] filters) {
+	private List<IRPkgInfoAndData> getSelectedInstalled(final IGetPkgFilter[] filters) {
 		if (fSelectedPkgName != null) {
 			final String name = fSelectedPkgName;
-			IRPkgDescription inst;
+			IRPkgInfoAndData inst;
 			if (fSelectedPkgVersionGroup == INST) {
-				inst = (IRPkgDescription) fSelectedPkgVersion;
+				inst = (IRPkgInfoAndData) fSelectedPkgVersion;
 			}
 			else {
 				inst = fPkgSet.getInstalled().getFirstByName(name);
@@ -1234,16 +1234,16 @@ public class PkgTab extends Composite {
 					return null;
 				}
 			}
-			final List<IRPkgDescription> list = new ArrayList<IRPkgDescription>(1);
+			final List<IRPkgInfoAndData> list = new ArrayList<IRPkgInfoAndData>(1);
 			list.add(inst);
 			return list;
 		}
 		else {
 			final IStructuredSelection selection = (IStructuredSelection) fPkgTable.viewer.getSelection();
-			final List<IRPkgDescription> list = new ArrayList<IRPkgDescription>(selection.size());
+			final List<IRPkgInfoAndData> list = new ArrayList<IRPkgInfoAndData>(selection.size());
 			ITER_SELECTED: for (final Object element : selection.toList()) {
 				final String name = (String) element;
-				final IRPkgDescription inst = fPkgSet.getInstalled().getFirstByName(name);
+				final IRPkgInfoAndData inst = fPkgSet.getInstalled().getFirstByName(name);
 				for (int j = 0; j < filters.length; j++) {
 					if (filters[j].exclude(inst, null)) {
 						continue ITER_SELECTED;
@@ -1272,9 +1272,9 @@ public class PkgTab extends Composite {
 			if (avail == null) {
 				return null;
 			}
-			IRPkgDescription inst;
+			IRPkgInfoAndData inst;
 			if (fSelectedPkgVersionGroup == INST) {
-				inst = (IRPkgDescription) fSelectedPkgVersion;
+				inst = (IRPkgInfoAndData) fSelectedPkgVersion;
 			}
 			else {
 				inst = fPkgSet.getInstalled().getFirstByName(name);
@@ -1300,7 +1300,7 @@ public class PkgTab extends Composite {
 				if (avail == null) {
 					continue;
 				}
-				final IRPkgDescription inst = fPkgSet.getInstalled().getFirstByName(name);
+				final IRPkgInfoAndData inst = fPkgSet.getInstalled().getFirstByName(name);
 				if (inst != null && sameRepo) {
 					avail = getAvailSameRepo(inst, avail);
 				}
@@ -1334,12 +1334,12 @@ public class PkgTab extends Composite {
 			if (avail == null) {
 				return null;
 			}
-			final List<? extends IRPkgDescription> instList = fPkgSet.getInstalled().getByName(name);
+			final List<? extends IRPkgInfoAndData> instList = fPkgSet.getInstalled().getByName(name);
 			if (instList.isEmpty()) {
 				return null;
 			}
 			final List<RPkgAction.Install> list = new ArrayList<RPkgAction.Install>(instList.size());
-			ITER_INST: for (final IRPkgDescription inst : instList) {
+			ITER_INST: for (final IRPkgInfoAndData inst : instList) {
 				final IRPkgData instAvail = (sameRepo) ? getAvailSameRepo(inst, avail) : avail;
 				for (int j = 0; j < filters.length; j++) {
 					if (filters[j].exclude(inst, instAvail)) {
@@ -1364,12 +1364,12 @@ public class PkgTab extends Composite {
 				if (avail == null) {
 					continue;
 				}
-				final List<? extends IRPkgDescription> instList = fPkgSet.getInstalled().getByName(name);
+				final List<? extends IRPkgInfoAndData> instList = fPkgSet.getInstalled().getByName(name);
 				if (instList.isEmpty()) {
 					continue;
 				}
 				final List<RPkgAction.Install> list = new ArrayList<RPkgAction.Install>(instList.size());
-				ITER_INST: for (final IRPkgDescription inst : instList) {
+				ITER_INST: for (final IRPkgInfoAndData inst : instList) {
 					final IRPkgData instAvail = (sameRepo) ? getAvailSameRepo(inst, avail) : avail;
 					for (int j = 0; j < filters.length; j++) {
 						if (filters[j].exclude(inst, instAvail)) {
@@ -1391,7 +1391,7 @@ public class PkgTab extends Composite {
 		}
 	}
 	
-	private IRPkgData getAvailSameRepo(final IRPkgDescription inst, final IRPkgData fallback) {
+	private IRPkgData getAvailSameRepo(final IRPkgInfoAndData inst, final IRPkgData fallback) {
 		IRPkgData pkg = null;
 		if (!inst.getRepoId().isEmpty()) {
 			final IRPkgList<? extends IRPkgData> repoList = fPkgSet.getAvailable().getBySource(inst.getRepoId());

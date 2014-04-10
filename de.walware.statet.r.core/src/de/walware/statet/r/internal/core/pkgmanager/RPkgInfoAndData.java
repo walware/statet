@@ -13,11 +13,11 @@ package de.walware.statet.r.internal.core.pkgmanager;
 
 import de.walware.rj.renv.RNumVersion;
 
-import de.walware.statet.r.core.pkgmanager.IRPkgDescription;
+import de.walware.statet.r.core.pkgmanager.IRPkgInfoAndData;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
 
 
-public class RPkgDescription extends RPkgData implements IRPkgDescription {
+public class RPkgInfoAndData extends RPkgData implements IRPkgInfoAndData {
 	
 	
 	private final String fTitle;
@@ -30,7 +30,7 @@ public class RPkgDescription extends RPkgData implements IRPkgDescription {
 	private final long fInstallStamp;
 	
 	
-	public RPkgDescription(final String name, final RNumVersion version, final String built,
+	public RPkgInfoAndData(final String name, final RNumVersion version, final String built,
 			final String title, final IRLibraryLocation lib,
 			final int flags, final long installStamp, final String repoId) {
 		super(name, version, repoId);

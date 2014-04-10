@@ -11,8 +11,6 @@
 
 package de.walware.statet.r.core.rhelp.rj;
 
-import java.util.List;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -21,6 +19,7 @@ import org.eclipse.core.runtime.Status;
 import de.walware.rj.services.RService;
 
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.pkgmanager.IRPkgCollection;
 import de.walware.statet.r.core.pkgmanager.IRPkgInfo;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.IRPkgSet;
@@ -66,10 +65,10 @@ public class RJREnvIndexChecker {
 			
 			final IRPkgManager rPkgManager = RCore.getRPkgManager(fREnvConfig.getReference());
 			final IRPkgSet rPkgSet = rPkgManager.getRPkgSet();
-			final List<String> installedPkgNames = rPkgSet.getNames();
+			final IRPkgCollection<? extends IRPkgInfo> installed= rPkgSet.getInstalled();
 			fIndex.beginPackageCheck();
-			for (final String pkgName : installedPkgNames) {
-				final IRPkgInfo pkgInfo = rPkgSet.getInstalled().getFirstByName(pkgName);
+			for (final String pkgName : installed.getNames()) {
+				final IRPkgInfo pkgInfo = installed.getFirstByName(pkgName);
 				if (pkgInfo == null) {
 					continue;
 				}

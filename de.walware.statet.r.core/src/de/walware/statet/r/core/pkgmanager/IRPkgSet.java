@@ -23,12 +23,14 @@ public interface IRPkgSet {
 	
 	interface Ext extends IRPkgSet {
 		
-		List<String> DEFAULT_PRIORITIES = new ConstArrayList<String>(
+		List<String> DEFAULT_PRIORITIES = new ConstArrayList<>(
 				"base", "recommended", "other"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		
 		
+		List<String> getNames();
+		
 		@Override
-		IRPkgCollection<? extends IRPkgDescription> getInstalled();
+		IRPkgCollection<? extends IRPkgInfoAndData> getInstalled();
 		
 		List<String> getPriorities();
 		
@@ -40,8 +42,6 @@ public interface IRPkgSet {
 	
 	IRPkgSet.Ext DUMMY = FullRPkgSet.DUMMY;
 	
-	
-	List<String> getNames();
 	
 	IRPkgCollection<? extends IRPkgInfo> getInstalled();
 	

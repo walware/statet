@@ -23,7 +23,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -67,7 +66,7 @@ import de.walware.rj.services.RService;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.pkgmanager.IRLibPaths;
 import de.walware.statet.r.core.pkgmanager.IRPkgData;
-import de.walware.statet.r.core.pkgmanager.IRPkgDescription;
+import de.walware.statet.r.core.pkgmanager.IRPkgInfoAndData;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.IRPkgSet;
 import de.walware.statet.r.core.pkgmanager.IRView;
@@ -81,6 +80,7 @@ import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.tool.AbstractStatetRRunnable;
 import de.walware.statet.r.core.tool.IRConsoleService;
 import de.walware.statet.r.internal.core.RCorePlugin;
+import de.walware.statet.r.internal.core.renv.REnvConfiguration;
 
 
 public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.ManageListener {
@@ -145,7 +145,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	private volatile int fRequireLoad;
 	private volatile int fRequireConfirm;
 	
-	private final FastList<Listener> fListeners = new FastList<Listener>(Listener.class);
+	private final FastList<Listener> fListeners = new FastList<>(Listener.class);
 	
 	private final ReentrantReadWriteLock fLock = new ReentrantReadWriteLock();
 	
@@ -165,8 +165,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	
 	public RPkgManager(final IREnvConfiguration rConfig) {
 		fREnv = rConfig.getReference();
-		final IPath path = RCorePlugin.getDefault().getStateLocation().append("renv").append(fREnv.getId()); //$NON-NLS-1$
-		fREnvDirectory = EFS.getLocalFileSystem().getStore(path);
+		fREnvDirectory = EFS.getLocalFileSystem().getStore(REnvConfiguration.getStateLocation(fREnv));
 		final String qualifier = ((AbstractPreferencesModelObject) rConfig).getNodeQualifiers()[0];
 		fSelectedReposPref = new RRepoListPref(qualifier, "RPkg.Repos.repos"); //$NON-NLS-1$
 		fSelectedCRANPref = new RRepoPref(qualifier, "RPkg.CRANMirror.repo"); //$NON-NLS-1$
@@ -174,7 +173,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		fSelectedBioCPref = new RRepoPref(qualifier, "RPkg.BioCMirror.repo"); //$NON-NLS-1$
 		
 		final IPreferenceAccess prefs = PreferencesUtil.getInstancePrefs();
-		fAddRepos = new ArrayList<RRepo>();
+		fAddRepos = new ArrayList<>();
 		if (rConfig.getType() == IREnvConfiguration.USER_LOCAL_TYPE) {
 			final String rjVersion = "" + ServerUtil.RJ_VERSION[0] + '.' + ServerUtil.RJ_VERSION[1]; //$NON-NLS-1$
 			fAddRepos.add(new RRepo(RRepo.SPECIAL_PREFIX+"rj", "RJ", "http://download.walware.de/rj-" + rjVersion, null)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -507,7 +506,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		
 		SelectedRepos selected = fSelectedRepos;
 		
-		fAllRepos = new ArrayList<RRepo>(fCustomRepos.size() + fAddRepos.size() + fRRepos.size());
+		fAllRepos = new ArrayList<>(fCustomRepos.size() + fAddRepos.size() + fRRepos.size());
 		fAllRepos.addAll(fCustomRepos);
 		fAllRepos.addAll(fAddRepos);
 		for (final RRepo repo : fAllRepos) {
@@ -537,7 +536,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		{	final Collection<RRepo> selectedRepos = selected.getRepos();
 			final Collection<RRepo> previous = (fFirstTime && selectedRepos.isEmpty()) ?
 					fSelectedReposInR : selectedRepos;
-			final List<RRepo> repos = new ArrayList<RRepo>(previous.size());
+			final List<RRepo> repos = new ArrayList<>(previous.size());
 			for (RRepo repo : previous) {
 				repo = Util.findRepo(fAllRepos, repo);
 				if (repo != null) {
@@ -613,7 +612,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	public void setSelectedRepos(final ISelectedRepos repos) {
 		List<RRepo> selectedRepos;
 		{	final Collection<RRepo> selected = repos.getRepos();
-			selectedRepos = new ArrayList<RRepo>(selected.size());
+			selectedRepos = new ArrayList<>(selected.size());
 			for (final RRepo repo : fAllRepos) {
 				if (selected.contains(repo)) {
 					selectedRepos.add(repo);
@@ -861,7 +860,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 					final RCharacterStore regions = RDataUtil.checkRCharVector(df.get("CountryCode")).getData(); //$NON-NLS-1$
 					
 					final int l = RDataUtil.checkIntLength(names);
-					rCRAN = new ArrayList<RRepo>(l);
+					rCRAN = new ArrayList<>(l);
 					for (int i = 0; i < l; i++) {
 						final String url = Util.checkURL(urls.getChar(i));
 						if (!url.isEmpty()) {
@@ -883,7 +882,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 							{ "Bergen (Norway)", "http://bioconductor.uib.no" },
 							{ "Cambridge (UK)", "http://mirrors.ebi.ac.uk/bioconductor" }
 					};
-					rBioC = new ArrayList<RRepo>(fix.length);
+					rBioC = new ArrayList<>(fix.length);
 					for (int i = 0; i < fix.length; i++) {
 						final String url = Util.checkURL(fix[i][1]);
 						if (!url.isEmpty()) {
@@ -903,7 +902,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 						final RStore ids = ((RVector<?>) data).getNames();
 						
 						final int l = RDataUtil.checkIntLength(urls);
-						selected = new ArrayList<RRepo>(l);
+						selected = new ArrayList<>(l);
 						for (int i = 0; i < l; i++) {
 							final String id = (ids != null) ? ids.getChar(i) : null;
 							final String url = urls.getChar(i);
@@ -915,7 +914,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 						}
 					}
 					else {
-						selected = new ArrayList<RRepo>(4);
+						selected = new ArrayList<>(4);
 					}
 				}
 				
@@ -933,7 +932,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 						RDataUtil.checkRLogiVector(df.get("default")).getData() : null; //$NON-NLS-1$
 				
 				{	final int l = RDataUtil.checkIntLength(labels);
-					rrepos = new ArrayList<RRepo>(l + 4);
+					rrepos = new ArrayList<>(l + 4);
 					for (int i = 0; i < l; i++) {
 						final String id = (ids != null) ? ids.getChar(i) : null;
 						final String url = urls.getChar(i);
@@ -1040,8 +1039,6 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	private void runApplyRepo(final ISelectedRepos repos, final RService r,
 			final IProgressMonitor monitor) throws CoreException {
 		monitor.subTask("Setting repository configuration...");
-		Exception error = null;
-		
 		try {
 			if (repos.getBioCMirror() != null) {
 				final FunctionCall call = r.createFunctionCall("options");
@@ -1065,11 +1062,9 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 			}
 		}
 		catch (final CoreException e) {
-			error = e;
-		}
-		if (error != null) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
-					"An error occurred when setting repository configuration in R.", error));
+					"An error occurred when setting repository configuration in R.",
+					e ));
 		}
 	}
 	
@@ -1126,7 +1121,6 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		RVector<RNumericStore> libs = null;
 		boolean[] update = null;
 		
-		Exception error = null;
 		try {
 			libs = RDataUtil.checkRNumVector(r.evalData(
 					"rj:::.renv.checkLibs()", monitor )); //$NON-NLS-1$
@@ -1150,15 +1144,10 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 			
 			fLibs = libs;
 		}
-		catch (final UnexpectedRDataException e) {
-			error = e;
-		}
-		catch (final CoreException e) {
-			error = e;
-		}
-		if (error != null) {
+		catch (final UnexpectedRDataException | CoreException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
-					"An error occurred when checking for changed R libraries.", error ));
+					"An error occurred when checking for changed R libraries.",
+					e ));
 		}
 		
 		if (update != null || pkgs != null) {
@@ -1177,11 +1166,11 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 			else {
 				final RPkgSet newPkgs = new RPkgSet((int) libs.getLength());
 				fRTaskEvent.fNewPkgs = newPkgs;
-				fPkgScanner.updateInstLight(libs, update, newPkgs, fRTaskEvent, getRLibGroups(),
-						r, monitor);
+				fRLibPaths = RLibPaths.createLight(getRLibGroups(), libs);
+				fPkgScanner.updateInstLight(fRLibPaths, update, newPkgs, fRTaskEvent, r, monitor);
 			}
 			
-			if (fRTaskEvent.fInstalledPkgs != null && fRTaskEvent.fInstalledPkgs.fNames.isEmpty()) {
+			if (fRTaskEvent.fInstalledPkgs != null && fRTaskEvent.fInstalledPkgs.names.isEmpty()) {
 				fRTaskEvent.fInstalledPkgs = null;
 			}
 			if (pkgs == null) {
@@ -1210,7 +1199,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	
 	private void updateRViews(final ISelectedRepos repoSettings, final FullRPkgSet pkgs,
 			final RService r, final IProgressMonitor monitor) {
-		final RPkgDescription pkg = pkgs.getInstalled().getFirstByName("ctv"); //$NON-NLS-1$
+		final RPkgInfoAndData pkg = pkgs.getInstalled().getFirstByName("ctv"); //$NON-NLS-1$
 		if (pkg == null || pkg.getVersion().equals(fRViewsVersion)) {
 			return;
 		}
@@ -1243,33 +1232,27 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		rTool.getQueue().add(new AbstractStatetRRunnable("r/renv/pkgs.inst", label) { //$NON-NLS-1$
 			@Override
 			protected void run(final IRConsoleService r, final IProgressMonitor monitor) throws CoreException {
-				Exception error = null;
 				beginRTask(r, monitor);
 				try {
 					checkNewCommand(r, monitor);
 					op.runActions(actions, r, monitor);
 				}
-				catch (final UnexpectedRDataException e) {
-					error = e;
-				}
-				catch (final CoreException e) {
-					error = e;
+				catch (final UnexpectedRDataException | CoreException e) {
+					throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, 0,
+							"An error occurred when installing and updating R packages.",
+							e ));
 				}
 				finally {
 					endRTask();
 					
 					r.briefAboutChange(0x10); // packages
 				}
-				if (error != null) {
-					throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, 0,
-							"An error occurred when installing and updating R packages.", error ));
-				}
 			}
 		});
 	}
 	
 	@Override
-	public void loadPkgs(final ITool rTool, final List<? extends IRPkgDescription> pkgs,
+	public void loadPkgs(final ITool rTool, final List<? extends IRPkgInfoAndData> pkgs,
 			final boolean expliciteLocation) {
 		final RPkgOperator op = new RPkgOperator(this);
 		rTool.getQueue().add(new AbstractStatetRRunnable("r/renv/pkgs.load", //$NON-NLS-1$

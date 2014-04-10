@@ -54,57 +54,78 @@ public class RLibPaths implements IRLibPaths {
 		
 		public EntryImpl(final IRLibraryLocation location, final String rPath, final int rIndex,
 				final int access, final double stamp) {
-			fLocation = location;
-			fRPath = rPath;
-			fRIndex = rIndex;
-			fAccess = access;
-			fStamp = stamp;
+			this.fLocation= location;
+			this.fRPath= rPath;
+			this.fRIndex= rIndex;
+			this.fAccess= access;
+			this.fStamp= stamp;
 		}
 		
 		
 		@Override
 		public IRLibraryLocation getLocation() {
-			return fLocation;
+			return this.fLocation;
 		}
 		
 		@Override
 		public String getRPath() {
-			return fRPath;
+			return this.fRPath;
 		}
 		
 		public int getRIndex() {
-			return fRIndex;
+			return this.fRIndex;
 		}
 		
 		@Override
 		public int getAccess() {
-			return fAccess;
+			return this.fAccess;
 		}
 		
 		@Override
 		public double getStamp() {
-			return fStamp;
+			return this.fStamp;
 		}
 		
 	}
 	
 	
+	/**
+	 * Only existing, no writable check
+	 */
+	static RLibPaths createLight(final REnvLibGroups rLibGroups,
+			final RVector<RNumericStore> rLibsStamps) throws CoreException {
+		final int l= (int) rLibsStamps.getLength();
+		final List<EntryImpl> entries= new ArrayList<>(l + 1);
+		final RLibPaths libPaths= new RLibPaths(rLibGroups.getGroups(), entries);
+		
+		for (int i= 0; i < l; i++) {
+			final String rPath= rLibsStamps.getNames().getChar(i);
+			final IRLibraryLocation location= rLibGroups.getLibLocation(rPath);
+			if (location != null) {
+				final EntryImpl entry= new EntryImpl(location, rPath, i, EXISTS,
+						rLibsStamps.getData().getNum(i) );
+				entries.add(entry);
+			}
+		}
+		
+		return libPaths;
+	}
+	
 	static RLibPaths create(final REnvLibGroups rLibGroups,
 			final RVector<RNumericStore> rLibsStamps,
 			final RService r, final IProgressMonitor monitor) throws CoreException {
-		final int l = (int) rLibsStamps.getLength();
-		final List<EntryImpl> entries = new ArrayList<EntryImpl>(l + 1);
-		final RLibPaths libPaths = new RLibPaths(rLibGroups.getGroups(), entries);
+		final int l= (int) rLibsStamps.getLength();
+		final List<EntryImpl> entries= new ArrayList<>(l + 1);
+		final RLibPaths libPaths= new RLibPaths(rLibGroups.getGroups(), entries);
 		
-		Exception error = null;
 		try {
-			final RVector<RIntegerStore> rLibsAccess = RDataUtil.checkRIntVector(
+			final RVector<RIntegerStore> rLibsAccess= RDataUtil.checkRIntVector(
 				r.evalData("file.access(.libPaths(), 3L)", monitor) ); //$NON-NLS-1$
-			for (int i = 0; i < l; i++) {
-				final String rPath = rLibsStamps.getNames().getChar(i);
-				final IRLibraryLocation location = rLibGroups.getLibLocation(rPath);
+			for (int i= 0; i < l; i++) {
+				final String rPath= rLibsStamps.getNames().getChar(i);
+				final IRLibraryLocation location= rLibGroups.getLibLocation(rPath);
 				if (location != null) {
-					final EntryImpl entry = new EntryImpl(location, rPath, i,
+					final EntryImpl entry= new EntryImpl(location, rPath, i,
 							(location.getSource() != IRLibraryLocation.EPLUGIN
 									&& rLibsAccess.getData().getInt(i) == 0) ?
 											(EXISTS | WRITABLE) : (EXISTS),
@@ -113,70 +134,60 @@ public class RLibPaths implements IRLibPaths {
 				}
 			}
 		}
-		catch (final CoreException e) {
-			error = e;
-		}
-		catch (final UnexpectedRDataException e) {
-			error = e;
-		}
-		if (error != null) {
+		catch (final CoreException | UnexpectedRDataException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
-					"An error occurred when checking R library locations for access.", error ));
+					"An error occurred when checking R library locations for access.",
+					e ));
 		}
 		
 		try {
-			final IRLibraryLocation location = rLibGroups.getFirstUserLibLocation();
+			final IRLibraryLocation location= rLibGroups.getFirstUserLibLocation();
 			if (location != null && libPaths.getEntryByLocation(location) == null
 					&& location.getDirectoryStore() != null
 					&& location.getDirectoryStore().getFileSystem().equals(EFS.getLocalFileSystem()) ) {
-				final FunctionCall call = r.createFunctionCall("rj:::.renv.isValidLibLoc"); //$NON-NLS-1$
-				final IPath path = URIUtil.toPath(location.getDirectoryStore().toURI());
+				final FunctionCall call= r.createFunctionCall("rj:::.renv.isValidLibLoc"); //$NON-NLS-1$
+				final IPath path= URIUtil.toPath(location.getDirectoryStore().toURI());
 				if (path != null) {
 					call.addChar(path.toString());
-					final RVector<RIntegerStore> data = RDataUtil.checkRIntVector(call.evalData(monitor));
-					final int state = RDataUtil.checkSingleIntValue(data);
+					final RVector<RIntegerStore> data= RDataUtil.checkRIntVector(call.evalData(monitor));
+					final int state= RDataUtil.checkSingleIntValue(data);
 					if (state == 0) {
-						final EntryImpl entry = new EntryImpl(location, data.getNames().getChar(0),
+						final EntryImpl entry= new EntryImpl(location, data.getNames().getChar(0),
 								-1, (WRITABLE), 0);
 						entries.add(entry);
 					}
 				}
 			}
 		}
-		catch (final CoreException e) {
-			error = e;
-		}
-		catch (final UnexpectedRDataException e) {
-			error = e;
-		}
-		if (error != null) {
+		catch (final CoreException | UnexpectedRDataException e) {
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
-					"An error occurred when checking missing R user library location.", error ));
+					"An error occurred when checking missing R user library location.",
+					e ));
 		}
 		
 		return libPaths;
 	}
 	
 	
-	private final List<? extends IRLibraryGroup> fEnvGroups;
+	private final List<? extends IRLibraryGroup> envGroups;
 	
-	private final List<EntryImpl> fEntries;
+	private final List<EntryImpl> entries;
 	
 	
 	private RLibPaths(final List<? extends IRLibraryGroup> envLibs, final List<EntryImpl> entries) {
-		fEnvGroups = envLibs;
-		fEntries = entries;
+		this.envGroups= envLibs;
+		this.entries= entries;
 	}
 	
 	
 	@Override
 	public List<? extends IRLibraryGroup> getRLibraryGroups() {
-		return fEnvGroups;
+		return this.envGroups;
 	}
 	
 	@Override
 	public IRLibraryGroup getRLibraryGroup(final String id) {
-		for (final IRLibraryGroup group : fEnvGroups) {
+		for (final IRLibraryGroup group : this.envGroups) {
 			if (group.getId() == id) {
 				return group;
 			}
@@ -186,12 +197,12 @@ public class RLibPaths implements IRLibPaths {
 	
 	@Override
 	public List<EntryImpl> getEntries() {
-		return fEntries;
+		return this.entries;
 	}
 	
 	@Override
 	public Entry getEntryByRPath(final String rPath) {
-		for (final EntryImpl entry : fEntries) {
+		for (final EntryImpl entry : this.entries) {
 			if (entry.fRPath.equals(rPath)) {
 				return entry;
 			}
@@ -201,7 +212,7 @@ public class RLibPaths implements IRLibPaths {
 	
 	@Override
 	public Entry getEntryByLocation(final IRLibraryLocation location) {
-		for (final EntryImpl entry : fEntries) {
+		for (final EntryImpl entry : this.entries) {
 			if (entry.fLocation.equals(location)) {
 				return entry;
 			}

@@ -30,10 +30,10 @@ public abstract class RPkgAction {
 		
 		private IRLibraryLocation fTarget;
 		
-		private final IRPkgDescription fReference;
+		private final IRPkgInfoAndData fReference;
 		
 		
-		public Install(final IRPkgData pkg, final IRLibraryLocation target, final IRPkgDescription reference) {
+		public Install(final IRPkgData pkg, final IRLibraryLocation target, final IRPkgInfoAndData reference) {
 			fPkg = pkg;
 			fTarget = target;
 			fReference = reference;
@@ -64,7 +64,7 @@ public abstract class RPkgAction {
 			return fPkg.getRepoId();
 		}
 		
-		public IRPkgDescription getReferencePkg() {
+		public IRPkgInfoAndData getReferencePkg() {
 			return fReference;
 		}
 		

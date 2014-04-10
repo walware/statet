@@ -17,14 +17,14 @@ import java.util.Set;
 import de.walware.statet.r.core.pkgmanager.IRLibPaths;
 import de.walware.statet.r.core.pkgmanager.IRLibPaths.Entry;
 import de.walware.statet.r.core.pkgmanager.IRPkgData;
-import de.walware.statet.r.core.pkgmanager.IRPkgDescription;
+import de.walware.statet.r.core.pkgmanager.IRPkgInfoAndData;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
 
 
 interface IGetPkgFilter {
 	
 	
-	boolean exclude(IRPkgDescription inst, IRPkgData avail);
+	boolean exclude(IRPkgInfoAndData inst, IRPkgData avail);
 	
 }
 
@@ -37,7 +37,7 @@ class RequireInstFilter implements IGetPkgFilter {
 	
 	
 	@Override
-	public boolean exclude(final IRPkgDescription inst, final IRPkgData avail) {
+	public boolean exclude(final IRPkgInfoAndData inst, final IRPkgData avail) {
 		return (inst == null);
 	}
 	
@@ -61,7 +61,7 @@ class LibSourceFilter implements IGetPkgFilter {
 	
 	
 	@Override
-	public boolean exclude(final IRPkgDescription inst, final IRPkgData avail) {
+	public boolean exclude(final IRPkgInfoAndData inst, final IRPkgData avail) {
 		return fSources.contains(inst.getLibraryLocation().getSource());
 	}
 	
@@ -80,7 +80,7 @@ class ReadOnlyFilter implements IGetPkgFilter {
 	
 	
 	@Override
-	public boolean exclude(final IRPkgDescription inst, final IRPkgData avail) {
+	public boolean exclude(final IRPkgInfoAndData inst, final IRPkgData avail) {
 		final Entry entry = fRLibPaths.getEntryByLocation(inst.getLibraryLocation());
 		return (entry == null || (entry.getAccess() & IRLibPaths.WRITABLE) != IRLibPaths.WRITABLE);
 	}
@@ -96,7 +96,7 @@ class LaterVersionFilter implements IGetPkgFilter {
 	
 	
 	@Override
-	public boolean exclude(final IRPkgDescription inst, final IRPkgData avail) {
+	public boolean exclude(final IRPkgInfoAndData inst, final IRPkgData avail) {
 		return inst.getVersion().isGreaterEqualThan(avail.getVersion());
 	}
 	
@@ -110,7 +110,7 @@ class NotOlderVersionFilter implements IGetPkgFilter {
 	
 	
 	@Override
-	public boolean exclude(final IRPkgDescription inst, final IRPkgData avail) {
+	public boolean exclude(final IRPkgInfoAndData inst, final IRPkgData avail) {
 		return inst.getVersion().isSmallerThan(avail.getVersion());
 	}
 	

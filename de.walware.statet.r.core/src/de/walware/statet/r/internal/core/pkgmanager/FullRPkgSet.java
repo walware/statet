@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.ecommons.collections.SortedArraySet;
 
 import de.walware.rj.renv.IRPkg;
 import de.walware.rj.renv.RNumVersion;
@@ -23,126 +24,129 @@ import de.walware.rj.renv.RPkg;
 
 import de.walware.statet.r.core.pkgmanager.IRPkgData;
 import de.walware.statet.r.core.pkgmanager.IRPkgSet;
+import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 
 
 public class FullRPkgSet implements IRPkgSet.Ext {
 	
 	
-	public static final FullRPkgSet DUMMY = new FullRPkgSet();
+	public static final FullRPkgSet DUMMY= new FullRPkgSet();
 	
 	
-	private final RPkgCollection<RPkgDescription> fInstalled;
+	private final RPkgCollection<RPkgInfoAndData> installed;
 	
-	private final List<String> fPriorities = new ArrayList<String>(DEFAULT_PRIORITIES);
-	private final RPkgCollection<RPkgData> fAvailable;
+	private final List<String> priorities= new ArrayList<>(DEFAULT_PRIORITIES);
+	private final RPkgCollection<RPkgData> available;
 	
-	private final RPkgList<RPkgData> fReverse;
+	private final RPkgList<RPkgData> reverse;
 	
-	private List<String> fNames;
+	private List<String> names;
 	
 	
 	private FullRPkgSet() {
-		fInstalled = new RPkgCollection<RPkgDescription>(0);
-		fAvailable = new RPkgCollection<RPkgData>(0);
-		fReverse = new RPkgList<RPkgData>(0);
+		this.installed= new RPkgCollection<>(0);
+		this.available= new RPkgCollection<>(0);
+		this.reverse= new RPkgList<>(0);
 	}
 	
 	public FullRPkgSet(final int available) {
-		fInstalled = new RPkgCollection<RPkgDescription>(8);
-		fAvailable = new RPkgCollection<RPkgData>(available);
-		fReverse = new RPkgList<RPkgData>(4);
+		this.installed= new RPkgCollection<>(8);
+		this.available= new RPkgCollection<>(available);
+		this.reverse= new RPkgList<>(4);
 	}
 	
 	private FullRPkgSet(final RPkgCollection<RPkgData> available) {
-		fInstalled = new RPkgCollection<RPkgDescription>(8);
-		fAvailable = available;
-		fReverse = new RPkgList<RPkgData>(4);
+		this.installed= new RPkgCollection<>(8);
+		this.available= available;
+		this.reverse= new RPkgList<>(4);
 	}
 	
 	public FullRPkgSet cloneAvailable() {
-		final FullRPkgSet newPkgs = new FullRPkgSet(fAvailable);
+		final FullRPkgSet newPkgs= new FullRPkgSet(this.available);
 		return newPkgs;
 	}
 	
 	
 	@Override
 	public synchronized List<String> getNames() {
-		if (fNames == null) {
-			final RPkgNameList names = new RPkgNameList(64);
-			fInstalled.addNames(names);
-			fAvailable.addNames(names);
-			fNames = Collections.unmodifiableList(names);
+		if (this.names == null) {
+			final List<String> availableNames= this.available.getNames();
+			final SortedArraySet<String> names= new SortedArraySet<>(
+					availableNames.toArray(new String[availableNames.size() + 16]),
+					availableNames.size(), RPkgUtil.COLLATOR );
+			names.addAll(this.installed.getNames());
+			this.names= Collections.unmodifiableList(names);
 		}
-		return fNames;
+		return this.names;
 	}
 	
 	@Override
-	public RPkgCollection<RPkgDescription> getInstalled() {
-		return fInstalled;
+	public RPkgCollection<RPkgInfoAndData> getInstalled() {
+		return this.installed;
 	}
 	
 	@Override
 	public List<String> getPriorities() {
-		return fPriorities;
+		return this.priorities;
 	}
 	
 	@Override
 	public RPkgCollection<RPkgData> getAvailable() {
-		return fAvailable;
+		return this.available;
 	}
 	
 	
 	private List<RPkgList<RPkgData>> getAll() {
-		return ConstArrayList.<RPkgList<RPkgData>>concat((List) fInstalled.getAll(), fAvailable.getAll());
+		return ConstArrayList.<RPkgList<RPkgData>>concat((List) this.installed.getAll(), this.available.getAll());
 	}
 	
 	@Override
 	public IRPkgData getReverse(final String name) {
-		final int idx = fReverse.indexOf(name);
+		final int idx= this.reverse.indexOf(name);
 		RPkgData info;
 		if (idx >= 0) {
-			info = fReverse.get(idx);
+			info= this.reverse.get(idx);
 		}
 		else {
-			info = new RPkgData(name, RNumVersion.NONE, null);
-			RPkgList<VersionListRPkg> depends = null;
-			RPkgList<VersionListRPkg> imports = null;
-			RPkgList<VersionListRPkg> linkingTo = null;
-			RPkgList<VersionListRPkg> suggests = null;
-			RPkgList<VersionListRPkg> enhances = null;
+			info= new RPkgData(name, RNumVersion.NONE, null);
+			RPkgList<VersionListRPkg> depends= null;
+			RPkgList<VersionListRPkg> imports= null;
+			RPkgList<VersionListRPkg> linkingTo= null;
+			RPkgList<VersionListRPkg> suggests= null;
+			RPkgList<VersionListRPkg> enhances= null;
 			for (final RPkgList<RPkgData> list : getAll()) {
-				for (int i = 0; i < list.size(); i++) {
-					final RPkgData pkg = list.get(i);
+				for (int i= 0; i < list.size(); i++) {
+					final RPkgData pkg= list.get(i);
 					if (name.equals(pkg)) {
 						continue;
 					}
 					if (Util.findPkg(pkg.getDepends(), name) >= 0) {
 						if (depends == null) {
-							depends = new RPkgList<VersionListRPkg>(4);
+							depends= new RPkgList<>(4);
 						}
 						addRev(depends, pkg);
 					}
 					if (Util.findPkg(pkg.getImports(), name) >= 0) {
 						if (imports == null) {
-							imports = new RPkgList<VersionListRPkg>(4);
+							imports= new RPkgList<>(4);
 						}
 						addRev(imports, pkg);
 					}
 					if (Util.findPkg(pkg.getLinkingTo(), name) >= 0) {
 						if (linkingTo == null) {
-							linkingTo = new RPkgList<VersionListRPkg>(4);
+							linkingTo= new RPkgList<>(4);
 						}
 						addRev(linkingTo, pkg);
 					}
 					if (Util.findPkg(pkg.getSuggests(), name) >= 0) {
 						if (suggests == null) {
-							suggests = new RPkgList<VersionListRPkg>(4);
+							suggests= new RPkgList<>(4);
 						}
 						addRev(suggests, pkg);
 					}
 					if (Util.findPkg(pkg.getEnhances(), name) >= 0) {
 						if (enhances == null) {
-							enhances = new RPkgList<VersionListRPkg>(4);
+							enhances= new RPkgList<>(4);
 						}
 						addRev(enhances, pkg);
 					}
@@ -154,15 +158,15 @@ public class FullRPkgSet implements IRPkgSet.Ext {
 			info.setSuggests((suggests != null) ? suggests : Collections.<RPkg>emptyList());
 			info.setEnhances((enhances != null) ? enhances : Collections.<RPkg>emptyList());
 			
-			fReverse.add(-(idx + 1), info);
+			this.reverse.add(-(idx + 1), info);
 		}
 		return info;
 	}
 	
 	private void addRev(final RPkgList<VersionListRPkg> depends, final IRPkg v) {
-		final int idx = depends.indexOf(v.getName());
+		final int idx= depends.indexOf(v.getName());
 		if (idx >= 0) {
-			final VersionListRPkg ref = depends.get(idx);
+			final VersionListRPkg ref= depends.get(idx);
 			ref.addVersion(v.getVersion());
 		}
 		else {
@@ -171,8 +175,8 @@ public class FullRPkgSet implements IRPkgSet.Ext {
 	}
 	
 	public void checkPkgInfo(final RPkgData pkg) {
-		{	final String priority = pkg.getPriority();
-			if (!fPriorities.contains(priority)) {
+		{	final String priority= pkg.getPriority();
+			if (!this.priorities.contains(priority)) {
 				pkg.setPriority("other"); //$NON-NLS-1$
 			}
 		}

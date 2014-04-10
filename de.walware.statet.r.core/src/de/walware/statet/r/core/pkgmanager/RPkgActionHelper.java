@@ -36,7 +36,7 @@ public class RPkgActionHelper {
 	
 	public void updateLocation(final RPkgAction.Install action) {
 		if (fSameLocation) {
-			final IRPkgDescription referencePkg = action.getReferencePkg();
+			final IRPkgInfoAndData referencePkg = action.getReferencePkg();
 			if (referencePkg != null) {
 				final IRLibraryLocation location = referencePkg.getLibraryLocation();
 				final Entry entry = fRLibPaths.getEntryByLocation(location);

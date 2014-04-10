@@ -15,35 +15,41 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.walware.ecommons.collections.SortedArraySet;
+
 import de.walware.rj.renv.IRPkg;
 
 import de.walware.statet.r.core.pkgmanager.IRPkgCollection;
+import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 
 
 public class RPkgCollection<T extends IRPkg> implements IRPkgCollection<T> {
 	
+	/** Package sources */
+	private final List<String> sources;
+	/** Packages by sources */
+	private final List<RPkgList<T>> pkgLists;
 	
-	private final List<String> fSources;
-	private final List<RPkgList<T>> fLists;
+	private volatile List<String> names;
 	
 	
 	public RPkgCollection(final int size) {
-		fSources = new ArrayList<String>(size);
-		fLists = new ArrayList<RPkgList<T>>(size);
+		this.sources= new ArrayList<>(size);
+		this.pkgLists= new ArrayList<>(size);
 	}
 	
 	
 	public void add(final String source, final RPkgList<T> list) {
 		if (list != null) {
-			fSources.add((source != null) ? source : ""); //$NON-NLS-1$
-			fLists.add(list);
+			this.sources.add((source != null) ? source : ""); //$NON-NLS-1$
+			this.pkgLists.add(list);
 		}
 	}
 	
 	public RPkgList<T> getOrAdd(final String source) {
-		RPkgList<T> list = getBySource(source);
+		RPkgList<T> list= getBySource(source);
 		if (list == null) {
-			list = new RPkgList<T>(4);
+			list= new RPkgList<>(4);
 			add(source, list);
 		}
 		return list;
@@ -51,9 +57,36 @@ public class RPkgCollection<T extends IRPkg> implements IRPkgCollection<T> {
 	
 	
 	@Override
+	public List<String> getNames() {
+		if (this.names == null) {
+			createNames();
+		}
+		return this.names;
+	}
+	
+	private synchronized void createNames() {
+		if (this.names != null) {
+			return;
+		}
+		if (this.pkgLists.isEmpty()) {
+			this.names= Collections.emptyList();
+			return;
+		}
+		{	final SortedArraySet<String> names= new SortedArraySet<>(
+					new String[Math.min(16, this.pkgLists.get(0).size())], 0, RPkgUtil.COLLATOR );
+			for (final RPkgList<? extends IRPkg> list : this.pkgLists) {
+				for (int i= 0; i < list.size(); i++) {
+					names.addE(list.get(i).getName());
+				}
+			}
+			this.names= Collections.unmodifiableList(names);
+		}
+	}
+	
+	@Override
 	public boolean containsByName(final String name) {
-		for (final RPkgList<? extends IRPkg> list : fLists) {
-			final int idx = list.indexOf(name);
+		for (final RPkgList<? extends IRPkg> list : this.pkgLists) {
+			final int idx= list.indexOf(name);
 			if (idx >= 0) {
 				return true;
 			}
@@ -63,8 +96,8 @@ public class RPkgCollection<T extends IRPkg> implements IRPkgCollection<T> {
 	
 	@Override
 	public T getFirstByName(final String name) {
-		for (final RPkgList<T> list : fLists) {
-			final int idx = list.indexOf(name);
+		for (final RPkgList<T> list : this.pkgLists) {
+			final int idx= list.indexOf(name);
 			if (idx >= 0) {
 				return list.get(idx);
 			}
@@ -74,12 +107,12 @@ public class RPkgCollection<T extends IRPkg> implements IRPkgCollection<T> {
 	
 	@Override
 	public List<T> getByName(final String name) {
-		List<T> result = null;
-		for (final RPkgList<T> list : fLists) {
-			final int idx = list.indexOf(name);
+		List<T> result= null;
+		for (final RPkgList<T> list : this.pkgLists) {
+			final int idx= list.indexOf(name);
 			if (idx >= 0) {
 				if (result == null) {
-					result = new ArrayList<T>(2);
+					result= new ArrayList<>(2);
 				}
 				result.add(list.get(idx));
 			}
@@ -89,27 +122,18 @@ public class RPkgCollection<T extends IRPkg> implements IRPkgCollection<T> {
 	
 	@Override
 	public List<String> getSources() {
-		return fSources;
+		return this.sources;
 	}
 	
 	@Override
 	public RPkgList<T> getBySource(final String source) {
-		final int idx = fSources.indexOf(source);
-		return (idx >= 0) ? fLists.get(idx) : null;
+		final int idx= this.sources.indexOf(source);
+		return (idx >= 0) ? this.pkgLists.get(idx) : null;
 	}
 	
 	@Override
 	public List<RPkgList<T>> getAll() {
-		return fLists;
-	}
-	
-	
-	public void addNames(final RPkgNameList names) {
-		for (final RPkgList<? extends IRPkg> list : fLists) {
-			for (int i = 0; i < list.size(); i++) {
-				names.add(list.get(i).getName());
-			}
-		}
+		return this.pkgLists;
 	}
 	
 }

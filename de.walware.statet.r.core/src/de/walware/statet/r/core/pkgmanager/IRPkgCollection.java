@@ -19,6 +19,13 @@ import de.walware.rj.renv.IRPkg;
 public interface IRPkgCollection<T extends IRPkg> {
 	
 	
+	/**
+	 * Returns the sorted set with names of all packages in this collection.
+	 * 
+	 * @return the package names
+	 */
+	List<String> getNames();
+	
 	boolean containsByName(String name);
 	List<T> getByName(String name);
 	T getFirstByName(String name);

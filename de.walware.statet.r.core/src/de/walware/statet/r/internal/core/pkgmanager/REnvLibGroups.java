@@ -45,18 +45,16 @@ public class REnvLibGroups {
 	
 	static REnvLibGroups loadFromR(final RService r,
 			final IProgressMonitor monitor) throws CoreException {
-		Exception error = null;
 		try {
-			
 			final List<IRLibraryLocation>[] groups = new List[4];
 			for (int i = 0; i < groups.length; i++) {
-				groups[i] = new ArrayList<IRLibraryLocation>(4);
+				groups[i] = new ArrayList<>(4);
 			}
 			
 			final String rHome = RDataUtil.checkSingleCharValue(r.evalData("R.home()", monitor)); //$NON-NLS-1$
 			final Pattern varPattern = Pattern.compile(Pattern.quote(r.getPlatform().getPathSep()));
 			
-			final Set<String> added = new HashSet<String>();
+			final Set<String> added = new HashSet<>();
 			{	final String userVar = RDataUtil.checkSingleCharValue(
 						r.evalData("Sys.getenv('R_LIBS_USER')", monitor) ); //$NON-NLS-1$
 				final String[] paths = varPattern.split(userVar);
@@ -102,14 +100,11 @@ public class REnvLibGroups {
 			
 			return new REnvLibGroups(rHome, groups);
 		}
-		catch (final UnexpectedRDataException e) {
-			error = e;
+		catch (final UnexpectedRDataException | CoreException e) {
+			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
+					"An error occurred when detecting the R library path.",
+					e ));
 		}
-		catch (final CoreException e) {
-			error = e;
-		}
-		throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
-				"An error occurred when detecting the R library path.", error ));
 	}
 	
 	
@@ -136,16 +131,16 @@ public class REnvLibGroups {
 		fGroups = new ConstArrayList<IRLibraryGroup>(
 				new RLibraryGroup.Final(RLibraryGroup.R_OTHER,
 						RLibraryGroup.getLabel(RLibraryGroup.R_OTHER),
-						new ConstArrayList<IRLibraryLocation>(groups[0]) ),
+						new ConstArrayList<>(groups[0]) ),
 				new RLibraryGroup.Final(RLibraryGroup.R_USER,
 						RLibraryGroup.getLabel(RLibraryGroup.R_USER),
-						new ConstArrayList<IRLibraryLocation>(groups[1]) ),
+						new ConstArrayList<>(groups[1]) ),
 				new RLibraryGroup.Final(RLibraryGroup.R_SITE,
 						RLibraryGroup.getLabel(RLibraryGroup.R_SITE),
-						new ConstArrayList<IRLibraryLocation>(groups[2]) ),
+						new ConstArrayList<>(groups[2]) ),
 				new RLibraryGroup.Final(RLibraryGroup.R_DEFAULT,
 						RLibraryGroup.getLabel(RLibraryGroup.R_DEFAULT),
-						new ConstArrayList<IRLibraryLocation>(groups[3]) ));
+						new ConstArrayList<>(groups[3]) ));
 	}
 	
 	public REnvLibGroups(final IREnvConfiguration config) {

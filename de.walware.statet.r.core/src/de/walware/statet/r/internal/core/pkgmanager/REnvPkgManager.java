@@ -24,7 +24,7 @@ public class REnvPkgManager {
 	
 	private final REnvManager fREnvManager;
 	
-	private final Map<IREnv, RPkgManager> fRPkgManagers = new HashMap<IREnv, RPkgManager>();
+	private final Map<IREnv, RPkgManager> fRPkgManagers = new HashMap<>();
 	
 	
 	public REnvPkgManager(final REnvManager rEnvManager) {

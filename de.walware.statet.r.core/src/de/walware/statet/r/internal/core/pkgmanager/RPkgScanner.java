@@ -24,8 +24,6 @@ import org.eclipse.osgi.util.NLS;
 import de.walware.rj.data.RArray;
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RDataUtil;
-import de.walware.rj.data.RNumericStore;
-import de.walware.rj.data.RVector;
 import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.renv.IRPkg;
 import de.walware.rj.renv.RNumVersion;
@@ -42,7 +40,6 @@ import de.walware.statet.r.core.pkgmanager.RPkgInfo;
 import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 import de.walware.statet.r.core.pkgmanager.RRepo;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
-import de.walware.statet.r.internal.core.RPackageDescription;
 
 
 final class RPkgScanner {
@@ -67,7 +64,7 @@ final class RPkgScanner {
 	private static final int INST_LIST_IDX1_BUILT = 3;
 	
 	private static final String INST_DETAIL_FNAME = "rj:::.renv.getInstPkgDetail"; //$NON-NLS-1$
-	private static final int INST_DETAIL_COUNT = 7;
+	private static final int INST_DETAIL_LENGTH = 7;
 	private static final int INST_DETAIL_IDX_PRIORITY = 0;
 	private static final int INST_DETAIL_IDX_LICENSE = 1;
 	private static final int INST_DETAIL_IDX_DEPENDS = 2;
@@ -81,7 +78,7 @@ final class RPkgScanner {
 		if (s == null || s.isEmpty()) {
 			return Collections.emptyList();
 		}
-		final List<IRPkg> list = new ArrayList<IRPkg>(4);
+		final List<IRPkg> list = new ArrayList<>(4);
 		String name = null;
 		String version = null;
 		boolean ws;
@@ -152,7 +149,7 @@ final class RPkgScanner {
 	}
 	
 	
-	private final RPkgCollection<IRPkgData> fExpectedPkgs = new RPkgCollection<IRPkgData>(4);
+	private final RPkgCollection<IRPkgData> fExpectedPkgs = new RPkgCollection<>(4);
 	
 	
 	public RPkgScanner() {
@@ -175,7 +172,6 @@ final class RPkgScanner {
 	
 	FullRPkgSet loadAvailable(final ISelectedRepos repoSettings, final RService r, final IProgressMonitor monitor) throws CoreException {
 		monitor.subTask("Loading available R packages...");
-		Exception error = null;
 		try {
 			final RCharacterStore repos = RDataUtil.checkRCharVector(r.evalData(
 					"options('repos')[[1L]]", monitor)).getData(); //$NON-NLS-1$
@@ -205,7 +201,7 @@ final class RPkgScanner {
 				
 				final RCharacterStore store = data.getData();
 				final int nPkgs = data.getDim().getInt(0);
-				final RPkgList<RPkgData> list = new RPkgList<RPkgData>(nPkgs);
+				final RPkgList<RPkgData> list = new RPkgList<>(nPkgs);
 				pkgs.getAvailable().add(repo.getId(), list);
 				
 				for (int idxPkgs = 0; idxPkgs < nPkgs; idxPkgs++) {
@@ -231,37 +227,33 @@ final class RPkgScanner {
 			}
 			return pkgs;
 		}
-		catch (final UnexpectedRDataException e) {
-			error = e;
+		catch (final UnexpectedRDataException | CoreException e) {
+			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
+					"An error occurred when loading list of available R packages.",
+					e ));
 		}
-		catch (final CoreException e) {
-			error = e;
-		}
-		throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
-				"An error occurred when loading list of available R packages.", error));
 	}
 	
-	void updateInstLight(final RVector<RNumericStore> libs, final boolean[] update,
-			final RPkgSet newPkgs, final Change event, final REnvLibGroups rLibGroups,
+	void updateInstLight(final RLibPaths rLibPaths, final boolean[] update,
+			final RPkgSet newPkgs, final Change event,
 			final RService r, final IProgressMonitor monitor) throws CoreException {
-		Exception error = null;
 		monitor.subTask("Updating installed R packages...");
 		try {
 			final RPkgSet oldPkgs = (RPkgSet) event.fOldPkgs;
 			final RPkgChangeSet changeSet = new RPkgChangeSet();
 			event.fInstalledPkgs = changeSet;
-			final int l = RDataUtil.checkIntLength(libs.getData());
-			for (int idxLib = 0; idxLib < l; idxLib++) {
-				final String libPath = libs.getNames().getChar(idxLib).intern();
-				final IRLibraryLocation location = rLibGroups.getLibLocation(libPath);
-				if (location == null
-						|| newPkgs.getInstalled().getBySource(location.getDirectoryPath()) != null ) {
+			for (final RLibPaths.EntryImpl libPath : rLibPaths.getEntries()) {
+				final IRLibraryLocation location= libPath.getLocation();
+				if (libPath.getRIndex() < 0) {
 					continue;
 				}
-				if (update == null || update[idxLib] || oldPkgs == null) {
+				if (newPkgs.getInstalled().getBySource(location.getDirectoryPath()) != null ) {
+					continue;
+				}
+				if (update == null || update[libPath.getRIndex()] || oldPkgs == null) {
 					final RArray<RCharacterStore> data;
 					{	final FunctionCall call = r.createFunctionCall(INST_LIST_FNAME);
-						call.addChar("lib", libPath); //$NON-NLS-1$
+						call.addChar("lib", libPath.getRPath()); //$NON-NLS-1$
 						data = RDataUtil.checkRCharArray(call.evalData(monitor), 2);
 						RDataUtil.checkColumnCountEqual(data, INST_LIST_COUNT1);
 					}
@@ -270,7 +262,7 @@ final class RPkgScanner {
 					
 					final RPkgList<RPkgInfo> oldList = (oldPkgs != null) ?
 							oldPkgs.getInstalled().getBySource(location.getDirectoryPath()) : null;
-					final RPkgList<RPkgInfo> newList = new RPkgList<RPkgInfo>(nPkgs);
+					final RPkgList<RPkgInfo> newList = new RPkgList<>(nPkgs);
 					final RPkgList<IRPkgData> expectedList = fExpectedPkgs.getBySource(location.getDirectoryPath());
 					for (int idxPkg = 0; idxPkg < nPkgs; idxPkg++) {
 						String name = store.getChar(RDataUtil.getDataIdx(nPkgs, idxPkg, INST_LIST_IDX1_NAME));
@@ -300,12 +292,12 @@ final class RPkgScanner {
 										event.fStamp,
 										(expectedData != null) ? expectedData.getRepoId() : null );
 								
-								changeSet.fNames.add(name);
+								changeSet.names.add(name);
 								if (oldPkg == null) {
-									changeSet.fAdded.add(newPkg);
+									changeSet.added.add(newPkg);
 								}
 								else {
-									changeSet.fChanged.add(oldPkg);
+									changeSet.changed.add(oldPkg);
 								}
 							}
 							
@@ -329,8 +321,8 @@ final class RPkgScanner {
 									continue;
 								}
 							}
-							changeSet.fNames.add(name);
-							changeSet.fDeleted.add(oldPkg);
+							changeSet.names.add(name);
+							changeSet.deleted.add(oldPkg);
 						}
 					}
 					
@@ -345,20 +337,16 @@ final class RPkgScanner {
 			clearExpected();
 			return;
 		}
-		catch (final UnexpectedRDataException e) {
-			error = e;
+		catch (final UnexpectedRDataException | CoreException e) {
+			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
+					"An error occurred when loading list of installed R packages.",
+					e ));
 		}
-		catch (final CoreException e) {
-			error = e;
-		}
-		throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
-				"An error occurred when loading list of installed R packages.", error));
 	}
 	
 	void updateInstFull(final RLibPaths rLibPaths, final boolean[] update,
 			final FullRPkgSet newPkgs, final Change event,
 			final RService r, final IProgressMonitor monitor) throws CoreException {
-		Exception error = null;
 		monitor.subTask("Updating installed R packages...");
 		try {
 			final FullRPkgSet oldFullPkgs = (event.fOldPkgs instanceof FullRPkgSet) ?
@@ -366,7 +354,7 @@ final class RPkgScanner {
 			final RPkgChangeSet changeSet = new RPkgChangeSet();
 			event.fInstalledPkgs = changeSet;
 			for (final RLibPaths.EntryImpl libPath : rLibPaths.getEntries()) {
-				final IRLibraryLocation location = libPath.getLocation();
+				final IRLibraryLocation location= libPath.getLocation();
 				if (libPath.getRIndex() < 0) {
 					continue;
 				}
@@ -382,7 +370,7 @@ final class RPkgScanner {
 					
 					final IRPkgList<? extends IRPkgInfo> oldList = (event.fOldPkgs != null) ?
 							event.fOldPkgs.getInstalled().getBySource(location.getDirectoryPath()) : null;
-					final RPkgList<RPkgDescription> newList = new RPkgList<RPkgDescription>(nPkgs);
+					final RPkgList<RPkgInfoAndData> newList = new RPkgList<>(nPkgs);
 					final RPkgList<IRPkgData> expectedList = fExpectedPkgs.getBySource(location.getDirectoryPath());
 					for (int idxPkg = 0; idxPkg < nPkgs; idxPkg++) {
 						String name = store.getChar(RDataUtil.getDataIdx(nPkgs, idxPkg, INST_LIST_IDX1_NAME));
@@ -394,18 +382,18 @@ final class RPkgScanner {
 								built = ""; //$NON-NLS-1$
 							}
 							final IRPkgInfo oldPkg = (oldList != null) ? oldList.get(name) : null;
-							final RPkgDescription newPkg;
+							final RPkgInfoAndData newPkg;
 							final boolean changed = (oldPkg == null
 									|| !oldPkg.getVersion().toString().equals(version)
 									|| !oldPkg.getBuilt().equals(built) );
 							
-							if (!changed && (oldPkg instanceof RPackageDescription)) {
-								newPkg = (RPkgDescription) oldPkg;
+							if (!changed && (oldPkg instanceof RPkgInfoAndData)) {
+								newPkg = (RPkgInfoAndData) oldPkg;
 							}
 							else {
 								final IRPkgData expectedData = (changed && expectedList != null) ?
 										expectedList.get(name) : null;
-								newPkg = new RPkgDescription(name,
+								newPkg = new RPkgInfoAndData(name,
 										(!changed) ? oldPkg.getVersion() : RNumVersion.create(version),
 										built,
 										store.getChar(RDataUtil.getDataIdx(nPkgs, idxPkg, INST_LIST_IDX1_TITLE)),
@@ -419,7 +407,7 @@ final class RPkgScanner {
 									call.addChar("lib", libPath.getRPath()); //$NON-NLS-1$
 									call.addChar("name", name); //$NON-NLS-1$
 									detail = RDataUtil.checkRCharVector(call.evalData(monitor)).getData();
-									RDataUtil.checkLengthEqual(detail, INST_DETAIL_COUNT);
+									RDataUtil.checkLengthEqual(detail, INST_DETAIL_LENGTH);
 								}
 								
 								newPkg.setPriority(detail.getChar(INST_DETAIL_IDX_PRIORITY));
@@ -432,12 +420,12 @@ final class RPkgScanner {
 								newPkg.setEnhances(RPkgScanner.parsePkgRefs(detail.getChar(INST_DETAIL_IDX_ENHANCES)));
 								
 								if (changed) {
-									changeSet.fNames.add(name);
+									changeSet.names.add(name);
 									if (oldPkg == null) {
-										changeSet.fAdded.add(newPkg);
+										changeSet.added.add(newPkg);
 									}
 									else {
-										changeSet.fChanged.add(oldPkg);
+										changeSet.changed.add(oldPkg);
 									}
 								}
 							}
@@ -462,8 +450,8 @@ final class RPkgScanner {
 									continue;
 								}
 							}
-							changeSet.fNames.add(name);
-							changeSet.fDeleted.add(oldPkg);
+							changeSet.names.add(name);
+							changeSet.deleted.add(oldPkg);
 						}
 					}
 					
@@ -476,14 +464,11 @@ final class RPkgScanner {
 			}
 			return;
 		}
-		catch (final UnexpectedRDataException e) {
-			error = e;
+		catch (final UnexpectedRDataException | CoreException e) {
+			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
+					"An error occurred when loading list of installed R packages.",
+					e ));
 		}
-		catch (final CoreException e) {
-			error = e;
-		}
-		throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
-				"An error occurred when loading list of installed R packages.", error));
 	}
 	
 }

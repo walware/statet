@@ -35,7 +35,7 @@ import de.walware.statet.r.console.core.AbstractRDataRunnable;
 import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.RCorePreferenceNodes;
-import de.walware.statet.r.core.pkgmanager.IRPkgDescription;
+import de.walware.statet.r.core.pkgmanager.IRPkgInfoAndData;
 import de.walware.statet.r.core.pkgmanager.IRPkgList;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.IRPkgSet;
@@ -125,7 +125,7 @@ public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRun
 						rPkgManager.update(r, monitor);
 					}
 					if (hasNonBasePackages(rPkgManager.getExtRPkgSet())) {
-						handleNewVersion(rConfig, (RProcess) r.getTool(), rPkgManager,
+						handleNewVersion(rConfig, r.getTool(), rPkgManager,
 								rVersion, checkedVersion);
 					}
 				}
@@ -145,9 +145,9 @@ public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRun
 	}
 	
 	private boolean hasNonBasePackages(final IRPkgSet.Ext pkgSet) {
-		final List<? extends IRPkgList<? extends IRPkgDescription>> all = pkgSet.getInstalled().getAll();
-		for (final IRPkgList<? extends IRPkgDescription> pkgList : all) {
-			for (final IRPkgDescription pkg : pkgList) {
+		final List<? extends IRPkgList<? extends IRPkgInfoAndData>> all = pkgSet.getInstalled().getAll();
+		for (final IRPkgList<? extends IRPkgInfoAndData> pkgList : all) {
+			for (final IRPkgInfoAndData pkg : pkgList) {
 				if ((pkg.getLibraryLocation() == null || pkg.getLibraryLocation().getSource() != IRLibraryLocation.EPLUGIN)
 						&& !"base".equals(pkg.getPriority())) { //$NON-NLS-1$
 					return true;

@@ -12,7 +12,7 @@
 package de.walware.statet.r.core.pkgmanager;
 
 
-public interface IRPkgDescription extends IRPkgData, IRPkgInfo {
+public interface IRPkgInfoAndData extends IRPkgInfo, IRPkgData {
 	
 	
 }

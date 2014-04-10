@@ -13,38 +13,41 @@ package de.walware.statet.r.internal.core.pkgmanager;
 
 import java.util.List;
 
+import de.walware.ecommons.collections.SortedArraySet;
+
 import de.walware.statet.r.core.pkgmanager.IRPkgChangeSet;
 import de.walware.statet.r.core.pkgmanager.IRPkgInfo;
+import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 
 
 public class RPkgChangeSet implements IRPkgChangeSet {
 	
 	
-	final RPkgNameList fNames = new RPkgNameList(8);
+	final SortedArraySet<String> names= new SortedArraySet<>(new String[8], 0, RPkgUtil.COLLATOR);
 	
-	final RPkgList<IRPkgInfo> fAdded = new RPkgList<IRPkgInfo>(8);
-	final RPkgList<IRPkgInfo> fChanged = new RPkgList<IRPkgInfo>(8);
-	final RPkgList<IRPkgInfo> fDeleted = new RPkgList<IRPkgInfo>(8);
+	final RPkgList<IRPkgInfo> added= new RPkgList<>(8);
+	final RPkgList<IRPkgInfo> changed= new RPkgList<>(8);
+	final RPkgList<IRPkgInfo> deleted= new RPkgList<>(8);
 	
 	
 	@Override
 	public List<String> getNames() {
-		return fNames;
+		return this.names;
 	}
 	
 	@Override
 	public RPkgList<IRPkgInfo> getAdded() {
-		return fAdded;
+		return this.added;
 	}
 	
 	@Override
 	public RPkgList<IRPkgInfo> getChanged() {
-		return fChanged;
+		return this.changed;
 	}
 	
 	@Override
 	public RPkgList<IRPkgInfo> getDeleted() {
-		return fDeleted;
+		return this.deleted;
 	}
 	
 }
