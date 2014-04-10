@@ -21,8 +21,12 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.layout.TreeColumnLayout;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.viewers.CellLabelProvider;
+import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -288,17 +292,37 @@ public class RHelpSearchResultPage extends ExtTextSearchResultPage<IRPackageHelp
 		viewer.getControl().getParent().setLayout(layout);
 		viewer.getTable().setHeaderVisible(true);
 		
-		final TableViewerColumn column1= new TableViewerColumn(viewer, SWT.LEFT);
-		column1.getColumn().setText("Package / Page");
-		layout.setColumnData(column1.getColumn(), new ColumnWeightData(1));
-		column1.setLabelProvider(new DecoratingStyledLabelProvider(new RHelpLabelProvider(),
-				TextSearchLabelUtil.DEFAULT_SEARCH_LABEL_PROPERTIES));
-		
-		final TableViewerColumn column2= new TableViewerColumn(viewer, SWT.LEFT);
-		column2.getColumn().setText("Best Match");
-		layout.setColumnData(column2.getColumn(), new ColumnWeightData(1));
-		column2.setLabelProvider(new MatchLabelProvider());
-		
+		{	final TableViewerColumn column= new TableViewerColumn(viewer, SWT.LEFT);
+			column.getColumn().setText("Page");
+			layout.setColumnData(column.getColumn(), new ColumnWeightData(1));
+			column.setLabelProvider(new DecoratingStyledLabelProvider(new RHelpLabelProvider(),
+					TextSearchLabelUtil.DEFAULT_SEARCH_LABEL_PROPERTIES));
+		}
+		{	final TableViewerColumn column= new TableViewerColumn(viewer, SWT.LEFT);
+			column.getColumn().setText("Package");
+			layout.setColumnData(column.getColumn(), new ColumnPixelData(
+					new PixelConverter(JFaceResources.getDialogFont()).convertWidthInCharsToPixels(10),
+					true, true ));
+			column.setLabelProvider(new CellLabelProvider() {
+				@Override
+				public void update(ViewerCell cell) {
+					final Object element= cell.getElement();
+					String text= ""; //$NON-NLS-1$
+					
+					if (element instanceof RHelpSearchMatch) {
+						final IRHelpSearchMatch match= ((RHelpSearchMatch) element).getRHelpMatch();
+						text= match.getPage().getPackage().getName();
+					}
+					
+					cell.setText(text);
+				}
+			});
+		}
+		{	final TableViewerColumn column= new TableViewerColumn(viewer, SWT.LEFT);
+			column.getColumn().setText("Best Match");
+			layout.setColumnData(column.getColumn(), new ColumnWeightData(1));
+			column.setLabelProvider(new MatchLabelProvider());
+		}
 		ColumnViewerToolTipSupport.enableFor(viewer);
 		updateSorter();
 	}
