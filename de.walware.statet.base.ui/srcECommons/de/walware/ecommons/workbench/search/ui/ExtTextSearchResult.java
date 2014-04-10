@@ -32,6 +32,12 @@ import de.walware.ecommons.collections.SortedArraySet;
 import de.walware.ecommons.collections.SortedListSet;
 
 
+/**
+ * 
+ * 
+ * @param <E> element type
+ * @param <M> match type
+ */
 public abstract class ExtTextSearchResult<E, M extends Match> extends AbstractTextSearchResult {
 	
 	
@@ -77,20 +83,29 @@ public abstract class ExtTextSearchResult<E, M extends Match> extends AbstractTe
 	}
 	
 	
+	/* Locking:
+	 *   - All write changes => events are thrown in correct order:
+	 *         synchronized (this)
+	 *   - All access to toplevel collections {@link #elementMatches} and {@link #elementList}:
+	 *         synchronized (this.elementMatches)
+	 *   - All access to match lists, values of {@link #elementMatches}:
+	 *         synchronized (matches)
+	 */
+	
 	private final ElementMatchComparator<E, M> comparator;
 	
 	private final SortedListSet<E> elementList;
 	private final Map<E, SortedListSet<M>> elementMatches;
 	
-	private final FastList<ISearchResultListener> listeners= new FastList<ISearchResultListener>(ISearchResultListener.class, FastList.IDENTITY);
+	private final FastList<ISearchResultListener> listeners= new FastList<>(ISearchResultListener.class, FastList.IDENTITY);
 	private final ChangeEvent changeEvent= new ChangeEvent(this);
 	
 	
 	public ExtTextSearchResult(final ElementMatchComparator<E, M> comparator) {
 		this.comparator= comparator;
 		
-		this.elementList= new SortedArraySet<E>(comparator.getElement0(), comparator.getElementComparator());
-		this.elementMatches= new HashMap<E, SortedListSet<M>>();
+		this.elementList= new SortedArraySet<>(comparator.getElement0(), comparator.getElementComparator());
+		this.elementMatches= new HashMap<>();
 	}
 	
 	
@@ -145,19 +160,26 @@ public abstract class ExtTextSearchResult<E, M extends Match> extends AbstractTe
 	}
 	
 	
-	public synchronized int getElementCount() {
-		return this.elementList.size();
+	public int getElementCount() {
+		synchronized (this.elementMatches) {
+			return this.elementList.size();
+		}
 	}
 	
 	@Override
-	public synchronized E[] getElements() {
-		return this.elementList.toArray(this.comparator.getElement0());
+	public E[] getElements() {
+		synchronized (this.elementMatches) {
+			return this.elementList.toArray(this.comparator.getElement0());
+		}
 	}
 	
 	
 	@Override
 	public synchronized void addMatch(final Match match) {
-		final boolean done= doAddMatch((M) match);
+		final boolean done;
+		synchronized (this.elementMatches) {
+			done= doAddMatch((M) match);
+		}
 		if (done) {
 			fireChange(getChangeEvent(MatchEvent.ADDED, match));
 		}
@@ -165,10 +187,12 @@ public abstract class ExtTextSearchResult<E, M extends Match> extends AbstractTe
 	
 	@Override
 	public synchronized void addMatches(final Match[] matches) {
-		final List<Match> added= new ArrayList<Match>(matches.length);
-		for (int i= 0; i < matches.length; i++) {
-			if (doAddMatch((M) matches[i])) {
-				added.add(matches[i]);
+		final List<Match> added= new ArrayList<>(matches.length);
+		synchronized (this.elementMatches) {
+			for (int i= 0; i < matches.length; i++) {
+				if (doAddMatch((M) matches[i])) {
+					added.add(matches[i]);
+				}
 			}
 		}
 		if (!added.isEmpty()) {
@@ -186,7 +210,7 @@ public abstract class ExtTextSearchResult<E, M extends Match> extends AbstractTe
 			if (this.elementList.addE(element) < 0) {
 				return false;
 			}
-			matches= new SortedArraySet<M>(this.comparator.getMatch0(), this.comparator.getMatchComparator());
+			matches= new SortedArraySet<>(this.comparator.getMatch0(), this.comparator.getMatchComparator());
 			this.elementMatches.put(element, matches);
 		}
 		synchronized (matches) {
@@ -199,7 +223,10 @@ public abstract class ExtTextSearchResult<E, M extends Match> extends AbstractTe
 	
 	@Override
 	public synchronized void removeMatch(final Match match) {
-		final boolean done= doRemoveMatch((M) match);
+		final boolean done;
+		synchronized (this.elementMatches) {
+			done= doRemoveMatch((M) match);
+		}
 		if (done) {
 			fireChange(getChangeEvent(MatchEvent.REMOVED, match));
 		}
@@ -207,10 +234,12 @@ public abstract class ExtTextSearchResult<E, M extends Match> extends AbstractTe
 	
 	@Override
 	public synchronized void removeMatches(final Match[] matches) {
-		final List<Match> removed= new ArrayList<Match>(matches.length);
-		for (int i= 0; i < matches.length; i++) {
-			if (doRemoveMatch((M) matches[i])) {
-				removed.add(matches[i]);
+		final List<Match> removed= new ArrayList<>(matches.length);
+		synchronized (this.elementMatches) {
+			for (int i= 0; i < matches.length; i++) {
+				if (doRemoveMatch((M) matches[i])) {
+					removed.add(matches[i]);
+				}
 			}
 		}
 		if (!removed.isEmpty()) {
@@ -241,7 +270,9 @@ public abstract class ExtTextSearchResult<E, M extends Match> extends AbstractTe
 	
 	@Override
 	public synchronized void removeAll() {
-		doRemoveAll();
+		synchronized (this.elementMatches) {
+			doRemoveAll();
+		}
 		fireChange(new RemoveAllEvent(this));
 	}
 	
@@ -251,21 +282,25 @@ public abstract class ExtTextSearchResult<E, M extends Match> extends AbstractTe
 	}
 	
 	@Override
-	public synchronized int getMatchCount() {
-		int count= 0;
-		for (final List<M> matches : this.elementMatches.values()) {
-			count+= matches.size();
+	public int getMatchCount() {
+		synchronized (this.elementMatches) {
+			int count= 0;
+			for (final List<M> matches : this.elementMatches.values()) {
+				count+= matches.size();
+			}
+			return count;
 		}
-		return count;
 	}
 	
-	public synchronized boolean hasMatches(final Object element) {
-		return this.elementMatches.containsKey(element);
+	public boolean hasMatches(final Object element) {
+		synchronized (this.elementMatches) {
+			return this.elementMatches.containsKey(element);
+		}
 	}
 	
 	public boolean hasPickedMatches(final Object element) {
 		final SortedListSet<M> matches;
-		synchronized (this) {
+		synchronized (this.elementMatches) {
 			matches= this.elementMatches.get(element);
 		}
 		if (matches != null) {
@@ -286,17 +321,19 @@ public abstract class ExtTextSearchResult<E, M extends Match> extends AbstractTe
 	}
 	
 	@Override
-	public synchronized int getMatchCount(final Object element) {
-		final SortedListSet<M> matches= this.elementMatches.get(element);
-		if (matches != null) {
-			return matches.size();
+	public int getMatchCount(final Object element) {
+		synchronized (this.elementMatches) {
+			final SortedListSet<M> matches= this.elementMatches.get(element);
+			if (matches != null) {
+				return matches.size();
+			}
+			return 0;
 		}
-		return 0;
 	}
 	
 	public int getPickedMatchCount(final Object element) {
 		final SortedListSet<M> matches;
-		synchronized (this) {
+		synchronized (this.elementMatches) {
 			matches= this.elementMatches.get(element);
 		}
 		if (matches != null) {
@@ -321,17 +358,19 @@ public abstract class ExtTextSearchResult<E, M extends Match> extends AbstractTe
 	}
 	
 	@Override
-	public synchronized M[] getMatches(final Object element) {
-		final SortedListSet<M> matches= this.elementMatches.get(element);
-		if (matches != null) {
-			return matches.toArray(this.comparator.getMatch0());
+	public M[] getMatches(final Object element) {
+		synchronized (this.elementMatches) {
+			final SortedListSet<M> matches= this.elementMatches.get(element);
+			if (matches != null) {
+				return matches.toArray(this.comparator.getMatch0());
+			}
+			return this.comparator.getMatch0();
 		}
-		return this.comparator.getMatch0();
 	}
 	
 	public M[] getPickedMatches(final Object element) {
 		final SortedListSet<M> matches;
-		synchronized (this) {
+		synchronized (this.elementMatches) {
 			matches= this.elementMatches.get(element);
 		}
 		if (matches != null) {
@@ -342,7 +381,7 @@ public abstract class ExtTextSearchResult<E, M extends Match> extends AbstractTe
 			}
 			else {
 				synchronized (matches) {
-					final List<M> filtered= new ArrayList<M>(matches.size());
+					final List<M> filtered= new ArrayList<>(matches.size());
 					for (final M match : matches) {
 						if (!match.isFiltered()) {
 							filtered.add(match);
