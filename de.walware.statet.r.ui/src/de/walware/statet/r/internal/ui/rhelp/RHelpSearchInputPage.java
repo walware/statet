@@ -53,7 +53,7 @@ import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.rhelp.IREnvHelp;
 import de.walware.statet.r.core.rhelp.IRHelpKeyword;
 import de.walware.statet.r.core.rhelp.IRHelpManager;
-import de.walware.statet.r.core.rhelp.IRPackageHelp;
+import de.walware.statet.r.core.rhelp.IRPkgHelp;
 import de.walware.statet.r.core.rhelp.RHelpSearchQuery;
 import de.walware.statet.r.core.rhelp.RHelpSearchQuery.Compiled;
 import de.walware.statet.r.internal.ui.REnvSelectionComposite;
@@ -343,7 +343,7 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 			button.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(final SelectionEvent e) {
-					List<IRPackageHelp> packages = null;
+					List<IRPkgHelp> packages = null;
 					IREnv rEnv = fREnvControl.getSelection();
 					final IRHelpManager rHelpManager = RCore.getRHelpManager();
 					if (rEnv != null) {
@@ -363,9 +363,9 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 					}
 					if (packages != null) {
 						final List<String> currentNames = toList(fPackagesInputControl.getText());
-						final List<IRPackageHelp> currentPkgs = new ArrayList<IRPackageHelp>(currentNames.size());
+						final List<IRPkgHelp> currentPkgs = new ArrayList<IRPkgHelp>(currentNames.size());
 						for (final String name : currentNames) {
-							for (final IRPackageHelp pkg : packages) {
+							for (final IRPkgHelp pkg : packages) {
 								if (pkg.getName().equals(name)) {
 									currentPkgs.add(pkg);
 								}
@@ -375,10 +375,10 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 								getControl().getShell(), packages, currentPkgs);
 						if (dialog.open() == Dialog.OK) {
 							final StringBuilder input = new StringBuilder();
-							final IRPackageHelp[] result = dialog.getResult();
+							final IRPkgHelp[] result = dialog.getResult();
 							if (result.length > 0) {
 								Arrays.sort(result);
-								for (final IRPackageHelp pkg : result) {
+								for (final IRPkgHelp pkg : result) {
 									input.append(pkg.getName());
 									input.append(", "); //$NON-NLS-1$
 								}

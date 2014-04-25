@@ -16,8 +16,8 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 
 import de.walware.statet.r.core.renv.IREnv;
-import de.walware.statet.r.internal.core.rhelp.IREnvIndex;
-import de.walware.statet.r.internal.core.rhelp.REnvIndexReader;
+import de.walware.statet.r.internal.core.rhelp.index.IREnvIndex;
+import de.walware.statet.r.internal.core.rhelp.index.SearchQuery;
 
 
 public class RHelpSearchQuery {
@@ -110,7 +110,7 @@ public class RHelpSearchQuery {
 	}
 	
 	public RHelpSearchQuery.Compiled compile() throws CoreException {
-		final Object compiled = REnvIndexReader.compile(this);
+		final Object compiled = SearchQuery.compile(this);
 		return new RHelpSearchQuery.Compiled(this, compiled);
 	}
 	

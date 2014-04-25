@@ -13,6 +13,7 @@ package de.walware.statet.r.internal.core.rhelp;
 
 import de.walware.statet.r.core.rhelp.IRHelpPage;
 import de.walware.statet.r.core.rhelp.IRHelpSearchMatch;
+import de.walware.statet.r.internal.core.rhelp.index.IREnvIndex;
 
 
 public class RHelpSearchMatch implements IRHelpSearchMatch {

@@ -14,9 +14,8 @@ package de.walware.statet.r.core.rhelp.rj;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -28,26 +27,28 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.rj.data.RArray;
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RDataUtil;
-import de.walware.rj.data.RIntegerStore;
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
-import de.walware.rj.data.UnexpectedRDataException;
-import de.walware.rj.data.defaultImpl.RListImpl;
+import de.walware.rj.data.RVector;
+import de.walware.rj.renv.IRPkgDescription;
 import de.walware.rj.renv.RNumVersion;
+import de.walware.rj.renv.RPkgDescription;
+import de.walware.rj.services.FunctionCall;
 import de.walware.rj.services.RService;
 
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RUtil;
+import de.walware.statet.r.core.pkgmanager.IRLibPaths;
+import de.walware.statet.r.core.pkgmanager.IRPkgCollection;
+import de.walware.statet.r.core.pkgmanager.IRPkgInfo;
+import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
-import de.walware.statet.r.internal.core.RPackageDescription;
-import de.walware.statet.r.internal.core.rhelp.REnvIndexWriter;
-import de.walware.statet.r.internal.core.rhelp.REnvIndexWriter.AbortIndexException;
-import de.walware.statet.r.internal.core.rhelp.REnvIndexWriter.RdItem;
 import de.walware.statet.r.internal.core.rhelp.RHelpWebapp;
+import de.walware.statet.r.internal.core.rhelp.index.REnvIndexWriter;
+import de.walware.statet.r.internal.core.rhelp.index.REnvIndexWriter.AbortIndexException;
+import de.walware.statet.r.internal.core.rhelp.index.REnvIndexWriter.RdItem;
 
 
 /**
@@ -57,47 +58,81 @@ import de.walware.statet.r.internal.core.rhelp.RHelpWebapp;
 public class RJREnvIndexUpdater {
 	
 	
-	private static final String PKG_DATA_META_NAME = ".name"; //$NON-NLS-1$
-	private static final String PKG_DATA_META_ID = ".id"; //$NON-NLS-1$
+	private static final String PKG_DESCR_FNAME= "rj:::.rhelp.loadPkgDescr"; //$NON-NLS-1$
+	private static final int PKG_DESCR_LENGTH= 7;
+	private static final int PKG_DESCR_IDX_VERSION= 0;
+	private static final int PKG_DESCR_IDX_TITLE= 1;
+	private static final int PKG_DESCR_IDX_DESCRIPTION= 2;
+	private static final int PKG_DESCR_IDX_AUTHOR= 3;
+	private static final int PKG_DESCR_IDX_MAINTAINER= 4;
+	private static final int PKG_DESCR_IDX_URL= 5;
+	private static final int PKG_DESCR_IDX_BUILT= 6;
+	
+	private static final String PKG_RD_FNAME= "rj:::.rhelp.loadPkgRd"; //$NON-NLS-1$
 	
 	
-	private static String checkNA2Empty(final String s) {
-		return (s != null && !s.equals("NA") && s.length() > 0) ? s : ""; //$NON-NLS-1$ //$NON-NLS-2$
-	}
 	private static String checkNA2Null(final String s) {
 		return (s != null && !s.equals("NA") && s.length() > 0) ? s : null; //$NON-NLS-1$
 	}
 	
 	
-	private static final RList FINISH = new RListImpl(new RObject[0], (String[]) null);
+	private static class PkgTask {
+		
+		final String name;
+		final RNumVersion version;
+		final String built;
+		final String libPath; // for error messages
+		
+		RVector<RCharacterStore> rDescr;
+		
+		RList rRd;
+		
+		public PkgTask(final String name, final RNumVersion version, final String built,
+				final String libPath) {
+			this.name= name;
+			this.version= version;
+			this.built= built;
+			this.libPath= libPath;
+		}
+		
+		
+		@Override
+		public String toString() {
+			final StringBuilder sb= new StringBuilder(this.name);
+			sb.append(" " + "(version= ").append((this.version != null) ? this.version : "<unknown>");
+			sb.append(')');
+			if (this.libPath != null) {
+				sb.append("in lib= '").append(this.libPath).append('\'');
+			}
+			return sb.toString();
+		}
+		
+	}
+	
+	private static final PkgTask FINISH= new PkgTask(null, null, null, null);
+	
 	
 	private class LocalJob extends Job {
 		
 		
-		private final RArray<RCharacterStore> fPkgMatrix;
+		private final BlockingQueue<PkgTask> queue= new ArrayBlockingQueue<>(4);
 		
-		private final BlockingQueue<RList> fQueue = new ArrayBlockingQueue<RList>(3);
-		
-		private volatile boolean fFinish;
-		
-		private volatile Exception fException;
+		private volatile Exception exception;
 		
 		
-		public LocalJob(final RArray<RCharacterStore> pkgMatrix) {
-			super(NLS.bind("Update R help index for ''{0}''", fREnvConfig.getName()));
+		public LocalJob() {
+			super(NLS.bind("Update R help index for ''{0}''", RJREnvIndexUpdater.this.rEnvConfig.getName()));
 			setPriority(Job.LONG);
 			setSystem(true);
-			
-			fPkgMatrix = pkgMatrix;
 		}
 		
-		public void add(final RList pkgData, final SubMonitor progress) throws Exception {
+		public void add(final PkgTask task, final SubMonitor progress) throws Exception {
 			while (true) {
 				try {
-					if (fException != null) {
-						throw fException;
+					if (this.exception != null) {
+						throw this.exception;
 					}
-					fQueue.put(pkgData);
+					this.queue.put(task);
 					return;
 				}
 				catch (final InterruptedException e) {
@@ -112,13 +147,13 @@ public class RJREnvIndexUpdater {
 		public void finish(final SubMonitor progress) throws CoreException {
 			while (true) {
 				try {
-					fQueue.put(FINISH);
+					this.queue.put(FINISH);
 					join();
 					return;
 				}
 				catch (final InterruptedException e) {
 					// forward to worker thread
-					final Thread thread = getThread();
+					final Thread thread= getThread();
 					if (thread != null) {
 						thread.interrupt();
 					}
@@ -139,7 +174,7 @@ public class RJREnvIndexUpdater {
 				}
 				catch (final InterruptedException e) {
 					// forward to worker thread
-					final Thread thread = getThread();
+					final Thread thread= getThread();
 					if (thread != null) {
 						thread.interrupt();
 					}
@@ -149,7 +184,7 @@ public class RJREnvIndexUpdater {
 		
 		@Override
 		protected void canceling() {
-			final Thread thread = getThread();
+			final Thread thread= getThread();
 			if (thread != null) {
 				thread.interrupt();
 			}
@@ -159,70 +194,38 @@ public class RJREnvIndexUpdater {
 		@Override
 		protected IStatus run(final IProgressMonitor monitor) {
 			try {
-				final RCharacterStore pkgMatrixData = fPkgMatrix.getData();
-				final RIntegerStore pkgMatrixDim = fPkgMatrix.getDim();
-				final RStore pkgMatrixColumns = fPkgMatrix.getNames(1);
-				final int idxPackage = (int) pkgMatrixColumns.indexOf("Package"); //$NON-NLS-1$
-				final int idxTitle = (int) pkgMatrixColumns.indexOf("Title"); //$NON-NLS-1$
-				final int idxDescription = (int) pkgMatrixColumns.indexOf("Description"); //$NON-NLS-1$
-				final int idxVersion = (int) pkgMatrixColumns.indexOf("Version"); //$NON-NLS-1$
-				final int idxPriority = (int) pkgMatrixColumns.indexOf("Priority"); //$NON-NLS-1$
-				final int idxAuthor = (int) pkgMatrixColumns.indexOf("Author"); //$NON-NLS-1$
-				final int idxMaintainer = (int) pkgMatrixColumns.indexOf("Maintainer"); //$NON-NLS-1$
-				final int idxUrl = (int) pkgMatrixColumns.indexOf("URL"); //$NON-NLS-1$
-				
-				if (idxPackage < 0 || idxTitle < 0 || idxDescription < 0 || idxVersion < 0
-						|| idxPriority < 0 || idxAuthor < 0 || idxMaintainer < 0 || idxUrl < 0) {
-					throw new UnexpectedRDataException("A column is missing\n." + pkgMatrixColumns);
-				}
-				
+				PkgTask task= null;
 				while (true) {
-					String name = null;
-					RPackageDescription packageDescription = null;
 					try {
-						final RList pkgData = fQueue.take();
-						if (pkgData == FINISH) {
+						task= this.queue.take();
+						if (task == FINISH) {
 							return Status.OK_STATUS;
 						}
-						name = RDataUtil.checkSingleChar(pkgData.get(PKG_DATA_META_NAME));
-						final int i = RDataUtil.checkSingleInt(pkgData.get(PKG_DATA_META_ID));
 						
-						final String title = checkNA2Empty(pkgMatrixData.get(RDataUtil.getDataIdx(pkgMatrixDim, i, idxTitle)));
-						final String desription = checkNA2Empty(pkgMatrixData.get(RDataUtil.getDataIdx(pkgMatrixDim, i, idxDescription)));
-						final String version = checkNA2Empty(pkgMatrixData.get(RDataUtil.getDataIdx(pkgMatrixDim, i, idxVersion)));
-						final String priority = checkNA2Null(pkgMatrixData.get(RDataUtil.getDataIdx(pkgMatrixDim, i, idxPriority)));
-						final String author = checkNA2Null(pkgMatrixData.get(RDataUtil.getDataIdx(pkgMatrixDim, i, idxAuthor)));
-						final String maintainer = checkNA2Null(pkgMatrixData.get(RDataUtil.getDataIdx(pkgMatrixDim, i, idxMaintainer)));
-						final String url = checkNA2Null(pkgMatrixData.get(RDataUtil.getDataIdx(pkgMatrixDim, i, idxUrl)));
-						
-						packageDescription = new RPackageDescription(
-								name, title, desription, RNumVersion.create(version), priority,
-								author, maintainer, url );
-						
-						fIndex.beginPackage(packageDescription);
-						
-						processRdData(packageDescription.getName(), pkgData);
+						final IRPkgDescription pkgDescription= createDescription(task);
+						RJREnvIndexUpdater.this.index.beginPackage(pkgDescription);
+						processRdData(pkgDescription.getName(), task.rRd);
 					}
 					catch (final InterruptedException e) {
 						// continue, monitor is checked
 					}
 					catch (final AbortIndexException e) {
-						fException = e;
-						fQueue.clear();
+						this.exception= e;
+						this.queue.clear();
 						return Status.CANCEL_STATUS;
 					}
 					catch (final Exception e) {
-						fIndex.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, 
-								"An error occurred when indexing data for package:" +
-								((packageDescription != null) ? ('\n' + packageDescription.toString()) : (' ' + name)), e));
+						RJREnvIndexUpdater.this.index.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, 
+								"An error occurred when indexing data for package:\n" + task,
+								e ));
 					}
 					finally {
 						try {
-							fIndex.endPackage();
+							RJREnvIndexUpdater.this.index.endPackage();
 						}
 						catch (final Exception e) {
-							fException = e;
-							fQueue.clear();
+							this.exception= e;
+							this.queue.clear();
 							return Status.CANCEL_STATUS;
 						}
 					}
@@ -233,8 +236,8 @@ public class RJREnvIndexUpdater {
 				}
 			}
 			catch (final Exception e) {
-				fException = e;
-				fQueue.clear();
+				this.exception= e;
+				this.queue.clear();
 				return Status.CANCEL_STATUS;
 			}
 		}
@@ -242,42 +245,53 @@ public class RJREnvIndexUpdater {
 	}
 	
 	
-	private final IREnvConfiguration fREnvConfig;
+	private final IREnvConfiguration rEnvConfig;
 	
-	private final StringBuilder fTempBuilder1 = new StringBuilder(65536);
-	private final StringBuilder fTempBuilder2 = new StringBuilder(1024);
-	private final REnvIndexWriter fIndex;
+	private final StringBuilder tempBuilder1= new StringBuilder(65536);
+	private final StringBuilder tempBuilder2= new StringBuilder(1024);
+	
+	private final REnvIndexWriter index;
 	
 	
 	public RJREnvIndexUpdater(final IREnvConfiguration rEnvConfig) {
-		fREnvConfig = rEnvConfig;
-		fIndex = new REnvIndexWriter(rEnvConfig);
+		this.rEnvConfig= rEnvConfig;
+		this.index= new REnvIndexWriter(rEnvConfig);
 	}
 	
 	
 	public IStatus update(final RService r, final boolean reset, final Map<String, String> rEnvSharedProperties,
 			final IProgressMonitor monitor) {
-		final SubMonitor progress = SubMonitor.convert(monitor, 100);
+		final SubMonitor progress= SubMonitor.convert(monitor, 10 + 80 + 10);
 		try {
-			fIndex.beginBatch(reset);
+			this.index.beginBatch(reset);
 			
-			final String docDir = checkNA2Null(RDataUtil.checkSingleChar(
+			final String docDir= checkNA2Null(RDataUtil.checkSingleChar(
 					r.evalData("R.home(\"doc\")", progress) )); //$NON-NLS-1$
-			fIndex.setDocDir(docDir);
-			fIndex.setREnvSharedProperties(rEnvSharedProperties);
+			this.index.setDocDir(docDir);
+			this.index.setREnvSharedProperties(rEnvSharedProperties);
 			
+			long tKeywords= System.nanoTime();
 			loadKeywords(r, progress.newChild(10));
+			tKeywords= System.nanoTime() - tKeywords;
 			
 			if (progress.isCanceled()) {
 				throw new CoreException(Status.CANCEL_STATUS);
 			}
 			progress.setWorkRemaining(90);
 			
+			long tPackages= System.nanoTime();
 			loadPackages(r, progress.newChild(80));
+			tPackages= System.nanoTime() - tPackages;
 			
 			progress.setWorkRemaining(10);
 			
-			final IStatus status = fIndex.endBatch();
+			if (REnvIndexWriter.DEBUG) {
+				this.index.log(new Status(IStatus.INFO, RCore.PLUGIN_ID,
+						NLS.bind("Required time for update: keywords= {0}ms, packages= {1}ms.",
+								tKeywords / 1_000_000, tPackages / 1_000_000 )));
+			}
+			
+			final IStatus status= this.index.endBatch();
 			if (status != null && status.getSeverity() >= IStatus.ERROR) {
 				return new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1,
 						"The R environment index could not be completely updated.",
@@ -287,20 +301,20 @@ public class RJREnvIndexUpdater {
 		}
 		catch (final CoreException e) {
 			if (e.getStatus().getSeverity() == IStatus.CANCEL) {
-				fIndex.cancel();
+				this.index.cancel();
 				return e.getStatus();
 			}
-			fIndex.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
+			this.index.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 					"An error occurred when updating the R environment.", e));
-			final IStatus status = fIndex.cancel();
+			final IStatus status= this.index.cancel();
 			return new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 					"The R environment could not be updated.",
 					(status != null) ? new CoreException(status) : null);
 		}
 		catch (final Exception e) {
-			fIndex.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
+			this.index.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 					"An error occurred when updating the R environment.", e));
-			final IStatus status = fIndex.cancel();
+			final IStatus status= this.index.cancel();
 			return new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 					"The R environment could not be updated.",
 					(status != null) ? new CoreException(status) : null);
@@ -311,35 +325,35 @@ public class RJREnvIndexUpdater {
 	}
 	
 	private void loadKeywords(final RService r, final SubMonitor progress) throws CoreException {
-		final String docDir = fIndex.getDocDir();
+		final String docDir= this.index.getDocDir();
 		if (docDir == null) {
 			return;
 		}
 		progress.beginTask("Loading R help keywords...", 100);
-		Exception errorCause = null;
+		Exception errorCause= null;
 		try {
-			final byte[] bytes = r.downloadFile(docDir + "/KEYWORDS.db", 0, progress);
-			final BufferedReader reader = new BufferedReader(new InputStreamReader(
+			final byte[] bytes= r.downloadFile(docDir + "/KEYWORDS.db", 0, progress);
+			final BufferedReader reader= new BufferedReader(new InputStreamReader(
 					new ByteArrayInputStream(bytes), "UTF-8")); //$NON-NLS-1$
 			String line;
 			
-			fTempBuilder1.setLength(0);
-			while ((line = reader.readLine()) != null) {
+			this.tempBuilder1.setLength(0);
+			while ((line= reader.readLine()) != null) {
 				if (REnvIndexWriter.DEBUG) {
-					fTempBuilder1.append(line);
-					fTempBuilder1.append('\n');
+					this.tempBuilder1.append(line);
+					this.tempBuilder1.append('\n');
 				}
-				int idx = line.indexOf('#');
+				int idx= line.indexOf('#');
 				if (idx >= 0) {
-					line = line.substring(0, idx);
+					line= line.substring(0, idx);
 				}
-				idx = line.indexOf(':');
+				idx= line.indexOf(':');
 				if (idx < 0) {
 					continue;
 				}
-				final String descr = new String(line.substring(idx+1).trim());
-				line = line.substring(0, idx);
-				fIndex.addDefaultKeyword(line.split("\\|"), descr); //$NON-NLS-1$
+				final String descr= new String(line.substring(idx+1).trim());
+				line= line.substring(0, idx);
+				this.index.addDefaultKeyword(line.split("\\|"), descr); //$NON-NLS-1$
 			}
 			return;
 		}
@@ -347,105 +361,97 @@ public class RJREnvIndexUpdater {
 			if (e.getStatus().getSeverity() == IStatus.CANCEL) {
 				throw e;
 			}
-			errorCause = e;
+			errorCause= e;
 		}
 		catch (final Exception e) {
-			errorCause = e;
+			errorCause= e;
 		}
 		finally {
 			if (REnvIndexWriter.DEBUG) {
-				fTempBuilder1.insert(0, "Read KEYWORDS.db file:\n<FILE>\n");
-				fTempBuilder1.append("</FILE>\n");
-				fIndex.log(new Status(IStatus.INFO, RCore.PLUGIN_ID, -1,
-						 fTempBuilder1.toString(), null));
+				this.tempBuilder1.insert(0, "Read KEYWORDS.db file:\n<FILE>\n");
+				this.tempBuilder1.append("</FILE>\n");
+				this.index.log(new Status(IStatus.INFO, RCore.PLUGIN_ID, -1,
+						 this.tempBuilder1.toString(), null));
 			}
 		}
-		fIndex.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
+		this.index.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 				"An error occurred when loading the keyword list.", errorCause));
 	}
 	
 	private void loadPackages(final RService r, final SubMonitor progress) throws CoreException {
-		progress.beginTask("Loading R package help.", 100);
-		Exception errorCause = null;
-		LocalJob job = null;
+		progress.beginTask("Loading R package help.", 8 + 1);
+		Exception errorCause= null;
+		LocalJob job= null;
 		try {
-			r.evalVoid("library(rj)", progress);
-			progress.setWorkRemaining(95);
-			
-			progress.subTask("Searching available packages...");
-			final RArray<RCharacterStore> pkgMatrix = RDataUtil.checkRCharArray(r.evalData(
-					"installed.packages(fields=c(\"Title\",\"Description\",\"Author\",\"Maintainer\",\"URL\"))", progress), 2);
-			final RCharacterStore pkgMatrixData = pkgMatrix.getData();
-			final RIntegerStore pkgMatrixDim = pkgMatrix.getDim();
-			final RStore pkgMatrixColumns = pkgMatrix.getNames(1);
-			final int idxPackage = (int) pkgMatrixColumns.indexOf("Package"); //$NON-NLS-1$
-			final int idxLibPath = (int) pkgMatrixColumns.indexOf("LibPath"); //$NON-NLS-1$
-			final int idxVersion = (int) pkgMatrixColumns.indexOf("Version"); //$NON-NLS-1$
-			
-			if (idxPackage < 0 || idxLibPath < 0 || idxVersion < 0) {
-				throw new UnexpectedRDataException("A column is missing\n." + pkgMatrixColumns);
-			}
-			
-			final int count = pkgMatrixDim.getInt(0);
-			
-			final Set<String> pkgs = new HashSet<String>();
-			
-			job = new LocalJob(pkgMatrix);
+			job= new LocalJob();
 			job.schedule();
-			for (int i = 0; i < count; i++) {
-				final String pkgName = checkNA2Null(pkgMatrixData.get(RDataUtil.getDataIdx(pkgMatrixDim, i, idxPackage)));
-				final String libPath = checkNA2Null(pkgMatrixData.get(RDataUtil.getDataIdx(pkgMatrixDim, i, idxLibPath)));
-				final String version = checkNA2Null(pkgMatrixData.get(RDataUtil.getDataIdx(pkgMatrixDim, i, idxVersion)));
-				if (pkgName == null || libPath == null || version == null) {
-					continue;
-				}
-				if (fIndex.checkPackage(pkgName, version)) {
+			
+			final IRPkgManager rPkgManager = RCore.getRPkgManager(this.rEnvConfig.getReference());
+			final IRLibPaths rLibPaths= rPkgManager.getRLibPaths();
+			final IRPkgCollection<? extends IRPkgInfo> installed= rPkgManager.getRPkgSet().getInstalled();
+			
+			final SubMonitor pkgsProgress= progress.newChild(8);
+			final List<String> names= installed.getNames();
+			for (int i= 0; i < names.size(); i++) {
+				pkgsProgress.setWorkRemaining(2 * (names.size() - i));
+				
+				final IRPkgInfo pkgInfo= installed.getFirstByName(names.get(i));
+				
+				if (this.index.checkPackage(pkgInfo.getName(), pkgInfo.getVersion().toString(),
+						pkgInfo.getBuilt() )) {
 					continue;
 				}
 				
-				if (progress.isCanceled()) {
+				if (pkgsProgress.isCanceled()) {
 					throw new CoreException(Status.CANCEL_STATUS);
 				}
-				progress.setWorkRemaining(count-i);
-				progress.subTask(NLS.bind("Loading data for ''{0}''...", pkgName));
 				
-				final String libPathEsc = RUtil.escapeCompletely(libPath);
-				final String nameEsc = RUtil.escapeCompletely(pkgName);
+				progress.subTask(NLS.bind("Loading data for package ''{0}''...", pkgInfo.getName()));
+				
 				try {
-					final RObject pkgObj = r.evalData("rj:::.statet.checkPkg(id="+i+"L,libPath=\""+libPathEsc+"\",name=\""+nameEsc+"\")", progress);
-					if (pkgObj.getRObjectType() != RObject.TYPE_LIST) {
-						throw new CoreException(new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1,
-								"Package is skipped, because files are missing.", null));
+					final IRLibPaths.Entry libPath= rLibPaths.getEntryByLocation(pkgInfo.getLibraryLocation());
+					if (libPath == null) {
+						throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, 
+								NLS.bind("Failed to resolve library location ''{0}''.",
+										pkgInfo.getLibraryLocation() )));
 					}
-					
-					final RList pkgData = (RList) pkgObj;
-					if (!pkgName.equals(RDataUtil.checkSingleChar(pkgData.get(PKG_DATA_META_NAME)))
-							|| !Integer.valueOf(i).equals(RDataUtil.checkSingleInt(pkgData.get(PKG_DATA_META_ID))) ) {
-						throw new IllegalStateException("Unexpected R values.");
+					final PkgTask task= new PkgTask(pkgInfo.getName(), pkgInfo.getVersion(), pkgInfo.getBuilt(), libPath.getRPath());
+					{	final FunctionCall call= r.createFunctionCall(PKG_DESCR_FNAME);
+						call.addChar("lib", libPath.getRPath()); //$NON-NLS-1$
+						call.addChar("name", pkgInfo.getName()); //$NON-NLS-1$
+						task.rDescr= RDataUtil.checkRCharVector(call.evalData(pkgsProgress.newChild(1)));
 					}
-					job.add(pkgData, progress);
-					pkgs.add(pkgName);
+					{	final FunctionCall call= r.createFunctionCall(PKG_RD_FNAME);
+						call.addChar("lib", libPath.getRPath()); //$NON-NLS-1$
+						call.addChar("name", pkgInfo.getName()); //$NON-NLS-1$
+						task.rRd= RDataUtil.checkRList(call.evalData(pkgsProgress.newChild(1)));
+					}
+					job.add(task, progress);
 				}
 				catch (final CoreException e) { // only core exceptions!
 					if (e.getStatus().getSeverity() == IStatus.CANCEL) {
 						throw e;
 					}
-					fIndex.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, 
-							"An error occurred when loading data for package '" + pkgName + "' in '" + libPath + "'.", e));
+					this.index.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, 
+							NLS.bind("An error occurred when loading data for package '' {0}'' in ''{1}''.",
+									pkgInfo.getName(),  pkgInfo.getLibraryLocation() ),
+							e ));
 				}
 			}
-			job.finish(progress);
-			job = null;
+			
+			progress.subTask("Finishing index of help...");
+			job.finish(progress.newChild(2));
+			job= null;
 			return;
 		}
 		catch (final CoreException e) {
 			if (e.getStatus().getSeverity() == IStatus.CANCEL) {
 				throw e;
 			}
-			errorCause = e;
+			errorCause= e;
 		}
 		catch (final Exception e) {
-			errorCause = e;
+			errorCause= e;
 		}
 		finally {
 			if (job != null) {
@@ -456,179 +462,222 @@ public class RJREnvIndexUpdater {
 				"An error occurred when loading the package data.", errorCause ));
 	}
 	
-	private void processRdData(final String packageName, final RList pkgList) throws Exception {
-		for (int j = 0; j < pkgList.getLength(); j++) {
-			final RObject rdObj = pkgList.get(j);
+	private IRPkgDescription createDescription(final PkgTask task) throws Exception {
+		final RCharacterStore data= RDataUtil.checkLengthEqual(task.rDescr.getData(), PKG_DESCR_LENGTH);
+		
+		final RNumVersion version;
+		final String built;
+		{	final String versionString= RDataUtil.checkValue(data, PKG_DESCR_IDX_VERSION);
+			if (task.version != null) {
+				if (!task.version.toString().equals(versionString)) {
+					throw new Exception(
+							NLS.bind("Unexpected package version: expected={0}, found={1}",
+									task.version, versionString ));
+				}
+				version= task.version;
+			}
+			else {
+				version= RNumVersion.create(versionString);
+			}
+		}
+		{	final String builtString= RDataUtil.checkValue(data, PKG_DESCR_IDX_BUILT);
+			if (task.built != null) {
+				if (!task.built.equals(builtString)) {
+					throw new Exception(
+							NLS.bind("Unexpected package built: expected={0}, found={1}",
+									task.version, builtString ));
+				}
+				built= task.built;
+			}
+			else {
+				built= builtString;
+			}
+		}
+		return new RPkgDescription(task.name,
+				version,
+				RDataUtil.getValue(data, PKG_DESCR_IDX_TITLE, ""), //$NON-NLS-1$
+				RDataUtil.getValue(data, PKG_DESCR_IDX_DESCRIPTION, ""), //$NON-NLS-1$
+				data.get(PKG_DESCR_IDX_AUTHOR),
+				data.get(PKG_DESCR_IDX_MAINTAINER),
+				data.get(PKG_DESCR_IDX_URL),
+				built
+		);
+	}
+	
+	private void processRdData(final String pkgName, final RList pkgList) throws Exception {
+		for (int j= 0; j < pkgList.getLength(); j++) {
+			final RObject rdObj= pkgList.get(j);
 			if (rdObj.getRClassName().equals("RdData")) { //$NON-NLS-1$
-				final RList rdData = (RList) rdObj;
-				final RdItem rdItem = new RdItem(packageName, pkgList.getName(j));
-				{	final RStore store = rdData.get("title").getData(); //$NON-NLS-1$
+				final RList rdData= (RList) rdObj;
+				final RdItem rdItem= new RdItem(pkgName, pkgList.getName(j));
+				{	final RStore<?> store= rdData.get("title").getData(); //$NON-NLS-1$
 					if (!store.isNA(0)) {
 						rdItem.setTitle(store.getChar(0));
 					}
 				}
-				{	final RStore store = rdData.get("topics").getData(); //$NON-NLS-1$
-					for (int k = 0; k < store.getLength(); k++) {
+				{	final RStore<?> store= rdData.get("topics").getData(); //$NON-NLS-1$
+					for (int k= 0; k < store.getLength(); k++) {
 						if (!store.isNA(k)) {
-							final String alias = store.getChar(k).trim();
+							final String alias= store.getChar(k).trim();
 							if (alias.length() > 0) {
 								rdItem.addTopic(alias);
 							}
 						}
 					}
 				}
-				{	final RStore store = rdData.get("keywords").getData(); //$NON-NLS-1$
-					for (int k = 0; k < store.getLength(); k++) {
+				{	final RStore<?> store= rdData.get("keywords").getData(); //$NON-NLS-1$
+					for (int k= 0; k < store.getLength(); k++) {
 						if (!store.isNA(k)) {
-							final String keyword = store.getChar(k).trim();
+							final String keyword= store.getChar(k).trim();
 							if (keyword.length() > 0) {
 								rdItem.addKeyword(keyword);
 							}
 						}
 					}
 				}
-				{	final RStore store = rdData.get("concepts").getData(); //$NON-NLS-1$
-					for (int k = 0; k < store.getLength(); k++) {
+				{	final RStore<?> store= rdData.get("concepts").getData(); //$NON-NLS-1$
+					for (int k= 0; k < store.getLength(); k++) {
 						if (!store.isNA(k)) {
-							final String concept = store.getChar(k).trim();
+							final String concept= store.getChar(k).trim();
 							if (concept.length() > 0) {
 								rdItem.addConcept(concept);
 							}
 						}
 					}
 				}
-				final RObject htmlObj = rdData.get("HTML"); //$NON-NLS-1$
+				final RObject htmlObj= rdData.get("HTML"); //$NON-NLS-1$
 				if (htmlObj.getData() != null
 						&& htmlObj.getData().getStoreType() == RStore.CHARACTER) {
-					rdItem.setHtml(processHtml(htmlObj.getData()));
+					rdItem.setHtml(processHtml((RCharacterStore) htmlObj.getData()));
 				}
-				fIndex.add(rdItem);
+				this.index.add(rdItem);
 			}
 		}
 	}
 	
-	private String processHtml(final RStore store) {
-		fTempBuilder1.setLength(0);
-		fTempBuilder2.setLength(0);
-		int length = 0;
-		for (int i = 0; i < store.getLength(); i++) {
+	@SuppressWarnings("nls")
+	private String processHtml(final RCharacterStore store) {
+		this.tempBuilder1.setLength(0);
+		this.tempBuilder2.setLength(0);
+		int length= 0;
+		for (int i= 0; i < store.getLength(); i++) {
 			if (!store.isNA(i)) {
 				length += store.getChar(i).length() + 2;
 			}
 		}
 		length += 300;
-		int topIndex = -1;
-		boolean inExamples = false;
-		fTempBuilder2.append("<div class=\"toc\"><ul>"); //$NON-NLS-1$
-		for (int i = 0; i < store.getLength(); i++) {
+		int topIndex= -1;
+		boolean inExamples= false;
+		this.tempBuilder2.append("<div class=\"toc\"><ul>");
+		for (int i= 0; i < store.getLength(); i++) {
 			if (!store.isNA(i)) {
-				String line = store.getChar(i);
+				String line= store.getChar(i);
 				if (topIndex == -1) {
-					if (line.startsWith("<table ")) { //$NON-NLS-1$
-						fTempBuilder1.append("<table class=\"header\" "); //$NON-NLS-1$
-						line = line.substring(7);
+					if (line.startsWith("<table ")) {
+						this.tempBuilder1.append("<table class=\"header\" ");
+						line= line.substring(7);
 					}
-					else if (line.startsWith("<h2>")) { //$NON-NLS-1$
-						topIndex = fTempBuilder1.length();
-						fTempBuilder1.append("<h2 id=\"top\">"); //$NON-NLS-1$
-						line = line.substring(4);
+					else if (line.startsWith("<h2>")) {
+						topIndex= this.tempBuilder1.length();
+						this.tempBuilder1.append("<h2 id=\"top\">");
+						line= line.substring(4);
 					}
 				}
 				else if (topIndex >= 0 && line.length() > 10) {
-					if (line.startsWith("<h3>")) { //$NON-NLS-1$
+					if (line.startsWith("<h3>")) {
 						if (inExamples) {
-							fTempBuilder1.append(RHelpWebapp.HTML_END_EXAMPLES);
-							inExamples = false;
+							this.tempBuilder1.append(RHelpWebapp.HTML_END_EXAMPLES);
+							inExamples= false;
 						}
 						switch (line.charAt(4)-line.charAt(6)) {
 						case ('D'-'s'):
 							if (line.equals("<h3>Description</h3>")) {
-								fTempBuilder2.append("<li><a href=\"#description\"><span class=\"mnemonic\">D</span>escription</a></li>");
-								line = "<h3 id=\"description\">Description</h3>";
+								this.tempBuilder2.append("<li><a href=\"#description\"><span class=\"mnemonic\">D</span>escription</a></li>"); //$NON-NLS-1$
+								line= "<h3 id=\"description\">Description</h3>";
 								break;
 							}
 							break;
 						case ('U'-'a'):
 							if (line.equals("<h3>Usage</h3>")) {
-								fTempBuilder2.append("<li><a href=\"#usage\"><span class=\"mnemonic\">U</span>sage</a></li>");
-								line = "<h3 id=\"usage\">Usage</h3>";
+								this.tempBuilder2.append("<li><a href=\"#usage\"><span class=\"mnemonic\">U</span>sage</a></li>"); //$NON-NLS-1$
+								line= "<h3 id=\"usage\">Usage</h3>";
 								break;
 							}
 							break;
 						case ('A'-'g'):
 							if (line.equals("<h3>Arguments</h3>")) {
-								fTempBuilder2.append("<li><a href=\"#arguments\"><span class=\"mnemonic\">A</span>rguments</a></li>");
-								line = "<h3 id=\"arguments\">Arguments</h3>";
+								this.tempBuilder2.append("<li><a href=\"#arguments\"><span class=\"mnemonic\">A</span>rguments</a></li>"); //$NON-NLS-1$
+								line= "<h3 id=\"arguments\">Arguments</h3>";
 								break;
 							}
 							break;
 						case ('D'-'t'):
 							if (line.equals("<h3>Details</h3>")) {
-								fTempBuilder2.append("<li><a href=\"#details\">Deta<span class=\"mnemonic\">i</span>ls</a></li>");
-								line = "<h3 id=\"details\">Details</h3>";
+								this.tempBuilder2.append("<li><a href=\"#details\">Deta<span class=\"mnemonic\">i</span>ls</a></li>");
+								line= "<h3 id=\"details\">Details</h3>";
 								break;
 							}
 							break;
 						case ('V'-'l'):
 							if (line.equals("<h3>Value</h3>")) {
-								fTempBuilder2.append("<li><a href=\"#value\"><span class=\"mnemonic\">V</span>alue</a></li>");
-								line = "<h3 id=\"value\">Value</h3>";
+								this.tempBuilder2.append("<li><a href=\"#value\"><span class=\"mnemonic\">V</span>alue</a></li>");
+								line= "<h3 id=\"value\">Value</h3>";
 								break;
 							}
 							break;
 						case ('A'-'t'):
 							if (line.equals("<h3>Author(s)</h3>")) {
-								fTempBuilder2.append("<li><a href=\"#authors\">Auth<span class=\"mnemonic\">o</span>r(s)</a></li>");
-								line = "<h3 id=\"authors\">Author(s)</h3>";
+								this.tempBuilder2.append("<li><a href=\"#authors\">Auth<span class=\"mnemonic\">o</span>r(s)</a></li>");
+								line= "<h3 id=\"authors\">Author(s)</h3>";
 								break;
 							}
 							break;
 						case ('R'-'f'):
 							if (line.equals("<h3>References</h3>")) {
-								fTempBuilder2.append("<li><a href=\"#references\"><span class=\"mnemonic\">R</span>eferences</a></li>");
-								line = "<h3 id=\"references\">References</h3>";
+								this.tempBuilder2.append("<li><a href=\"#references\"><span class=\"mnemonic\">R</span>eferences</a></li>");
+								line= "<h3 id=\"references\">References</h3>";
 								break;
 							}
 							break;
 						case ('E'-'a'):
 							if (line.equals("<h3>Examples</h3>")) {
-								fTempBuilder2.append("<li><a href=\"#examples\"><span class=\"mnemonic\">E</span>xamples</a></li>");
-								line = "<h3 id=\"examples\">Examples</h3>" + RHelpWebapp.HTML_BEGIN_EXAMPLES;
-								inExamples = true;
+								this.tempBuilder2.append("<li><a href=\"#examples\"><span class=\"mnemonic\">E</span>xamples</a></li>");
+								line= "<h3 id=\"examples\">Examples</h3>" + RHelpWebapp.HTML_BEGIN_EXAMPLES;
+								inExamples= true;
 								break;
 							}
 							break;
 						case ('S'-'e'):
 							if (line.equals("<h3>See Also</h3>")) {
-								fTempBuilder2.append("<li><a href=\"#seealso\"><span class=\"mnemonic\">S</span>ee Also</a></li>");
-								line = "<h3 id=\"seealso\">See Also</h3>";
+								this.tempBuilder2.append("<li><a href=\"#seealso\"><span class=\"mnemonic\">S</span>ee Also</a></li>");
+								line= "<h3 id=\"seealso\">See Also</h3>";
 								break;
 							}
 							break;
 						}
 					}
-					else if (line.startsWith("<hr>")) { //$NON-NLS-1$
+					else if (line.startsWith("<hr>")) {
 						if (inExamples) {
-							fTempBuilder1.append(RHelpWebapp.HTML_END_EXAMPLES);
-							inExamples = false;
+							this.tempBuilder1.append(RHelpWebapp.HTML_END_EXAMPLES);
+							inExamples= false;
 						}
 //						if (line.startsWith("<hr><div align=\"center\">[Package <em>")) {
 //							fTempBuilder1.append("<hr/><div class=\"toc\"><ul><li><a href=\"#top\">Top</a></li></ul></div>");
 //						}
-						fTempBuilder1.append("<hr/>"); //$NON-NLS-1$
-						line = line.substring(4);
+						this.tempBuilder1.append("<hr/>");
+						line= line.substring(4);
 					}
 				}
-				fTempBuilder1.append(line);
-				fTempBuilder1.append('\r');
-				fTempBuilder1.append('\n');
+				this.tempBuilder1.append(line);
+				this.tempBuilder1.append('\r');
+				this.tempBuilder1.append('\n');
 			}
 		}
 		if (topIndex >= 0) {
-			fTempBuilder2.append("</ul></div>"); //$NON-NLS-1$
-			fTempBuilder1.insert(topIndex, fTempBuilder2);
+			this.tempBuilder2.append("</ul></div>");
+			this.tempBuilder1.insert(topIndex, this.tempBuilder2);
 		}
-		return fTempBuilder1.toString();
+		return this.tempBuilder1.toString();
 	}
 	
 }

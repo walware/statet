@@ -14,7 +14,6 @@ package de.walware.statet.r.internal.core.rhelp;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,7 @@ import de.walware.statet.r.core.renv.IREnvManager;
 import de.walware.statet.r.core.rhelp.IRHelpManager;
 import de.walware.statet.r.core.rhelp.IRHelpPage;
 import de.walware.statet.r.core.rhelp.IRHelpSearchRequestor;
-import de.walware.statet.r.core.rhelp.IRPackageHelp;
+import de.walware.statet.r.core.rhelp.IRPkgHelp;
 import de.walware.statet.r.core.rhelp.RHelpSearchQuery;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.renv.REnvConfiguration;
@@ -98,11 +97,6 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 					help.unlock();
 				}
 			}
-			final Set<String> rEnvIds = SaveUtil.getExistingRHelpEnvId();
-			rEnvIds.removeAll(Arrays.asList(fREnvManager.getIds()));
-			for (final String rEnvId : rEnvIds) {
-				delete(rEnvId);
-			}
 			
 			return Status.OK_STATUS;
 		}
@@ -145,8 +139,8 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 	
 	@Override
 	public String getPageHttpUrl(final IRHelpPage page, final String target) {
-		final IRPackageHelp packageHelp = page.getPackage();
-		return getPageHttpUrl(packageHelp.getName(), page.getName(), packageHelp.getREnv(), target);
+		final IRPkgHelp pkgHelp= page.getPackage();
+		return getPageHttpUrl(pkgHelp.getName(), page.getName(), pkgHelp.getREnv(), target);
 	}
 	
 	@Override
@@ -208,8 +202,8 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 	}
 	
 	@Override
-	public String getPackageHttpUrl(final IRPackageHelp packageHelp, final String target) {
-		return getPageHttpUrl(packageHelp.getName(), null, packageHelp.getREnv(), target);
+	public String getPackageHttpUrl(final IRPkgHelp pkgHelp, final String target) {
+		return getPageHttpUrl(pkgHelp.getName(), null, pkgHelp.getREnv(), target);
 	}
 	
 	@Override
@@ -319,8 +313,8 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		if (object instanceof IREnvConfiguration) {
 			return getREnvHttpUrl(((IREnvConfiguration) object).getReference(), target);
 		}
-		if (object instanceof IRPackageHelp) {
-			return getPackageHttpUrl((IRPackageHelp) object, target);
+		if (object instanceof IRPkgHelp) {
+			return getPackageHttpUrl((IRPkgHelp) object, target);
 		}
 		if (object instanceof IRHelpPage) {
 			return getPageHttpUrl((IRHelpPage) object, target);
@@ -360,14 +354,14 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 							final REnvHelp help = getHelp(rEnv);
 							if (help != null) {
 								try {
-									final IRPackageHelp packageHelp = help.getRPackage(info.packageName);
-									if (packageHelp != null && info.command == RHelpWebapp.COMMAND_HTML_PAGE) {
-										final IRHelpPage page = packageHelp.getHelpPage(info.detail);
+									final IRPkgHelp pkgHelp = help.getRPackage(info.packageName);
+									if (pkgHelp != null && info.command == RHelpWebapp.COMMAND_HTML_PAGE) {
+										final IRHelpPage page = pkgHelp.getHelpPage(info.detail);
 										if (page != null) {
 											return page;
 										}
 									}
-									return packageHelp;
+									return pkgHelp;
 								}
 								finally {
 									help.unlock();
@@ -556,7 +550,6 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 			synchronized (item.helpLock) {
 				if (item.state == RENV_DELETED) {
 					oldHelp = help;
-					fSaveUtil.delete(rEnvId);
 					return false;
 				}
 				item.state = HELP_LOADED;
@@ -595,9 +588,6 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 			}
 			if (oldHelp != null) {
 				oldHelp.dispose();
-			}
-			synchronized (item.helpLock) {
-				fSaveUtil.delete(id);
 			}
 		}
 	}

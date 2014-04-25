@@ -1,66 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description>WalWare StatET Update Site</description>
-
-   <category-def name="de.walware.libraries" label="WalWare - Libraries"/>
-   <category-def name="de.walware.statet" label="WalWare - StatET"/>
-   <category-def name="de.walware.utils" label="WalWare - Utilities"/>
-
-   <feature url="features/de.walware.ecommons.e_0.0.0.qualifier.jar" id="de.walware.ecommons.e" version="0.0.0">
-      <category name="de.walware.libraries"/>
-   </feature>
-
-   <feature url="features/de.walware.rj.core_0.0.0.qualifier.jar" id="de.walware.rj.core" version="0.0.0">
-      <category name="de.walware.libraries"/>
-   </feature>
-   <feature url="features/de.walware.rj.eclient_0.0.0.qualifier.jar" id="de.walware.rj.eclient" version="0.0.0">
-      <category name="de.walware.libraries"/>
-   </feature>
-
-   <feature url="features/org.eclipse.emf.common_0.0.0.qualifier.jar" id="org.eclipse.emf.common" version="0.0.0">
-      <category name="de.walware.libraries"/>
-   </feature>
-   <feature url="features/org.eclipse.emf.common.ui_0.0.0.qualifier.jar" id="org.eclipse.emf.common.ui" version="0.0.0">
-      <category name="de.walware.libraries"/>
-   </feature>
-   <feature url="features/org.eclipse.emf.ecore_0.0.0.qualifier.jar" id="org.eclipse.emf.ecore" version="0.0.0">
-      <category name="de.walware.libraries"/>
-   </feature>
-   <feature url="features/org.eclipse.emf.edit_0.0.0.qualifier.jar" id="org.eclipse.emf.edit" version="0.0.0">
-      <category name="de.walware.libraries"/>
-   </feature>
-   <feature url="features/org.eclipse.emf.edit.ui_0.0.0.qualifier.jar" id="org.eclipse.emf.edit.ui" version="0.0.0">
-      <category name="de.walware.libraries"/>
-   </feature>
-   <feature url="features/org.eclipse.emf.databinding_0.0.0.qualifier.jar" id="org.eclipse.emf.databinding" version="0.0.0">
-      <category name="de.walware.libraries"/>
-   </feature>
-   <feature url="features/org.eclipse.emf.databinding.edit_0.0.0.qualifier.jar" id="org.eclipse.emf.databinding.edit" version="0.0.0">
-      <category name="de.walware.libraries"/>
-   </feature>
-
-   <feature url="features/de.walware.ecommons.ltk_0.0.0.qualifier.jar" id="de.walware.ecommons.ltk" version="0.0.0">
-      <category name="de.walware.libraries"/>
-   </feature>
-   <feature url="features/de.walware.ecommons.edb_0.0.0.qualifier.jar" id="de.walware.ecommons.edb" version="0.0.0">
-      <category name="de.walware.libraries"/>
-   </feature>
-
-   <feature url="features/de.walware.statet.r_0.0.0.qualifier.jar" id="de.walware.statet.r" version="0.0.0">
-      <category name="de.walware.statet"/>
-   </feature>
-   <feature url="features/de.walware.statet.r.sweave_0.0.0.qualifier.jar" id="de.walware.statet.r.sweave" version="0.0.0">
-      <category name="de.walware.statet"/>
-   </feature>
-   <feature url="features/de.walware.statet.rtm.ftable_0.0.0.qualifier.jar" id="de.walware.statet.rtm.ftable" version="0.0.0">
-      <category name="de.walware.statet"/>
-   </feature>
-   <feature url="features/de.walware.statet.rtm.ggplot_0.0.0.qualifier.jar" id="de.walware.statet.rtm.ggplot" version="0.0.0">
-      <category name="de.walware.statet"/>
-   </feature>
-
-   <feature url="features/de.walware.eutils.autorun_0.0.0.qualifier.jar" id="de.walware.eutils.autorun" version="0.0.0">
-      <category name="de.walware.utils"/>
-   </feature>
-
+	<category-def name="de.walware.libraries" label="WalWare - Libraries"/>
+	<category-def name="de.walware.statet" label="WalWare - StatET"/>
+	<category-def name="de.walware.utils" label="WalWare - Utilities"/>
+	
+	<feature url="features/de.walware.ecommons.e_0.0.0.qualifier.jar" id="de.walware.ecommons.e" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	
+	<feature url="features/de.walware.rj.core_0.0.0.qualifier.jar" id="de.walware.rj.core" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	<feature url="features/de.walware.rj.eclient_0.0.0.qualifier.jar" id="de.walware.rj.eclient" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	
+	<feature url="features/de.walware.3rdparty.lucene_0.0.0.qualifier.jar" id="de.walware.3rdparty.lucene" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	
+	<feature url="features/org.eclipse.emf.common_0.0.0.qualifier.jar" id="org.eclipse.emf.common" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	<feature url="features/org.eclipse.emf.common.ui_0.0.0.qualifier.jar" id="org.eclipse.emf.common.ui" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	<feature url="features/org.eclipse.emf.ecore_0.0.0.qualifier.jar" id="org.eclipse.emf.ecore" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	<feature url="features/org.eclipse.emf.edit_0.0.0.qualifier.jar" id="org.eclipse.emf.edit" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	<feature url="features/org.eclipse.emf.edit.ui_0.0.0.qualifier.jar" id="org.eclipse.emf.edit.ui" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	<feature url="features/org.eclipse.emf.databinding_0.0.0.qualifier.jar" id="org.eclipse.emf.databinding" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	<feature url="features/org.eclipse.emf.databinding.edit_0.0.0.qualifier.jar" id="org.eclipse.emf.databinding.edit" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	
+	<feature url="features/de.walware.ecommons.ltk_0.0.0.qualifier.jar" id="de.walware.ecommons.ltk" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	<feature url="features/de.walware.ecommons.edb_0.0.0.qualifier.jar" id="de.walware.ecommons.edb" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	
+	<feature url="features/de.walware.statet.r_0.0.0.qualifier.jar" id="de.walware.statet.r" version="0.0.0">
+		<category name="de.walware.statet"/>
+	</feature>
+	<feature url="features/de.walware.statet.r.sweave_0.0.0.qualifier.jar" id="de.walware.statet.r.sweave" version="0.0.0">
+		<category name="de.walware.statet"/>
+	</feature>
+	<feature url="features/de.walware.statet.rtm.ftable_0.0.0.qualifier.jar" id="de.walware.statet.rtm.ftable" version="0.0.0">
+		<category name="de.walware.statet"/>
+	</feature>
+	<feature url="features/de.walware.statet.rtm.ggplot_0.0.0.qualifier.jar" id="de.walware.statet.rtm.ggplot" version="0.0.0">
+		<category name="de.walware.statet"/>
+	</feature>
+	
+	<feature url="features/de.walware.eutils.autorun_0.0.0.qualifier.jar" id="de.walware.eutils.autorun" version="0.0.0">
+		<category name="de.walware.utils"/>
+	</feature>
+	
 </site>

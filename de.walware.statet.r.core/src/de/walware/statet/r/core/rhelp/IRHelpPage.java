@@ -15,7 +15,7 @@ package de.walware.statet.r.core.rhelp;
 public interface IRHelpPage extends Comparable<IRHelpPage> {
 	
 	
-	IRPackageHelp getPackage();
+	IRPkgHelp getPackage();
 	
 	String getName();
 	

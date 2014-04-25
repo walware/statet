@@ -41,24 +41,24 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.CheckboxTableComposite;
 
-import de.walware.statet.r.core.rhelp.IRPackageHelp;
+import de.walware.statet.r.core.rhelp.IRPkgHelp;
 
 
 public class PackageSelectionDialog extends SelectionDialog {
 	
 	
-	private final List<IRPackageHelp> fInput;
+	private final List<IRPkgHelp> fInput;
 	
 	private SearchText fFilterText;
 	private CheckboxTableViewer fViewer;
 	private TableFilterController fFilterController;
 	
-	private final List<IRPackageHelp> fSelection;
+	private final List<IRPkgHelp> fSelection;
 	
 	
 	
 	protected PackageSelectionDialog(final Shell parentShell,
-			final List<IRPackageHelp> packages, final List<IRPackageHelp> initialSelection) {
+			final List<IRPkgHelp> packages, final List<IRPkgHelp> initialSelection) {
 		super(parentShell);
 		fInput = packages;
 		fSelection = initialSelection;
@@ -104,8 +104,8 @@ public class PackageSelectionDialog extends SelectionDialog {
 			@Override
 			public void checkStateChanged(final CheckStateChangedEvent event) {
 				final Object element = event.getElement();
-				if (element instanceof IRPackageHelp) {
-					final IRPackageHelp pkg = (IRPackageHelp) element;
+				if (element instanceof IRPkgHelp) {
+					final IRPkgHelp pkg = (IRPkgHelp) element;
 					if (!fSelection.remove(pkg)) {
 						fSelection.add(pkg);
 					}
@@ -154,12 +154,12 @@ public class PackageSelectionDialog extends SelectionDialog {
 	@Override
 	protected void okPressed() {
 		super.okPressed();
-		setSelectionResult(fSelection.toArray(new IRPackageHelp[fSelection.size()]));
+		setSelectionResult(fSelection.toArray(new IRPkgHelp[fSelection.size()]));
 	}
 	
 	@Override
-	public IRPackageHelp[] getResult() {
-		return (IRPackageHelp[]) super.getResult();
+	public IRPkgHelp[] getResult() {
+		return (IRPkgHelp[]) super.getResult();
 	}
 	
 }

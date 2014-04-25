@@ -52,6 +52,11 @@
 	
 	<repositories>
 		<repository>
+			<id>3rdparty-lucene</id>
+			<url>${walware.repo.baseUrl}/3rdparty/lucene-04.07.02</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
 			<id>eutils-autorun</id>
 			<url>${walware.repo.baseUrl}/eclipse-3.8/autorun-01.00.00</url>
 			<layout>p2</layout>

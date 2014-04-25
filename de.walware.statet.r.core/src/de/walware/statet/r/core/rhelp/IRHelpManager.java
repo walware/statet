@@ -33,7 +33,7 @@ public interface IRHelpManager {
 	String PORTABLE_DEFAULT_RENV_BROWSE_URL = PORTABLE_URL_PREFIX + "/browse/" + IREnv.DEFAULT_WORKBENCH_ENV_ID + '/'; //$NON-NLS-1$
 	
 	String getREnvHttpUrl(IREnv rEnv, String target);
-	String getPackageHttpUrl(IRPackageHelp packageHelp, String target);
+	String getPackageHttpUrl(IRPkgHelp packageHelp, String target);
 	
 	String getPageHttpUrl(IRHelpPage page, String target);
 	String getPageHttpUrl(String packageName, String pageName,

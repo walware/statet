@@ -14,9 +14,7 @@ package de.walware.statet.r.internal.core.rhelp;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
@@ -25,42 +23,47 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.rj.renv.RNumVersion;
-
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.pkgmanager.IRPkgInfo;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.rhelp.IREnvHelp;
-import de.walware.statet.r.core.rhelp.IRPackageHelp;
+import de.walware.statet.r.core.rhelp.IRPkgHelp;
 import de.walware.statet.r.internal.core.RCorePlugin;
+import de.walware.statet.r.internal.core.rhelp.index.REnvIndexWriter;
 
 
 public class REnvIndexChecker {
 	
 	
-	private final IREnvConfiguration fREnvConfig;
+	private static boolean equalVersion(final IRPkgInfo pkg1, final IRPkgInfo pkg2) {
+		return (pkg2 != null
+				&& pkg1.getVersion().equals(pkg2.getVersion())
+				&& pkg1.getBuilt().equals(pkg2.getBuilt()) );
+	}
 	
-	private final Set<String> fCheckedNames = new HashSet<String>(64);
 	
-	private int fNewPkg;
-	private int fChangedPkg;
-	private int fNewChange = -1;
+	private final IREnvConfiguration rEnvConfig;
 	
-	private Map<String, String> fFoundCurrent = new HashMap<String, String>();
-	private Map<String, String> fFoundPrevious = new HashMap<String, String>();
+	private int newPkg;
+	private int changedPkg;
+	private int newChange= -1;
 	
-	private Directory fIndexDirectory;
+	private Map<String, IRPkgInfo> needUpdate= new HashMap<>();
+	private Map<String, IRPkgInfo> needUpdatePrevious= new HashMap<>();
 	
-	private IREnvHelp fREnvHelp;
-	private boolean fREnvHelpLock;
+	private Directory indexDirectory;
 	
-	private boolean fInPackageCheck;
+	private IREnvHelp rEnvHelp;
+	private boolean rEnvHelpLock;
+	
+	private boolean inPackageCheck;
 	
 	
 	public REnvIndexChecker(final IREnvConfiguration rEnvConfig) {
 		if (rEnvConfig == null) {
 			throw new NullPointerException("rEnvConfig"); //$NON-NLS-1$
 		}
-		fREnvConfig = rEnvConfig;
+		this.rEnvConfig = rEnvConfig;
 		
 		final File directory = SaveUtil.getIndexDirectory(rEnvConfig);
 		if (directory != null) {
@@ -76,7 +79,7 @@ public class REnvIndexChecker {
 				}
 				
 				// Lucene directory
-				fIndexDirectory = new SimpleFSDirectory(directory);
+				this.indexDirectory = new SimpleFSDirectory(directory);
 			}
 			catch (final IOException e) {
 				RCorePlugin.log(new Status(IStatus.INFO, RCore.PLUGIN_ID, -1,
@@ -107,22 +110,22 @@ public class REnvIndexChecker {
 	
 	
 	public boolean preCheck() {
-		fNewChange = (fNewChange < 0) ? 1 : 0;
+		this.newChange = (this.newChange < 0) ? 1 : 0;
 		
-		if (fREnvConfig == null || fIndexDirectory == null) {
+		if (this.rEnvConfig == null || this.indexDirectory == null) {
 			return false;
 		}
 		
-		final IREnvHelp envHelp = RCore.getRHelpManager().getHelp(fREnvConfig.getReference());
-		if ((envHelp != null) ? (fREnvHelp == null) : fREnvHelp != null) {
-			fNewChange = 1;
+		final IREnvHelp envHelp = RCore.getRHelpManager().getHelp(this.rEnvConfig.getReference());
+		if ((envHelp != null) ? (this.rEnvHelp == null) : this.rEnvHelp != null) {
+			this.newChange = 1;
 		}
-		fREnvHelp = envHelp;
-		fREnvHelpLock = (fREnvHelp != null);
+		this.rEnvHelp = envHelp;
+		this.rEnvHelpLock = (this.rEnvHelp != null);
 		
 		try {
-			if (!fREnvConfig.equals(fREnvConfig.getReference().getConfig())
-					|| IndexWriter.isLocked(fIndexDirectory) ) {
+			if (!this.rEnvConfig.equals(this.rEnvConfig.getReference().getConfig())
+					|| IndexWriter.isLocked(this.indexDirectory) ) {
 				finalCheck();
 				return false;
 			}
@@ -134,58 +137,52 @@ public class REnvIndexChecker {
 	}
 	
 	public void beginPackageCheck() {
-		fInPackageCheck = true;
+		this.inPackageCheck = true;
 		
-		final Map<String, String> tmp = fFoundCurrent;
-		fFoundCurrent = fFoundPrevious;
-		fFoundPrevious = tmp;
+		final Map<String, IRPkgInfo> tmp = this.needUpdate;
+		this.needUpdate = this.needUpdatePrevious;
+		this.needUpdatePrevious = tmp;
 		
-		fNewPkg = 0;
-		fChangedPkg = 0;
-		fNewChange = 0;
-		fCheckedNames.clear();
+		this.newPkg = 0;
+		this.changedPkg = 0;
+		this.newChange = 0;
 	}
 	
-	public void checkPackage(final String name, final RNumVersion version, final String built) {
-		if (name != null && !REnvIndexWriter.IGNORE_PKG_NAMES.contains(name)
-				&& fCheckedNames.add(name)) {
-			final String pkgVersion = version.toString();
-			final IRPackageHelp packageHelp = fREnvHelp.getRPackage(name);
-			if (packageHelp == null) {
-				fNewPkg++;
-				fFoundCurrent.put(name, pkgVersion);
-				if (fNewChange == 0 && !pkgVersion.equals(fFoundPrevious.get(name))) {
-					fNewChange = 1;
+	public void checkPackage(final IRPkgInfo pkgInfo) {
+		if (!REnvIndexWriter.IGNORE_PKG_NAMES.contains(pkgInfo.getName())) {
+			final IRPkgHelp pkgHelp= this.rEnvHelp.getRPackage(pkgInfo.getName());
+			if (pkgHelp == null) {
+				this.newPkg++;
+				this.needUpdate.put(pkgInfo.getName(), pkgInfo);
+				if (this.newChange == 0 && !equalVersion(pkgInfo, this.needUpdatePrevious.get(pkgInfo.getName()))) {
+					this.newChange= 1;
 				}
 			}
-			else if (!packageHelp.getVersion().equals(pkgVersion)) {
-				fChangedPkg++;
-				fFoundCurrent.put(name, pkgVersion);
-				if (fNewChange == 0 && !pkgVersion.equals(fFoundPrevious.get(name))) {
-					fNewChange = 1;
+			else if (!(pkgInfo.getVersion().toString().equals(pkgHelp.getVersion())
+					&& pkgInfo.getBuilt().equals(pkgHelp.getBuilt()) )) {
+				this.changedPkg++;
+				this.needUpdate.put(pkgInfo.getName(), pkgInfo);
+				if (this.newChange == 0 && !equalVersion(pkgInfo, this.needUpdatePrevious.get(pkgInfo.getName()))) {
+					this.newChange= 1;
 				}
 			}
 		}
-	}
-	
-	public Set<String> getCheckedPackages() {
-		return fCheckedNames;
 	}
 	
 	public void endPackageCheck() {
-		fInPackageCheck = false;
+		this.inPackageCheck = false;
 		
-		fFoundPrevious.clear();
+		this.needUpdatePrevious.clear();
 	}
 	
 	public void cancelCheck() {
-		if (fInPackageCheck) {
-			final Map<String, String> tmp = fFoundCurrent;
-			fFoundCurrent = fFoundPrevious;
-			fFoundPrevious = tmp;
+		if (this.inPackageCheck) {
+			final Map<String, IRPkgInfo> tmp = this.needUpdate;
+			this.needUpdate = this.needUpdatePrevious;
+			this.needUpdatePrevious = tmp;
 		}
 		
-		fFoundPrevious.clear();
+		this.needUpdatePrevious.clear();
 		unlock();
 	}
 	
@@ -194,31 +191,31 @@ public class REnvIndexChecker {
 	}
 	
 	private void unlock() {
-		if (fREnvHelpLock) {
-			fREnvHelpLock = false;
-			fREnvHelp.unlock();
+		if (this.rEnvHelpLock) {
+			this.rEnvHelpLock = false;
+			this.rEnvHelp.unlock();
 		}
 	}
 	
 	
 	public boolean hasNewChanges() {
-		return (fNewChange > 0);
+		return (this.newChange > 0);
 	}
 	
 	public boolean needsComplete() {
-		return (fREnvHelp == null);
+		return (this.rEnvHelp == null);
 	}
 	
 	public boolean hasPackageChanges() {
-		return (fNewPkg > 0 || fChangedPkg > 0);
+		return (this.newPkg > 0 || this.changedPkg > 0);
 	}
 	
 	public int getNewPackageCount() {
-		return fNewPkg;
+		return this.newPkg;
 	}
 	
 	public int getChangedPackageCount() {
-		return fChangedPkg;
+		return this.changedPkg;
 	}
 	
 }

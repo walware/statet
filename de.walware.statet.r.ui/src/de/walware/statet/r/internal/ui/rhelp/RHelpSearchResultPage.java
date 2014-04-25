@@ -69,12 +69,12 @@ import de.walware.ecommons.workbench.ui.DecoratingStyledLabelProvider;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rhelp.IRHelpSearchMatch;
 import de.walware.statet.r.core.rhelp.IRHelpSearchMatch.MatchFragment;
-import de.walware.statet.r.core.rhelp.IRPackageHelp;
+import de.walware.statet.r.core.rhelp.IRPkgHelp;
 import de.walware.statet.r.core.rhelp.RHelpSearchQuery;
 import de.walware.statet.r.ui.RUI;
 
 
-public class RHelpSearchResultPage extends ExtTextSearchResultPage<IRPackageHelp, RHelpSearchMatch> {
+public class RHelpSearchResultPage extends ExtTextSearchResultPage<IRPkgHelp, RHelpSearchMatch> {
 	
 	
 	private static final ViewerComparator ALPHA_SORTER= new ViewerComparator() {
@@ -156,7 +156,7 @@ public class RHelpSearchResultPage extends ExtTextSearchResultPage<IRPackageHelp
 	}
 	
 	
-	private static class TreeContentProvider extends TextSearchResultTreeContentProvider<IRPackageHelp, RHelpSearchMatch> {
+	private static class TreeContentProvider extends TextSearchResultTreeContentProvider<IRPkgHelp, RHelpSearchMatch> {
 		
 		
 		public TreeContentProvider(final RHelpSearchResultPage page, final TreeViewer viewer) {
@@ -166,7 +166,7 @@ public class RHelpSearchResultPage extends ExtTextSearchResultPage<IRPackageHelp
 		
 		@Override
 		public boolean hasChildren(final Object element) {
-			if (element instanceof IRPackageHelp) {
+			if (element instanceof IRPkgHelp) {
 				return true;
 			}
 			if (element instanceof RHelpSearchMatch) {
@@ -178,7 +178,7 @@ public class RHelpSearchResultPage extends ExtTextSearchResultPage<IRPackageHelp
 		
 		@Override
 		public Object[] getChildren(final Object parentElement) {
-			if (parentElement instanceof IRPackageHelp) {
+			if (parentElement instanceof IRPkgHelp) {
 				return super.getChildren(parentElement);
 			}
 			if (parentElement instanceof RHelpSearchMatch) {
@@ -343,15 +343,15 @@ public class RHelpSearchResultPage extends ExtTextSearchResultPage<IRPackageHelp
 	}
 	
 	@Override
-	protected TextSearchResultTreeContentProvider<IRPackageHelp, RHelpSearchMatch> createTreeContentProvider(
+	protected TextSearchResultTreeContentProvider<IRPkgHelp, RHelpSearchMatch> createTreeContentProvider(
 			final TreeViewer viewer) {
 		return new TreeContentProvider(this, viewer);
 	}
 	
 	@Override
-	protected TextSearchResultContentProvider<IRPackageHelp, RHelpSearchMatch, TableViewer> createTableContentProvider(
+	protected TextSearchResultContentProvider<IRPkgHelp, RHelpSearchMatch, TableViewer> createTableContentProvider(
 			final TableViewer viewer) {
-		return new TextSearchResultMatchTableContentProvider<IRPackageHelp, RHelpSearchMatch>(this, viewer);
+		return new TextSearchResultMatchTableContentProvider<IRPkgHelp, RHelpSearchMatch>(this, viewer);
 	}
 	
 	@Override
@@ -419,8 +419,8 @@ public class RHelpSearchResultPage extends ExtTextSearchResultPage<IRPackageHelp
 			if (element instanceof RHelpSearchMatch) {
 				openPage((RHelpSearchMatch) element, activate, newPage);
 			}
-			if (element instanceof IRPackageHelp) {
-				openPackage((IRPackageHelp) element, activate, newPage);
+			if (element instanceof IRPkgHelp) {
+				openPackage((IRPkgHelp) element, activate, newPage);
 			}
 		}
 		catch (final PartInitException e) {
@@ -445,7 +445,7 @@ public class RHelpSearchResultPage extends ExtTextSearchResultPage<IRPackageHelp
 		doOpen(url, activate, newPage);
 	}
 	
-	protected void openPackage(final IRPackageHelp packageHelp, final boolean activate, final boolean newPage)
+	protected void openPackage(final IRPkgHelp packageHelp, final boolean activate, final boolean newPage)
 			throws PartInitException {
 		final String url= RCore.getRHelpManager().getPackageHttpUrl(packageHelp,
 				RHelpUIServlet.BROWSE_TARGET);

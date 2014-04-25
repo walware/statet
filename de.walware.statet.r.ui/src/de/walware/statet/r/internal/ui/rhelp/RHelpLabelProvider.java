@@ -34,7 +34,7 @@ import de.walware.statet.r.core.rhelp.IRHelpKeyword;
 import de.walware.statet.r.core.rhelp.IRHelpPage;
 import de.walware.statet.r.core.rhelp.IRHelpSearchMatch;
 import de.walware.statet.r.core.rhelp.IRHelpSearchMatch.MatchFragment;
-import de.walware.statet.r.core.rhelp.IRPackageHelp;
+import de.walware.statet.r.core.rhelp.IRPkgHelp;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -138,7 +138,7 @@ public class RHelpLabelProvider extends StyledCellLabelProvider
 			}
 			return fPageImage;
 		}
-		else if (element instanceof IRPackageHelp) {
+		else if (element instanceof IRPkgHelp) {
 			if (fPackageImage == null || fPackageImage.isDisposed()) {
 				fPackageImage = RUI.getImage(RUI.IMG_OBJ_R_PACKAGE);
 			}
@@ -184,9 +184,9 @@ public class RHelpLabelProvider extends StyledCellLabelProvider
 			}
 			return sb.toString();
 		}
-		else if (element instanceof IRPackageHelp) {
+		else if (element instanceof IRPkgHelp) {
 			final StringBuilder sb = new StringBuilder(32);
-			final IRPackageHelp packageHelp = (IRPackageHelp) element;
+			final IRPkgHelp packageHelp = (IRPkgHelp) element;
 			if (fTooltip) {
 				sb.append(packageHelp.getName());
 				sb.append(" ["); //$NON-NLS-1$
@@ -219,7 +219,7 @@ public class RHelpLabelProvider extends StyledCellLabelProvider
 			final IRHelpKeyword.Group group = (IRHelpKeyword.Group) element;
 			return group.getLabel() + TITLE_SEP + group.getDescription();
 		}
-		else if (element instanceof IRPackageHelp) {
+		else if (element instanceof IRPkgHelp) {
 			final IRHelpKeyword keyword = (IRHelpKeyword) element;
 			return keyword.getKeyword() + TITLE_SEP + keyword.getDescription();
 		}
@@ -262,43 +262,43 @@ public class RHelpLabelProvider extends StyledCellLabelProvider
 		
 		if (element instanceof RHelpSearchMatch) {
 			final IRHelpSearchMatch match= ((RHelpSearchMatch) element).getRHelpMatch();
-		final IRHelpPage page = match.getPage();
-		text.append(page.getName(), fDefaultStyler);
-		if (fWithTitle && page.getTitle().length() > 0) {
-			text.append(TITLE_SEP, fDefaultStyler);
-			text.append(page.getTitle(), fDefaultStyler);
+			final IRHelpPage page = match.getPage();
+			text.append(page.getName(), fDefaultStyler);
+			if (fWithTitle && page.getTitle().length() > 0) {
+				text.append(TITLE_SEP, fDefaultStyler);
+				text.append(page.getTitle(), fDefaultStyler);
+			}
+			if (fWithQualifier) {
+				text.append(" - ", StyledString.QUALIFIER_STYLER); //$NON-NLS-1$
+				text.append(page.getPackage().getName(), StyledString.QUALIFIER_STYLER);
+			}
+			else if (match.getMatchesCount() > 0){
+				text.append(" (", StyledString.COUNTER_STYLER); //$NON-NLS-1$
+				text.append(Integer.toString(match.getMatchesCount()), StyledString.COUNTER_STYLER);
+				text.append(")", StyledString.COUNTER_STYLER); //$NON-NLS-1$
+			}
 		}
-		if (fWithQualifier) {
-			text.append(" - ", StyledString.QUALIFIER_STYLER); //$NON-NLS-1$
-			text.append(page.getPackage().getName(), StyledString.QUALIFIER_STYLER);
-		}
-		else if (match.getMatchesCount() > 0){
-			text.append(" (", StyledString.COUNTER_STYLER); //$NON-NLS-1$
-			text.append(Integer.toString(match.getMatchesCount()), StyledString.COUNTER_STYLER);
-			text.append(")", StyledString.COUNTER_STYLER); //$NON-NLS-1$
-		}
-	}
 		else if (element instanceof IRHelpPage) {
 			final IRHelpPage page= (IRHelpPage) element;
-		text.append(page.getName(), fDefaultStyler);
-		if (fWithTitle && page.getTitle().length() > 0) {
-			text.append(TITLE_SEP, fDefaultStyler);
-			text.append(page.getTitle(), fDefaultStyler);
+			text.append(page.getName(), fDefaultStyler);
+			if (fWithTitle && page.getTitle().length() > 0) {
+				text.append(TITLE_SEP, fDefaultStyler);
+				text.append(page.getTitle(), fDefaultStyler);
+			}
+			if (fWithQualifier) {
+				text.append(" - ", StyledString.QUALIFIER_STYLER); //$NON-NLS-1$
+				text.append(page.getPackage().getName(), StyledString.QUALIFIER_STYLER);
+			}
 		}
-		if (fWithQualifier) {
-			text.append(" - ", StyledString.QUALIFIER_STYLER); //$NON-NLS-1$
-			text.append(page.getPackage().getName(), StyledString.QUALIFIER_STYLER);
+		else if (element instanceof IRPkgHelp) {
+			final IRPkgHelp packageHelp= (IRPkgHelp) element;
+			text.append(packageHelp.getName(), fDefaultStyler);
+			if (packageHelp == fFocusObject && packageHelp.getTitle().length() > 0) {
+				text.append(TITLE_SEP, fDefaultStyler);
+				text.append(packageHelp.getTitle(), fDefaultStyler);
+			}
 		}
-	}
-		else if (element instanceof IRPackageHelp) {
-			final IRPackageHelp packageHelp= (IRPackageHelp) element;
-		text.append(packageHelp.getName(), fDefaultStyler);
-		if (packageHelp == fFocusObject && packageHelp.getTitle().length() > 0) {
-			text.append(TITLE_SEP, fDefaultStyler);
-			text.append(packageHelp.getTitle(), fDefaultStyler);
-		}
-	}
-	
+		
 		else if (element instanceof IRHelpKeyword.Group) {
 			final IRHelpKeyword.Group group = (IRHelpKeyword.Group) element;
 			text.append(group.getLabel());

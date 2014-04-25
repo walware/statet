@@ -17,16 +17,13 @@ import java.util.List;
 
 import de.walware.ecommons.collections.ConstArrayList;
 
-import de.walware.rj.renv.IRPackageDescription;
-
 import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.rhelp.IRHelpPage;
-import de.walware.statet.r.core.rhelp.IRPackageHelp;
-import de.walware.statet.r.internal.core.RCorePlugin;
+import de.walware.statet.r.core.rhelp.IRPkgHelp;
 
 
-public class RPackageHelp implements IRPackageHelp {
+public class RPkgHelp implements IRPkgHelp {
 	
 	
 	private final String name;
@@ -34,24 +31,29 @@ public class RPackageHelp implements IRPackageHelp {
 	private final String version;
 	
 	private final IREnv rEnv;
+	private final String built;
 	
 	private List<IRHelpPage> helpPages;
 	
 	
-	public RPackageHelp(final String name, final String title, final String version, final IREnv rEnv) {
-		this.rEnv= rEnv;
+	public RPkgHelp(final String name, final String title, final String version,
+			final IREnv rEnv, final String built) {
 		this.name= name;
 		this.title= title;
 		this.version= version;
-		this.helpPages= new ArrayList<IRHelpPage>();
+		this.rEnv= rEnv;
+		this.built= built;
+		this.helpPages= new ArrayList<>();
 	}
 	
-	public RPackageHelp(final String name, final String title, final String version, final IREnv rEnv,
+	public RPkgHelp(final String name, final String title, final String version,
+			final IREnv rEnv, final String built,
 			final ConstArrayList<IRHelpPage> pages) {
-		this.rEnv= rEnv;
 		this.name= name;
 		this.title= title;
 		this.version= version;
+		this.rEnv= rEnv;
+		this.built= built;
 		this.helpPages= pages;
 	}
 	
@@ -77,17 +79,8 @@ public class RPackageHelp implements IRPackageHelp {
 	}
 	
 	@Override
-	public IRPackageDescription getPackageDescription() {
-		final REnvHelp help= RCorePlugin.getDefault().getRHelpManager().getHelp(this.rEnv);
-		if (help != null) {
-			try {
-				return help.getPackageDescription(this);
-			}
-			finally {
-				help.unlock();
-			}
-		}
-		return null;
+	public String getBuilt() {
+		return this.built;
 	}
 	
 	@Override
@@ -114,7 +107,7 @@ public class RPackageHelp implements IRPackageHelp {
 	public void freeze() {
 		final IRHelpPage[] array= this.helpPages.toArray(new IRHelpPage[this.helpPages.size()]);
 		Arrays.sort(array);
-		this.helpPages= new ConstArrayList<IRHelpPage>(array);
+		this.helpPages= new ConstArrayList<>(array);
 	}
 	
 	
@@ -128,16 +121,16 @@ public class RPackageHelp implements IRPackageHelp {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof IRPackageHelp)) {
+		if (!(obj instanceof IRPkgHelp)) {
 			return false;
 		}
-		final IRPackageHelp other= (IRPackageHelp) obj;
+		final IRPkgHelp other= (IRPkgHelp) obj;
 		return (this.name.equals(other.getName()) 
 				&& this.rEnv.equals(other.getREnv()));
 	}
 	
 	@Override
-	public int compareTo(final IRPackageHelp o) {
+	public int compareTo(final IRPkgHelp o) {
 		return RSymbolComparator.R_NAMES_COLLATOR.compare(this.name, o.getName());
 	}
 	

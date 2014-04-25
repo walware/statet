@@ -16,13 +16,10 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.IStatus;
@@ -36,18 +33,18 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.rhelp.IRHelpKeyword;
 import de.walware.statet.r.core.rhelp.IRHelpPage;
-import de.walware.statet.r.core.rhelp.IRPackageHelp;
+import de.walware.statet.r.core.rhelp.IRPkgHelp;
 import de.walware.statet.r.internal.core.RCorePlugin;
-import de.walware.statet.r.internal.core.renv.REnvConfiguration;
 
 
 class SaveUtil {
 	
 	
-	private static final int VERSION = 6;
+	private static final int VERSION= 7;
 	
 	private static final String RHELP_SER_FILE = "rhelp.ser"; //$NON-NLS-1$
 	
+	/** Base (shared) */
 	public static File getIndexDirectory(final IREnvConfiguration rEnvConfig) {
 		try {
 			final IFileStore indexDirectory = rEnvConfig.getIndexDirectoryStore();
@@ -56,28 +53,6 @@ class SaveUtil {
 		catch (final Exception e) {
 			return null;
 		}
-	}
-	
-	public static File[] getIndexResources(final String rEnvId) {
-		final File directory = REnvConfiguration.getIndexRootDirectory();
-		return directory.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(final File dir, final String name) {
-				return name.startsWith(rEnvId);
-			}
-		});
-	}
-	
-	public static Set<String> getExistingRHelpEnvId() {
-		final File directory = REnvConfiguration.getIndexRootDirectory();
-		final Set<String> ids = new HashSet<String>();
-		final File[] list = directory.listFiles();
-		for (final File res : list) {
-			if (res.isDirectory()) {
-				ids.add(res.getName());
-			}
-		}
-		return ids;
 	}
 	
 	
@@ -197,7 +172,7 @@ class SaveUtil {
 				saveKeywordGroup(keywordGroups.get(i), fio);
 			}
 		}
-		{	final List<IRPackageHelp> packages = help.getRPackages();
+		{	final List<IRPkgHelp> packages = help.getRPackages();
 			final int count = packages.size();
 			fio.out.writeInt(count);
 			for (int i = 0; i < packages.size(); i++) {
@@ -221,16 +196,16 @@ class SaveUtil {
 				keywordGroups[i] = loadKeywordGroup(fio);
 			}
 		}
-		IRPackageHelp[] packageHelps;
+		IRPkgHelp[] pkgHelps;
 		{	final int count = fio.in.readInt();
-			packageHelps = new IRPackageHelp[count];
+			pkgHelps = new IRPkgHelp[count];
 			for (int i = 0; i < count; i++) {
-				packageHelps[i] = loadPackage(rEnvConfig, fio);
+				pkgHelps[i] = loadPackage(rEnvConfig, fio);
 			}
 		}
 		return new REnvHelp(rEnvConfig.getReference(), docDir,
-				new ConstArrayList<IRHelpKeyword.Group>(keywordGroups),
-				new ConstArrayList<IRPackageHelp>(packageHelps) );
+				new ConstArrayList<>(keywordGroups),
+				new ConstArrayList<>(pkgHelps) );
 	}
 	
 	private void saveKeywordGroup(final IRHelpKeyword.Group group, final FIO fio)
@@ -254,7 +229,7 @@ class SaveUtil {
 			keywords[i] = loadKeyword(fio);
 		}
 		return new RHelpKeywordGroup(label, description,
-				new ConstArrayList<IRHelpKeyword>(keywords) );
+				new ConstArrayList<>(keywords) );
 	}
 	
 	private void saveKeyword(final IRHelpKeyword keyword, final FIO fio)
@@ -279,15 +254,16 @@ class SaveUtil {
 			nestedKeywords[i] = loadKeyword(fio);
 		}
 		return new RHelpKeyword(keyword, description,
-				new ConstArrayList<IRHelpKeyword>(nestedKeywords) );
+				new ConstArrayList<>(nestedKeywords) );
 	}
 	
-	private void savePackage(final IRPackageHelp packageHelp, final FIO fio)
+	private void savePackage(final IRPkgHelp pkgHelp, final FIO fio)
 			throws IOException {
-		fio.writeString(packageHelp.getName());
-		fio.writeString(packageHelp.getTitle());
-		fio.writeString(packageHelp.getVersion());
-		final List<IRHelpPage> pages = packageHelp.getHelpPages();
+		fio.writeString(pkgHelp.getName());
+		fio.writeString(pkgHelp.getTitle());
+		fio.writeString(pkgHelp.getVersion());
+		fio.writeString(pkgHelp.getBuilt());
+		final List<IRHelpPage> pages = pkgHelp.getHelpPages();
 		final int count = pages.size();
 		fio.out.writeInt(count);
 		for (int i = 0; i < count; i++) {
@@ -295,16 +271,18 @@ class SaveUtil {
 		}
 	}
 	
-	private IRPackageHelp loadPackage(final IREnvConfiguration rEnvConfig, final FIO fio)
+	private IRPkgHelp loadPackage(final IREnvConfiguration rEnvConfig, final FIO fio)
 			throws IOException {
-		final String name = fio.readString();
-		final String title = fio.readString();
-		final String version = fio.readString();
+		final String name= fio.readString();
+		final String title= fio.readString();
+		final String version= fio.readString();
+		final String built= fio.readString();
 		
-		final int count = fio.in.readInt();
-		final IRHelpPage[] pages = new IRHelpPage[count];
-		final RPackageHelp pkg = new RPackageHelp(name, title, version, rEnvConfig.getReference(),
-				new ConstArrayList<IRHelpPage>(pages));
+		final int count= fio.in.readInt();
+		final IRHelpPage[] pages= new IRHelpPage[count];
+		final RPkgHelp pkg= new RPkgHelp(name, title, version,
+				rEnvConfig.getReference(), built,
+				new ConstArrayList<>(pages) );
 		for (int i = 0; i < count; i++) {
 			pages[i] = loadPage(pkg, fio);
 		}
@@ -317,41 +295,11 @@ class SaveUtil {
 		fio.writeString(page.getTitle());
 	}
 	
-	private IRHelpPage loadPage(final IRPackageHelp pkg, final FIO fio)
+	private IRHelpPage loadPage(final IRPkgHelp pkg, final FIO fio)
 			throws IOException {
 		final String name = fio.readString();
 		final String title = fio.readString();
 		return new RHelpPage(pkg, name, title);
-	}
-	
-	public void delete(final String rEnvId) {
-		final File[] list = getIndexResources(rEnvId);
-		final boolean ok = delete(list);
-		if (!ok) {
-			RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1,
-					NLS.bind("No all R help data files could be deleted for ''{0}''.", rEnvId), null));
-		}
-	}
-	
-	private boolean delete(final File[] resources) {
-		boolean ok = true;
-		for (int i = 0; i < resources.length; i++) {
-			if (resources[i].isDirectory()) {
-				final File[] files = resources[i].listFiles();
-				if (files.length > 0) {
-					if (delete(files) && resources[i].delete()) {
-						continue;
-					}
-					ok = false;
-					continue;
-				}
-			}
-			if (resources[i].delete()) {
-				continue;
-			}
-			ok = false;
-		}
-		return ok;
 	}
 	
 }

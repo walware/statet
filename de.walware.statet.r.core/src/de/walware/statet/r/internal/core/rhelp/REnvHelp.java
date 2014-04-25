@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.Status;
 
 import de.walware.ecommons.collections.ConstList;
 
-import de.walware.rj.renv.IRPackageDescription;
+import de.walware.rj.renv.IRPkgDescription;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnv;
@@ -31,9 +31,10 @@ import de.walware.statet.r.core.rhelp.IRHelpKeyword;
 import de.walware.statet.r.core.rhelp.IRHelpKeyword.Group;
 import de.walware.statet.r.core.rhelp.IRHelpPage;
 import de.walware.statet.r.core.rhelp.IRHelpSearchRequestor;
-import de.walware.statet.r.core.rhelp.IRPackageHelp;
+import de.walware.statet.r.core.rhelp.IRPkgHelp;
 import de.walware.statet.r.core.rhelp.RHelpSearchQuery;
 import de.walware.statet.r.internal.core.RCorePlugin;
+import de.walware.statet.r.internal.core.rhelp.index.REnvIndexReader;
 
 
 public class REnvHelp implements IREnvHelp {
@@ -45,8 +46,8 @@ public class REnvHelp implements IREnvHelp {
 	
 	private final List<IRHelpKeyword.Group> fKeywords;
 	
-	private final List<IRPackageHelp> fPackages;
-	private volatile Map<String, IRPackageHelp> fPackageMap;
+	private final List<IRPkgHelp> fPackages;
+	private volatile Map<String, IRPkgHelp> fPackageMap;
 	private volatile REnvIndexReader fIndexReader;
 	
 	private boolean fDisposed;
@@ -55,7 +56,7 @@ public class REnvHelp implements IREnvHelp {
 	
 	
 	public REnvHelp(final IREnv rEnv, final String docDir,
-			final ConstList<Group> keywords, final ConstList<IRPackageHelp> packages) {
+			final ConstList<Group> keywords, final ConstList<IRPkgHelp> packages) {
 		fREnv = rEnv;
 		fDocDir = docDir;
 		fKeywords = keywords;
@@ -89,17 +90,17 @@ public class REnvHelp implements IREnvHelp {
 	}
 	
 	@Override
-	public List<IRPackageHelp> getRPackages() {
+	public List<IRPkgHelp> getRPackages() {
 		return fPackages;
 	}
 	
 	@Override
-	public IRPackageHelp getRPackage(final String packageName) {
+	public IRPkgHelp getRPackage(final String packageName) {
 		return getPackageMap().get(packageName);
 	}
 	
-	private Map<String, IRPackageHelp> getPackageMap() {
-		Map<String, IRPackageHelp> map = fPackageMap;
+	private Map<String, IRPkgHelp> getPackageMap() {
+		Map<String, IRPkgHelp> map = fPackageMap;
 		if (map == null) {
 			if (fDisposed) {
 				throw new IllegalStateException("This help index is no longer valid.");
@@ -107,9 +108,9 @@ public class REnvHelp implements IREnvHelp {
 			synchronized (this) {
 				map = fPackageMap;
 				if (map == null) {
-					map = new HashMap<String, IRPackageHelp>(fPackages.size());
-					for (final IRPackageHelp packageHelp : fPackages) {
-						map.put(packageHelp.getName(), packageHelp);
+					map = new HashMap<>(fPackages.size());
+					for (final IRPkgHelp pkgHelp : fPackages) {
+						map.put(pkgHelp.getName(), pkgHelp);
 					}
 					fPackageMap = map;
 				}
@@ -148,24 +149,20 @@ public class REnvHelp implements IREnvHelp {
 	
 	@Override
 	public IRHelpPage getPage(final String packageName, final String name) {
-		final IRPackageHelp packageHelp = getPackageMap().get(packageName);
-		if (packageHelp != null) {
-			return packageHelp.getHelpPage(name);
+		final IRPkgHelp pkgHelp = getPackageMap().get(packageName);
+		if (pkgHelp != null) {
+			return pkgHelp.getHelpPage(name);
 		}
 		return null;
 	}
 	
 	@Override
 	public IRHelpPage getPageForTopic(final String packageName, final String topic) {
-		final IRPackageHelp packageHelp = getPackageMap().get(packageName);
-		if (packageHelp != null) {
-			return getIndex().getPageForTopic(packageHelp, topic);
+		final IRPkgHelp pkgHelp = getPackageMap().get(packageName);
+		if (pkgHelp != null) {
+			return getIndex().getPageForTopic(pkgHelp, topic);
 		}
 		return null;
-	}
-	
-	public IRHelpPage getPageForTopic(final IRPackageHelp packageHelp, final String topic) {
-		return getIndex().getPageForTopic(packageHelp, topic);
 	}
 	
 	@Override
@@ -195,13 +192,17 @@ public class REnvHelp implements IREnvHelp {
 	}
 	
 	
-	public List<RHelpTopicEntry> getPackageTopics(final IRPackageHelp packageHelp) {
-		return getIndex().getPackageTopics(packageHelp);
+	public List<RHelpTopicEntry> getPkgTopics(final IRPkgHelp pkgHelp) {
+		return getIndex().getPackageTopics(pkgHelp);
 	}
 	
-	public IRPackageDescription getPackageDescription(final IRPackageHelp packageHelp) {
-		return getIndex().getPackageDescription(packageHelp.getName(),
-				packageHelp.getTitle(), packageHelp.getVersion() );
+	@Override
+	public IRPkgDescription getPkgDescription(final String pkgName) {
+		final IRPkgHelp pkgHelp= getPackageMap().get(pkgName);
+		if (pkgHelp != null) {
+			return getIndex().getPkgDescription(pkgHelp);
+		}
+		return null;
 	}
 	
 	public String getDocDir() {

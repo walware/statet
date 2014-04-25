@@ -13,12 +13,10 @@ package de.walware.statet.r.core.rhelp;
 
 import java.util.List;
 
-import de.walware.rj.renv.IRPackageDescription;
-
 import de.walware.statet.r.core.renv.IREnv;
 
 
-public interface IRPackageHelp extends Comparable<IRPackageHelp> {
+public interface IRPkgHelp extends Comparable<IRPkgHelp> {
 	
 	
 	String getName();
@@ -26,8 +24,7 @@ public interface IRPackageHelp extends Comparable<IRPackageHelp> {
 	String getVersion();
 	
 	IREnv getREnv();
-	
-	IRPackageDescription getPackageDescription();
+	String getBuilt();
 	
 	List<IRHelpPage> getHelpPages();
 	

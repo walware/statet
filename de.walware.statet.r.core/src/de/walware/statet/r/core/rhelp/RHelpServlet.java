@@ -31,7 +31,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.rj.renv.IRPackageDescription;
+import de.walware.rj.renv.IRPkgDescription;
 
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
@@ -267,11 +267,11 @@ public abstract class RHelpServlet extends HttpServlet {
 	private void processPackageIndex(final HttpServletRequest req, final HttpServletResponse resp,
 			final String packageName) throws IOException {
 		final REnvHelp help = (REnvHelp) req.getAttribute(ATTR_RENV_HELP);
-		final IRPackageHelp packageHelp = help.getRPackage(packageName);
-		if (packageHelp != null) {
-			final List<RHelpTopicEntry> packageTopics = help.getPackageTopics(packageHelp);
-			if (packageTopics != null) {
-				printPackageIndex(req, resp, packageHelp, packageTopics);
+		final IRPkgHelp pkgHelp = help.getRPackage(packageName);
+		if (pkgHelp != null) {
+			final List<RHelpTopicEntry> topics = help.getPkgTopics(pkgHelp);
+			if (topics != null) {
+				printPackageIndex(req, resp, pkgHelp, topics);
 				return;
 			}
 		}
@@ -511,16 +511,17 @@ public abstract class RHelpServlet extends HttpServlet {
 	}
 	
 	private void printPackageIndex(final HttpServletRequest req, final HttpServletResponse resp,
-			final IRPackageHelp packageHelp, final List<RHelpTopicEntry> packageTopics) throws IOException {
-		final IRPackageDescription packageDescription = packageHelp.getPackageDescription();
+			final IRPkgHelp pkgHelp, final List<RHelpTopicEntry> packageTopics) throws IOException {
+		final IREnvHelp help= (IREnvHelp) req.getAttribute(ATTR_RENV_HELP);
+		final IRPkgDescription pkgDescription= help.getPkgDescription(pkgHelp.getName());
 		final PrintWriter writer = createHtmlDoc(req, resp,
-				NLS.bind("Package {0} - {1}", '\''+packageHelp.getName()+'\'', packageHelp.getTitle()) );
+				NLS.bind("Package {0} - {1}", '\''+pkgHelp.getName()+'\'', pkgHelp.getTitle()) );
 		customizeIndexHtmlHeader(req, writer);
 		writer.println("</head><body>"); //$NON-NLS-1$
 		writer.write("<table class=\"header\"><tr><td>"); //$NON-NLS-1$
-		writer.write(packageHelp.getName());
+		writer.write(pkgHelp.getName());
 		writer.write(" ["); //$NON-NLS-1$
-		writer.write(packageHelp.getVersion());
+		writer.write(pkgHelp.getVersion());
 		writer.write("]"); //$NON-NLS-1$
 		writer.println("</td></tr></table>"); //$NON-NLS-1$
 		
@@ -554,22 +555,22 @@ public abstract class RHelpServlet extends HttpServlet {
 			writer.print((char) i);
 		}
 		writer.println("</pre></li>"); //$NON-NLS-1$
-		if (packageDescription != null) {
-			if (packageDescription.getAuthor() != null && packageDescription.getAuthor().length() > 0) {
+		if (pkgDescription != null) {
+			if (pkgDescription.getAuthor() != null && pkgDescription.getAuthor().length() > 0) {
 				writer.println("<li><a href=\"#authors\">Author(s)</a></li>"); //$NON-NLS-1$
 			}
-			if (packageDescription.getMaintainer() != null && packageDescription.getMaintainer().length() > 0) {
+			if (pkgDescription.getMaintainer() != null && pkgDescription.getMaintainer().length() > 0) {
 				writer.println("<li><a href=\"#maintainer\">Maintainer</a></li>"); //$NON-NLS-1$
 			}
 		}
 		writer.println("</ul></div>"); //$NON-NLS-1$
 		
 		writer.write("<h2>"); //$NON-NLS-1$
-		printSaveHtml(writer, packageHelp.getTitle());
+		printSaveHtml(writer, pkgHelp.getTitle());
 		writer.write("</h2>"); //$NON-NLS-1$
 		
-		if (packageDescription != null) {
-			final String description = packageDescription.getDescription();
+		if (pkgDescription != null) {
+			final String description = pkgDescription.getDescription();
 			if (description.length() > 0) {
 				writer.write("<h3 id=\"description\">Description</h3>"); //$NON-NLS-1$
 				writer.write("<p>"); //$NON-NLS-1$
@@ -583,8 +584,8 @@ public abstract class RHelpServlet extends HttpServlet {
 		
 		writer.write("<h3 id=\"topics\">Help Topics</h3>"); //$NON-NLS-1$
 		writer.write("<table>"); //$NON-NLS-1$
-		final String basePath = req.getContextPath() + req.getServletPath() + '/' + packageHelp.getREnv().getId() +
-				'/' + RHelpWebapp.CAT_LIBRARY + '/' + packageHelp.getName() + '/' + RHelpWebapp.COMMAND_HTML_PAGE + '/';
+		final String basePath = req.getContextPath() + req.getServletPath() + '/' + pkgHelp.getREnv().getId() +
+				'/' + RHelpWebapp.CAT_LIBRARY + '/' + pkgHelp.getName() + '/' + RHelpWebapp.COMMAND_HTML_PAGE + '/';
 		int lastChar = 0;
 		for (final RHelpTopicEntry topic : packageTopics) {
 			final IRHelpPage page = topic.getPage();
@@ -607,7 +608,7 @@ public abstract class RHelpServlet extends HttpServlet {
 			writer.write(" title=\""); //$NON-NLS-1$
 			writer.write(page.getName());
 			writer.write(" {"); //$NON-NLS-1$
-			writer.write(packageHelp.getName());
+			writer.write(pkgHelp.getName());
 			writer.write("}\n"); //$NON-NLS-1$
 			printSaveHtml(writer, page.getTitle());
 			writer.write("\"><code>"); //$NON-NLS-1$
@@ -619,25 +620,25 @@ public abstract class RHelpServlet extends HttpServlet {
 		}
 		writer.write("</table>"); //$NON-NLS-1$
 		
-		if (packageDescription != null) {
-			if (packageDescription.getAuthor() != null && packageDescription.getAuthor().length() > 0) {
+		if (pkgDescription != null) {
+			if (pkgDescription.getAuthor() != null && pkgDescription.getAuthor().length() > 0) {
 				writer.write("<h3 id=\"authors\">Author(s)</h3>"); //$NON-NLS-1$
 				writer.write("<p>"); //$NON-NLS-1$
-				printSaveHtml(writer, packageDescription.getAuthor());
+				printSaveHtml(writer, pkgDescription.getAuthor());
 				writer.write("</p>"); //$NON-NLS-1$
 			}
-			if (packageDescription.getMaintainer() != null && packageDescription.getMaintainer().length() > 0) {
+			if (pkgDescription.getMaintainer() != null && pkgDescription.getMaintainer().length() > 0) {
 				writer.write("<h3 id=\"maintainer\">Maintainer</h3>"); //$NON-NLS-1$
 				writer.write("<p>"); //$NON-NLS-1$
-				printSaveHtml(writer, packageDescription.getMaintainer());
+				printSaveHtml(writer, pkgDescription.getMaintainer());
 				writer.write("</p>"); //$NON-NLS-1$
 			}
-			if (packageDescription.getUrl() != null && packageDescription.getUrl().length() > 0) {
+			if (pkgDescription.getUrl() != null && pkgDescription.getUrl().length() > 0) {
 				writer.write("<h3 id=\"url\">URL</h3>"); //$NON-NLS-1$
 				writer.write("<p><a href=\""); //$NON-NLS-1$
-				printSaveHtml(writer, packageDescription.getUrl());
+				printSaveHtml(writer, pkgDescription.getUrl());
 				writer.write("\"><code>"); //$NON-NLS-1$
-				printSaveHtml(writer, packageDescription.getUrl());
+				printSaveHtml(writer, pkgDescription.getUrl());
 				writer.write("</code></a></p>"); //$NON-NLS-1$
 			}
 		}
@@ -649,7 +650,7 @@ public abstract class RHelpServlet extends HttpServlet {
 		final REnvHelp envHelp = (REnvHelp) req.getAttribute(ATTR_RENV_HELP);
 		final IREnv rEnv = envHelp.getREnv();
 		final IFileStore docDirectory = getDocDirectory(envHelp);
-		final List<IRPackageHelp> packages = envHelp.getRPackages();
+		final List<IRPkgHelp> packages = envHelp.getRPackages();
 		final PrintWriter writer = createHtmlDoc(req, resp,
 				NLS.bind("R Environment {0}", '\''+rEnv.getName()+'\'') );
 		final String baseDocPath = req.getContextPath() + req.getServletPath() + '/'+rEnv.getId() +
@@ -733,8 +734,8 @@ public abstract class RHelpServlet extends HttpServlet {
 		writer.write("<h3 id=\"packages\">Packages</h3>"); //$NON-NLS-1$
 		writer.write("<table>"); //$NON-NLS-1$
 		char lastChar = 0;
-		for (final IRPackageHelp packageHelp : packages) {
-			final String name = packageHelp.getName();
+		for (final IRPkgHelp pkgHelp : packages) {
+			final String name = pkgHelp.getName();
 			writer.write("<tr><td>"); //$NON-NLS-1$
 			writer.write("<a href=\""); //$NON-NLS-1$
 			writer.write(baseLibPath);
@@ -742,7 +743,7 @@ public abstract class RHelpServlet extends HttpServlet {
 			writer.write("/\" title=\""); //$NON-NLS-1$
 			writer.write(name);
 			writer.write(" ["); //$NON-NLS-1$
-			printSaveHtml(writer, packageHelp.getVersion());
+			printSaveHtml(writer, pkgHelp.getVersion());
 			writer.print(']');
 			writer.print('"');
 			if (name.length() > 0) {
@@ -755,10 +756,10 @@ public abstract class RHelpServlet extends HttpServlet {
 				}
 			}
 			writer.write("><code>"); //$NON-NLS-1$
-			writer.write(packageHelp.getName());
+			writer.write(pkgHelp.getName());
 			writer.write("</code></a>"); //$NON-NLS-1$
 			writer.write("</td><td>"); //$NON-NLS-1$
-			printSaveHtml(writer, packageHelp.getTitle());
+			printSaveHtml(writer, pkgHelp.getTitle());
 			writer.write("</td></tr>"); //$NON-NLS-1$
 		}
 		writer.write("</table>"); //$NON-NLS-1$
@@ -809,7 +810,7 @@ public abstract class RHelpServlet extends HttpServlet {
 		return sb.toString();
 	}
 	
-	private String getRelativeIndexUrl(final IRPackageHelp pkg) {
+	private String getRelativeIndexUrl(final IRPkgHelp pkg) {
 		final StringBuilder sb = new StringBuilder(25);
 		sb.append("../../"); //$NON-NLS-1$
 		sb.append(pkg.getName());

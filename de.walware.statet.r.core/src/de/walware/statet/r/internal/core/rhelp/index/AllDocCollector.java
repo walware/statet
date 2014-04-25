@@ -9,13 +9,13 @@
  #     Stephan Wahlbrink - initial API and implementation
  #=============================================================================*/
 
-package de.walware.statet.r.internal.core.rhelp;
+package de.walware.statet.r.internal.core.rhelp.index;
 
 import java.io.IOException;
 
 import org.apache.commons.collections.primitives.ArrayIntList;
 import org.apache.commons.collections.primitives.IntList;
-import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.Scorer;
 
@@ -23,11 +23,11 @@ import org.apache.lucene.search.Scorer;
 public class AllDocCollector extends Collector {
 	
 	
-	private Scorer fScorer;
+	private Scorer scorer;
 	
-	private final ArrayIntList fDocs = new ArrayIntList();
+	private final ArrayIntList docs= new ArrayIntList();
 	
-	private int fDocBase;
+	private int docBase;
 	
 	
 	public AllDocCollector() {
@@ -36,7 +36,7 @@ public class AllDocCollector extends Collector {
 	
 	@Override
 	public void setScorer(final Scorer scorer) throws IOException {
-		fScorer = scorer;
+		this.scorer= scorer;
 	}
 	
 	@Override
@@ -45,20 +45,20 @@ public class AllDocCollector extends Collector {
 	}
 	
 	@Override
-	public void setNextReader(final IndexReader reader, final int docBase) throws IOException {
-		fDocBase = docBase;
+	public void setNextReader(final AtomicReaderContext context) throws IOException {
+		this.docBase= context.docBase;
 	}
 	
 	@Override
 	public void collect(final int doc) throws IOException {
-		if (fScorer.score() > 0.0f) {
-			fDocs.add(fDocBase + doc);
+		if (this.scorer.score() > 0.0f) {
+			this.docs.add(this.docBase + doc);
 		}
 	}
 	
 	
 	public IntList getDocs() {
-		return fDocs;
+		return this.docs;
 	}
 	
 }

@@ -49,8 +49,9 @@ import de.walware.statet.nico.ui.util.ToolMessageDialog;
 
 import de.walware.statet.r.console.core.AbstractRDataRunnable;
 import de.walware.statet.r.console.core.IRDataAdapter;
-import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RConsoleTool;
+import de.walware.statet.r.console.core.RProcess;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.pkgmanager.IRPkgChangeSet;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager.Event;
@@ -105,10 +106,13 @@ public class REnvIndexAutoUpdater {
 				rEnvConfig = rEnvConfig.getReference().getConfig();
 				if (rEnvConfig != null) {
 					final String remoteAddress = r.getWorkspaceData().getRemoteAddress();
-					final Map<String, String> properties = new HashMap<String, String>();
+					final Map<String, String> properties = new HashMap<>();
 					if (remoteAddress != null) {
 						properties.put("renv.hostname", remoteAddress); //$NON-NLS-1$
 					}
+					
+					final IRPkgManager rPkgManager= RCore.getRPkgManager(rEnvConfig.getReference());
+					rPkgManager.check(IRPkgManager.NONE, r, monitor);
 					
 					r.handleStatus(new Status(IStatus.INFO, RConsoleUIPlugin.PLUGIN_ID, -1,
 							RConsoleMessages.REnvIndex_Update_Started_message, null ), monitor);

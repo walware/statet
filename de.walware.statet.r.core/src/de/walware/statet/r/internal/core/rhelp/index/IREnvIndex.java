@@ -9,11 +9,11 @@
  #     Stephan Wahlbrink - initial API and implementation
  #=============================================================================*/
 
-package de.walware.statet.r.internal.core.rhelp;
+package de.walware.statet.r.internal.core.rhelp.index;
 
-import org.apache.lucene.analysis.Analyzer;
-
-import de.walware.statet.r.internal.core.rhelp.analyzer.StandardAnalyzer;
+import org.apache.lucene.search.similarities.BM25Similarity;
+import org.apache.lucene.search.similarities.Similarity;
+import org.apache.lucene.util.Version;
 
 
 public interface IREnvIndex {
@@ -21,91 +21,86 @@ public interface IREnvIndex {
 	/**
 	 * Lucene field name for exact doc type.
 	 */
-	String DOCTYPE_FIELD_NAME = "doctype"; //$NON-NLS-1$
+	String DOCTYPE_FIELD_NAME= "doctype"; //$NON-NLS-1$
 	
 	/**
 	 * Lucene field name for exact package name.
 	 */
-	String PACKAGE_FIELD_NAME = "pkg"; //$NON-NLS-1$
+	String PACKAGE_FIELD_NAME= "pkg"; //$NON-NLS-1$
 	
 	/**
 	 * Lucene field name for exact page name.
 	 */
-	String PAGE_FIELD_NAME = "page"; //$NON-NLS-1$
+	String PAGE_FIELD_NAME= "page"; //$NON-NLS-1$
 	
 	/**
 	 * Lucene field name for exact page alias.
 	 */
-	String ALIAS_FIELD_NAME = "alias"; //$NON-NLS-1$
+	String ALIAS_FIELD_NAME= "alias"; //$NON-NLS-1$
 	
 	/**
 	 * Lucene field name for analyzed page alias.
 	 */
-	String ALIAS_TXT_FIELD_NAME = "alias.txt"; //$NON-NLS-1$
+	String ALIAS_TXT_FIELD_NAME= "alias.txt"; //$NON-NLS-1$
 	
 	/**
 	 * Lucene field name for analyzed page title.
 	 */
-	String TITLE_TXT_FIELD_NAME = "title.txt"; //$NON-NLS-1$
+	String TITLE_TXT_FIELD_NAME= "title.txt"; //$NON-NLS-1$
 	
 	/**
 	 * Lucene field name for exact help keyword.
 	 */
-	String KEYWORD_FIELD_NAME = "keyword"; //$NON-NLS-1$
+	String KEYWORD_FIELD_NAME= "keyword"; //$NON-NLS-1$
 	
 	/**
 	 * Lucene field name for analyzed help concept.
 	 */
-	String CONCEPT_TXT_FIELD_NAME = "concept.txt"; //$NON-NLS-1$
+	String CONCEPT_TXT_FIELD_NAME= "concept.txt"; //$NON-NLS-1$
 	
 	/**
 	 * Lucene field name for analyzed page text.
 	 */
-	String DOC_TXT_FIELD_NAME = "doc.txt"; //$NON-NLS-1$
+	String DOC_TXT_FIELD_NAME= "doc.txt"; //$NON-NLS-1$
 	
 	/**
 	 * Lucene field name for analyzed page text.
 	 */
-	String DOC_HTML_FIELD_NAME = "doc.html"; //$NON-NLS-1$
-	
-	/**
-	 * Lucene field name for exact package priority.
-	 */
-	String PKG_PRIORITY_FIELD_NAME = "priority"; //$NON-NLS-1$ 
+	String DOC_HTML_FIELD_NAME= "doc.html"; //$NON-NLS-1$
 	
 	/**
 	 * Lucene field name for analyzed description.
 	 */
-	String DESCRIPTION_TXT_FIELD_NAME = "descr.txt"; //$NON-NLS-1$ 
+	String DESCRIPTION_TXT_FIELD_NAME= "descr.txt"; //$NON-NLS-1$ 
 	
 	/**
 	 * Lucene field name for analyzed authors.
 	 */
-	String AUTHORS_TXT_FIELD_NAME = "authors.txt"; //$NON-NLS-1$ 
+	String AUTHORS_TXT_FIELD_NAME= "authors.txt"; //$NON-NLS-1$ 
 	
 	/**
 	 * Lucene field name for analyzed package maintainer.
 	 */
-	String MAINTAINER_TXT_FIELD_NAME = "maintainer.txt"; //$NON-NLS-1$
+	String MAINTAINER_TXT_FIELD_NAME= "maintainer.txt"; //$NON-NLS-1$
 	
 	/**
 	 * Lucene field name for analyzed package maintainer.
 	 */
-	String URL_TXT_FIELD_NAME = "url.txt"; //$NON-NLS-1$
+	String URL_TXT_FIELD_NAME= "url.txt"; //$NON-NLS-1$
 	
 	/**
 	 * Lucene field name for analyzed authors.
 	 */
-	String EXAMPLES_TXT_FIELD_NAME = "examples.txt"; //$NON-NLS-1$ 
+	String EXAMPLES_TXT_FIELD_NAME= "examples.txt"; //$NON-NLS-1$ 
 	
 	
-	String PACKAGE_DOC_TYPE = "pkgdescr"; //$NON-NLS-1$
+	int PKG_DESCRIPTION_DOCTYPE=                            00_10;
 	
-	String PAGE_DOC_TYPE = "helppage"; //$NON-NLS-1$
+	int PAGE_DOCTYPE=                                       00_14;
 	
 	
-	Analyzer WRITE_ANALYZER = new StandardAnalyzer(true);
+	Version LUCENE_VERSION= Version.LUCENE_47;
 	
-	Analyzer READ_ANALYZER = new StandardAnalyzer(false);
+	Similarity SIMILARITY= new BM25Similarity();
 	
 }

@@ -22,7 +22,6 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.pkgmanager.IRPkgCollection;
 import de.walware.statet.r.core.pkgmanager.IRPkgInfo;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
-import de.walware.statet.r.core.pkgmanager.IRPkgSet;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.core.rhelp.REnvIndexChecker;
 
@@ -30,56 +29,55 @@ import de.walware.statet.r.internal.core.rhelp.REnvIndexChecker;
 public class RJREnvIndexChecker {
 	
 	
-	public static final int NOT_AVAILABLE = -1;
+	public static final int NOT_AVAILABLE= -1;
 	/** the index is up-to-date */
-	public static final int UP_TO_DATE = 0;
+	public static final int UP_TO_DATE= 0;
 	/** complete index is missing */
-	public static final int COMPLETE = 1;
+	public static final int COMPLETE= 1;
 	/** new or changed packages found in R */
-	public static final int PACKAGES = 2;
+	public static final int PACKAGES= 2;
 	
 	
-	private final IREnvConfiguration fREnvConfig;
-	private final REnvIndexChecker fIndex;
+	private final IREnvConfiguration rEnvConfig;
+	private final REnvIndexChecker index;
 	
 	
 	public RJREnvIndexChecker(final IREnvConfiguration rEnvConfig) {
 		if (rEnvConfig == null) {
 			throw new NullPointerException("rEnvConfig"); //$NON-NLS-1$
 		}
-		fREnvConfig = rEnvConfig;
-		fIndex = new REnvIndexChecker(rEnvConfig);
+		this.rEnvConfig= rEnvConfig;
+		this.index= new REnvIndexChecker(rEnvConfig);
 	}
 	
 	
 	public int check(final RService r,
 			final IProgressMonitor monitor) throws CoreException {
-		if (!fIndex.preCheck()) {
+		if (!this.index.preCheck()) {
 			return NOT_AVAILABLE;
 		}
-		Exception errorCause = null;
+		Exception errorCause= null;
 		try {
-			if (fIndex.needsComplete()) {
+			if (this.index.needsComplete()) {
 				return COMPLETE;
 			}
 			
-			final IRPkgManager rPkgManager = RCore.getRPkgManager(fREnvConfig.getReference());
-			final IRPkgSet rPkgSet = rPkgManager.getRPkgSet();
-			final IRPkgCollection<? extends IRPkgInfo> installed= rPkgSet.getInstalled();
-			fIndex.beginPackageCheck();
+			final IRPkgManager rPkgManager= RCore.getRPkgManager(this.rEnvConfig.getReference());
+			final IRPkgCollection<? extends IRPkgInfo> installed= rPkgManager.getRPkgSet().getInstalled();
+			this.index.beginPackageCheck();
 			for (final String pkgName : installed.getNames()) {
-				final IRPkgInfo pkgInfo = installed.getFirstByName(pkgName);
+				final IRPkgInfo pkgInfo= installed.getFirstByName(pkgName);
 				if (pkgInfo == null) {
 					continue;
 				}
-				fIndex.checkPackage(pkgName, pkgInfo.getVersion(), pkgInfo.getBuilt());
+				this.index.checkPackage(pkgInfo);
 			}
-			fIndex.endPackageCheck();
+			this.index.endPackageCheck();
 			
-			if (fIndex.needsComplete()) {
+			if (this.index.needsComplete()) {
 				return COMPLETE;
 			}
-			else if (fIndex.hasPackageChanges()) {
+			else if (this.index.hasPackageChanges()) {
 				return PACKAGES;
 			}
 			else {
@@ -91,14 +89,14 @@ public class RJREnvIndexChecker {
 //			if (e.getStatus().getSeverity() == IStatus.CANCEL) {
 //				throw e;
 //			}
-//			errorCause = e;
+//			errorCause= e;
 //		}
 		catch (final Exception e) {
-			fIndex.cancelCheck();
-			errorCause = e;
+			this.index.cancelCheck();
+			errorCause= e;
 		}
 		finally {
-			fIndex.finalCheck();
+			this.index.finalCheck();
 		}
 		throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 				"An error occurred when checking the package data.", errorCause ));
@@ -106,15 +104,15 @@ public class RJREnvIndexChecker {
 	
 	
 	public boolean wasAlreadyReported() {
-		return !fIndex.hasNewChanges();
+		return !this.index.hasNewChanges();
 	}
 	
 	public int getNewPackageCount() {
-		return fIndex.getNewPackageCount();
+		return this.index.getNewPackageCount();
 	}
 	
 	public int getChangedPackageCount() {
-		return fIndex.getChangedPackageCount();
+		return this.index.getChangedPackageCount();
 	}
 	
 }

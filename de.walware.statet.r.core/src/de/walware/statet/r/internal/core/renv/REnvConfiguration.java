@@ -107,13 +107,12 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	}
 	
 	
-	public static File getIndexRootDirectory() {
-		final IPath location = RCorePlugin.getDefault().getStateLocation();
-		final File file = location.append("indices").toFile(); //$NON-NLS-1$
-		if (!file.exists()) {
-			file.mkdirs();
-		}
-		return file;
+	public static IPath getStateLocation(final IREnv rEnv) {
+		return RCorePlugin.getDefault().getStateLocation().append("renv").append(rEnv.getId()); //$NON-NLS-1$
+	}
+	
+	public static IPath getStateLocation(final String rEnvId) {
+		return RCorePlugin.getDefault().getStateLocation().append("renv").append(rEnvId); //$NON-NLS-1$
 	}
 	
 	
@@ -1268,8 +1267,8 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		fIndexDirectoryStore = checkPath(fIndexDirectory, rHome, userHome);
 		if (fIndexDirectoryStore == null) {
 			try {
-				final File directory = new File(getIndexRootDirectory(), getReference().getId());
-				fIndexDirectoryStore = EFS.getStore(directory.toURI());
+				final IPath directory = getStateLocation(fREnv).append("shared"); //$NON-NLS-1$
+				fIndexDirectoryStore = EFS.getStore(URIUtil.toURI(directory));
 			}
 			catch (final CoreException e) {
 			}

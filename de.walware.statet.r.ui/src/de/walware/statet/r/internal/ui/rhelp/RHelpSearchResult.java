@@ -18,15 +18,15 @@ import de.walware.ecommons.workbench.search.ui.ElementMatchComparator;
 import de.walware.ecommons.workbench.search.ui.ExtTextSearchResult;
 
 import de.walware.statet.r.core.renv.IREnv;
-import de.walware.statet.r.core.rhelp.IRPackageHelp;
+import de.walware.statet.r.core.rhelp.IRPkgHelp;
 import de.walware.statet.r.ui.RUI;
 
 
-public class RHelpSearchResult extends ExtTextSearchResult<IRPackageHelp, RHelpSearchMatch> {
+public class RHelpSearchResult extends ExtTextSearchResult<IRPkgHelp, RHelpSearchMatch> {
 	
 	
-	public static final ElementMatchComparator<IRPackageHelp, RHelpSearchMatch> COMPARATOR= new ElementMatchComparator<IRPackageHelp, RHelpSearchMatch>(
-			new IRPackageHelp[0], null,
+	public static final ElementMatchComparator<IRPkgHelp, RHelpSearchMatch> COMPARATOR= new ElementMatchComparator<IRPkgHelp, RHelpSearchMatch>(
+			new IRPkgHelp[0], null,
 			new RHelpSearchMatch[0], null );
 	
 	

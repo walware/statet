@@ -71,7 +71,7 @@ import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.rhelp.IREnvHelp;
 import de.walware.statet.r.core.rhelp.IRHelpManager;
 import de.walware.statet.r.core.rhelp.IRHelpPage;
-import de.walware.statet.r.core.rhelp.IRPackageHelp;
+import de.walware.statet.r.core.rhelp.IRPkgHelp;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RCodeLaunching;
@@ -386,7 +386,7 @@ public class RHelpView extends PageBookBrowserView
 					final String url;
 					try {
 						if (name.getType() == RElementName.MAIN_PACKAGE) {
-							final IRPackageHelp packageHelp = help.getRPackage(name.getSegmentName());
+							final IRPkgHelp packageHelp = help.getRPackage(name.getSegmentName());
 							if (packageHelp != null) {
 								url = rHelpManager.getPackageHttpUrl(packageHelp, RHelpUIServlet.BROWSE_TARGET);
 							}

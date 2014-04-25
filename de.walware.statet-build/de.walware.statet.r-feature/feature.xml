@@ -25,6 +25,8 @@
       <import feature="de.walware.rj.core" version="2.0.0" match="equivalent" />
       <import feature="de.walware.rj.eclient" version="2.0.0" match="equivalent" />
       
+      <import feature="de.walware.3rdparty.lucene" version="4.7.2" match="equivalent"/>
+      
       <import feature="org.eclipse.emf.common" version="2.8.0" match="greaterOrEqual" />
       <import feature="org.eclipse.emf.common.ui" version="2.7.0" match="greaterOrEqual" />
       <import feature="org.eclipse.emf.ecore" version="2.8.3" match="greaterOrEqual" />
@@ -58,13 +60,6 @@
 
    <plugin
          id="de.walware.statet.base.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="de.walware.thirdparty-org.apache.lucene"
          download-size="0"
          install-size="0"
          version="0.0.0"

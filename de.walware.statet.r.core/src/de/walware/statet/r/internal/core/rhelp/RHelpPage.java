@@ -13,28 +13,28 @@ package de.walware.statet.r.internal.core.rhelp;
 
 import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.core.rhelp.IRHelpPage;
-import de.walware.statet.r.core.rhelp.IRPackageHelp;
+import de.walware.statet.r.core.rhelp.IRPkgHelp;
 
 
 public class RHelpPage implements IRHelpPage {
 	
 	
-	private final IRPackageHelp fPackage;
+	private final IRPkgHelp fPackage;
 	
 	private final String fName;
 	
 	private final String fTitle;
 	
 	
-	public RHelpPage(final IRPackageHelp packageHelp, final String name, final String title) {
-		fPackage = packageHelp;
+	public RHelpPage(final IRPkgHelp pkgHelp, final String name, final String title) {
+		fPackage = pkgHelp;
 		fName = name;
 		fTitle = title;
 	}
 	
 	
 	@Override
-	public IRPackageHelp getPackage() {
+	public IRPkgHelp getPackage() {
 		return fPackage;
 	}
 	

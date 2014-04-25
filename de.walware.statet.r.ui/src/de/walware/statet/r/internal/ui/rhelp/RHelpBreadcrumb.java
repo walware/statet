@@ -30,7 +30,7 @@ import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.rhelp.IREnvHelp;
 import de.walware.statet.r.core.rhelp.IRHelpManager;
 import de.walware.statet.r.core.rhelp.IRHelpPage;
-import de.walware.statet.r.core.rhelp.IRPackageHelp;
+import de.walware.statet.r.core.rhelp.IRPkgHelp;
 
 
 public class RHelpBreadcrumb extends AbstractBreadcrumb {
@@ -95,8 +95,8 @@ public class RHelpBreadcrumb extends AbstractBreadcrumb {
 			if (element instanceof IREnv || element instanceof String) {
 				return fHelpManager;
 			}
-			if (element instanceof IRPackageHelp) {
-				return ((IRPackageHelp) element).getREnv();
+			if (element instanceof IRPkgHelp) {
+				return ((IRPkgHelp) element).getREnv();
 			}
 			if (element instanceof IRHelpPage) {
 				return ((IRHelpPage) element).getPackage();
@@ -115,8 +115,8 @@ public class RHelpBreadcrumb extends AbstractBreadcrumb {
 			if (element instanceof IREnv) {
 				return fHelpManager.hasHelp((IREnv) element);
 			}
-			if (element instanceof IRPackageHelp) {
-				return !((IRPackageHelp) element).getHelpPages().isEmpty();
+			if (element instanceof IRPkgHelp) {
+				return !((IRPkgHelp) element).getHelpPages().isEmpty();
 			}
 			return false;
 		}
@@ -138,8 +138,8 @@ public class RHelpBreadcrumb extends AbstractBreadcrumb {
 				}
 				return new Object[0];
 			}
-			if (element instanceof IRPackageHelp) {
-				return ((IRPackageHelp) element).getHelpPages().toArray();
+			if (element instanceof IRPkgHelp) {
+				return ((IRPkgHelp) element).getHelpPages().toArray();
 			}
 			return new Object[0];
 		}

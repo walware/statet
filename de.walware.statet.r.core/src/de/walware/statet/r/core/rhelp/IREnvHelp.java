@@ -13,6 +13,8 @@ package de.walware.statet.r.core.rhelp;
 
 import java.util.List;
 
+import de.walware.rj.renv.IRPkgDescription;
+
 import de.walware.statet.r.core.renv.IREnv;
 
 
@@ -23,26 +25,27 @@ public interface IREnvHelp {
 	
 	List<IRHelpKeyword.Group> getKeywords();
 	
-	List<IRPackageHelp> getRPackages();
-	IRPackageHelp getRPackage(String packageName);
+	List<IRPkgHelp> getRPackages();
+	IRPkgHelp getRPackage(String pkgName);
+	IRPkgDescription getPkgDescription(String pkgName);
 	
 	/**
 	 * Looks for the specified help page in the specified package.
 	 * 
-	 * @param packageName the name of the package
+	 * @param pkgName the name of the package
 	 * @param name the name of the page
 	 * @return the page if exists, otherwise <code>null</code>
 	 */
-	IRHelpPage getPage(String packageName, String name);
+	IRHelpPage getPage(String pkgName, String name);
 	
 	/**
 	 * Looks for the help page for the specified topic in the specified package.
 	 * 
-	 * @param packageName the name of the package
+	 * @param pkgName the name of the package
 	 * @param topic the topic
 	 * @return the page if exists, otherwise <code>null</code> 
 	 */
-	IRHelpPage getPageForTopic(String packageName, String topic);
+	IRHelpPage getPageForTopic(String pkgName, String topic);
 	
 	/**
 	 * Looks for help pages for the specified topic in all packages.
@@ -53,8 +56,8 @@ public interface IREnvHelp {
 	List<IRHelpPage> getPagesForTopic(String topic);
 	
 	String getHtmlPage(IRHelpPage page);
-	String getHtmlPage(String packageName, String pageName);
-	String getHtmlPage(String packageName, String pageName,
+	String getHtmlPage(String pkgName, String pageName);
+	String getHtmlPage(String pkgName, String pageName,
 			String queryString, String[] preTags, String[] postTags);
 	
 	void unlock();
