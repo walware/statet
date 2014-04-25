@@ -46,7 +46,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<tycho.version>0.19.0</tycho.version>
-		<tycho.scmUrl>scm:git:git://github.com/walware/statet.git</tycho.scmUrl>
+		<tycho.scmUrl>scm:git:https://github.com/walware/statet.git</tycho.scmUrl>
 		<walware.repo.baseUrl>http://download.walware.de</walware.repo.baseUrl>
 	</properties>
 	
@@ -127,31 +127,23 @@
 			
 			<build>
 				<plugins>
+					<!-- enable source reference generation -->
 					<plugin>
-						<artifactId>maven-assembly-plugin</artifactId>
-						<version>2.4</version>
-						<inherited>false</inherited>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-packaging-plugin</artifactId>
+						<version>${tycho.version}</version>
+						<configuration>
+							<sourceReferences>
+								<generate>true</generate>
+							</sourceReferences>
+						</configuration>
 						<dependencies>
 							<dependency>
-								<groupId>de.walware.releng</groupId>
-								<artifactId>de.walware.releng.assemblies</artifactId>
-								<version>1.0.0</version>
+								<groupId>org.eclipse.tycho.extras</groupId>
+								<artifactId>tycho-sourceref-jgit</artifactId>
+								<version>${tycho.version}</version>
 							</dependency>
 						</dependencies>
-						<executions>
-							<execution>
-								<id>make-snapshot</id>
-								<phase>package</phase>
-								<goals>
-									<goal>single</goal>
-								</goals>
-								<configuration>
-									<descriptorRefs>
-										<descriptorRef>module-snapshot</descriptorRef>
-									</descriptorRefs>
-								</configuration>
-							</execution>
-						</executions>
 					</plugin>
 				</plugins>
 			</build>
