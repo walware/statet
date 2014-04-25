@@ -57,6 +57,11 @@
 			<layout>p2</layout>
 		</repository>
 		<repository>
+			<id>eutils-autonature</id>
+			<url>${walware.repo.baseUrl}/eclipse-3.8/autonature-00.01.00</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
 			<id>eutils-autorun</id>
 			<url>${walware.repo.baseUrl}/eclipse-3.8/autorun-01.00.00</url>
 			<layout>p2</layout>

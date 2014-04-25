@@ -61,6 +61,9 @@
 		<category name="de.walware.statet"/>
 	</feature>
 	
+	<feature url="features/de.walware.eutils.autonature_0.0.0.qualifier.jar" id="de.walware.eutils.autonature" version="0.0.0">
+		<category name="de.walware.utils"/>
+	</feature>
 	<feature url="features/de.walware.eutils.autorun_0.0.0.qualifier.jar" id="de.walware.eutils.autorun" version="0.0.0">
 		<category name="de.walware.utils"/>
 	</feature>

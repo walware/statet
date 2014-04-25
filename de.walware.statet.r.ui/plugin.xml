@@ -36,6 +36,15 @@
             natureId="de.walware.statet.r.RNature"/>
    </extension>
    <extension
+         point="de.walware.eutils.autonature.autoConfigurations">
+      <onFileContent
+            contentTypeId="de.walware.statet.r.contentTypes.R"
+            enable="true">
+         <ensureProjectNature
+               natureId="de.walware.statet.r.RNature"/>
+      </onFileContent>
+   </extension>
+   <extension
          point="org.eclipse.ui.decorators">
       <decorator
             id="de.walware.statet.r.decorators.RProjectDecorator"

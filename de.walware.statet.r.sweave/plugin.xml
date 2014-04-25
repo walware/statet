@@ -19,6 +19,7 @@
          point="org.eclipse.core.runtime.preferences">
       <initializer class="de.walware.statet.r.internal.sweave.SweavePreferenceInitializer"/>
    </extension>
+   
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
@@ -31,6 +32,17 @@
                name="bom">
          </property>
       </content-type>
+   </extension>
+   <extension
+         point="de.walware.eutils.autonature.autoConfigurations">
+      <onFileContent
+            contentTypeId="de.walware.statet.r.contentTypes.LtxRweave"
+            enable="true">
+         <ensureProjectNature
+               natureId="de.walware.statet.r.RNature"/>
+         <ensureProjectNature
+               natureId="de.walware.docmlet.tex.natures.Tex"/>
+      </onFileContent>
    </extension>
    <extension
          point="de.walware.ecommons.ltk.contentTypeActivation">
