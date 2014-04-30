@@ -21,7 +21,9 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
@@ -37,11 +39,11 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
+import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ui.LTKUI;
 import de.walware.ecommons.ltk.ui.sourceediting.AbstractMarkOccurrencesProvider;
-import de.walware.ecommons.ltk.ui.sourceediting.FoldingEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
@@ -50,6 +52,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1OutlinePage;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.SpecificContentAssistHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.folding.FoldingEditorAddon;
 import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.base.ui.IStatetUIMenuIds;
@@ -59,6 +62,8 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.core.rsource.ast.FDef;
+import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.launching.RCodeLaunching;
@@ -288,6 +293,21 @@ public class REditor extends SourceEditor1 implements IREditor {
 			m.appendToGroup(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID, new CommandContributionItem(new CommandContributionItemParameter(
 					getSite(), null, RCodeLaunching.SUBMIT_SELECTION_PASTEOUTPUT_COMMAND_ID, CommandContributionItem.STYLE_PUSH)));
 		}
+	}
+	
+	@Override
+	protected IRegion getRangeToReveal(final ISourceUnitModelInfo modelInfo, final ISourceStructElement element) {
+		final FDef def= (FDef) element.getAdapter(FDef.class);
+		if (def != null) {
+			final RAstNode cont= def.getContChild();
+			final int offset= element.getSourceRange().getOffset();
+			int length= cont.getOffset() - offset;
+			if (cont.getLength() > 0) {
+				length++;
+			}
+			return new Region(offset, length);
+		}
+		return null;
 	}
 	
 	

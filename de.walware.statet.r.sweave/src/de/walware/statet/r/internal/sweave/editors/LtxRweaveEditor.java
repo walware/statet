@@ -47,13 +47,13 @@ import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ui.LTKUI;
 import de.walware.ecommons.ltk.ui.sourceediting.AbstractMarkOccurrencesProvider;
-import de.walware.ecommons.ltk.ui.sourceediting.FoldingEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1OutlinePage;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.SpecificContentAssistHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.folding.FoldingEditorAddon;
 import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.docmlet.tex.core.ast.TexAstNode;
