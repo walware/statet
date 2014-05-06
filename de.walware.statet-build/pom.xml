@@ -26,17 +26,8 @@
 		<module>../de.walware.statet.r.launching.winrgui</module>
 		<module>../de.walware.statet.r.doc</module>
 		
-		<module>../../texlipse/net.sourceforge.texlipse</module>
-		<module>../de.walware.statet.r.sweave</module>
-		<module>../de.walware.statet.r.sweave.debug</module>
-		<module>../de.walware.statet.r.sweave.doc</module>
-		
-		<module>../de.walware.statet.rtm.base.core</module>
-		<module>../de.walware.statet.rtm.base.ui</module>
-		<module>../de.walware.statet.rtm.ftable.core</module>
-		<module>../de.walware.statet.rtm.ftable.ui</module>
-		<module>../de.walware.statet.rtm.ggplot.core</module>
-		<module>../de.walware.statet.rtm.ggplot.ui</module>
+		<module>../../statet-redocs/de.walware.statet.redocs-build</module>
+		<module>../../statet-rtm/de.walware.statet.rtm-build</module>
 	</modules>
 	
 	<prerequisites>
@@ -91,6 +82,23 @@
 							<version>3.5.0-SNAPSHOT</version>
 						</artifact>
 					</target>
+					<environments>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
 				</configuration>
 			</plugin>
 			<!-- enable source bundle generation -->
@@ -116,11 +124,6 @@
 			<modules>
 				<module>de.walware.statet.r</module>
 				<module>de.walware.statet.r-feature</module>
-				
-				<module>de.walware.statet.r.sweave-feature</module>
-				
-				<module>de.walware.statet.rtm.ftable-feature</module>
-				<module>de.walware.statet.rtm.ggplot-feature</module>
 				
 				<module>repo</module>
 			</modules>
