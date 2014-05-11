@@ -41,7 +41,7 @@ public enum LtxRweaveSwitch {
 		if (Rweave.R_PARTITION_CONSTRAINT.matches(partitionType)) {
 			return R;
 		}
-		if (Rweave.CHUNK_CONTROL_CONTENT_TYPE.matches(partitionType)) {
+		if (Rweave.CHUNK_CONTROL_PARTITION_CONSTRAINT.matches(partitionType)) {
 			return CHUNK_CONTROL;
 		}
 		return LTX;

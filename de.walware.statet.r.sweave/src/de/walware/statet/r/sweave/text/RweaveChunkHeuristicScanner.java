@@ -36,7 +36,7 @@ public class RweaveChunkHeuristicScanner extends RHeuristicTokenScanner {
 	protected int createForwardBound(final int start) throws BadLocationException {
 		final IPartitionConstraint matcher = getPartitionConstraint();
 		assert (!matcher.matches(IDocument.DEFAULT_CONTENT_TYPE));
-		if (matcher.matches(Rweave.LTX_DEFAULT_CONTENT_TYPE)) {
+		if (matcher.matches(Rweave.R_DEFAULT_CONTENT_TYPE)) {
 			final ITypedRegion cat = Rweave.R_TEX_CAT_UTIL.getCat(fDocument, start);
 			return cat.getOffset()+cat.getLength();
 		}
