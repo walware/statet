@@ -19,24 +19,24 @@ import de.walware.statet.r.core.renv.IRLibraryLocation;
 public abstract class RPkgAction {
 	
 	
-	public static final int UNINSTALL = 1;
-	public static final int INSTALL = 2;
+	public static final int UNINSTALL=                      1;
+	public static final int INSTALL=                        2;
 	
 	
 	public static class Install extends RPkgAction {
 		
 		
-		private final IRPkgData fPkg;
+		private final IRPkgData pkg;
 		
-		private IRLibraryLocation fTarget;
+		private IRLibraryLocation target;
 		
-		private final IRPkgInfoAndData fReference;
+		private final IRPkgInfoAndData reference;
 		
 		
 		public Install(final IRPkgData pkg, final IRLibraryLocation target, final IRPkgInfoAndData reference) {
-			fPkg = pkg;
-			fTarget = target;
-			fReference = reference;
+			this.pkg= pkg;
+			this.target= target;
+			this.reference= reference;
 		}
 		
 		
@@ -47,25 +47,49 @@ public abstract class RPkgAction {
 		
 		@Override
 		public IRLibraryLocation getLibraryLocation() {
-			return fTarget;
+			return this.target;
 		}
 		
 		public void setLibraryLocation(final IRLibraryLocation location) {
-			fTarget = location;
+			this.target= location;
 		}
 		
 		@Override
 		public IRPkgData getPkg() {
-			return fPkg;
+			return this.pkg;
 		}
 		
 		@Override
 		public String getRepoId() {
-			return fPkg.getRepoId();
+			return this.pkg.getRepoId();
 		}
 		
 		public IRPkgInfoAndData getReferencePkg() {
-			return fReference;
+			return this.reference;
+		}
+		
+		
+		@Override
+		public int hashCode() {
+			return 9251 + this.pkg.hashCode();
+		}
+		
+		@Override
+		public boolean equals(final Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!(obj instanceof Install)) {
+				return false;
+			}
+			final Install other= (Install) obj;
+			return this.pkg.equals(other.pkg);
+		}
+		
+		
+		@Override
+		public String toString() {
+			return "RPkgAction INSTALL " + getPkg(); //$NON-NLS-1$
 		}
 		
 	}
@@ -74,11 +98,11 @@ public abstract class RPkgAction {
 	public static class Uninstall extends RPkgAction {
 		
 		
-		private final IRPkgInfo fPkg;
+		private final IRPkgInfo pkg;
 		
 		
 		public Uninstall(final IRPkgInfo pkg) {
-			fPkg = pkg;
+			this.pkg= pkg;
 		}
 		
 		
@@ -89,7 +113,7 @@ public abstract class RPkgAction {
 		
 		@Override
 		public IRPkg getPkg() {
-			return fPkg;
+			return this.pkg;
 		}
 		
 		@Override
@@ -99,7 +123,31 @@ public abstract class RPkgAction {
 		
 		@Override
 		public IRLibraryLocation getLibraryLocation() {
-			return fPkg.getLibraryLocation();
+			return this.pkg.getLibraryLocation();
+		}
+		
+		
+		@Override
+		public int hashCode() {
+			return 1269275 + this.pkg.hashCode();
+		}
+		
+		@Override
+		public boolean equals(final Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!(obj instanceof Install)) {
+				return false;
+			}
+			final Install other= (Install) obj;
+			return this.pkg.equals(other.pkg);
+		}
+		
+		
+		@Override
+		public String toString() {
+			return "RPkgAction UNINSTALL " + getPkg(); //$NON-NLS-1$
 		}
 		
 	}

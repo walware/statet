@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,7 +35,6 @@ import de.walware.rj.renv.IRPkg;
 import de.walware.rj.renv.RNumVersion;
 
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.pkgmanager.RPkgAction.Install;
 
 
 public class RPkgResolver {
@@ -48,24 +48,24 @@ public class RPkgResolver {
 	private static class RPkgActionVersionIterator implements Iterator<RNumVersion> {
 		
 		
-		private final List<? extends RPkgAction> fList;
+		private final List<? extends RPkgAction> list;
 		
-		private int fIdx = 0;
+		private int idx= 0;
 		
 		
 		public RPkgActionVersionIterator(final List<? extends RPkgAction> list) {
-			fList = list;
+			this.list= list;
 		}
 		
 		
 		@Override
 		public boolean hasNext() {
-			return (fIdx < fList.size());
+			return (this.idx < this.list.size());
 		}
 		
 		@Override
 		public RNumVersion next() {
-			return fList.get(++fIdx).getPkg().getVersion();
+			return this.list.get(++this.idx).getPkg().getVersion();
 		}
 		
 		@Override
@@ -78,24 +78,24 @@ public class RPkgResolver {
 	private static class RPkgVersionIterator implements Iterator<RNumVersion> {
 		
 		
-		private final List<? extends IRPkg> fList;
+		private final List<? extends IRPkg> list;
 		
-		private int fIdx = 0;
+		private int idx= 0;
 		
 		
 		public RPkgVersionIterator(final List<? extends IRPkg> list) {
-			fList = list;
+			this.list= list;
 		}
 		
 		
 		@Override
 		public boolean hasNext() {
-			return (fIdx < fList.size());
+			return (this.idx < this.list.size());
 		}
 		
 		@Override
 		public RNumVersion next() {
-			return fList.get(fIdx++).getVersion();
+			return this.list.get(this.idx++).getVersion();
 		}
 		
 		@Override
@@ -106,9 +106,9 @@ public class RPkgResolver {
 	}
 	
 	private static void removeInvalid(final IRPkg reqPkg, final List<? extends IRPkg> availablePkgs) {
-		final RNumVersion reqVersion = reqPkg.getVersion();
+		final RNumVersion reqVersion= reqPkg.getVersion();
 		if (reqVersion.toString().startsWith(">=")) {
-			for (final Iterator<? extends IRPkg> iter = availablePkgs.iterator(); iter.hasNext();) {
+			for (final Iterator<? extends IRPkg> iter= availablePkgs.iterator(); iter.hasNext();) {
 				if (!reqVersion.isSatisfiedBy(iter.next().getVersion())) {
 					iter.remove();
 				}
@@ -125,11 +125,11 @@ public class RPkgResolver {
 		
 		
 		List<? extends IRPkgData> getRequired(final String name) {
-			return fRequired.get(name);
+			return RPkgResolver.this.required.get(name);
 		}
 		
 		void setRequired(final String name, final List<? extends IRPkgData> list) {
-			fRequired.put(name, list);
+			RPkgResolver.this.required.put(name, list);
 		}
 		
 		void setRequiredMissing(final String name) {
@@ -137,7 +137,7 @@ public class RPkgResolver {
 		}
 		
 		void handleProblem(final int severity, final String message, final String... args) {
-			fStatusList.add(new Status(severity, RCore.PLUGIN_ID,
+			RPkgResolver.this.statusList.add(new Status(severity, RCore.PLUGIN_ID,
 					(args != null && args.length > 0) ? NLS.bind(message, args) : message ));
 		}
 		
@@ -145,7 +145,7 @@ public class RPkgResolver {
 	
 	private class TmpContext extends Context {
 		
-		private final Map<String, List<? extends IRPkgData>> fTmpRequired = new HashMap<String, List<? extends IRPkgData>>();
+		private final Map<String, List<? extends IRPkgData>> tmpRequired= new HashMap<>();
 		
 		
 		TmpContext() {
@@ -154,13 +154,13 @@ public class RPkgResolver {
 		
 		@Override
 		List<? extends IRPkgData> getRequired(final String name) {
-			final List<? extends IRPkgData> list = fTmpRequired.get(name);
+			final List<? extends IRPkgData> list= this.tmpRequired.get(name);
 			return (list != null) ? list : super.getRequired(name);
 		}
 		
 		@Override
 		void setRequired(final String name, final List<? extends IRPkgData> list) {
-			fTmpRequired.put(name, list);
+			this.tmpRequired.put(name, list);
 		}
 		
 		@Override
@@ -169,79 +169,103 @@ public class RPkgResolver {
 		}
 		
 		Set<String> getTmpNames() {
-			return fTmpRequired.keySet();
+			return this.tmpRequired.keySet();
 		}
 		
 		void merge() {
-			fRequired.putAll(fTmpRequired);
+			RPkgResolver.this.required.putAll(this.tmpRequired);
 		}
 		
 		void reset() {
-			fTmpRequired.clear();
+			this.tmpRequired.clear();
 		}
 		
 	}
 	
-	private final IRPkgSet.Ext fAll;
+	/**
+	 * Package set from package manager.
+	 */
+	private final IRPkgSet.Ext pkgSet;
 	
-	private final Map<String, List<RPkgAction.Install>> fSelected;
-	private final List<String> fSelectedNames;
-	private final Map<String, List<? extends IRPkgData>> fRequired;
-	private boolean fAddRequired;
-	private final LinkedHashSet<String> fRequiredToCheck;
-	private Set<String> fSuggested;
+	/**
+	 * Packages requested for installation.
+	 **/
+	private final Map<String, List<RPkgAction.Install>> selected;
+	/**
+	 * Sorted list of names of packages requested for installation.
+	 **/
+	private final List<String> selectedNames;
 	
-	private final List<IStatus> fStatusList;
-	private IStatus fStatus;
+	/**
+	 * Packages required for installation of the request (but not selected).
+	 * The list for each required package contains all package versions valid for the installation.
+	 * The first is finally installed. If empty, no valid package version is available.
+	 **/
+	private final Map<String, List<? extends IRPkgData>> required;
+	/**
+	 * If required packages should be added.
+	 */
+	private boolean addRequired;
+	/**
+	 * Set of names of {@link #required required packages} which need to be checked.
+	 */
+	private final LinkedHashSet<String> requiredToCheck;
+	/**
+	 * If the package is only suggested.
+	 */
+	private Set<String> suggested;
+	
+	private final List<IStatus> statusList;
+	private IStatus status;
 	
 	
-	public RPkgResolver(final IRPkgSet.Ext all, final Map<String, List<RPkgAction.Install>> pkgs) {
-		fAll = all;
-		fSelected = pkgs;
-		final String[] names = pkgs.keySet().toArray(new String[pkgs.size()]);
+	public RPkgResolver(final IRPkgSet.Ext pkgSet, final Map<String, List<RPkgAction.Install>> pkgs) {
+		this.pkgSet= pkgSet;
+		this.selected= pkgs;
+		final String[] names= pkgs.keySet().toArray(new String[pkgs.size()]);
 		Arrays.sort(names);
-		fSelectedNames = new ConstArrayList<String>(names);
+		this.selectedNames= new ConstArrayList<>(names);
 		
-		fRequired = new HashMap<String, List<? extends IRPkgData>>();
-		fAddRequired = true;
-		fRequiredToCheck = new LinkedHashSet<String>(16);
-		fStatusList = new ArrayList<IStatus>();
+		this.required= new IdentityHashMap<>();
+		this.addRequired= true;
+		this.requiredToCheck= new LinkedHashSet<>(16);
+		this.statusList= new ArrayList<>();
 	}
 	
 	
 	public void setAddSuggested(final boolean enabled) {
-		if (fStatus != null) {
+		if (this.status != null) {
 			throw new IllegalStateException();
 		}
-		fSuggested = (enabled) ? new HashSet<String>(8) : null;
+		this.suggested= (enabled) ? new HashSet<String>(8) : null;
 	}
 	
 	public void setAddRequired(final boolean enabled) {
-		if (fStatus != null) {
+		if (this.status != null) {
 			throw new IllegalStateException();
 		}
-		fAddRequired = enabled;
+		this.addRequired= enabled;
 	}
 	
 	
 	public IStatus run() {
 		resolve();
-		if (fStatusList.isEmpty()) {
-			fStatus = Status.OK_STATUS;
+		if (this.statusList.isEmpty()) {
+			this.status= Status.OK_STATUS;
 		}
 		else {
-			fStatus = new MultiStatus(RCore.PLUGIN_ID, 0,
-					fStatusList.toArray(new IStatus[fStatusList.size()]),
+			this.status= new MultiStatus(RCore.PLUGIN_ID, 0,
+					this.statusList.toArray(new IStatus[this.statusList.size()]),
 					"Cannot install the selected packages.", null );
 		}
-		return fStatus;
+		return this.status;
 	}
 	
 	public IStatus getStatus() {
-		if (fStatus == null) {
+		if (this.status == null) {
 			throw new IllegalStateException();
 		}
-		return fStatus;
+		return this.status;
 	}
 	
 	
@@ -259,14 +283,14 @@ public class RPkgResolver {
 //	}
 	
 	public String getReason(final IRPkg pkg) {
-		final String name = pkg.getName();
-		if (fSelected.containsKey(name)) {
+		final String name= pkg.getName();
+		if (this.selected.containsKey(name)) {
 			return "selected";
 		}
-		if (fSuggested != null && fSuggested.contains(name)) {
+		if (this.suggested != null && this.suggested.contains(name)) {
 			return "suggested";
 		}
-		if (fRequired.containsKey(name)) {
+		if (this.required.containsKey(name)) {
 			return "required";
 		}
 		return null;
@@ -274,41 +298,41 @@ public class RPkgResolver {
 	
 	
 	private void resolve() {
-		final Context main = new Context();
-		if (fAddRequired) {
-			for (final String name : fSelectedNames) {
-				final List<? extends Install> list = fSelected.get(name);
-				for (final Install action : list) {
-					final IRPkgData pkg = action.getPkg();
+		final Context main= new Context();
+		if (this.addRequired) {
+			for (final String name : this.selectedNames) {
+				final List<? extends RPkgAction.Install> list= this.selected.get(name);
+				for (final RPkgAction.Install action : list) {
+					final IRPkgData pkg= action.getPkg();
 					check(pkg, "selected", "depends on", pkg.getDepends(), main);
 					check(pkg, "selected", "imports", pkg.getImports(), main);
 					check(pkg, "selected", "is linking to", pkg.getLinkingTo(), main);
 				}
 			}
-			if (!fStatusList.isEmpty()) {
+			if (!this.statusList.isEmpty()) {
 				return;
 			}
 			checkRequired(main);
-			if (!fStatusList.isEmpty()) {
+			if (!this.statusList.isEmpty()) {
 				return;
 			}
-			final TmpContext tmp = new TmpContext();
-			if (fSuggested != null) {
-				for (final String name : fSelectedNames) {
-					final List<? extends Install> list = fSelected.get(name);
-					for (final Install action : list) {
-						final IRPkgData pkg = action.getPkg();
+			final TmpContext tmp= new TmpContext();
+			if (this.suggested != null) {
+				for (final String name : this.selectedNames) {
+					final List<? extends RPkgAction.Install> list= this.selected.get(name);
+					for (final RPkgAction.Install action : list) {
+						final IRPkgData pkg= action.getPkg();
 						try {
 							check(pkg, "selected", "suggests", pkg.getSuggests(), tmp);
 							checkRequired(tmp);
-							fSuggested.addAll(tmp.getTmpNames());
+							this.suggested.addAll(tmp.getTmpNames());
 							tmp.merge();
 						}
 						catch (final OperationCanceledException e) {
 		//					fStatus.add();
 						}
 						finally {
-							fRequiredToCheck.clear();
+							this.requiredToCheck.clear();
 						}
 						tmp.reset();
 					}
@@ -318,17 +342,17 @@ public class RPkgResolver {
 	}
 	
 	private void checkRequired(final Context context) {
-		Iterator<String> iter = fRequiredToCheck.iterator();
+		Iterator<String> iter= this.requiredToCheck.iterator();
 		while (iter.hasNext()) {
-			final String pkgName = iter.next();
+			final String pkgName= iter.next();
 			iter.remove();
-			final List<? extends IRPkgData> list = fRequired.get(pkgName);
+			final List<? extends IRPkgData> list= this.required.get(pkgName);
 			if (list != null && !list.isEmpty()) {
-				final IRPkgData pkg = list.get(0);
+				final IRPkgData pkg= list.get(0);
 				check(pkg, "required", "depends on", pkg.getDepends(), context);
 				check(pkg, "required", "imports", pkg.getImports(), context);
 				check(pkg, "required", "is linking to", pkg.getLinkingTo(), context);
-				iter = fRequiredToCheck.iterator();
+				iter= this.requiredToCheck.iterator();
 			}
 		}
 	}
@@ -339,12 +363,12 @@ public class RPkgResolver {
 			return;
 		}
 		for (final IRPkg reqPkg : reqList) {
-			final String reqName = reqPkg.getName();
-			final RNumVersion reqVersion = reqPkg.getVersion();
+			final String reqName= reqPkg.getName();
+			final RNumVersion reqVersion= reqPkg.getVersion();
 			if (reqName.equals("R")) {
 				continue;
 			}
-			{	final List<? extends RPkgAction.Install> selected = fSelected.get(reqName);
+			{	final List<? extends RPkgAction.Install> selected= this.selected.get(reqName);
 				if (selected != null) {
 					if (!(reqVersion == RNumVersion.NONE || reqVersion.isSatisfiedByAny(
 							new RPkgActionVersionIterator(selected) ))) {
@@ -362,17 +386,17 @@ public class RPkgResolver {
 			if (isReqInstalled(reqName, reqVersion)) {
 				continue;
 			}
-			{	List<? extends IRPkgData> list = context.getRequired(reqName);
+			{	List<? extends IRPkgData> list= context.getRequired(reqName);
 				if (list != null && list.isEmpty()) {
 					continue; // already reported
 				}
 				IRPkgData old;
 				if (list == null) {
-					list = fAll.getAvailable().getByName(reqName);
-					old = null;
+					list= this.pkgSet.getAvailable().getByName(reqName);
+					old= null;
 				}
 				else {
-					old = list.get(0);
+					old= list.get(0);
 				}
 				if (list == null || list.isEmpty()) {
 					context.setRequiredMissing(reqName);
@@ -386,7 +410,7 @@ public class RPkgResolver {
 				if (list.isEmpty()) {
 					context.setRequiredMissing(reqName);
 					if (old != null) {
-						fRequiredToCheck.remove(reqName);
+						this.requiredToCheck.remove(reqName);
 					}
 					context.handleProblem(IStatus.ERROR, NLS.bind(
 							"The {0} package ''{1}'' ({2}) {4} version {5} of package ''{3}'', but no compatible version of ''{3}'' can be found.",
@@ -395,9 +419,9 @@ public class RPkgResolver {
 					continue;
 				}
 				else {
-					fRequired.put(reqName, list);
+					this.required.put(reqName, list);
 					if (old != list.get(0)) {
-						fRequiredToCheck.add(reqName);
+						this.requiredToCheck.add(reqName);
 					}
 					continue;
 				}
@@ -406,90 +430,93 @@ public class RPkgResolver {
 	}
 	
 	private boolean isReqInstalled(final String reqName, final RNumVersion reqVersion) {
-		final List<? extends IRPkgData> list = fAll.getInstalled().getByName(reqName);
+		final List<? extends IRPkgData> list= this.pkgSet.getInstalled().getByName(reqName);
 		return (!list.isEmpty()
 				&& (reqVersion == RNumVersion.NONE || reqVersion.isSatisfiedByAny(
 						new RPkgVersionIterator(list) )));
 	}
 	
 	
-	public List<RPkgAction.Install> createActions() {
-		final List<String> names = new ArrayList<String>();
-		names.addAll(fSelectedNames);
-		for (final String name : fRequired.keySet()) {
-			final int idx = - Collections.binarySearch(names, name) - 1;
-			names.add(idx, name);
+	private class ActionCollector {
+		
+		
+		private final Set<String> visited;
+		
+		private final List<RPkgAction.Install> ordered;
+		
+		
+		public ActionCollector() {
+			final int count= RPkgResolver.this.selected.size() + RPkgResolver.this.required.size();
+			
+			this.visited= new HashSet<>(count);
+			
+			this.ordered= new ArrayList<>(count);
 		}
 		
-		final List<RPkgAction.Install> ordered = new ArrayList<RPkgAction.Install>(names.size());
-		final Set<String> visited = new HashSet<String>(names.size());
-		for (int i = names.size() - 1; i >= 0; i--) {
-			toListAddPkg(names.get(i), ordered, names, visited);
-		}
 		
-		return ordered;
-	}
-	
-	private List<RPkgAction.Install> toListAddPkg(final String pkgName, final List<RPkgAction.Install> ordered,
-			final List<String> names, final Set<String> visited) {
-		if (visited.add(pkgName)) {
-			final int nameIdx = Collections.binarySearch(names, pkgName);
-			if (nameIdx < 0) {
-				return null;
+		public void run() {
+			for (final String name : RPkgResolver.this.selectedNames) {
+				addPkg(name);
 			}
-			final List<RPkgAction.Install> actions = getFinal(pkgName);
-			for (final RPkgAction.Install action : actions) {
-				final IRPkgData pkg = action.getPkg();
-				int idx = 0;
-				final int n = pkg.getDepends().size() + pkg.getImports().size() + pkg.getLinkingTo().size();
-				if (n > 0) {
-					names.remove(nameIdx);
-					final List<RPkgAction.Install> reqList = new ArrayList<RPkgAction.Install>(n);
-					toListGetRequired(pkg.getDepends(), reqList, ordered, names, visited);
-					toListGetRequired(pkg.getImports(), reqList, ordered, names, visited);
-					toListGetRequired(pkg.getLinkingTo(), reqList, ordered, names, visited);
-					names.add(nameIdx, pkgName);
+			
+			// only required if (suggested != null)
+			final Set<String> keySet= RPkgResolver.this.required.keySet();
+			final String[] names= keySet.toArray(new String[keySet.size()]);
+			Arrays.sort(names);
+			for (final String name : names) {
+				addPkg(name);
+			}
+		}
+		
+		private List<RPkgAction.Install> getFinal(final String name) {
+			{	final List<RPkgAction.Install> selected= RPkgResolver.this.selected.get(name);
+				if (selected != null) {
+					return selected;
+				}
+			}
+			{	final List<? extends IRPkgData> list= RPkgResolver.this.required.get(name);
+				if (list != null && !list.isEmpty()) {
+					return Collections.singletonList(
+							new RPkgAction.Install(list.get(0), null, null) );
+				}
+			}
+			return Collections.emptyList();
+		}
+		
+		private void addPkg(final String pkgName) {
+			if (this.visited.add(pkgName)) {
+				final List<RPkgAction.Install> actions= getFinal(pkgName);
+				for (final RPkgAction.Install action : actions) {
+					final IRPkgData pkg= action.getPkg();
 					
-					for (final RPkgAction.Install reqAction : reqList) {
-						final int reqIdx = ordered.indexOf(reqAction);
-						if (reqIdx >= 0 && reqIdx >= idx) {
-							idx = reqIdx + 1;
-						}
-					}
-				}
-				ordered.add(idx, action);
-			}
-			return actions;
-		}
-		return null;
-	}
-	
-	private List<RPkgAction.Install> getFinal(final String name) {
-		{	final List<RPkgAction.Install> selected = fSelected.get(name);
-			if (selected != null) {
-				return selected;
-			}
-		}
-		{	final List<? extends IRPkgData> list = fRequired.get(name);
-			return (list == null || list.isEmpty()) ? Collections.<RPkgAction.Install>emptyList() :
-					Collections.singletonList(new RPkgAction.Install(list.get(0), null, null));
-		}
-	}
-	
-	private void toListGetRequired(final List<? extends IRPkg> add, final List<RPkgAction.Install> reqList,
-			final List<RPkgAction.Install> ordered, final List<String> names, final Set<String> visited) {
-		for (int i = 0; i < add.size(); i++) {
-			final IRPkg reqPkg = add.get(i);
-			if (isReqInstalled(reqPkg.getName(), reqPkg.getVersion())) {
-				continue; // later
-			}
-			final List<Install> list = toListAddPkg(reqPkg.getName(), ordered, names, visited);
-			if (list != null) {
-				for (int j = 0; j < list.size(); j++) {
-					reqList.add(list.get(j));
+					addReqPkgs(pkg.getDepends());
+					addReqPkgs(pkg.getImports());
+					addReqPkgs(pkg.getLinkingTo());
+					
+					this.ordered.add(action);
 				}
 			}
 		}
+		
+		private void addReqPkgs(final List<? extends IRPkg> pkgs) {
+			for (final IRPkg pkg : pkgs) {
+				if (isReqInstalled(pkg.getName(), pkg.getVersion())) {
+					continue; // later
+				}
+				addPkg(pkg.getName());
+			}
+		}
+		
+		public List<RPkgAction.Install> getActions() {
+			return this.ordered;
+		}
+		
+	}
+	
+	public List<RPkgAction.Install> createActions() {
+		final ActionCollector collector= new ActionCollector();
+		collector.run();
+		return collector.getActions();
 	}
 	
 }
