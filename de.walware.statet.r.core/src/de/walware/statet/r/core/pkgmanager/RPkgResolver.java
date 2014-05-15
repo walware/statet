@@ -329,7 +329,7 @@ public class RPkgResolver {
 							tmp.merge();
 						}
 						catch (final OperationCanceledException e) {
-		//					fStatus.add();
+//							e.printStackTrace();
 						}
 						finally {
 							this.requiredToCheck.clear();
@@ -346,7 +346,7 @@ public class RPkgResolver {
 		while (iter.hasNext()) {
 			final String pkgName= iter.next();
 			iter.remove();
-			final List<? extends IRPkgData> list= this.required.get(pkgName);
+			final List<? extends IRPkgData> list= context.getRequired(pkgName);
 			if (list != null && !list.isEmpty()) {
 				final IRPkgData pkg= list.get(0);
 				check(pkg, "required", "depends on", pkg.getDepends(), context);
@@ -419,7 +419,7 @@ public class RPkgResolver {
 					continue;
 				}
 				else {
-					this.required.put(reqName, list);
+					context.setRequired(reqName, list);
 					if (old != list.get(0)) {
 						this.requiredToCheck.add(reqName);
 					}
