@@ -252,8 +252,8 @@ public class LtxRweaveEditor extends SourceEditor1 implements ILtxRweaveEditor {
 	protected void setupConfiguration(final IEditorInput newInput) {
 		super.setupConfiguration(newInput);
 		
-		final ILtxRweaveSourceUnit su = getSourceUnit();
-		fCombinedConfig.setSource(su.getTexCoreAccess());
+		final ILtxRweaveSourceUnit su= getSourceUnit();
+		fCombinedConfig.setSource((su != null) ? su.getTexCoreAccess() : null);
 	}
 	
 	
