@@ -838,6 +838,11 @@ public class SourceAnalyzer extends RAstVisitor {
 		this.sourceContainerBuilders.add(this.currentSourceContainerBuilder);
 	}
 	
+	protected final void addEnvirInsteadOfElement(final BuildSourceFrame envir, final RAstNode node) {
+		this.frames.put(envir.getFrameId(), envir);
+		node.addAttachment(envir);
+	}
+	
 	protected final void leaveElement() {
 		this.currentSourceContainerBuilder= this.currentSourceContainerBuilder.parent;
 	}
@@ -986,13 +991,22 @@ public class SourceAnalyzer extends RAstVisitor {
 		this.currentEnvironments.add(envir);
 		this.topScope= envir;
 		
-		final RMethod rMethod= new RMethod(this.currentSourceContainerBuilder.element, envir, node);
-		enterElement(rMethod, envir, node);
+		final RMethod rMethod;
+		if (this.currentSourceContainerBuilder != null) {
+			rMethod= new RMethod(this.currentSourceContainerBuilder.element, envir, node);
+			enterElement(rMethod, envir, node);
+		}
+		else {
+			rMethod= null;
+			addEnvirInsteadOfElement(envir, node);
+		}
 		
 		this.request= NO_REQUESTS;
 		node.acceptInRChildren(this);
 		
-		leaveElement();
+		if (rMethod != null) {
+			leaveElement();
+		}
 		
 		this.currentEnvironments.remove(envir);
 		this.topScope= this.currentEnvironments.get(this.currentEnvironments.size()-1);
@@ -1009,8 +1023,10 @@ public class SourceAnalyzer extends RAstVisitor {
 			access.fNameNode= nameNode;
 			registerInEnvir(S_LOCAL, nameNode.getText(), access);
 			
-			this.currentSourceContainerBuilder.children.add(new RSourceElementByElementAccess.RVariable(
-					this.currentSourceContainerBuilder.element, IRElement.R_ARGUMENT, access));
+			if (this.currentSourceContainerBuilder != null) {
+				this.currentSourceContainerBuilder.children.add(new RSourceElementByElementAccess.RVariable(
+						this.currentSourceContainerBuilder.element, IRElement.R_ARGUMENT, access));
+			}
 		}
 		
 		if (node.hasDefault()) {
@@ -1305,6 +1321,8 @@ public class SourceAnalyzer extends RAstVisitor {
 		case NS_GET:
 		case NS_GET_INT:
 			return resolveElementName((NSGet) node, access);
+		default:
+			break;
 		}
 		if (node == access.fFullNode) {
 			node.acceptInRChildren(this);
@@ -1391,8 +1409,9 @@ public class SourceAnalyzer extends RAstVisitor {
 		case STRING_CONST:
 			// TODO check
 			return true;
+		default:
+			return false;
 		}
-		return false;
 	}
 	
 	
@@ -1576,6 +1595,8 @@ public class SourceAnalyzer extends RAstVisitor {
 							
 							SourceAnalyzer.this.argValueToIgnore.add(valueNode);
 							break;
+						default:
+							break;
 						}
 					}
 				}
@@ -1661,6 +1682,8 @@ public class SourceAnalyzer extends RAstVisitor {
 							SourceAnalyzer.this.topScope.addLateResolve(valueNode.getText(), access);
 							
 							SourceAnalyzer.this.argValueToIgnore.add(valueNode);
+							break;
+						default:
 							break;
 						}
 					}
@@ -1763,8 +1786,10 @@ public class SourceAnalyzer extends RAstVisitor {
 						node, nameValue);
 				access.fFlags |= ElementAccess.A_IMPORT;
 				SourceAnalyzer.this.packageRefs.add(packageName, access);
-				final RPkgImport rImport= new RPkgImport(SourceAnalyzer.this.currentSourceContainerBuilder.element, access);
-				SourceAnalyzer.this.currentSourceContainerBuilder.children.add(rImport);
+				if (SourceAnalyzer.this.currentSourceContainerBuilder != null) {
+					final RPkgImport rImport= new RPkgImport(SourceAnalyzer.this.currentSourceContainerBuilder.element, access);
+					SourceAnalyzer.this.currentSourceContainerBuilder.children.add(rImport);
+				}
 				
 				final BuildSourceFrame envir= getPkgEnvir(packageName);
 				if (!SourceAnalyzer.this.globalEnvir.fParents.contains(envir)) {
@@ -1899,85 +1924,92 @@ public class SourceAnalyzer extends RAstVisitor {
 				SourceAnalyzer.this.argValueToIgnore.add(fNameNode);
 				
 				final BuildSourceFrame envir= new BuildSourceFrame.RunScope(IRFrame.FUNCTION, BuildSourceFrame.createId(IRFrame.FUNCTION, access.getSegmentName(), ++SourceAnalyzer.this.anonymCount), SourceAnalyzer.this.topScope);
-				final RMethod rMethod= new RMethod(SourceAnalyzer.this.currentSourceContainerBuilder.element, 
-						IRElement.R_GENERIC_FUNCTION, access, envir);
-				registerFunctionElement(rMethod);
-				
-				enterElement(rMethod, envir, node);
-				
-				final RMethod defMethod= visitAndCheckValue(args.getArgNode(this.argIdx_def), "def");
-				final RMethod defaultMethod= visitAndCheckValue(args.getArgNode(this.argIdx_useAsDefault), "useAsDefault");
-				visitAndCheckValue(args.getArgNode(this.argIdx_genericFunction), "genericFunction");
-				
-				final RAstNode signatureValue= args.getArgValueNode(this.argIdx_signature);
-				RAstNode[] signatureArgNodes= null;
-				if (signatureValue != null) {
-					SourceAnalyzer.this.request= STRING_ARRAY_REQUEST;
-					SourceAnalyzer.this.returnValue= null;
-					signatureValue.acceptInR(SourceAnalyzer.this);
-					SourceAnalyzer.this.argValueToIgnore.add(signatureValue);
-					if (SourceAnalyzer.this.returnValue instanceof ReturnValue && ((ReturnValue) SourceAnalyzer.this.returnValue).returnType == RETURN_STRING_ARRAY) {
-						signatureArgNodes= ((NodeArray) SourceAnalyzer.this.returnValue).array;
+				if (SourceAnalyzer.this.currentSourceContainerBuilder != null) {
+					final RMethod rMethod= new RMethod(SourceAnalyzer.this.currentSourceContainerBuilder.element, 
+							IRElement.R_GENERIC_FUNCTION, access, envir);
+					registerFunctionElement(rMethod);
+					
+					enterElement(rMethod, envir, node);
+					
+					final RMethod defMethod= visitAndCheckValue(args.getArgNode(this.argIdx_def), "def");
+					final RMethod defaultMethod= visitAndCheckValue(args.getArgNode(this.argIdx_useAsDefault), "useAsDefault");
+					visitAndCheckValue(args.getArgNode(this.argIdx_genericFunction), "genericFunction");
+					
+					final RAstNode signatureValue= args.getArgValueNode(this.argIdx_signature);
+					RAstNode[] signatureArgNodes= null;
+					if (signatureValue != null) {
+						SourceAnalyzer.this.request= STRING_ARRAY_REQUEST;
+						SourceAnalyzer.this.returnValue= null;
+						signatureValue.acceptInR(SourceAnalyzer.this);
+						SourceAnalyzer.this.argValueToIgnore.add(signatureValue);
+						if (SourceAnalyzer.this.returnValue instanceof ReturnValue && ((ReturnValue) SourceAnalyzer.this.returnValue).returnType == RETURN_STRING_ARRAY) {
+							signatureArgNodes= ((NodeArray) SourceAnalyzer.this.returnValue).array;
+						}
+						SourceAnalyzer.this.returnValue= null;
 					}
-					SourceAnalyzer.this.returnValue= null;
-				}
-				
-				ArgsDefinition baseDef= null;
-				ArgsDefinition methodDef;
-				if (defMethod != null) {
-					baseDef= defMethod.getArgsDefinition();
-				}
-				if (defaultMethod != null && (baseDef == null || baseDef.size() == 0)) {
-					baseDef= defaultMethod.getArgsDefinition();
-				}
-				if (baseDef != null && baseDef.size() > 0) {
-					final ArgsBuilder argsBuilder= new ArgsBuilder();
-					// we copy the names
-					if (signatureArgNodes != null) { // explicit
-						ARGS: for (int i= 0; i < baseDef.size(); i++) {
-							final String name= baseDef.get(i).name;
-							if (name != null) {
-								for (int j= 0; j < signatureArgNodes.length; j++) {
-									if (name.equals(signatureArgNodes[j].getText())) {
+					
+					ArgsDefinition baseDef= null;
+					ArgsDefinition methodDef;
+					if (defMethod != null) {
+						baseDef= defMethod.getArgsDefinition();
+					}
+					if (defaultMethod != null && (baseDef == null || baseDef.size() == 0)) {
+						baseDef= defaultMethod.getArgsDefinition();
+					}
+					if (baseDef != null && baseDef.size() > 0) {
+						final ArgsBuilder argsBuilder= new ArgsBuilder();
+						// we copy the names
+						if (signatureArgNodes != null) { // explicit
+							ARGS: for (int i= 0; i < baseDef.size(); i++) {
+								final String name= baseDef.get(i).name;
+								if (name != null) {
+									for (int j= 0; j < signatureArgNodes.length; j++) {
+										if (name.equals(signatureArgNodes[j].getText())) {
+											argsBuilder.add(name, 0, "<?>");
+											continue ARGS;
+										}
+									}
+									argsBuilder.add(name, 0, "\u2014");
+									continue ARGS;
+								}
+								argsBuilder.add(name);
+								continue ARGS;
+							}
+						}
+						else if (baseDef.size() == 1 && "...".equals(baseDef.get(0).name)) {
+							argsBuilder.add("...", 0, "<?>");
+						}
+						else {
+							ARGS: for (int i= 0; i < baseDef.size(); i++) {
+								final String name= baseDef.get(i).name;
+								if (name != null) {
+									if (!name.equals("...")) {
 										argsBuilder.add(name, 0, "<?>");
 										continue ARGS;
 									}
-								}
-								argsBuilder.add(name, 0, "\u2014");
-								continue ARGS;
-							}
-							argsBuilder.add(name);
-							continue ARGS;
-						}
-					}
-					else if (baseDef.size() == 1 && "...".equals(baseDef.get(0).name)) {
-						argsBuilder.add("...", 0, "<?>");
-					}
-					else {
-						ARGS: for (int i= 0; i < baseDef.size(); i++) {
-							final String name= baseDef.get(i).name;
-							if (name != null) {
-								if (!name.equals("...")) {
-									argsBuilder.add(name, 0, "<?>");
+									argsBuilder.add(name, 0, "\u2014");
 									continue ARGS;
 								}
-								argsBuilder.add(name, 0, "\u2014");
+								argsBuilder.add(name);
 								continue ARGS;
 							}
-							argsBuilder.add(name);
-							continue ARGS;
 						}
+						methodDef= argsBuilder.toDef();
 					}
-					methodDef= argsBuilder.toDef();
+					else {
+						methodDef= new ArgsDefinition();
+					}
+					rMethod.complete(methodDef);
+					
+					node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
+					
+					leaveElement();
 				}
 				else {
-					methodDef= new ArgsDefinition();
+					addEnvirInsteadOfElement(envir, node);
+					
+					node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
 				}
-				rMethod.complete(methodDef);
-				
-				node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-				
-				leaveElement();
 			}
 			else {
 				node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
@@ -2113,51 +2145,58 @@ public class SourceAnalyzer extends RAstVisitor {
 			final BuildSourceFrame envir= new BuildSourceFrame.RunScope(IRFrame.CLASS, BuildSourceFrame.createId(IRFrame.CLASS, access.getSegmentName(), ++SourceAnalyzer.this.anonymCount), 
 					SourceAnalyzer.this.topScope);
 			
-			final RClass rClass= new RSourceElementByElementAccess.RClass(SourceAnalyzer.this.currentSourceContainerBuilder.element, access, envir);
-			registerClassElement(rClass);
-			enterElement(rClass, envir, node);
-			
-			final RAstNode representationValue= args.getArgValueNode(this.argIdx_representation);
-			if (representationValue != null) {
-				SourceAnalyzer.this.request= REPRESENTATION_REQUEST;
-				representationValue.acceptInR(SourceAnalyzer.this);
+			if (SourceAnalyzer.this.currentSourceContainerBuilder != null) {
+				final RClass rClass= new RSourceElementByElementAccess.RClass(SourceAnalyzer.this.currentSourceContainerBuilder.element, access, envir);
+				registerClassElement(rClass);
+				enterElement(rClass, envir, node);
 				
-				SourceAnalyzer.this.argValueToIgnore.add(representationValue);
-				SourceAnalyzer.this.request= NO_REQUESTS;
-			}
-			
-			final RAstNode superClasses= args.getArgValueNode(this.argIdx_superClasses);
-			if (superClasses != null) {
-				SourceAnalyzer.this.request= STRING_ARRAY_REQUEST;
-				SourceAnalyzer.this.returnValue= null;
-				superClasses.acceptInR(SourceAnalyzer.this);
-				SourceAnalyzer.this.argValueToIgnore.add(superClasses);
-				if (SourceAnalyzer.this.returnValue instanceof ReturnValue && ((ReturnValue) SourceAnalyzer.this.returnValue).returnType == RETURN_STRING_ARRAY) {
-					final RAstNode refNode= args.allocatedArgs[this.argIdx_superClasses];
-					final RAstNode[] superClassNameNodes= ((NodeArray) SourceAnalyzer.this.returnValue).array;
-					final String[] names= new String[superClassNameNodes.length];
-					for (int i= 0; i < superClassNameNodes.length; i++) {
-						final ElementAccess superClassAccess= registerSimpleClassAccessInEnvir(refNode, superClassNameNodes[i]);
-						names[i]= superClassAccess.getSegmentName();
-					}
-					rClass.addSuperClasses(names);
+				final RAstNode representationValue= args.getArgValueNode(this.argIdx_representation);
+				if (representationValue != null) {
+					SourceAnalyzer.this.request= REPRESENTATION_REQUEST;
+					representationValue.acceptInR(SourceAnalyzer.this);
+					
+					SourceAnalyzer.this.argValueToIgnore.add(representationValue);
+					SourceAnalyzer.this.request= NO_REQUESTS;
 				}
-				SourceAnalyzer.this.request= NO_REQUESTS;
-				SourceAnalyzer.this.returnValue= null;
-			}
-			
-			final RAstNode prototypeValue= args.getArgValueNode(this.argIdx_prototype);
-			if (prototypeValue != null) {
-				SourceAnalyzer.this.request= PROTOTYPE_REQUEST;
-				prototypeValue.acceptInR(SourceAnalyzer.this);
 				
-				SourceAnalyzer.this.argValueToIgnore.add(prototypeValue);
-				SourceAnalyzer.this.request= NO_REQUESTS;
+				final RAstNode superClasses= args.getArgValueNode(this.argIdx_superClasses);
+				if (superClasses != null) {
+					SourceAnalyzer.this.request= STRING_ARRAY_REQUEST;
+					SourceAnalyzer.this.returnValue= null;
+					superClasses.acceptInR(SourceAnalyzer.this);
+					SourceAnalyzer.this.argValueToIgnore.add(superClasses);
+					if (SourceAnalyzer.this.returnValue instanceof ReturnValue && ((ReturnValue) SourceAnalyzer.this.returnValue).returnType == RETURN_STRING_ARRAY) {
+						final RAstNode refNode= args.allocatedArgs[this.argIdx_superClasses];
+						final RAstNode[] superClassNameNodes= ((NodeArray) SourceAnalyzer.this.returnValue).array;
+						final String[] names= new String[superClassNameNodes.length];
+						for (int i= 0; i < superClassNameNodes.length; i++) {
+							final ElementAccess superClassAccess= registerSimpleClassAccessInEnvir(refNode, superClassNameNodes[i]);
+							names[i]= superClassAccess.getSegmentName();
+						}
+						rClass.addSuperClasses(names);
+					}
+					SourceAnalyzer.this.request= NO_REQUESTS;
+					SourceAnalyzer.this.returnValue= null;
+				}
+				
+				final RAstNode prototypeValue= args.getArgValueNode(this.argIdx_prototype);
+				if (prototypeValue != null) {
+					SourceAnalyzer.this.request= PROTOTYPE_REQUEST;
+					prototypeValue.acceptInR(SourceAnalyzer.this);
+					
+					SourceAnalyzer.this.argValueToIgnore.add(prototypeValue);
+					SourceAnalyzer.this.request= NO_REQUESTS;
+				}
+				
+				node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
+				
+				leaveElement();
 			}
-			
-			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			
-			leaveElement();
+			else {
+				addEnvirInsteadOfElement(envir, node);
+				
+				node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
+			}
 			
 			SourceAnalyzer.this.returnValue= null;
 		}
@@ -2198,32 +2237,39 @@ public class SourceAnalyzer extends RAstVisitor {
 			
 			final BuildSourceFrame envir= new BuildSourceFrame.RunScope(IRFrame.CLASS, BuildSourceFrame.createId(IRFrame.CLASS, access.getSegmentName(), ++SourceAnalyzer.this.anonymCount), 
 					SourceAnalyzer.this.topScope);
-			final RClass rClass= new RSourceElementByElementAccess.RClass(SourceAnalyzer.this.currentSourceContainerBuilder.element, access, envir);
-			registerClassElement(rClass);
-			enterElement(rClass, envir, node);
-			
-			if (superClassNamesValue != null) {
-				SourceAnalyzer.this.request= STRING_ARRAY_REQUEST;
-				SourceAnalyzer.this.returnValue= null;
-				superClassNamesValue.acceptInR(SourceAnalyzer.this);
-				SourceAnalyzer.this.argValueToIgnore.add(superClassNamesValue);
-				if (SourceAnalyzer.this.returnValue instanceof ReturnValue && ((ReturnValue) SourceAnalyzer.this.returnValue).returnType == RETURN_STRING_ARRAY) {
-					final RAstNode refNode= args.allocatedArgs[this.argIdx_superClassNames];
-					final RAstNode[] superClassNameNodes= ((NodeArray) SourceAnalyzer.this.returnValue).array;
-					final String[] names= new String[superClassNameNodes.length];
-					for (int i= 0; i < superClassNameNodes.length; i++) {
-						final ElementAccess superClassAccess= registerSimpleClassAccessInEnvir(refNode, superClassNameNodes[i]);
-						names[i]= superClassAccess.getSegmentName();
+			if (SourceAnalyzer.this.currentSourceContainerBuilder != null) {
+				final RClass rClass= new RSourceElementByElementAccess.RClass(SourceAnalyzer.this.currentSourceContainerBuilder.element, access, envir);
+				registerClassElement(rClass);
+				enterElement(rClass, envir, node);
+				
+				if (superClassNamesValue != null) {
+					SourceAnalyzer.this.request= STRING_ARRAY_REQUEST;
+					SourceAnalyzer.this.returnValue= null;
+					superClassNamesValue.acceptInR(SourceAnalyzer.this);
+					SourceAnalyzer.this.argValueToIgnore.add(superClassNamesValue);
+					if (SourceAnalyzer.this.returnValue instanceof ReturnValue && ((ReturnValue) SourceAnalyzer.this.returnValue).returnType == RETURN_STRING_ARRAY) {
+						final RAstNode refNode= args.allocatedArgs[this.argIdx_superClassNames];
+						final RAstNode[] superClassNameNodes= ((NodeArray) SourceAnalyzer.this.returnValue).array;
+						final String[] names= new String[superClassNameNodes.length];
+						for (int i= 0; i < superClassNameNodes.length; i++) {
+							final ElementAccess superClassAccess= registerSimpleClassAccessInEnvir(refNode, superClassNameNodes[i]);
+							names[i]= superClassAccess.getSegmentName();
+						}
+						rClass.addSuperClasses(names);
 					}
-					rClass.addSuperClasses(names);
+					SourceAnalyzer.this.request= NO_REQUESTS;
+					SourceAnalyzer.this.returnValue= null;
 				}
-				SourceAnalyzer.this.request= NO_REQUESTS;
-				SourceAnalyzer.this.returnValue= null;
+				
+				node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
+				
+				leaveElement();
 			}
-			
-			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
-			
-			leaveElement();
+			else {
+				addEnvirInsteadOfElement(envir, node);
+				
+				node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
+			}
 			
 			SourceAnalyzer.this.returnValue= null;
 		}
@@ -2388,9 +2434,16 @@ public class SourceAnalyzer extends RAstVisitor {
 				
 				SourceAnalyzer.this.argValueToIgnore.add(classNameNode);
 				
-				envir= new BuildSourceFrame.RunScope(IRFrame.FUNCTION, BuildSourceFrame.createId(IRFrame.FUNCTION, access.getSegmentName(), ++SourceAnalyzer.this.anonymCount), SourceAnalyzer.this.topScope);
-				rClassExt= new RClassExt(SourceAnalyzer.this.currentSourceContainerBuilder.element, access, envir, "setIs");
-				registerClassExtElement(rClassExt);
+				envir= new BuildSourceFrame.RunScope(IRFrame.FUNCTION,
+						BuildSourceFrame.createId(IRFrame.FUNCTION, access.getSegmentName(), ++SourceAnalyzer.this.anonymCount),
+						SourceAnalyzer.this.topScope );
+				if (SourceAnalyzer.this.currentSourceContainerBuilder != null) {
+					rClassExt= new RClassExt(SourceAnalyzer.this.currentSourceContainerBuilder.element, access, envir, "setIs");
+					registerClassExtElement(rClassExt);
+				}
+				else {
+					node.addAttachment(envir);
+				}
 			}
 			if (cToExtendNameNode != null && cToExtendNameNode.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access= new ElementAccess.Class(node);
@@ -2398,7 +2451,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				access.fNameNode= cToExtendNameNode;
 				SourceAnalyzer.this.genericDefaultEnvir.addClass(cToExtendNameNode.getText(), access);
 				
-				SourceAnalyzer.this.argValueToIgnore.add(classNameNode);
+				SourceAnalyzer.this.argValueToIgnore.add(cToExtendNameNode);
 				
 				if (rClassExt != null) {
 					rClassExt.complete(classNameNode.getText());
@@ -2643,11 +2696,16 @@ public class SourceAnalyzer extends RAstVisitor {
 				else {
 					final BuildSourceFrame envir= new BuildSourceFrame.DefScope(IRFrame.FUNCTION,
 							BuildSourceFrame.createId(IRFrame.FUNCTION, access.getSegmentName(), ++SourceAnalyzer.this.anonymCount),
-							access.getSegmentName(), new BuildSourceFrame[] { SourceAnalyzer.this.topLevelEnvir });
-					rMethod= new RMethod(SourceAnalyzer.this.currentSourceContainerBuilder.element, IRElement.R_S4METHOD, access, envir);
-					enterElement(rMethod, envir, node);
-					leaveElement();
-					registerFunctionElement(rMethod, IRElement.R_S4METHOD, access, sig);
+							access.getSegmentName(), new BuildSourceFrame[] { SourceAnalyzer.this.topLevelEnvir } );
+					if (SourceAnalyzer.this.currentSourceContainerBuilder != null) {
+						rMethod= new RMethod(SourceAnalyzer.this.currentSourceContainerBuilder.element, IRElement.R_S4METHOD, access, envir);
+						enterElement(rMethod, envir, node);
+						leaveElement();
+						registerFunctionElement(rMethod, IRElement.R_S4METHOD, access, sig);
+					}
+					else {
+						addEnvirInsteadOfElement(envir, node);
+					}
 				}
 				SourceAnalyzer.this.returnValue= null;
 			}
