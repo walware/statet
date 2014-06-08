@@ -18,6 +18,7 @@ import java.net.URI;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler2;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.internal.text.html.BrowserInformationControl;
@@ -352,7 +353,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 	}
 	
 	@Override
-	public void showMessage(final int severity, final String message) {
+	public void showMessage(final IStatus status) {
 	}
 	
 	@Override

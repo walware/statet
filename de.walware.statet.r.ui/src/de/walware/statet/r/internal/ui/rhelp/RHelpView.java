@@ -84,10 +84,10 @@ public class RHelpView extends PageBookBrowserView
 	
 	public class RunCode extends AbstractHandler {
 		
-		private final boolean fGotoConsole;
+		private final boolean gotoConsole;
 		
 		public RunCode(final boolean gotoConsole) {
-			fGotoConsole = gotoConsole;
+			this.gotoConsole= gotoConsole;
 		}
 		
 		@Override
@@ -97,20 +97,20 @@ public class RHelpView extends PageBookBrowserView
 		
 		@Override
 		public Object execute(final ExecutionEvent event) throws ExecutionException {
-			final PageBookBrowserPage browserPage = getCurrentBrowserPage();
+			final PageBookBrowserPage browserPage= getCurrentBrowserPage();
 			if (browserPage != null) {
-				final String selectedText = browserPage.getSelection();
+				final String selectedText= browserPage.getSelectedText();
 				if (selectedText != null && selectedText.length() > 0) {
 					try {
-						final List<String> lines = TextUtil.toLines(selectedText);
-						RCodeLaunching.runRCodeDirect(lines, fGotoConsole, null);
+						final List<String> lines= TextUtil.toLines(selectedText);
+						RCodeLaunching.runRCodeDirect(lines, this.gotoConsole, null);
 					}
 					catch (final CoreException e) {
-						final IStatus causeStatus = e.getStatus();
-						final Status status = new Status(causeStatus.getSeverity(), RUI.PLUGIN_ID,
+						final IStatus causeStatus= e.getStatus();
+						final Status status= new Status(causeStatus.getSeverity(), RUI.PLUGIN_ID,
 								ICommonStatusConstants.LAUNCHING, RLaunchingMessages.RSelectionLaunch_error_message, e);
 						StatusManager.getManager().handle(status);
-						final IStatusLineManager manager = getViewSite().getActionBars().getStatusLineManager();
+						final IStatusLineManager manager= getViewSite().getActionBars().getStatusLineManager();
 						if (manager != null) {
 							if (causeStatus.getSeverity() == IStatus.ERROR) {
 								manager.setErrorMessage(causeStatus.getMessage());
@@ -136,15 +136,17 @@ public class RHelpView extends PageBookBrowserView
 		
 		@Override
 		protected void execute() throws ExecutionException {
-			setLinkingWithEditor(!fIsLinkingWithEditor);
+			setLinkingWithEditor(!RHelpView.this.fIsLinkingWithEditor);
 		}
 		
 	}
 	
 	
 	private boolean fIsLinkingWithEditor;
-	private final LinkEditorHandler fLinkingWithEditorHandler = new LinkEditorHandler();
+	private final LinkEditorHandler fLinkingWithEditorHandler= new LinkEditorHandler();
 	private SourceEditor1 fLinkedEditor;
+	
+	private IPartListener2 partListener;
 	
 	
 	public RHelpView() {
@@ -154,9 +156,13 @@ public class RHelpView extends PageBookBrowserView
 	
 	@Override
 	public void dispose() {
-		if (fLinkedEditor != null) {
-			fLinkedEditor.removePostSelectionWithElementInfoListener(this);
-			fLinkedEditor = null;
+		if (this.partListener != null) {
+			getSite().getPage().removePartListener(this.partListener);
+			this.partListener= null;
+		}
+		if (this.fLinkedEditor != null) {
+			this.fLinkedEditor.removePostSelectionWithElementInfoListener(this);
+			this.fLinkedEditor= null;
 		}
 		
 		super.dispose();
@@ -167,7 +173,7 @@ public class RHelpView extends PageBookBrowserView
 		super.createPartControl(parent);
 		
 		if (!PlatformUI.getWorkbench().isStarting()) {
-			final Job job = new Job("Initial R Help Page") { //$NON-NLS-1$
+			final Job job= new Job("Initial R Help Page") { //$NON-NLS-1$
 				{	setSystem(true);
 					setUser(false);
 					setPriority(Job.SHORT);
@@ -175,7 +181,7 @@ public class RHelpView extends PageBookBrowserView
 				@Override
 				protected IStatus run(final IProgressMonitor monitor) {
 					RCore.getRHelpManager().ensureIsRunning();
-					final Display display = UIAccess.getDisplay();
+					final Display display= UIAccess.getDisplay();
 					if (getCurrentBrowserPage() == null
 							&& display != null && !display.isDisposed()) {
 						display.asyncExec(new Runnable() {
@@ -194,13 +200,17 @@ public class RHelpView extends PageBookBrowserView
 			job.schedule(50);
 		}
 		
-		getSite().getPage().addPartListener(new IPartListener2() {
+		initLinking();
+	}
+	
+	private void initLinking() {
+		this.partListener= new IPartListener2() {
 			@Override
 			public void partOpened(final IWorkbenchPartReference partRef) {
 			}
 			@Override
 			public void partClosed(final IWorkbenchPartReference partRef) {
-				if (fLinkedEditor != null && partRef.getPart(false) == fLinkedEditor) {
+				if (RHelpView.this.fLinkedEditor != null && partRef.getPart(false) == RHelpView.this.fLinkedEditor) {
 					clear();
 				}
 			}
@@ -215,10 +225,10 @@ public class RHelpView extends PageBookBrowserView
 			}
 			@Override
 			public void partActivated(final IWorkbenchPartReference partRef) {
-				final IWorkbenchPart part = partRef.getPart(false);
+				final IWorkbenchPart part= partRef.getPart(false);
 				if (part instanceof SourceEditor1) {
-					fLinkedEditor = (SourceEditor1) part;
-					fLinkedEditor.addPostSelectionWithElementInfoListener(RHelpView.this);
+					RHelpView.this.fLinkedEditor= (SourceEditor1) part;
+					RHelpView.this.fLinkedEditor.addPostSelectionWithElementInfoListener(RHelpView.this);
 				}
 				else if (part instanceof IEditorPart) {
 					clear();
@@ -231,24 +241,26 @@ public class RHelpView extends PageBookBrowserView
 			public void partBroughtToTop(final IWorkbenchPartReference partRef) {
 			}
 			private void clear() {
-				if (fLinkedEditor != null) {
-					fLinkedEditor.removePostSelectionWithElementInfoListener(RHelpView.this);
-					fLinkedEditor = null;
+				if (RHelpView.this.fLinkedEditor != null) {
+					RHelpView.this.fLinkedEditor.removePostSelectionWithElementInfoListener(RHelpView.this);
+					RHelpView.this.fLinkedEditor= null;
 				}
 			}
-		});
+		};
+		
+		getSite().getPage().addPartListener(this.partListener);
 	}
 	
 	@Override
 	protected void initActions(final IServiceLocator serviceLocator, final HandlerCollection handlers) {
 		super.initActions(serviceLocator, handlers);
-		final IHandlerService handlerService = (IHandlerService) serviceLocator.getService(IHandlerService.class);
+		final IHandlerService handlerService= (IHandlerService) serviceLocator.getService(IHandlerService.class);
 		
-		{	final IHandler2 handler = new RunCode(false);
+		{	final IHandler2 handler= new RunCode(false);
 			handlers.add(RCodeLaunching.SUBMIT_SELECTION_COMMAND_ID, handler);
 			handlerService.activateHandler(RCodeLaunching.SUBMIT_SELECTION_COMMAND_ID, handler);
 		}
-		{	final IHandler2 handler = new RunCode(true);
+		{	final IHandler2 handler= new RunCode(true);
 			handlers.add(RCodeLaunching.SUBMIT_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID, handler);
 			handlerService.activateHandler(RCodeLaunching.SUBMIT_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID, handler);
 		}
@@ -259,7 +271,7 @@ public class RHelpView extends PageBookBrowserView
 			final IActionBars actionBars, final HandlerCollection handlers) {
 		super.contributeToActionBars(serviceLocator, actionBars, handlers);
 		
-		final IToolBarManager toolBarManager = actionBars.getToolBarManager();
+		final IToolBarManager toolBarManager= actionBars.getToolBarManager();
 		toolBarManager.appendToGroup("bookmarks", //$NON-NLS-1$
 				new CommandContributionItem(new CommandContributionItemParameter(
 				serviceLocator, null, "de.walware.ecommons.ide.commands.OpenSearchDialog", //$NON-NLS-1$
@@ -267,7 +279,7 @@ public class RHelpView extends PageBookBrowserView
 				null, null, null,
 				null, null, null,
 				CommandContributionItem.STYLE_PUSH, null, false)));
-		toolBarManager.add(fLinkingWithEditorHandler);
+		toolBarManager.add(this.fLinkingWithEditorHandler);
 	}
 	
 	@Override
@@ -277,7 +289,7 @@ public class RHelpView extends PageBookBrowserView
 	
 	@Override
 	protected void updateTitle() {
-		final BrowserSession session = getCurrentSession();
+		final BrowserSession session= getCurrentSession();
 		if (session == null) {
 			setContentDescription(getNoPageTitle());
 		}
@@ -289,8 +301,8 @@ public class RHelpView extends PageBookBrowserView
 	
 	@Override
 	protected BookmarkCollection initBookmarkCollection() {
-		final BookmarkCollection collection = BookmarkCollection.getCollection(RHelpPreferences.RHELP_QUALIFIER);
-		final List<BrowserBookmark> bookmarks = collection.getBookmarks();
+		final BookmarkCollection collection= BookmarkCollection.getCollection(RHelpPreferences.RHELP_QUALIFIER);
+		final List<BrowserBookmark> bookmarks= collection.getBookmarks();
 		synchronized (collection) {
 			if (bookmarks.isEmpty()) {
 				bookmarks.add(new BrowserBookmark("R Homepage - The R Project for Statistical Computing", "http://www.r-project.org")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -303,13 +315,13 @@ public class RHelpView extends PageBookBrowserView
 	
 	@Override
 	protected BrowserBookmark createBookmark() {
-		final PageBookBrowserPage page = getCurrentBrowserPage();
+		final PageBookBrowserPage page= getCurrentBrowserPage();
 		if (page != null) {
-			String url = page.getCurrentUrl();
+			String url= page.getCurrentUrl();
 			try {
-				URI uri = new URI(url);
-				uri = RCore.getRHelpManager().toPortableUrl(uri);
-				url = uri.toString();
+				URI uri= new URI(url);
+				uri= RCore.getRHelpManager().toPortableUrl(uri);
+				url= uri.toString();
 			}
 			catch (final URISyntaxException e) {
 				// ?
@@ -332,10 +344,10 @@ public class RHelpView extends PageBookBrowserView
 	
 	
 	public void setLinkingWithEditor(final boolean enable) {
-		fIsLinkingWithEditor = enable;
-		fLinkingWithEditorHandler.setChecked(enable);
-		if (enable && fLinkedEditor != null) {
-			final ISelection selection = fLinkedEditor.getShowInContext().getSelection();
+		this.fIsLinkingWithEditor= enable;
+		this.fLinkingWithEditorHandler.setChecked(enable);
+		if (enable && this.fLinkedEditor != null) {
+			final ISelection selection= this.fLinkedEditor.getShowInContext().getSelection();
 			if (selection instanceof LTKInputData) {
 				stateChanged((LTKInputData) selection);
 			}
@@ -348,7 +360,7 @@ public class RHelpView extends PageBookBrowserView
 	
 	@Override
 	public void stateChanged(final LTKInputData state) {
-		if (!fIsLinkingWithEditor) {
+		if (!this.fIsLinkingWithEditor) {
 			return;
 		}
 		show(state, false);
@@ -357,54 +369,54 @@ public class RHelpView extends PageBookBrowserView
 	private boolean show(final LTKInputData state, final boolean explicite) {
 		if (state.getInputElement().getModelTypeId() == RModel.TYPE_ID
 				|| state.getInputElement() instanceof IRSourceUnit) {
-			final AstSelection astSelection = state.getAstSelection();
-			final ISelection selection = state.getSelection();
+			final AstSelection astSelection= state.getAstSelection();
+			final ISelection selection= state.getSelection();
 			if (astSelection != null && selection instanceof ITextSelection) {
-				final ITextSelection textSelection = (ITextSelection) selection;
+				final ITextSelection textSelection= (ITextSelection) selection;
 				if (!(astSelection.getCovering() instanceof RAstNode) || textSelection.getLength() > 0) {
 					return false;
 				}
-				final RAstNode rNode = (RAstNode) astSelection.getCovering();
-				RElementName name = null;
+				final RAstNode rNode= (RAstNode) astSelection.getCovering();
+				RElementName name= null;
 				if (!rNode.hasChildren()) {
-					name = RHelpHover.searchName(rNode, rNode, false);
+					name= RHelpHover.searchName(rNode, rNode, false);
 				}
 				if (name == null) {
-					name = RHelpHover.searchNameOfFunction(rNode,
+					name= RHelpHover.searchNameOfFunction(rNode,
 							new Region(textSelection.getOffset(), textSelection.getLength()) );
 				}
 				if (name == null) {
 					return false;
 				}
-				final IREnv rEnv = RCore.getREnvManager().getDefault();
+				final IREnv rEnv= RCore.getREnvManager().getDefault();
 				if (rEnv == null) {
 					return false;
 				}
-				final IRHelpManager rHelpManager = RCore.getRHelpManager();
-				final IREnvHelp help = rHelpManager.getHelp(rEnv);
+				final IRHelpManager rHelpManager= RCore.getRHelpManager();
+				final IREnvHelp help= rHelpManager.getHelp(rEnv);
 				if (help != null) {
 					final String url;
 					try {
 						if (name.getType() == RElementName.MAIN_PACKAGE) {
-							final IRPkgHelp packageHelp = help.getRPackage(name.getSegmentName());
+							final IRPkgHelp packageHelp= help.getRPackage(name.getSegmentName());
 							if (packageHelp != null) {
-								url = rHelpManager.getPackageHttpUrl(packageHelp, RHelpUIServlet.BROWSE_TARGET);
+								url= rHelpManager.getPackageHttpUrl(packageHelp, RHelpUIServlet.BROWSE_TARGET);
 							}
 							else {
-								url = null;
+								url= null;
 							}
 						}
 						else {
-							final List<IRHelpPage> topics = help.getPagesForTopic(name.getSegmentName());
+							final List<IRHelpPage> topics= help.getPagesForTopic(name.getSegmentName());
 							if (topics.size() == 1) {
-								url = rHelpManager.getPageHttpUrl(topics.get(0), RHelpUIServlet.BROWSE_TARGET);
+								url= rHelpManager.getPageHttpUrl(topics.get(0), RHelpUIServlet.BROWSE_TARGET);
 							}
 							else if (topics.size() > 1) {
-								url = rHelpManager.toHttpUrl("rhelp:///topic/"+name.getSegmentName(), rEnv,
+								url= rHelpManager.toHttpUrl("rhelp:///topic/"+name.getSegmentName(), rEnv,
 										RHelpUIServlet.BROWSE_TARGET);
 							}
 							else {
-								url = null;
+								url= null;
 							}
 						}
 					}
@@ -415,10 +427,10 @@ public class RHelpView extends PageBookBrowserView
 						UIAccess.getDisplay().asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								if ((explicite || fLinkedEditor != null
-										&& fLinkedEditor == fLinkedEditor.getSite().getPage().getActiveEditor())
+								if ((explicite || RHelpView.this.fLinkedEditor != null
+										&& RHelpView.this.fLinkedEditor == RHelpView.this.fLinkedEditor.getSite().getPage().getActiveEditor())
 										&& getPageBook() != null && !getPageBook().isDisposed()) {
-									final BrowserSession session = getCurrentSession();
+									final BrowserSession session= getCurrentSession();
 									if (session == null || !url.equals(session.getUrl())) {
 										openUrl(url, session);
 									}
@@ -444,7 +456,7 @@ public class RHelpView extends PageBookBrowserView
 	
 	@Override
 	public boolean show(final ShowInContext context) {
-		final ISelection selection = context.getSelection();
+		final ISelection selection= context.getSelection();
 		if (selection instanceof LTKInputData) {
 			return show((LTKInputData) selection, true);
 		}
