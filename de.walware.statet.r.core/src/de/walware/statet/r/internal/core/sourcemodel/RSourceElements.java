@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.core.model.IModelElement;
 
 import de.walware.statet.r.core.model.IRLangSourceElement;
 

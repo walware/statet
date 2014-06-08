@@ -40,7 +40,7 @@ import org.eclipse.ui.texteditor.AbstractMarkerAnnotationModel;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
-import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
+import de.walware.ecommons.ltk.core.model.IWorkspaceSourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.text.IMarkerPositionResolver;
 import de.walware.ecommons.text.ui.AnnotationMarkerPositionResolver;

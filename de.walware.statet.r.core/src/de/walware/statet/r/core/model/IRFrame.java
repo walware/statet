@@ -13,7 +13,7 @@ package de.walware.statet.r.core.model;
 
 import java.util.List;
 
-import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.core.model.IModelElement;
 
 
 // TODO extend IRElement? return as model parent of elements

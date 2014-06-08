@@ -13,8 +13,8 @@ package de.walware.statet.r.internal.core;
 
 import org.eclipse.core.resources.IFile;
 
-import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.core.impl.AbstractFilePersistenceSourceUnitFactory;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 
 import de.walware.statet.r.internal.core.sourcemodel.RSourceUnit;
 

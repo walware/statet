@@ -42,7 +42,7 @@ import org.eclipse.ui.PlatformUI;
 
 import de.walware.ecommons.collections.CollectionUtils;
 import de.walware.ecommons.collections.ConstArrayList;
-import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;

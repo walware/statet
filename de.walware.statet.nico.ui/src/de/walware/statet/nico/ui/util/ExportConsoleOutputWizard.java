@@ -54,6 +54,7 @@ import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.StringVariableUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -111,7 +112,7 @@ public class ExportConsoleOutputWizard extends Wizard {
 			
 			fConfigControl.getPathInput().getValidator().setOnLateResolve(IStatus.ERROR);
 			fConfigControl.getPathInput().setShowInsertVariable(true,
-					DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS,
+					StringVariableUtil.DEFAULT_NON_ITERACTIVE_FILTERS,
 					fConsolePage.getTool().getWorkspaceData().getStringVariables() );
 			fConfigControl.setInput(fConfig);
 			

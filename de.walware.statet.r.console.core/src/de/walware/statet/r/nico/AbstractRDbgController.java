@@ -30,9 +30,9 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
 
 import de.walware.ecommons.io.FileUtil;
-import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 import de.walware.ecommons.ltk.LTK;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
+import de.walware.ecommons.ltk.core.model.IWorkspaceSourceUnit;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;

@@ -13,7 +13,7 @@ package de.walware.statet.r.core.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.renv.IREnv;

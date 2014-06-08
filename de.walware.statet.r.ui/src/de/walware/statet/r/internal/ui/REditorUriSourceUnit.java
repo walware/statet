@@ -19,12 +19,12 @@ import org.eclipse.core.runtime.SubMonitor;
 
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelManager;
-import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.WorkingContext;
 import de.walware.ecommons.ltk.core.impl.GenericUriSourceUnit;
 import de.walware.ecommons.ltk.core.impl.IWorkingBuffer;
+import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ui.FileBufferWorkingBuffer;
 
 import de.walware.statet.r.core.IRCoreAccess;

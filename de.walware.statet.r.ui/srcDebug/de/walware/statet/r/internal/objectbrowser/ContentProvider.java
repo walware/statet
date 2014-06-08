@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
-import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.models.core.util.ElementPartitionFactory;
 import de.walware.ecommons.models.core.util.ElementProxy;
 import de.walware.ecommons.models.core.util.IElementPartition;

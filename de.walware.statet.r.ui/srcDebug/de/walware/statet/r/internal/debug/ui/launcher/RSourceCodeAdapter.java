@@ -18,8 +18,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IRegion;
 
-import de.walware.ecommons.ltk.ISourceElement;
-import de.walware.ecommons.ltk.ISourceStructElement;
+import de.walware.ecommons.ltk.core.model.ISourceElement;
+import de.walware.ecommons.ltk.core.model.ISourceStructElement;
 import de.walware.ecommons.text.BasicHeuristicTokenScanner;
 
 import de.walware.statet.r.core.model.IRLangElement;

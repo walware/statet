@@ -14,8 +14,8 @@ package de.walware.statet.r.internal.core.sourcemodel;
 import java.util.Iterator;
 import java.util.List;
 
-import de.walware.ecommons.ltk.IModelElement;
-import de.walware.ecommons.ltk.ISourceStructElement;
+import de.walware.ecommons.ltk.core.model.IModelElement;
+import de.walware.ecommons.ltk.core.model.ISourceStructElement;
 
 import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.IRModelInfo;

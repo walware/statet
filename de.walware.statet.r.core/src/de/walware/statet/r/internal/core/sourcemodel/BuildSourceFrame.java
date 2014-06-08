@@ -22,7 +22,7 @@ import java.util.Set;
 import de.walware.ecommons.collections.CollectionUtils;
 import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.collections.ConstList;
-import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.core.model.IModelElement;
 
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;

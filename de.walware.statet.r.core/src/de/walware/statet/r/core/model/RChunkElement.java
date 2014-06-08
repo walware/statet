@@ -13,8 +13,8 @@ package de.walware.statet.r.core.model;
 
 import org.eclipse.jface.text.IRegion;
 
-import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.core.model.ISourceStructElement;
 
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
 import de.walware.statet.r.internal.core.sourcemodel.RChunkBuildElement;

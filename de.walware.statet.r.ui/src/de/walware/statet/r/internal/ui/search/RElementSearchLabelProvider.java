@@ -17,8 +17,8 @@ import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
-import de.walware.ecommons.ltk.IModelElement;
-import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.core.model.IModelElement;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.workbench.search.ui.LineElement;
 import de.walware.ecommons.workbench.search.ui.TextSearchLabelUtil;

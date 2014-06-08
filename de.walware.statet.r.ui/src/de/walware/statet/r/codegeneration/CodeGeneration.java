@@ -24,8 +24,8 @@ import org.eclipse.jface.text.templates.TemplateBuffer;
 import org.eclipse.jface.text.templates.TemplateVariable;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.ltk.IModelElement;
-import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.core.model.IModelElement;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.ui.templates.TemplatesUtil;
 import de.walware.ecommons.ltk.ui.templates.TemplatesUtil.EvaluatedTemplate;
 import de.walware.ecommons.templates.TemplateMessages;

@@ -12,9 +12,9 @@
 package de.walware.statet.r.internal.core.sourcemodel;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelElementDelta;
 import de.walware.ecommons.ltk.IModelManager;
+import de.walware.ecommons.ltk.core.model.IModelElement;
 
 import de.walware.statet.r.core.model.IRModelInfo;
 

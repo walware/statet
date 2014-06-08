@@ -11,9 +11,9 @@
 
 package de.walware.statet.r.ui;
 
-import static de.walware.ecommons.ltk.IModelElement.MASK_C1;
-import static de.walware.ecommons.ltk.IModelElement.MASK_C2;
-import static de.walware.ecommons.ltk.IModelElement.SHIFT_C1;
+import static de.walware.ecommons.ltk.core.model.IModelElement.MASK_C1;
+import static de.walware.ecommons.ltk.core.model.IModelElement.MASK_C2;
+import static de.walware.ecommons.ltk.core.model.IModelElement.SHIFT_C1;
 
 import java.util.List;
 
@@ -28,8 +28,8 @@ import org.eclipse.swt.graphics.Image;
 
 import de.walware.ecommons.debug.ui.WaDebugImages;
 import de.walware.ecommons.ltk.IElementName;
-import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.LTKUtil;
+import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
 import de.walware.ecommons.models.core.util.IElementPartition;
 

@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.ltk.ISourceElement;
+import de.walware.ecommons.ltk.core.model.ISourceElement;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.SharedUIResources;
 

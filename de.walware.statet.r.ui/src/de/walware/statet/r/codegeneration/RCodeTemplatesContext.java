@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.codegeneration;
 
-import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.ui.templates.CodeGenerationTemplateContext;
 
 import de.walware.statet.r.core.model.IRElement;

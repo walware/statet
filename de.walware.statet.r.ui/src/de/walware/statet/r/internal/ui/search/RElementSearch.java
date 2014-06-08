@@ -20,8 +20,8 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 
-import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.SourceContent;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.text.ILineInformation;
 import de.walware.ecommons.workbench.search.ui.LineElement;
 

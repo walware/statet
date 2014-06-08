@@ -19,8 +19,8 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
-import de.walware.ecommons.ltk.ISourceElement;
-import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
+import de.walware.ecommons.ltk.core.model.ISourceElement;
+import de.walware.ecommons.ltk.core.model.IWorkspaceSourceUnit;
 
 import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;

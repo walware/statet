@@ -27,8 +27,8 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorProgressHandler;
 import de.walware.ecommons.ui.util.UIAccess;

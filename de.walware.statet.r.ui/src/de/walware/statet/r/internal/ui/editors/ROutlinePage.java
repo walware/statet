@@ -23,7 +23,7 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.services.IServiceLocator;
 
-import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ltk.ui.ElementNameComparator;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor2OutlinePage;
 import de.walware.ecommons.ui.SharedMessages;

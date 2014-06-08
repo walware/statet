@@ -11,7 +11,7 @@
 
 package de.walware.statet.ext.templates;
 
-import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.ui.templates.SourceEditorContextType;
 import de.walware.ecommons.preferences.PreferencesUtil;
 

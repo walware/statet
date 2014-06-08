@@ -24,13 +24,13 @@ import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 
-import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelManager;
-import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.LTKUtil;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.core.model.IModelElement;
+import de.walware.ecommons.ltk.core.model.ISourceStructElement;
 
 import de.walware.statet.r.console.core.RDbg;
 import de.walware.statet.r.core.model.IRElement;

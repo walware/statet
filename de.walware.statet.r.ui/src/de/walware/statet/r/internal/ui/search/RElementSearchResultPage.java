@@ -17,7 +17,7 @@ import java.util.List;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 
-import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.workbench.search.ui.ExtTextSearchResultPage;
 import de.walware.ecommons.workbench.search.ui.LineElement;
 import de.walware.ecommons.workbench.search.ui.TextSearchResultContentProvider;

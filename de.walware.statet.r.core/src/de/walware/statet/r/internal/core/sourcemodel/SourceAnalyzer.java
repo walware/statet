@@ -27,9 +27,9 @@ import org.eclipse.core.runtime.OperationCanceledException;
 
 import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.IModelElement;
-import de.walware.ecommons.ltk.ISourceStructElement;
-import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
+import de.walware.ecommons.ltk.core.model.IModelElement;
+import de.walware.ecommons.ltk.core.model.ISourceStructElement;
+import de.walware.ecommons.ltk.core.model.IWorkspaceSourceUnit;
 
 import de.walware.statet.r.core.model.ArgsBuilder;
 import de.walware.statet.r.core.model.ArgsDefinition;

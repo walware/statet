@@ -20,8 +20,8 @@ import org.eclipse.jface.text.source.IAnnotationModel;
 
 import de.walware.ecommons.IDisposable;
 import de.walware.ecommons.ltk.IProblem;
-import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.LTK;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceAnnotationModel;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceDocumentProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceProblemAnnotation;

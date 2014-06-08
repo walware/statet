@@ -18,11 +18,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.ISynchronizable;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelManager;
-import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
+import de.walware.ecommons.ltk.core.model.IModelElement;
+import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 
 import de.walware.statet.nico.ui.console.GenericConsoleSourceUnit;
 import de.walware.statet.nico.ui.console.InputDocument;

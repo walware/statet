@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.core.model;
 
-import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
+import de.walware.ecommons.ltk.core.model.IWorkspaceSourceUnit;
 
 
 public interface IRWorkspaceSourceUnit extends IRSourceUnit, IWorkspaceSourceUnit {

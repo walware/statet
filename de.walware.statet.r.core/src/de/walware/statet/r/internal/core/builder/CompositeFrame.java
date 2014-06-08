@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
-import de.walware.ecommons.ltk.IModelElement.Filter;
+import de.walware.ecommons.ltk.core.model.IModelElement.Filter;
 
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;

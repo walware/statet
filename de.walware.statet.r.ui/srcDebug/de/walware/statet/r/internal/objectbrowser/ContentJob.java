@@ -26,7 +26,7 @@ import org.eclipse.ui.dialogs.SearchPattern;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 import de.walware.ecommons.collections.ConstArrayList;
-import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ToolWorkspace;

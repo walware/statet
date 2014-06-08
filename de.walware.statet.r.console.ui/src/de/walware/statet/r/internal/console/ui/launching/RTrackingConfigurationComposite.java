@@ -13,7 +13,7 @@ package de.walware.statet.r.internal.console.ui.launching;
 
 import org.eclipse.swt.widgets.Composite;
 
-import de.walware.ecommons.ui.util.DialogUtil;
+import de.walware.ecommons.ui.util.StringVariableUtil;
 
 import de.walware.statet.nico.core.NicoVariables;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
@@ -42,7 +42,7 @@ public class RTrackingConfigurationComposite extends TrackingConfigurationCompos
 	protected void create() {
 		super.create();
 		
-		getPathInput().setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS,
+		getPathInput().setShowInsertVariable(true, StringVariableUtil.DEFAULT_NON_ITERACTIVE_FILTERS,
 				RWorkspace.ADDITIONAL_R_VARIABLES);
 	}
 	

@@ -56,8 +56,8 @@ import de.walware.ecommons.debug.ui.InputArgumentsComposite;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.ui.SharedMessages;
-import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.StringVariableUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.base.ui.StatetImages;
@@ -224,7 +224,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 				ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
 				RConsoleMessages.RConsole_MainTab_WorkingDir_label );
 		fWorkingDirectoryControl.setShowInsertVariable(true,
-				DialogUtil.DEFAULT_INTERACTIVE_FILTERS, null);
+				StringVariableUtil.DEFAULT_INTERACTIVE_FILTERS, null);
 		fWorkingDirectoryControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 		
 		fArgumentsControl = new RArgumentsComposite(group);

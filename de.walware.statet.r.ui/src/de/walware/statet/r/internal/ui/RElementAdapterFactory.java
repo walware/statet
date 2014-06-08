@@ -17,9 +17,9 @@ import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.search.ui.ISearchPageScoreComputer;
 import org.eclipse.ui.IContributorResourceAdapter;
 
-import de.walware.ecommons.ltk.ISourceElement;
-import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
+import de.walware.ecommons.ltk.core.model.ISourceElement;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
+import de.walware.ecommons.ltk.core.model.IWorkspaceSourceUnit;
 
 import de.walware.statet.r.core.model.IRElement;
 

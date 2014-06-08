@@ -13,8 +13,8 @@ package de.walware.statet.r.internal.rdata;
 
 import org.eclipse.jface.text.IRegion;
 
-import de.walware.ecommons.ltk.IModelElement;
-import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.core.model.IModelElement;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;

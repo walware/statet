@@ -15,8 +15,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.walware.ecommons.ltk.AbstractSourceModelInfo;
 import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.core.impl.AbstractSourceModelInfo;
 
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;

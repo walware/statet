@@ -37,8 +37,8 @@ import de.walware.ecommons.databinding.ComputedOnChangeValue;
 import de.walware.ecommons.databinding.IntegerValidator;
 import de.walware.ecommons.databinding.NotEmptyValidator;
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
-import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.StringVariableUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.nico.core.util.TrackingConfiguration;
@@ -247,7 +247,7 @@ public class TrackingConfigurationComposite extends Composite {
 				}
 			}
 		};
-		fFilePathControl.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
+		fFilePathControl.setShowInsertVariable(true, StringVariableUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 		fFilePathControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
 		fFileAppendControl = new Button(composite, SWT.CHECK);

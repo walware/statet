@@ -22,7 +22,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
-import de.walware.ecommons.ltk.ISourceStructElement;
+import de.walware.ecommons.ltk.core.model.ISourceStructElement;
 import de.walware.ecommons.ltk.ui.util.LTKSelectionUtil;
 import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.workbench.ui.WorkbenchUIUtil;

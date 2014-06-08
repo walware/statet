@@ -15,7 +15,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.IRSourceUnit;

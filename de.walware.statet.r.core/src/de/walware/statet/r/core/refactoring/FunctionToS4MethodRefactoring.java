@@ -34,11 +34,11 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
 
-import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.LTKUtil;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.core.ElementSet;
+import de.walware.ecommons.ltk.core.model.ISourceStructElement;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringDescriptor;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringChange;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringMessages;

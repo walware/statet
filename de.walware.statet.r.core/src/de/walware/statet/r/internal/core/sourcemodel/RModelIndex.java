@@ -49,9 +49,9 @@ import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.collections.IntArrayMap;
 import de.walware.ecommons.collections.IntMap;
 import de.walware.ecommons.edb.EmbeddedDB;
-import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitManager;
 import de.walware.ecommons.ltk.LTK;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 
 import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;

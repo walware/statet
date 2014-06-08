@@ -32,9 +32,9 @@ import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.ReplaceEdit;
 
-import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.core.ElementSet;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringDescriptor;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringChange;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringMessages;

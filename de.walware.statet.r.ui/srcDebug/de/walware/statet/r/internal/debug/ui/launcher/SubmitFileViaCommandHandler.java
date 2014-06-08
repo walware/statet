@@ -33,10 +33,10 @@ import org.eclipse.ui.ide.ResourceUtil;
 import org.eclipse.ui.menus.UIElement;
 
 import de.walware.ecommons.io.FileUtil;
-import de.walware.ecommons.ltk.ISourceElement;
-import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.core.IModelTypeDescriptor;
+import de.walware.ecommons.ltk.core.model.ISourceElement;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.workbench.ui.WorkbenchUIUtil;
 

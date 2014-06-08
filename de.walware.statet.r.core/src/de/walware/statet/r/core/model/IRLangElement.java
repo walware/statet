@@ -13,8 +13,8 @@ package de.walware.statet.r.core.model;
 
 import java.util.List;
 
-import de.walware.ecommons.ltk.IModelElement;
-import de.walware.ecommons.ltk.ISourceElement;
+import de.walware.ecommons.ltk.core.model.IModelElement;
+import de.walware.ecommons.ltk.core.model.ISourceElement;
 
 
 public interface IRLangElement extends IRElement, ISourceElement {
