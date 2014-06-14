@@ -103,8 +103,8 @@ import de.walware.rj.renv.IRPkg;
 import de.walware.statet.r.core.pkgmanager.IRLibPaths;
 import de.walware.statet.r.core.pkgmanager.IRLibPaths.Entry;
 import de.walware.statet.r.core.pkgmanager.IRPkgData;
-import de.walware.statet.r.core.pkgmanager.IRPkgInfoAndData;
 import de.walware.statet.r.core.pkgmanager.IRPkgInfo;
+import de.walware.statet.r.core.pkgmanager.IRPkgInfoAndData;
 import de.walware.statet.r.core.pkgmanager.IRPkgList;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.IRPkgSet;
@@ -648,7 +648,7 @@ public class PkgTab extends Composite {
 	}
 	
 	private void createDetailInfo(final Composite parent) {
-		final Group info = new Group(parent, SWT.DEFAULT);
+		final Group info = new Group(parent, SWT.NONE);
 		info.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 		info.setLayout(LayoutUtil.createGroupGrid(2, true));
 		info.setText("Info:");
