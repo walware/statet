@@ -88,10 +88,10 @@ public class RMarkOccurrencesLocator {
 			return false;
 		}
 		do {
-			final Object[] attachments = node.getAttachments();
-			for (int i = 0; i < attachments.length; i++) {
-				if (attachments[i] instanceof RElementAccess) {
-					final RElementAccess access = (RElementAccess) attachments[i];
+			final List<Object> attachments= node.getAttachments();
+			for (final Object attachment : attachments) {
+				if (attachment instanceof RElementAccess) {
+					final RElementAccess access= (RElementAccess) attachment;
 					final Map<Annotation, Position> annotations = checkDefault(run, access);
 					
 					if (annotations != null) {
@@ -114,7 +114,7 @@ public class RMarkOccurrencesLocator {
 			}
 			if (run.accept(new Point(nameNode.getOffset(), nameNode.getStopOffset()))) {
 				final RElementAccess[] accessList = access.getAllInUnit();
-				final Map<Annotation, Position> annotations = new LinkedHashMap<Annotation, Position>(accessList.length);
+				final Map<Annotation, Position> annotations = new LinkedHashMap<>(accessList.length);
 				for (int i = 0; i < accessList.length; i++) {
 					final RElementAccess item = accessList[i];
 					final String message = run.doc.get(item.getNode().getOffset(), item.getNode().getLength());

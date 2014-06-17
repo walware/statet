@@ -16,6 +16,8 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 
@@ -38,24 +40,26 @@ public abstract class RAstNode implements IAstNode {
 	
 	
 	static final RAstNode[] NO_CHILDREN = new RAstNode[0];
-	static final Object[] NO_ATTACHMENT = new Object[0];
+	
+	private static final ImList<Object> NO_ATTACHMENT= ImCollections.emptyList();
 	
 	
 	RAstNode fRParent;
 	int fStartOffset;
 	int fStopOffset;
 	int fStatus;
-	private Object[] fAttachments;
+	
+	private ImList<Object> attachments;
 	
 	
 	protected RAstNode() {
 		fStatus = STATUS_OK;
-		fAttachments = NO_ATTACHMENT;
+		this.attachments= NO_ATTACHMENT;
 	}
 	
 	protected RAstNode(final int status) {
 		fStatus = status;
-		fAttachments = NO_ATTACHMENT;
+		this.attachments= NO_ATTACHMENT;
 	}
 	
 	
@@ -252,20 +256,19 @@ public abstract class RAstNode implements IAstNode {
 	abstract void updateStopOffset();
 	
 	
-	public void addAttachment(final Object data) {
-		if (fAttachments == NO_ATTACHMENT) {
-			fAttachments = new Object[] { data };
-		}
-		else {
-			final Object[] newArray = new Object[fAttachments.length+1];
-			System.arraycopy(fAttachments, 0, newArray, 0, fAttachments.length);
-			newArray[fAttachments.length] = data;
-			fAttachments = newArray;
-		}
+	@Override
+	public synchronized void addAttachment(final Object data) {
+		this.attachments= ImCollections.addElement(this.attachments, data);
 	}
 	
-	public Object[] getAttachments() {
-		return fAttachments;
+	@Override
+	public synchronized void removeAttachment(final Object data) {
+		this.attachments= ImCollections.removeElement(this.attachments, data);
+	}
+	
+	@Override
+	public ImList<Object> getAttachments() {
+		return this.attachments;
 	}
 	
 }

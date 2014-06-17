@@ -12,6 +12,7 @@
 package de.walware.statet.r.core.model;
 
 import java.util.Comparator;
+import java.util.List;
 
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
@@ -35,7 +36,7 @@ public abstract class RElementAccess extends RElementName {
 	public static RElementAccess getMainElementAccessOfNameNode(final RAstNode nameNode) {
 		RAstNode node= nameNode;
 		while (node != null) {
-			final Object[] attachments= node.getAttachments();
+			final List<Object> attachments= node.getAttachments();
 			for (final Object attachment : attachments) {
 				if (attachment instanceof RElementAccess) {
 					RElementAccess access= (RElementAccess) attachment;
@@ -55,7 +56,7 @@ public abstract class RElementAccess extends RElementName {
 	public static RElementAccess getElementAccessOfNameNode(final RAstNode nameNode) {
 		RAstNode node= nameNode;
 		while (node != null) {
-			final Object[] attachments= node.getAttachments();
+			final List<Object> attachments= node.getAttachments();
 			for (final Object attachment : attachments) {
 				if (attachment instanceof RElementAccess) {
 					RElementAccess access= (RElementAccess) attachment;

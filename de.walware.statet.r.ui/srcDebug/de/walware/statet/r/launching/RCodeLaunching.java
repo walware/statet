@@ -114,13 +114,13 @@ public final class RCodeLaunching {
 			
 			@Override
 			public void visitNode(final RAstNode node) throws InvocationTargetException {
-				final Object[] attachments = node.getAttachments();
-				for (int i = 0; i < attachments.length; i++) {
-					if (attachments[i] instanceof IRLangSourceElement) {
+				final List<Object> attachments= node.getAttachments();
+				for (final Object attachment : attachments) {
+					if (attachment instanceof IRLangSourceElement) {
 						if (fList == null) {
-							fList = new ArrayList<IRLangSourceElement>();
+							fList= new ArrayList<>();
 						}
-						fList.add((IRLangSourceElement) attachments[i]);
+						fList.add((IRLangSourceElement) attachment);
 					}
 				}
 				if (fList == null) {
@@ -383,7 +383,7 @@ public final class RCodeLaunching {
 	
 	private static String resolveVariables(final String command, final String path, final String encoding)
 			throws CoreException {
-		final List<IDynamicVariable> variables = new ArrayList<IDynamicVariable>();
+		final List<IDynamicVariable> variables = new ArrayList<>();
 		variables.add(new DynamicVariable(FILE_NAME_VARIABLE) {
 			@Override
 			public String getValue(final String argument) throws CoreException {
@@ -444,7 +444,7 @@ public final class RCodeLaunching {
 				@Override
 				public IStatus submitTo(final ToolController controller) {
 					final IToolRunnable[] runnables = new IToolRunnable[codeRegions.size()];
-					final List<String> lines = new ArrayList<String>();
+					final List<String> lines = new ArrayList<>();
 					for (int i = 0; i < runnables.length; i++) {
 						final SourceRegion region = codeRegions.get(i);
 						lines.clear();
@@ -462,7 +462,7 @@ public final class RCodeLaunching {
 				}
 			}, gotoConsole);
 		}
-		final List<String> lines = new ArrayList<String>(codeRegions.size()*2);
+		final List<String> lines = new ArrayList<>(codeRegions.size()*2);
 		for (int i = 0; i < codeRegions.size(); i++) {
 			TextUtil.addLines(codeRegions.get(i).fCode, lines);
 		}

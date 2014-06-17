@@ -43,7 +43,7 @@ public class RModel {
 	
 	public static IRFrameInSource searchFrame(RAstNode node) {
 		while (node != null) {
-			final Object[] attachments= node.getAttachments();
+			final List<Object> attachments= node.getAttachments();
 			for (final Object attachment : attachments) {
 				if (attachment instanceof IRFrameInSource) {
 					return (IRFrameInSource) attachment;

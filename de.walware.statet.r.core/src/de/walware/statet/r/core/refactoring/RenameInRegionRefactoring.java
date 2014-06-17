@@ -77,7 +77,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 			if (node.getOffset() >= fStop || node.getStopOffset() < fStart) {
 				return;
 			}
-			final Object[] attachments = node.getAttachments();
+			final List<Object> attachments= node.getAttachments();
 			for (final Object attachment : attachments) {
 				if (attachment instanceof RElementAccess) {
 					final RElementAccess access = (RElementAccess) attachment;
@@ -102,7 +102,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 			}
 			Map<String, Variable> map = fVariablesList.get(frame);
 			if (map == null) {
-				map = new HashMap<String, Variable>();
+				map = new HashMap<>();
 				fVariablesList.put(frame, map);
 			}
 			final String name = access.getSegmentName();
@@ -131,7 +131,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 		public Variable(final Object parent, final String name) {
 			fParent = parent;
 			fName = name;
-			fAccessList = new ArrayList<RElementAccess>();
+			fAccessList = new ArrayList<>();
 		}
 		
 		
@@ -256,7 +256,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 	}
 	
 	private void searchVariables(final RAstNode rootNode, final RefactoringStatus result) {
-		fVariablesList = new HashMap<IRFrame, Map<String,Variable>>();
+		fVariablesList = new HashMap<>();
 		final VariableSearcher searcher = new VariableSearcher();
 		try {
 			rootNode.acceptInR(searcher);
@@ -277,7 +277,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 					&& (next.getType() == RElementName.SUB_NAMEDPART
 							|| next.getType() == RElementName.SUB_NAMEDSLOT )) {
 				if (map == null) {
-					map = new HashMap<String, RenameInRegionRefactoring.Variable>();
+					map = new HashMap<>();
 				}
 				Variable sub = map.get(next.getSegmentName());
 				if (sub == null) {
@@ -319,7 +319,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 			}
 			final List<String> variableNames = createChanges(textFileChange, progress.newChild(1));
 			
-			final Map<String, String> arguments = new HashMap<String, String>();
+			final Map<String, String> arguments = new HashMap<>();
 			final String description = NLS.bind(Messages.RenameInRegion_Descriptor_description,
 					RUtil.formatVarNames(variableNames));
 			final IProject resource = fElementSet.getSingleProject();
@@ -343,7 +343,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 	}
 	
 	private List<String> createChanges(final TextFileChange change, final SubMonitor progress) throws BadLocationException {
-		final List<String> names = new ArrayList<String>();
+		final List<String> names = new ArrayList<>();
 		int remaining = fVariablesList.size() + 3;
 		progress.setWorkRemaining(remaining); remaining -= 3;
 		fSourceUnit.connect(progress.newChild(2));

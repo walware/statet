@@ -83,7 +83,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 			if (node.getOffset() >= fStop || node.getStopOffset() < fStart) {
 				return;
 			}
-			final Object[] attachments = node.getAttachments();
+			final List<Object> attachments= node.getAttachments();
 			for (final Object attachment : attachments) {
 				if (attachment instanceof RElementAccess) {
 					final RElementAccess access = (RElementAccess) attachment;
@@ -247,7 +247,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 								}
 								else {
 									final int count = rCovering.getChildCount();
-									final List<RAstNode> childList = new ArrayList<RAstNode>(count);
+									final List<RAstNode> childList = new ArrayList<>(count);
 									int i = 0;
 									for (; i < count; i++) {
 										final RAstNode child = rCovering.getChild(i);
@@ -312,14 +312,14 @@ public class ExtractFunctionRefactoring extends Refactoring {
 			result.merge(RefactoringStatus.createWarningStatus(Messages.ExtractFunction_warning_ChangedRange_message));
 		}
 		
-		fVariablesMap = new HashMap<String, Variable>();
+		fVariablesMap = new HashMap<>();
 		final VariableSearcher searcher = new VariableSearcher();
 		try {
 			for (final RAstNode node : fExpressions) {
 				node.acceptInR(searcher);
 			}
 		} catch (final InvocationTargetException e) {}
-		fVariablesList = new ArrayList<Variable>(fVariablesMap.values());
+		fVariablesList = new ArrayList<>(fVariablesMap.values());
 		Collections.sort(fVariablesList, new Comparator<Variable>() {
 			@Override
 			public int compare(final Variable o1, final Variable o2) {
@@ -362,7 +362,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 			}
 			createChanges(textFileChange, progress.newChild(1));
 			
-			final Map<String, String> arguments = new HashMap<String, String>();
+			final Map<String, String> arguments = new HashMap<>();
 			final String varName = RRefactoringAdapter.getUnquotedIdentifier(fFunctionName);
 			final String description = NLS.bind(Messages.ExtractFunction_Descriptor_description,
 					RUtil.formatVarName(varName) );

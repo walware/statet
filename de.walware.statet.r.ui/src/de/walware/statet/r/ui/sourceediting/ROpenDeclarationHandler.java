@@ -76,10 +76,10 @@ public class ROpenDeclarationHandler extends AbstractOpenDeclarationHandler {
 						if (node.getNodeType() == NodeType.SYMBOL || node.getNodeType() == NodeType.STRING_CONST) {
 							RAstNode current = node;
 							do {
-								final Object[] attachments = current.getAttachments();
-								for (int i = 0; i < attachments.length; i++) {
-									if (attachments[i] instanceof RElementAccess) {
-										final RElementAccess access = (RElementAccess) attachments[i];
+								final List<Object> attachments= current.getAttachments();
+								for (final Object attachment : attachments) {
+									if (attachment instanceof RElementAccess) {
+										final RElementAccess access= (RElementAccess) attachment;
 										if (access.getNameNode() == node) {
 											return access;
 										}

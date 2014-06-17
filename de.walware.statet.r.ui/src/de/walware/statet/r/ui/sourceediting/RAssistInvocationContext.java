@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.ui.sourceediting;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
@@ -197,11 +199,11 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 			if (Thread.interrupted()) {
 				return null;
 			}
-			final Object[] attachments = node.getAttachments();
-			for (int i = 0; i < attachments.length; i++) {
-				if (attachments[i] instanceof RElementAccess) {
-					node = null;
-					access = (RElementAccess) attachments[i];
+			final List<Object> attachments= node.getAttachments();
+			for (final Object attachment : attachments) {
+				if (attachment instanceof RElementAccess) {
+					node= null;
+					access= (RElementAccess) attachment;
 					final RElementName e = getElementAccessOfRegion(access, this);
 					if (e != null) {
 						return e;

@@ -57,10 +57,10 @@ public class RQuickRefactoringComputer implements IQuickAssistComputer {
 		if (node.getNodeType() == NodeType.SYMBOL || node.getNodeType() == NodeType.STRING_CONST) {
 			RAstNode candidate = node;
 			SEARCH_ACCESS : while (candidate != null) {
-				final Object[] attachments = candidate.getAttachments();
-				for (int i = 0; i < attachments.length; i++) {
-					if (attachments[i] instanceof RElementAccess) {
-						RElementAccess access = (RElementAccess) attachments[i]; 
+				final List<Object> attachments= candidate.getAttachments();
+				for (final Object attachment : attachments) {
+					if (attachment instanceof RElementAccess) {
+						RElementAccess access= (RElementAccess) attachment; 
 						SUB: while (access != null) {
 							if (access.getSegmentName() == null) {
 								break SUB;

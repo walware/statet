@@ -819,10 +819,10 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			FCall fcallNode = null;
 			if (rnode.getNodeType() == NodeType.F_CALL
 					&& (fcallOpen == (fcallNode = ((FCall) rnode)).getArgsOpenOffset())) {
-				final Object[] attachments = fcallNode.getAttachments();
-				for (int i = 0; i < attachments.length; i++) {
-					if (attachments[i] instanceof RElementAccess) {
-						final RElementAccess fcallAccess = (RElementAccess) attachments[i];
+				final List<Object> attachments= fcallNode.getAttachments();
+				for (final Object attachment : attachments) {
+					if (attachment instanceof RElementAccess) {
+						final RElementAccess fcallAccess= (RElementAccess) attachment;
 						if (fcallAccess.isFunctionAccess() && !fcallAccess.isWriteAccess()) {
 							final FCallInfo info = new FCallInfo(fcallNode, fcallAccess);
 							if (initEnvirList(context, fcallNode)) {

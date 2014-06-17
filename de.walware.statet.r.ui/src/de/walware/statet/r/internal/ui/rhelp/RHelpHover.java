@@ -178,10 +178,10 @@ public class RHelpHover implements IInfoHover {
 			if (checkInterrupted && Thread.currentThread().isInterrupted()) {
 				return null;
 			}
-			final Object[] attachments = rNode.getAttachments();
-			for (int i = 0; i < attachments.length; i++) {
-				if (attachments[i] instanceof RElementAccess) {
-					access = (RElementAccess) attachments[i];
+			final List<Object> attachments= rNode.getAttachments();
+			for (final Object attachment : attachments) {
+				if (attachment instanceof RElementAccess) {
+					access = (RElementAccess) attachment;
 					final IRFrame frame = access.getFrame();
 					if ((frame != null && frame.getFrameType() != IRFrame.FUNCTION)
 							|| (access.getType() == RElementName.MAIN_PACKAGE) ) {
@@ -203,10 +203,10 @@ public class RHelpHover implements IInfoHover {
 				final FCall fcall = (FCall) rNode;
 				if (fcall.getArgsOpenOffset() != Integer.MIN_VALUE
 						&& fcall.getArgsOpenOffset() <= region.getOffset()) {
-					final Object[] attachments = ((FCall) rNode).getAttachments();
-					for (int i = 0; i < attachments.length; i++) {
-						if (attachments[i] instanceof RElementAccess) {
-							final RElementAccess access = (RElementAccess) attachments[i];
+					final List<Object> attachments= ((FCall) rNode).getAttachments();
+					for (final Object attachment : attachments) {
+						if (attachment instanceof RElementAccess) {
+							final RElementAccess access= (RElementAccess) attachment;
 							final IRFrame frame = access.getFrame();
 							if (access.getNode() == fcall
 									&& frame != null && frame.getFrameType() != IRFrame.FUNCTION

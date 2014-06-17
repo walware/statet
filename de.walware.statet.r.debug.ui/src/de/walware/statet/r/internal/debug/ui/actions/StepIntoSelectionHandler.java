@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.debug.ui.actions;
 
+import java.util.List;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -79,10 +81,10 @@ public class StepIntoSelectionHandler extends AbstractHandler {
 						final RAstNode node = (RAstNode) covering;
 						RAstNode current = node;
 						do {
-							final Object[] attachments = current.getAttachments();
-							for (int i = attachments.length-1; i >= 0; i--) {
-								if (attachments[i] instanceof RElementAccess) {
-									final RElementAccess access = (RElementAccess) attachments[i];
+							final List<Object> attachments= current.getAttachments();
+							for (final Object attachment : attachments) {
+								if (attachment instanceof RElementAccess) {
+									final RElementAccess access= (RElementAccess) attachment;
 									if (access.isFunctionAccess() && access.isCallAccess()) {
 										if (isChild(node, access.getNode())) {
 											return access;
