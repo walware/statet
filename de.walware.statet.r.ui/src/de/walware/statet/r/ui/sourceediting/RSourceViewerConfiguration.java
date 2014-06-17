@@ -21,12 +21,11 @@ import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.information.IInformationProvider;
-import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
 import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
-import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
+import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
@@ -80,14 +79,6 @@ import de.walware.statet.r.ui.text.r.RoxygenScanner;
 public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration {
 	
 	
-	private static final String[] NONE_DEFAULT_CONTENT_TYPES = new String[] {
-			IRDocumentPartitions.R_INFIX_OPERATOR,
-			IRDocumentPartitions.R_STRING,
-			IRDocumentPartitions.R_COMMENT,
-			IRDocumentPartitions.R_ROXYGEN,
-	};
-	
-	
 	private RDoubleClickStrategy fDoubleClickStrategy;
 	private RAutoEditStrategy fAutoEditStrategy;
 	
@@ -123,7 +114,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		final IPreferenceStore store = getPreferences();
 		final ColorManager colorManager = getColorManager();
 		
-		addScanner(IRDocumentPartitions.R_DEFAULT,
+		addScanner(IRDocumentPartitions.R_DEFAULT_EXPL,
 				new RCodeScanner2(colorManager, store) );
 		addScanner(IRDocumentPartitions.R_INFIX_OPERATOR,
 				new RInfixOperatorScanner(colorManager, store) );
@@ -133,6 +124,17 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 				new RCommentScanner(colorManager, store, fRCoreAccess.getPrefs()) );
 		addScanner(IRDocumentPartitions.R_ROXYGEN,
 				new RoxygenScanner(colorManager, store, fRCoreAccess.getPrefs()) );
+	}
+	
+	@Override
+	protected ITokenScanner getScanner(String contentType) {
+		if (contentType == IRDocumentPartitions.R_QUOTED_SYMBOL) {
+			contentType= IRDocumentPartitions.R_STRING;
+		}
+		else if (contentType == IRDocumentPartitions.R_DEFAULT) {
+			contentType= IRDocumentPartitions.R_DEFAULT_EXPL;
+		}
+		return super.getScanner(contentType);
 	}
 	
 	
@@ -173,24 +175,6 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	@Override
 	public String[] getConfiguredContentTypes(final ISourceViewer sourceViewer) {
 		return IRDocumentPartitions.R_PARTITIONS;
-	}
-	
-	@Override
-	public void initPresentationReconciler(final PresentationReconciler reconciler) {
-		{	final DefaultDamagerRepairer dr = new DefaultDamagerRepairer(
-					getScanner(IRDocumentPartitions.R_DEFAULT) );
-			if (fHandleDefaultContentType) {
-				reconciler.setDamager(dr, IRDocumentPartitions.R_DEFAULT);
-				reconciler.setRepairer(dr, IRDocumentPartitions.R_DEFAULT);
-			}
-			reconciler.setDamager(dr, IRDocumentPartitions.R_DEFAULT_EXPL);
-			reconciler.setRepairer(dr, IRDocumentPartitions.R_DEFAULT_EXPL);
-		}
-		for (final String contentType : NONE_DEFAULT_CONTENT_TYPES) {
-			final DefaultDamagerRepairer dr = new DefaultDamagerRepairer(getScanner(contentType));
-			reconciler.setDamager(dr, contentType);
-			reconciler.setRepairer(dr, contentType);
-		}
 	}
 	
 	
