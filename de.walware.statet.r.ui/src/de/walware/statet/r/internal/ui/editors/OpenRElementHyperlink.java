@@ -37,21 +37,21 @@ import de.walware.statet.r.ui.sourceediting.ROpenDeclaration;
 public class OpenRElementHyperlink implements IHyperlink {
 	
 	
-	private final ISourceEditor fEditor;
-	private final IRegion fRegion;
+	private final ISourceEditor editor;
+	private final IRegion region;
 	
-	private final IRSourceUnit fSu;
-	private final RElementAccess fAccess;
+	private final IRSourceUnit su;
+	private final RElementAccess access;
 	
 	
 	public OpenRElementHyperlink(final ISourceEditor editor, final IRSourceUnit su, final RElementAccess access) {
 		assert (su != null);
 		assert (access != null);
 		
-		fEditor = editor;
-		fRegion = RAst.getElementNameRegion(access.getNameNode());
-		fSu = su;
-		fAccess = access;
+		this.editor= editor;
+		this.region= RAst.getElementNameRegion(access.getNameNode());
+		this.su= su;
+		this.access= access;
 	}
 	
 	
@@ -62,21 +62,20 @@ public class OpenRElementHyperlink implements IHyperlink {
 	
 	@Override
 	public IRegion getHyperlinkRegion() {
-		return fRegion;
+		return this.region;
 	}
 	
 	@Override
 	public String getHyperlinkText() {
-		return null;
-//		return NLS.bind("Open Declaration {0}", fAccess.getDisplayName());
+		return NLS.bind(Messages.Hyperlinks_OpenDeclaration_label, this.access.getDisplayName());
 	}
 	
 	@Override
 	public void open() {
 		try {
-			final List<ISourceElement> list = RModel.searchDeclaration(fAccess, fSu);
-			final ROpenDeclaration open = new ROpenDeclaration();
-			final ISourceElement element = open.selectElement(list, fEditor.getWorkbenchPart());
+			final List<ISourceElement> list= RModel.searchDeclaration(this.access, this.su);
+			final ROpenDeclaration open= new ROpenDeclaration();
+			final ISourceElement element= open.selectElement(list, this.editor.getWorkbenchPart());
 			if (element != null) {
 				open.open(element, true);
 			}
@@ -87,7 +86,7 @@ public class OpenRElementHyperlink implements IHyperlink {
 		catch (final PartInitException e) {
 			Display.getCurrent().beep();
 			StatusManager.getManager().handle(new Status(IStatus.INFO, SharedUIResources.PLUGIN_ID, -1,
-					NLS.bind("An error occurred when following the hyperlink and opening the editor for the declaration of ''{0}''", fAccess.getDisplayName()), e));
+					NLS.bind("An error occurred when following the hyperlink and opening the editor for the declaration of ''{0}''", this.access.getDisplayName()), e));
 		}
 		catch (final CoreException e) {
 			// cancelled

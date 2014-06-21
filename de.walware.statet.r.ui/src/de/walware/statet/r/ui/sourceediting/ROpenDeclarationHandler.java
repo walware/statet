@@ -48,33 +48,34 @@ public class ROpenDeclarationHandler extends AbstractOpenDeclarationHandler {
 	
 	public static RElementAccess searchAccess(final ISourceEditor editor, final IRegion region) {
 		try {
-			final IDocument document = editor.getViewer().getDocument();
-			final RHeuristicTokenScanner scanner = (RHeuristicTokenScanner) LTK.getModelAdapter(
+			final IDocument document= editor.getViewer().getDocument();
+			final RHeuristicTokenScanner scanner= (RHeuristicTokenScanner) LTK.getModelAdapter(
 					editor.getModelTypeId(), RHeuristicTokenScanner.class );
 			if (scanner == null) {
 				return null;
 			}
-			final ITypedRegion partition = TextUtilities.getPartition(document,
+			final ITypedRegion partition= TextUtilities.getPartition(document,
 					scanner.getPartitioningConfig().getPartitioning(), region.getOffset(), false);
-			final ISourceUnit su = editor.getSourceUnit();
-			if (su instanceof IRSourceUnit && scanner != null
+			final ISourceUnit su= editor.getSourceUnit();
+			if (su instanceof IRSourceUnit
 					&& region.getOffset() < document.getLength()
 					&& ( (scanner.getPartitioningConfig().getDefaultPartitionConstraint().matches(partition.getType())
 							&& !RTokens.isRobustSeparator(document.getChar(region.getOffset()), false) )
 						|| partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL
 						|| partition.getType() == IRDocumentPartitions.R_STRING )) {
 				
-				final IRModelInfo info = (IRModelInfo) su.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, new NullProgressMonitor());
-				if (info != null) {
-					final AstInfo astInfo = info.getAst();
-					final AstSelection selection = AstSelection.search(astInfo.root,
-							region.getOffset(), region.getOffset()+region.getLength(),
+				final IRModelInfo modelInfo= (IRModelInfo) su.getModelInfo(RModel.R_TYPE_ID,
+						IRModelManager.MODEL_FILE, new NullProgressMonitor() );
+				if (modelInfo != null) {
+					final AstInfo astInfo= modelInfo.getAst();
+					final AstSelection astSelection= AstSelection.search(astInfo.root,
+							region.getOffset(), region.getOffset() + region.getLength(),
 							AstSelection.MODE_COVERING_SAME_LAST );
-					final IAstNode covering = selection.getCovering();
+					final IAstNode covering= astSelection.getCovering();
 					if (covering instanceof RAstNode) {
-						final RAstNode node = (RAstNode) covering;
+						final RAstNode node= (RAstNode) covering;
 						if (node.getNodeType() == NodeType.SYMBOL || node.getNodeType() == NodeType.STRING_CONST) {
-							RAstNode current = node;
+							RAstNode current= node;
 							do {
 								final List<Object> attachments= current.getAttachments();
 								for (final Object attachment : attachments) {
@@ -85,7 +86,7 @@ public class ROpenDeclarationHandler extends AbstractOpenDeclarationHandler {
 										}
 									}
 								}
-								current = current.getRParent();
+								current= current.getRParent();
 							} while (current != null);
 						}
 					}
@@ -104,12 +105,12 @@ public class ROpenDeclarationHandler extends AbstractOpenDeclarationHandler {
 	
 	@Override
 	public boolean execute(final ISourceEditor editor, final IRegion selection) {
-		final RElementAccess access = searchAccess(editor, selection);
+		final RElementAccess access= searchAccess(editor, selection);
 		if (access != null) {
 			try {
-				final List<ISourceElement> list = RModel.searchDeclaration(access, (IRSourceUnit) editor.getSourceUnit());
-				final ROpenDeclaration open = new ROpenDeclaration();
-				final ISourceElement element = open.selectElement(list, editor.getWorkbenchPart());
+				final List<ISourceElement> list= RModel.searchDeclaration(access, (IRSourceUnit) editor.getSourceUnit());
+				final ROpenDeclaration open= new ROpenDeclaration();
+				final ISourceElement element= open.selectElement(list, editor.getWorkbenchPart());
 				if (element != null) {
 					open.open(element, true);
 					return true;

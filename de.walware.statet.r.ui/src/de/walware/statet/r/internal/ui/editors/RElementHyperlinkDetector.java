@@ -36,14 +36,17 @@ public class RElementHyperlinkDetector extends AbstractHyperlinkDetector {
 	@Override
 	public IHyperlink[] detectHyperlinks(final ITextViewer textViewer,
 			final IRegion region, final boolean canShowMultipleHyperlinks) {
-		final List<IHyperlink> hyperlinks = new ArrayList<IHyperlink>();
-		final ISourceEditor editor = (ISourceEditor) getAdapter(ISourceEditor.class);
-		if (editor != null) {
-			final RElementAccess access = ROpenDeclarationHandler.searchAccess(editor, region);
-			if (access != null) {
-				hyperlinks.add(new OpenRElementHyperlink(editor, (IRSourceUnit) editor.getSourceUnit(), access));
-			}
+		final ISourceEditor editor= (ISourceEditor) getAdapter(ISourceEditor.class);
+		if (editor == null) {
+			return null;
 		}
+		
+		final List<IHyperlink> hyperlinks= new ArrayList<>(4);
+		final RElementAccess access= ROpenDeclarationHandler.searchAccess(editor, region);
+		if (access != null) {
+			hyperlinks.add(new OpenRElementHyperlink(editor, (IRSourceUnit) editor.getSourceUnit(), access));
+		}
+		
 		if (!hyperlinks.isEmpty()) {
 			return hyperlinks.toArray(new IHyperlink[hyperlinks.size()]);
 		}

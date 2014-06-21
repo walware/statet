@@ -18,6 +18,7 @@ import org.eclipse.jface.text.hyperlink.IHyperlink;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 
 import de.walware.statet.r.core.model.RElementAccess;
+import de.walware.statet.r.internal.debug.ui.Messages;
 import de.walware.statet.r.nico.AbstractRDbgController;
 
 
@@ -60,7 +61,7 @@ public class StepIntoSelectionHyperlink implements IHyperlink {
 	
 	@Override
 	public String getHyperlinkText() {
-		return null;
+		return Messages.Hyperlink_StepInto_label;
 	}
 	
 	@Override

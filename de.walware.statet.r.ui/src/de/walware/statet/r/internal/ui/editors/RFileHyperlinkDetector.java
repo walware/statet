@@ -49,47 +49,47 @@ public class RFileHyperlinkDetector extends AbstractHyperlinkDetector {
 	
 	
 	@Override
-	public IHyperlink[] detectHyperlinks(final ITextViewer textViewer,
-			final IRegion region, final boolean canShowMultipleHyperlinks) {
+	public IHyperlink[] detectHyperlinks(final ITextViewer textViewer, final IRegion region,
+			final boolean canShowMultipleHyperlinks) {
 		try {
-			final ISourceEditor editor = (ISourceEditor) getAdapter(ISourceEditor.class);
+			final ISourceEditor editor= (ISourceEditor) getAdapter(ISourceEditor.class);
 			if (editor == null) {
 				return null;
 			}
 			
-			final List<IHyperlink> hyperlinks = new ArrayList<IHyperlink>();
-			final IDocument document = textViewer.getDocument();
-			int start = 0;
-			int stop = 0;
+			final List<IHyperlink> hyperlinks= new ArrayList<>(4);
+			final IDocument document= textViewer.getDocument();
+			int start= 0;
+			int stop= 0;
 			
-			final ITypedRegion partition = TextUtilities.getPartition(document,
+			final ITypedRegion partition= TextUtilities.getPartition(document,
 					editor.getPartitioning().getPartitioning(), region.getOffset(), false );
 			if (partition != null && partition.getLength() > 3) {
 				if (partition.getType().equals(IRDocumentPartitions.R_COMMENT)
 						|| partition.getType().equals(IRDocumentPartitions.R_ROXYGEN) ) {
-					boolean quote = false;
-					start = region.getOffset();
-					{	final int bound = partition.getOffset()+1;
-						{	final char c = document.getChar(start);
+					boolean quote= false;
+					start= region.getOffset();
+					{	final int bound= partition.getOffset()+1;
+						{	final char c= document.getChar(start);
 							if (c <= 0x22 || c == '>' || c == '<') {
 								return null;
 							}
 						}
 						while (start > bound) {
-							final char c = document.getChar(start-1);
+							final char c= document.getChar(start-1);
 							if (c <= 0x22 || c == '>' || c == '<') {
 								if (c == '"') {
-									quote = true;
+									quote= true;
 								}
 								break;
 							}
 							start--;
 						}
 					}
-					{	final int bound = partition.getOffset()+partition.getLength();
-						stop = region.getOffset()+1;
+					{	final int bound= partition.getOffset()+partition.getLength();
+						stop= region.getOffset()+1;
 						while (stop < bound) {
-							final char c = document.getChar(stop);
+							final char c= document.getChar(stop);
 							if (c <= 0x22 || c == '>' || c == '<') {
 								if (quote || c != '"') {
 									break;
@@ -100,8 +100,8 @@ public class RFileHyperlinkDetector extends AbstractHyperlinkDetector {
 					}
 				}
 				else if (partition.getType().equals(IRDocumentPartitions.R_STRING)) {
-					start = partition.getOffset()+1;
-					stop = partition.getOffset()+partition.getLength();
+					start= partition.getOffset()+1;
+					stop= partition.getOffset()+partition.getLength();
 					if (document.getChar(stop-1) == document.getChar(partition.getOffset())) {
 						stop--;
 					}
@@ -110,26 +110,26 @@ public class RFileHyperlinkDetector extends AbstractHyperlinkDetector {
 				if (start >= stop) {
 					return null;
 				}
-				IContainer relativeBase = null;
+				IContainer relativeBase= null;
 				
-				final ISourceUnit su = editor.getSourceUnit();
+				final ISourceUnit su= editor.getSourceUnit();
 				if (su instanceof IWorkspaceSourceUnit) {
-					final IResource resource = ((IWorkspaceSourceUnit) su).getResource();
-					final IProject project = resource.getProject();
+					final IResource resource= ((IWorkspaceSourceUnit) su).getResource();
+					final IProject project= resource.getProject();
 					if (project != null) {
-						final IRProject rProject = RProjects.getRProject(project);
+						final IRProject rProject= RProjects.getRProject(project);
 						if (rProject != null) {
-							relativeBase = rProject.getBaseContainer();
+							relativeBase= rProject.getBaseContainer();
 						}
 					}
 					if (relativeBase == null) {
-						relativeBase = resource.getParent();
+						relativeBase= resource.getParent();
 					}
 				}
-				final IFileStore store = FileUtil.getLocalFileStore(
+				final IFileStore store= FileUtil.getLocalFileStore(
 						document.get(start, stop-start), relativeBase );
 				if (store != null) {
-					final IFileInfo info = store.fetchInfo();
+					final IFileInfo info= store.fetchInfo();
 					if (info.exists() && !store.fetchInfo().isDirectory()) {
 						hyperlinks.add(new OpenFileHyperlink(new Region(start, stop-start), store));
 					}
@@ -139,8 +139,7 @@ public class RFileHyperlinkDetector extends AbstractHyperlinkDetector {
 				return hyperlinks.toArray(new IHyperlink[hyperlinks.size()]);
 			}
 		}
-		catch (final BadLocationException e) {}
-		catch (final CoreException e) {}
+		catch (final BadLocationException | CoreException e) {}
 		return null;
 	}
 	
