@@ -126,7 +126,6 @@ public class REnvIndexChecker {
 		try {
 			if (!this.rEnvConfig.equals(this.rEnvConfig.getReference().getConfig())
 					|| IndexWriter.isLocked(this.indexDirectory) ) {
-				finalCheck();
 				return false;
 			}
 		}

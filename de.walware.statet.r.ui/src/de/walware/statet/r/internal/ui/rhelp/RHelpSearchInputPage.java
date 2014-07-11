@@ -349,16 +349,24 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 					if (rEnv != null) {
 						final IREnvHelp help = rHelpManager.getHelp(rEnv);
 						if (help != null) {
-							packages = help.getRPackages();
-							help.unlock();
+							try {
+								packages = help.getRPackages();
+							}
+							finally {
+								help.unlock();
+							}
 						}
 					}
 					if (packages == null) {
 						rEnv = RCore.getREnvManager().getDefault();
 						final IREnvHelp help = rHelpManager.getHelp(rEnv);
 						if (help != null) {
-							packages = help.getRPackages();
-							help.unlock();
+							try {
+								packages = help.getRPackages();
+							}
+							finally {
+								help.unlock();
+							}
 						}
 					}
 					if (packages != null) {

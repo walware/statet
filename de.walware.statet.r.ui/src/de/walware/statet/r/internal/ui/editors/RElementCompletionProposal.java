@@ -444,13 +444,16 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal<IR
 				return null;
 			}
 			
-			final IREnvHelp help = rHelpManager.getHelp(rEnv);
-			if (help == null) {
-				return null;
+			final IREnvHelp help= rHelpManager.getHelp(rEnv);
+			if (help != null) {
+				try {
+					helpObject= help.getPageForTopic(pkgName, topic);
+				}
+				finally {
+					help.unlock();
+				}
 			}
-			helpObject = help.getPageForTopic(pkgName, topic);
 		}
-		
 		if (Thread.interrupted() || helpObject == null) {
 			return null;
 		}
