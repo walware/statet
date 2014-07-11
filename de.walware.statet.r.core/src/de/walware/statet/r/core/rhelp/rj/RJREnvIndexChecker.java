@@ -53,11 +53,11 @@ public class RJREnvIndexChecker {
 	
 	public int check(final RService r,
 			final IProgressMonitor monitor) throws CoreException {
-		if (!this.index.preCheck()) {
-			return NOT_AVAILABLE;
-		}
 		Exception errorCause= null;
 		try {
+			if (!this.index.preCheck()) {
+				return NOT_AVAILABLE;
+			}
 			if (this.index.needsComplete()) {
 				return COMPLETE;
 			}

@@ -101,10 +101,11 @@ public class RHelpHover implements IInfoHover {
 				return null;
 			}
 		}
+		Object helpObject= null;
+		
 		final IRHelpManager rHelpManager = RCore.getRHelpManager();
 		final IREnvHelp help = rHelpManager.getHelp(rEnv);
 		if (help != null) {
-			Object helpObject;
 			try {
 				if (name.getType() == RElementName.MAIN_PACKAGE) {
 					helpObject = help.getRPackage(name.getSegmentName());
@@ -138,14 +139,14 @@ public class RHelpHover implements IInfoHover {
 			finally {
 				help.unlock();
 			}
-			if (Thread.interrupted() || helpObject == null) {
-				return null;
-			}
-			final String httpUrl = rHelpManager.toHttpUrl(helpObject, RHelpUIServlet.INFO_TARGET);
-			if (httpUrl != null) {
-				return new RHelpInfoHoverCreator.Data(context.getSourceViewer().getTextWidget(),
-						helpObject, httpUrl);
-			}
+		}
+		if (Thread.interrupted() || helpObject == null) {
+			return null;
+		}
+		final String httpUrl = rHelpManager.toHttpUrl(helpObject, RHelpUIServlet.INFO_TARGET);
+		if (httpUrl != null) {
+			return new RHelpInfoHoverCreator.Data(context.getSourceViewer().getTextWidget(),
+					helpObject, httpUrl);
 		}
 		return null;
 	}
