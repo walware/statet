@@ -66,6 +66,11 @@
 			<url>${walware.repo.baseUrl}/eclipse-3.8/autorun-01.00.00</url>
 			<layout>p2</layout>
 		</repository>
+		<repository>
+			<id>eclipse-emf</id>
+			<url>${walware.repo.baseUrl}/eclipse-4.3/emf</url>
+			<layout>p2</layout>
+		</repository>
 	</repositories>
 	
 	<build>
