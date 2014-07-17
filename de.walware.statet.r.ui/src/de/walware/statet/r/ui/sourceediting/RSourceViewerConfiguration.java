@@ -27,6 +27,7 @@ import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
 import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
+import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
@@ -81,6 +82,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	
 	
 	private static final String[] NONE_DEFAULT_CONTENT_TYPES = new String[] {
+			IRDocumentPartitions.R_QUOTED_SYMBOL,
 			IRDocumentPartitions.R_INFIX_OPERATOR,
 			IRDocumentPartitions.R_STRING,
 			IRDocumentPartitions.R_COMMENT,
@@ -133,6 +135,14 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 				new RCommentScanner(colorManager, store, fRCoreAccess.getPrefs()) );
 		addScanner(IRDocumentPartitions.R_ROXYGEN,
 				new RoxygenScanner(colorManager, store, fRCoreAccess.getPrefs()) );
+	}
+	
+	@Override
+	protected ITokenScanner getScanner(String contentType) {
+		if (contentType == IRDocumentPartitions.R_QUOTED_SYMBOL) {
+			contentType= IRDocumentPartitions.R_STRING;
+		}
+		return super.getScanner(contentType);
 	}
 	
 	
