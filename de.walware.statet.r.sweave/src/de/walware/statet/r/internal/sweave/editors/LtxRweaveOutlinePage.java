@@ -48,6 +48,7 @@ import de.walware.ecommons.ui.actions.HandlerCollection;
 import de.walware.ecommons.ui.actions.HandlerContributionItem;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.UIAccess;
+import de.walware.ecommons.ui.util.ViewerUtil;
 
 import de.walware.docmlet.tex.core.commands.TexCommand;
 import de.walware.docmlet.tex.core.model.IEmbeddedForeignElement;
@@ -210,7 +211,7 @@ public class LtxRweaveOutlinePage extends SourceEditor2OutlinePage {
 							if (contentFilter.include(element)) {
 								if ((element.getElementType() & IModelElement.MASK_C1) == ILtxSourceElement.C1_EMBEDDED
 										&& isRChunk(element)) {
-									viewer.expandToLevel(element, 0);
+									ViewerUtil.expandToLevel(viewer, element, 0);
 									return false;
 								}
 								((ISourceStructElement) element).hasSourceChildren(this);
@@ -255,7 +256,7 @@ public class LtxRweaveOutlinePage extends SourceEditor2OutlinePage {
 									}
 								}
 								// expand
-								viewer.expandToLevel(element, 0);
+								ViewerUtil.expandToLevel(viewer, element, 0);
 								childExpand = true;
 								return false;
 							}
