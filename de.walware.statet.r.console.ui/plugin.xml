@@ -331,6 +331,63 @@
          </command>
       </menuContribution>
    </extension>
+
+<!-- R Env -->
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="de.walware.statet.r.commands.UpdateREnvIndex"
+            categoryId="de.walware.statet.nico.commands.ConsoleCategory"
+            name="Update R environment index"
+            description="Updates the index of the R environment of the current console">
+      </command>
+      <command
+            id="de.walware.statet.r.commands.ResetREnvIndex"
+            categoryId="de.walware.statet.nico.commands.ConsoleCategory"
+            name="Reset R environment index"
+            description="Resets and newly creates the index of the R environment of the current console">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            commandId="de.walware.statet.r.commands.UpdateREnvIndex"
+            class="de.walware.statet.r.internal.console.ui.actions.REnvIndexUpdateHandler">
+         <enabledWhen>
+            <with
+                  variable="de.walware.statet.activeTool">
+               <test
+                     property="de.walware.statet.nico.isMainType"
+                     value="R"
+                     forcePluginActivation="false">
+               </test>
+            </with>
+         </enabledWhen>
+      </handler>
+      <handler
+            commandId="de.walware.statet.r.commands.ResetREnvIndex"
+            class="de.walware.statet.r.internal.console.ui.actions.REnvIndexUpdateHandler$Completely">
+         <enabledWhen>
+            <with
+                  variable="de.walware.statet.activeTool">
+               <test
+                     property="de.walware.statet.nico.isMainType"
+                     value="R"
+                     forcePluginActivation="false">
+               </test>
+            </with>
+         </enabledWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="de.walware.statet.r.commands.UpdateREnvIndex"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R I">
+      </key>
+   </extension>
    
 <!-- Console Page -->
    <extension
@@ -403,7 +460,6 @@
             class="de.walware.statet.r.internal.console.ui.snippets.RSnippetPreferencePage">
       </page>
    </extension>
-   
    
    <extension
          point="org.eclipse.ui.menus">

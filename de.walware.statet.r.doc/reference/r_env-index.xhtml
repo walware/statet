@@ -31,10 +31,9 @@ offers in the lower part an option to configure globally the automatic indexing 
 
 <p>The user can select between three modes:</p>
 <ul>
-<li><b>Check and Update Automatically</b>: StatET automatically checks if new packages are installed or 
-indexed packages are updated (based on the version number).  When it detects changes, the index for 
-the concerned packages is updated.  The user is notified about the start and the success of the 
-update.</li>
+<li><b>Check and Update Automatically</b>: StatET automatically checks if new packages are installed
+or indexed packages are updated.  When it detects changes, the index for the concerned packages is
+updated.  The user is notified about the start and the success of the update.</li>
 <li><b>Check Automatically and Ask</b>: Like the previous mode, but if changes are detected, StatET 
 asks the user before it starts the update, if the indexing operations should be performed or if 
 the user wants to postpone the update.</li>
@@ -58,17 +57,20 @@ use the commands below to manage the R environment indexes.</li>
 		in the menu of the Console view.</p></th></tr>
 <tr>
 	<td></td>
-	<td>Index completely</td>
+	<td>Reset R environment index</td>
 	<td><p>This action discards the current R environment index if available, and newly indexes 
 	it completely.</p></td>
-	<td>View Menu</td>
+	<td>View Menu<br/>
+		Global&nbsp;command</td>
 </tr>
 <tr>
 	<td></td>
-	<td>Index changes</td>
+	<td>Update R environment index</td>
 	<td><p>If the user triggers this action, StatET indexes only the changes of the R environment,
 	like in the automatic mode described above.</p></td>
-	<td>View Menu</td>
+	<td>View Menu<br/>
+		Global&nbsp;command<br/>
+		<kbd>Ctrl+R, I</kbd></td>
 </tr>
 
 </table>

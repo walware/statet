@@ -11,18 +11,13 @@
 
 package de.walware.statet.r.internal.console.ui.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.IWorkbenchPage;
 
-import de.walware.ecommons.ui.util.UIAccess;
+import de.walware.ecommons.ts.ITool;
 
-import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.ui.NicoUI;
-import de.walware.statet.nico.ui.NicoUITools;
+import de.walware.statet.nico.ui.actions.AbstractToolHandler;
 
-import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.console.ui.tools.REnvIndexAutoUpdater;
 
@@ -30,41 +25,40 @@ import de.walware.statet.r.console.ui.tools.REnvIndexAutoUpdater;
 /**
  * Command handler scheduling the update of an R environment index.
  */
-public class REnvIndexUpdateHandler extends AbstractHandler {
+public class REnvIndexUpdateHandler extends AbstractToolHandler {
 	
 	
-	private RProcess fProcess;
-	private boolean fCompletely;
+	public static final int INDEX_COMPLETELY=               0x0000_0001;
+	
+	
+	public static class Completely extends REnvIndexUpdateHandler {
+		
+		
+		public Completely() {
+			super(INDEX_COMPLETELY);
+		}
+		
+	}
+	
+	
+	private final int mode;
 	
 	
 	public REnvIndexUpdateHandler() {
+		this(0);
 	}
 	
-	public REnvIndexUpdateHandler(final RProcess process, final boolean completely) {
-		fProcess = process;
-		fCompletely = completely;
-	}
-	
-	
-	@Override
-	public void setEnabled(final Object evaluationContext) {
-		if (fProcess != null) {
-			setBaseEnabled(!fProcess.isTerminated());
-		}
+	public REnvIndexUpdateHandler(final int mode) {
+		super(RConsoleTool.TYPE, RConsoleTool.R_DATA_FEATURESET_ID);
+		
+		this.mode= mode;
 	}
 	
 	
 	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		ToolProcess process = fProcess;
-		if (process == null) {
-			final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
-			process = NicoUI.getToolRegistry().getActiveToolSession(page).getProcess();
-		}
-		if (!NicoUITools.isToolReady(RConsoleTool.TYPE, RConsoleTool.R_DATA_FEATURESET_ID, process)) {
-			return null;
-		}
-		process.getQueue().add(new REnvIndexAutoUpdater.UpdateRunnable(fCompletely));
+	protected Object execute(final ITool tool, final ExecutionEvent event) throws ExecutionException {
+		tool.getQueue().add(new REnvIndexAutoUpdater.UpdateRunnable(
+				((this.mode & 0xf) == INDEX_COMPLETELY) ));
 		return null;
 	}
 	

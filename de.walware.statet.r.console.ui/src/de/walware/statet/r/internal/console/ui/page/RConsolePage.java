@@ -52,7 +52,6 @@ import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
-import de.walware.statet.r.internal.console.ui.actions.REnvIndexUpdateHandler;
 import de.walware.statet.r.ui.RUIHelp;
 import de.walware.statet.r.ui.pkgmanager.OpenRPkgManagerHandler;
 import de.walware.statet.r.ui.pkgmanager.StartAction;
@@ -196,18 +195,16 @@ public class RConsolePage extends NIConsolePage {
 			
 			rEnvMenu.add(new Separator());
 			
-			rEnvMenu.add(new HandlerContributionItem(new CommandContributionItemParameter(
-					getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
+			rEnvMenu.add(new CommandContributionItem(new CommandContributionItemParameter(
+					getSite(), null, "de.walware.statet.r.commands.UpdateREnvIndex", null, //$NON-NLS-1$
 					null, null, null,
-					"Index c&ompletely", null, null,
-					CommandContributionItem.STYLE_PUSH, null, false),
-					new REnvIndexUpdateHandler(process, true) ));
-			rEnvMenu.add(new HandlerContributionItem(new CommandContributionItemParameter(
-					getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
+					"Update &index (changes)", null, null,
+					CommandContributionItem.STYLE_PUSH, null, false )));
+			rEnvMenu.add(new CommandContributionItem(new CommandContributionItemParameter(
+					getSite(), null, "de.walware.statet.r.commands.ResetREnvIndex", null, //$NON-NLS-1$
 					null, null, null,
-					"Index ch&anges", null, null,
-					CommandContributionItem.STYLE_PUSH, null, false),
-					new REnvIndexUpdateHandler(process, false) ));
+					"Reset inde&x (completely)", null, null,
+					CommandContributionItem.STYLE_PUSH, null, false)));
 		}
 	}
 	

@@ -985,6 +985,8 @@
             contentTypeId="de.walware.statet.r.contentTypes.Rd">
       </contentTypeBinding>
    </extension>
+
+   <!-- Search -->
    <extension
          point="org.eclipse.search.searchResultViewPages">
       <viewPage
