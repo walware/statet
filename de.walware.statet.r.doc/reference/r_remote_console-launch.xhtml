@@ -24,10 +24,12 @@ adjust the relevant settings in the tabs of the configuration window.
 The most important tabs are dealt with in detail in separate paragraphs
 below.</p>
 
-<h4>Overview</h4>
-<p>The launch type allows to specify how the connection to R will be established.
-StatET offers three methods to connect to an R engine started using the RJServer library.
-To initialize a new R engine, you need at least one configuration of the type:</p>
+<h3>Main</h3>
+
+<h4>Overview / Launch Type</h4>
+<p>The <span class="uilabel">Launch Type</span> allows to specify how the connection to R will be
+established.  StatET offers three methods to connect to an R engine started using the RJServer
+library.  To initialize a new R engine, you need at least one configuration of the type:</p>
 <ul>
 <li><b>RJ - Manual:</b> This connection type allows to connect to an R engine started manually; or</li>
 <li><b>RJ - Start over SSH:</b> This connection type allows to start the R engine over a SSH connection automatically.</li>
@@ -70,9 +72,15 @@ provided by the server bundle.  Adjust the path, if required.</p>
 The working directory must be specified as local folder which is mapped to an <a href="r_remote_console-resourcemapping.xhtml"
 >remote folder</a>.</p>
 
+<h3>R Config</h3>
 
-<h2>Console View</h2>
-<p>The console view for the remote R engine has additional commands to:</p>
+<p>The R Config tab allows to specify which <a href="r_env.xhtml">R environment</a> to use.
+This is optional for remote consoles; but if no environment is specified, several features like the
+integrated package manager and R help are not available.</p>
+
+
+<h2>Console Page</h2>
+<p>The console page for the remote R engine has additional commands to:</p>
 <ul>
 	<li>Disconnect from the active R session. The current evaluation in R is not interrupted.</li>
 	<li>Reconnect directly to the disconnected R session.</li>
