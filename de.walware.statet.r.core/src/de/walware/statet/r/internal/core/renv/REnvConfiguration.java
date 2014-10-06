@@ -1251,9 +1251,6 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	}
 	
 	private void resolvePaths() {
-		if (!isLocal() && fIndexDirectory == null) {
-			return;
-		}
 		String rHome = null;
 		try {
 			final String s = getRHome();
