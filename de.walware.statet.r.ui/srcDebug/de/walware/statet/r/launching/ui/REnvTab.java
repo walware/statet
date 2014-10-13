@@ -31,9 +31,9 @@ import org.eclipse.swt.widgets.Group;
 
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.io.FileValidator;
+import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.MessageUtil;
-import de.walware.ecommons.ui.util.StringVariableUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.r.core.RCore;
@@ -163,7 +163,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 					ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
 					RLaunchingMessages.REnv_Tab_WorkingDir_label);
 			fWorkingDirectoryControl.setShowInsertVariable(true, 
-					StringVariableUtil.DEFAULT_INTERACTIVE_FILTERS, null );
+					DialogUtil.DEFAULT_INTERACTIVE_FILTERS, null );
 			fWorkingDirectoryControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		}
 		

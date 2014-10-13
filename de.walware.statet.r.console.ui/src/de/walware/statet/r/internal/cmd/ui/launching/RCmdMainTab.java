@@ -64,8 +64,8 @@ import de.walware.ecommons.debug.ui.InputArgumentsComposite;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
-import de.walware.ecommons.ui.util.StringVariableUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.base.ui.StatetImages;
@@ -253,7 +253,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 				ResourceInputComposite.MODE_FILE | ResourceInputComposite.MODE_OPEN,
 				""); //$NON-NLS-1$
 		fResourceControl.setShowInsertVariable(true,
-				new ConstArrayList<VariableFilter>(StringVariableUtil.EXCLUDE_JAVA_FILTER), null);
+				new ConstArrayList<VariableFilter>(DialogUtil.EXCLUDE_JAVA_FILTER), null);
 		fResourceControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 	}
 	

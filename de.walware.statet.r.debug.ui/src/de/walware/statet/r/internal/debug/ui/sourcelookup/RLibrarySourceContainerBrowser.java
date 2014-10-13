@@ -28,8 +28,8 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
+import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
-import de.walware.ecommons.ui.util.StringVariableUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.r.debug.core.sourcelookup.RLibrarySourceContainer;
@@ -71,7 +71,7 @@ public class RLibrarySourceContainerBrowser extends
 				this.resourceControl= new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
 						ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
 						Messages.RLibrarySourceContainerBrowser_Directory_label);
-				this.resourceControl.setShowInsertVariable(false, StringVariableUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
+				this.resourceControl.setShowInsertVariable(false, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 				final GridData gd= new GridData(SWT.FILL, SWT.CENTER, true, false);
 				gd.widthHint= LayoutUtil.hintWidth((Text) this.resourceControl.getTextControl(), 60);
 				this.resourceControl.setLayoutData(gd);

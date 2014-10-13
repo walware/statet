@@ -51,7 +51,6 @@ import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
 import de.walware.ecommons.ui.util.ComparatorViewerComparator;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
-import de.walware.ecommons.ui.util.StringVariableUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
@@ -261,7 +260,7 @@ class EditMappingDialog extends ExtStatusDialog {
 					ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
 					"local directory");
 			fLocalControl.getValidator().setOnNotExisting(IStatus.WARNING);
-			fLocalControl.setShowInsertVariable(false, StringVariableUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
+			fLocalControl.setShowInsertVariable(false, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			gd.widthHint = LayoutUtil.hintWidth((Text) fLocalControl.getTextControl(), 60);
 			fLocalControl.setLayoutData(gd);

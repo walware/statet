@@ -45,7 +45,7 @@ import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.components.ButtonGroup;
 import de.walware.ecommons.ui.components.CustomizableVariableSelectionDialog;
-import de.walware.ecommons.ui.util.StringVariableUtil;
+import de.walware.ecommons.ui.util.DialogUtil;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
@@ -122,7 +122,7 @@ public class RSnippetPreferencePage
 		@Override
 		protected void insertVariablePressed() {
 			final CustomizableVariableSelectionDialog dialog = new CustomizableVariableSelectionDialog(getShell());
-			final List<VariableFilter> filters = StringVariableUtil.DEFAULT_INTERACTIVE_FILTERS;
+			final List<VariableFilter> filters = DialogUtil.DEFAULT_INTERACTIVE_FILTERS;
 			for (final VariableFilter filter : filters) {
 				dialog.addVariableFilter(filter);
 			}
@@ -162,7 +162,7 @@ public class RSnippetPreferencePage
 					new RSnippetTemplateContribution(fSnippets),
 				});
 			
-			fCommandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
+			fCommandService = PlatformUI.getWorkbench().getService(ICommandService.class);
 		}
 		
 		@Override

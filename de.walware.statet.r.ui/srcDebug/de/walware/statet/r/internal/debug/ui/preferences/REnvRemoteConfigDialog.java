@@ -32,8 +32,8 @@ import org.eclipse.ui.PlatformUI;
 
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
+import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
-import de.walware.ecommons.ui.util.StringVariableUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.r.core.renv.IREnvConfiguration;
@@ -114,7 +114,7 @@ public class REnvRemoteConfigDialog extends ExtStatusDialog {
 			final ResourceInputComposite text = new ResourceInputComposite(area, ResourceInputComposite.STYLE_TEXT,
 					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_DOC_DIR");
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			text.setShowInsertVariable(true, StringVariableUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
+			text.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 			fIndexDirectoryControl = text;
 		}
 		

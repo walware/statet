@@ -77,9 +77,9 @@ import de.walware.ecommons.ui.components.ButtonGroup;
 import de.walware.ecommons.ui.components.DataAdapter;
 import de.walware.ecommons.ui.components.ExtensibleTextCellEditor;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
+import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.MessageUtil;
-import de.walware.ecommons.ui.util.StringVariableUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TreeComposite;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
@@ -140,7 +140,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 					ResourceInputComposite.STYLE_TEXT,
 					ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN, 
 					Messages.REnv_Detail_Location_label);
-			setShowInsertVariable(true, StringVariableUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
+			setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 		}
 		
 		@Override
@@ -427,7 +427,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 								}
 							};
 							chooseResourceComposite.setShowInsertVariable(true,
-									StringVariableUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
+									DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 							fText = (Text) chooseResourceComposite.getTextControl();
 							return chooseResourceComposite;
 						}
@@ -535,7 +535,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			final ResourceInputComposite text = new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
 					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_DOC_DIR"); //$NON-NLS-1$
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			text.setShowInsertVariable(true, StringVariableUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
+			text.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 			fRDocDirectoryControl = text;
 		}
 		{	final Label label = new Label(composite, SWT.NONE);
@@ -545,7 +545,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			final ResourceInputComposite text = new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
 					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_SHARE_DIR"); //$NON-NLS-1$
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			text.setShowInsertVariable(true, StringVariableUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
+			text.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 			fRShareDirectoryControl = text;
 		}
 		{	final Label label = new Label(composite, SWT.NONE);
@@ -555,7 +555,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			final ResourceInputComposite text = new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
 					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_INCLUDE_DIR"); //$NON-NLS-1$
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			text.setShowInsertVariable(true, StringVariableUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
+			text.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 			fRIncludeDirectoryControl = text;
 		}
 		return composite;
