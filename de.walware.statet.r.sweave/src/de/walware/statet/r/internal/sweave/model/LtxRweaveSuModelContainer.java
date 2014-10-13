@@ -267,12 +267,19 @@ public class LtxRweaveSuModelContainer extends LtxSuModelContainer<ILtxRweaveSou
 						IRegion nameRegion= null;
 						if (rChunk.weaveArgs != null) {
 							final Arg arg= getLabelArg(rChunk.weaveArgs);
-							if (arg != null && arg.hasValue()
-									&& arg.getValueChild().getNodeType() == NodeType.SYMBOL) {
-								final RAstNode nameNode= arg.getValueChild();
-								name= RElementName.create(RElementName.MAIN_DEFAULT, nameNode.getText());
-								nameRegion= nameNode;
-							}
+							if (arg != null && arg.hasValue()) {
+								final RAstNode labelNode= arg.getValueChild();
+								final String label;
+								if (arg.getValueChild().getNodeType() == NodeType.SYMBOL) {
+									label= labelNode.getText();
+								}
+								else {
+									label= new String(content.getText().substring(
+										labelNode.getOffset(), labelNode.getStopOffset() ));
+								}
+								name= RElementName.create(RElementName.MAIN_OTHER, label);
+								nameRegion= labelNode;
+	 						}
 						}
 						if (name == null) {
 							name= RElementName.create(RElementName.MAIN_OTHER, "#"+Integer.toString(chunkCount)); //$NON-NLS-1$
