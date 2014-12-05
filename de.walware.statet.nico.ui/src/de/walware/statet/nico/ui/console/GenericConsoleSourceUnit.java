@@ -228,4 +228,10 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 		return (fCounter > 0);
 	}
 	
+	
+	@Override
+	public String toString() {
+		return getModelTypeId() + '/' + getWorkingContext() + ": " + getId(); //$NON-NLS-1$
+	}
+	
 }
