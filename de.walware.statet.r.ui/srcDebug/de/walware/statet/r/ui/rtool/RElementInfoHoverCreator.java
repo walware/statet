@@ -316,6 +316,9 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 			final Image image = fLabelProvider.getImage(fInput.getElement());
 			fTitleImage.setImage((image != null) ? image : SharedUIResources.getImages().get(SharedUIResources.PLACEHOLDER_IMAGE_ID));
 			final StyledString styleString = fLabelProvider.getStyledText(fInput.getElement(), fInput.getElementName(), fInput.getElementAttr());
+			if (fInput.isElementOfActiveBinding()) {
+				styleString.append(" (active binding)", StyledString.QUALIFIER_STYLER);
+			}
 			fTitleText.setText(styleString.getString());
 			fTitleText.setStyleRanges(styleString.getStyleRanges());
 			if (fInput.hasDetail()) {

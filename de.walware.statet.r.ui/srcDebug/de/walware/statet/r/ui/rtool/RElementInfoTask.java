@@ -26,15 +26,18 @@ import de.walware.ecommons.ts.ITool;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.ui.NicoUITools;
 
+import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RLanguage;
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RReference;
 import de.walware.rj.data.RStore;
+import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.data.defaultImpl.RLanguageImpl;
 import de.walware.rj.data.defaultImpl.RListImpl;
 import de.walware.rj.data.defaultImpl.RReferenceImpl;
+import de.walware.rj.services.FunctionCall;
 import de.walware.rj.services.RService;
 
 import de.walware.statet.r.console.core.AbstractRDataRunnable;
@@ -52,13 +55,14 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 	public static class RElementInfoData {
 		
 		
-		private Control fControl;
+		private Control control;
 		
-		private ICombinedRElement fElement;
-		private RElementName fElementName;
-		private RList fElementAttr;
-		private String fDetailTitle;
-		private String fDetailInfo;
+		private ICombinedRElement element;
+		private RElementName elementName;
+		private boolean isActiveBinding;
+		private RList elementAttr;
+		private String detailTitle;
+		private String detailInfo;
 		
 		
 		private RElementInfoData() {
@@ -66,31 +70,35 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 		
 		
 		public Control getControl() {
-			return fControl;
+			return this.control;
 		}
 		
 		public ICombinedRElement getElement() {
-			return fElement;
+			return this.element;
 		}
 		
 		public RElementName getElementName() {
-			return fElementName;
+			return this.elementName;
+		}
+		
+		public boolean isElementOfActiveBinding() {
+			return this.isActiveBinding;
 		}
 		
 		public RList getElementAttr() {
-			return fElementAttr;
+			return this.elementAttr;
 		}
 		
 		public boolean hasDetail() {
-			return (fDetailTitle != null);
+			return (this.detailTitle != null);
 		}
 		
 		public String getDetailTitle() {
-			return fDetailTitle;
+			return this.detailTitle;
 		}
 		
 		public String getDetailInfo() {
-			return fDetailInfo;
+			return this.detailInfo;
 		}
 		
 	}
@@ -104,7 +112,7 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 	
 	public RElementInfoTask(final RElementName name) {
 		super("reditor/hover", "Collecting Element Detail for Hover"); //$NON-NLS-1$
-		fElementName = name;
+		this.fElementName = name;
 	}
 	
 	
@@ -118,25 +126,25 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 				if (status.getSeverity() >= IStatus.ERROR) {
 					return null;
 				}
-				while (fStatus == 0) {
+				while (this.fStatus == 0) {
 					if (Thread.interrupted()) {
-						fStatus = -1;
+						this.fStatus = -1;
 					}
 					wait(200);
 				}
 			}
 		}
 		catch (final InterruptedException e) {
-			fStatus = -1;
+			this.fStatus = -1;
 		}
-		if (fStatus != 1) {
+		if (this.fStatus != 1) {
 			tool.getQueue().removeHot(this);
 			return null;
 		}
 		
-		final RElementInfoData data = fData;
-		if (data != null && data.fElement != null) {
-			data.fControl = control;
+		final RElementInfoData data = this.fData;
+		if (data != null && data.element != null) {
+			data.control = control;
 			return data;
 		}
 		return null;
@@ -156,15 +164,15 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 		case BEING_ABANDONED:
 		case FINISHING_CANCEL:
 		case FINISHING_ERROR:
-			fStatus = -1;
+			this.fStatus = -1;
 			synchronized (this) {
-				this.notifyAll();
+				notifyAll();
 			}
 			break;
 		case FINISHING_OK:
-			fStatus = 1;
+			this.fStatus = 1;
 			synchronized (this) {
-				this.notifyAll();
+				notifyAll();
 			}
 			break;
 		default:
@@ -176,43 +184,69 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 	@Override
 	protected void run(final IRDataAdapter r,
 			final IProgressMonitor monitor) throws CoreException {
-		if (fStatus != 0 || monitor.isCanceled()) {
+		if (this.fStatus != 0 || monitor.isCanceled()) {
 			throw new CoreException(Status.CANCEL_STATUS);
 		}
 		if (!(r instanceof RjsController)) {
 			return; // TODO
 		}
 		
-		fData = new RElementInfoData();
+		this.fData = new RElementInfoData();
 		final ICombinedREnvironment environment = getEnv(r, monitor);
 		if (environment == null) {
 			return;
 		}
-		final String name = RElementName.createDisplayName(fElementName, RElementName.DISPLAY_EXACT);
+		
+		final String name = RElementName.createDisplayName(this.fElementName, RElementName.DISPLAY_EXACT);
 		final RReference envir = new RReferenceImpl(environment.getHandle(), RObject.TYPE_ENV, null);
-		if (fData.fElement == null) {
-			final String cmd = name;
-			fData.fElement = ((RjsController) r).evalCombinedStruct(cmd, envir,
-					0, RService.DEPTH_ONE, fElementName, monitor );
-			if (fData.fElement == null) {
-				return;
+		
+		if (this.fData.element == null || this.fData.element.getRObjectType() == RObject.TYPE_MISSING) {
+			try {
+				this.fData.element = ((RjsController) r).evalCombinedStruct(name, envir,
+						0, RService.DEPTH_ONE, this.fElementName, monitor );
+				if (this.fData.element == null) {
+					return;
+				}
+			}
+			catch (final CoreException e) {
+				if (this.fData.element == null) {
+					throw e;
+				}
+				// RObject.TYPE_MISSING
+				final String message= e.getMessage();
+				final int idxBegin= message.indexOf('<');
+				final int idxEnd= message.lastIndexOf('>');
+				if (idxBegin >= 0 && idxEnd > idxBegin + 1) {
+					this.fData.detailTitle= "error";
+					this.fData.detailInfo= message.substring(idxBegin + 1, idxEnd);
+				}
 			}
 		}
 		
-		if (fData.fElement.getRObjectType() != RObject.TYPE_PROMISE
-				&& fData.fElement.getRObjectType() != RObject.TYPE_MISSING) {
+		try {
+			final FunctionCall fcall= r.createFunctionCall("base::bindingIsActive"); //$NON-NLS-1$
+			fcall.addChar("sym", this.fElementName.getSegmentName()); //$NON-NLS-1$
+			fcall.add("env", envir); //$NON-NLS-1$
+			final RObject data= fcall.evalData(monitor);
+			this.fData.isActiveBinding= RDataUtil.checkSingleLogiValue(data);
+		}
+		catch (final CoreException | UnexpectedRDataException e) {
+		}
+		
+		if (this.fData.element.getRObjectType() != RObject.TYPE_PROMISE
+				&& this.fData.element.getRObjectType() != RObject.TYPE_MISSING) {
 			final String cmd = "class("+name+")";
 			
 			final RObject robject = ((RjsController) r).evalData(cmd, envir,
 					null, 0, RService.DEPTH_INFINITE, monitor );
 			if (robject != null) {
-				fData.fElementAttr = new RListImpl(new RObject[] { robject }, null, new String[] { "class" });
+				this.fData.elementAttr = new RListImpl(new RObject[] { robject }, null, new String[] { "class" });
 			}
 		}
-		if (fData.fElement.getRObjectType() != RObject.TYPE_MISSING) {
+		if (this.fData.element.getRObjectType() != RObject.TYPE_MISSING) {
 			final String title = "str";
 			final StringBuilder cmd = new StringBuilder("rj::.statet.captureStr(");
-			if (fData.fElement.getRObjectType() == RObject.TYPE_PROMISE) {
+			if (this.fData.element.getRObjectType() == RObject.TYPE_PROMISE) {
 				cmd.append("substitute(");
 				cmd.append(name);
 				cmd.append(")");
@@ -239,8 +273,8 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 				if (sb.length() > 0) {
 					sb.setLength(sb.length()-ln.length());
 				}
-				fData.fDetailTitle = title;
-				fData.fDetailInfo = sb.toString();
+				this.fData.detailTitle = title;
+				this.fData.detailInfo = sb.toString();
 			}
 		}
 	}
@@ -249,9 +283,9 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 			final IProgressMonitor monitor) throws CoreException {
 		boolean inherits;
 		RElementName envName;
-		if (fElementName.getNamespace() != null) {
+		if (this.fElementName.getNamespace() != null) {
 			inherits = false;
-			envName = fElementName.getNamespace();
+			envName = this.fElementName.getNamespace();
 		}
 		else {
 			inherits = true;
@@ -270,12 +304,12 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 		if (name == null) {
 			return null;
 		}
-		final RElementName mainName = RElementName.cloneSegment(fElementName);
+		final RElementName mainName = RElementName.cloneSegment(this.fElementName);
 		if (mainName.getType() != RElementName.MAIN_DEFAULT) {
 			return null;
 		}
 		
-		final int depth = (fElementName.getNextSegment() != null) ?
+		final int depth = (this.fElementName.getNextSegment() != null) ?
 				RService.DEPTH_REFERENCE : RService.DEPTH_ONE;
 		final RObject[] data = ((RjsController) r).findData(mainName.getSegmentName(),
 				new RLanguageImpl(RLanguage.CALL, name, null), inherits,
@@ -289,11 +323,11 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 					foundEnv.getHandle(), RObject.TYPE_ENV, null ), false );
 			if (!(altElement instanceof ICombinedREnvironment)
 					|| !updateName(altElement.getElementName()) ) {
-				fData.fElementName = fElementName;
+				this.fData.elementName = this.fElementName;
 			}
 		}
 		if (depth == RService.DEPTH_ONE) {
-			fData.fElement = (ICombinedRElement) data[0];
+			this.fData.element = (ICombinedRElement) data[0];
 			return (ICombinedREnvironment) data[1];
 		}
 		else {
@@ -313,7 +347,7 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 		}
 		final List<RElementName> segments = new ArrayList<RElementName>();
 		segments.add(envName);
-		RElementName a = fElementName;
+		RElementName a = this.fElementName;
 		while (a != null) {
 			segments.add(a);
 			a = a.getNextSegment();
@@ -323,7 +357,7 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 			return false;
 		}
 		
-		fData.fElementName = name;
+		this.fData.elementName = name;
 		return true;
 	}
 	
