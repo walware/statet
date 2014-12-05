@@ -48,7 +48,7 @@ public class FilteredFrame implements IRFrame, IModelElement.Filter {
 	
 	@Override
 	public RElementName getElementName() {
-		return null;
+		return fFrame.getElementName();
 	}
 	
 	@Override
