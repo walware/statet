@@ -515,7 +515,10 @@ public class RElementSearchProcessor {
 				progress.setWorkRemaining(3*(remaining--));
 				
 				final ISourceUnit sourceUnit= sourceUnits.get(i);
-				if (!sourceUnit.equals(this.initialSourceUnit.getId())) {
+				if (sourceUnit.getId().equals(this.initialSourceUnit.getId())) {
+					sourceUnits.remove(i--);
+				}
+				else {
 					try {
 						final ISourceUnit editUnit= suManager.getSourceUnit(sourceUnit.getModelTypeId(),
 								LTK.EDITOR_CONTEXT, sourceUnit, true, progress.newChild(1) );
@@ -525,7 +528,8 @@ public class RElementSearchProcessor {
 					}
 					catch (final Throwable e) {
 						throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, 1,
-								NLS.bind("An error occurred when looking for ''{0}''.", sourceUnit), e ));
+								NLS.bind("An error occurred when looking for ''{0}''.", sourceUnit.getId()),
+								e ));
 					}
 				}
 			}
