@@ -96,6 +96,7 @@ public class RElementSearchHandler extends AbstractHandler implements IExecutabl
 			return null;
 		}
 		final ISelection selection= WorkbenchUIUtil.getCurrentSelection(event.getApplicationContext());
+		IStatus status= null;
 		if (selection instanceof ITextSelection) {
 			final ITextSelection textSelection= (ITextSelection) selection;
 			final ISourceEditor editor= (ISourceEditor) part.getAdapter(ISourceEditor.class);
@@ -112,32 +113,40 @@ public class RElementSearchHandler extends AbstractHandler implements IExecutabl
 						final RElementAccess subAccess= RElementAccess.getElementAccessOfNameNode(node);
 						if (mainAccess != null && subAccess != null) {
 							final RElementName name= RElementName.cloneSegments(mainAccess, subAccess.getNextSegment(), false);
-							if (startSearch(name, (IRSourceUnit) su, mainAccess, mode)) {
-								return null;
-							}
+							status= startSearch(name, (IRSourceUnit) su, mainAccess, mode);
 						}
 					}
 				}
 			}
 		}
 		
-		LTKWorkbenchUIUtil.indicateStatus(new Status(IStatus.ERROR, RUI.PLUGIN_ID,
-				"The operation is unavailable on the current selection." ), event );
-		return null;
+		if (status == null) {
+			status= new Status(IStatus.ERROR, RUI.PLUGIN_ID,
+					"The operation is unavailable on the current selection." );
+		}
+		if (status.getSeverity() == IStatus.ERROR) {
+			LTKWorkbenchUIUtil.indicateStatus(status, event);
+		}
+		return status;
 	}
 	
 	
-	protected boolean startSearch(final RElementName name,
+	protected IStatus startSearch(final RElementName name,
 			final IRSourceUnit sourceUnit, final RElementAccess mainAccess,
 			final Mode mode) {
 		final RElementSearch searchProcessor= new RElementSearch(name, sourceUnit, mainAccess,
 				mode, (this.commandId == LTKUI.SEARCH_WRITE_ELEMENT_ACCESS_COMMAND_ID) );
-		if (searchProcessor.getStatus().getSeverity() >= IStatus.ERROR) {
-			return false;
+		if (searchProcessor.getStatus().getSeverity() >= IStatus.ERROR
+				|| searchProcessor.getMode() == Mode.LOCAL_FRAME) {
+			return null; // default error message
+		}
+		if (searchProcessor.getMode() != mode && searchProcessor.getMode() == Mode.CURRENT_FILE) {
+			return new Status(IStatus.ERROR, RUI.PLUGIN_ID,
+					"The search scope is not available for the current selection." );
 		}
 		final RElementSearchQuery query= new RElementSearchQuery(searchProcessor);
 		NewSearchUI.runQueryInBackground(query);
-		return true;
+		return Status.OK_STATUS;
 	}
 	
 }

@@ -26,7 +26,8 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnitManager;
 import de.walware.ecommons.ltk.LTK;
@@ -77,14 +78,17 @@ public class RElementSearchProcessor {
 	};
 	
 	
-	private static List<Mode> MODES_LOCAL= new ConstArrayList<>(
-			Mode.LOCAL_FRAME);
+	private static ImList<Mode> MODES_LOCAL= ImCollections.newList(
+			Mode.LOCAL_FRAME );
 	
-	private static List<Mode> MODES_GLOBAL= new ConstArrayList<>(
+	private static ImList<Mode> MODES_GLOBAL= ImCollections.newList(
 			Mode.WORKSPACE,
 			Mode.CURRENT_AND_REFERENCING_PROJECTS,
 			Mode.CURRENT_PROJECT,
-			Mode.CURRENT_FILE);
+			Mode.CURRENT_FILE );
+	
+	private static ImList<Mode> MODES_FILE= ImCollections.newList(
+			Mode.CURRENT_FILE );
 	
 	
 	private final IRSourceUnit initialSourceUnit;
@@ -231,6 +235,9 @@ public class RElementSearchProcessor {
 		if (frame == null || (frame.getFrameType() != IRFrame.PACKAGE && frame.getFrameType() != IRFrame.PROJECT)) {
 			return MODES_LOCAL;
 		}
+		else if (getInitialRProject() == null) {
+			return MODES_FILE;
+		}
 		else {
 			return MODES_GLOBAL;
 		}
@@ -321,14 +328,13 @@ public class RElementSearchProcessor {
 			
 			{	// start with current project
 				final IRProject initialProject= getInitialRProject();
-				if (initialProject != null) {
-					this.allProjects.add(initialProject);
+				this.allProjects.add(initialProject);
+				if (initialProject != null && getMode().compareTo(Mode.CURRENT_PROJECT) <= 0) {
 					final List<ISourceUnit> sus= loadSus(initialProject, this.allProjectsSourceUnits, true,
 							progress.newChild(3) );
 					sus.add(this.initialSourceUnit);
 				}
 				else {
-					this.allProjects.add(null);
 					this.initialSourceUnit.connect(progress.newChild(1));
 					this.allProjectsSourceUnits.add(Collections.<ISourceUnit>singletonList(this.initialSourceUnit));
 				}
@@ -339,7 +345,7 @@ public class RElementSearchProcessor {
 				throw new CoreException(Status.CANCEL_STATUS);
 			}
 			
-			{	// referenced projects
+			if (getMode().compareTo(Mode.CURRENT_PROJECT) <= 0) { // referenced projects
 				final SubMonitor p= progress.newChild(40);
 				for (int i= 0; i < this.allProjects.size(); i++) {
 					p.setWorkRemaining(this.allProjects.size()-i);
@@ -374,21 +380,23 @@ public class RElementSearchProcessor {
 								continue;
 							}
 						}
-						if (this.mode == Mode.WORKSPACE) {
+						if (getMode() == Mode.WORKSPACE) {
 							addReferencedProjects(project, this.allProjects);
 						}
 					}
 				}
 			}
 			
-			if (this.definitionProjects.isEmpty()) {
-				if ((this.flags & WARN_NO_DEFINITION) != 0 && this.mode == Mode.WORKSPACE) {
-					addStatus(IStatus.WARNING, Messages.RenameInWorkspace_warning_NoDefinition_message);
+			if (getMode() == Mode.WORKSPACE) {
+				if (this.definitionProjects.isEmpty()) {
+					if ((this.flags & WARN_NO_DEFINITION) != 0) {
+						addStatus(IStatus.WARNING, Messages.RenameInWorkspace_warning_NoDefinition_message);
+					}
 				}
-			}
-			else if (this.definitionProjects.size() > 1) {
-				if ((this.flags & WARN_NO_DEFINITION) != 0 && this.mode == Mode.WORKSPACE) {
-					addStatus(IStatus.WARNING, Messages.RenameInWorkspace_warning_MultipleDefinitions_message);
+				else if (this.definitionProjects.size() > 1) {
+					if ((this.flags & WARN_NO_DEFINITION) != 0) {
+						addStatus(IStatus.WARNING, Messages.RenameInWorkspace_warning_MultipleDefinitions_message);
+					}
 				}
 			}
 			
@@ -412,7 +420,13 @@ public class RElementSearchProcessor {
 			
 			beginFinalProcessing(progress);
 			
-			{	// referencing occurrences - create text changes
+			// referencing occurrences - create text changes
+			if (this.matchProjects.isEmpty() && getMode() == Mode.CURRENT_FILE) {
+				final List<ISourceUnit> sus= new ArrayList<>();
+				sus.add(this.initialSourceUnit);
+				process(null, sus, progress.newChild(40));
+			}
+			else{
 				final SubMonitor p= progress.newChild(40);
 				for (int i= 0; i < this.matchProjects.size(); i++) {
 					p.setWorkRemaining((this.matchProjects.size()-i) * 10);
@@ -434,7 +448,7 @@ public class RElementSearchProcessor {
 						sus= loadSus(project, this.allProjectsSourceUnits, false, p.newChild(3));
 					}
 					process(project, sus, progress.newChild(5));
-					switch (this.mode) {
+					switch (getMode()) {
 					case WORKSPACE:
 					case CURRENT_AND_REFERENCING_PROJECTS:
 						addReferencingProjects(project, this.matchProjects);

@@ -56,7 +56,7 @@ public class RenameInWorkspaceWizard extends RefactoringWizard {
 		public static final String PAGE_NAME = "RenameInWorkspace.InputPage"; //$NON-NLS-1$
 		
 		
-		private Text fVariableNameControl;
+		private Text variableNameControl;
 		
 		
 		public InputPage() {
@@ -90,9 +90,9 @@ public class RenameInWorkspaceWizard extends RefactoringWizard {
 				label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 				label.setText(Messages.RenameInWorkspace_Wizard_VariableName_label);
 				
-				fVariableNameControl = new Text(composite, SWT.BORDER);
-				fVariableNameControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-				fVariableNameControl.setFont(JFaceResources.getTextFont());
+				this.variableNameControl = new Text(composite, SWT.BORDER);
+				this.variableNameControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+				this.variableNameControl.setFont(JFaceResources.getTextFont());
 			}
 			
 			{	final Group group = new Group(composite, SWT.NONE);
@@ -143,6 +143,20 @@ public class RenameInWorkspaceWizard extends RefactoringWizard {
 						button.setSelection(true);
 					}
 				}
+				if (modes.contains(Mode.CURRENT_FILE)) {
+					final Button button = new Button(group, SWT.RADIO);
+					button.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+					button.setText("Current &file");
+					button.addSelectionListener(new SelectionAdapter() {
+						@Override
+						public void widgetSelected(final SelectionEvent e) {
+							getRefactoring().setMode(Mode.CURRENT_FILE);
+						}
+					});
+					if (refactoring.getMode() == Mode.CURRENT_FILE) {
+						button.setSelection(true);
+					}
+				}
 				if (modes.contains(Mode.LOCAL_FRAME)) {
 					final Button button = new Button(group, SWT.RADIO);
 					button.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -163,7 +177,7 @@ public class RenameInWorkspaceWizard extends RefactoringWizard {
 			Dialog.applyDialogFont(composite);
 			
 			initBindings();
-			fVariableNameControl.selectAll();
+			this.variableNameControl.selectAll();
 //			PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(),);
 		}
 		
@@ -176,7 +190,7 @@ public class RenameInWorkspaceWizard extends RefactoringWizard {
 		}
 		
 		protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-			dbc.bindValue(SWTObservables.observeText(fVariableNameControl, SWT.Modify),
+			dbc.bindValue(SWTObservables.observeText(this.variableNameControl, SWT.Modify),
 					PojoObservables.observeValue(realm, getRefactoring(), "newName"), //$NON-NLS-1$
 					new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
 						@Override
@@ -194,7 +208,7 @@ public class RenameInWorkspaceWizard extends RefactoringWizard {
 		@Override
 		public void setVisible(final boolean visible) {
 			super.setVisible(visible);
-			fVariableNameControl.setFocus();
+			this.variableNameControl.setFocus();
 		}
 		
 	}
