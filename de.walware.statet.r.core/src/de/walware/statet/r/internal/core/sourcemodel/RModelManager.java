@@ -17,7 +17,6 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.WorkingContext;
 import de.walware.ecommons.ltk.core.impl.AbstractModelManager;
@@ -124,14 +123,6 @@ public class RModelManager extends AbstractModelManager implements IRModelManage
 			final int level, final IProgressMonitor monitor) {
 		if (adapter instanceof RSuModelContainer) {
 			fReconciler.reconcile((RSuModelContainer) adapter, level, monitor);
-		}
-	}
-	
-	@Override
-	protected void reconcile(final ISourceUnit su, final int level, final IProgressMonitor monitor) {
-		final RSuModelContainer adapter = (RSuModelContainer) su.getAdapter(RSuModelContainer.class);
-		if (adapter != null) {
-			fReconciler.reconcile(adapter, (IModelManager.MODEL_FILE | IModelManager.RECONCILER), monitor);
 		}
 	}
 	

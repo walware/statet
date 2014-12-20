@@ -133,7 +133,7 @@ public class RReconciler {
 			}
 		}
 		
-		if ((flags & IModelManager.RECONCILER) != 0 && data.newModel != null) {
+		if ((flags & IModelManager.RECONCILE) != 0 && data.newModel != null) {
 			if (this.stop || monitor.isCanceled()) {
 				return;
 			}

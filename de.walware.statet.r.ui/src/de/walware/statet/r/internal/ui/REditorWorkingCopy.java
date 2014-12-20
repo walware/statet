@@ -11,9 +11,6 @@
 
 package de.walware.statet.r.internal.ui;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-
-import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ui.GenericEditorWorkspaceSourceUnitWorkingCopy2;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -69,12 +66,6 @@ public class REditorWorkingCopy
 	@Override
 	public IREnv getREnv() {
 		return ((IRSourceUnit) getUnderlyingUnit()).getREnv();
-	}
-	
-	@Override
-	public void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
-		RCore.getRModelManager().reconcile(getModelContainer(),
-				(reconcileLevel | IModelManager.RECONCILER), monitor );
 	}
 	
 }

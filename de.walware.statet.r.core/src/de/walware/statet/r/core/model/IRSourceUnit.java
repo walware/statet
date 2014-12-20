@@ -11,8 +11,6 @@
 
 package de.walware.statet.r.core.model;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -62,13 +60,5 @@ public interface IRSourceUnit extends ISourceUnit {
 	 * @return the R environment of the source unit
 	 */
 	IREnv getREnv();
-	
-	/**
-	 * Forces that the the R model of the source unit is up-to-date.
-	 * 
-	 * @param reconcileLevel the model level the model must have (min)
-	 * @param monitor
-	 */
-	void reconcileRModel(int reconcileLevel, IProgressMonitor monitor);
 	
 }

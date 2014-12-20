@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.ISynchronizable;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.core.SourceContent;
 import de.walware.ecommons.ltk.core.model.IModelElement;
@@ -87,12 +86,6 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSo
 	
 	
 	@Override
-	public void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
-		RCore.getRModelManager().reconcile(this.model, (reconcileLevel | IModelManager.RECONCILER),
-				monitor );
-	}
-	
-	@Override
 	public AstInfo getAstInfo(final String type, final boolean ensureSync,
 			final IProgressMonitor monitor) {
 		if (type == null || this.model.isContainerFor(type)) {
@@ -102,10 +95,10 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSo
 	}
 	
 	@Override
-	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel,
+	public ISourceUnitModelInfo getModelInfo(final String type, final int flags,
 			final IProgressMonitor monitor) {
 		if (type == null || this.model.isContainerFor(type)) {
-			return this.model.getModelInfo(syncLevel, monitor);
+			return this.model.getModelInfo(flags, monitor);
 		}
 		return null;
 	}

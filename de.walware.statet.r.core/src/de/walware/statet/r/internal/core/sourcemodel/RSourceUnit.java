@@ -68,6 +68,7 @@ public final class RSourceUnit extends RResourceUnit implements IRWorkspaceSourc
 		this.model.clear();
 	}
 	
+	
 	@Override
 	public AstInfo getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
 		final AstInfo ast= this.model.getCurrentAst();
@@ -85,10 +86,6 @@ public final class RSourceUnit extends RResourceUnit implements IRWorkspaceSourc
 			return this.model.getModelInfo(syncLevel, monitor);
 		}
 		return null;
-	}
-	
-	@Override
-	public synchronized void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
 	}
 	
 	

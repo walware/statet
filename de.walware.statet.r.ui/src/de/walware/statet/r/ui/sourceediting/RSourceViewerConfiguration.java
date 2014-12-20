@@ -37,6 +37,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewer;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceUnitReconcilingStrategy;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistComputerRegistry;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistProcessor;
@@ -67,7 +68,6 @@ import de.walware.statet.r.internal.ui.editors.REditor;
 import de.walware.statet.r.internal.ui.editors.REditorInformationProvider;
 import de.walware.statet.r.internal.ui.editors.REditorTextHover;
 import de.walware.statet.r.internal.ui.editors.RQuickOutlineInformationProvider;
-import de.walware.statet.r.internal.ui.editors.RReconcilingStrategy;
 import de.walware.statet.r.ui.editors.REditorOptions;
 import de.walware.statet.r.ui.text.r.IRTextTokens;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
@@ -233,7 +233,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		}
 		final EcoReconciler2 reconciler = new EcoReconciler2(editor);
 		reconciler.setDelay(500);
-		reconciler.addReconcilingStrategy(new RReconcilingStrategy());
+		reconciler.addReconcilingStrategy(new SourceUnitReconcilingStrategy());
 		
 		if (editor instanceof REditor) {
 			final IReconcilingStrategy spellingStrategy = getSpellingStrategy(sourceViewer);

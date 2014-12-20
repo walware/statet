@@ -14,17 +14,13 @@ package de.walware.statet.r.internal.ui;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.WorkingContext;
-import de.walware.ecommons.ltk.core.impl.GenericUriSourceUnit;
+import de.walware.ecommons.ltk.core.impl.GenericUriSourceUnit2;
 import de.walware.ecommons.ltk.core.impl.IWorkingBuffer;
-import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ui.FileBufferWorkingBuffer;
 import de.walware.ecommons.text.core.sections.DocContentSections;
 
@@ -32,15 +28,12 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
-import de.walware.statet.r.core.model.RSuModelContainer;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.source.RDocumentContentInfo;
 
 
-public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSourceUnit {
-	
-	
-	private final RSuModelContainer fModel = new RUISuModelContainer(this);
+public class REditorUriSourceUnit extends GenericUriSourceUnit2<RUISuModelContainer>
+		implements IRSourceUnit {
 	
 	
 	public REditorUriSourceUnit(final String id, final IFileStore store) {
@@ -49,13 +42,18 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 	
 	
 	@Override
+	protected RUISuModelContainer createModelContainer() {
+		return new RUISuModelContainer(this);
+	}
+	
+	@Override
 	public WorkingContext getWorkingContext() {
 		return LTK.EDITOR_CONTEXT;
 	}
 	
 	@Override
 	public String getModelTypeId() {
-		return RModel.TYPE_ID;
+		return RModel.R_TYPE_ID;
 	}
 	
 	@Override
@@ -91,27 +89,6 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 		RCore.getRModelManager().deregisterDependentUnit(this);
 	}
 	
-	@Override
-	public void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
-		RCore.getRModelManager().reconcile(fModel, (reconcileLevel | IModelManager.RECONCILER),
-				monitor );
-	}
-	
-	@Override
-	public AstInfo getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
-		if (type == null || type.equals(RModel.TYPE_ID)) {
-			return fModel.getAstInfo(ensureSync, monitor);
-		}
-		return null;
-	}
-	
-	@Override
-	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
-		if (type == null || type.equals(RModel.TYPE_ID)) {
-			return fModel.getModelInfo(syncLevel, monitor);
-		}
-		return null;
-	}
 	
 	@Override
 	public void syncExec(final SourceDocumentRunnable runnable) throws InvocationTargetException {
@@ -126,15 +103,6 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 	@Override
 	public IREnv getREnv() {
 		return RCore.getREnvManager().getDefault();
-	}
-	
-	
-	@Override
-	public Object getAdapter(final Class required) {
-		if (RSuModelContainer.class.equals(required)) {
-			return fModel;
-		}
-		return super.getAdapter(required);
 	}
 	
 }
