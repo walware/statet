@@ -34,6 +34,7 @@ import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ltk.ui.sourceediting.ISmartInsertSettings.TabAction;
 import de.walware.ecommons.ltk.ui.sourceediting.SmartInsertSettingsUI;
 import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -47,14 +48,15 @@ import de.walware.statet.r.ui.editors.REditorOptions;
 /**
  * Preference page for 'R Editor Options'
  */
-public class REditorPreferencePage extends ConfigurationBlockPreferencePage<REditorConfigurationBlock> {
+public class REditorPreferencePage extends ConfigurationBlockPreferencePage {
 	
 	
 	public REditorPreferencePage() {
 	}
 	
+	
 	@Override
-	protected REditorConfigurationBlock createConfigurationBlock() {
+	protected ConfigurationBlock createConfigurationBlock() {
 		return new REditorConfigurationBlock(createStatusChangedListener());
 	}
 	

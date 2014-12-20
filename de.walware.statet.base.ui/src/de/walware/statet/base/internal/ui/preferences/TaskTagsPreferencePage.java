@@ -14,6 +14,8 @@ package de.walware.statet.base.internal.ui.preferences;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
+import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.preferences.ui.PropertyAndPreferencePage;
 
 import de.walware.statet.base.core.StatetProject;
@@ -23,7 +25,7 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 /**
  * The page to configure the task tags
  */
-public class TaskTagsPreferencePage extends PropertyAndPreferencePage<TaskTagsConfigurationBlock> {
+public class TaskTagsPreferencePage extends PropertyAndPreferencePage {
 	
 	public static final String PREF_ID = "de.walware.statet.base.ui.preferencePages.TaskTags"; //$NON-NLS-1$
 	public static final String PROP_ID = "de.walware.statet.base.propertyPages.TaskTags"; //$NON-NLS-1$
@@ -54,14 +56,14 @@ public class TaskTagsPreferencePage extends PropertyAndPreferencePage<TaskTagsCo
 	
 	
 	@Override
-	protected TaskTagsConfigurationBlock createConfigurationBlock() 
+	protected ConfigurationBlock createConfigurationBlock() 
 			throws CoreException {
 		return new TaskTagsConfigurationBlock(getProject(), createStatusChangedListener());
 	}
 	
 	@Override
 	protected boolean hasProjectSpecificSettings(final IProject project) {
-		return fBlock.hasProjectSpecificOptions(project);
+		return ((ManagedConfigurationBlock) fBlock).hasProjectSpecificOptions(project);
 	}
 	
 }

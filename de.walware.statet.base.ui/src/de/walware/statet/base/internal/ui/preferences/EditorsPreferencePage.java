@@ -27,6 +27,7 @@ import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.text.ui.settings.AssistPreferences;
@@ -35,7 +36,7 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 
 
-public class EditorsPreferencePage extends ConfigurationBlockPreferencePage<EditorsConfigurationBlock> {
+public class EditorsPreferencePage extends ConfigurationBlockPreferencePage {
 	
 	
 	public EditorsPreferencePage() {
@@ -43,7 +44,7 @@ public class EditorsPreferencePage extends ConfigurationBlockPreferencePage<Edit
 	
 	
 	@Override
-	protected EditorsConfigurationBlock createConfigurationBlock() {
+	protected ConfigurationBlock createConfigurationBlock() {
 		return new EditorsConfigurationBlock(createStatusChangedListener());
 	}
 	

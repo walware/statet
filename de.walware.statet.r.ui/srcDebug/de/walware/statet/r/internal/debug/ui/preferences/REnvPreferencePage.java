@@ -89,7 +89,7 @@ import de.walware.statet.r.ui.RUI;
 /**
  * Preference page for R (Environment) configuration of the workbench.
  */
-public class REnvPreferencePage extends ConfigurationBlockPreferencePage<REnvConfigurationBlock> {
+public class REnvPreferencePage extends ConfigurationBlockPreferencePage {
 	
 	
 	public static final String PREF_PAGE_ID = "de.walware.statet.r.preferencePages.REnvironmentPage"; //$NON-NLS-1$
@@ -100,11 +100,12 @@ public class REnvPreferencePage extends ConfigurationBlockPreferencePage<REnvCon
 	
 	
 	@Override
-	protected REnvConfigurationBlock createConfigurationBlock() throws CoreException {
+	protected ConfigurationBlock createConfigurationBlock() throws CoreException {
 		return new REnvConfigurationBlock(null, createStatusChangedListener());
 	}
 	
 }
+
 
 class REnvConfigurationBlock extends ManagedConfigurationBlock
 		implements ButtonGroup.IActions<IREnvConfiguration.WorkingCopy> {

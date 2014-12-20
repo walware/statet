@@ -60,7 +60,7 @@ import de.walware.statet.nico.internal.core.ResourceMappingManager;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 
 
-public class ResourceMappingPreferencePage extends ConfigurationBlockPreferencePage<ResourceMappingConfigurationBlock> {
+public class ResourceMappingPreferencePage extends ConfigurationBlockPreferencePage {
 	
 	
 	public ResourceMappingPreferencePage() {
@@ -68,10 +68,9 @@ public class ResourceMappingPreferencePage extends ConfigurationBlockPreferenceP
 	
 	
 	@Override
-	protected ResourceMappingConfigurationBlock createConfigurationBlock() throws CoreException {
+	protected ConfigurationBlock createConfigurationBlock() throws CoreException {
 		return new ResourceMappingConfigurationBlock();
 	}
-	
 	
 }
 

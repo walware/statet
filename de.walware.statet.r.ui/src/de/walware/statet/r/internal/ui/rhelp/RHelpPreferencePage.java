@@ -38,6 +38,7 @@ import de.walware.ecommons.databinding.IntegerValidator;
 import de.walware.ecommons.databinding.jface.AbstractSWTObservableValue;
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -45,7 +46,7 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.statet.r.core.rhelp.IRHelpManager;
 
 
-public class RHelpPreferencePage extends ConfigurationBlockPreferencePage<RHelpConfigurationBlock> {
+public class RHelpPreferencePage extends ConfigurationBlockPreferencePage {
 	
 	
 	public RHelpPreferencePage() {
@@ -53,7 +54,7 @@ public class RHelpPreferencePage extends ConfigurationBlockPreferencePage<RHelpC
 	
 	
 	@Override
-	protected RHelpConfigurationBlock createConfigurationBlock() throws CoreException {
+	protected ConfigurationBlock createConfigurationBlock() throws CoreException {
 		return new RHelpConfigurationBlock(createStatusChangedListener());
 	}
 	

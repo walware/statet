@@ -14,12 +14,13 @@ package de.walware.statet.r.internal.console.ui.page;
 import org.eclipse.core.runtime.CoreException;
 
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AdvancedContentAssistConfigurationBlock;
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
-public class AdvancedContentAssistConfigurationPage extends ConfigurationBlockPreferencePage<AdvancedContentAssistConfigurationBlock> {
+public class AdvancedContentAssistConfigurationPage extends ConfigurationBlockPreferencePage {
 	
 	
 	/**
@@ -30,7 +31,7 @@ public class AdvancedContentAssistConfigurationPage extends ConfigurationBlockPr
 	
 	
 	@Override
-	protected AdvancedContentAssistConfigurationBlock createConfigurationBlock() throws CoreException {
+	protected ConfigurationBlock createConfigurationBlock() throws CoreException {
 		return new AdvancedContentAssistConfigurationBlock(
 				RUIPlugin.getDefault().getRConsoleContentAssistRegistry(),
 				createStatusChangedListener());

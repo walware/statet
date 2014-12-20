@@ -49,7 +49,7 @@ import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
 
 
-public class RInteractionPreferencePage extends ConfigurationBlockPreferencePage<RInteractionConfigurationBlock> {
+public class RInteractionPreferencePage extends ConfigurationBlockPreferencePage {
 	
 	
 	public RInteractionPreferencePage() {
@@ -57,12 +57,14 @@ public class RInteractionPreferencePage extends ConfigurationBlockPreferencePage
 		setDescription(Messages.RInteraction_description);
 	}
 	
+	
 	@Override
 	protected RInteractionConfigurationBlock createConfigurationBlock() {
 		return new RInteractionConfigurationBlock();
 	}
 	
 }
+
 
 class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	

@@ -28,6 +28,7 @@ import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.databinding.IntegerValidator;
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -35,7 +36,7 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.statet.nico.ui.util.SubmitTypeSelectionComposite;
 
 
-public class ConsolePreferencePage extends ConfigurationBlockPreferencePage<ConsolePreferenceBlock> {
+public class ConsolePreferencePage extends ConfigurationBlockPreferencePage {
 	
 	
 	public ConsolePreferencePage() {
@@ -43,11 +44,12 @@ public class ConsolePreferencePage extends ConfigurationBlockPreferencePage<Cons
 	
 	
 	@Override
-	protected ConsolePreferenceBlock createConfigurationBlock() throws CoreException {
+	protected ConfigurationBlock createConfigurationBlock() throws CoreException {
 		return new ConsolePreferenceBlock(createStatusChangedListener());
 	}
 	
 }
+
 
 class ConsolePreferenceBlock extends ManagedConfigurationBlock {
 	

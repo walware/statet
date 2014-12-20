@@ -149,7 +149,6 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 			
 			this.listButtons.connectTo(this.listViewer, this.list, this.defaultValue);
 			this.listViewer.setInput(this.list);
-			ViewerUtil.scheduleStandardSelection(this.listViewer);
 		}
 		
 		updateControls();
@@ -245,6 +244,8 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		loadValues();
 		this.listViewer.refresh();
 		this.listButtons.updateState();
+		
+		ViewerUtil.scheduleStandardSelection(this.listViewer);
 	}
 	
 	private void loadValues() {

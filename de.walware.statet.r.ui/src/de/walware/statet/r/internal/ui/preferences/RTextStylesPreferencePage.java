@@ -40,19 +40,21 @@ import de.walware.statet.r.ui.sourceediting.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.text.r.IRTextTokens;
 
 
-public class RTextStylesPreferencePage extends ConfigurationBlockPreferencePage<ConfigurationBlock> {
+public class RTextStylesPreferencePage extends ConfigurationBlockPreferencePage {
 	
 	
 	public RTextStylesPreferencePage() {
 		setPreferenceStore(RUIPlugin.getDefault().getPreferenceStore());
 	}
 	
+	
 	@Override
-	protected AbstractTextStylesConfigurationBlock createConfigurationBlock() {
+	protected ConfigurationBlock createConfigurationBlock() {
 		return new RTextStylesPreferenceBlock();
 	}
 	
 }
+
 
 class RTextStylesPreferenceBlock extends AbstractTextStylesConfigurationBlock {
 	

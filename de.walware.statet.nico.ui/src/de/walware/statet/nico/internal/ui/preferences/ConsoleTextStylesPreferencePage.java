@@ -29,7 +29,7 @@ import de.walware.ecommons.text.ui.settings.TextStyleManager;
 import de.walware.statet.nico.ui.NicoUIPreferenceNodes;
 
 
-public class ConsoleTextStylesPreferencePage extends ConfigurationBlockPreferencePage<ConfigurationBlock> {
+public class ConsoleTextStylesPreferencePage extends ConfigurationBlockPreferencePage {
 	
 	
 	public ConsoleTextStylesPreferencePage() {
@@ -38,8 +38,9 @@ public class ConsoleTextStylesPreferencePage extends ConfigurationBlockPreferenc
 		setPreferenceStore(store);
 	}
 	
+	
 	@Override
-	protected AbstractTextStylesConfigurationBlock createConfigurationBlock() {
+	protected ConfigurationBlock createConfigurationBlock() {
 		return new ConsoleTextStylesPreferenceBlock();
 	}
 	

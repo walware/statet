@@ -50,6 +50,7 @@ import de.walware.ecommons.databinding.NotEmptyValidator;
 import de.walware.ecommons.databinding.URLValidator;
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.components.ButtonGroup;
@@ -66,7 +67,7 @@ import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.RRepo;
 
 
-public class RRepoPreferencePage extends ConfigurationBlockPreferencePage<RRepoConfigurationBlock> {
+public class RRepoPreferencePage extends ConfigurationBlockPreferencePage {
 	
 	
 	public RRepoPreferencePage() {
@@ -74,13 +75,8 @@ public class RRepoPreferencePage extends ConfigurationBlockPreferencePage<RRepoC
 	
 	
 	@Override
-	protected RRepoConfigurationBlock createConfigurationBlock() throws CoreException {
+	protected ConfigurationBlock createConfigurationBlock() throws CoreException {
 		return new RRepoConfigurationBlock(createStatusChangedListener());
-	}
-	
-	@Override
-	public void setTitle(final String title) {
-		super.setTitle("R Custom Repositories");
 	}
 	
 }
@@ -237,6 +233,11 @@ class RRepoConfigurationBlock extends ManagedConfigurationBlock implements IActi
 		super(null, statusListener);
 	}
 	
+	
+	@Override
+	protected String getTitle() {
+		return "R Custom Repositories";
+	}
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {

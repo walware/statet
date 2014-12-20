@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Label;
 import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.StringArrayPref;
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.components.EditableTextList;
@@ -61,14 +62,15 @@ import de.walware.statet.r.ui.RUIPreferenceConstants;
 /**
  * Preference page for 'R Editor Options'
  */
-public class RIdentifiersPreferencePage extends ConfigurationBlockPreferencePage<RIdentifiersBlock> {
+public class RIdentifiersPreferencePage extends ConfigurationBlockPreferencePage {
 	
 	
 	public RIdentifiersPreferencePage() {
 	}
 	
+	
 	@Override
-	protected RIdentifiersBlock createConfigurationBlock() {
+	protected ConfigurationBlock createConfigurationBlock() {
 		return new RIdentifiersBlock(createStatusChangedListener());
 	}
 	

@@ -44,7 +44,6 @@ import de.walware.ecommons.ltk.ui.templates.config.ITemplateContribution;
 import de.walware.ecommons.ltk.ui.templates.config.TemplateCategory;
 import de.walware.ecommons.ltk.ui.templates.config.TemplateStoreContribution;
 import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.components.ButtonGroup;
@@ -57,8 +56,22 @@ import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
 
 
-public class RSnippetPreferencePage
-		extends ConfigurationBlockPreferencePage<ConfigurationBlock> {
+public class RSnippetPreferencePage extends ConfigurationBlockPreferencePage {
+	
+	
+	public RSnippetPreferencePage() {
+	}
+	
+	
+	@Override
+	protected CodeTemplateConfigurationBlock createConfigurationBlock() throws CoreException {
+		return new SnippetConfigurationBlock();
+	}
+	
+}
+
+
+class SnippetConfigurationBlock extends CodeTemplateConfigurationBlock {
 	
 	
 	private static final String R_SNIPPET_CATEGORY_ID = "r.ConsoleSnippet"; //$NON-NLS-1$
@@ -151,68 +164,58 @@ public class RSnippetPreferencePage
 		}
 	}
 	
-	private static class SnippetConfigurationBlock extends CodeTemplateConfigurationBlock {
+	
+	private final ICommandService fCommandService;
+	
+	private final RSnippets fSnippets;
+	
+	
+	public SnippetConfigurationBlock() throws CoreException {
+		super(Messages.SnippetTemplates_title, ADD_ITEM, null);
 		
+		fSnippets= RConsoleUIPlugin.getDefault().getRSnippets();
+		setCategories(	ImCollections.newList(
+						new TemplateCategory(R_SNIPPET_CATEGORY_ID,
+								RConsoleUIPlugin.getDefault().getImageRegistry().getDescriptor(RConsoleUIPlugin.IMG_OBJ_SNIPPETS),
+								Messages.SnippetTemplates_RSnippet_label,
+								RUI.getImageDescriptor(RUI.IMG_OBJ_R_SCRIPT),
+								new RSnippetTemplateConfiguration(fSnippets) )
+				));
 		
-		private final ICommandService fCommandService;
-		
-		private final RSnippets fSnippets;
-		
-		
-		public SnippetConfigurationBlock() throws CoreException {
-			super(Messages.SnippetTemplates_title, ADD_ITEM, null);
-			
-			fSnippets= RConsoleUIPlugin.getDefault().getRSnippets();
-			setCategories(	ImCollections.newList(
-							new TemplateCategory(R_SNIPPET_CATEGORY_ID,
-									RConsoleUIPlugin.getDefault().getImageRegistry().getDescriptor(RConsoleUIPlugin.IMG_OBJ_SNIPPETS),
-									Messages.SnippetTemplates_RSnippet_label,
-									RUI.getImageDescriptor(RUI.IMG_OBJ_R_SCRIPT),
-									new RSnippetTemplateConfiguration(fSnippets) )
-					));
-			
-			fCommandService = PlatformUI.getWorkbench().getService(ICommandService.class);
-		}
-		
-		@Override
-		protected void createBlockArea(final Composite pageComposite) {
-			super.createBlockArea(pageComposite);
-			
-			final Link keyLink = addLinkControl(pageComposite, Messages.SnippetTemplates_KeysNote_label,
-					new LinkSelectionListener() {
-				private ParameterizedCommand fCommand;
-				@Override
-				protected Object getData(final SelectionEvent e) {
-					if (fCommand == null) {
-						final Command command = fCommandService.getCommand(RSnippets.SUBMIT_SNIPPET_COMMAND_ID);
-						final List<TemplateItem> templates = getTemplates(getCategories().get(0));
-						if (!templates.isEmpty()) {
-							final String name = templates.get(0).getData().getTemplate().getName();
-							final Map<String, String> parameters = Collections.singletonMap(RSnippets.SNIPPET_PAR, name);
-							fCommand = ParameterizedCommand.generateCommand(command, parameters);
-						}
-					}
-					return fCommand;
-				}
-			});
-			keyLink.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		}
-		
-		@Override
-		protected EditTemplateDialog createEditDialog(final Template template, final int command,
-				final SourceEditorViewerConfigurator configurator, final TemplateVariableProcessor processor,
-				final ContextTypeRegistry registry) {
-			return new RSnippetEditDialog(getShell(), template,
-					((command & ButtonGroup.ADD_ANY) != 0), EditTemplateDialog.CUSTOM_TEMPLATE,
-					configurator, processor, registry, fSnippets);
-		}
-		
+		fCommandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
 	}
 	
+	@Override
+	protected void createBlockArea(final Composite pageComposite) {
+		super.createBlockArea(pageComposite);
+		
+		final Link keyLink = addLinkControl(pageComposite, Messages.SnippetTemplates_KeysNote_label,
+				new LinkSelectionListener() {
+			private ParameterizedCommand fCommand;
+			@Override
+			protected Object getData(final SelectionEvent e) {
+				if (fCommand == null) {
+					final Command command = fCommandService.getCommand(RSnippets.SUBMIT_SNIPPET_COMMAND_ID);
+					final List<TemplateItem> templates = getTemplates(getCategories().get(0));
+					if (!templates.isEmpty()) {
+						final String name = templates.get(0).getData().getTemplate().getName();
+						final Map<String, String> parameters = Collections.singletonMap(RSnippets.SNIPPET_PAR, name);
+						fCommand = ParameterizedCommand.generateCommand(command, parameters);
+					}
+				}
+				return fCommand;
+			}
+		});
+		keyLink.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+	}
 	
 	@Override
-	protected CodeTemplateConfigurationBlock createConfigurationBlock() throws CoreException {
-		return new SnippetConfigurationBlock();
+	protected EditTemplateDialog createEditDialog(final Template template, final int command,
+			final SourceEditorViewerConfigurator configurator, final TemplateVariableProcessor processor,
+			final ContextTypeRegistry registry) {
+		return new RSnippetEditDialog(getShell(), template,
+				((command & ButtonGroup.ADD_ANY) != 0), EditTemplateDialog.CUSTOM_TEMPLATE,
+				configurator, processor, registry, fSnippets);
 	}
 	
 }

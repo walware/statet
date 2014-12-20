@@ -14,6 +14,8 @@ package de.walware.statet.r.internal.ui.preferences;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
+import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.preferences.ui.PropertyAndPreferencePage;
 
 import de.walware.statet.r.core.RProjects;
@@ -22,7 +24,7 @@ import de.walware.statet.r.core.RProjects;
 /**
  * A Property- and PreferencePage for RCodeStyle settings.
  */
-public class RCodeStylePreferencePage extends PropertyAndPreferencePage<RCodeStylePreferenceBlock> {
+public class RCodeStylePreferencePage extends PropertyAndPreferencePage {
 	
 	public static final String PREF_ID = "de.walware.statet.r.preferencePages.RCodeStyle"; //$NON-NLS-1$
 	public static final String PROP_ID = "de.walware.statet.r.propertyPages.RCodeStyle"; //$NON-NLS-1$
@@ -47,14 +49,15 @@ public class RCodeStylePreferencePage extends PropertyAndPreferencePage<RCodeSty
 		return project.hasNature(RProjects.R_NATURE_ID);
 	}
 	
+	
 	@Override
-	protected RCodeStylePreferenceBlock createConfigurationBlock() throws CoreException {
+	protected ConfigurationBlock createConfigurationBlock() throws CoreException {
 		return new RCodeStylePreferenceBlock(getProject(), createStatusChangedListener());
 	}
 	
 	@Override
 	protected boolean hasProjectSpecificSettings(final IProject project) {
-		return fBlock.hasProjectSpecificOptions(project);
+		return ((ManagedConfigurationBlock) fBlock).hasProjectSpecificOptions(project);
 	}
 	
 }

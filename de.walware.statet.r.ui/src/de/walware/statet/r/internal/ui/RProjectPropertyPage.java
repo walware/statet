@@ -34,6 +34,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.preferences.ui.PropertyAndPreferencePage;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -43,17 +44,12 @@ import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.ui.RUI;
 
 
-public class RProjectPropertyPage extends PropertyAndPreferencePage<RProjectConfigurationBlock> {
+public class RProjectPropertyPage extends PropertyAndPreferencePage {
 	
 	
 	public RProjectPropertyPage() {
 	}
 	
-	
-	@Override
-	protected RProjectConfigurationBlock createConfigurationBlock() throws CoreException {
-		return new RProjectConfigurationBlock(getProject(), createStatusChangedListener());
-	}
 	
 	@Override
 	protected String getPreferencePageID() {
@@ -63,6 +59,12 @@ public class RProjectPropertyPage extends PropertyAndPreferencePage<RProjectConf
 	@Override
 	protected String getPropertyPageID() {
 		return "de.walware.statet.r.propertyPages.RProject"; //$NON-NLS-1$
+	}
+	
+	
+	@Override
+	protected ConfigurationBlock createConfigurationBlock() throws CoreException {
+		return new RProjectConfigurationBlock(getProject(), createStatusChangedListener());
 	}
 	
 	@Override

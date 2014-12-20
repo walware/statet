@@ -18,6 +18,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import de.walware.ecommons.ltk.ui.LTKUIPreferences;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.text.ui.presentation.AbstractTextStylesConfigurationBlock;
 import de.walware.ecommons.text.ui.settings.TextStyleManager;
@@ -29,19 +30,21 @@ import de.walware.statet.r.ui.editors.RdDocumentSetupParticipant;
 import de.walware.statet.r.ui.editors.RdSourceViewerConfiguration;
 
 
-public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreferencePage<AbstractTextStylesConfigurationBlock> {
+public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreferencePage {
 	
 	
 	public RdSyntaxColoringPreferencePage() {
 		setPreferenceStore(RUIPlugin.getDefault().getPreferenceStore());
 	}
 	
+	
 	@Override
-	protected AbstractTextStylesConfigurationBlock createConfigurationBlock() {
+	protected ConfigurationBlock createConfigurationBlock() {
 		return new RdTextStylesBlock();
 	}
 	
 }
+
 
 class RdTextStylesBlock extends AbstractTextStylesConfigurationBlock {
 	

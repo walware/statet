@@ -15,6 +15,7 @@ package de.walware.statet.base.internal.ui.preferences;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.PropertyAndPreferencePage;
 
 import de.walware.statet.base.core.StatetProject;
@@ -24,7 +25,7 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 /**
  * The page to configure the code templates.
  */
-public class CodeGenerationTemplatesPreferencePage extends PropertyAndPreferencePage<CodeGenerationTemplatesConfigurationBlock> {
+public class CodeGenerationTemplatesPreferencePage extends PropertyAndPreferencePage {
 	
 	public static final String PREF_ID = "de.walware.statet.base.preferencePages.CodeGenerationTemplates"; //$NON-NLS-1$
 	public static final String PROP_ID = "de.walware.statet.base.propertyPages.CodeGenerationTemplates"; //$NON-NLS-1$
@@ -55,12 +56,12 @@ public class CodeGenerationTemplatesPreferencePage extends PropertyAndPreference
 		return project.hasNature(StatetProject.NATURE_ID);
 	}
 	
+	
 	@Override
-	protected CodeGenerationTemplatesConfigurationBlock createConfigurationBlock()
+	protected ConfigurationBlock createConfigurationBlock()
 			throws CoreException {
 		return new CodeGenerationTemplatesConfigurationBlock(getProject());
 	}
-	
 	
 	@Override
 	public void applyData(final Object data) {

@@ -14,6 +14,7 @@ package de.walware.statet.r.internal.ui.editors;
 import org.eclipse.core.runtime.CoreException;
 
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AdvancedInfoHoverConfigurationBlock;
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -22,13 +23,15 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 public class AdvancedInfoHoverConfigurationPage {
 	
 	
-	public static class ForREditor extends ConfigurationBlockPreferencePage<AdvancedInfoHoverConfigurationBlock> {
+	public static class ForREditor extends ConfigurationBlockPreferencePage {
+		
 		
 		public ForREditor() {
 		}
 		
+		
 		@Override
-		protected AdvancedInfoHoverConfigurationBlock createConfigurationBlock() throws CoreException {
+		protected ConfigurationBlock createConfigurationBlock() throws CoreException {
 			return new AdvancedInfoHoverConfigurationBlock(
 					RUIPlugin.getDefault().getREditorInfoHoverRegistry(),
 					createStatusChangedListener());
