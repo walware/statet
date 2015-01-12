@@ -366,10 +366,10 @@ public class REnvIndexReader implements IREnvIndex {
 						RNumVersion.create(pkgHelp.getVersion()),
 						pkgHelp.getTitle(),
 						document.get(DESCRIPTION_TXT_FIELD_NAME),
-						pkgHelp.getBuilt(),
 						document.get(AUTHORS_TXT_FIELD_NAME),
 						document.get(MAINTAINER_TXT_FIELD_NAME),
-						document.get(URL_TXT_FIELD_NAME) );
+						document.get(URL_TXT_FIELD_NAME),
+						pkgHelp.getBuilt() );
 			}
 			return null;
 		}
