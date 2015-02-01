@@ -8,7 +8,7 @@
 		<groupId>de.walware.statet</groupId>
 		<artifactId>statet</artifactId>
 		<version>3.5-SNAPSHOT</version>
-		<relativePath>../de.walware.statet-build</relativePath>
+		<relativePath>../-build</relativePath>
 	</parent>
 	
 	<groupId>de.walware.statet</groupId>

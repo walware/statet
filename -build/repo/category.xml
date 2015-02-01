@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+	<category-def name="de.walware.libraries" label="WalWare - Libraries"/>
+	<category-def name="de.walware.statet" label="WalWare - StatET"/>
+	<category-def name="de.walware.utils" label="WalWare - Utilities"/>
+	
+	<feature id="de.walware.ecommons.e" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	
+	<feature id="de.walware.rj.core" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	<feature id="de.walware.rj.eclient" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	
+	<feature id="de.walware.ecommons.ltk" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	<feature id="de.walware.ecommons.edb" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</feature>
+	
+	<feature id="de.walware.statet.r" version="0.0.0">
+		<category name="de.walware.statet"/>
+	</feature>
+	<feature id="de.walware.statet.rtm.ftable" version="0.0.0">
+		<category name="de.walware.statet"/>
+	</feature>
+	<feature id="de.walware.statet.rtm.ggplot" version="0.0.0">
+		<category name="de.walware.statet"/>
+	</feature>
+	
+</site>

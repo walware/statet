@@ -26,8 +26,8 @@
 		<module>../de.walware.statet.r.launching.winrgui</module>
 		<module>../de.walware.statet.r.doc</module>
 		
-		<module>../../statet-redocs/de.walware.statet.redocs-build</module>
-		<module>../../statet-rtm/de.walware.statet.rtm-build</module>
+		<module>../../statet-rtm/-build</module>
+		<module>../../statet-redocs/-build</module>
 	</modules>
 	
 	<prerequisites>
@@ -36,25 +36,25 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
-		<tycho.version>0.19.0</tycho.version>
+		<tycho.version>0.20.0</tycho.version>
 		<tycho.scmUrl>scm:git:https://github.com/walware/statet.git</tycho.scmUrl>
-		<walware.repo.baseUrl>http://download.walware.de</walware.repo.baseUrl>
 	</properties>
 	
 	<repositories>
 		<repository>
 			<id>3rdparty-lucene</id>
-			<url>${walware.repo.baseUrl}/3rdparty/lucene-04.07.02</url>
+			<url>${walware.repo.url.base}/3rdparty-lucene</url>
 			<layout>p2</layout>
 		</repository>
 		<repository>
-			<id>eutils-autonature</id>
-			<url>${walware.repo.baseUrl}/eclipse-3.8/autonature-00.01.00</url>
+			<id>eclipse-emf</id>
+			<url>${walware.repo.url.base}/eclipse-4.3/emf</url>
 			<layout>p2</layout>
 		</repository>
+		
 		<repository>
-			<id>eutils-autorun</id>
-			<url>${walware.repo.baseUrl}/eclipse-3.8/autorun-01.00.00</url>
+			<id>3rdparty-commons.pool</id>
+			<url>${walware.repo.url.base}/3rdparty-commons.pool</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>
@@ -67,6 +67,7 @@
 				<version>${tycho.version}</version>
 				<extensions>true</extensions>
 			</plugin>
+			
 			<!-- configure the p2 repo/target -->
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -74,14 +75,6 @@
 				<version>${tycho.version}</version>
 				<configuration>
 					<resolver>p2</resolver>
-					<pomDependencies>consider</pomDependencies>
-					<target>
-						<artifact>
-							<groupId>de.walware.statet</groupId>
-							<artifactId>de.walware.statet-default</artifactId>
-							<version>3.5.0-SNAPSHOT</version>
-						</artifact>
-					</target>
 					<environments>
 						<environment>
 							<os>linux</os>
@@ -99,8 +92,16 @@
 							<arch>x86_64</arch>
 						</environment>
 					</environments>
+					<target>
+						<artifact>
+							<groupId>de.walware.statet</groupId>
+							<artifactId>de.walware.statet-default</artifactId>
+							<version>3.5.0-SNAPSHOT</version>
+						</artifact>
+					</target>
 				</configuration>
 			</plugin>
+			
 			<!-- enable source bundle generation -->
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -121,6 +122,7 @@
 	<profiles>
 		<profile>
 			<id>walware-releng</id>
+			
 			<modules>
 				<module>de.walware.statet.r</module>
 				<module>de.walware.statet.r-feature</module>
@@ -147,6 +149,43 @@
 								<version>${tycho.version}</version>
 							</dependency>
 						</dependencies>
+					</plugin>
+					
+					<!-- enable source feature generation -->
+					<plugin>
+						<groupId>org.eclipse.tycho.extras</groupId>
+						<artifactId>tycho-source-feature-plugin</artifactId>
+						<version>${tycho.version}</version>
+						<executions>
+							<execution>
+								<id>source-feature</id>
+								<phase>package</phase>
+								<goals>
+									<goal>source-feature</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<labelSuffix> - Sources</labelSuffix>
+							<excludes>
+								<plugin id="de.walware.statet.r"/>
+								<plugin id="de.walware.statet.r.doc"/>
+							</excludes>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-p2-plugin</artifactId>
+						<version>${tycho.version}</version>
+						<executions>
+							<execution>
+								<id>attach-p2-metadata</id>
+								<phase>package</phase>
+								<goals>
+									<goal>p2-metadata</goal>
+								</goals>
+							</execution>
+						</executions>
 					</plugin>
 				</plugins>
 			</build>
