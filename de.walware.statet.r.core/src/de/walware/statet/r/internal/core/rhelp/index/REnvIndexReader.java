@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.collections.primitives.IntList;
 import org.apache.lucene.document.Document;
@@ -43,7 +42,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.collections.ImSet;
 
 import de.walware.rj.renv.IRPkgDescription;
 import de.walware.rj.renv.RNumVersion;
@@ -63,21 +63,21 @@ import de.walware.statet.r.internal.core.rhelp.RHelpTopicEntry;
 public class REnvIndexReader implements IREnvIndex {
 	
 	
-	private static final Set<String> LOAD_NAME_SELECTOR= new ConstArrayList<>(
+	private static final ImSet<String> LOAD_NAME_SELECTOR= ImCollections.newSet(
 			PAGE_FIELD_NAME );
 	
-	private static final Set<String> LOAD_ID_SELECTOR= new ConstArrayList<>(
+	private static final ImSet<String> LOAD_ID_SELECTOR= ImCollections.newSet(
 			PAGE_FIELD_NAME,
 			PACKAGE_FIELD_NAME );
 	
-	private static final Set<String> LOAD_HTML_SELECTOR= new ConstArrayList<>(
+	private static final ImSet<String> LOAD_HTML_SELECTOR= ImCollections.newSet(
 			DOC_HTML_FIELD_NAME );
 	
-	private static final Set<String> LOAD_PKG_TOPICS_SELECTOR= new ConstArrayList<>(
+	private static final ImSet<String> LOAD_PKG_TOPICS_SELECTOR= ImCollections.newSet(
 			PAGE_FIELD_NAME,
 			ALIAS_FIELD_NAME );
 	
-	private static final Set<String> LOAD_PKG_DESCRIPTION_SELECTOR= new ConstArrayList<>(
+	private static final ImSet<String> LOAD_PKG_DESCRIPTION_SELECTOR= ImCollections.newSet(
 			DESCRIPTION_TXT_FIELD_NAME,
 			AUTHORS_TXT_FIELD_NAME,
 			MAINTAINER_TXT_FIELD_NAME,
@@ -89,10 +89,10 @@ public class REnvIndexReader implements IREnvIndex {
 	
 	
 	static final NumericRangeQuery<Integer> DOCTYPE_PKG_DESCRIPTION_QUERY= NumericRangeQuery.newIntRange(
-			DOCTYPE_FIELD_NAME, 1, PKG_DESCRIPTION_DOCTYPE, PKG_DESCRIPTION_DOCTYPE, true, true );
+			DOCTYPE_FIELD_NAME, Integer.MAX_VALUE, PKG_DESCRIPTION_DOCTYPE, PKG_DESCRIPTION_DOCTYPE, true, true );
 	
 	static final NumericRangeQuery<Integer> DOCTYPE_PAGE_QUERY= NumericRangeQuery.newIntRange(
-			DOCTYPE_FIELD_NAME, 1, PAGE_DOCTYPE, PAGE_DOCTYPE, true, true );
+			DOCTYPE_FIELD_NAME, Integer.MAX_VALUE, PAGE_DOCTYPE, PAGE_DOCTYPE, true, true );
 	
 	
 	private static final FastVectorHighlighter HTML_PAGE_QUERY_HIGHLIGHTER= new FastVectorHighlighter(true, true, null, null);

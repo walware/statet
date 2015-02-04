@@ -13,7 +13,6 @@ package de.walware.statet.r.internal.core.rhelp.index;
 
 import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.search.similarities.Similarity;
-import org.apache.lucene.util.Version;
 
 
 public interface IREnvIndex {
@@ -98,8 +97,6 @@ public interface IREnvIndex {
 	
 	int PAGE_DOCTYPE=                                       00_14;
 	
-	
-	Version LUCENE_VERSION= Version.LUCENE_47;
 	
 	Similarity SIMILARITY= new BM25Similarity();
 	

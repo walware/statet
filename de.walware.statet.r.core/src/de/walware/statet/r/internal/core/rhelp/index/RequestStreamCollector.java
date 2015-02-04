@@ -121,8 +121,7 @@ public class RequestStreamCollector extends Collector implements IREnvIndex {
 			if (pkgHelp != null) {
 				final IRHelpPage page= pkgHelp.getHelpPage(document.get(PAGE_FIELD_NAME));
 				if (page != null) {
-					System.out.println(packageName + "/" + page.getName() + ": " + score);
-					
+//					System.out.println(packageName + "/" + page.getName() + ": " + score);
 					final RHelpSearchMatch match= new RHelpSearchMatch(page, score);
 					addHighlighting(doc, document, match);
 					this.requestor.matchFound(match);

@@ -12,11 +12,12 @@
 package de.walware.statet.r.internal.core.rhelp.index;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.AnalyzerWrapper;
+import org.apache.lucene.analysis.DelegatingAnalyzerWrapper;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 
 
-final class QueryAnalyzer extends AnalyzerWrapper {
+final class QueryAnalyzer extends DelegatingAnalyzerWrapper {
+	// see org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper
 	
 	
 	private final Analyzer defaultAnalyzer;
@@ -27,7 +28,7 @@ final class QueryAnalyzer extends AnalyzerWrapper {
 	public QueryAnalyzer() {
 		super(PER_FIELD_REUSE_STRATEGY);
 		this.defaultAnalyzer= new DefaultAnalyzer();
-		this.nameAnalyzers= new WhitespaceAnalyzer(IREnvIndex.LUCENE_VERSION);
+		this.nameAnalyzers= new WhitespaceAnalyzer();
 	}
 	
 	

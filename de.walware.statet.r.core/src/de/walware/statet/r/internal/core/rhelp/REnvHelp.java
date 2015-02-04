@@ -19,7 +19,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ImList;
 
 import de.walware.rj.renv.IRPkgDescription;
 
@@ -44,9 +44,9 @@ public class REnvHelp implements IREnvHelp {
 	
 	private final String fDocDir;
 	
-	private final List<IRHelpKeyword.Group> fKeywords;
+	private final ImList<IRHelpKeyword.Group> fKeywords;
 	
-	private final List<IRPkgHelp> fPackages;
+	private final ImList<IRPkgHelp> fPackages;
 	private volatile Map<String, IRPkgHelp> fPackageMap;
 	private volatile REnvIndexReader fIndexReader;
 	
@@ -56,11 +56,11 @@ public class REnvHelp implements IREnvHelp {
 	
 	
 	public REnvHelp(final IREnv rEnv, final String docDir,
-			final ConstList<Group> keywords, final ConstList<IRPkgHelp> packages) {
-		fREnv = rEnv;
-		fDocDir = docDir;
-		fKeywords = keywords;
-		fPackages = packages;
+			final ImList<Group> keywords, final ImList<IRPkgHelp> packages) {
+		fREnv= rEnv;
+		fDocDir= docDir;
+		fKeywords= keywords;
+		fPackages= packages;
 	}
 	
 	
@@ -85,12 +85,12 @@ public class REnvHelp implements IREnvHelp {
 	}
 	
 	@Override
-	public List<IRHelpKeyword.Group> getKeywords() {
+	public ImList<IRHelpKeyword.Group> getKeywords() {
 		return fKeywords;
 	}
 	
 	@Override
-	public List<IRPkgHelp> getRPackages() {
+	public ImList<IRPkgHelp> getRPackages() {
 		return fPackages;
 	}
 	

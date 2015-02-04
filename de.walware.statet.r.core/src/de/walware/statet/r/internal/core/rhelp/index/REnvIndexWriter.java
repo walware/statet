@@ -24,9 +24,6 @@ import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.IntField;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.CorruptIndexException;
@@ -42,13 +39,14 @@ import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.Version;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.ecommons.collections.ConstArrayList;
-import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.text.HtmlParseInput;
 
 import de.walware.rj.renv.IRPkgDescription;
@@ -70,7 +68,7 @@ import de.walware.statet.r.internal.core.rhelp.RPkgHelp;
 public class REnvIndexWriter implements IREnvIndex {
 	
 	
-	public static final boolean DEBUG= Boolean.parseBoolean(System.getProperty("de.walware.statet.r.rhelp.debug") ); //$NON-NLS-1$
+	public static final boolean DEBUG= true;
 	
 	
 	public static class AbortIndexException extends Exception {
@@ -87,15 +85,15 @@ public class REnvIndexWriter implements IREnvIndex {
 	public static class RdItem {
 		
 		
-		private final String fPkg;
-		private final String fName;
+		private final String pkg;
+		private final String name;
 		
-		private List<String> fTopics;
-		private String fTitle;
-		private List<String> fKeywords;
-		private List<String> fConcepts;
+		private List<String> topics;
+		private String title;
+		private List<String> keywords;
+		private List<String> concepts;
 		
-		private String fHtml;
+		private String html;
 		
 		private String descrTxt;
 		private String mainTxt;
@@ -103,70 +101,70 @@ public class REnvIndexWriter implements IREnvIndex {
 		
 		
 		public RdItem(final String pkg, final String name) {
-			this.fPkg= pkg;
-			this.fName= name;
+			this.pkg= pkg;
+			this.name= name;
 		}
 		
 		
 		public String getPkg() {
-			return this.fPkg;
+			return this.pkg;
 		}
 		
 		public String getName() {
-			return this.fName;
+			return this.name;
 		}
 		
 		public List<String> getTopics() {
-			return this.fTopics;
+			return this.topics;
 		}
 		
 		public void addTopic(final String alias) {
-			if (this.fTopics == null) {
-				this.fTopics= new ArrayList<>(8);
+			if (this.topics == null) {
+				this.topics= new ArrayList<>(8);
 			}
-			if (!this.fTopics.contains(alias)) {
-				this.fTopics.add(alias);
+			if (!this.topics.contains(alias)) {
+				this.topics.add(alias);
 			}
 		}
 		
 		public String getTitle() {
-			return (this.fTitle != null) ? this.fTitle : ""; //$NON-NLS-1$
+			return (this.title != null) ? this.title : ""; //$NON-NLS-1$
 		}
 		
 		public void setTitle(final String title) {
-			this.fTitle= title;
+			this.title= title;
 		}
 		
 		public List<String> getKeywords() {
-			return this.fKeywords;
+			return this.keywords;
 		}
 		
 		public void addKeyword(final String keyword) {
-			if (this.fKeywords == null) {
-				this.fKeywords= new ArrayList<>(8);
+			if (this.keywords == null) {
+				this.keywords= new ArrayList<>(8);
 			}
-			if (!this.fKeywords.contains(keyword)) {
-				this.fKeywords.add(keyword);
+			if (!this.keywords.contains(keyword)) {
+				this.keywords.add(keyword);
 			}
 		}
 		
 		public List<String> getConcepts() {
-			return this.fConcepts;
+			return this.concepts;
 		}
 		
 		public void addConcept(final String concept) {
-			if (this.fConcepts == null) {
-				this.fConcepts= new ArrayList<>(8);
+			if (this.concepts == null) {
+				this.concepts= new ArrayList<>(8);
 			}
-			this.fConcepts.add(concept);
+			this.concepts.add(concept);
 		}
 		
 		public String getHtml() {
-			return this.fHtml;
+			return this.html;
 		}
 		
 		public void setHtml(final String html) {
-			this.fHtml= html;
+			this.html= html;
 		}
 		
 	}
@@ -192,6 +190,211 @@ public class REnvIndexWriter implements IREnvIndex {
 	private static Analyzer WRITE_ANALYZER= new WriteAnalyzer();
 	
 	
+	/** Worker for packages. Single thread! */
+	class PackageWorker {
+		
+		
+		private final FlagField doctypeField_PKG_DESCRIPTION= new FlagField(DOCTYPE_FIELD_NAME, PKG_DESCRIPTION_DOCTYPE);
+		private final FlagField doctypeField_PAGE= new FlagField(DOCTYPE_FIELD_NAME, PAGE_DOCTYPE);
+		private final NameField packageField= new NameField(PACKAGE_FIELD_NAME);
+		private final NameField pageField= new NameField(PAGE_FIELD_NAME);
+		private final TxtField titleTxtField= new TxtField(TITLE_TXT_FIELD_NAME, 2.0f);
+		private final MultiValueFieldList<NameField> aliasFields= MultiValueFieldList.forNameField(
+				ALIAS_FIELD_NAME );
+		private final MultiValueFieldList<TxtField> aliasTxtFields= MultiValueFieldList.forTxtField(
+				ALIAS_TXT_FIELD_NAME, 2.0f );
+		private final TxtField descriptionTxtField= new TxtField(DESCRIPTION_TXT_FIELD_NAME, 1.5f);
+		private final TxtField authorsTxtField= new TxtField(AUTHORS_TXT_FIELD_NAME);
+		private final TxtField maintainerTxtField= new TxtField(MAINTAINER_TXT_FIELD_NAME);
+		private final TxtField urlTxtField= new TxtField(URL_TXT_FIELD_NAME);
+		private final MultiValueFieldList<KeywordField> keywordTxtFields= MultiValueFieldList.forKeywordField(
+				KEYWORD_FIELD_NAME );
+		private final MultiValueFieldList<TxtField> conteptTxtFields= MultiValueFieldList.forTxtField(
+				CONCEPT_TXT_FIELD_NAME );
+		private final TxtField docTxtField= new TxtField(DOC_TXT_FIELD_NAME);
+		private final TxtField.OmitNorm docHtmlField= new TxtField.OmitNorm(DOC_HTML_FIELD_NAME);
+		private final TxtField examplesTxtField= new TxtField(EXAMPLES_TXT_FIELD_NAME, 0.5f);
+		
+		private final StringBuilder tempBuilder= new StringBuilder(65536);
+		private final HtmlParseInput tempHtmlInput= new HtmlParseInput();
+		
+		
+		public PackageWorker() {
+		}
+		
+		
+		private void addToLucene(final IRPkgDescription item) throws CorruptIndexException, IOException {
+			final Document doc= new Document();
+			doc.add(this.doctypeField_PKG_DESCRIPTION);
+			this.packageField.setStringValue(item.getName());
+			doc.add(this.packageField);
+			this.descriptionTxtField.setStringValue(item.getDescription());
+			doc.add(this.descriptionTxtField);
+			if (item.getAuthor() != null) {
+				this.authorsTxtField.setStringValue(item.getAuthor());
+				doc.add(this.authorsTxtField);
+			}
+			if (item.getMaintainer() != null) {
+				this.maintainerTxtField.setStringValue(item.getMaintainer());
+				doc.add(this.maintainerTxtField);
+			}
+			if (item.getUrl() != null) {
+				this.urlTxtField.setStringValue(item.getUrl());
+				doc.add(this.urlTxtField);
+			}
+			REnvIndexWriter.this.luceneWriter.addDocument(doc);
+		}
+		
+		private void addToLucene(final RdItem item) throws CorruptIndexException, IOException {
+			final Document doc= new Document();
+			doc.add(this.doctypeField_PAGE);
+			this.packageField.setStringValue(item.getPkg());
+			doc.add(this.packageField);
+			this.pageField.setStringValue(item.getName());
+			doc.add(this.pageField);
+			this.titleTxtField.setStringValue(item.getTitle());
+			doc.add(this.titleTxtField);
+			if (item.topics != null) {
+				final List<String> topics= item.topics;
+				for (int i= 0; i < topics.size(); i++) {
+					final NameField nameField= this.aliasFields.get(i);
+					nameField.setStringValue(topics.get(i));
+					doc.add(nameField);
+					final TxtField txtField= this.aliasTxtFields.get(i);
+					txtField.setStringValue(topics.get(i));
+					doc.add(txtField);
+				}
+			}
+			if (item.keywords != null) {
+				final List<String> keywords= item.keywords;
+				for (int i= 0; i < keywords.size(); i++) {
+					final KeywordField field= this.keywordTxtFields.get(i);
+					field.setStringValue(keywords.get(i));
+					doc.add(field);
+				}
+			}
+			if (item.concepts != null) {
+				final List<String> concepts= item.concepts;
+				for (int i= 0; i < concepts.size(); i++) {
+					final TxtField txtField= this.conteptTxtFields.get(i);
+					txtField.setStringValue(concepts.get(i));
+					doc.add(txtField);
+				}
+			}
+			if (item.html != null) {
+				createSectionsTxt(item);
+				if (item.descrTxt != null) {
+					this.descriptionTxtField.setStringValue(item.descrTxt);
+					doc.add(this.descriptionTxtField);
+				}
+				this.docTxtField.setStringValue(item.mainTxt);
+				doc.add(this.docTxtField);
+				if (item.examplesTxt != null) {
+					this.examplesTxtField.setStringValue(item.examplesTxt);
+					doc.add(this.examplesTxtField);
+				}
+				this.docHtmlField.setStringValue(item.html);
+				doc.add(this.docHtmlField);
+			}
+			REnvIndexWriter.this.luceneWriter.addDocument(doc);
+		}
+		
+		private void createSectionsTxt(final RdItem item) throws IOException {
+			String html= item.html;
+			this.tempBuilder.setLength(0);
+			{	final int idx1= html.indexOf("</h2>"); //$NON-NLS-1$
+				if (idx1 >= 0) {
+					html= html.substring(idx1+5);
+				}
+			}
+			{	final int idx1= html.lastIndexOf("<hr/>"); //$NON-NLS-1$
+				if (idx1 >= 0) {
+					html= html.substring(0, idx1);
+				}
+			}
+			{	int idxBegin= html.indexOf("<h3 id=\"description\""); //$NON-NLS-1$
+				if (idxBegin >= 0) {
+					idxBegin= html.indexOf('>', idxBegin+20);
+					if (idxBegin >= 0) {
+						idxBegin= html.indexOf("</h3>", idxBegin+1); //$NON-NLS-1$
+						if (idxBegin >= 0) {
+							idxBegin += 5;
+							int idxEnd= html.indexOf("<h3", idxBegin); //$NON-NLS-1$
+							if (idxEnd < 0) {
+								idxEnd= html.indexOf("<hr/>", idxBegin); //$NON-NLS-1$
+							}
+							if (idxEnd >= 0) {
+								item.descrTxt= html2txt(html.substring(idxBegin, idxEnd));
+								html= html.substring(idxEnd);
+							}
+						}
+					}
+				}
+			}
+			final String[] s= new String[] { html, null };
+			{	if (extract(s, "<h3 id=\"examples\"")) { //$NON-NLS-1$
+					item.examplesTxt= html2txt(s[1]);
+				}
+			}
+			item.mainTxt= html2txt(s[0]);
+		}
+		
+		private boolean extract(final String[] s, final String h3) {
+			final String html= s[0];
+			final int idx0= html.indexOf(h3);
+			if (idx0 >= 0) {
+				int idxBegin= html.indexOf('>', idx0+h3.length());
+				if (idxBegin >= 0) {
+					idxBegin= html.indexOf("</h3>", idxBegin+1); //$NON-NLS-1$
+					if (idxBegin >= 0) {
+						idxBegin += 5;
+						final int idxEnd= html.indexOf("<h3", idxBegin); //$NON-NLS-1$
+						if (idxEnd >= 0) {
+							this.tempBuilder.setLength(0);
+							this.tempBuilder.append(html, 0, idx0);
+							this.tempBuilder.append(html, idxEnd, html.length());
+							s[0]= this.tempBuilder.toString();
+							s[1]= html.substring(idxBegin, idxEnd);
+						}
+						else {
+							s[0]= html.substring(0, idx0);
+							s[1]= html.substring(idxBegin, html.length());
+						}
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		private String html2txt(final String html) {
+			this.tempBuilder.setLength(0);
+			this.tempHtmlInput.reset(html);
+			int c;
+			boolean blank= true;
+			while ((c= this.tempHtmlInput.get(1)) >= 0) {
+				if (c <= 0x20) {
+					if (!blank) {
+						blank= true;
+						this.tempBuilder.append(' ');
+					}
+				}
+				else {
+					if (blank) {
+						blank= false;
+					}
+					this.tempBuilder.append((char) c);
+				}
+				this.tempHtmlInput.consume(1);
+			}
+			c= this.tempBuilder.length();
+			return (c > 0 && this.tempBuilder.charAt(c-1) == ' ') ?
+					this.tempBuilder.substring(0, c-1) : this.tempBuilder.toString();
+		}
+		
+	}
+	
+	
 	private final IREnvConfiguration rEnvConfig;
 	
 	private String docDir;
@@ -211,9 +414,9 @@ public class REnvIndexWriter implements IREnvIndex {
 	
 	private boolean reset;
 	
-	private final StringBuilder tempBuilder= new StringBuilder(65536);
-	private final HtmlParseInput tempHtmlInput= new HtmlParseInput();
-//	private char[] fTempBuffer= new char[512];
+	// At moment we use a single worker; multi-threading is not worth, because R is the bottleneck.
+	// For multi-threading: thread pool / jobs with worker / thread, currentPackage to worker, ...
+	private final PackageWorker worker= new PackageWorker();
 	
 	private MultiStatus status;
 	
@@ -249,10 +452,6 @@ public class REnvIndexWriter implements IREnvIndex {
 			synchronized (this.indexLock) {
 				this.reset= reset;
 				this.luceneDirectory= new SimpleFSDirectory(this.indexDirectory);
-				final IndexWriterConfig config= new IndexWriterConfig(IREnvIndex.LUCENE_VERSION, WRITE_ANALYZER);
-				config.setSimilarity(SIMILARITY);
-				config.setMaxThreadStates(Math.min(Math.max(2, Runtime.getRuntime().availableProcessors() - 3), 8));
-				config.setRAMPerThreadHardLimitMB(512);
 				if (!reset) {
 					final REnvHelp oldHelp= rHelpManager.getHelp(this.rEnvConfig.getReference());
 					try (final IndexReader dirReader= DirectoryReader.open(this.luceneDirectory)) {
@@ -272,6 +471,7 @@ public class REnvIndexWriter implements IREnvIndex {
 							}
 						}
 						
+						final IndexWriterConfig config= createWriterConfig();
 						config.setOpenMode(OpenMode.CREATE_OR_APPEND);
 						this.luceneWriter= new IndexWriter(this.luceneDirectory, config);
 					}
@@ -289,6 +489,7 @@ public class REnvIndexWriter implements IREnvIndex {
 					this.reset= true;
 					this.existingPackages= new HashMap<>(0);
 					
+					final IndexWriterConfig config= createWriterConfig();
 					config.setOpenMode(OpenMode.CREATE);
 					this.luceneWriter= new IndexWriter(this.luceneDirectory, config);
 				}
@@ -303,6 +504,14 @@ public class REnvIndexWriter implements IREnvIndex {
 		catch (final OutOfMemoryError e) {
 			throw new AbortIndexException(e);
 		}
+	}
+	
+	private IndexWriterConfig createWriterConfig() {
+		final IndexWriterConfig config= new IndexWriterConfig(Version.LATEST, WRITE_ANALYZER);
+		config.setSimilarity(SIMILARITY);
+		config.setMaxThreadStates(Math.min(Math.max(2, Runtime.getRuntime().availableProcessors() - 3), 8));
+		config.setRAMPerThreadHardLimitMB(512);
+		return config;
 	}
 	
 	public void setDocDir(String docDir) {
@@ -397,7 +606,7 @@ public class REnvIndexWriter implements IREnvIndex {
 				this.packages.put(name, this.currentPackage);
 			}
 			this.luceneWriter.deleteDocuments(new Term(PACKAGE_FIELD_NAME, name));
-			addToLucene(packageDesription);
+			this.worker.addToLucene(packageDesription);
 		}
 		catch (final IOException e) {
 			throw new AbortIndexException(e);
@@ -413,7 +622,7 @@ public class REnvIndexWriter implements IREnvIndex {
 		}
 		try {
 			this.currentPackage.addPage(new RHelpPage(this.currentPackage, item.getName(), item.getTitle()));
-			addToLucene(item);
+			this.worker.addToLucene(item);
 		}
 		catch (final IOException e) {
 			throw new AbortIndexException(e);
@@ -433,7 +642,7 @@ public class REnvIndexWriter implements IREnvIndex {
 			final long freeMemory= runtime.freeMemory();
 			final LiveIndexWriterConfig config= this.luceneWriter.getConfig();
 			final StringBuilder sb= new StringBuilder("Memory status:\n"); //$NON-NLS-1$
-			sb.append("TempBuilder-capycity: ").append(this.tempBuilder.capacity()).append('\n'); //$NON-NLS-1$
+			sb.append("TempBuilder-capycity: ").append(this.worker.tempBuilder.capacity()).append('\n'); //$NON-NLS-1$
 			sb.append("Lucene-buffersize: ").append((long) (config.getRAMBufferSizeMB() * 1024.0)).append('\n'); //$NON-NLS-1$
 			sb.append("Memory-free: ").append(freeMemory / 1024L).append('\n'); //$NON-NLS-1$
 			sb.append("Memory-total: ").append(allocatedMemory / 1024L).append('\n'); //$NON-NLS-1$
@@ -472,7 +681,7 @@ public class REnvIndexWriter implements IREnvIndex {
 				group.freeze();
 			}
 			
-			final ConstList<IRHelpKeyword.Group> keywords= new ConstArrayList<IRHelpKeyword.Group>(values);
+			final ImList<IRHelpKeyword.Group> keywords= ImCollections.<IRHelpKeyword.Group>toList(values);
 			for (final Iterator<IRPkgHelp> iter= this.packages.values().iterator(); iter.hasNext(); ) {
 				if (iter.next() == null) {
 					iter.remove();
@@ -480,14 +689,14 @@ public class REnvIndexWriter implements IREnvIndex {
 			}
 			final IRPkgHelp[] array= this.packages.values().toArray(new IRPkgHelp[this.packages.size()]);
 			Arrays.sort(array);
-			final ConstList<IRPkgHelp> packages= new ConstArrayList<>(array);
+			final ImList<IRPkgHelp> packages= ImCollections.newList(array);
 			
 			final REnvHelp help= new REnvHelp(this.rEnvConfig.getReference(), this.docDir, keywords, packages);
 			
 //			fLuceneWriter.maybeMerge();
 			
 			synchronized (this.indexLock) {
-				this.luceneWriter.close(true);
+				this.luceneWriter.close();
 				
 				rHelpManager.updateHelp(this.rEnvConfig, this.rEnvSharedProperties, help);
 			}
@@ -507,156 +716,6 @@ public class REnvIndexWriter implements IREnvIndex {
 		finally {
 			clear();
 		}
-	}
-	
-	private void addToLucene(final IRPkgDescription item) throws CorruptIndexException, IOException {
-		final Document doc= new Document();
-		// replace using int field
-		doc.add(new IntField(DOCTYPE_FIELD_NAME, PKG_DESCRIPTION_DOCTYPE, Store.YES));
-		doc.add(new NameField(PACKAGE_FIELD_NAME, item.getName()));
-		doc.add(new TxtField(DESCRIPTION_TXT_FIELD_NAME, item.getDescription(), 1.5f));
-		if (item.getAuthor() != null) {
-			doc.add(new TxtField(AUTHORS_TXT_FIELD_NAME, item.getAuthor()));
-		}
-		if (item.getMaintainer() != null) {
-			doc.add(new TxtField(MAINTAINER_TXT_FIELD_NAME, item.getMaintainer()));
-		}
-		if (item.getUrl() != null) {
-			doc.add(new TxtField(URL_TXT_FIELD_NAME, item.getUrl()));
-		}
-		this.luceneWriter.addDocument(doc);
-	}
-	
-	private void addToLucene(final RdItem item) throws CorruptIndexException, IOException {
-		final Document doc= new Document();
-		doc.add(new IntField(DOCTYPE_FIELD_NAME, PAGE_DOCTYPE, Store.YES));
-		doc.add(new NameField(PACKAGE_FIELD_NAME, item.getPkg()));
-		doc.add(new NameField(PAGE_FIELD_NAME, item.getName()));
-		doc.add(new TxtField(TITLE_TXT_FIELD_NAME, item.getTitle(), 2.0f));
-		if (item.fTopics != null) {
-			final List<String> topics= item.fTopics;
-			for (int i= 0; i < topics.size(); i++) {
-				doc.add(new NameField(ALIAS_FIELD_NAME, topics.get(i)));
-				doc.add(new TxtField(ALIAS_TXT_FIELD_NAME, topics.get(i), 2.0f));
-			}
-		}
-		if (item.fKeywords != null) {
-			final List<String> keywords= item.fKeywords;
-			for (int i= 0; i < keywords.size(); i++) {
-				doc.add(new StringField(KEYWORD_FIELD_NAME, keywords.get(i), Store.NO));
-			}
-		}
-		if (item.fConcepts != null) {
-			final List<String> concepts= item.fConcepts;
-			for (int i= 0; i < concepts.size(); i++) {
-				doc.add(new TxtField(CONCEPT_TXT_FIELD_NAME, concepts.get(i)));
-			}
-		}
-		if (item.fHtml != null) {
-			doc.add(new TxtField.OmitNorm(DOC_HTML_FIELD_NAME, item.fHtml));
-			createSectionsTxt(item);
-			if (item.descrTxt != null) {
-				doc.add(new TxtField(DESCRIPTION_TXT_FIELD_NAME, item.descrTxt, 1.5f));
-			}
-			doc.add(new TxtField(DOC_TXT_FIELD_NAME, item.mainTxt, 1.0f));
-			if (item.examplesTxt != null) {
-				doc.add(new TxtField(EXAMPLES_TXT_FIELD_NAME, item.examplesTxt, 0.5f));
-			}
-		}
-		this.luceneWriter.addDocument(doc);
-	}
-	
-	private void createSectionsTxt(final RdItem item) throws IOException {
-		String html= item.fHtml;
-		this.tempBuilder.setLength(0);
-		{	final int idx1= html.indexOf("</h2>"); //$NON-NLS-1$
-			if (idx1 >= 0) {
-				html= html.substring(idx1+5);
-			}
-		}
-		{	final int idx1= html.lastIndexOf("<hr/>"); //$NON-NLS-1$
-			if (idx1 >= 0) {
-				html= html.substring(0, idx1);
-			}
-		}
-		{	int idxBegin= html.indexOf("<h3 id=\"description\""); //$NON-NLS-1$
-			if (idxBegin >= 0) {
-				idxBegin= html.indexOf('>', idxBegin+20);
-				if (idxBegin >= 0) {
-					idxBegin= html.indexOf("</h3>", idxBegin+1); //$NON-NLS-1$
-					if (idxBegin >= 0) {
-						idxBegin += 5;
-						int idxEnd= html.indexOf("<h3", idxBegin); //$NON-NLS-1$
-						if (idxEnd < 0) {
-							idxEnd= html.indexOf("<hr/>", idxBegin); //$NON-NLS-1$
-						}
-						if (idxEnd >= 0) {
-							item.descrTxt= html2txt(html.substring(idxBegin, idxEnd));
-							html= html.substring(idxEnd);
-						}
-					}
-				}
-			}
-		}
-		final String[] s= new String[] { html, null };
-		{	if (extract(s, "<h3 id=\"examples\"")) { //$NON-NLS-1$
-				item.examplesTxt= html2txt(s[1]);
-			}
-		}
-		item.mainTxt= html2txt(s[0]);
-	}
-	
-	private boolean extract(final String[] s, final String h3) {
-		final String html= s[0];
-		final int idx0= html.indexOf(h3);
-		if (idx0 >= 0) {
-			int idxBegin= html.indexOf('>', idx0+h3.length());
-			if (idxBegin >= 0) {
-				idxBegin= html.indexOf("</h3>", idxBegin+1); //$NON-NLS-1$
-				if (idxBegin >= 0) {
-					idxBegin += 5;
-					final int idxEnd= html.indexOf("<h3", idxBegin); //$NON-NLS-1$
-					if (idxEnd >= 0) {
-						this.tempBuilder.setLength(0);
-						this.tempBuilder.append(html, 0, idx0);
-						this.tempBuilder.append(html, idxEnd, html.length());
-						s[0]= this.tempBuilder.toString();
-						s[1]= html.substring(idxBegin, idxEnd);
-					}
-					else {
-						s[0]= html.substring(0, idx0);
-						s[1]= html.substring(idxBegin, html.length());
-					}
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	private String html2txt(final String html) {
-		this.tempBuilder.setLength(0);
-		this.tempHtmlInput.reset(html);
-		int c;
-		boolean blank= true;
-		while ((c= this.tempHtmlInput.get(1)) >= 0) {
-			if (c <= 0x20) {
-				if (!blank) {
-					blank= true;
-					this.tempBuilder.append(' ');
-				}
-			}
-			else {
-				if (blank) {
-					blank= false;
-				}
-				this.tempBuilder.append((char) c);
-			}
-			this.tempHtmlInput.consume(1);
-		}
-		c= this.tempBuilder.length();
-		return (c > 0 && this.tempBuilder.charAt(c-1) == ' ') ?
-				this.tempBuilder.substring(0, c-1) : this.tempBuilder.toString();
 	}
 	
 	public IStatus cancel() {

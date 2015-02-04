@@ -14,11 +14,12 @@ package de.walware.statet.r.internal.core.rhelp.index;
 import java.util.Collections;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.AnalyzerWrapper;
+import org.apache.lucene.analysis.DelegatingAnalyzerWrapper;
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
 
 
-public final class WriteAnalyzer extends AnalyzerWrapper {
+public final class WriteAnalyzer extends DelegatingAnalyzerWrapper {
+	// see org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper
 	
 	
 	private final Analyzer defaultAnalyzer;

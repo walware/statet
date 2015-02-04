@@ -1,5 +1,5 @@
 /*=============================================================================#
- # Copyright (c) 2014-2015 Stephan Wahlbrink (WalWare.de) and others.
+ # Copyright (c) 2015 Stephan Wahlbrink (WalWare.de) and others.
  # All rights reserved. This program and the accompanying materials
  # are made available under the terms of the Eclipse Public License v1.0
  # which accompanies this distribution, and is available at
@@ -11,29 +11,25 @@
 
 package de.walware.statet.r.internal.core.rhelp.index;
 
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.StringField;
 
 
-final class NameField extends StringDataField {
+abstract class StringDataField extends Field {
 	
-	public static final FieldType TYPE_STORED;
 	
-	static {
-		TYPE_STORED= new FieldType(StringField.TYPE_STORED);
-		TYPE_STORED.setOmitNorms(false);
-		TYPE_STORED.freeze();
+	StringDataField(final String name, final FieldType type) {
+		super(name, type);
 	}
 	
 	
-	/**
-	 * Creates a new field.
-	 * 
-	 * @param name field name
-	 * @throws IllegalArgumentException if the field name.
-	 */
-	public NameField(final String name) {
-		super(name, TYPE_STORED);
+	@Override
+	public final void setStringValue(final String value) {
+		if (value == null) {
+			throw new IllegalArgumentException("value cannot be null");
+		}
+		this.fieldsData= value;
 	}
+	
 	
 }

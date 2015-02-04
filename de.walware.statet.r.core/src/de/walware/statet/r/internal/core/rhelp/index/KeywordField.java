@@ -1,5 +1,5 @@
 /*=============================================================================#
- # Copyright (c) 2014-2015 Stephan Wahlbrink (WalWare.de) and others.
+ # Copyright (c) 2015 Stephan Wahlbrink (WalWare.de) and others.
  # All rights reserved. This program and the accompanying materials
  # are made available under the terms of the Eclipse Public License v1.0
  # which accompanies this distribution, and is available at
@@ -15,14 +15,21 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.StringField;
 
 
-final class NameField extends StringDataField {
+/** 
+ * A field that is indexed but not tokenized: the entire String value is indexed as a single token.
+ * For example this might be used for a 'country' field or an 'id' field, or any field that you
+ * intend to use for sorting or access through the field cache.
+ * 
+ * @see StringField
+ **/
+final class KeywordField extends StringDataField {
 	
-	public static final FieldType TYPE_STORED;
+	public static final FieldType TYPE_NOT_STORED;
 	
 	static {
-		TYPE_STORED= new FieldType(StringField.TYPE_STORED);
-		TYPE_STORED.setOmitNorms(false);
-		TYPE_STORED.freeze();
+		TYPE_NOT_STORED= new FieldType(StringField.TYPE_STORED);
+		TYPE_NOT_STORED.setStored(false);
+		TYPE_NOT_STORED.freeze();
 	}
 	
 	
@@ -32,8 +39,8 @@ final class NameField extends StringDataField {
 	 * @param name field name
 	 * @throws IllegalArgumentException if the field name.
 	 */
-	public NameField(final String name) {
-		super(name, TYPE_STORED);
+	public KeywordField(final String name) {
+		super(name, TYPE_NOT_STORED);
 	}
 	
 }

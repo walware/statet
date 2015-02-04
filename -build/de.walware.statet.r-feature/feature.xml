@@ -25,7 +25,7 @@
       <import feature="de.walware.rj.core" version="2.0.0" match="equivalent" />
       <import feature="de.walware.rj.eclient" version="2.0.0" match="equivalent" />
       
-      <import feature="de.walware.3rdparty.lucene" version="4.7.2" match="equivalent"/>
+      <import feature="de.walware.3rdparty.lucene" version="4.10.3" match="equivalent"/>
       
       <import feature="org.eclipse.emf.common" version="2.8.0" match="greaterOrEqual" />
       <import feature="org.eclipse.emf.common.ui" version="2.7.0" match="greaterOrEqual" />

@@ -42,7 +42,7 @@ final class DefaultAnalyzer extends StopwordAnalyzerBase {
 	}
 	
 	public DefaultAnalyzer(final CharFilterFactory charFilterFactory) {
-		super(IREnvIndex.LUCENE_VERSION, STOP_WORDS_SET);
+		super(STOP_WORDS_SET);
 		
 		this.charFilterFactory= charFilterFactory;
 	}
@@ -53,11 +53,11 @@ final class DefaultAnalyzer extends StopwordAnalyzerBase {
 		if (this.charFilterFactory != null) {
 			reader= this.charFilterFactory.create(reader);
 		}
-		final Tokenizer source= new StandardTokenizer(this.matchVersion, reader);
+		final Tokenizer source= new StandardTokenizer(reader);
 		TokenStream result= source;
-		result= new EnglishPossessiveFilter(this.matchVersion, result);
-		result= new LowerCaseFilter(this.matchVersion, result);
-		result= new StopFilter(this.matchVersion, result, this.stopwords);
+		result= new EnglishPossessiveFilter(getVersion(), result);
+		result= new LowerCaseFilter(result);
+		result= new StopFilter(result, this.stopwords);
 		result= new KeywordRepeatFilter(result);
 		result= new SnowballFilter(result, new EnglishStemmer());
 		result= new RemoveDuplicatesTokenFilter(result);
