@@ -106,7 +106,8 @@ public class RCorrectIndentHandler extends SourceEditorProgressHandler {
 		}
 		
 		if (edits.getChildrenSize() > 0) {
-			su.syncExec(new SourceDocumentRunnable(document, ast.stamp, DocumentRewriteSessionType.SEQUENTIAL) {
+			su.syncExec(new SourceDocumentRunnable(document, ast.getStamp().getSourceStamp(),
+					DocumentRewriteSessionType.SEQUENTIAL ) {
 				@Override
 				public void run() throws InvocationTargetException {
 					try {

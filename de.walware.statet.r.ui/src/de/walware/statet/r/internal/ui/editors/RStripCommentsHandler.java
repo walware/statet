@@ -104,7 +104,8 @@ public class RStripCommentsHandler extends SourceEditorProgressHandler {
 		}
 		
 		if (edits.getChildrenSize() > 0) {
-			su.syncExec(new SourceDocumentRunnable(document, model.getStamp(), DocumentRewriteSessionType.SEQUENTIAL) {
+			su.syncExec(new SourceDocumentRunnable(document, model.getStamp().getSourceStamp(),
+					DocumentRewriteSessionType.SEQUENTIAL ) {
 				@Override
 				public void run() throws InvocationTargetException {
 					try {

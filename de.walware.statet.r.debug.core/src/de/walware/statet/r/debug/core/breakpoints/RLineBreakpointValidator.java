@@ -143,7 +143,7 @@ public class RLineBreakpointValidator {
 		
 		if (fType != null && breakpoint instanceof RGenericLineBreakpoint && su.isSynchronized()) {
 			((RGenericLineBreakpoint) breakpoint).setCachedData(new CachedData(
-					fModelInfo.getStamp(), computeElementId(), computeRExpressionIndex() ));
+					fModelInfo.getStamp().getSourceStamp(), computeElementId(), computeRExpressionIndex() ));
 		}
 	}
 	
@@ -603,7 +603,7 @@ public class RLineBreakpointValidator {
 						computeElementType(), elementId, computeElementLabel(), computeSubLabel(),
 						false );
 				internal.setCachedData(new CachedData(
-						fModelInfo.getStamp(), elementId, computeRExpressionIndex() ));
+						fModelInfo.getStamp().getSourceStamp(), elementId, computeRExpressionIndex() ));
 				return internal;
 			}
 			catch (final Exception e) {
@@ -623,7 +623,7 @@ public class RLineBreakpointValidator {
 						computeElementType(), elementId, computeElementLabel(), computeSubLabel(),
 						false );
 				internal.setCachedData(new CachedData(
-						fModelInfo.getStamp(), elementId, computeRExpressionIndex() ));
+						fModelInfo.getStamp().getSourceStamp(), elementId, computeRExpressionIndex() ));
 				return internal;
 			}
 			catch (final Exception e) {
@@ -653,7 +653,7 @@ public class RLineBreakpointValidator {
 				computeElementType(), elementId, computeElementLabel(), computeSubLabel() );
 		if (breakpoint instanceof RGenericLineBreakpoint) {
 			((RGenericLineBreakpoint) breakpoint).setCachedData(new CachedData(
-					fModelInfo.getStamp(), elementId, computeRExpressionIndex() ));
+					fModelInfo.getStamp().getSourceStamp(), elementId, computeRExpressionIndex() ));
 		}
 	}
 	

@@ -73,7 +73,7 @@ public final class RSourceUnit extends RResourceUnit implements IRWorkspaceSourc
 	public AstInfo getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
 		final AstInfo ast= this.model.getCurrentAst();
 		final long stamp= getResource().getModificationStamp();
-		if (ast != null && ast.stamp == stamp) {
+		if (ast != null && ast.getStamp().getSourceStamp() == stamp) {
 			return ast;
 		}
 		// TODO ask saved

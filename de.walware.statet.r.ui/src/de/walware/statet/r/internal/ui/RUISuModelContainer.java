@@ -26,9 +26,9 @@ public class RUISuModelContainer extends RSuModelContainer {
 	
 	
 	@Override
-	public IProblemRequestor createProblemRequestor(final long stamp) {
+	public IProblemRequestor createProblemRequestor() {
 		return RUIPlugin.getDefault().getRDocumentProvider().createProblemRequestor(
-				getSourceUnit(), stamp );
+				getSourceUnit() );
 	}
 	
 }

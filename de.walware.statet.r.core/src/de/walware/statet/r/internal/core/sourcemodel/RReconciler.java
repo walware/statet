@@ -22,6 +22,7 @@ import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.core.SourceContent;
+import de.walware.ecommons.ltk.core.impl.SourceModelStamp;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.text.FixInterningStringCache;
 import de.walware.ecommons.text.IStringCache;
@@ -142,7 +143,7 @@ public class RReconciler {
 			synchronized (this.f3ReportLock) {
 				if (!this.stop && !monitor.isCanceled()
 						&& data.newModel == adapter.getCurrentModel() ) {
-					problemRequestor= adapter.createProblemRequestor(data.ast.stamp);
+					problemRequestor= adapter.createProblemRequestor();
 					if (problemRequestor != null) {
 						this.f3ProblemReporter.run(su, data.content,
 								(RAstNode) data.ast.root, problemRequestor );
@@ -175,7 +176,12 @@ public class RReconciler {
 	}
 	
 	protected final void updateAst(final Data data, final IProgressMonitor monitor) {
-		data.ast= data.adapter.getCurrentAst(data.content.stamp);
+		final SourceModelStamp stamp= new SourceModelStamp(data.content.stamp);
+		
+		data.ast= data.adapter.getCurrentAst();
+		if (data.ast != null && !stamp.equals(data.ast.getStamp())) {
+			data.ast= null;
+		}
 		
 		if (data.ast == null) {
 			final long startAst;
@@ -188,7 +194,7 @@ public class RReconciler {
 			scanner.setCommentLevel(100);
 			final SourceComponent sourceComponent= scanner.scanSourceRange(null,
 					data.content.getOffset(), data.content.text.length() );
-			final AstInfo ast= new AstInfo(scanner.getAstLevel(), data.content.stamp, sourceComponent);
+			data.ast= new AstInfo(scanner.getAstLevel(), stamp, sourceComponent);
 			
 			stopAst= System.nanoTime();
 			
@@ -201,15 +207,17 @@ public class RReconciler {
 			}
 			
 			synchronized (data.adapter) {
-				data.adapter.setAst(ast);
+				data.adapter.setAst(data.ast);
 			}
-			data.ast= ast;
 		}
 	}
 	
 	protected final boolean updateModel(final Data data) {
-		// Update Model
-		data.newModel= data.adapter.getCurrentModel(data.ast.stamp);
+		data.newModel= data.adapter.getCurrentModel();
+		if (data.newModel != null && !data.ast.getStamp().equals(data.newModel.getStamp())) {
+			data.newModel= null;
+		}
+		
 		if (data.newModel == null) {
 			final long startModel;
 			final long stopModel;

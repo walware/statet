@@ -195,7 +195,8 @@ public class GenerateRoxygenElementComment extends AbstractHandler implements IE
 			
 			final IFile resource = (IFile) su.getResource();
 			final IRegion initialSelection = new Region(selectionStart, selectionLength);
-			su.syncExec(new SourceDocumentRunnable(doc, info.getStamp(), DocumentRewriteSessionType.SEQUENTIAL) {
+			su.syncExec(new SourceDocumentRunnable(doc, info.getStamp().getSourceStamp(),
+					DocumentRewriteSessionType.SEQUENTIAL ) {
 				@Override
 				public void run() throws InvocationTargetException {
 					try {
