@@ -267,15 +267,6 @@
       </definition>
    </extension>
    <extension
-         point="org.eclipse.ui.actionSetPartAssociations">
-      <actionSetPartAssociation
-            targetID="de.walware.ecommons.ltk.contexts.EditSourceActionSet">
-         <part
-               id="de.walware.statet.r.editors.R">
-         </part>
-      </actionSetPartAssociation>
-   </extension>
-   <extension
          point="org.eclipse.ui.contexts">
       <context
             id="de.walware.statet.r.contexts.REditor"
@@ -430,40 +421,6 @@
                name="refactoring.add"
                visible="false">
          </separator>
-      </menuContribution>
-      
-      <!-- navigate -->
-      <menuContribution
-            locationURI="menu:navigate?after=open.ext">
-         <command
-               commandId="org.eclipse.ui.edit.text.open.hyperlink"
-               mnemonic="%menus_Navigate_OpenHyperlink_mnemonic"
-               style="push">
-            <visibleWhen
-                  checkEnabled="false">
-               <with variable="activePartId">
-                  <equals
-                        value="de.walware.statet.r.editors.R">
-                  </equals>
-               </with>
-            </visibleWhen>
-         </command>
-      </menuContribution>
-      <menuContribution
-            locationURI="menu:navigate?endof=show.ext">
-         <command
-               commandId="de.walware.ecommons.ltk.commands.ShowQuickSourceOutline"
-               mnemonic="%menus_Navigate_ShowQuickOutline_mnemonic"
-               style="push">
-            <visibleWhen
-                  checkEnabled="false">
-               <with variable="activePartId">
-                  <equals
-                        value="de.walware.statet.r.editors.R">
-                  </equals>
-               </with>
-            </visibleWhen>
-         </command>
       </menuContribution>
       
       <!-- search -->

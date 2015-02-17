@@ -39,6 +39,8 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
+import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.core.model.ISourceStructElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
@@ -86,6 +88,13 @@ public class REditor extends SourceEditor1 implements IREditor {
 		final IRCoreAccess adapter = (IRCoreAccess) editor.getAdapter(IRCoreAccess.class);
 		return (adapter != null) ? adapter : RCore.getWorkbenchAccess();
 	}
+	
+	
+	private static final ImList<String> KEY_CONTEXTS= ImCollections.newIdentityList(
+			"de.walware.statet.r.contexts.REditor" ); //$NON-NLS-1$
+	
+	private static final ImList<String> CONTEXT_IDS= ImCollections.concatList(
+			ACTION_SET_CONTEXT_IDS, KEY_CONTEXTS ); //$NON-NLS-1$
 	
 	
 	private static class MarkOccurrencesProvider extends AbstractMarkOccurrencesProvider {
@@ -229,9 +238,7 @@ public class REditor extends SourceEditor1 implements IREditor {
 	
 	@Override
 	protected void initializeKeyBindingScopes() {
-		setKeyBindingScopes(new String[] {
-				"de.walware.statet.r.contexts.REditor", //$NON-NLS-1$
-		});
+		setContexts(CONTEXT_IDS);
 	}
 	
 	@Override
