@@ -48,7 +48,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.assist.QuickAssistProcessor;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.text.ICharPairMatcher;
 import de.walware.ecommons.text.IIndentSettings;
-import de.walware.ecommons.text.core.sections.DocContentSections;
+import de.walware.ecommons.text.core.sections.IDocContentSections;
 import de.walware.ecommons.text.ui.presentation.SingleTokenScanner;
 import de.walware.ecommons.text.ui.settings.TextStyleManager;
 import de.walware.ecommons.ui.ColorManager;
@@ -97,7 +97,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		this(RDocumentContentInfo.INSTANCE, null, null, store, null);
 	}
 	
-	public RSourceViewerConfiguration(final DocContentSections documentContentInfo,
+	public RSourceViewerConfiguration(final IDocContentSections documentContentInfo,
 			final ISourceEditor sourceEditor,
 			final IRCoreAccess access,
 			final IPreferenceStore preferenceStore, final TextStyleManager textStyles) {

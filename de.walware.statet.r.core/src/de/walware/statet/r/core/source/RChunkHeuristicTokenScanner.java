@@ -17,14 +17,14 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TextUtilities;
 
 import de.walware.ecommons.text.IPartitionConstraint;
-import de.walware.ecommons.text.core.sections.DocContentSections;
+import de.walware.ecommons.text.core.sections.IDocContentSections;
 import de.walware.ecommons.text.core.treepartitioner.TreePartitionUtil;
 
 
 public class RChunkHeuristicTokenScanner extends RHeuristicTokenScanner {
 	
 	
-	public RChunkHeuristicTokenScanner(final DocContentSections documentContentInfo) {
+	public RChunkHeuristicTokenScanner(final IDocContentSections documentContentInfo) {
 		super(documentContentInfo);
 	}
 	

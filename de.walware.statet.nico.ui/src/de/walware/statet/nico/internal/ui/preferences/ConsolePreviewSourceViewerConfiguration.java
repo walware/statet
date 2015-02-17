@@ -16,7 +16,8 @@ import org.eclipse.jface.text.source.ISourceViewer;
 
 import de.walware.ecommons.collections.ImCollections;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
-import de.walware.ecommons.text.core.sections.DocContentSections;
+import de.walware.ecommons.text.core.sections.AbstractDocContentSections;
+import de.walware.ecommons.text.core.sections.IDocContentSections;
 import de.walware.ecommons.text.ui.presentation.SingleTokenScanner;
 import de.walware.ecommons.text.ui.settings.TextStyleManager;
 
@@ -24,7 +25,7 @@ import de.walware.ecommons.text.ui.settings.TextStyleManager;
 public class ConsolePreviewSourceViewerConfiguration extends SourceEditorViewerConfiguration {
 	
 	
-	private static final DocContentSections CONTENT_INFO= new DocContentSections(ConsoleTextStylesPreviewPartitioner.PARTITIONING,
+	private static final IDocContentSections CONTENT_INFO= new AbstractDocContentSections(ConsoleTextStylesPreviewPartitioner.PARTITIONING,
 			ConsoleTextStylesPreviewPartitioner.PARTITIONING, ImCollections.newList(ConsoleTextStylesPreviewPartitioner.PARTITIONING)) {
 		@Override
 		public String getTypeByPartition(final String contentType) {

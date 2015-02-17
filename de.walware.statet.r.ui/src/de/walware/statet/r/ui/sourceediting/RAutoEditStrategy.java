@@ -56,7 +56,7 @@ import de.walware.ecommons.text.ITokenScanner;
 import de.walware.ecommons.text.IndentUtil;
 import de.walware.ecommons.text.StringParseInput;
 import de.walware.ecommons.text.TextUtil;
-import de.walware.ecommons.text.core.sections.DocContentSections;
+import de.walware.ecommons.text.core.sections.IDocContentSections;
 import de.walware.ecommons.text.core.treepartitioner.TreePartition;
 import de.walware.ecommons.text.ui.BracketLevel.InBracketPosition;
 import de.walware.ecommons.ui.util.UIAccess;
@@ -127,7 +127,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	
 	private final ISourceEditor editor;
 	private final ITextEditorExtension3 editor3;
-	private final DocContentSections documentContentInfo;
+	private final IDocContentSections documentContentInfo;
 	private final SourceViewer viewer;
 	private final RealTypeListener typeListener;
 	

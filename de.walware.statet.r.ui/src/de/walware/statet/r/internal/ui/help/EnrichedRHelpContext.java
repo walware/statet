@@ -33,7 +33,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchPart3;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
-import de.walware.ecommons.text.core.sections.DocContentSections;
+import de.walware.ecommons.text.core.sections.IDocContentSections;
 import de.walware.ecommons.ui.util.MessageUtil;
 
 import de.walware.statet.r.core.source.RHeuristicTokenScanner;
@@ -83,7 +83,7 @@ public class EnrichedRHelpContext implements IContext3 {
 	}
 	
 	private static String getPlaintextFromDocument(final IDocument document,
-			final DocContentSections contentInfo, final ISelectionProvider selectionProvider)
+			final IDocContentSections contentInfo, final ISelectionProvider selectionProvider)
 			throws BadLocationException {
 		final ITextSelection textSelection = (ITextSelection) selectionProvider.getSelection();
 		final RHeuristicTokenScanner scanner= RHeuristicTokenScanner.create(contentInfo);

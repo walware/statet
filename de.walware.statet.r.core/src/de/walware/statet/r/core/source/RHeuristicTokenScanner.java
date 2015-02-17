@@ -14,7 +14,7 @@ package de.walware.statet.r.core.source;
 import org.eclipse.jface.text.IRegion;
 
 import de.walware.ecommons.text.BasicHeuristicTokenScanner;
-import de.walware.ecommons.text.core.sections.DocContentSections;
+import de.walware.ecommons.text.core.sections.IDocContentSections;
 
 import de.walware.statet.r.core.rlang.RTokens;
 
@@ -45,14 +45,14 @@ public class RHeuristicTokenScanner extends BasicHeuristicTokenScanner {
 		}
 	}
 	
-	public static RHeuristicTokenScanner create(final DocContentSections documentContentInfo) {
+	public static RHeuristicTokenScanner create(final IDocContentSections documentContentInfo) {
 		return (documentContentInfo.getPrimaryType() == IRDocumentConstants.R_PARTITIONING) ?
 				new RHeuristicTokenScanner(documentContentInfo) :
 				new RChunkHeuristicTokenScanner(documentContentInfo);
 	}
 	
 	
-	protected RHeuristicTokenScanner(final DocContentSections documentContentInfo) {
+	protected RHeuristicTokenScanner(final IDocContentSections documentContentInfo) {
 		super(documentContentInfo, IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT);
 	}
 	

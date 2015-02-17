@@ -18,7 +18,7 @@ import org.eclipse.core.resources.IFile;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.core.impl.AbstractFilePersistenceSourceUnitFactory;
 import de.walware.ecommons.ltk.core.impl.GenericResourceSourceUnit;
-import de.walware.ecommons.text.core.sections.DocContentSections;
+import de.walware.ecommons.text.core.sections.IDocContentSections;
 
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.renv.IREnv;
@@ -47,7 +47,7 @@ public abstract class RResourceUnit extends GenericResourceSourceUnit {
 				return contentTypeId;
 			}
 			@Override
-			public DocContentSections getDocumentContentInfo() {
+			public IDocContentSections getDocumentContentInfo() {
 				return null;
 			}
 		};

@@ -18,7 +18,7 @@ import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.WorkingContext;
 import de.walware.ecommons.ltk.core.impl.GenericFragmentSourceUnit2;
 import de.walware.ecommons.text.ISourceFragment;
-import de.walware.ecommons.text.core.sections.DocContentSections;
+import de.walware.ecommons.text.core.sections.IDocContentSections;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
@@ -58,7 +58,7 @@ public class RFragmentSourceUnit extends GenericFragmentSourceUnit2<RSuModelCont
 	}
 	
 	@Override
-	public DocContentSections getDocumentContentInfo() {
+	public IDocContentSections getDocumentContentInfo() {
 		return RDocumentContentInfo.INSTANCE;
 	}
 	

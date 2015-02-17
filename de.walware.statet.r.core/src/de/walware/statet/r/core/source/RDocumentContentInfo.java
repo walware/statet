@@ -12,10 +12,10 @@
 package de.walware.statet.r.core.source;
 
 import de.walware.ecommons.collections.ImCollections;
-import de.walware.ecommons.text.core.sections.DocContentSections;
+import de.walware.ecommons.text.core.sections.AbstractDocContentSections;
 
 
-public class RDocumentContentInfo extends DocContentSections {
+public class RDocumentContentInfo extends AbstractDocContentSections {
 	
 	
 	public static final String R=                              IRDocumentConstants.R_PARTITIONING;

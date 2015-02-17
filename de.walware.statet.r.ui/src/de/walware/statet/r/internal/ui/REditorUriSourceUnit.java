@@ -22,7 +22,7 @@ import de.walware.ecommons.ltk.WorkingContext;
 import de.walware.ecommons.ltk.core.impl.GenericUriSourceUnit2;
 import de.walware.ecommons.ltk.core.impl.IWorkingBuffer;
 import de.walware.ecommons.ltk.ui.FileBufferWorkingBuffer;
-import de.walware.ecommons.text.core.sections.DocContentSections;
+import de.walware.ecommons.text.core.sections.IDocContentSections;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
@@ -62,7 +62,7 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit2<RUISuModelContai
 	}
 	
 	@Override
-	public DocContentSections getDocumentContentInfo() {
+	public IDocContentSections getDocumentContentInfo() {
 		return RDocumentContentInfo.INSTANCE;
 	}
 	

@@ -22,7 +22,7 @@ import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.core.SourceContent;
 import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
-import de.walware.ecommons.text.core.sections.DocContentSections;
+import de.walware.ecommons.text.core.sections.IDocContentSections;
 
 import de.walware.statet.nico.ui.console.GenericConsoleSourceUnit;
 import de.walware.statet.nico.ui.console.InputDocument;
@@ -80,7 +80,7 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSo
 	}
 	
 	@Override
-	public DocContentSections getDocumentContentInfo() {
+	public IDocContentSections getDocumentContentInfo() {
 		return RDocumentContentInfo.INSTANCE;
 	}
 	
