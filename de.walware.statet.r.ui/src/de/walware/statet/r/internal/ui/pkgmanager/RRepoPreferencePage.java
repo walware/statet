@@ -230,14 +230,9 @@ class RRepoConfigurationBlock extends ManagedConfigurationBlock implements IActi
 	
 	
 	public RRepoConfigurationBlock(final IStatusChangeListener statusListener) {
-		super(null, statusListener);
+		super(null, "R Custom Repositories", statusListener);
 	}
 	
-	
-	@Override
-	protected String getTitle() {
-		return "R Custom Repositories";
-	}
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {

@@ -485,9 +485,9 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 	public boolean performOk() {
 		if (fProject != null) {
 			final TemplatePersistenceData[] templateData = fTemplatesStore.getAllTemplateData();
-			fTemplatesStore.setProjectSpecific(fUseProjectSettings);
+			fTemplatesStore.setProjectSpecific(isUseProjectSpecificSettings());
 			for (int i = 0; i < templateData.length; i++) {
-				fTemplatesStore.setProjectSpecific(templateData[i].getId(), fUseProjectSettings);
+				fTemplatesStore.setProjectSpecific(templateData[i].getId(), isUseProjectSpecificSettings());
 			}
 		}
 		try {

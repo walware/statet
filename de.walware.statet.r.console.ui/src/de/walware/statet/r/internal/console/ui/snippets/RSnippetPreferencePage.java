@@ -186,6 +186,11 @@ class SnippetConfigurationBlock extends CodeTemplateConfigurationBlock {
 	}
 	
 	@Override
+	protected String getListLabel() {
+		return "Code Snippe&ts";
+	}
+	
+	@Override
 	protected void createBlockArea(final Composite pageComposite) {
 		super.createBlockArea(pageComposite);
 		
