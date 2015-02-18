@@ -1538,7 +1538,7 @@
                         ifEmpty="false"
                         operator="and">
                      <instanceof
-                           value="de.walware.ecommons.ltk.ISourceStructElement">
+                           value="de.walware.ecommons.ltk.core.model.ISourceStructElement">
                      </instanceof>
                   </iterate>
                   <iterate
@@ -1577,7 +1577,7 @@
                         ifEmpty="false"
                         operator="and">
                      <instanceof
-                           value="de.walware.ecommons.ltk.ISourceStructElement">
+                           value="de.walware.ecommons.ltk.core.model.ISourceStructElement">
                      </instanceof>
                   </iterate>
                   <iterate
@@ -1656,7 +1656,7 @@
                         ifEmpty="false"
                         operator="and">
                      <instanceof
-                           value="de.walware.ecommons.ltk.ISourceStructElement">
+                           value="de.walware.ecommons.ltk.core.model.ISourceStructElement">
                      </instanceof>
                   </iterate>
                </with>
