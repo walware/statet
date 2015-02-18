@@ -23,7 +23,7 @@ public class SubmitFunctionDefAndGotoConsoleHandler extends
 	
 	
 	public SubmitFunctionDefAndGotoConsoleHandler() {
-		super(false);
+		super(true);
 	}
 	
 }
