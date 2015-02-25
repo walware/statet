@@ -12,7 +12,9 @@
 package de.walware.statet.r.internal.debug.ui.preferences;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -661,7 +663,14 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 						"/usr/lib/R", //$NON-NLS-1$
 				};
 				for (int i = 0; i < defLocations.length; i++) {
-					loc = defLocations[i];
+					try {
+						java.nio.file.Path path= Paths.get(defLocations[i]);
+						path= path.toRealPath();
+						loc= path.toString();
+					}
+					catch (final IOException e2) {
+						continue;
+					}
 					if (fConfigModel.isValidRHomeLocation(EFS.getLocalFileSystem().getStore(new Path(loc)))) {
 						return new String[] { loc, null };
 					}
