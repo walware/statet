@@ -35,16 +35,12 @@ public abstract class RResourceUnit extends GenericResourceSourceUnit {
 	}
 	
 	@Deprecated
-	public static RResourceUnit createTempUnit(final IFile file, final String modelTypeId, final String contentTypeId) {
+	public static RResourceUnit createTempUnit(final IFile file, final String modelTypeId) {
 		final String id = AbstractFilePersistenceSourceUnitFactory.createResourceId(file);
 		return new RResourceUnit(id, file) {
 			@Override
 			public String getModelTypeId() {
 				return modelTypeId;
-			}
-			@Override
-			public String getContentTypeId() {
-				return contentTypeId;
 			}
 			@Override
 			public IDocContentSections getDocumentContentInfo() {

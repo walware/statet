@@ -447,7 +447,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	protected ConsolePageEditor createInputGroup() {
-		return new ConsolePageEditor(this);
+		return new ConsolePageEditor(this, null);
 	}
 	
 	protected ConsolePageEditor getInputGroup() {

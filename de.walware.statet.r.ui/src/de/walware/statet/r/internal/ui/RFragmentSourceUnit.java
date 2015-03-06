@@ -53,11 +53,6 @@ public class RFragmentSourceUnit extends GenericFragmentSourceUnit2<RSuModelCont
 	}
 	
 	@Override
-	public String getContentTypeId() {
-		return R_CONTENT;
-	}
-	
-	@Override
 	public IDocContentSections getDocumentContentInfo() {
 		return RDocumentContentInfo.INSTANCE;
 	}

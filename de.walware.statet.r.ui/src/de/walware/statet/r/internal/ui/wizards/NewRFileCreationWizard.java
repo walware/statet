@@ -30,6 +30,7 @@ import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
 
 import de.walware.statet.r.codegeneration.CodeGeneration;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -42,12 +43,7 @@ public class NewRFileCreationWizard extends NewElementWizard {
 	private static class NewRFileCreator extends NewFileCreator {
 		
 		public NewRFileCreator(final IPath containerPath, final String resourceName) {
-			super(containerPath, resourceName);
-		}
-		
-		@Override
-		public String getContentType(final IFile newFileHandle) {
-			return IRSourceUnit.R_CONTENT;
+			super(containerPath, resourceName, RCore.R_CONTENT_TYPE);
 		}
 		
 		@Override

@@ -22,16 +22,6 @@ import de.walware.statet.r.core.renv.IREnv;
  */
 public interface IRSourceUnit extends ISourceUnit {
 	
-	/**
-	 * Content type id for R sources
-	 */
-	String R_CONTENT = "de.walware.statet.r.contentTypes.R"; //$NON-NLS-1$
-	
-	/**
-	 * Content type id for Rd sources
-	 */
-	String RD_CONTENT = "de.walware.statet.r.contentTypes.Rd"; //$NON-NLS-1$
-	
 	
 	/**
 	 * Model type id for R source files in workspace

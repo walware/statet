@@ -31,7 +31,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.preferences.PreferencesUtil;
 
-import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.ContentHandler.FileCommand;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -266,7 +266,7 @@ public class RCodeLaunchRegistry {
 					}
 				}
 			}
-			fDefaultHandler = fContentHandler.get(IRSourceUnit.R_CONTENT);
+			fDefaultHandler = fContentHandler.get(RCore.R_CONTENT_ID);
 			if (fDefaultHandler == null) {
 				throw new IllegalStateException();
 			}

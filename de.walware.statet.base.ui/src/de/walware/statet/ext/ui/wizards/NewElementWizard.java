@@ -66,8 +66,10 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 	
 	protected static class NewFileCreator {
 		
+		
 		protected IPath fContainerPath;
 		protected String fResourceName;
+		private IContentType contentType;
 		protected IRegion fInitialSelection;
 		
 		
@@ -78,6 +80,14 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 			fContainerPath = containerPath;
 			fResourceName = resourceName;
 		}
+		
+		public NewFileCreator(final IPath containerPath, final String resourceName,
+				IContentType contentType) {
+			this(containerPath, resourceName);
+			this.contentType= (contentType != null) ? contentType :
+					Platform.getContentTypeManager().getContentType(IContentTypeManager.CT_TEXT);
+		}
+		
 		
 		/**
 		 * Return the filehandle of the new file.
@@ -222,8 +232,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 			}
 			try {
 				// encoding of content type
-				final IContentTypeManager manager = Platform.getContentTypeManager();
-				final IContentType contentType = manager.getContentType(getContentType(newFileHandle));
+				final IContentType contentType= getContentType(newFileHandle);
 				if (contentType != null) {
 					final String charset = contentType.getDefaultCharset();
 					if (charset != null) {
@@ -244,12 +253,12 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 		}
 		
 		/**
-		 * Returns the content type id of the new file.
+		 * Returns the content type of the new file.
 		 * Used e.g. to lookup the encoding.
 		 * @return id
 		 */
-		public String getContentType(final IFile newFileHandle) {
-			return IContentTypeManager.CT_TEXT;
+		public IContentType getContentType(final IFile newFileHandle) {
+			return this.contentType;
 		}
 		
 		/**

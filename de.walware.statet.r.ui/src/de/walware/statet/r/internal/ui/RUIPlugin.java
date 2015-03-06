@@ -53,7 +53,7 @@ import de.walware.rj.eclient.graphics.comclient.ERGraphicFactory;
 
 import de.walware.statet.r.codegeneration.RCodeTemplatesContextType;
 import de.walware.statet.r.codegeneration.RdCodeTemplatesContextType;
-import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.ui.editors.RDocumentProvider;
 import de.walware.statet.r.internal.ui.editors.RFragmentDocumentProvider;
 import de.walware.statet.r.internal.ui.editors.RdDocumentProvider;
@@ -478,7 +478,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	public synchronized ContentAssistComputerRegistry getREditorContentAssistRegistry() {
 		if (fREditorContentAssistRegistry == null) {
 			fREditorContentAssistRegistry = new ContentAssistComputerRegistry(
-					IRSourceUnit.R_CONTENT,
+					RCore.R_CONTENT_ID,
 					RUIPreferenceInitializer.REDITOR_NODE );
 			fDisposables.add(fREditorContentAssistRegistry);
 		}
@@ -488,7 +488,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	public synchronized ContentAssistComputerRegistry getRConsoleContentAssistRegistry() {
 		if (fRConsoleContentAssistRegistry == null) {
 			fRConsoleContentAssistRegistry = new ContentAssistComputerRegistry(
-					IRSourceUnit.R_CONTENT + "Console",
+					RCore.R_CONTENT_ID + "Console",
 					RUIPreferenceInitializer.RCONSOLE_NODE );
 			fDisposables.add(fRConsoleContentAssistRegistry);
 		}
@@ -497,7 +497,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	public synchronized InfoHoverRegistry getREditorInfoHoverRegistry() {
 		if (fREditorInfoHoverRegistry == null) {
-			fREditorInfoHoverRegistry = new InfoHoverRegistry(IRSourceUnit.R_CONTENT,
+			fREditorInfoHoverRegistry = new InfoHoverRegistry(RCore.R_CONTENT_ID,
 					RUIPreferenceInitializer.REDITOR_NODE, RUIPreferenceInitializer.REDITOR_HOVER_GROUP_ID);
 			fDisposables.add(fREditorInfoHoverRegistry);
 		}

@@ -62,7 +62,6 @@ import de.walware.statet.base.ui.IStatetUIMenuIds;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
-import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.source.IRDocumentConstants;
@@ -122,7 +121,9 @@ public class REditor extends SourceEditor1 implements IREditor {
 	
 	
 	public REditor() {
+		super(RCore.R_CONTENT_TYPE);
 	}
+	
 	
 	@Override
 	protected void initializeEditor() {
@@ -197,11 +198,6 @@ public class REditor extends SourceEditor1 implements IREditor {
 		return new MarkOccurrencesProvider(this);
 	}
 	
-	
-	@Override
-	public String getModelTypeId() {
-		return RModel.TYPE_ID;
-	}
 	
 	@Override
 	public IRSourceUnit getSourceUnit() {

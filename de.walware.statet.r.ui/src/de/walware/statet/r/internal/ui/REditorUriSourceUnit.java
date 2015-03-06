@@ -57,11 +57,6 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit2<RUISuModelContai
 	}
 	
 	@Override
-	public String getContentTypeId() {
-		return R_CONTENT;
-	}
-	
-	@Override
 	public IDocContentSections getDocumentContentInfo() {
 		return RDocumentContentInfo.INSTANCE;
 	}

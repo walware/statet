@@ -28,6 +28,7 @@ import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
 import de.walware.statet.r.console.core.ContinuePrompt;
 import de.walware.statet.r.console.core.IRBasicAdapter;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.ui.sourceediting.InsertAssignmentHandler;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 
@@ -42,7 +43,7 @@ public class RInputGroup extends ConsolePageEditor implements ISettingsChangedHa
 	
 	
 	public RInputGroup(final RConsolePage page) {
-		super(page);
+		super(page, RCore.R_CONTENT_TYPE);
 	}
 	
 	

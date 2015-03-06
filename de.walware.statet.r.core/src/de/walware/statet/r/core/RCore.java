@@ -11,6 +11,10 @@
 
 package de.walware.statet.r.core;
 
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.core.runtime.content.IContentTypeManager;
+
 import de.walware.statet.r.core.model.IRModelManager;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.renv.IREnv;
@@ -25,7 +29,28 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 public class RCore {
 	
 	
-	public static final String PLUGIN_ID = "de.walware.statet.r.core"; //$NON-NLS-1$
+	public static final String PLUGIN_ID= "de.walware.statet.r.core"; //$NON-NLS-1$
+	
+	
+	/**
+	 * Content type id for R sources
+	 */
+	public static final String R_CONTENT_ID= "de.walware.statet.r.contentTypes.R"; //$NON-NLS-1$
+	
+	public static final IContentType R_CONTENT_TYPE;
+	
+	/**
+	 * Content type id for Rd sources
+	 */
+	public static final String RD_CONTENT_ID= "de.walware.statet.r.contentTypes.Rd"; //$NON-NLS-1$
+	
+	public static final IContentType RD_CONTENT_TYPE;
+	
+	static {
+		final IContentTypeManager contentTypeManager= Platform.getContentTypeManager();
+		R_CONTENT_TYPE= contentTypeManager.getContentType(R_CONTENT_ID);
+		RD_CONTENT_TYPE= contentTypeManager.getContentType(RD_CONTENT_ID);
+	}
 	
 	
 	/**

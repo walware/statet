@@ -21,6 +21,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler2;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.commands.ActionHandler;
@@ -426,6 +427,8 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	private IHistoryListener fHistoryListener;
 	private EnumSet<SubmitType> fHistoryTypesFilter;
 	
+	private final IContentType contentType;
+	
 	private final ISourceUnit fSourceUnit;
 	
 	private Composite fComposite;
@@ -457,9 +460,11 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	private ToolWorkspace.Listener fWorkspaceListener;
 	
 	
-	public ConsolePageEditor(final NIConsolePage page) {
+	public ConsolePageEditor(final NIConsolePage page, final IContentType contentType) {
 		fConsolePage = page;
 		fProcess = page.getConsole().getProcess();
+		
+		this.contentType= contentType;
 		
 		fDocument = new InputDocument();
 		fSourceUnit = createSourceUnit();
@@ -999,6 +1004,10 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 /*- Complete ISourceEditor --------------------------------------------------*/
 	
 	@Override
+	public IContentType getContentType() {
+		return this.contentType;
+	}
+	
 	public String getModelTypeId() {
 		return fSourceUnit.getModelTypeId();
 	}
@@ -1043,15 +1052,20 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	
 	@Override
 	public Object getAdapter(final Class required) {
-		if (ISourceEditor.class.equals(required)) {
+		if (required == ISourceEditor.class) {
 			return this;
 		}
-		if (IEditorStatusLine.class.equals(required)) {
+		if (required == IEditorStatusLine.class) {
 			return fStatusLine;
 		}
-		if (ITextOperationTarget.class.equals(required)) {
+		if (required == ITextOperationTarget.class) {
 			return fSourceViewer;
 		}
+		
+		if (required == IContentType.class) {
+			return this.contentType;
+		}
+		
 		return fConsolePage.getAdapter(required);
 	}
 	

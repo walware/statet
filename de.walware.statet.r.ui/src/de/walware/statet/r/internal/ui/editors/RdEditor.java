@@ -18,6 +18,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 
 import de.walware.statet.r.core.IRProject;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.RdSourceViewerConfiguration;
@@ -31,8 +32,9 @@ public class RdEditor extends SourceEditor1 {
 	
 	
 	public RdEditor() {
-		super();
+		super(RCore.RD_CONTENT_TYPE);
 	}
+	
 	
 	@Override
 	public String getModelTypeId() {

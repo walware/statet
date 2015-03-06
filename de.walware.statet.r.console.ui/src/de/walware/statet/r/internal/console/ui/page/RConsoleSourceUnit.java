@@ -71,12 +71,7 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSo
 	
 	@Override
 	public String getModelTypeId() {
-		return RModel.TYPE_ID;
-	}
-	
-	@Override
-	public String getContentTypeId() {
-		return R_CONTENT;
+		return RModel.R_TYPE_ID;
 	}
 	
 	@Override
