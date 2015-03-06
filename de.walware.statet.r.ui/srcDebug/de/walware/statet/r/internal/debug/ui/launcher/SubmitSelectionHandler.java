@@ -43,6 +43,16 @@ import de.walware.statet.r.launching.RCodeLaunching;
 public class SubmitSelectionHandler extends AbstractHandler {
 	
 	
+	public static class AndGotoConsole extends SubmitSelectionHandler {
+		
+		
+		public AndGotoConsole() {
+			super(true);
+		}
+		
+	}
+	
+	
 	private final boolean fGotoConsole;
 	private RRefactoringAdapter fModelUtil;
 	

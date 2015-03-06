@@ -21,11 +21,12 @@ import org.eclipse.jface.text.IDocument;
 public interface ICodeSubmitContentHandler {
 	
 	
+	void setup(IDocument document);
+	
 	List<String> getCodeLines(IDocument document)
 			throws CoreException, BadLocationException;
 	
 	List<String> getCodeLines(IDocument document, int offset, int length)
 			throws CoreException, BadLocationException;
-	
 	
 }

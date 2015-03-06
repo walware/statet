@@ -29,6 +29,22 @@ import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 public class SubmitSelectionForTextHandler extends SubmitSelectionHandler implements IElementUpdater {
 	
 	
+	public static class AndGotoConsole extends SubmitSelectionForTextHandler {
+		
+		
+		public AndGotoConsole() {
+			super(true);
+		}
+		
+		
+		@Override
+		protected String appendVariant(final String label) {
+			return label + RLaunchingMessages.SubmitCode_GotoConsole_affix;
+		}
+		
+	}
+	
+	
 	public SubmitSelectionForTextHandler() {
 		this(false);
 	}

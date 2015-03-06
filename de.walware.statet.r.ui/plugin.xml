@@ -1566,7 +1566,7 @@
       </handler>
       <handler
             commandId="de.walware.statet.r.commands.SubmitSelectionToR_GotoConsole"
-            class="de.walware.statet.r.internal.debug.ui.launcher.SubmitSelectionAndGotoConsoleHandler">
+            class="de.walware.statet.r.internal.debug.ui.launcher.SubmitSelectionHandler$AndGotoConsole">
          <activeWhen>
             <with variable="selection">
                <instanceof
@@ -1593,7 +1593,7 @@
       </handler>
       <handler
             commandId="de.walware.statet.r.commands.SubmitSelectionToR_GotoConsole"
-            class="de.walware.statet.r.internal.debug.ui.launcher.SubmitSelectionAndGotoConsoleForTextHandler">
+            class="de.walware.statet.r.internal.debug.ui.launcher.SubmitSelectionForTextHandler$AndGotoConsole">
          <activeWhen>
             <with
                   variable="selection">
@@ -1825,7 +1825,7 @@
       </handler>
       <handler
             commandId="de.walware.statet.r.commands.SubmitFunctionDefToR_GotoConsole"
-            class="de.walware.statet.r.internal.debug.ui.launcher.SubmitFunctionDefAndGotoConsoleHandler">
+            class="de.walware.statet.r.internal.debug.ui.launcher.SubmitFunctionDefHandler$AndGotoConsole">
          <activeWhen>
             <and>
                <with

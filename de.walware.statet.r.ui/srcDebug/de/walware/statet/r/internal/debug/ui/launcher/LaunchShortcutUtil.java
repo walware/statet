@@ -98,7 +98,9 @@ public class LaunchShortcutUtil {
 				final ICodeSubmitContentHandler handler = RCodeLaunching.getCodeSubmitContentHandler(
 						LaunchShortcutUtil.getContentTypeId(file));
 				
-				return handler.getCodeLines(new Document(buffer.toString()));
+				final Document document= new Document(buffer.toString());
+				handler.setup(document);
+				return handler.getCodeLines(document);
 			}
 			catch (final CoreException e) {
 				throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.INTERNAL_PLUGGED_IN,

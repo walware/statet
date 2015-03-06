@@ -79,7 +79,10 @@ public class SubmitUptoSelectionHandler extends AbstractHandler implements IElem
 	
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
+		final IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
 		final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event.getApplicationContext());
+		
+		final String contentTypeId= LTKWorkbenchUIUtil.getContentTypeId(activePart);
 		
 		try {
 			final IProgressMonitor progress = null;
@@ -87,13 +90,12 @@ public class SubmitUptoSelectionHandler extends AbstractHandler implements IElem
 			// text selection
 			if (selection instanceof ITextSelection) {
 				final ITextSelection textSelection = (ITextSelection) selection;
-				final IWorkbenchPart part = HandlerUtil.getActivePart(event);
 				List<String> lines = null;
 				
-				final AbstractDocument document = LTKWorkbenchUIUtil.getDocument(part);
+				final AbstractDocument document = LTKWorkbenchUIUtil.getDocument(activePart);
 				if (document != null) {
 					final ICodeSubmitContentHandler contentHandler = RCodeLaunching
-							.getCodeSubmitContentHandler(LTKWorkbenchUIUtil.getContentTypeId(part));
+							.getCodeSubmitContentHandler(contentTypeId);
 					lines = contentHandler.getCodeLines(document, 0, textSelection.getOffset());
 				}
 				else {
@@ -109,7 +111,7 @@ public class SubmitUptoSelectionHandler extends AbstractHandler implements IElem
 			if (selection instanceof IStructuredSelection) {
 				final ISourceStructElement[] elements = LTKSelectionUtil.getSelectedSourceStructElements(selection);
 				if (elements != null && elements.length == 1) {
-					final List<String> lines = getCodeLinesUpto(elements[0], progress);
+					final List<String> lines = getCodeLinesUpto(elements[0], contentTypeId, progress);
 					
 					RCodeLaunching.runRCodeDirect(lines, fGotoConsole, progress);
 					return null;
@@ -126,7 +128,8 @@ public class SubmitUptoSelectionHandler extends AbstractHandler implements IElem
 		return null;
 	}
 	
-	protected List<String> getCodeLinesUpto(final ISourceStructElement element, final IProgressMonitor monitor)
+	protected List<String> getCodeLinesUpto(final ISourceStructElement element,
+			final String contentTypeId, final IProgressMonitor monitor)
 			throws BadLocationException, BadPartitioningException, CoreException {
 		final ISourceUnit su = element.getSourceUnit();
 		if (su == null) {
@@ -147,7 +150,7 @@ public class SubmitUptoSelectionHandler extends AbstractHandler implements IElem
 			}
 			
 			final ICodeSubmitContentHandler contentHandler = RCodeLaunching
-					.getCodeSubmitContentHandler(su.getContentTypeId() );
+					.getCodeSubmitContentHandler(contentTypeId);
 			return contentHandler.getCodeLines(document, 0, range.getOffset());
 		}
 		finally {

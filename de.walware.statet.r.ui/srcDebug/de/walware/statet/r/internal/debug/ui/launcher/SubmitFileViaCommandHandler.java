@@ -38,6 +38,7 @@ import de.walware.ecommons.ltk.core.IModelTypeDescriptor;
 import de.walware.ecommons.ltk.core.model.ISourceElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.util.LTKWorkbenchUIUtil;
 import de.walware.ecommons.workbench.ui.WorkbenchUIUtil;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
@@ -73,8 +74,12 @@ public class SubmitFileViaCommandHandler extends AbstractHandler implements IEle
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final String fileCommandId = event.getParameter(RCodeLaunching.FILE_COMMAND_ID_PARAMTER_ID);
+		
+		final IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
+		
+		String contentTypeId= LTKWorkbenchUIUtil.getContentTypeId(activePart);
+		
 		try {
-			final IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
 			IAdaptable encodingAdaptable = null;
 			ISourceUnit su = null;
 			IFile file = null;
@@ -151,26 +156,28 @@ public class SubmitFileViaCommandHandler extends AbstractHandler implements IEle
 			}
 			
 			if (uri != null) {
-				String command = null;
 				if (su != null) {
-					command = (fileCommandId != null) ?
-							RCodeLaunching.getFileCommand(fileCommandId) :
-							RCodeLaunching.getPreferredFileCommand(su.getContentTypeId());
 					while (su != null && su.getWorkingContext() != LTK.PERSISTENCE_CONTEXT) {
 						su = su.getUnderlyingUnit();
 					}
 				}
-				else if (file != null) {
+				
+				String command = null;
+				if (file != null) {
+					if (contentTypeId == null) {
+						contentTypeId= LaunchShortcutUtil.getContentTypeId(file);
+					}
 					command = (fileCommandId != null) ?
 							RCodeLaunching.getFileCommand(fileCommandId) :
-							RCodeLaunching.getPreferredFileCommand(
-									LaunchShortcutUtil.getContentTypeId(file) );
+							RCodeLaunching.getPreferredFileCommand(contentTypeId);
 				}
-				else if (uri != null) {
+				else { // uri
+					if (contentTypeId == null) {
+						contentTypeId= LaunchShortcutUtil.getContentTypeId(uri);
+					}
 					command = (fileCommandId != null) ?
 							RCodeLaunching.getFileCommand(fileCommandId) :
-							RCodeLaunching.getPreferredFileCommand(
-									LaunchShortcutUtil.getContentTypeId(uri) );
+							RCodeLaunching.getPreferredFileCommand(contentTypeId);
 				}
 				
 				if (command != null) {

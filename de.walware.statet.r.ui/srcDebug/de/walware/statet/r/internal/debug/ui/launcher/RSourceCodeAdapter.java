@@ -41,7 +41,7 @@ public class RSourceCodeAdapter extends RRefactoringAdapter {
 			throws BadLocationException, BadPartitioningException {
 		if (element instanceof IRLangElement) {
 			if (element instanceof RChunkElement) {
-				final SourceComponent[] components = (SourceComponent[]) element.getAdapter(SourceComponent.class);
+				final List<SourceComponent> components = (List<SourceComponent>) element.getAdapter(SourceComponent.class);
 				for (final SourceComponent component : components) {
 					final IRegion range = expandSourceRange(component.getOffset(), component.getStopOffset(), doc, scanner);
 					if (range != null && range.getLength() > 0) {

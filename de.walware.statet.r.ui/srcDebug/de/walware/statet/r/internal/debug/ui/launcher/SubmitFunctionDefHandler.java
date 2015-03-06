@@ -22,7 +22,6 @@ import org.eclipse.jface.text.BadLocationException;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
-import de.walware.statet.r.launching.RCodeLaunching;
 import de.walware.statet.r.launching.RCodeLaunching.SourceRegion;
 import de.walware.statet.r.ui.RUI;
 
@@ -36,11 +35,21 @@ import de.walware.statet.r.ui.RUI;
 public class SubmitFunctionDefHandler extends SubmitEntireCommandHandler {
 	
 	
+	public static class AndGotoConsole extends SubmitFunctionDefHandler {
+		
+		
+		public AndGotoConsole() {
+			super(true);
+		}
+		
+	}
+	
+	
 	public SubmitFunctionDefHandler() {
 		super(false);
 	}
 	
-	public SubmitFunctionDefHandler(final boolean gotoConsole) {
+	protected SubmitFunctionDefHandler(final boolean gotoConsole) {
 		super(gotoConsole);
 	}
 	
@@ -52,7 +61,7 @@ public class SubmitFunctionDefHandler extends SubmitEntireCommandHandler {
 	
 	@Override
 	protected IStatus getRegions(final Data data) throws CoreException {
-		final RAstNode node = RAst.findLowestFDefAssignment(data.ast.root,
+		final RAstNode node= RAst.findLowestFDefAssignment(data.ast.root,
 				data.selection.getOffset() );
 		if (node == null) {
 			return LaunchShortcutUtil.createUnsupported();
@@ -63,16 +72,16 @@ public class SubmitFunctionDefHandler extends SubmitEntireCommandHandler {
 						RLaunchingMessages.SubmitCode_info_SyntaxError_message );
 			}
 			
-			data.nodes = new RAstNode[] { node };
-			final List<SourceRegion> list = new ArrayList<RCodeLaunching.SourceRegion>(1);
-			{	final SourceRegion region = new SourceRegion(data.su, data.document);
+			data.nodes= new RAstNode[] { node };
+			final List<SourceRegion> list= new ArrayList<>(1);
+			{	final SourceRegion region= new SourceRegion(data.su, data.document);
 				region.setBegin(checkStart(data.document, node.getOffset()));
 				region.setEnd(node.getOffset()+node.getLength());
 				region.setCode(data.document.get(region.getOffset(), region.getLength()));
 				region.setNode(node);
 				list.add(region);
 			}
-			data.regions = list;
+			data.regions= list;
 			return Status.OK_STATUS;
 		}
 		catch (final BadLocationException e) {
