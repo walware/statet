@@ -27,12 +27,32 @@ import de.walware.statet.r.core.rsource.ast.SourceComponent;
 public interface IRModelManager extends IModelManager {
 	
 	
+	/**
+	 * Returns the frame for the project scope containing all main element definition in the
+	 * project.
+	 * 
+	 * @param rProject the R project
+	 * @return the R frame
+	 * @throws CoreException
+	 */
 	IRFrame getProjectFrame(IRProject rProject) throws CoreException;
 	
 	IRModelInfo reconcile(IRSourceUnit su, ISourceUnitModelInfo modelInfo,
 			List<? extends RChunkElement> chunks, List<? extends SourceComponent> inlineNodes,
 			int level, IProgressMonitor monitor);
 	
+	/**
+	 * Find source units with references to the specified name in the specified project.
+	 * 
+	 * Note: The returned source units are already {@link ISourceUnit#connect(IProgressMonitor) connected}.
+	 * The caller is responsible to disconnect, if they are no longer required.
+	 * 
+	 * @param rProject the R project
+	 * @param name the name of the R element
+	 * @param monitor
+	 * @return list of referencing source units
+	 * @throws CoreException
+	 */
 	List<ISourceUnit> findReferencingSourceUnits(IRProject rProject, RElementName name,
 			IProgressMonitor monitor) throws CoreException;
 	
