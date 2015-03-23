@@ -529,6 +529,12 @@ public class HistoryView extends ViewPart implements IToolProvider {
 			private final DateFormat fFormat = DateFormat.getDateTimeInstance();
 			
 			@Override
+			protected boolean shouldCreateToolTip(final Event event) {
+				return (super.shouldCreateToolTip(event)
+						&& fTable.getItem(new Point(event.x, event.y)) != null );
+			}
+			
+			@Override
 			protected String getText(final Event event) {
 				final TableItem item = fTable.getItem(new Point(event.x, event.y));
 				if (item != null) {
