@@ -256,13 +256,15 @@ public final class RCodeLaunching {
 		}
 		
 		void disposeMarker() {
-			try {
-				fMarker.delete();
-				fMarker = null;
-			}
-			catch (final CoreException e) {
-				StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, 0,
-						"An error occurred when removing code position marker.", e));
+			if (this.fMarker != null) {
+				try {
+					this.fMarker.delete();
+					this.fMarker = null;
+				}
+				catch (final CoreException e) {
+					StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, 0,
+							"An error occurred when removing code position marker.", e));
+				}
 			}
 		}
 		
