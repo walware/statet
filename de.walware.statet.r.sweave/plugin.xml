@@ -715,17 +715,6 @@
          </toolbar>
       </menuContribution>
       <menuContribution
-            locationURI="menu:de.walware.statet.doc.menus.ProcessWeave">
-         <dynamic
-               id="de.walware.statet.doc.commands.ProcessDocList"
-               class="de.walware.statet.r.internal.sweave.processing.RweaveTexProfilesDropdownContribution">
-         </dynamic>
-         <separator
-               name="additions"
-               visible="true">
-         </separator>
-      </menuContribution>
-      <menuContribution
             locationURI="menu:de.walware.statet.doc.menus.ProcessDoc">
          <dynamic
                id="de.walware.statet.doc.commands.ProcessDocList"
