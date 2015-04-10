@@ -837,9 +837,21 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	private ISelectedRepos runLoadRepos(final RService r,
 			final IProgressMonitor monitor) throws CoreException {
 		try {
-			String bioCVersion;
-			{	final RObject data = r.evalData("as.character(tools:::.BioC_version_associated_with_R_version)", monitor);
-				bioCVersion = RDataUtil.checkSingleCharValue(data);
+			String bioCVersion= null;
+			try {
+				final RObject data= r.evalData("as.character(rj:::.renv.getBioCVersion())", monitor);
+				bioCVersion= RDataUtil.checkSingleCharValue(data);
+			}
+			catch (final CoreException e) {
+				try {
+					final RObject data= r.evalData("as.character(tools:::.BioC_version_associated_with_R_version)", monitor);
+					bioCVersion= RDataUtil.checkSingleCharValue(data);
+				}
+				catch (final CoreException ignore) {
+					final Status status = new Status(IStatus.ERROR, RCore.PLUGIN_ID, 0,
+							"Failed to get the version of BioC.", e );
+					RCorePlugin.log(status);
+				}
 			}
 			
 			final boolean loadRMirrors = ((fRequireLoad & (REQUIRE_CRAN | REQUIRE_BIOC)) != 0);
