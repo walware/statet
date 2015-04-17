@@ -44,6 +44,7 @@ import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
+import de.walware.ecommons.variables.core.StaticVariable;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.util.ToolInfoGroup;
@@ -117,7 +118,9 @@ public class StatetRGraphicCopyToDevWizard extends Wizard {
 					"Graphic File");
 			final IFileStore wd = fTool.getWorkspaceData().getWorkspaceDir();
 			if (wd != null) {
-				fLocationGroup.getValidator().setRelative(wd.toString(), IStatus.WARNING);
+				fLocationGroup.getValidator().setRelative(
+						new StaticVariable("wd", null, wd.toString()), //$NON-NLS-1$
+						IStatus.WARNING);
 			}
 			else {
 				fLocationGroup.getValidator().setIgnoreRelative(true);

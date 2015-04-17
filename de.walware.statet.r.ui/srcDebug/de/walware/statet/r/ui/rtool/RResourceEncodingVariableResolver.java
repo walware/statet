@@ -19,31 +19,32 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.variables.IDynamicVariable;
 import org.eclipse.ui.editors.text.IEncodingSupport;
 
+import de.walware.ecommons.debug.core.variables.ResourceVariableResolver;
 import de.walware.ecommons.ui.util.UIAccess;
-import de.walware.ecommons.ui.workbench.ResourceVariableResolver;
-import de.walware.ecommons.ui.workbench.ResourceVariablesUtil;
+import de.walware.ecommons.ui.workbench.ResourceVariableUtil;
 
 
 public class RResourceEncodingVariableResolver extends ResourceVariableResolver {
 	
 	
-	public RResourceEncodingVariableResolver(final ResourceVariablesUtil util) {
+	public RResourceEncodingVariableResolver(final ResourceVariableUtil util) {
 		super(util);
 	}
 	
 	
 	@Override
 	public String resolveValue(final IDynamicVariable variable, final String argument) throws CoreException {
-		final IResource resource = getResource(variable, argument);
-		final String encoding = getEncoding(variable, resource);
+		final String encoding = getEncoding(variable, getResource(variable, RESOURCE, argument));
 		return (encoding != null) ? encoding : "unknown";
 	}
 	
 	
 	protected String getEncoding(final IDynamicVariable variable, final IResource resource)
 			throws CoreException {
-		final IAdaptable adaptable = (fUtil != null) ?
-				fUtil.getWorkbenchPart() : UIAccess.getActiveWorkbenchPart(false);
+		final IResolveContext context= getContext();
+		final IAdaptable adaptable= (context instanceof ResourceVariableUtil) ?
+				((ResourceVariableUtil) context).getWorkbenchPart() :
+				UIAccess.getActiveWorkbenchPart(false);
 		if (adaptable != null) {
 			final IEncodingSupport encodingSupport = (IEncodingSupport) adaptable
 					.getAdapter(IEncodingSupport.class);

@@ -30,7 +30,8 @@ Require-Bundle: de.walware.statet.base.ui;bundle-version="[3.5.0,3.6.0)",
  org.eclipse.ltk.ui.refactoring,
  de.walware.ecommons.inatable.core;bundle-version="[1.0.0,1.1.0)",
  org.eclipse.search,
- org.eclipse.equinox.http.registry;bundle-version="1.0.200"
+ org.eclipse.equinox.http.registry;bundle-version="1.0.200",
+ de.walware.ecommons.debug.core
 Import-Package: com.ibm.icu.math;version="4.4.2.2",
  com.ibm.icu.text;version="4.4.2.2",
  com.ibm.icu.util;version="4.4.2.2",

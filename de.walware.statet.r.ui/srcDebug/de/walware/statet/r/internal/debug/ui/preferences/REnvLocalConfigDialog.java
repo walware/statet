@@ -156,7 +156,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				public void widgetSelected(final SelectionEvent e) {
 					final String[] rhome = searchRHOME();
 					if (rhome != null) {
-						setText(rhome[0], true);
+						setText(rhome[0]);
 						updateArchs(false);
 						final String current = fNameControl.getText().trim();
 						if ((current.isEmpty() || current.equals("R")) && rhome[1] != null) { //$NON-NLS-1$

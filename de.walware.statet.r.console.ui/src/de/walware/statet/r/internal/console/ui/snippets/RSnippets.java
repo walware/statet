@@ -38,9 +38,11 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import de.walware.ecommons.ltk.ui.util.LTKWorkbenchUIUtil;
 import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ui.util.UIAccess;
-import de.walware.ecommons.ui.workbench.ResourceVariablesUtil;
+import de.walware.ecommons.ui.workbench.ResourceVariableUtil;
 import de.walware.ecommons.variables.core.DynamicVariable;
+import de.walware.ecommons.variables.core.StaticVariable;
 import de.walware.ecommons.variables.core.StringVariable;
+import de.walware.ecommons.variables.core.UnresolvedVariable;
 import de.walware.ecommons.variables.core.VariableText2;
 
 import de.walware.statet.r.core.RUtil;
@@ -155,7 +157,7 @@ public class RSnippets {
 	
 	
 	private Map<String, IStringVariable> createResolveVariables() {
-		final ResourceVariablesUtil util = new ResourceVariablesUtil();
+		final ResourceVariableUtil util = new ResourceVariableUtil();
 		
 		final Map<String, IStringVariable> variables = new HashMap<String, IStringVariable>();
 		add(variables, new DynamicVariable.ResolverVariable(
@@ -174,10 +176,10 @@ public class RSnippets {
 			}
 			try {
 				final String value = real.getValue(null);
-				add(variables, new DynamicVariable.StaticVariable(real, value));
+				add(variables, new StaticVariable(real, value));
 			}
 			catch (final CoreException e) {
-				add(variables, new DynamicVariable.UnresolvedVariable(real, e));
+				add(variables, new UnresolvedVariable(real, e));
 			}
 		}
 	}
@@ -194,7 +196,7 @@ public class RSnippets {
 			}
 		};
 		
-		return text.performStringSubstitution(template.getPattern());
+		return text.performStringSubstitution(template.getPattern(), null);
 	}
 	
 	
@@ -202,7 +204,7 @@ public class RSnippets {
 		try {
 			final VariableText2 text = new VariableText2(createResolveVariables());
 			
-			text.validate(template, VariableText2.SYNTAX_SEVERITIES, null);
+			text.validate(template, VariableText2.Severities.CHECK_SYNTAX, null);
 			return Status.OK_STATUS;
 		}
 		catch (final CoreException e) {
@@ -216,10 +218,10 @@ public class RSnippets {
 		
 		final VariableText2 text = new VariableText2(variables); 
 		
-		final List<Template> tested = new ArrayList<Template>(templates.length);
+		final List<Template> tested = new ArrayList<>(templates.length);
 		for (final Template template : templates) {
 			try {
-				text.validate(template.getPattern(), VariableText2.RESOLVE_SEVERITIES, null);
+				text.validate(template.getPattern(), VariableText2.Severities.RESOLVE, null);
 				tested.add(template);
 			}
 			catch (final CoreException e) {}

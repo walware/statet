@@ -239,7 +239,7 @@ public class TrackingConfigurationComposite extends Composite {
 						item.addSelectionListener(new SelectionAdapter() {
 							@Override
 							public void widgetSelected(final SelectionEvent e) {
-								setText(template.getFilePath(), true);
+								setText(template.getFilePath());
 								getTextControl().setFocus();
 							}
 						});

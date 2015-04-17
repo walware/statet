@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.IDynamicVariable;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.ui.workbench.ResourceVariableResolver;
+import de.walware.ecommons.debug.core.variables.ResourceVariableResolver;
 
 import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RProjects;
@@ -27,7 +27,7 @@ import de.walware.statet.r.internal.ui.rtools.Messages;
 import de.walware.statet.r.ui.RUI;
 
 
-public class RProjectVariableResolver extends ResourceVariableResolver.ProjectVariableResolver {
+public class RProjectVariableResolver extends ResourceVariableResolver {
 	
 	
 	public static final String R_PKG_BASE_PATH_NAME = "r_pkg_base_path"; //$NON-NLS-1$
@@ -64,7 +64,7 @@ public class RProjectVariableResolver extends ResourceVariableResolver.ProjectVa
 	
 	protected IRProject getRProject(final IDynamicVariable variable, final String argument)
 			throws CoreException {
-		final IProject project = (IProject) getResource(variable, argument);
+		final IProject project = (IProject) getResource(variable, PROJECT, argument);
 		if (!project.exists()) {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID,
 					NLS.bind(Messages.Variable_error_InvalidProject_NotExists_message, 
