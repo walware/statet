@@ -12,7 +12,6 @@
 package de.walware.statet.nico.core.runtime;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,22 +20,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.ibm.icu.text.DateFormat;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.PlatformObject;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchesListener;
-import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
 
+import de.walware.ecommons.debug.core.model.AbstractProcess;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ts.ITool;
 
-import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 import de.walware.statet.nico.core.runtime.ToolWorkspace.Listener;
 
@@ -44,7 +39,7 @@ import de.walware.statet.nico.core.runtime.ToolWorkspace.Listener;
 /**
  * Provides <code>IProcess</code> for a <code>ToolController</code>.
  */
-public class ToolProcess extends PlatformObject implements IProcess, ITool, IToolStatusListener {
+public class ToolProcess extends AbstractProcess implements IProcess, ITool, IToolStatusListener {
 	
 	public static final String PROCESS_TYPE_SUFFIX = ".nico"; //$NON-NLS-1$
 	
@@ -124,10 +119,8 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 	public static final int EXITCODE_DISCONNECTED = 101;
 	
 	
-	private final ILaunch fLaunch;
 	private final String fMainType;
-	private final Set<String> fFeatureSets = new HashSet<String>();
-	private final String fName;
+	private final Set<String> fFeatureSets = new HashSet<>();
 	private final String fToolLabelShort;
 	private final String fToolLabelLong;
 	private String fToolLabelTrimmedWD;
@@ -148,11 +141,9 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 	private int fRetain;
 	private boolean fIsDisposed;
 	
-	private final Map<String, String> fAttributes = new HashMap<String, String>(5);
 	private final boolean fCaptureOutput;
 	
 	private volatile ToolStatus fStatus = ToolStatus.STARTING;
-	volatile int fExitValue = 0;
 	
 	private List<? extends ITrack> fTracks = Collections.emptyList();
 	
@@ -160,9 +151,8 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 	public ToolProcess(final ILaunch launch, final String mainType,
 			final String labelPrefix, final String name,
 			final String address, final String wd, final long timestamp) {
-		fLaunch = launch;
+		super(launch, name);
 		fMainType = mainType;
-		fName = name;
 		fAddress = address;
 		fStartupWD = wd;
 		fStartupTimestamp = timestamp;
@@ -188,7 +178,7 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 			@Override
 			public void launchesRemoved(final ILaunch[] launches) {
 				for (final ILaunch launch : launches) {
-					if (fLaunch == launch) {
+					if (getLaunch() == launch) {
 						final DebugPlugin plugin = DebugPlugin.getDefault();
 						if (plugin != null) {
 							plugin.getLaunchManager().removeLaunchListener(this);
@@ -209,10 +199,11 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		fWorkspaceData.addPropertyListener(new Listener() {
 			@Override
 			public void propertyChanged(final ToolWorkspace workspace, final Map<String, Object> properties) {
+				final Map<String, String> attributes= getAttributes(true);
 				final DebugEvent nameEvent;
-				synchronized (fAttributes) {
+				synchronized (attributes) {
 					fToolLabelTrimmedWD = null;
-					nameEvent = doSetAttribute(IProcess.ATTR_PROCESS_LABEL, computeConsoleLabel());
+					nameEvent = doSet(attributes, IProcess.ATTR_PROCESS_LABEL, computeConsoleLabel());
 				}
 				if (nameEvent != null) {
 					fireEvent(nameEvent);
@@ -221,13 +212,13 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		});
 		
 		fToolLabelTrimmedWD = null;
-		doSetAttribute(IProcess.ATTR_PROCESS_LABEL, computeConsoleLabel());
-		doSetAttribute(IProcess.ATTR_PROCESS_TYPE, (fMainType+PROCESS_TYPE_SUFFIX).intern());
+		final Map<String, String> attributes= getAttributes(true);
+		doSet(attributes, IProcess.ATTR_PROCESS_LABEL, computeConsoleLabel());
+		doSet(attributes, IProcess.ATTR_PROCESS_TYPE, (fMainType+PROCESS_TYPE_SUFFIX).intern());
 		
 		fHistory.init();
 		
-		fLaunch.addProcess(this);
-		fireEvent(new DebugEvent(ToolProcess.this, DebugEvent.CREATE));
+		created();
 	}
 	
 	
@@ -245,7 +236,7 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		if (wd == null) {
 			wd = fToolLabelTrimmedWD = trimPath(FileUtil.toString(fWorkspaceData.getWorkspaceDir()));
 		}
-		return fToolLabelShort + ' ' + fName + "  ∙  " + wd + "   \t " + fToolLabelStatus; //$NON-NLS-1$ //$NON-NLS-2$
+		return fToolLabelShort + ' ' + getLabel() + "  ∙  " + wd + "   \t " + fToolLabelStatus; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	private String trimPath(final String path) {
@@ -303,10 +294,10 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 	 * 
 	 * @return
 	 */
-	@Override
-	public String getLabel() {
-		return fName;
-	}
+//	@Override
+//	public String getLabel() {
+//		return super.getLabel();
+//	}
 	
 	/**
 	 * Returns a label of the tool, usually based on the launch configuration.
@@ -327,11 +318,6 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 			return fToolLabelLong;
 		}
 		return fToolLabelShort;
-	}
-	
-	@Override
-	public ILaunch getLaunch() {
-		return fLaunch;
 	}
 	
 	public ToolController getController() {
@@ -357,59 +343,14 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		return fWorkspaceData;
 	}
 	
-	@Override
-	public void setAttribute(final String key, final String value) {
-		final DebugEvent event = doSetAttribute(key, value);
-		if (event != null) {
-			fireEvent(event);
-		}
-	}
-	
-	private DebugEvent doSetAttribute(final String key, final String value) {
-		synchronized (fAttributes) {
-			final String oldValue = fAttributes.put(key, value);
-			if (oldValue == value
-					|| (oldValue != null && oldValue.equals(value)) ) {
-				return null;
-			}
-			final DebugEvent event = new DebugEvent(ToolProcess.this, DebugEvent.CHANGE);
-			event.setData(new String[] { key, oldValue, value });
-			return event;
-		}
-	}
-	
-	@Override
-	public String getAttribute(final String key) {
-		synchronized (fAttributes) {
-			return fAttributes.get(key);
-		}
-	}
-	
 	public ToolStatus getToolStatus() {
 		return fStatus;
 	}
 	
-	@Override
-	public Object getAdapter(final Class adapter) {
-		if (adapter.equals(IProcess.class)) {
-			return this;
-		}
-		if (adapter.equals(IDebugTarget.class)) {
-			final ILaunch launch = getLaunch();
-			final IDebugTarget[] targets = launch.getDebugTargets();
-			for (int i = 0; i < targets.length; i++) {
-				if (this.equals(targets[i].getProcess())) {
-					return targets[i];
-				}
-			}
-			return null;
-		}
-		if (adapter.equals(ILaunch.class)) {
-			return getLaunch();
-		}
-		return super.getAdapter(adapter);
-	}
 	
+	void setExitValue(final int value) {
+		doSetExitValue(value);
+	}
 	
 	@Override
 	public boolean canTerminate() {
@@ -429,16 +370,6 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		return fStatus == ToolStatus.TERMINATED;
 	}
 	
-	@Override
-	public int getExitValue() throws DebugException {
-		if (!isTerminated()) {
-			throw new DebugException(new Status(
-					IStatus.ERROR, NicoCore.PLUGIN_ID, 0,
-					"Exit value is not available until process terminates.", //$NON-NLS-1$
-					null));
-		}
-		return fExitValue;
-	}
 	
 	@Override
 	public void controllerStatusRequested(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
@@ -495,10 +426,11 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 			break;
 		}
 		
+		final Map<String, String> attributes= getAttributes(true);
 		final DebugEvent nameEvent;
-		synchronized (fAttributes) {
+		synchronized (attributes) {
 			fToolLabelStatus = newStatus.getMarkedLabel();
-			nameEvent = doSetAttribute(IProcess.ATTR_PROCESS_LABEL, computeConsoleLabel());
+			nameEvent = doSet(attributes, IProcess.ATTR_PROCESS_LABEL, computeConsoleLabel());
 		}
 		if (nameEvent != null) {
 			eventCollection.add(nameEvent);
@@ -581,18 +513,6 @@ public class ToolProcess extends PlatformObject implements IProcess, ITool, IToo
 		}
 	}
 	
-	
-	/**
-	 * Fires the given debug events.
-	 * 
-	 * @param event array with debug events to fire
-	 */
-	protected void fireEvent(final DebugEvent event) {
-		final DebugPlugin manager = DebugPlugin.getDefault();
-		if (manager != null) {
-			manager.fireDebugEventSet(new DebugEvent[] { event });
-		}
-	}
 	
 	void setTracks(final List<? extends ITrack> tracks) {
 		fTracks = tracks;

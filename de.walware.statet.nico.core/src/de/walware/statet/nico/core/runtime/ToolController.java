@@ -1069,7 +1069,7 @@ public abstract class ToolController implements IConsoleService {
 					continue;
 				}
 				if (fIsTerminated) {
-					fProcess.fExitValue = finishToolL();
+					fProcess.setExitValue(finishToolL());
 					loopChangeStatus(ToolStatus.TERMINATED, null);
 					return;
 				}

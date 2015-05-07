@@ -100,7 +100,7 @@ public class ToolRunner {
 					if (e.getStatus() != null && e.getStatus().getSeverity() == IStatus.CANCEL) {
 					}
 					else {
-						process.fExitValue = NicoCore.EXITVALUE_CORE_EXCEPTION;
+						process.setExitValue(NicoCore.EXITVALUE_CORE_EXCEPTION);
 						final IStatus status = createStatus(process,
 								NLS.bind(Messages.Runtime_error_UnexpectedTermination_message,
 										new Object[] { process.getLabel(ITool.DEFAULT_LABEL), process.getLabel() }),
@@ -116,7 +116,7 @@ public class ToolRunner {
 				}
 				catch (final Throwable e) {
 					// We had some problems with Thread#setUncaughtExceptionHandler, so we catch simply all Throwables
-					process.fExitValue = NicoCore.EXITVALUE_RUNTIME_EXCEPTION;
+					process.setExitValue(NicoCore.EXITVALUE_RUNTIME_EXCEPTION);
 					final IStatus status = createStatus(process,
 							NLS.bind(Messages.Runtime_error_CriticalError_message, getName()), e );
 					try {
