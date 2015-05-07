@@ -99,7 +99,7 @@ public class RPkgOperator {
 		sb.append(')');
 		if (RDataUtil.checkSingleIntValue(fR.evalData(sb.toString(), monitor)) != 0) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, 0,
-					NLS.bind("An error occurred when creating the R library location '{0}'.", dir), null ));
+					NLS.bind("An error occurred when creating the R library location ''{0}''.", dir), null ));
 		}
 		
 		sb.setLength(0);
@@ -138,7 +138,7 @@ public class RPkgOperator {
 	private void installPkg(final RPkgAction.Install action, final StringBuilder sb,
 			final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		final String name = action.getPkg().getName();
-		monitor.subTask(NLS.bind("Installing R package '{0}'...", name));
+		monitor.subTask(NLS.bind("Installing R package ''{0}''...", name));
 		
 		sb.setLength(0);
 		sb.append("install.packages("); //$NON-NLS-1$
@@ -204,7 +204,7 @@ public class RPkgOperator {
 	private void uninstallPkg(final RPkgAction.Uninstall action, final StringBuilder sb,
 			final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		final String name = action.getPkg().getName();
-		monitor.subTask(NLS.bind("Uninstalling R package '{0}'...", name));
+		monitor.subTask(NLS.bind("Uninstalling R package ''{0}''...", name));
 		
 		sb.setLength(0);
 		sb.append("remove.packages("); //$NON-NLS-1$
@@ -228,7 +228,7 @@ public class RPkgOperator {
 			final StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < pkgs.size(); i++) {
 				final IRPkgInfoAndData pkgData = pkgs.get(i);
-				monitor.subTask(NLS.bind("Loading R package '{0}'...", pkgData.getName()));
+				monitor.subTask(NLS.bind("Loading R package ''{0}''...", pkgData.getName()));
 				
 				sb.setLength(0);
 				sb.append("library("); //$NON-NLS-1$

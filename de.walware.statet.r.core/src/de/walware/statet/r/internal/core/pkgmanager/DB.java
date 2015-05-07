@@ -278,7 +278,7 @@ final class DB {
 			final String name = fREnv.getName();
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
 					NLS.bind("An error occurred when loading R package information of " +
-							"the R environment '{0}'.", name ), e ));
+							"the R environment ''{0}''.", name ), e ));
 			return null;
 		}
 	}
@@ -386,7 +386,7 @@ final class DB {
 			final String name = fREnv.getName();
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
 					NLS.bind("An error occurred when saving R package information of " +
-							"the R environment '{0}'.", name ), e ));
+							"the R environment ''{0}''.", name ), e ));
 		}
 	}
 	

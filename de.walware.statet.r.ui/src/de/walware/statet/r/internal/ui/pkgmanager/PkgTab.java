@@ -397,7 +397,6 @@ public class PkgTab extends Composite {
 				SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION | SWT.VIRTUAL);
 		fPkgTable = viewer;
 		viewer.viewer.setUseHashlookup(true);
-		viewer.table.setHeaderVisible(true);
 		{	final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
 			gd.heightHint = LayoutUtil.hintHeight(viewer.table, 15);
 			gd.widthHint = fDialog.hintWidthInChars(40);

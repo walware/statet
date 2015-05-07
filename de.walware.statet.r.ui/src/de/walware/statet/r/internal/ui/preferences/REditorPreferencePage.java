@@ -303,7 +303,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		}
 		if (text2 != null) {
 			final Label label = new Label(composite, SWT.NONE);
-			label.setText(text2+':');
+			label.setText(text2 + "\u200A:"); //$NON-NLS-1$
 			gd = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 			label.setLayoutData(gd);
 		}

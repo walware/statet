@@ -214,7 +214,7 @@ public class RElementSearchProcessor {
 			if (!this.availableModes.contains(this.mode)) {
 				this.mode= this.availableModes.get(0);
 				this.status= new Status(IStatus.WARNING, RCore.PLUGIN_ID,
-						NLS.bind("Scope changed to: '{0}'.", this.mode) );
+						NLS.bind("Scope changed to: ''{0}''.", this.mode) );
 			}
 		}
 		else {
