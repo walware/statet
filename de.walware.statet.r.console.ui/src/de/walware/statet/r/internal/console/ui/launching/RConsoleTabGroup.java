@@ -43,7 +43,7 @@ public class RConsoleTabGroup extends AbstractLaunchConfigurationTabGroup {
 	@Override
 	public void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {
 		final RConsoleMainTab mainTab = new RConsoleMainTab();
-		final REnvTab renvTab = new REnvTab(true, false);
+		final REnvTab renvTab = new REnvTab(true);
 		final boolean jdt = true;
 		
 		final ILaunchConfigurationTab[] tabs = jdt ? new ILaunchConfigurationTab[] {

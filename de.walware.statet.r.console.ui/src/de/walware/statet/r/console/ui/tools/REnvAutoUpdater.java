@@ -41,7 +41,7 @@ import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.IRPkgSet;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
-import de.walware.statet.r.internal.console.ui.RConsoleMessages;
+import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.impl.RjsController;
 import de.walware.statet.r.ui.pkgmanager.RPkgManagerUI;
@@ -68,7 +68,7 @@ public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRun
 	
 	
 	private REnvAutoUpdater(final IRPkgManager manager) {
-		super("r/renv/check", RConsoleMessages.REnvIndex_Check_task); //$NON-NLS-1$
+		super("r/renv/check", Messages.REnvIndex_Check_task); //$NON-NLS-1$
 		fManager = manager;
 	}
 	
@@ -165,8 +165,8 @@ public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRun
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				if (ToolMessageDialog.openQuestion(tool, shell, RConsoleMessages.REnvIndex_NewVersion_title,
-						NLS.bind(RConsoleMessages.REnvIndex_NewVersion_message, new Object[] {
+				if (ToolMessageDialog.openQuestion(tool, shell, Messages.REnvIndex_NewVersion_title,
+						NLS.bind(Messages.REnvIndex_NewVersion_message, new Object[] {
 								rConfig.getName(), mainVersionString(oldVersion),
 								mainVersionString(newVersion) }))) {
 					RPkgManagerUI.openDialog(rPkgManager, tool, shell,

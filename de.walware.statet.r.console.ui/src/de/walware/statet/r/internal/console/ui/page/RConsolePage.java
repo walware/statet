@@ -51,7 +51,7 @@ import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 import de.walware.statet.r.core.renv.IREnv;
-import de.walware.statet.r.internal.console.ui.RConsoleMessages;
+import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.ui.RUIHelp;
 import de.walware.statet.r.ui.pkgmanager.OpenRPkgManagerHandler;
 import de.walware.statet.r.ui.pkgmanager.StartAction;
@@ -216,7 +216,7 @@ public class RConsolePage extends NIConsolePage {
 				new CommandContributionItem(new CommandContributionItemParameter(
 						getSite(), null, NIConsole.ADJUST_OUTPUT_WIDTH_COMMAND_ID, null,
 						null, null, null,
-						RConsoleMessages.AdjustWidth_label, RConsoleMessages.AdjustWidth_mnemonic, null,
+						Messages.AdjustWidth_label, Messages.AdjustWidth_mnemonic, null,
 						CommandContributionItem.STYLE_PUSH, null, false )));
 	}
 	

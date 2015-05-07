@@ -48,7 +48,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -337,10 +336,6 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 			composite.layout.setColumnData(column.getColumn(), new ColumnWeightData(1));
 			column.getColumn().setText(Messages.REnv_LocationColumn_name);
 			column.setLabelProvider(new ColumnLabelProvider() {
-				@Override
-				public Image getImage(final Object element) {
-					return super.getImage(element);
-				}
 				@Override
 				public String getText(final Object element) {
 					final IREnvConfiguration config = (IREnvConfiguration) element;

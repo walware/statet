@@ -56,9 +56,9 @@ public class RLaunching {
 	
 	
 	public static IREnv readREnv(final ILaunchConfiguration configuration) throws CoreException {
-		String code = configuration.getAttribute(OLD_ATTR_RENV_CODE, (String) null);
+		String code = configuration.getAttribute(ATTR_RENV_CODE, (String) null);
 		if (code == null) {
-			code = configuration.getAttribute(ATTR_RENV_CODE, (String) null);
+			code = configuration.getAttribute(OLD_ATTR_RENV_CODE, (String) null);
 		}
 		return REnvUtil.decode(code, RCore.getREnvManager());
 	}

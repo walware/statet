@@ -17,6 +17,7 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DecorationOverlayIcon;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 
 import de.walware.ecommons.ui.SharedUIResources;
 
@@ -41,15 +42,17 @@ public class REnvLabelProvider extends ColumnLabelProvider {
 	
 	
 	private Image createIcon(final Image baseImage) {
+		final Rectangle bounds= baseImage.getBounds();
 		return new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
 				null, null, null, null, null},
-				new Point(baseImage.getBounds().width+4, baseImage.getBounds().height)).createImage();
+				new Point(bounds.width + 4, bounds.height)).createImage();
 	}
 	
 	private Image createDefaultIcon(final Image baseImage) {
+		final Rectangle bounds= baseImage.getBounds();
 		return new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
 				null, null, null, SharedUIResources.getImages().getDescriptor(SharedUIResources.OVR_DEFAULT_MARKER_IMAGE_ID), null},
-				new Point(baseImage.getBounds().width+4, baseImage.getBounds().height)).createImage();
+				new Point(bounds.width + 4, bounds.height)).createImage();
 	}
 	
 	

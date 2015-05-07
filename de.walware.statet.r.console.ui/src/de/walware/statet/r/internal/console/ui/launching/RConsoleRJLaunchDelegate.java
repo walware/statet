@@ -64,7 +64,7 @@ import de.walware.statet.r.console.ui.tools.REnvIndexAutoUpdater;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
-import de.walware.statet.r.internal.console.ui.RConsoleMessages;
+import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 import de.walware.statet.r.launching.core.ILaunchDelegateAddon;
 import de.walware.statet.r.launching.core.RLaunching;
@@ -271,7 +271,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		catch (final MalformedURLException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
 					ICommonStatusConstants.LAUNCHCONFIG_ERROR,
-					RConsoleMessages.LaunchDelegate_error_InvalidAddress_message, e));
+					Messages.LaunchDelegate_error_InvalidAddress_message, e));
 		}
 		final RJEngineLaunchDelegate engineLaunchDelegate = new RJEngineLaunchDelegate(
 				rmiAddress.getAddress(), requireCodebase, rEnv);
@@ -282,7 +282,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		}
 		
 		// start server
-		m.subTask(RConsoleMessages.LaunchDelegate_StartREngine_subtask);
+		m.subTask(Messages.LaunchDelegate_StartREngine_subtask);
 		try {
 			RjsComConfig.setRMIClientSocketFactory(null);
 			
@@ -317,7 +317,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			process.setAttribute(IProcess.ATTR_CMDLINE, rmiAddress.toString() + '\n' + Arrays.toString(rArgs));
 			
 			// Wait until the engine is started or died
-			m.subTask(RConsoleMessages.LaunchDelegate_WaitForR_subtask);
+			m.subTask(Messages.LaunchDelegate_WaitForR_subtask);
 			final long t = System.nanoTime();
 			WAIT: for (int i = 0; true; i++) {
 				if (processes[0].isTerminated()) {

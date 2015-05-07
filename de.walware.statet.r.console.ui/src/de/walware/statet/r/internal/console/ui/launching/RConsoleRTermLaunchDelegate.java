@@ -47,7 +47,7 @@ import de.walware.statet.r.console.ui.RConsole;
 import de.walware.statet.r.console.ui.launching.RConsoleLaunching;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvConfiguration.Exec;
-import de.walware.statet.r.internal.console.ui.RConsoleMessages;
+import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 import de.walware.statet.r.launching.core.RLaunching;
 import de.walware.statet.r.launching.ui.REnvTab;
@@ -123,7 +123,7 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		} catch (final Exception e) {
 			throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
 					ICommonStatusConstants.LAUNCHCONFIG_ERROR,
-					NLS.bind(RConsoleMessages.LaunchDelegate_error_InvalidUnsupportedConsoleEncoding_message, encoding),
+					NLS.bind(Messages.LaunchDelegate_error_InvalidUnsupportedConsoleEncoding_message, encoding),
 					e ));
 		}
 		

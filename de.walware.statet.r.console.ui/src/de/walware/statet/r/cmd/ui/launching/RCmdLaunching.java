@@ -31,9 +31,13 @@ public class RCmdLaunching {
 	
 	public static final String R_CMD_PROCESS_TYPE = "R.cmd"; //$NON-NLS-1$
 	
-	public static final String ATTR_R_CMD_COMMAND = RCmdMainTab.NS+"arguments.cmd"; //$NON-NLS-1$
-	public static final String ATTR_R_CMD_OPTIONS = RCmdMainTab.NS+"arguments.options"; //$NON-NLS-1$
-	public static final String ATTR_R_CMD_RESOURCE = RCmdMainTab.NS+"arguments.resource"; //$NON-NLS-1$
+	public static final String R_CMD_COMMAND_ATTR_NAME = RCmdMainTab.NS + "arguments.cmd"; //$NON-NLS-1$
+	public static final String R_CMD_OPTIONS_ATTR_NAME= RCmdMainTab.NS + "arguments.options"; //$NON-NLS-1$
+	public static final String R_CMD_RESOURCE_ATTR_NAME= RCmdMainTab.NS + "arguments.resource"; //$NON-NLS-1$
+	
+	public static final String WORKING_DIRECTORY_ATTR_NAME= RLaunching.ATTR_WORKING_DIRECTORY;
+	
+	public static final String RENV_CODE_ATTR_NAME= RLaunching.ATTR_RENV_CODE;
 	
 	
 	public static ILaunchConfigurationWorkingCopy createNewRCmdConfig(final String name, final String cmd) throws CoreException {
@@ -41,14 +45,20 @@ public class RCmdLaunching {
 		final ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(R_CMD_CONFIGURATION_TYPE_ID);
 		final ILaunchConfigurationWorkingCopy config = type.newInstance(null, name);
 		
+		initializeRCmdConfig(config, cmd);
+		
+		return config;
+	}
+	
+	public static void initializeRCmdConfig(final ILaunchConfigurationWorkingCopy config,
+			final String cmd) {
 		new EnvironmentTab().setDefaults(config);
 		new CommonTab().setDefaults(config);
-		config.setAttribute(ATTR_R_CMD_COMMAND, cmd);
-		config.setAttribute(ATTR_R_CMD_OPTIONS, ""); //$NON-NLS-1$
-		config.setAttribute(ATTR_R_CMD_RESOURCE, "${resource_loc}"); //$NON-NLS-1$
-		config.setAttribute(RLaunching.ATTR_WORKING_DIRECTORY, "${container_loc}"); //$NON-NLS-1$
-		config.setAttribute(RLaunching.ATTR_RENV_CODE, IREnv.DEFAULT_WORKBENCH_ENV_ID);
-		return config;
+		config.setAttribute(R_CMD_COMMAND_ATTR_NAME, cmd);
+		config.setAttribute(R_CMD_OPTIONS_ATTR_NAME, ""); //$NON-NLS-1$
+		config.setAttribute(R_CMD_RESOURCE_ATTR_NAME, "${resource_loc}"); //$NON-NLS-1$
+		config.setAttribute(WORKING_DIRECTORY_ATTR_NAME, "${container_loc}"); //$NON-NLS-1$
+		config.setAttribute(RENV_CODE_ATTR_NAME, IREnv.DEFAULT_WORKBENCH_ENV_ID);
 	}
 	
 	

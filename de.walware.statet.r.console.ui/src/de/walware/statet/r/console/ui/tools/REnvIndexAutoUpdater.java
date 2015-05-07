@@ -58,7 +58,7 @@ import de.walware.statet.r.core.pkgmanager.IRPkgManager.Event;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.rhelp.rj.RJREnvIndexChecker;
 import de.walware.statet.r.core.rhelp.rj.RJREnvIndexUpdater;
-import de.walware.statet.r.internal.console.ui.RConsoleMessages;
+import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 import de.walware.statet.r.nico.impl.RjsController;
 
@@ -85,7 +85,7 @@ public class REnvIndexAutoUpdater {
 		
 		
 		public UpdateRunnable(final boolean completely) {
-			super("r/index/update", RConsoleMessages.REnvIndex_Update_task); //$NON-NLS-1$
+			super("r/index/update", Messages.REnvIndex_Update_task); //$NON-NLS-1$
 			fCompletely = completely;
 		}
 		
@@ -115,7 +115,7 @@ public class REnvIndexAutoUpdater {
 					rPkgManager.check(IRPkgManager.NONE, r, monitor);
 					
 					r.handleStatus(new Status(IStatus.INFO, RConsoleUIPlugin.PLUGIN_ID, -1,
-							RConsoleMessages.REnvIndex_Update_Started_message, null ), monitor);
+							Messages.REnvIndex_Update_Started_message, null ), monitor);
 					final RJREnvIndexUpdater updater = new RJREnvIndexUpdater(rEnvConfig);
 					final IStatus status = updater.update(r, fCompletely, properties, monitor);
 					r.handleStatus(status, monitor);
@@ -136,7 +136,7 @@ public class REnvIndexAutoUpdater {
 		
 		
 		public AskDialog(final ToolProcess tool, final String message) {
-			super(tool, null, RConsoleMessages.REnvIndex_CheckDialog_title, null, message, QUESTION,
+			super(tool, null, Messages.REnvIndex_CheckDialog_title, null, message, QUESTION,
 					new String[] { IDialogConstants.YES_LABEL, IDialogConstants.NO_LABEL }, 0);
 		}
 		
@@ -151,20 +151,20 @@ public class REnvIndexAutoUpdater {
 			
 			{	final Label label = new Label(composite, SWT.NONE);
 				label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-				label.setText(RConsoleMessages.REnvIndex_CheckDialog_Remember_label);
+				label.setText(Messages.REnvIndex_CheckDialog_Remember_label);
 			}
 			{	final Button button = new Button(composite, SWT.CHECK);
 				final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 				gd.horizontalIndent = LayoutUtil.defaultIndent();
 				button.setLayoutData(gd);
-				button.setText(RConsoleMessages.REnvIndex_CheckDialog_RememberSession_label);
+				button.setText(Messages.REnvIndex_CheckDialog_RememberSession_label);
 				fRememberSessionControl = button;
 			}
 			{	final Button button = new Button(composite, SWT.CHECK);
 				final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 				gd.horizontalIndent = LayoutUtil.defaultIndent();
 				button.setLayoutData(gd);
-				button.setText(RConsoleMessages.REnvIndex_CheckDialog_RememberGlobally_label);
+				button.setText(Messages.REnvIndex_CheckDialog_RememberGlobally_label);
 				fRememberGloballyControl = button;
 			}
 			
@@ -235,7 +235,7 @@ public class REnvIndexAutoUpdater {
 		
 		@Override
 		public String getLabel() {
-			return RConsoleMessages.REnvIndex_Check_task;
+			return Messages.REnvIndex_Check_task;
 		}
 		
 		@Override
@@ -291,12 +291,12 @@ public class REnvIndexAutoUpdater {
 					return;
 				case RJREnvIndexChecker.PACKAGES:
 					message = NLS.bind(((fChecker.getNewPackageCount() + fChecker.getChangedPackageCount()) == 1) ?
-									RConsoleMessages.REnvIndex_Check_Changed_singular_message :
-									RConsoleMessages.REnvIndex_Check_Changed_plural_message,
+									Messages.REnvIndex_Check_Changed_singular_message :
+									Messages.REnvIndex_Check_Changed_plural_message,
 							fChecker.getNewPackageCount(), fChecker.getChangedPackageCount());
 					break;
 				case RJREnvIndexChecker.COMPLETE:
-					message = RConsoleMessages.REnvIndex_Check_NoIndex_message;
+					message = Messages.REnvIndex_Check_NoIndex_message;
 					break;
 				default:
 					return;
@@ -331,7 +331,7 @@ public class REnvIndexAutoUpdater {
 					throw e;
 				}
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID, -1,
-						RConsoleMessages.REnvIndex_Check_error_message, e ));
+						Messages.REnvIndex_Check_error_message, e ));
 			}
 		}
 	}

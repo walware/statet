@@ -139,7 +139,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			} catch (final IOException e) {
 				throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
 						ICommonStatusConstants.LAUNCHING,
-						RCmdMessages.RCmd_LaunchDelegate_error_StartingExec, e ));
+						Messages.RCmd_LaunchDelegate_error_StartingExec, e ));
 			}
 			m.worked(10);
 			
@@ -165,14 +165,14 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 				p.destroy();
 				throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
 						ICommonStatusConstants.LAUNCHING,
-						RCmdMessages.RCmd_LaunchDelegate_error_ProcessHandle, null ));
+						Messages.RCmd_LaunchDelegate_error_ProcessHandle, null ));
 			}
 			process.setAttribute(IProcess.ATTR_CMDLINE, LaunchUtils.generateCommandLine(cmdLine));
 			process.setAttribute(IProcess.ATTR_PROCESS_LABEL, label);
 			
 			m.worked(5);
 			if (!process.isTerminated() && !CommonTab.isLaunchInBackground(configuration)) {
-				m.subTask(RCmdMessages.RCmd_LaunchDelegate_Running_label);
+				m.subTask(Messages.RCmd_LaunchDelegate_Running_label);
 			}
 			
 			final IConsole console = DebugUITools.getConsole(process);

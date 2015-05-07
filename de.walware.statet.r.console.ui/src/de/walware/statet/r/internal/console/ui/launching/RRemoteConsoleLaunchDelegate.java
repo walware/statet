@@ -95,7 +95,7 @@ import de.walware.statet.r.console.ui.RConsole;
 import de.walware.statet.r.console.ui.launching.AbstractRConsoleLaunchDelegate;
 import de.walware.statet.r.console.ui.launching.RConsoleLaunching;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
-import de.walware.statet.r.internal.console.ui.RConsoleMessages;
+import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 import de.walware.statet.r.launching.RRunDebugPreferenceConstants;
 import de.walware.statet.r.launching.core.ILaunchDelegateAddon;
@@ -288,7 +288,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			if (address == null || address.isEmpty()) {
 				throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
 						ICommonStatusConstants.LAUNCHCONFIG_ERROR,
-						RConsoleMessages.LaunchDelegate_error_MissingAddress_message, null ));
+						Messages.LaunchDelegate_error_MissingAddress_message, null ));
 			}
 			if (!(address.startsWith("//") || address.startsWith("rmi:"))) { //$NON-NLS-1$ //$NON-NLS-2$
 				address = "//" + address; //$NON-NLS-1$
@@ -318,7 +318,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			Registry registry = null;
 			boolean registryOK = false;
 			try {
-				progress.subTask(RConsoleMessages.LaunchDelegate_CheckingRegistry_subtask);
+				progress.subTask(Messages.LaunchDelegate_CheckingRegistry_subtask);
 				rmiAddress = new RMIAddress(address);
 				
 				// init login data
@@ -402,12 +402,12 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			catch (final UnknownHostException e) {
 				throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
 						ICommonStatusConstants.LAUNCHCONFIG_ERROR,
-						RConsoleMessages.LaunchDelegate_error_InvalidAddress_message, e ));
+						Messages.LaunchDelegate_error_InvalidAddress_message, e ));
 			}
 			catch (final MalformedURLException e) {
 				throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
 						ICommonStatusConstants.LAUNCHCONFIG_ERROR,
-						RConsoleMessages.LaunchDelegate_error_InvalidAddress_message, e ));
+						Messages.LaunchDelegate_error_InvalidAddress_message, e ));
 			}
 			catch (final RemoteException e) {
 				if (!registryOK) {
@@ -437,7 +437,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			
 			String command = null;
 			if (todo == TODO_START_SERVER) {
-				progress.subTask(RConsoleMessages.LaunchDelegate_StartREngine_subtask);
+				progress.subTask(Messages.LaunchDelegate_StartREngine_subtask);
 				progress.setWorkRemaining(21);
 				if (type.equals(RConsoleLaunching.REMOTE_RJS_SSH)) {
 					command = configuration.getAttribute(RConsoleLaunching.ATTR_COMMAND, ""); //$NON-NLS-1$
@@ -479,7 +479,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 					envp.put("LC_NUMERIC", "C"); //$NON-NLS-1$ //$NON-NLS-2$
 					RjsUtil.startRemoteServerOverSsh(RjsUtil.getSession(loginData, progress.newChild(5)), command, envp, progress.newChild(5));
 					
-					progress.subTask(RConsoleMessages.LaunchDelegate_WaitForR_subtask);
+					progress.subTask(Messages.LaunchDelegate_WaitForR_subtask);
 					final long t = System.nanoTime();
 					WAIT: for (int i = 0; true; i++) {
 						if (progress.isCanceled()) {

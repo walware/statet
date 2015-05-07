@@ -50,7 +50,7 @@ import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvManager;
-import de.walware.statet.r.internal.console.ui.RConsoleMessages;
+import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 import de.walware.statet.r.launching.ui.REnvTab;
 
@@ -115,9 +115,9 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 		final Group group = new Group(extComposite, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 1));
-		group.setText(RConsoleMessages.JavaJRE_Tab_VMConfig_group);
+		group.setText(Messages.JavaJRE_Tab_VMConfig_group);
 		
-		fVmArgsControl = new InputArgumentsComposite(group, RConsoleMessages.JavaJRE_Tab_VMArguments_label);
+		fVmArgsControl = new InputArgumentsComposite(group, Messages.JavaJRE_Tab_VMArguments_label);
 		fVmArgsControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fVmArgsControl.getTextControl().addModifyListener(new ModifyListener() {
 			@Override
@@ -211,7 +211,7 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 				return true;
 			}
 			else {
-				setErrorMessage(NLS.bind(RConsoleMessages.JavaJRE_RCompatibility_error_DifferentBits_message, fLastCheckedRBits, fLastCheckedVMBits));
+				setErrorMessage(NLS.bind(Messages.JavaJRE_RCompatibility_error_DifferentBits_message, fLastCheckedRBits, fLastCheckedVMBits));
 				return false;
 			}
 		}

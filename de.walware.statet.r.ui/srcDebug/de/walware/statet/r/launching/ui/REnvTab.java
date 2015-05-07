@@ -31,10 +31,8 @@ import org.eclipse.swt.widgets.Group;
 
 import de.walware.ecommons.debug.ui.config.LaunchConfigTabWithDbc;
 import de.walware.ecommons.io.FileValidator;
-import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.MessageUtil;
-import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnv;
@@ -54,21 +52,23 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	
 	public static String readWorkingDirectory(final ILaunchConfiguration configuration)
 			throws CoreException {
-		final String wd = configuration.getAttribute(RLaunching.OLD_ATTR_WORKING_DIRECTORY, (String) null);
-		if (wd != null) {
-			return wd;
+		String wd= configuration.getAttribute(RLaunching.ATTR_WORKING_DIRECTORY, (String) null);
+		if (wd == null) {
+			wd= configuration.getAttribute(RLaunching.OLD_ATTR_WORKING_DIRECTORY, (String) null);
 		}
-		return configuration.getAttribute(RLaunching.ATTR_WORKING_DIRECTORY, "");
+		if (wd == null) {
+			wd= ""; //$NON-NLS-1$
+		}
+		return wd;
 	}
 	
 	public static void setWorkingDirectory(final ILaunchConfigurationWorkingCopy configuration,
 			final String wd) {
+		configuration.removeAttribute(RLaunching.OLD_ATTR_WORKING_DIRECTORY);
 		if (wd != null && wd.length() > 0) {
-			configuration.setAttribute(RLaunching.OLD_ATTR_WORKING_DIRECTORY, wd);
 			configuration.setAttribute(RLaunching.ATTR_WORKING_DIRECTORY, wd);
 		}
 		else {
-			configuration.removeAttribute(RLaunching.OLD_ATTR_WORKING_DIRECTORY);
 			configuration.removeAttribute(RLaunching.ATTR_WORKING_DIRECTORY);
 		}
 	}
@@ -84,11 +84,11 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	}
 	
 	public static FileValidator getWorkingDirectoryValidator(final ILaunchConfiguration configuration, final boolean validate) throws CoreException {
-		String path = readWorkingDirectory(configuration);
+		String path= readWorkingDirectory(configuration);
 		if (path == null || path.trim().isEmpty()) {
-			path = System.getProperty("user.dir"); //$NON-NLS-1$
+			path= System.getProperty("user.dir"); //$NON-NLS-1$
 		}
-		final FileValidator validator = new FileValidator(true);
+		final FileValidator validator= new FileValidator(true);
 		validator.setOnDirectory(IStatus.OK);
 		validator.setOnFile(IStatus.ERROR);
 		validator.setResourceLabel(MessageUtil.removeMnemonics(RLaunchingMessages.REnv_Tab_WorkingDir_label));
@@ -103,22 +103,18 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 /*-- --*/
 	
 	
-	private REnvSelectionComposite fREnvControl;
-	private ResourceInputComposite fWorkingDirectoryControl;
+	private REnvSelectionComposite rEnvControl;
 	
-	private WritableValue fREnvSettingValue;
-	private WritableValue fWorkingDirectoryValue;
-	private Binding fREnvBinding;
+	private WritableValue rEnvSettingValue;
+	private Binding rEnvBinding;
 	
 	private final boolean fLocal;
-	private final boolean fWithWD;
 	
 	
-	public REnvTab(final boolean local, final boolean withWD) {
+	public REnvTab(final boolean local) {
 		super();
 		
-		fLocal = local;
-		fWithWD = withWD;
+		this.fLocal= local;
 	}
 	
 	
@@ -134,38 +130,28 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	
 	@Override
 	public void createControl(final Composite parent) {
-		final Composite mainComposite = new Composite(parent, SWT.NONE);
+		final Composite mainComposite= new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		mainComposite.setLayout(GridLayoutFactory.swtDefaults().create());
 		
 		Group group;
-		group = new Group(mainComposite, SWT.NONE);
+		group= new Group(mainComposite, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		group.setText(RLaunchingMessages.REnv_Tab_REnvConfig_label+':');
 		group.setLayout(LayoutUtil.createGroupGrid(1));
-		if (fLocal) {
-			fREnvControl = new REnvSelectionComposite(group) {
+		if (this.fLocal) {
+			this.rEnvControl= new REnvSelectionComposite(group) {
 				@Override
-				protected boolean isValid(IREnvConfiguration rEnvConfig) {
+				protected boolean isValid(final IREnvConfiguration rEnvConfig) {
 					return super.isValid(rEnvConfig) && rEnvConfig.isLocal();
 				}
 			};
 		}
 		else {
-			fREnvControl = new REnvSelectionComposite(group, true);
+			this.rEnvControl= new REnvSelectionComposite(group, true);
 		}
-		fREnvControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		
-		if (fWithWD) {
-			fWorkingDirectoryControl = new ResourceInputComposite(mainComposite,
-					ResourceInputComposite.STYLE_GROUP | ResourceInputComposite.STYLE_TEXT,
-					ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
-					RLaunchingMessages.REnv_Tab_WorkingDir_label);
-			fWorkingDirectoryControl.setShowInsertVariable(true, 
-					DialogUtil.DEFAULT_INTERACTIVE_FILTERS, null );
-			fWorkingDirectoryControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		}
+		this.rEnvControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		Dialog.applyDialogFont(parent);
 		initBindings();
@@ -173,71 +159,49 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	
 	@Override
 	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-		fREnvSettingValue = new WritableValue(realm, null, String.class);
-		fWorkingDirectoryValue = new WritableValue(realm, null, String.class);
+		this.rEnvSettingValue= new WritableValue(realm, null, String.class);
 		
-		fREnvBinding = dbc.bindValue(fREnvControl.createObservable(realm), fREnvSettingValue,
+		this.rEnvBinding= dbc.bindValue(this.rEnvControl.createObservable(realm), this.rEnvSettingValue,
 				new UpdateValueStrategy().setAfterGetValidator(
-						new SavableErrorValidator(fREnvControl.createValidator(dbc))),
+						new SavableErrorValidator(this.rEnvControl.createValidator(dbc))),
 				null);
-		if (fWithWD) {
-			fWorkingDirectoryControl.getValidator().setOnEmpty(IStatus.OK);
-			dbc.bindValue(fWorkingDirectoryControl.getObservable(), fWorkingDirectoryValue,
-					new UpdateValueStrategy().setAfterGetValidator(
-							new SavableErrorValidator(fWorkingDirectoryControl.getValidator())),
-					null);
-		}
 	}
 	
 	@Override
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
-		if (fLocal) {
-			configuration.setAttribute(RLaunching.OLD_ATTR_RENV_CODE, IREnv.DEFAULT_WORKBENCH_ENV_ID);
+		if (this.fLocal) {
 			configuration.setAttribute(RLaunching.ATTR_RENV_CODE, IREnv.DEFAULT_WORKBENCH_ENV_ID);
 		}
-		setWorkingDirectory(configuration, ""); //$NON-NLS-1$
 	}
 	
 	@Override
 	protected void doInitialize(final ILaunchConfiguration configuration) {
 		try {
-			String code = configuration.getAttribute(RLaunching.OLD_ATTR_RENV_CODE, (String) null);
+			String code= configuration.getAttribute(RLaunching.ATTR_RENV_CODE, (String) null);
 			if (code == null) {
-				code = configuration.getAttribute(RLaunching.ATTR_RENV_CODE, (String) null);
+				code= configuration.getAttribute(RLaunching.OLD_ATTR_RENV_CODE, (String) null);
 			}
-			fREnvSettingValue.setValue(code);
+			this.rEnvSettingValue.setValue(code);
 		} catch (final CoreException e) {
-			fREnvSettingValue.setValue(null);
+			this.rEnvSettingValue.setValue(null);
 			logReadingError(e);
 		}
 		
-		if (fWithWD) {
-			try {
-				fWorkingDirectoryValue.setValue(readWorkingDirectory(configuration));
-			} catch (final CoreException e) {
-				fWorkingDirectoryValue.setValue(null);
-				logReadingError(e);
-			}
-		}
 	}
 	
 	@Override
 	protected void doSave(final ILaunchConfigurationWorkingCopy configuration) {
-		final String code = (String) fREnvSettingValue.getValue();
-		configuration.setAttribute(RLaunching.OLD_ATTR_RENV_CODE, code);
+		final String code= (String) this.rEnvSettingValue.getValue();
 		configuration.setAttribute(RLaunching.ATTR_RENV_CODE, code);
-		
-		if (fWithWD) {
-			setWorkingDirectory(configuration, (String) fWorkingDirectoryValue.getValue());
-		}
+		configuration.removeAttribute(RLaunching.OLD_ATTR_RENV_CODE);
 	}
 	
 	
 	public IREnv getSelectedEnv() {
-		if (fREnvBinding != null) {
-			final IStatus validationStatus = (IStatus) fREnvBinding.getValidationStatus().getValue();
+		if (this.rEnvBinding != null) {
+			final IStatus validationStatus= (IStatus) this.rEnvBinding.getValidationStatus().getValue();
 			if (validationStatus != null && validationStatus.getSeverity() < IStatus.WARNING) { // note: warning means error which can be saved
-				return REnvUtil.decode((String) fREnvSettingValue.getValue(), RCore.getREnvManager());
+				return REnvUtil.decode((String) this.rEnvSettingValue.getValue(), RCore.getREnvManager());
 			}
 		}
 		return null;

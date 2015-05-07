@@ -43,7 +43,7 @@ import de.walware.statet.nico.ui.console.NIConsolePage;
 
 import de.walware.statet.r.console.core.IRBasicAdapter;
 import de.walware.statet.r.console.core.RConsoleTool;
-import de.walware.statet.r.internal.console.ui.RConsoleMessages;
+import de.walware.statet.r.internal.console.ui.Messages;
 
 
 public class AdjustWidthHandler extends AbstractHandler {
@@ -72,7 +72,7 @@ public class AdjustWidthHandler extends AbstractHandler {
 		
 		@Override
 		public String getLabel() {
-			return RConsoleMessages.AdjustWidth_task;
+			return Messages.AdjustWidth_task;
 		}
 		
 		@Override

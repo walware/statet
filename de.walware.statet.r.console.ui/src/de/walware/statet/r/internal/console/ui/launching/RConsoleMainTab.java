@@ -66,7 +66,7 @@ import de.walware.statet.r.console.ui.IRConsoleHelpContextIds;
 import de.walware.statet.r.console.ui.launching.RConsoleLaunching;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvConfiguration.Exec;
-import de.walware.statet.r.internal.console.ui.RConsoleMessages;
+import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 import de.walware.statet.r.launching.core.RLaunching;
 import de.walware.statet.r.launching.ui.REnvTab;
@@ -90,7 +90,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 			
 			if (fWithHelp) {
 				fHelpItem = new MenuItem(menu, SWT.PUSH);
-				fHelpItem.setText(RConsoleMessages.RConsole_MainTab_RunHelp_label);
+				fHelpItem.setText(Messages.RConsole_MainTab_RunHelp_label);
 				fHelpItem.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(final SelectionEvent e) {
@@ -144,7 +144,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	
 	@Override
 	public String getName() {
-		return RConsoleMessages.RConsole_MainTab_name;
+		return Messages.RConsole_MainTab_name;
 	}
 	
 	@Override
@@ -165,7 +165,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
 			
 			final Label label = new Label(composite, SWT.LEFT);
-			label.setText(RConsoleMessages.RConsole_MainTab_LaunchType_label+':');
+			label.setText(Messages.RConsole_MainTab_LaunchType_label+':');
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
 			final String[] names = new String[fTypes.length];
@@ -200,6 +200,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		createFooter(mainComposite);
 		
 		Dialog.applyDialogFont(parent);
+		
 		initBindings();
 		
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(),
@@ -222,7 +223,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		fWorkingDirectoryControl = new ResourceInputComposite(group,
 				ResourceInputComposite.STYLE_LABEL | ResourceInputComposite.STYLE_TEXT,
 				ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
-				RConsoleMessages.RConsole_MainTab_WorkingDir_label );
+				Messages.RConsole_MainTab_WorkingDir_label );
 		fWorkingDirectoryControl.setShowInsertVariable(true,
 				DialogUtil.DEFAULT_INTERACTIVE_FILTERS, null);
 		fWorkingDirectoryControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
@@ -394,12 +395,12 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		}
 		catch (final CoreException e) {
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID, -1,
-					RConsoleMessages.RConsole_MainTab_error_CannotRunHelp_message, e ),
+					Messages.RConsole_MainTab_error_CannotRunHelp_message, e ),
 					StatusManager.LOG | StatusManager.SHOW);
 		}
 		catch (final InvocationTargetException e) {
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID, -1,
-					RConsoleMessages.RConsole_MainTab_error_WhileRunningHelp_message, e.getTargetException() ),
+					Messages.RConsole_MainTab_error_WhileRunningHelp_message, e.getTargetException() ),
 					StatusManager.LOG | StatusManager.SHOW);
 		}
 		catch (final InterruptedException e) {

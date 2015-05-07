@@ -24,7 +24,7 @@ import de.walware.ecommons.ts.IToolService;
 import de.walware.statet.r.console.core.IRBasicAdapter;
 import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.core.RUtil;
-import de.walware.statet.r.internal.console.ui.RConsoleMessages;
+import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 
 
@@ -58,7 +58,7 @@ public class ChangeWDRunnable implements IToolRunnable {
 	
 	@Override
 	public String getLabel() {
-		return RConsoleMessages.ChangeWorkingDir_Task_label;
+		return Messages.ChangeWorkingDir_Task_label;
 	}
 	
 	@Override
@@ -78,7 +78,7 @@ public class ChangeWDRunnable implements IToolRunnable {
 		}
 		catch (final CoreException e) {
 			r.handleStatus(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
-					RConsoleMessages.ChangeWorkingDir_error_ResolvingFailed_message, e ), monitor);
+					Messages.ChangeWorkingDir_error_ResolvingFailed_message, e ), monitor);
 			return;
 		}
 		r.refreshWorkspaceData(0, monitor);

@@ -40,7 +40,7 @@ import de.walware.statet.nico.ui.actions.ToolAction;
 import de.walware.statet.nico.ui.util.NicoWizardDialog;
 import de.walware.statet.nico.ui.util.ToolInfoGroup;
 
-import de.walware.statet.r.internal.console.ui.RConsoleMessages;
+import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 
 
@@ -56,7 +56,7 @@ public class ChangeWorkingDirectoryWizard extends Wizard {
 			super(support, true);
 			
 			setId("de.walware.statet.r.tools.ChangeWorkingDirectory"); //$NON-NLS-1$
-			setText(RConsoleMessages.ChangeWorkingDir_Action_label);
+			setText(Messages.ChangeWorkingDir_Action_label);
 		}
 		
 		@Override
@@ -87,8 +87,8 @@ public class ChangeWorkingDirectoryWizard extends Wizard {
 		public SelectWDDialog() {
 			super("ChangeWorkingDirectory"); //$NON-NLS-1$
 			
-			setTitle(RConsoleMessages.ChangeWorkingDir_SelectDialog_title);
-			setDescription(RConsoleMessages.ChangeWorkingDir_SelectDialog_message);
+			setTitle(Messages.ChangeWorkingDir_SelectDialog_title);
+			setDescription(Messages.ChangeWorkingDir_SelectDialog_message);
 		}
 		
 		@Override
@@ -116,7 +116,7 @@ public class ChangeWorkingDirectoryWizard extends Wizard {
 			fLocationGroup = new ResourceInputComposite(container,
 					ResourceInputComposite.STYLE_COMBO,
 					ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
-					RConsoleMessages.ChangeWorkingDir_Resource_label);
+					Messages.ChangeWorkingDir_Resource_label);
 			fLocationGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			fLocationGroup.setHistory(getDialogSettings().getArray(SETTINGS_HISTORY));
 			
@@ -166,7 +166,7 @@ public class ChangeWorkingDirectoryWizard extends Wizard {
 		fTool = tool;
 		
 		setDialogSettings(DialogUtil.getDialogSettings(RConsoleUIPlugin.getDefault(), ChangeWDRunnable.TYPE_ID+"-Wizard")); //$NON-NLS-1$
-		setWindowTitle(RConsoleMessages.ChangeWorkingDir_Task_label);
+		setWindowTitle(Messages.ChangeWorkingDir_Task_label);
 		setNeedsProgressMonitor(false);
 	}
 	

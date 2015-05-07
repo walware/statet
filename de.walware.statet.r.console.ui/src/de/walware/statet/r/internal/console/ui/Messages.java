@@ -14,7 +14,7 @@ package de.walware.statet.r.internal.console.ui;
 import org.eclipse.osgi.util.NLS;
 
 
-public class RConsoleMessages extends NLS {
+public class Messages extends NLS {
 	
 	
 	public static String RConsole_MainTab_name;
@@ -80,8 +80,8 @@ public class RConsoleMessages extends NLS {
 	
 	
 	static {
-		NLS.initializeMessages(RConsoleMessages.class.getName(), RConsoleMessages.class);
+		NLS.initializeMessages(Messages.class.getName(), Messages.class);
 	}
-	private RConsoleMessages() {}
+	private Messages() {}
 	
 }

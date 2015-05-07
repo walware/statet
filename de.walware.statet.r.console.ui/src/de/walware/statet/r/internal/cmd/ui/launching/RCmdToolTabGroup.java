@@ -36,7 +36,7 @@ public class RCmdToolTabGroup extends AbstractLaunchConfigurationTabGroup {
 	public void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {
 		final ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
 				new RCmdMainTab(),
-				new REnvTab(true, true),
+				new REnvTab(true),
 				new RefreshTab(),
 				new EnvironmentTabForR(),
 				new CheckedCommonTab()

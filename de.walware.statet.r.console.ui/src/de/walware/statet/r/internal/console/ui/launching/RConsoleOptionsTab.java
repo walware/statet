@@ -64,7 +64,7 @@ import de.walware.statet.nico.ui.util.TrackingConfigurationComposite;
 import de.walware.statet.nico.ui.util.TrackingConfigurationDialog;
 
 import de.walware.statet.r.console.ui.launching.RConsoleLaunching;
-import de.walware.statet.r.internal.console.ui.RConsoleMessages;
+import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
 
@@ -129,7 +129,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	
 	@Override
 	public String getName() {
-		return RConsoleMessages.RConsole_OptionsTab_name;
+		return Messages.RConsole_OptionsTab_name;
 	}
 	
 	
@@ -171,12 +171,12 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	
 	private Composite createConsoleOptions(final Composite parent) {
 		final Group group = new Group(parent, SWT.NONE);
-		group.setText(RConsoleMessages.RConsole_MainTab_ConsoleOptions_label);
+		group.setText(Messages.RConsole_MainTab_ConsoleOptions_label);
 		group.setLayout(LayoutUtil.createGroupGrid(2));
 		
 		fPinControl = new Button(group, SWT.CHECK);
 		fPinControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-		fPinControl.setText(RConsoleMessages.RConsole_MainTab_ConsoleOptions_Pin_label);
+		fPinControl.setText(Messages.RConsole_MainTab_ConsoleOptions_Pin_label);
 		
 		return group;
 	}

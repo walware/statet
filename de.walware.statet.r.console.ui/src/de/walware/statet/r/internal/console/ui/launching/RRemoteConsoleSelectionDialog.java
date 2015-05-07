@@ -82,7 +82,7 @@ import de.walware.rj.server.RjsComConfig;
 import de.walware.rj.server.Server;
 import de.walware.rj.server.ServerInfo;
 
-import de.walware.statet.r.internal.console.ui.RConsoleMessages;
+import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 
 
@@ -279,8 +279,8 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 	
 	public RRemoteConsoleSelectionDialog(final Shell parentShell, final boolean onlyRunning) {
 		super(parentShell);
-		setTitle(RConsoleMessages.RRemoteConsoleSelectionDialog_title);
-		setMessage(RConsoleMessages.RRemoteConsoleSelectionDialog_message);
+		setTitle(Messages.RRemoteConsoleSelectionDialog_title);
+		setMessage(Messages.RRemoteConsoleSelectionDialog_message);
 		
 		setStatusLineAboveButtons(true);
 		setDialogBoundsSettings(getDialogSettings(), Dialog.DIALOG_PERSISTSIZE);
@@ -347,7 +347,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			
 			final Label label = new Label(composite, SWT.NONE);
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-			label.setText(RConsoleMessages.RRemoteConsoleSelectionDialog_Hostname_label);
+			label.setText(Messages.RRemoteConsoleSelectionDialog_Hostname_label);
 			
 			fHostAddressControl = new Combo(composite, SWT.DROP_DOWN);
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
@@ -366,7 +366,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			
 			final Button goButton = new Button(composite, SWT.PUSH);
 			goButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-			goButton.setText(RConsoleMessages.RRemoteConsoleSelectionDialog_Update_label);
+			goButton.setText(Messages.RRemoteConsoleSelectionDialog_Update_label);
 			goButton.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(final SelectionEvent e) {
@@ -384,7 +384,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			ColumnViewerToolTipSupport.enableFor(composite.viewer);
 			
 			{	final TreeViewerColumn column = new TreeViewerColumn(fRServerViewer, SWT.NONE);
-				column.getColumn().setText(RConsoleMessages.RRemoteConsoleSelectionDialog_Table_UserOrEngine_label);
+				column.getColumn().setText(Messages.RRemoteConsoleSelectionDialog_Table_UserOrEngine_label);
 				composite.layout.setColumnData(column.getColumn(), new ColumnWeightData(1));
 				column.setLabelProvider(new RemoteRLabelProvider() {
 					@Override
@@ -410,7 +410,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 				});
 			}
 			{	final TreeViewerColumn column = new TreeViewerColumn(fRServerViewer, SWT.NONE);
-				column.getColumn().setText(RConsoleMessages.RRemoteConsoleSelectionDialog_Table_Host_label);
+				column.getColumn().setText(Messages.RRemoteConsoleSelectionDialog_Table_Host_label);
 				composite.layout.setColumnData(column.getColumn(), new ColumnWeightData(1));
 				column.setLabelProvider(new RemoteRLabelProvider() {
 					@Override
@@ -442,7 +442,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		updateInput();
 		if (fRServerList != null) {
 			updateStatus(new Status(IStatus.OK, RConsoleUIPlugin.PLUGIN_ID,
-					RConsoleMessages.RRemoteConsoleSelectionDialog_info_ListRestored_message ));
+					Messages.RRemoteConsoleSelectionDialog_info_ListRestored_message ));
 		}
 		return area;
 	}
@@ -557,7 +557,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		if (addresses.length == 0) {
 			return null;
 		}
-		final SubMonitor progress = SubMonitor.convert(monitor, RConsoleMessages.RRemoteConsoleSelectionDialog_task_Gathering_message, addresses.length*2 +2);
+		final SubMonitor progress = SubMonitor.convert(monitor, Messages.RRemoteConsoleSelectionDialog_task_Gathering_message, addresses.length*2 +2);
 		
 		String failedHosts = null;
 		final List<IStatus> failedStatus = new ArrayList<IStatus>();
@@ -626,7 +626,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		
 		if (failedHosts != null) {
 			return new Status(IStatus.WARNING, RConsoleUIPlugin.PLUGIN_ID,
-					RConsoleMessages.RRemoteConsoleSelectionDialog_error_ConnectionFailed_message+failedHosts );
+					Messages.RRemoteConsoleSelectionDialog_error_ConnectionFailed_message+failedHosts );
 		}
 		return Status.OK_STATUS;
 	}
@@ -639,7 +639,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 				address = special.fPublicHost;
 				port = special.fPort;
 			}
-			progress.subTask(NLS.bind(RConsoleMessages.RRemoteConsoleSelectionDialog_task_Resolving_message, address));
+			progress.subTask(NLS.bind(Messages.RRemoteConsoleSelectionDialog_task_Resolving_message, address));
 			final InetAddress inetAddress = InetAddress.getByName(address);
 			final String hostname = inetAddress.getHostName();
 			final String hostip = inetAddress.getHostAddress();
@@ -648,7 +648,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 				return Status.CANCEL_STATUS;
 			}
 			
-			progress.subTask(NLS.bind(RConsoleMessages.RRemoteConsoleSelectionDialog_task_Connecting_message, hostname));
+			progress.subTask(NLS.bind(Messages.RRemoteConsoleSelectionDialog_task_Connecting_message, hostname));
 			final Registry registry;
 			if (special != null) {
 				final RMIClientSocketFactory socketFactory = special.getSocketFactory(progress.newChild(5));

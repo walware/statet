@@ -31,7 +31,7 @@ public class RRemoteConsoleTabGroup extends AbstractLaunchConfigurationTabGroup 
 	public void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {
 		final ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
 				new RRemoteConsoleMainTab(),
-				new REnvTab(false, false),
+				new REnvTab(false),
 				new RConsoleOptionsTab(),
 				
 				new CommonTabForConsole()
