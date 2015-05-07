@@ -639,7 +639,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			
 			final RSourceModelInfo modelInfo= new RSourceModelInfo(this.ast, this.frames,
 					this.topLevelEnvir, this.packageRefs, this.dependencyEnvironments,
-					new RSourceCompositeElement(this.sourceUnit, this.topLevelEnvir,
+					new CompositeSourceElement(this.sourceUnit, this.topLevelEnvir,
 							this.chunkElements, this.ast.root ));
 			return modelInfo;
 		}
