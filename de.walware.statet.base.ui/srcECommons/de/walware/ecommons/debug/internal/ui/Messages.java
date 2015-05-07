@@ -17,10 +17,6 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	
 	
-	public static String LaunchDelegate_LaunchingTask_label;
-	public static String LaunchDelegate_Init_subtask;
-	public static String BackgroundResourceRefresher_Job_name;
-	
 	public static String UnterminatedLaunchAlerter_WorkbenchClosing_title;
 	public static String UnterminatedLaunchAlerter_WorkbenchClosing_message;
 	public static String UnterminatedLaunchAlerter_WorkbenchClosing_button_Continue;
@@ -31,10 +27,6 @@ public class Messages extends NLS {
 	public static String HelpRequestor_Task_name;
 	public static String HelpRequestor_error_WhenRunProcess_message;
 	public static String HelpRequestor_error_WhenReadOutput_message;
-	
-	public static String InsertVariable_label;
-	public static String InputArguments_label;
-	public static String InputArguments_note;
 	
 	
 	static {

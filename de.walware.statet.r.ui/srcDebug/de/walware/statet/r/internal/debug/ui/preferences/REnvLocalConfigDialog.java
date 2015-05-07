@@ -73,7 +73,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
-import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.debug.ui.ProcessOutputCollector;
 import de.walware.ecommons.ui.components.ButtonGroup;
 import de.walware.ecommons.ui.components.DataAdapter;
@@ -179,12 +179,22 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	
 	private static class RLibraryContainer {
 		
-		IRLibraryGroup.WorkingCopy parent;
-		IRLibraryLocation.WorkingCopy library;
 		
-		RLibraryContainer(final IRLibraryGroup.WorkingCopy parent, final IRLibraryLocation.WorkingCopy library) {
-			this.parent = parent;
-			this.library = library;
+		private IRLibraryGroup.WorkingCopy parent;
+		
+		private IRLibraryLocation.WorkingCopy library;
+		
+		
+		RLibraryContainer(final IRLibraryGroup.WorkingCopy parent,
+				final IRLibraryLocation.WorkingCopy library) {
+			this.parent= parent;
+			this.library= library;
+		}
+		
+		
+		@Override
+		public int hashCode() {
+			return this.library.hashCode();
 		}
 		
 		@Override
@@ -193,7 +203,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				return false;
 			}
 			final RLibraryContainer other = (RLibraryContainer) obj;
-			return (library == other.library);
+			return (this.library == other.library);
 		}
 	}
 	
@@ -225,7 +235,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		
 		fConfigModel = config;
 		fIsNewConfig = isNewConfig;
-		fExistingNames = new HashSet<String>();
+		fExistingNames = new HashSet<>();
 		for (final IREnvConfiguration ec : existingConfigs) {
 			fExistingNames.add(ec.getName());
 		}
@@ -765,7 +775,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		processBuilder.command().add(DETECT_COMMAND);
 		
 		final Map<String, String> envp = processBuilder.environment();
-		LaunchConfigUtil.configureEnvironment(envp, null, fConfigModel.getEnvironmentsVariables(false));
+		LaunchUtils.configureEnvironment(envp, null, fConfigModel.getEnvironmentsVariables(false));
 		
 		monitor.worked(1);
 		

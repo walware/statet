@@ -28,7 +28,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.debug.core.OverlayLaunchConfiguration;
+import de.walware.ecommons.debug.core.util.OverlayLaunchConfiguration;
 
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.core.runtime.ToolProcess;

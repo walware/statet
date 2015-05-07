@@ -41,7 +41,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.ecommons.debug.core.ISshSessionService;
+import de.walware.ecommons.net.ssh.ISshSessionService;
 
 import com.jcraft.jsch.ChannelDirectTCPIP;
 import com.jcraft.jsch.ChannelExec;

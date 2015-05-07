@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.debug.internal.ui.Messages;
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.UIAccess;
@@ -141,7 +142,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 	
 	@Override
 	public void run(final IProgressMonitor monitor) throws InvocationTargetException {
-		final String cmdInfo = LaunchConfigUtil.generateCommandLine(fBuilder.command());
+		final String cmdInfo = LaunchUtils.generateCommandLine(fBuilder.command());
 		monitor.beginTask(Messages.HelpRequestor_Task_name+cmdInfo, 10);
 		if (monitor.isCanceled()) {
 			return;

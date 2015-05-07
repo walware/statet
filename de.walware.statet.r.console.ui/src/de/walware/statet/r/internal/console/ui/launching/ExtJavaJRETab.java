@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
-import de.walware.ecommons.debug.ui.InputArgumentsComposite;
+import de.walware.ecommons.debug.ui.config.InputArgumentsComposite;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
 import de.walware.ecommons.ui.util.LayoutUtil;

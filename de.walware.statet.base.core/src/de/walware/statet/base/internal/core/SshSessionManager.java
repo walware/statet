@@ -25,7 +25,7 @@ import org.eclipse.jsch.core.IJSchService;
 
 import de.walware.ecommons.ECommons;
 import de.walware.ecommons.IDisposable;
-import de.walware.ecommons.debug.core.ISshSessionService;
+import de.walware.ecommons.net.ssh.ISshSessionService;
 
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;

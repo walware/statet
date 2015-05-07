@@ -57,8 +57,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.debug.core.OverlayLaunchConfiguration;
-import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.debug.core.util.LaunchUtils;
+import de.walware.ecommons.debug.core.util.OverlayLaunchConfiguration;
 import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
 import de.walware.ecommons.io.FileValidator;
 import de.walware.ecommons.net.RMIAddress;
@@ -70,6 +70,8 @@ import de.walware.ecommons.preferences.Preference.StringPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.variables.core.StringVariable;
+
+import com.jcraft.jsch.Session;
 
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
@@ -85,7 +87,6 @@ import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.nico.ui.util.LoginHandler;
 import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 
-import com.jcraft.jsch.Session;
 import de.walware.rj.server.RjsComConfig;
 import de.walware.rj.server.Server;
 
@@ -177,7 +178,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 					return;
 				}
 				
-				final AtomicReference<String> address = new AtomicReference<String>();
+				final AtomicReference<String> address = new AtomicReference<>();
 				final String username = configuration.getAttribute(RConsoleLaunching.ATTR_LOGIN_NAME, (String) null);
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					@Override
@@ -190,7 +191,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 					}
 				});
 				if (address.get() != null) {
-					final Map<String, Object> map = new HashMap<String, Object>();
+					final Map<String, Object> map = new HashMap<>();
 					map.put(IRemoteEngineController.LAUNCH_RECONNECT_ATTRIBUTE, Collections.EMPTY_MAP);
 					map.put(RConsoleLaunching.ATTR_ADDRESS, address.get());
 					launchRjsJriRemote(new OverlayLaunchConfiguration(configuration, map), mode, launch, monitor);
@@ -210,10 +211,10 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 	
 	private void launchRjsJriRemote(final ILaunchConfiguration configuration, final String mode, final ILaunch launch,
 			final IProgressMonitor monitor) throws CoreException {
-		final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
-		final SubMonitor progress = LaunchConfigUtil.initProgressMonitor(configuration, monitor, 25);
+		final SubMonitor progress= LaunchUtils.initProgressMonitor(configuration, monitor, 25);
+		final long timestamp= System.currentTimeMillis();
 		
-		final long timestamp = System.currentTimeMillis();
+		final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 		
 		final String type = configuration.getAttribute(RConsoleLaunching.ATTR_TYPE, (String) null).trim();
 		final String username = configuration.getAttribute(RConsoleLaunching.ATTR_LOGIN_NAME, (String) null);
@@ -232,7 +233,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 		// load tracking configurations
 		final List<TrackingConfiguration> trackingConfigs;
 		{	final List<String> trackingIds = configuration.getAttribute(RConsoleOptionsTab.TRACKING_ENABLED_IDS, Collections.EMPTY_LIST);
-			trackingConfigs = new ArrayList<TrackingConfiguration>(trackingIds.size());
+			trackingConfigs = new ArrayList<>(trackingIds.size());
 			for (final String id : trackingIds) {
 				final TrackingConfiguration trackingConfig;
 				if (id.equals(HistoryTrackingConfiguration.HISTORY_TRACKING_ID)) {
@@ -307,7 +308,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			}
 			
 			final boolean sshTunnel = configuration.getAttribute(RConsoleLaunching.ATTR_SSH_TUNNEL_ENABLED, false);
-			final Map<String, Object> loginData = new HashMap<String, Object>();
+			final Map<String, Object> loginData = new HashMap<>();
 			
 			RMIAddress rmiAddress = null;
 			RMIClientSocketFactory socketFactory = null;
@@ -425,7 +426,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 				return;
 			}
 			
-			final String[] args = LaunchConfigUtil.getProcessArguments(configuration, RConsoleLaunching.ATTR_OPTIONS);
+			final String[] args = LaunchUtils.getProcessArguments(configuration, RConsoleLaunching.ATTR_OPTIONS);
 			
 			if (reconnect != null) {
 				final Map<String, String> reconnectData = (Map<String, String>) reconnect.get("initData"); //$NON-NLS-1$
@@ -472,7 +473,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 						command = wdMatcher.replaceAll(path.toString());
 					}
 					
-					final Hashtable<String, String> envp = new Hashtable<String, String>();
+					final Hashtable<String, String> envp = new Hashtable<>();
 					envp.put("LC_ALL", "C"); //$NON-NLS-1$ //$NON-NLS-2$
 					envp.put("LANG", "C"); //$NON-NLS-1$ //$NON-NLS-2$
 					envp.put("LC_NUMERIC", "C"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -556,15 +557,15 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			final boolean startup = (todo == TODO_START_R);
 			
 			final RProcess process = new RProcess(launch, rEnv,
-					LaunchConfigUtil.createLaunchPrefix(configuration),
-					((rEnv != null) ? rEnv.getName() : "-") + " / RJ " + rmiAddress.toString() + ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$ //$NON-NLS-2$
+					LaunchUtils.createLaunchPrefix(configuration),
+					((rEnv != null) ? rEnv.getName() : "-") + " / RJ " + rmiAddress.toString() + ' ' + LaunchUtils.createProcessTimestamp(timestamp), //$NON-NLS-1$ //$NON-NLS-2$
 					rmiAddress.toString(),
 					(workingDirectory != null) ? workingDirectory.toString() : null,
 					timestamp );
 			process.setAttribute(IProcess.ATTR_CMDLINE, rmiAddress.toString() + '\n'
 					+ ((startup) ? Arrays.toString(args) : "rjs-reconnect")); //$NON-NLS-1$
 			
-			final HashMap<String, Object> rjsProperties = new HashMap<String, Object>();
+			final HashMap<String, Object> rjsProperties = new HashMap<>();
 			rjsProperties.put(RjsComConfig.RJ_DATA_STRUCTS_LISTS_MAX_LENGTH_PROPERTY_ID,
 					configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, 10000));
 			rjsProperties.put(RjsComConfig.RJ_DATA_STRUCTS_ENVS_MAX_LENGTH_PROPERTY_ID,

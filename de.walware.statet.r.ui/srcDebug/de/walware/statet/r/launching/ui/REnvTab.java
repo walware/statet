@@ -29,7 +29,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
-import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
+import de.walware.ecommons.debug.ui.config.LaunchConfigTabWithDbc;
 import de.walware.ecommons.io.FileValidator;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;

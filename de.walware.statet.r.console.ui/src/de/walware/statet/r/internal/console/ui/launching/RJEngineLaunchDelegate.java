@@ -41,7 +41,7 @@ import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstall3;
 import org.eclipse.jdt.launching.JavaLaunchDelegate;
 
-import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.net.RMIAddress;
 
 import de.walware.statet.nico.core.runtime.ToolRunner;
@@ -151,14 +151,14 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	public String[] getEnvironment(final ILaunchConfiguration configuration) throws CoreException {
 		final IVMInstall vmInstall = getVMInstall(configuration); // already verified
 		
-		final Map<String, String> additional = new HashMap<String, String>();
+		final Map<String, String> additional = new HashMap<>();
 		final File location = vmInstall.getInstallLocation();
 		if (location != null) {
 			additional.put("JAVA_HOME", location.getAbsolutePath()); //$NON-NLS-1$
 		}
 		
 		@SuppressWarnings("unchecked")
-		final Map<String, String> envp = LaunchConfigUtil.createEnvironment(configuration,
+		final Map<String, String> envp = LaunchUtils.createEnvironment(configuration,
 				new Map[] { additional, fRenv.getEnvironmentsVariables() });
 		
 		if (fLibPreloadVar != null) {
@@ -188,14 +188,14 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 			}
 		}
 		
-		return LaunchConfigUtil.toKeyValueStrings(envp);
+		return LaunchUtils.toKeyValueStrings(envp);
 	}
 	
 	@Override
 	public String[] getClasspath(final ILaunchConfiguration configuration) throws CoreException {
 		final String[] rjLibs = fServerContext.searchRJLibs(CLASSPATH_LIBS);
 		
-		final LinkedHashSet<String> classpath = new LinkedHashSet<String>();
+		final LinkedHashSet<String> classpath = new LinkedHashSet<>();
 		classpath.addAll(Arrays.asList(super.getClasspath(configuration)));
 		classpath.addAll(Arrays.asList(rjLibs));
 		return classpath.toArray(new String[classpath.size()]);

@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.databinding.IntegerValidator;
 import de.walware.ecommons.databinding.jface.SWTMultiEnabledObservable;
-import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
+import de.walware.ecommons.debug.ui.config.LaunchConfigTabWithDbc;
 import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditorObservable;
 import de.walware.ecommons.templates.TemplateVariableProcessor;

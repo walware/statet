@@ -39,7 +39,7 @@ public class CheckedCommonTab extends CommonTab {
 	
 	@Override
 	protected long getUpdateJobDelay() {
-		return (fLoading) ? 10000 : 400;
+		return (fLoading) ? 10000 : super.getUpdateJobDelay();
 	}
 	
 }

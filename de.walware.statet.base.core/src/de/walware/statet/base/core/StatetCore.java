@@ -20,9 +20,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.ecommons.debug.core.ISshSessionService;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.core.model.IWorkspaceSourceUnit;
+import de.walware.ecommons.net.ssh.ISshSessionService;
 
 import de.walware.statet.base.internal.core.BaseCorePlugin;
 

@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.debug.internal.ui.Messages;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
@@ -61,7 +62,7 @@ public class ProcessOutputCollector extends Thread {
 			fOutputInput = new InputStreamReader(fProcess.getInputStream());
 		}
 		catch (final IOException e) {
-			final String cmdInfo = LaunchConfigUtil.generateCommandLine(fProcessBuilder.command());
+			final String cmdInfo = LaunchUtils.generateCommandLine(fProcessBuilder.command());
 			throw new CoreException(new Status(IStatus.ERROR, StatetUIPlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHING,
 					NLS.bind(Messages.HelpRequestor_error_WhenRunProcess_message, fName, cmdInfo), e));
 		}

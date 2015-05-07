@@ -59,10 +59,10 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.AbstractSettingsModelObject;
 import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.debug.ui.HelpRequestor;
-import de.walware.ecommons.debug.ui.InputArgumentsComposite;
-import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
-import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.debug.ui.config.InputArgumentsComposite;
+import de.walware.ecommons.debug.ui.config.LaunchConfigTabWithDbc;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -137,7 +137,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	
 	boolean fWithHelp = false;
 	private ILaunchConfigurationTab fREnvTab;
-	private ILaunchConfiguration fConfigCache;
+	private ILaunchConfiguration configCache;
 	
 	
 	public RCmdMainTab() {
@@ -146,7 +146,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	}
 	
 	private void createCommands() {
-		final List<Cmd> commands = new ArrayList<Cmd>();
+		final List<Cmd> commands = new ArrayList<>();
 		commands.add(new Cmd(RCmdMessages.RCmd_CmdCheck_name, "CMD check", Cmd.PACKAGE_DIR_OR_ARCHIVE)); //$NON-NLS-1$
 		commands.add(new Cmd(RCmdMessages.RCmd_CmdBuild_name, "CMD build", Cmd.PACKAGE_DIR)); //$NON-NLS-1$
 		commands.add(new Cmd(RCmdMessages.RCmd_CmdInstall_name, "CMD INSTALL", Cmd.PACKAGE_DIR_OR_ARCHIVE)); //$NON-NLS-1$
@@ -386,9 +386,9 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	}
 	
 	private void checkHelp(final ILaunchConfiguration configuration) {
-		fConfigCache = configuration;
+		this.configCache= configuration;
 		if (fWithHelp) {
-			fHelpButton.setEnabled(fREnvTab.isValid(fConfigCache));
+			fHelpButton.setEnabled(fREnvTab.isValid(this.configCache));
 		}
 	}
 	
@@ -405,11 +405,11 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 			return;
 		}
 		try {
-			final List<String> cmdLine = new ArrayList<String>();
+			final List<String> cmdLine = new ArrayList<>();
 			final ILaunchConfigurationDialog dialog = getLaunchConfigurationDialog();
 			
 			// r env
-			final IREnvConfiguration renv = RLaunching.getREnvConfig(fConfigCache, true);
+			final IREnvConfiguration renv= RLaunching.getREnvConfig(this.configCache, true);
 			
 			final String cmd = ((Cmd) fCmdValue.getValue()).getCommand().trim();
 			if (cmd.length() != 0) {
@@ -425,8 +425,8 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 			final ProcessBuilder processBuilder = new ProcessBuilder(cmdLine);
 			final HelpRequestor helper = new HelpRequestor(processBuilder, (TrayDialog) dialog);
 			
-			final Map<String, String> envp = processBuilder.environment();
-			LaunchConfigUtil.configureEnvironment(envp, fConfigCache, renv.getEnvironmentsVariables());
+			final Map<String, String> envp= processBuilder.environment();
+			LaunchUtils.configureEnvironment(envp, this.configCache, renv.getEnvironmentsVariables());
 			
 			dialog.run(true, true, helper);
 			updateLaunchConfigurationDialog();

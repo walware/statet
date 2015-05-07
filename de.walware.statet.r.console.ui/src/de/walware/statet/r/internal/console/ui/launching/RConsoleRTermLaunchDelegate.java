@@ -33,7 +33,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchPage;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -88,7 +88,7 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		
 		// environment
 		final Map<String, String> envp = builder.environment();
-		LaunchConfigUtil.configureEnvironment(envp, configuration, renv.getEnvironmentsVariables());
+		LaunchUtils.configureEnvironment(envp, configuration, renv.getEnvironmentsVariables());
 		
 		final List<String> cmdLine = builder.command();
 		cmdLine.addAll(0, renv.getExecCommand(Exec.TERM));
@@ -104,7 +104,7 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		
 		// arguments
 		cmdLine.addAll(Arrays.asList(
-				LaunchConfigUtil.getProcessArguments(configuration, RConsoleLaunching.ATTR_OPTIONS) ));
+				LaunchUtils.getProcessArguments(configuration, RConsoleLaunching.ATTR_OPTIONS) ));
 		
 		progress.worked(1);
 		if (progress.isCanceled()) {
@@ -136,11 +136,11 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		UnterminatedLaunchAlerter.registerLaunchType(RConsoleLaunching.R_CONSOLE_CONFIGURATION_TYPE_ID);
 		
 		final RProcess process = new RProcess(launch, renv,
-				LaunchConfigUtil.createLaunchPrefix(configuration), renv.getName() + " / Rterm " + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
+				LaunchUtils.createLaunchPrefix(configuration), renv.getName() + " / Rterm " + LaunchUtils.createProcessTimestamp(timestamp), //$NON-NLS-1$
 				null,
 				workingDirectory.toString(),
 				timestamp );
-		process.setAttribute(IProcess.ATTR_CMDLINE, LaunchConfigUtil.generateCommandLine(cmdLine));
+		process.setAttribute(IProcess.ATTR_CMDLINE, LaunchUtils.generateCommandLine(cmdLine));
 		
 		final RTermController controller = new RTermController(process, builder, charset);
 		process.init(controller);

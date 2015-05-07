@@ -15,13 +15,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.debug.core.util.LaunchUtils;
 
 import de.walware.statet.r.console.ui.launching.AbstractRConsoleLaunchDelegate;
 import de.walware.statet.r.console.ui.launching.RConsoleLaunching;
@@ -39,9 +40,9 @@ public class RConsoleDebugLaunchDelegate extends AbstractRConsoleLaunchDelegate 
 	@Override
 	public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch,
 			IProgressMonitor monitor) throws CoreException {
+		final SubMonitor m= LaunchUtils.initProgressMonitor(configuration, monitor, 10);
 		try {
-			monitor = LaunchConfigUtil.initProgressMonitor(configuration, monitor, 100);
-			if (monitor.isCanceled()) {
+			if (m.isCanceled()) {
 				return;
 			}
 			
@@ -52,14 +53,14 @@ public class RConsoleDebugLaunchDelegate extends AbstractRConsoleLaunchDelegate 
 						new DebugLaunchDelegateAddon() );
 			}
 			if (delegate != null) {
-				delegate.launch(configuration, mode, launch, monitor);
+				delegate.launch(configuration, mode, launch, m);
 				return;
 			}
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 					NLS.bind("R Console launch type ''{0}'' is not available.", type), null));
 		}
 		finally {
-			monitor.done();
+			m.done();
 		}
 	}
 	

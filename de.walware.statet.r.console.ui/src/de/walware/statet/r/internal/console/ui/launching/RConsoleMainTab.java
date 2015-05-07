@@ -51,10 +51,10 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.debug.ui.HelpRequestor;
-import de.walware.ecommons.debug.ui.InputArgumentsComposite;
-import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
-import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.debug.ui.config.InputArgumentsComposite;
+import de.walware.ecommons.debug.ui.config.LaunchConfigTabWithDbc;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -129,7 +129,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	
 	
 	protected RConsoleType[] loadTypes() {
-		final List<RConsoleType> types = new ArrayList<RConsoleType>();
+		final List<RConsoleType> types = new ArrayList<>();
 		types.add(new RConsoleType("RJ (default)", RConsoleLaunching.LOCAL_RJS, true, true)); //$NON-NLS-1$
 		types.add(new RConsoleType("Rterm", RConsoleLaunching.LOCAL_RTERM, false, false)); //$NON-NLS-1$
 		return types.toArray(new RConsoleType[types.size()]);
@@ -374,7 +374,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 			return;
 		}
 		try {
-			final List<String> cmdLine = new ArrayList<String>();
+			final List<String> cmdLine = new ArrayList<>();
 			final ILaunchConfigurationDialog dialog = getLaunchConfigurationDialog();
 			
 			// r env
@@ -387,7 +387,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 			final HelpRequestor helper = new HelpRequestor(processBuilder, (TrayDialog) dialog);
 			
 			final Map<String, String> envp = processBuilder.environment();
-			LaunchConfigUtil.configureEnvironment(envp, fConfigCache, renv.getEnvironmentsVariables());
+			LaunchUtils.configureEnvironment(envp, fConfigCache, renv.getEnvironmentsVariables());
 			
 			dialog.run(true, true, helper);
 			updateLaunchConfigurationDialog();

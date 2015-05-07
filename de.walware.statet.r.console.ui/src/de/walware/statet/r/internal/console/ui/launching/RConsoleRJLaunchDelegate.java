@@ -34,7 +34,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.Version;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
 import de.walware.ecommons.net.RMIAddress;
 import de.walware.ecommons.net.RMIRegistry;
@@ -196,20 +196,20 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 	@Override
 	public void launch(final ILaunchConfiguration configuration, final String mode, 
 			final ILaunch launch, final IProgressMonitor monitor) throws CoreException {
-		final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
-		final SubMonitor progress = LaunchConfigUtil.initProgressMonitor(configuration, monitor, 25);
+		final SubMonitor m= LaunchUtils.initProgressMonitor(configuration, monitor, 25);
+		final long timestamp= System.currentTimeMillis();
 		
-		final long timestamp = System.currentTimeMillis();
+		final IWorkbenchPage page= UIAccess.getActiveWorkbenchPage(false);
 		
-		progress.worked(1);
-		if (progress.isCanceled()) {
+		m.worked(1);
+		if (m.isCanceled()) {
 			return;
 		}
 		
 		// load tracking configurations
 		final List<TrackingConfiguration> trackingConfigs;
 		{	final List<String> trackingIds = configuration.getAttribute(RConsoleOptionsTab.TRACKING_ENABLED_IDS, Collections.EMPTY_LIST);
-			trackingConfigs = new ArrayList<TrackingConfiguration>(trackingIds.size());
+			trackingConfigs = new ArrayList<>(trackingIds.size());
 			for (final String id : trackingIds) {
 				final TrackingConfiguration trackingConfig;
 				if (id.equals(HistoryTrackingConfiguration.HISTORY_TRACKING_ID)) {
@@ -223,8 +223,8 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			}
 		}
 		
-		progress.worked(1);
-		if (progress.isCanceled()) {
+		m.worked(1);
+		if (m.isCanceled()) {
 			return;
 		}
 		
@@ -259,7 +259,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 				}
 			}
 			else {
-				registry = RMIUtil.INSTANCE.getEmbeddedPrivateRegistry(progress.newChild(1));
+				registry = RMIUtil.INSTANCE.getEmbeddedPrivateRegistry(m.newChild(1));
 				requireCodebase = false;
 			}
 		}
@@ -276,32 +276,32 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		final RJEngineLaunchDelegate engineLaunchDelegate = new RJEngineLaunchDelegate(
 				rmiAddress.getAddress(), requireCodebase, rEnv);
 		
-		progress.worked(1);
-		if (progress.isCanceled()) {
+		m.worked(1);
+		if (m.isCanceled()) {
 			return;
 		}
 		
 		// start server
-		progress.subTask(RConsoleMessages.LaunchDelegate_StartREngine_subtask);
+		m.subTask(RConsoleMessages.LaunchDelegate_StartREngine_subtask);
 		try {
 			RjsComConfig.setRMIClientSocketFactory(null);
 			
-			engineLaunchDelegate.launch(configuration, mode, launch, progress.newChild(10));
+			engineLaunchDelegate.launch(configuration, mode, launch, m.newChild(10));
 			final IProcess[] processes = launch.getProcesses();
 			if (processes.length == 0) {
 				return;
 			}
 			
-			progress.worked(1);
-			if (progress.isCanceled()) {
+			m.worked(1);
+			if (m.isCanceled()) {
 				return;
 			}
 			
 			// arguments
-			final String[] rArgs = LaunchConfigUtil.getProcessArguments(configuration, RConsoleLaunching.ATTR_OPTIONS);
+			final String[] rArgs = LaunchUtils.getProcessArguments(configuration, RConsoleLaunching.ATTR_OPTIONS);
 			
-			progress.worked(1);
-			if (progress.isCanceled()) {
+			m.worked(1);
+			if (m.isCanceled()) {
 				return;
 			}
 			
@@ -309,15 +309,15 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			UnterminatedLaunchAlerter.registerLaunchType(RConsoleLaunching.R_CONSOLE_CONFIGURATION_TYPE_ID);
 			
 			final RProcess process = new RProcess(launch, rEnv,
-					LaunchConfigUtil.createLaunchPrefix(configuration),
-					rEnv.getName() + " / RJ " + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
+					LaunchUtils.createLaunchPrefix(configuration),
+					rEnv.getName() + " / RJ " + LaunchUtils.createProcessTimestamp(timestamp), //$NON-NLS-1$
 					rmiAddress.toString(),
 					null, // wd is set at rjs startup
 					timestamp );
 			process.setAttribute(IProcess.ATTR_CMDLINE, rmiAddress.toString() + '\n' + Arrays.toString(rArgs));
 			
 			// Wait until the engine is started or died
-			progress.subTask(RConsoleMessages.LaunchDelegate_WaitForR_subtask);
+			m.subTask(RConsoleMessages.LaunchDelegate_WaitForR_subtask);
 			final long t = System.nanoTime();
 			WAIT: for (int i = 0; true; i++) {
 				if (processes[0].isTerminated()) {
@@ -341,7 +341,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 							silent ? (StatusManager.LOG) : (StatusManager.LOG | StatusManager.SHOW) );
 					return;
 				}
-				if (progress.isCanceled()) {
+				if (m.isCanceled()) {
 					processes[0].terminate();
 					throw new CoreException(Status.CANCEL_STATUS);
 				}
@@ -368,11 +368,11 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 					// continue, monitor and process is checked
 				}
 			}
-			progress.worked(5);
+			m.worked(5);
 			
 			final RjsConnection connection = RjsController.lookup(registry.getRegistry(), null, rmiAddress);
 			
-			final HashMap<String, Object> rjsProperties = new HashMap<String, Object>();
+			final HashMap<String, Object> rjsProperties = new HashMap<>();
 			rjsProperties.put(RjsComConfig.RJ_DATA_STRUCTS_LISTS_MAX_LENGTH_PROPERTY_ID,
 					configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, 10000));
 			rjsProperties.put(RjsComConfig.RJ_DATA_STRUCTS_ENVS_MAX_LENGTH_PROPERTY_ID,
@@ -384,12 +384,12 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			process.init(controller);
 			RConsoleLaunching.registerDefaultHandlerTo(controller);
 			
-			progress.worked(5);
+			m.worked(5);
 			
 			initConsoleOptions(controller, rEnv, configuration, true);
 			
 			if (fAddon != null) {
-				fAddon.init(configuration, mode, controller, monitor);
+				fAddon.init(configuration, mode, controller, m);
 			}
 			
 			final RConsole console = new RConsole(process, new NIConsoleColorAdapter());
@@ -402,9 +402,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			RjsComConfig.clearRMIClientSocketFactory();
 		}
 		
-		if (monitor != null) {
-			monitor.done();
-		}
+		m.done();
 	}
 	
 }

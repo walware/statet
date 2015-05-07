@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -39,8 +40,9 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.TextConsole;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
+import de.walware.ecommons.debug.ui.config.LaunchConfigUtil;
 import de.walware.ecommons.io.FileUtil;
 
 import de.walware.statet.r.cmd.ui.launching.RCmdLaunching;
@@ -52,9 +54,6 @@ import de.walware.statet.r.launching.ui.REnvTab;
 import de.walware.statet.r.launching.ui.RErrorLineTracker;
 
 
-/**
- * 
- */
 public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 	
 	
@@ -65,22 +64,20 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 	@Override
 	public void launch(final ILaunchConfiguration configuration, final String mode,	final ILaunch launch,
 			IProgressMonitor monitor) throws CoreException {
+		final SubMonitor m= LaunchUtils.initProgressMonitor(configuration, monitor, 25);
+		final long timestamp= System.currentTimeMillis();
 		try {
-			monitor = LaunchConfigUtil.initProgressMonitor(configuration, monitor, 25);
-			
-			final long timestamp = System.currentTimeMillis();
-			
-			if (monitor.isCanceled()) {
+			if (m.isCanceled()) {
 				return;
 			}
 			
-			final List<String> cmdLine = new ArrayList<String>();
+			final List<String> cmdLine = new ArrayList<>();
 			
 			// r env
 			final IREnvConfiguration renv = RLaunching.getREnvConfig(configuration, true);
 //			renv.validate();
 			
-			final String cmd = configuration.getAttribute(RCmdLaunching.ATTR_R_CMD_COMMAND, "").trim(); //$NON-NLS-1$
+			final String cmd = configuration.getAttribute(RCmdLaunching.R_CMD_COMMAND_ATTR_NAME, "").trim(); //$NON-NLS-1$
 			if (cmd.length() != 0) {
 				cmdLine.addAll(Arrays.asList(cmd.split(" "))); //$NON-NLS-1$
 			}
@@ -90,24 +87,24 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			}
 			cmdLine.addAll(0, renv.getExecCommand(arg1, EnumSet.of(Exec.CMD, Exec.TERM)));
 			
-			monitor.worked(1);
-			if (monitor.isCanceled()) {
+			m.worked(1);
+			if (m.isCanceled()) {
 				return;
 			}
 			
 			// working directory
 			final IFileStore workingDirectory = REnvTab.getWorkingDirectory(configuration);
 			
-			monitor.worked(1);
-			if (monitor.isCanceled()) {
+			m.worked(1);
+			if (m.isCanceled()) {
 				return;
 			}
 			
 			// arguments
 			cmdLine.addAll(Arrays.asList(
-					LaunchConfigUtil.getProcessArguments(configuration, RCmdLaunching.ATTR_R_CMD_OPTIONS) ));
+					LaunchUtils.getProcessArguments(configuration, RCmdLaunching.R_CMD_OPTIONS_ATTR_NAME) ));
 			
-			final String resourceValue = configuration.getAttribute(RCmdLaunching.ATTR_R_CMD_RESOURCE, ""); //$NON-NLS-1$
+			final String resourceValue = configuration.getAttribute(RCmdLaunching.R_CMD_RESOURCE_ATTR_NAME, ""); //$NON-NLS-1$
 			IFileStore resource = null;
 			IPath resourcePathAbsolute = null;
 			IPath resourcePathAuto = null;
@@ -122,8 +119,8 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 				cmdLine.add(resourcePathAuto.toString());
 			}
 			
-			monitor.worked(1);
-			if (monitor.isCanceled()) {
+			m.worked(1);
+			if (m.isCanceled()) {
 				return;
 			}
 			
@@ -132,7 +129,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			
 			// environment
 			final Map<String, String> envp = builder.environment();
-			LaunchConfigUtil.configureEnvironment(envp, configuration, renv.getEnvironmentsVariables());
+			LaunchUtils.configureEnvironment(envp, configuration, renv.getEnvironmentsVariables());
 			
 			// exec process
 			UnterminatedLaunchAlerter.registerLaunchType(RCmdLaunching.R_CMD_CONFIGURATION_TYPE_ID);
@@ -144,16 +141,16 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 						ICommonStatusConstants.LAUNCHING,
 						RCmdMessages.RCmd_LaunchDelegate_error_StartingExec, e ));
 			}
-			monitor.worked(10);
+			m.worked(10);
 			
 			// register process
-			final Map<String, String> processAttributes = new HashMap<String, String>();
+			final Map<String, String> processAttributes = new HashMap<>();
 			processAttributes.put(IProcess.ATTR_PROCESS_TYPE, RCmdLaunching.R_CMD_PROCESS_TYPE);
-			final String processName = cmdLine.get(0) + ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp);
+			final String processName = cmdLine.get(0) + ' ' + LaunchUtils.createProcessTimestamp(timestamp);
 			final String label;
 			{
 				final StringBuilder sb = new StringBuilder(200);
-				sb.append(LaunchConfigUtil.createLaunchPrefix(configuration));
+				sb.append(LaunchUtils.createLaunchPrefix(configuration));
 				sb.append(' ').append(renv.getName());
 				sb.append(" : R ").append(cmd); //$NON-NLS-1$
 				if (resourcePathAbsolute != null) {
@@ -170,12 +167,12 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 						ICommonStatusConstants.LAUNCHING,
 						RCmdMessages.RCmd_LaunchDelegate_error_ProcessHandle, null ));
 			}
-			process.setAttribute(IProcess.ATTR_CMDLINE, LaunchConfigUtil.generateCommandLine(cmdLine));
+			process.setAttribute(IProcess.ATTR_CMDLINE, LaunchUtils.generateCommandLine(cmdLine));
 			process.setAttribute(IProcess.ATTR_PROCESS_LABEL, label);
 			
-			monitor.worked(5);
+			m.worked(5);
 			if (!process.isTerminated() && !CommonTab.isLaunchInBackground(configuration)) {
-				monitor.subTask(RCmdMessages.RCmd_LaunchDelegate_Running_label);
+				m.subTask(RCmdMessages.RCmd_LaunchDelegate_Running_label);
 			}
 			
 			final IConsole console = DebugUITools.getConsole(process);
@@ -184,10 +181,10 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 				((TextConsole) console).addPatternMatchListener(lineMatcher);
 			}
 			
-			LaunchConfigUtil.launchResourceRefresh(configuration, process, new SubProgressMonitor(monitor, 5));
+			LaunchConfigUtil.launchResourceRefresh(configuration, process, new SubProgressMonitor(m, 5));
 		}
 		finally {
-			monitor.done();
+			m.done();
 		}
 	}
 	
