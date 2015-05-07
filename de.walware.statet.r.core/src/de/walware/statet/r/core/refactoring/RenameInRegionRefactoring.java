@@ -57,11 +57,11 @@ import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rlang.RTerminal;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.GenericVisitor;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.core.refactoring.Messages;
 
 public class RenameInRegionRefactoring extends Refactoring {

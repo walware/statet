@@ -60,6 +60,10 @@ public class StatextCodeTemplatesContextType extends SourceEditorContextType {
 		super(id);
 	}
 	
+	protected StatextCodeTemplatesContextType() {
+		super();
+	}
+	
 	
 	@Override
 	protected void addCommonVariables() {

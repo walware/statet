@@ -58,11 +58,11 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rlang.RTerminal;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.core.refactoring.Messages;
 
 public class FunctionToS4MethodRefactoring extends Refactoring {
@@ -400,7 +400,8 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 			sb.append("})"); //$NON-NLS-1$
 			sb.append(nl);
 			sb.append(nl);
-			final String genericDef = RRefactoringAdapter.indent(sb, document, firstParentChild.getOffset(), fSourceUnit);
+			final String genericDef= RRefactoringAdapter.indent(sb, document, firstParentChild.getOffset(),
+					fSourceUnit, scanner );
 			TextChangeCompatibility.addTextEdit(change, Messages.FunctionToS4Method_Changes_AddGenericDef_name,
 					new InsertEdit(insertOffset, genericDef));
 			
@@ -451,7 +452,8 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 			sb.append(document.get(fbodyRegion.getOffset(), fbodyRegion.getLength()).trim());
 			sb.append(")"); //$NON-NLS-1$
 			sb.append(nl);
-			final String methodDef = RRefactoringAdapter.indent(sb, document, firstParentChild.getOffset(), fSourceUnit);
+			final String methodDef= RRefactoringAdapter.indent(sb, document, firstParentChild.getOffset(),
+					fSourceUnit, scanner );
 			TextChangeCompatibility.addTextEdit(change, Messages.FunctionToS4Method_Changes_AddMethodDef_name,
 					new InsertEdit(insertOffset, methodDef));
 		}

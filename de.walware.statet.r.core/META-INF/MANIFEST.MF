@@ -52,5 +52,6 @@ Export-Package: de.walware.statet.r.core,
  de.walware.statet.r.core.rlang,
  de.walware.statet.r.core.rsource,
  de.walware.statet.r.core.rsource.ast,
+ de.walware.statet.r.core.source,
  de.walware.statet.r.core.tool,
  de.walware.statet.r.internal.core.sourcemodel;x-friends:="de.walware.statet.r.console.core"

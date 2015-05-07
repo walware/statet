@@ -15,14 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextHover;
-import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.information.IInformationProvider;
-import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
-import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
 import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.rules.ITokenScanner;
@@ -31,6 +29,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
+import de.walware.ecommons.ltk.ui.LTKUIPreferences;
 import de.walware.ecommons.ltk.ui.sourceediting.EcoReconciler2;
 import de.walware.ecommons.ltk.ui.sourceediting.EditorInformationProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
@@ -44,19 +43,25 @@ import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistProcessor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverDescriptor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverRegistry;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverRegistry.EffectiveHovers;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.QuickAssistProcessor;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.text.ICharPairMatcher;
 import de.walware.ecommons.text.IIndentSettings;
+import de.walware.ecommons.text.core.sections.DocContentSections;
+import de.walware.ecommons.text.ui.presentation.SingleTokenScanner;
+import de.walware.ecommons.text.ui.settings.TextStyleManager;
 import de.walware.ecommons.ui.ColorManager;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
-import de.walware.ecommons.ui.util.DialogUtil;
 
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
+import de.walware.statet.ext.ui.text.CommentScanner;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.core.source.RDocumentContentInfo;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.editors.REditor;
 import de.walware.statet.r.internal.ui.editors.REditorInformationProvider;
@@ -64,12 +69,11 @@ import de.walware.statet.r.internal.ui.editors.REditorTextHover;
 import de.walware.statet.r.internal.ui.editors.RQuickOutlineInformationProvider;
 import de.walware.statet.r.internal.ui.editors.RReconcilingStrategy;
 import de.walware.statet.r.ui.editors.REditorOptions;
+import de.walware.statet.r.ui.text.r.IRTextTokens;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 import de.walware.statet.r.ui.text.r.RCodeScanner2;
-import de.walware.statet.r.ui.text.r.RCommentScanner;
 import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
 import de.walware.statet.r.ui.text.r.RInfixOperatorScanner;
-import de.walware.statet.r.ui.text.r.RStringScanner;
 import de.walware.statet.r.ui.text.r.RoxygenScanner;
 
 
@@ -79,76 +83,70 @@ import de.walware.statet.r.ui.text.r.RoxygenScanner;
 public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration {
 	
 	
+	private static final String[] CONTENT_TYPES= IRDocumentConstants.R_CONTENT_TYPES.toArray(
+			new String[IRDocumentConstants.R_CONTENT_TYPES.size()] );
+	
+	
 	private RDoubleClickStrategy fDoubleClickStrategy;
 	private RAutoEditStrategy fAutoEditStrategy;
 	
-	private final REditor fEditor;
 	private IRCoreAccess fRCoreAccess;
 	
-	private boolean fHandleDefaultContentType;
 	
-	
-	public RSourceViewerConfiguration(
-			final IPreferenceStore store, final ColorManager colorManager) {
-		this(null, null, store, colorManager);
+	public RSourceViewerConfiguration(final IPreferenceStore store, final ColorManager colorManager) {
+		this(RDocumentContentInfo.INSTANCE, null, null, store, null);
 	}
 	
-	public RSourceViewerConfiguration(final ISourceEditor sourceEditor, final IRCoreAccess access,
-			final IPreferenceStore preferenceStore, final ColorManager colorManager) {
-		super(sourceEditor);
+	public RSourceViewerConfiguration(final DocContentSections documentContentInfo,
+			final ISourceEditor sourceEditor,
+			final IRCoreAccess access,
+			final IPreferenceStore preferenceStore, final TextStyleManager textStyles) {
+		super(documentContentInfo, sourceEditor);
 		setCoreAccess(access);
-		fEditor = ((sourceEditor instanceof REditor) ? (REditor) sourceEditor : null);
-		fHandleDefaultContentType = true;
 		setup((preferenceStore != null) ? preferenceStore : RUIPlugin.getDefault().getEditorPreferenceStore(),
-				colorManager,
-				IStatetUIPreferenceConstants.EDITING_DECO_PREFERENCES,
+				LTKUIPreferences.getEditorDecorationPreferences(),
 				IStatetUIPreferenceConstants.EDITING_ASSIST_PREFERENCES );
-		initScanners();
+		setTextStyles(textStyles);
 	}
 	
 	protected void setCoreAccess(final IRCoreAccess access) {
 		fRCoreAccess = (access != null) ? access : RCore.getWorkbenchAccess();
 	}
 	
+	
+	@Override
+	protected void initTextStyles() {
+		setTextStyles(RUIPlugin.getDefault().getRTextStyles());
+	}
+	
+	@Override
 	protected void initScanners() {
-		final IPreferenceStore store = getPreferences();
-		final ColorManager colorManager = getColorManager();
+		final TextStyleManager textStyles= getTextStyles();
 		
-		addScanner(IRDocumentPartitions.R_DEFAULT_EXPL,
-				new RCodeScanner2(colorManager, store) );
-		addScanner(IRDocumentPartitions.R_INFIX_OPERATOR,
-				new RInfixOperatorScanner(colorManager, store) );
-		addScanner(IRDocumentPartitions.R_STRING,
-				new RStringScanner(colorManager, store) );
-		addScanner(IRDocumentPartitions.R_COMMENT,
-				new RCommentScanner(colorManager, store, fRCoreAccess.getPrefs()) );
-		addScanner(IRDocumentPartitions.R_ROXYGEN,
-				new RoxygenScanner(colorManager, store, fRCoreAccess.getPrefs()) );
+		addScanner(IRDocumentConstants.R_DEFAULT_CONTENT_TYPE,
+				new RCodeScanner2(textStyles) );
+		addScanner(IRDocumentConstants.R_INFIX_OPERATOR_CONTENT_TYPE,
+				new RInfixOperatorScanner(textStyles) );
+		addScanner(IRDocumentConstants.R_STRING_CONTENT_TYPE,
+				new SingleTokenScanner(textStyles, IRTextTokens.STRING_KEY) );
+		addScanner(IRDocumentConstants.R_COMMENT_CONTENT_TYPE,
+				new CommentScanner(textStyles, IRTextTokens.COMMENT_KEY, IRTextTokens.TASK_TAG_KEY,
+						fRCoreAccess.getPrefs()) );
+		addScanner(IRDocumentConstants.R_ROXYGEN_CONTENT_TYPE,
+				new RoxygenScanner(textStyles, fRCoreAccess.getPrefs()) );
 	}
 	
 	@Override
 	protected ITokenScanner getScanner(String contentType) {
-		if (contentType == IRDocumentPartitions.R_QUOTED_SYMBOL) {
-			contentType= IRDocumentPartitions.R_STRING;
-		}
-		else if (contentType == IRDocumentPartitions.R_DEFAULT) {
-			contentType= IRDocumentPartitions.R_DEFAULT_EXPL;
+		if (contentType == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE) {
+			contentType= IRDocumentConstants.R_STRING_CONTENT_TYPE;
 		}
 		return super.getScanner(contentType);
 	}
 	
 	
-	public void setHandleDefaultContentType(final boolean enable) {
-		fHandleDefaultContentType = enable;
-	}
-	
-	
 	public IRCoreAccess getRCoreAccess() {
 		return fRCoreAccess;
-	}
-	
-	protected REditor getEditor() {
-		return fEditor;
 	}
 	
 	@Override
@@ -168,25 +166,22 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	
 	
 	@Override
-	public String getConfiguredDocumentPartitioning(final ISourceViewer sourceViewer) {
-		return IRDocumentPartitions.R_PARTITIONING;
-	}
-	
-	@Override
 	public String[] getConfiguredContentTypes(final ISourceViewer sourceViewer) {
-		return IRDocumentPartitions.R_PARTITIONS;
+		return CONTENT_TYPES;
 	}
 	
 	
 	@Override
 	public ICharPairMatcher createPairMatcher() {
-		return new RBracketPairMatcher();
+		return new RBracketPairMatcher(
+				RHeuristicTokenScanner.create(getDocumentContentInfo()) );
 	}
 	
 	@Override
 	public ITextDoubleClickStrategy getDoubleClickStrategy(final ISourceViewer sourceViewer, final String contentType) {
 		if (fDoubleClickStrategy == null) {
-			fDoubleClickStrategy = new RDoubleClickStrategy();
+			fDoubleClickStrategy= new RDoubleClickStrategy(
+					RHeuristicTokenScanner.create(getDocumentContentInfo()) );
 		}
 		return fDoubleClickStrategy;
 	}
@@ -200,6 +195,19 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	protected IIndentSettings getIndentSettings() {
 		return fRCoreAccess.getRCodeStyle();
 	}
+	
+	
+	@Override
+	public boolean isSmartInsertSupported() {
+		return true;
+	}
+	
+	@Override
+	public boolean isSmartInsertByDefault() {
+		return PreferencesUtil.getInstancePrefs().getPreferenceValue(
+				REditorOptions.SMARTINSERT_BYDEFAULT_ENABLED_PREF );
+	}
+	
 	
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(final ISourceViewer sourceViewer, final String contentType) {
@@ -249,54 +257,37 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		return new SpellingReconcileStrategy(sourceViewer, spellingService);
 	}
 	
-	@Override
-	protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
-		if (getSourceEditor() != null) {
-			final ContentAssist assistant = new ContentAssist();
-			assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-			assistant.setRestoreCompletionProposalSize(DialogUtil.getDialogSettings(RUIPlugin.getDefault(), "RContentAssist.Proposal.size")); //$NON-NLS-1$
-			
-			initDefaultContentAssist(assistant);
-			return assistant;
-		}
-		return null;
-	}
 	
-	public void initDefaultContentAssist(final ContentAssist assistant) {
+	@Override
+	public void initContentAssist(final ContentAssist assistant) {
 		final ContentAssistComputerRegistry registry = RUIPlugin.getDefault().getREditorContentAssistRegistry();
 		
 		final ContentAssistProcessor codeProcessor = new RContentAssistProcessor(assistant,
-				IRDocumentPartitions.R_DEFAULT_EXPL, registry, getSourceEditor());
+				IRDocumentConstants.R_DEFAULT_CONTENT_TYPE, registry, getSourceEditor());
 		codeProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '$' });
-		assistant.setContentAssistProcessor(codeProcessor, IRDocumentPartitions.R_DEFAULT_EXPL);
-		if (fHandleDefaultContentType) {
-			assistant.setContentAssistProcessor(codeProcessor, IRDocumentPartitions.R_DEFAULT);
-		}
+		assistant.setContentAssistProcessor(codeProcessor, IRDocumentConstants.R_DEFAULT_CONTENT_TYPE);
 		
 		final ContentAssistProcessor symbolProcessor = new RContentAssistProcessor(assistant,
-				IRDocumentPartitions.R_QUOTED_SYMBOL, registry, getSourceEditor());
-		assistant.setContentAssistProcessor(symbolProcessor, IRDocumentPartitions.R_QUOTED_SYMBOL);
+				IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE, registry, getSourceEditor());
+		assistant.setContentAssistProcessor(symbolProcessor, IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE);
 		
 		final ContentAssistProcessor stringProcessor = new RContentAssistProcessor(assistant,
-				IRDocumentPartitions.R_STRING, registry, getSourceEditor());
-		assistant.setContentAssistProcessor(stringProcessor, IRDocumentPartitions.R_STRING);
+				IRDocumentConstants.R_STRING_CONTENT_TYPE, registry, getSourceEditor());
+		assistant.setContentAssistProcessor(stringProcessor, IRDocumentConstants.R_STRING_CONTENT_TYPE);
 		
 		final ContentAssistProcessor commentProcessor = new RContentAssistProcessor(assistant,
-				IRDocumentPartitions.R_COMMENT, registry, getSourceEditor());
-		assistant.setContentAssistProcessor(commentProcessor, IRDocumentPartitions.R_COMMENT);
+				IRDocumentConstants.R_COMMENT_CONTENT_TYPE, registry, getSourceEditor());
+		assistant.setContentAssistProcessor(commentProcessor, IRDocumentConstants.R_COMMENT_CONTENT_TYPE);
 		
 		final ContentAssistProcessor roxygenProcessor = new RContentAssistProcessor(assistant,
-				IRDocumentPartitions.R_ROXYGEN, registry, getSourceEditor());
+				IRDocumentConstants.R_ROXYGEN_CONTENT_TYPE, registry, getSourceEditor());
 		roxygenProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '@', '\\' });
-		assistant.setContentAssistProcessor(roxygenProcessor, IRDocumentPartitions.R_ROXYGEN);
+		assistant.setContentAssistProcessor(roxygenProcessor, IRDocumentConstants.R_ROXYGEN_CONTENT_TYPE);
 	}
 	
 	@Override
-	protected IQuickAssistAssistant createQuickAssistant(final ISourceViewer sourceViewer) {
-		final QuickAssistAssistant assistant = new QuickAssistAssistant();
-		assistant.setQuickAssistProcessor(new RQuickAssistProcessor(fEditor));
-		assistant.enableColoredLabels(true);
-		return assistant;
+	protected QuickAssistProcessor createQuickAssistProcessor() {
+		return new RQuickAssistProcessor(getSourceEditor());
 	}
 	
 	@Override
@@ -325,22 +316,11 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		return null;
 	}
 	
+	
 	@Override
-	protected Map getHyperlinkDetectorTargets(final ISourceViewer sourceViewer) {
-		final Map<String, Object> targets = super.getHyperlinkDetectorTargets(sourceViewer);
+	protected void collectHyperlinkDetectorTargets(final Map<String, IAdaptable> targets,
+			final ISourceViewer sourceViewer) {
 		targets.put("de.walware.statet.r.editorHyperlinks.REditorTarget", getSourceEditor()); //$NON-NLS-1$
-		return targets;
-	}
-	
-	@Override
-	public boolean isSmartInsertSupported() {
-		return true;
-	}
-	
-	@Override
-	public boolean isSmartInsertByDefault() {
-		return PreferencesUtil.getInstancePrefs().getPreferenceValue(
-				REditorOptions.SMARTINSERT_BYDEFAULT_ENABLED_PREF );
 	}
 	
 	

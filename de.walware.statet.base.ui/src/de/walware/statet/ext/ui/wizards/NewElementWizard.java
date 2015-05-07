@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
@@ -133,16 +134,20 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 				throws InvocationTargetException, InterruptedException, CoreException {
 			final IPath containerPath = fContainerPath;
 			final IFile newFileHandle = getFileHandle();
-			final InputStream initialContents = getInitialFileContentStream(newFileHandle);
+			assert (containerPath != null);
+			assert (newFileHandle != null);
 			
 			try {
-				assert (containerPath != null);
-				assert (newFileHandle != null);
+				final SubMonitor progress= SubMonitor.convert(monitor,
+						NLS.bind(StatetWizardsMessages.NewElement_CreateFile_task, newFileHandle.getName()),
+						5);
 				
-				monitor.beginTask(NLS.bind(StatetWizardsMessages.NewElement_CreateFile_task, newFileHandle.getName()), 1000);
+				final InputStream initialContents= getInitialFileContentStream(newFileHandle,
+						progress.newChild(1) );
+				
 				final ContainerGenerator generator = new ContainerGenerator(containerPath);
-				generator.generateContainer(new SubProgressMonitor(monitor, 500));
-				doCreateFile(newFileHandle, initialContents, monitor, 500);
+				generator.generateContainer(progress.newChild(2));
+				doCreateFile(newFileHandle, initialContents, progress.newChild(3));
 			}
 			finally {
 				monitor.done();
@@ -155,16 +160,18 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 		 * @param fileHandle the file handle to create a file resource with
 		 * @param contents the initial contents of the new file resource, or
 		 *   <code>null</code> if none (equivalent to an empty stream)
-		 * @param monitor the progress monitor to show visual progress with
+		 * @param progress the progress monitor to show visual progress with
 		 * @exception CoreException if the operation fails
 		 * @exception OperationCanceledException if the operation is canceled
 		 */
-		private static void doCreateFile(final IFile fileHandle, InputStream contents, final IProgressMonitor monitor, final int ticks)
-				throws CoreException {
+		private static void doCreateFile(final IFile fileHandle, InputStream contents,
+				final SubMonitor progress) throws CoreException {
 			if (contents == null) {
 				contents = new ByteArrayInputStream(new byte[0]);
 			}
 			try {
+				progress.beginTask(null, 1000);
+				
 				// Create a new file resource in the workspace
 				final IPath path = fileHandle.getFullPath();
 				final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -175,15 +182,15 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 					for (int i = numSegments - 2; i > 0; i--) {
 						final IFolder folder = root.getFolder(path.removeLastSegments(i));
 						if (!folder.exists()) {
-							folder.create(false, true, new SubProgressMonitor(monitor, 500/(numSegments-2)));
+							folder.create(false, true, progress.newChild(500/(numSegments-2)));
 						}
 					}
 				}
-				if (monitor.isCanceled()) {
+				if (progress.isCanceled()) {
 					throw new OperationCanceledException();
 				}
-				fileHandle.create(contents, false, new SubProgressMonitor(monitor, 500));
-				if (monitor.isCanceled()) {
+				fileHandle.create(contents, false, progress.newChild(500));
+				if (progress.isCanceled()) {
 					throw new OperationCanceledException();
 				}
 			}
@@ -203,11 +210,13 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 		 * Returns a stream containing the initial contents to be given to new file resource
 		 * instances.  <b>Subclasses</b> may wish to override.  This default implementation
 		 * provides no initial contents.
+		 * @param subMonitor 
 		 * 
 		 * @return initial contents to be given to new file resource instances
 		 */
-		protected InputStream getInitialFileContentStream(final IFile newFileHandle) {
-			final String content = getInitialFileContent(newFileHandle);
+		protected InputStream getInitialFileContentStream(final IFile newFileHandle,
+				final SubMonitor progress) {
+			final String content = getInitialFileContent(newFileHandle, progress);
 			if (content == null) {
 				return null;
 			}
@@ -247,10 +256,12 @@ public abstract class NewElementWizard extends Wizard implements INewWizard, IEx
 		 * Returns a stream containing the initial contents to be given to new file resource
 		 * instances.  <b>Subclasses</b> may wish to override.  This default implementation
 		 * provides no initial contents.
+		 * @param progress 
 		 * 
 		 * @return initial contents to be given to new file resource instances
 		 */
-		protected String getInitialFileContent(final IFile newFileHandle) {
+		protected String getInitialFileContent(final IFile newFileHandle,
+				final SubMonitor progress) {
 			return null;
 		}
 		

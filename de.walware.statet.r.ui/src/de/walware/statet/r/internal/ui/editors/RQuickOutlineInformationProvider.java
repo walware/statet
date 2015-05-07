@@ -25,8 +25,8 @@ import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.QuickInformationProvider;
 
 import de.walware.statet.r.core.model.RModel;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
+import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 
 
 public class RQuickOutlineInformationProvider extends QuickInformationProvider {
@@ -43,8 +43,7 @@ public class RQuickOutlineInformationProvider extends QuickInformationProvider {
 	@Override
 	public IRegion getSubject(final ITextViewer textViewer, final int offset) {
 		if (this.scanner == null) {
-			this.scanner = (RHeuristicTokenScanner) LTK.getModelAdapter(
-					getEditor().getModelTypeId(), RHeuristicTokenScanner.class );
+			this.scanner= RHeuristicTokenScanner.create(getEditor().getDocumentContentInfo());
 		}
 		try {
 			final IDocument document = getEditor().getViewer().getDocument();
@@ -52,9 +51,9 @@ public class RQuickOutlineInformationProvider extends QuickInformationProvider {
 			final IRegion word = this.scanner.findRWord(offset, false, true);
 			if (word != null) {
 				final ITypedRegion partition = this.scanner.getPartition(word.getOffset());
-				if (this.scanner.getPartitioningConfig().getDefaultPartitionConstraint().matches(partition.getType())
-						|| partition.getType() == IRDocumentPartitions.R_STRING
-						|| partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
+				if (IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT.matches(partition.getType())
+						|| partition.getType() == IRDocumentConstants.R_STRING_CONTENT_TYPE
+						|| partition.getType() == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE) {
 					return word;
 				}
 			}

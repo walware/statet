@@ -22,8 +22,8 @@ import org.eclipse.jface.text.TextUtilities;
 
 import de.walware.ecommons.text.ICharPairMatcher;
 
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
+import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 
 
 /**
@@ -40,17 +40,15 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 	private final RHeuristicTokenScanner fScanner;
 	
 	
-	public RDoubleClickStrategy() {
-		super();
-		fScanner = new RHeuristicTokenScanner();
-		fPartitioning = IRDocumentPartitions.R_PARTITIONING;
+	public RDoubleClickStrategy(final RHeuristicTokenScanner scanner) {
+		fScanner = scanner;
+		fPartitioning = scanner.getDocumentPartitioning();
 		fPairMatcher = new RBracketPairMatcher(fScanner);
 	}
 	
 	public RDoubleClickStrategy(final RHeuristicTokenScanner scanner, final ICharPairMatcher pairMatcher) {
-		super();
 		fScanner = scanner;
-		fPartitioning = scanner.getPartitioningConfig().getPartitioning();
+		fPartitioning = scanner.getDocumentPartitioning();
 		fPairMatcher = pairMatcher;
 	}
 	
@@ -70,7 +68,7 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 			String type = partition.getType();
 			
 			// Bracket-Pair-Matching in Code-Partitions
-			if (type == IRDocumentPartitions.R_DEFAULT || type == IRDocumentPartitions.R_DEFAULT_EXPL) {
+			if (type == IRDocumentConstants.R_DEFAULT_CONTENT_TYPE) {
 				final IRegion region = fPairMatcher.match(document, offset);
 				if (region != null && region.getLength() >= 2) {
 					textViewer.setSelectedRange(region.getOffset() + 1, region.getLength() - 2);
@@ -82,7 +80,7 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 			partition = TextUtilities.getPartition(document, fPartitioning, offset, false);
 			type = partition.getType();
 			// Start or End in String-Partitions
-			if (type == IRDocumentPartitions.R_STRING || type == IRDocumentPartitions.R_QUOTED_SYMBOL) {
+			if (type == IRDocumentConstants.R_STRING_CONTENT_TYPE || type == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE) {
 				final int partitionOffset = partition.getOffset();
 				final int partitionEnd = partitionOffset + partition.getLength();
 				if (offset == partitionOffset || offset == partitionOffset+1
@@ -101,21 +99,21 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 				return;
 			}
 			// Start in Comment-Partitions
-			if (type == IRDocumentPartitions.R_COMMENT || type == IRDocumentPartitions.R_ROXYGEN) {
+			if (type == IRDocumentConstants.R_COMMENT_CONTENT_TYPE || type == IRDocumentConstants.R_ROXYGEN_CONTENT_TYPE) {
 				final int partitionOffset = partition.getOffset();
 				if (offset == partitionOffset || offset == partitionOffset+1) {
 					textViewer.setSelectedRange(partitionOffset, partition.getLength());
 					return;
 				}
 			}
-			if (type == IRDocumentPartitions.R_INFIX_OPERATOR) {
+			if (type == IRDocumentConstants.R_INFIX_OPERATOR_CONTENT_TYPE) {
 				textViewer.setSelectedRange(partition.getOffset(), partition.getLength());
 				return;
 			}
 			// Spezialfall: End String-Partition
 			if ((partition.getOffset() == offset) && (offset > 0)
 					&& ( (partition = TextUtilities.getPartition(document, fPartitioning, offset-1, true))
-							.getType() == IRDocumentPartitions.R_STRING)
+							.getType() == IRDocumentConstants.R_STRING_CONTENT_TYPE)
 					) {
 				selectRegion(textViewer, getStringContent(document, partition));
 				return;

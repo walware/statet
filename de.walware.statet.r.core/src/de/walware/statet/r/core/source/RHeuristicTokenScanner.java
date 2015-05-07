@@ -9,12 +9,12 @@
  #     Stephan Wahlbrink - initial API and implementation
  #=============================================================================*/
 
-package de.walware.statet.r.core.rsource;
+package de.walware.statet.r.core.source;
 
 import org.eclipse.jface.text.IRegion;
 
 import de.walware.ecommons.text.BasicHeuristicTokenScanner;
-import de.walware.ecommons.text.PartitioningConfiguration;
+import de.walware.ecommons.text.core.sections.DocContentSections;
 
 import de.walware.statet.r.core.rlang.RTokens;
 
@@ -45,16 +45,15 @@ public class RHeuristicTokenScanner extends BasicHeuristicTokenScanner {
 		}
 	}
 	
-	
-	/**
-	 * 
-	 */
-	public RHeuristicTokenScanner() {
-		this(IRDocumentPartitions.R_PARTITIONING_CONFIG);
+	public static RHeuristicTokenScanner create(final DocContentSections documentContentInfo) {
+		return (documentContentInfo.getPrimaryType() == IRDocumentConstants.R_PARTITIONING) ?
+				new RHeuristicTokenScanner(documentContentInfo) :
+				new RChunkHeuristicTokenScanner(documentContentInfo);
 	}
 	
-	protected RHeuristicTokenScanner(final PartitioningConfiguration partitioning) {
-		super(partitioning);
+	
+	protected RHeuristicTokenScanner(final DocContentSections documentContentInfo) {
+		super(documentContentInfo, IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT);
 	}
 	
 	

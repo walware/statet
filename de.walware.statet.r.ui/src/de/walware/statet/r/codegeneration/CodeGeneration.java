@@ -37,6 +37,7 @@ import de.walware.statet.r.core.model.IRClass;
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRSlot;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.RUI;
 
@@ -55,7 +56,7 @@ public class CodeGeneration {
 	 * @return the new content or <code>null</code> if the template is undefined or empty
 	 * @throws CoreException thrown when the evaluation of the code template fails
 	 */
-	public static EvaluatedTemplate getNewRFileContent(final RResourceUnit su, final String lineDelimiter) throws CoreException {
+	public static EvaluatedTemplate getNewRFileContent(final IRSourceUnit su, final String lineDelimiter) throws CoreException {
 		final Template template = RUIPlugin.getDefault().getRCodeGenerationTemplateStore().findTemplate(RCodeTemplatesContextType.NEW_RSCRIPTFILE);
 		if (template == null) {
 			return null;

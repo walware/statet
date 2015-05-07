@@ -21,14 +21,12 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.text.PartitioningConfiguration;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
 import de.walware.statet.r.ui.editors.REditorOptions;
@@ -64,11 +62,6 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		fRCodeStyleCopy.addPropertyChangeListener(this);
 	}
 	
-	
-	@Override
-	public PartitioningConfiguration getPartitioning() {
-		return IRDocumentPartitions.R_PARTITIONING_CONFIG;
-	}
 	
 	@Override
 	public IDocumentSetupParticipant getDocumentSetupParticipant() {

@@ -35,8 +35,8 @@ import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.rlang.RTokens;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.source.IRDocumentConstants;
 
 
 /**
@@ -88,8 +88,9 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 			return ""; //$NON-NLS-1$
 		}
 		try {
-			ITypedRegion partition = document.getPartition(getEditor().getPartitioning().getPartitioning(), offset, true);
-			if (partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
+			final String partitioning= getEditor().getDocumentContentInfo().getPartitioning();
+			ITypedRegion partition= document.getPartition(partitioning, offset, true);
+			if (partition.getType() == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE) {
 				offset = partition.getOffset();
 			}
 			int start = offset;
@@ -114,8 +115,8 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 						}
 						break SEARCH_START;
 					case '`':
-						partition = document.getPartition(getEditor().getPartitioning().getPartitioning(), offset - 1, false);
-						if (partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
+						partition= document.getPartition(partitioning, offset - 1, false);
+						if (partition.getType() == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE) {
 							offset = start = partition.getOffset();
 							continue SEARCH_START;
 						}
@@ -136,11 +137,9 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 			
 			return document.get(start, getInvocationOffset() - start);
 		}
-		catch (final BadLocationException e) {
+		catch (final BadPartitioningException | BadLocationException e) {
+			return ""; //$NON-NLS-1$
 		}
-		catch (final BadPartitioningException e) {
-		}
-		return ""; //$NON-NLS-1$
 	}
 	
 	
@@ -181,7 +180,7 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 					}
 					segment = segment.getNextSegment();
 				}
-				return RElementName.concat(new ConstArrayList<RElementName>(segments));
+				return RElementName.concat(new ConstArrayList<>(segments));
 			}
 			current = current.getNextSegment();
 		}

@@ -26,6 +26,7 @@ import de.walware.ecommons.ltk.core.impl.GenericUriSourceUnit;
 import de.walware.ecommons.ltk.core.impl.IWorkingBuffer;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ui.FileBufferWorkingBuffer;
+import de.walware.ecommons.text.core.sections.DocContentSections;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
@@ -33,6 +34,7 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.model.RSuModelContainer;
 import de.walware.statet.r.core.renv.IREnv;
+import de.walware.statet.r.core.source.RDocumentContentInfo;
 
 
 public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSourceUnit {
@@ -59,6 +61,11 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 	@Override
 	public String getContentTypeId() {
 		return R_CONTENT;
+	}
+	
+	@Override
+	public DocContentSections getDocumentContentInfo() {
+		return RDocumentContentInfo.INSTANCE;
 	}
 	
 	@Override

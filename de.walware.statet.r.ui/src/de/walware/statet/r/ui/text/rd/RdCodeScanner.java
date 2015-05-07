@@ -11,10 +11,8 @@
 
 package de.walware.statet.r.ui.text.rd;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
@@ -24,10 +22,9 @@ import org.eclipse.jface.text.rules.WordRule;
 import de.walware.ecommons.text.DefaultWhitespaceDetector;
 import de.walware.ecommons.text.core.rules.OperatorRule;
 import de.walware.ecommons.text.ui.presentation.AbstractRuleBasedScanner;
-import de.walware.ecommons.ui.ColorManager;
+import de.walware.ecommons.text.ui.settings.TextStyleManager;
 
 import de.walware.statet.r.core.rdoc.RdTags;
-import de.walware.statet.r.ui.RUIPreferenceConstants;
 
 
 /**
@@ -37,53 +34,46 @@ public class RdCodeScanner extends AbstractRuleBasedScanner {
 	
 	private static class TagDetector implements IWordDetector {
 		
-		/* (non-Javadoc)
-		 * @see org.eclipse.jface.text.rules.IWordDetector#isWordStart(char)
-		 */
 		@Override
 		public boolean isWordStart(final char c) {
 			return (c == '\\');
 		}
 		
-		/* (non-Javadoc)
-		 * @see org.eclipse.jface.text.rules.IWordDetector#isWordPart(char)
-		 */
 		@Override
 		public boolean isWordPart(final char c) {
 			return Character.isLetter(c);
 		}
 	}
 	
-	public RdCodeScanner(final ColorManager colorManager, final IPreferenceStore preferenceStore) {
-		super(colorManager, preferenceStore, RUIPreferenceConstants.Rd.TS_GROUP_ID);
-		initialize();
+	
+	public RdCodeScanner(final TextStyleManager textStyles) {
+		super(textStyles);
+		
+		initRules();
 	}
 	
 	@Override
-	protected List<IRule> createRules() {
+	protected void createRules(final List<IRule> rules) {
+		final IToken tDefaultText= getToken(RdTextTokens.DEFAULT);
 		
-		final IToken tDefaultText = getToken(RdTextTokens.DEFAULT);
+		final IToken tSectionTag= getToken(RdTextTokens.SECTION_TAG);
+		final IToken tSubSectionTag= getToken(RdTextTokens.SUBSECTION_TAG);
+		final IToken tOtherTag= getToken(RdTextTokens.OTHER_TAG);
+		final IToken tUnlistedTag= getToken(RdTextTokens.UNLISTED_TAG);
 		
-		final IToken tSectionTag = getToken(RdTextTokens.SECTION_TAG);
-		final IToken tSubSectionTag = getToken(RdTextTokens.SUBSECTION_TAG);
-		final IToken tOtherTag = getToken(RdTextTokens.OTHER_TAG);
-		final IToken tUnlistedTag = getToken(RdTextTokens.UNLISTED_TAG);
+		final IToken tBrackets= getToken(RdTextTokens.BRACKETS);
 		
-		final IToken tBrackets = getToken(RdTextTokens.BRACKETS);
-				
 		setDefaultReturnToken(tDefaultText);
-		
-		final List<IRule> rules = new ArrayList<IRule>();
 		
 		// Add generic whitespace rule.
 		rules.add(new WhitespaceRule(new DefaultWhitespaceDetector()));
 		
-		final OperatorRule charRule = new OperatorRule(new char[] { '\\', '{', '}' });
+		final OperatorRule charRule= new OperatorRule(new char[] { '\\', '{', '}' });
 		charRule.addOps(RdTags.ESCAPED_CHARS, tOtherTag);
 		charRule.addOps(RdTags.BRACKETS, tBrackets);
 		rules.add(charRule);
 		
-		final WordRule tagRule = new WordRule(new TagDetector(), tUnlistedTag);
+		final WordRule tagRule= new WordRule(new TagDetector(), tUnlistedTag);
 		for (final String tag : RdTags.MAIN_SECTIONS) {
 			tagRule.addWord(tag, tSectionTag);
 		}
@@ -103,8 +93,6 @@ public class RdCodeScanner extends AbstractRuleBasedScanner {
 			tagRule.addWord(tag, tOtherTag);
 		}
 		rules.add(tagRule);
-		
-		return rules;
 	}
 	
 }

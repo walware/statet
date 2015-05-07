@@ -14,7 +14,7 @@ package de.walware.statet.r.ui.editors;
 import de.walware.ecommons.text.Partitioner;
 import de.walware.ecommons.text.PartitionerDocumentSetupParticipant;
 
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.core.source.IRDocumentConstants;
 import de.walware.statet.r.ui.text.rd.RdFastPartitionScanner;
 
 
@@ -24,19 +24,22 @@ import de.walware.statet.r.ui.text.rd.RdFastPartitionScanner;
 public class RdDocumentSetupParticipant extends PartitionerDocumentSetupParticipant {
 	
 	
+	private static final String[] CONTENT_TYPES= IRDocumentConstants.RDOC_CONTENT_TYPES.toArray(
+			new String[IRDocumentConstants.RDOC_CONTENT_TYPES.size()] );
+	
+	
 	public RdDocumentSetupParticipant() {
 	}
 	
 	
 	@Override
 	public String getPartitioningId() {
-		return IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING;
+		return IRDocumentConstants.RDOC_PARTITIONING;
 	}
 	
 	@Override
 	protected Partitioner createDocumentPartitioner() {
-		return new Partitioner(
-				new RdFastPartitionScanner(), IRDocumentPartitions.RDOC_PARTITIONS);
+		return new Partitioner(new RdFastPartitionScanner(), CONTENT_TYPES);
 	}
 	
 }

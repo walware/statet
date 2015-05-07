@@ -13,6 +13,7 @@ package de.walware.statet.r.core.model;
 
 import org.eclipse.jface.text.IRegion;
 
+import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.core.model.ISourceStructElement;
 
@@ -33,12 +34,12 @@ public abstract class RChunkElement extends RChunkBuildElement implements IRLang
 		return fNode;
 	}
 	
-	protected abstract SourceComponent[] getSourceComponents();
+	protected abstract ImList<SourceComponent> getSourceComponents();
 	
 	
 	@Override
 	public final String getModelTypeId() {
-		return RModel.TYPE_ID;
+		return RModel.R_TYPE_ID;
 	}
 	
 	@Override

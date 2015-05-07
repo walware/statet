@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
@@ -47,7 +48,8 @@ public class NewRdFileCreationWizard extends NewElementWizard {
 		}
 		
 		@Override
-		protected String getInitialFileContent(final IFile newFileHandle) {
+		protected String getInitialFileContent(final IFile newFileHandle,
+				final SubMonitor progress) {
 			final String lineDelimiter = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			try {
 				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle,

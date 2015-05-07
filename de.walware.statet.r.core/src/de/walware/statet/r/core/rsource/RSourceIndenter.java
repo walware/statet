@@ -43,6 +43,7 @@ import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
 import de.walware.statet.r.core.rsource.ast.SubIndexed;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.core.RCorePlugin;
 
 
@@ -427,16 +428,13 @@ public class RSourceIndenter {
 	}
 	
 	
-	/**
-	 * 
-	 */
-	public RSourceIndenter() {
-		fScanner = new RHeuristicTokenScanner();
-		fComputeVisitor = new ComputeIndentVisitor();
+	public RSourceIndenter(final RHeuristicTokenScanner scanner) {
+		fScanner= scanner;
+		fComputeVisitor= new ComputeIndentVisitor();
 	}
 	
-	public RSourceIndenter(final IRCoreAccess access) {
-		this();
+	public RSourceIndenter(final RHeuristicTokenScanner scanner, final IRCoreAccess access) {
+		this(scanner);
 		setup(access);
 	}
 	

@@ -16,12 +16,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
+import de.walware.ecommons.text.core.sections.DocContentSections;
 
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.model.RSuModelContainer;
+import de.walware.statet.r.core.source.RDocumentContentInfo;
 
 
 /**
@@ -46,6 +48,11 @@ public final class RSourceUnit extends RResourceUnit implements IRWorkspaceSourc
 	@Override
 	public String getContentTypeId() {
 		return IRSourceUnit.R_CONTENT;
+	}
+	
+	@Override
+	public DocContentSections getDocumentContentInfo() {
+		return RDocumentContentInfo.INSTANCE;
 	}
 	
 	@Override

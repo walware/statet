@@ -22,7 +22,8 @@ import org.eclipse.jface.text.TextUtilities;
 
 import de.walware.ecommons.text.PairMatcher;
 
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.core.source.RdDocumentContentInfo;
 
 
 /**
@@ -39,10 +40,8 @@ public class RdDoubleClickStrategy implements ITextDoubleClickStrategy {
 	
 	public RdDoubleClickStrategy() {
 		super();
-		fPairMatcher = new PairMatcher(BRACKETS,
-				IRDocumentPartitions.RDOC_PARTITIONING_CONFIG,
-				new String[] { IRDocumentPartitions.RDOC_DEFAULT },
-				'\\');
+		fPairMatcher= new PairMatcher(BRACKETS, RdDocumentContentInfo.INSTANCE,
+				new String[] { IRDocumentConstants.RDOC_DEFAULT_CONTENT_TYPE }, '\\');
 	}
 	
 	/**
@@ -58,11 +57,11 @@ public class RdDoubleClickStrategy implements ITextDoubleClickStrategy {
 		
 		final IDocument document = textViewer.getDocument();
 		try {
-			ITypedRegion partition = TextUtilities.getPartition(document, IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING, offset, true);
+			ITypedRegion partition = TextUtilities.getPartition(document, IRDocumentConstants.RDOC_PARTITIONING, offset, true);
 			String type = partition.getType();
 			
 			// Bracket-Pair-Matching in Code-Partitions
-			if (IRDocumentPartitions.RDOC_DEFAULT.equals(type)) {
+			if (IRDocumentConstants.RDOC_DEFAULT_CONTENT_TYPE.equals(type)) {
 				final IRegion region = fPairMatcher.match(document, offset);
 				if (region != null && region.getLength() >= 2) {
 					textViewer.setSelectedRange(region.getOffset() + 1, region.getLength() - 2);
@@ -71,10 +70,10 @@ public class RdDoubleClickStrategy implements ITextDoubleClickStrategy {
 			}
 			
 			// For other partitions, use prefere new partitions (instead opend)
-			partition = TextUtilities.getPartition(document, IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING, offset, false);
+			partition = TextUtilities.getPartition(document, IRDocumentConstants.RDOC_PARTITIONING, offset, false);
 			type = partition.getType();
 			// Start in Comment-Partitions
-			if (IRDocumentPartitions.RDOC_COMMENT.equals(type) || IRDocumentPartitions.RDOC_PLATFORM_SPECIF.equals(type)) {
+			if (IRDocumentConstants.RDOC_COMMENT_CONTENT_TYPE.equals(type) || IRDocumentConstants.RDOC_PLATFORM_SPECIF.equals(type)) {
 				final int partitionOffset = partition.getOffset();
 				if (offset == partitionOffset || offset == partitionOffset+1) {
 					textViewer.setSelectedRange(partitionOffset, partition.getLength());

@@ -611,13 +611,13 @@ public class SourceAnalyzer extends RAstVisitor {
 		init();
 	}
 	
-	public void processChunk(final RChunkBuildElement element, final SourceComponent[] rootNodes) {
+	public void processChunk(final RChunkBuildElement element, final List<SourceComponent> rootNodes) {
 		try {
 			this.chunkElements.add(element);
-			for (int i= 0; i < rootNodes.length; i++) {
+			for (final SourceComponent sourceComponent : rootNodes) {
 				element.fEnvir= this.topLevelEnvir;
-				enterElement(element, this.topLevelEnvir, rootNodes[i]);
-				rootNodes[i].acceptInRChildren(this);
+				enterElement(element, this.topLevelEnvir, sourceComponent);
+				sourceComponent.acceptInRChildren(this);
 				leaveElement();
 			}
 		}

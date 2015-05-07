@@ -11,11 +11,13 @@
 
 package de.walware.statet.r.ui.editors;
 
-import de.walware.ecommons.text.Partitioner;
-import de.walware.ecommons.text.PartitionerDocumentSetupParticipant;
+import org.eclipse.jface.text.IDocumentPartitioner;
 
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.ui.text.r.RFastPartitionScanner;
+import de.walware.ecommons.text.PartitionerDocumentSetupParticipant;
+import de.walware.ecommons.text.core.treepartitioner.TreePartitioner;
+
+import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.ui.text.r.RPartitionNodeScanner;
 
 
 /**
@@ -24,19 +26,22 @@ import de.walware.statet.r.ui.text.r.RFastPartitionScanner;
 public class RDocumentSetupParticipant extends PartitionerDocumentSetupParticipant {
 	
 	
+	private static final String[] CONTENT_TYPES= IRDocumentConstants.R_CONTENT_TYPES.toArray(
+			new String[IRDocumentConstants.R_CONTENT_TYPES.size()] );
+	
+	
 	public RDocumentSetupParticipant() {
 	}
 	
 	
 	@Override
 	public String getPartitioningId() {
-		return IRDocumentPartitions.R_PARTITIONING;
+		return IRDocumentConstants.R_PARTITIONING;
 	}
 	
 	@Override
-	protected Partitioner createDocumentPartitioner() {
-		return new Partitioner(
-				new RFastPartitionScanner(), IRDocumentPartitions.R_PARTITIONS);
+	protected IDocumentPartitioner createDocumentPartitioner() {
+		return new TreePartitioner(new RPartitionNodeScanner(), CONTENT_TYPES);
 	}
 	
 }

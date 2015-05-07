@@ -12,7 +12,6 @@
 package de.walware.statet.base.ui;
 
 import de.walware.ecommons.text.ui.settings.AssistPreferences;
-import de.walware.ecommons.text.ui.settings.DecorationPreferences;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
@@ -26,9 +25,7 @@ public interface IStatetUIPreferenceConstants {
 	public final static String CAT_EDITOR_OPTIONS_QUALIFIER = StatetUIPlugin.PLUGIN_ID + "/editors/options"; //$NON-NLS-1$
 	
 	
-	public final static DecorationPreferences EDITING_DECO_PREFERENCES = new DecorationPreferences(StatetUIPlugin.PLUGIN_ID);
-	
-	public final static AssistPreferences EDITING_ASSIST_PREFERENCES = new AssistPreferences(IStatetUIPreferenceConstants.CAT_EDITOR_OPTIONS_QUALIFIER, "statet/editors/assist.ui");
+	public final static AssistPreferences EDITING_ASSIST_PREFERENCES = new AssistPreferences(IStatetUIPreferenceConstants.CAT_EDITOR_OPTIONS_QUALIFIER);
 	
 	
 //	/**

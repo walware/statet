@@ -11,9 +11,6 @@
 
 package de.walware.statet.r.ui.text.rd;
 
-import static de.walware.statet.r.core.rsource.IRDocumentPartitions.RDOC_COMMENT;
-import static de.walware.statet.r.core.rsource.IRDocumentPartitions.RDOC_PLATFORM_SPECIF;
-
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -24,6 +21,8 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 import de.walware.ecommons.text.core.rules.BufferedDocumentScanner;
+
+import de.walware.statet.r.core.source.IRDocumentConstants;
 
 
 /**
@@ -56,12 +55,12 @@ public class RdFastPartitionScanner implements IPartitionTokenScanner {
 	/** The amount of characters already read on first call to nextToken(). */
 	private int fPrefixLength;
 	
-	private final Map<State, IToken> fTokens = new EnumMap<State, IToken>(State.class);
+	private final Map<State, IToken> fTokens = new EnumMap<>(State.class);
 	
 	{	
 		fTokens.put(State.DEFAULT, new Token(null));
-		fTokens.put(State.COMMENT, new Token(RDOC_COMMENT));
-		fTokens.put(State.PLATFORM, new Token(RDOC_PLATFORM_SPECIF));
+		fTokens.put(State.COMMENT, new Token(IRDocumentConstants.RDOC_COMMENT_CONTENT_TYPE));
+		fTokens.put(State.PLATFORM, new Token(IRDocumentConstants.RDOC_PLATFORM_SPECIF));
 	}
 	
 	public RdFastPartitionScanner() {
@@ -217,10 +216,10 @@ public class RdFastPartitionScanner implements IPartitionTokenScanner {
 		if (contentType == null) {
 			return State.DEFAULT;
 		}
-		else if (contentType.equals(RDOC_COMMENT)) {
+		else if (contentType.equals(IRDocumentConstants.RDOC_COMMENT_CONTENT_TYPE)) {
 			return State.COMMENT;
 		}
-		else if (contentType.equals(RDOC_PLATFORM_SPECIF)) {
+		else if (contentType.equals(IRDocumentConstants.RDOC_PLATFORM_SPECIF)) {
 			return State.PLATFORM;
 		}
 		

@@ -250,7 +250,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 			fSmartInsertTabActionControl.setInput(new TabAction[] {
 					TabAction.INSERT_TAB_CHAR, TabAction.INSERT_INDENT_LEVEL,
 			});
-			LayoutUtil.addGDDummy(composite);
+			LayoutUtil.addGDDummy(composite, true);
 		}
 		
 		LayoutUtil.addGDDummy(composite);
@@ -262,10 +262,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 			label.setText(Messages.REditorOptions_SmartInsert_ForConsole_header);
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		}
-		{	final Label dummy = new Label(composite, SWT.NONE);
-			dummy.setVisible(false);
-			dummy.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 7));
-		}
+		LayoutUtil.addGDDummy(composite, true);
 		fSmartInsertOnPasteControl = createSmartInsertOption(composite,
 				Messages.REditorOptions_SmartInsert_OnPaste_label,
 				null, false );
@@ -284,7 +281,8 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		return composite;
 	}
 	
-	private Button[] createSmartInsertOption(final Composite composite, final String text1, final String text2, final boolean console) {
+	private Button[] createSmartInsertOption(final Composite composite,
+			final String text1, final String text2, final boolean console) {
 		GridData gd;
 		if (text1 != null) {
 			final Label label = new Label(composite, SWT.NONE);
@@ -307,6 +305,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 			gd = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 			label.setLayoutData(gd);
 		}
+		
 		final Button button0 = new Button(composite, SWT.CHECK);
 		gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
 		button0.setLayoutData(gd);
@@ -317,6 +316,9 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		if (!console) {
 			button1.setEnabled(false);
 		}
+		
+		LayoutUtil.addGDDummy(composite, true);
+		
 		return new Button[] { button0, button1 };
 	}
 	

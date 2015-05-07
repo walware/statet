@@ -23,19 +23,16 @@ import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.EcoReconciler2.ISourceUnitStrategy;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
-import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
 public class RReconcilingStrategy implements IReconcilingStrategy, IReconcilingStrategyExtension, ISourceUnitStrategy {
 	
 	
-	private final RDocumentProvider fDocumentProvider;
-	private ISourceUnit fInput;
-	private IProgressMonitor fMonitor;
+	private ISourceUnit input;
+	private IProgressMonitor monitor;
 	
 	
 	public RReconcilingStrategy() {
-		fDocumentProvider = RUIPlugin.getDefault().getRDocumentProvider();
 	}
 	
 	@Override
@@ -49,7 +46,7 @@ public class RReconcilingStrategy implements IReconcilingStrategy, IReconcilingS
 	
 	@Override
 	public void setInput(final ISourceUnit input) {
-		fInput = input;
+		this.input = input;
 	}
 	
 	@Override
@@ -64,16 +61,17 @@ public class RReconcilingStrategy implements IReconcilingStrategy, IReconcilingS
 	
 	@Override
 	public void setProgressMonitor(final IProgressMonitor monitor) {
-		fMonitor = monitor;
+		this.monitor = monitor;
 	}
 	
 	
 	protected void reconcile() {
-		final ISourceUnit su = fInput;
-		if (!(su instanceof IRSourceUnit) || fMonitor.isCanceled()) {
+		final ISourceUnit su = this.input;
+		if (!(su instanceof IRSourceUnit) || this.monitor.isCanceled()) {
 			return;
 		}
-		((IRSourceUnit) su).reconcileRModel(IModelManager.MODEL_FILE, fMonitor);
+		
+		((IRSourceUnit) su).reconcileRModel(IModelManager.MODEL_FILE, this.monitor);
 	}
 	
 }

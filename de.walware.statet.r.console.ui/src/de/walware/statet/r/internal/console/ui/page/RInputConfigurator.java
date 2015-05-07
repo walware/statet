@@ -15,12 +15,12 @@ import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistComputerRegistry;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistProcessor;
-import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.nico.ui.console.NIConsolePage;
 
 import de.walware.statet.r.console.ui.RConsole;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.core.source.RDocumentContentInfo;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.sourceediting.RContentAssistProcessor;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfiguration;
@@ -33,26 +33,25 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 	private static class ThisConfiguration extends RSourceViewerConfiguration {
 		
 		public ThisConfiguration(final ISourceEditor sourceEditor) {
-			super(sourceEditor, null, null, SharedUIResources.getColors() );
+			super(RDocumentContentInfo.INSTANCE, sourceEditor, null, null, null);
 		}
 		
 		@Override
-		public void initDefaultContentAssist(final ContentAssist assistant) {
+		public void initContentAssist(final ContentAssist assistant) {
 			final ContentAssistComputerRegistry registry = RUIPlugin.getDefault().getRConsoleContentAssistRegistry();
 			
 			final ContentAssistProcessor codeProcessor = new RContentAssistProcessor(assistant,
-					IRDocumentPartitions.R_DEFAULT_EXPL, registry, getSourceEditor());
+					IRDocumentConstants.R_DEFAULT_CONTENT_TYPE, registry, getSourceEditor());
 			codeProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '$', '@' });
-			assistant.setContentAssistProcessor(codeProcessor, IRDocumentPartitions.R_DEFAULT_EXPL);
-			assistant.setContentAssistProcessor(codeProcessor, IRDocumentPartitions.R_DEFAULT);
+			assistant.setContentAssistProcessor(codeProcessor, IRDocumentConstants.R_DEFAULT_CONTENT_TYPE);
 			
 			final ContentAssistProcessor symbolProcessor = new RContentAssistProcessor(assistant,
-					IRDocumentPartitions.R_QUOTED_SYMBOL, registry, getSourceEditor());
-			assistant.setContentAssistProcessor(symbolProcessor, IRDocumentPartitions.R_QUOTED_SYMBOL);
+					IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE, registry, getSourceEditor());
+			assistant.setContentAssistProcessor(symbolProcessor, IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE);
 			
 			final ContentAssistProcessor stringProcessor = new RContentAssistProcessor(assistant,
-					IRDocumentPartitions.R_STRING, registry, getSourceEditor());
-			assistant.setContentAssistProcessor(stringProcessor, IRDocumentPartitions.R_STRING);
+					IRDocumentConstants.R_STRING_CONTENT_TYPE, registry, getSourceEditor());
+			assistant.setContentAssistProcessor(stringProcessor, IRDocumentConstants.R_STRING_CONTENT_TYPE);
 		}
 		
 	}

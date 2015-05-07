@@ -11,17 +11,13 @@
 
 package de.walware.statet.r.ui.text.r;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 
 import de.walware.ecommons.text.ui.presentation.AbstractRuleBasedScanner;
-import de.walware.ecommons.ui.ColorManager;
-
-import de.walware.statet.r.ui.RUIPreferenceConstants;
+import de.walware.ecommons.text.ui.settings.TextStyleManager;
 
 
 /**
@@ -30,25 +26,20 @@ import de.walware.statet.r.ui.RUIPreferenceConstants;
 public class RInfixOperatorScanner extends AbstractRuleBasedScanner {
 	
 	
-	/**
-	 * @param colorManager
-	 * @param preferenceStore
-	 */
-	public RInfixOperatorScanner(final ColorManager colorManager, final IPreferenceStore preferenceStore) {
-		super(colorManager, preferenceStore, RUIPreferenceConstants.R.TS_GROUP_ID);
+	public RInfixOperatorScanner(final TextStyleManager textStyles) {
+		super(textStyles);
 		
-		initialize();
+		initRules();
 	}
 	
 	
 	@Override
-	protected List<IRule> createRules() {
-		final List<IRule> list = new ArrayList<IRule>();
-		final IToken predefinedOpToken = getToken(IRTextTokens.OP_KEY);
-		final IToken userdefinedOpToken = getToken(IRTextTokens.OP_SUB_USERDEFINED_KEY);
-		final IToken invalidOpToken = getToken(IRTextTokens.UNDEFINED_KEY);
-		list.add(new RInfixOperatorRule(userdefinedOpToken, invalidOpToken, predefinedOpToken));
-		return list;
+	protected void createRules(final List<IRule> rules) {
+		final IToken predefinedOpToken= getToken(IRTextTokens.OP_KEY);
+		final IToken userdefinedOpToken= getToken(IRTextTokens.OP_SUB_USERDEFINED_KEY);
+		final IToken invalidOpToken= getToken(IRTextTokens.UNDEFINED_KEY);
+		
+		rules.add(new RInfixOperatorRule(userdefinedOpToken, invalidOpToken, predefinedOpToken));
 	}
 	
 }

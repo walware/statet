@@ -21,14 +21,13 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 
-import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ui.sourceediting.EditorInformationProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IInfoHover;
 
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
+import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.ui.rhelp.RHelpHover;
 import de.walware.statet.r.ui.sourceediting.RAssistInvocationContext;
 
@@ -47,8 +46,7 @@ public class REditorInformationProvider extends EditorInformationProvider {
 	@Override
 	public IRegion getSubject(final ITextViewer textViewer, final int offset) {
 		if (fScanner == null) {
-			fScanner = (RHeuristicTokenScanner) LTK.getModelAdapter(
-					getEditor().getModelTypeId(), RHeuristicTokenScanner.class );
+			fScanner= RHeuristicTokenScanner.create(getEditor().getDocumentContentInfo());
 		}
 		try {
 			final IDocument document = getEditor().getViewer().getDocument();
@@ -56,9 +54,9 @@ public class REditorInformationProvider extends EditorInformationProvider {
 			final IRegion word = fScanner.findRWord(offset, false, true);
 			if (word != null) {
 				final ITypedRegion partition = fScanner.getPartition(word.getOffset());
-				if (fScanner.getPartitioningConfig().getDefaultPartitionConstraint().matches(partition.getType())
-						|| partition.getType() == IRDocumentPartitions.R_STRING
-						|| partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
+				if (IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT.matches(partition.getType())
+						|| partition.getType() == IRDocumentConstants.R_STRING_CONTENT_TYPE
+						|| partition.getType() == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE) {
 					return word;
 				}
 			}

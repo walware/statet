@@ -25,7 +25,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 
 import de.walware.ecommons.ltk.IModelManager;
-import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.LTKUtil;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
@@ -38,13 +37,13 @@ import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RModel;
-import de.walware.statet.r.core.rsource.RCodePartitionConstraint;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.GenericVisitor;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.debug.core.RDebugModel;
 import de.walware.statet.r.internal.debug.core.RDebugCorePlugin;
 import de.walware.statet.r.internal.debug.core.breakpoints.RGenericLineBreakpoint;
@@ -182,9 +181,9 @@ public class RLineBreakpointValidator {
 			
 			if (fType == RDebugModel.R_LINE_BREAKPOINT_TYPE_ID) {
 				IRegion lineInformation = fDocument.getLineInformation(fLine);
-				final RHeuristicTokenScanner scanner = (RHeuristicTokenScanner) LTK.getModelAdapter(
-						fSourceUnit.getModelTypeId(), RHeuristicTokenScanner.class );
-				scanner.configure(fDocument, new RCodePartitionConstraint(scanner.getPartitioningConfig()));
+				final RHeuristicTokenScanner scanner= RHeuristicTokenScanner.create(
+						fSourceUnit.getDocumentContentInfo() );
+				scanner.configure(fDocument, IRDocumentConstants.R_CODE_CONTENT_CONSTRAINT);
 				{	final IRegion lastLineInformation = fDocument.getLineInformation(
 							Math.min(fLine + LINE_TOLERANCE, fDocument.getNumberOfLines()-1) );
 					fStartOffset = scanner.findNonBlankForward(
@@ -250,9 +249,9 @@ public class RLineBreakpointValidator {
 					fLine = fDocument.getLineOfOffset(fStartOffset);
 					final IRegion lineInformation = fDocument.getLineInformation(fLine);
 					
-					final RHeuristicTokenScanner scanner = (RHeuristicTokenScanner) LTK.getModelAdapter(
-							fSourceUnit.getModelTypeId(), RHeuristicTokenScanner.class );
-					scanner.configure(fDocument, new RCodePartitionConstraint(scanner.getPartitioningConfig()));
+					final RHeuristicTokenScanner scanner= RHeuristicTokenScanner.create(
+							fSourceUnit.getDocumentContentInfo() );
+					scanner.configure(fDocument, IRDocumentConstants.R_CODE_CONTENT_CONSTRAINT);
 					
 					fEndOffset = scanner.findNonBlankBackward(
 							Math.min(lineInformation.getOffset() + lineInformation.getLength(),
@@ -319,9 +318,9 @@ public class RLineBreakpointValidator {
 	private IRLangSourceElement searchMethodElement(final int offset, final IProgressMonitor monitor)
 			throws BadLocationException {
 		final IRegion lineInformation = fDocument.getLineInformationOfOffset(offset);
-		final RHeuristicTokenScanner scanner = (RHeuristicTokenScanner) LTK.getModelAdapter(
-				fSourceUnit.getModelTypeId(), RHeuristicTokenScanner.class );
-		scanner.configure(fDocument, new RCodePartitionConstraint(scanner.getPartitioningConfig()));
+		final RHeuristicTokenScanner scanner= RHeuristicTokenScanner.create(
+				fSourceUnit.getDocumentContentInfo() );
+		scanner.configure(fDocument, IRDocumentConstants.R_CODE_CONTENT_CONSTRAINT);
 		int charStart = scanner.findNonBlankForward(
 				lineInformation.getOffset(),
 				lineInformation.getOffset() + lineInformation.getLength(),

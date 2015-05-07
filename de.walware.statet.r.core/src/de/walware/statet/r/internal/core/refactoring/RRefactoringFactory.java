@@ -31,7 +31,7 @@ public class RRefactoringFactory extends CommonRefactoringFactory {
 	
 	
 	@Override
-	public RefactoringAdapter createAdapter(Object elements) {
+	public RefactoringAdapter createAdapter(final Object elements) {
 		return new RRefactoringAdapter();
 	}
 	

@@ -26,15 +26,16 @@ import org.eclipse.ui.texteditor.templates.TemplatesView;
 
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
-import de.walware.ecommons.text.Partitioner;
+import de.walware.ecommons.text.core.treepartitioner.TreePartitioner;
 
 import de.walware.statet.base.ui.sourceeditors.ExtEditorTemplatesPage;
 
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.core.source.IRDocumentConstants;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.templates.REditorContext;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
 import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
+import de.walware.statet.r.ui.text.r.RPartitionNodeType;
 
 
 /**
@@ -75,8 +76,9 @@ public class REditorTemplatesPage extends ExtEditorTemplatesPage {
 	@Override
 	protected String[] getContextTypeIds(final IDocument document, final int offset) {
 		try {
-			final String partitionType = TextUtilities.getContentType(document, getEditor().getPartitioning().getPartitioning(), offset, true);
-			if (partitionType == IRDocumentPartitions.R_ROXYGEN) {
+			final String partitionType= TextUtilities.getContentType(document,
+					getEditor().getDocumentContentInfo().getPartitioning(), offset, true );
+			if (partitionType == IRDocumentConstants.R_ROXYGEN_CONTENT_TYPE) {
 				return new String[] { REditorTemplatesContextType.ROXYGEN_CONTEXTTYPE };
 			}
 		}
@@ -108,16 +110,17 @@ public class REditorTemplatesPage extends ExtEditorTemplatesPage {
 	
 	@Override
 	protected void configureDocument(final AbstractDocument document, final TemplateContextType contextType, final SourceEditorViewerConfigurator configurator) {
-		final Partitioner partitioner = (Partitioner) document.getDocumentPartitioner(configurator.getPartitioning().getPartitioning());
+		final String partitioning= configurator.getDocumentContentInfo().getPartitioning();
+		final TreePartitioner partitioner = (TreePartitioner) document.getDocumentPartitioner(partitioning);
 		if (contextType.getId().equals(REditorTemplatesContextType.ROXYGEN_CONTEXTTYPE)) {
-			partitioner.setStartPartitionType(IRDocumentPartitions.R_ROXYGEN);
+			partitioner.setStartType(RPartitionNodeType.ROXYGEN);
 		}
 		else {
-			partitioner.setStartPartitionType(IRDocumentPartitions.R_DEFAULT_EXPL);
+			partitioner.setStartType(RPartitionNodeType.DEFAULT_ROOT);
 		}
 		partitioner.disconnect();
 		partitioner.connect(document);
-		document.setDocumentPartitioner(configurator.getPartitioning().getPartitioning(), partitioner);
+		document.setDocumentPartitioner(partitioning, partitioner);
 	}
 
 }

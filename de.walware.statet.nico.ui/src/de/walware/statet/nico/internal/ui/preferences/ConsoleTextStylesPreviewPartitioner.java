@@ -20,7 +20,10 @@ import static de.walware.statet.nico.internal.ui.preferences.ConsolePreferences.
 import de.walware.ecommons.text.FixDocumentPartitioner;
 
 
-public class ConsoleTextStylesPreviewPartitioner extends FixDocumentPartitioner {
+class ConsoleTextStylesPreviewPartitioner extends FixDocumentPartitioner {
+	
+	
+	public static final String PARTITIONING= "ConsolePreview_walware";
 	
 	
 	public static final String[] PARTITIONS= new String[] {

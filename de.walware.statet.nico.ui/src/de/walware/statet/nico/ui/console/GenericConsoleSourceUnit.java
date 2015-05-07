@@ -11,6 +11,7 @@
 
 package de.walware.statet.nico.ui.console;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -18,8 +19,8 @@ import org.eclipse.jface.text.AbstractDocument;
 
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.LTK;
-import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.WorkingContext;
+import de.walware.ecommons.ltk.core.SourceContent;
 import de.walware.ecommons.ltk.core.impl.WorkingBuffer;
 import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
@@ -201,7 +202,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	 */
 	@Override
 	public List<? extends IModelElement> getModelChildren(final Filter filter) {
-		return NO_CHILDREN;
+		return Collections.EMPTY_LIST;
 	}
 	
 	/**

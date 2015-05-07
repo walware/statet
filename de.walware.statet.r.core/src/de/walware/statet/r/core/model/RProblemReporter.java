@@ -12,8 +12,8 @@
 package de.walware.statet.r.core.model;
 
 import de.walware.ecommons.ltk.IProblemRequestor;
-import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.core.SourceContent;
 
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.sourcemodel.SyntaxProblemReporter;

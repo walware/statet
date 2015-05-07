@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.Status;
 
 import de.walware.ecommons.ts.util.ToolCommandHandlerUtil;
 
-
 import de.walware.rj.eclient.AbstractRToolCommandHandler;
 import de.walware.rj.eclient.IRToolService;
 

@@ -54,7 +54,7 @@ import org.eclipse.jface.text.BadLocationException;
 import de.walware.ecommons.MessageBuilder;
 import de.walware.ecommons.ltk.IProblem;
 import de.walware.ecommons.ltk.IProblemRequestor;
-import de.walware.ecommons.ltk.SourceContent;
+import de.walware.ecommons.ltk.core.SourceContent;
 import de.walware.ecommons.ltk.core.impl.Problem;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.text.ILineInformation;

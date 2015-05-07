@@ -26,7 +26,7 @@ import org.eclipse.jface.text.rules.Token;
 import de.walware.ecommons.text.IPartitionScannerConfigExt;
 import de.walware.ecommons.text.core.rules.BufferedDocumentScanner;
 
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.core.source.IRDocumentConstants;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
@@ -50,11 +50,11 @@ public class RFastPartitionScanner implements IPartitionTokenScanner, IPartition
 	protected static final int S_ROXYGEN = 5;
 	
 	protected final static IToken T_DEFAULT = new Token(null);
-	protected final static IToken T_QUOTED_SYMBOL = new Token(IRDocumentPartitions.R_QUOTED_SYMBOL);
-	protected final static IToken T_INFIX = new Token(IRDocumentPartitions.R_INFIX_OPERATOR);
-	protected final static IToken T_STRING = new Token(IRDocumentPartitions.R_STRING);
-	protected final static IToken T_COMMENT = new Token(IRDocumentPartitions.R_COMMENT);
-	protected final static IToken T_ROXYGEN = new Token(IRDocumentPartitions.R_ROXYGEN);
+	protected final static IToken T_QUOTED_SYMBOL = new Token(IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE);
+	protected final static IToken T_INFIX = new Token(IRDocumentConstants.R_INFIX_OPERATOR_CONTENT_TYPE);
+	protected final static IToken T_STRING = new Token(IRDocumentConstants.R_STRING_CONTENT_TYPE);
+	protected final static IToken T_COMMENT = new Token(IRDocumentConstants.R_COMMENT_CONTENT_TYPE);
+	protected final static IToken T_ROXYGEN = new Token(IRDocumentConstants.R_ROXYGEN_CONTENT_TYPE);
 	
 	
 	/** Enum of last significant characters read. */
@@ -329,22 +329,22 @@ public class RFastPartitionScanner implements IPartitionTokenScanner, IPartition
 		if (contentType == null) {
 			return S_DEFAULT;
 		}
-		if (contentType == IRDocumentPartitions.R_DEFAULT || contentType == IRDocumentPartitions.R_DEFAULT_EXPL) {
+		if (contentType == IRDocumentConstants.R_DEFAULT_CONTENT_TYPE) {
 			return S_DEFAULT;
 		}
-		if (contentType == IRDocumentPartitions.R_STRING) {
+		if (contentType == IRDocumentConstants.R_STRING_CONTENT_TYPE) {
 			return S_STRING;
 		}
-		if (contentType == IRDocumentPartitions.R_COMMENT) {
+		if (contentType == IRDocumentConstants.R_COMMENT_CONTENT_TYPE) {
 			return S_COMMENT;
 		}
-		if (contentType == IRDocumentPartitions.R_ROXYGEN) {
+		if (contentType == IRDocumentConstants.R_ROXYGEN_CONTENT_TYPE) {
 			return S_ROXYGEN;
 		}
-		if (contentType == IRDocumentPartitions.R_INFIX_OPERATOR) {
+		if (contentType == IRDocumentConstants.R_INFIX_OPERATOR_CONTENT_TYPE) {
 			return S_INFIX_OPERATOR;
 		}
-		if (contentType == IRDocumentPartitions.R_QUOTED_SYMBOL) {
+		if (contentType == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE) {
 			return S_QUOTED_SYMBOL;
 		}
 		return getExtState(contentType);

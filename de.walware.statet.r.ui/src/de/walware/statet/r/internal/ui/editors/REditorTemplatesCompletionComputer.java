@@ -25,7 +25,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.TemplatesCompletionComputer;
 
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.core.source.IRDocumentConstants;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.templates.REditorContext;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
@@ -68,8 +68,9 @@ public class REditorTemplatesCompletionComputer extends TemplatesCompletionCompu
 		try {
 			final ISourceEditor editor = context.getEditor();
 			final AbstractDocument document = (AbstractDocument) context.getSourceViewer().getDocument();
-			final ITypedRegion partition = document.getPartition(editor.getPartitioning().getPartitioning(), region.getOffset(), true);
-			if (partition.getType() == IRDocumentPartitions.R_ROXYGEN) {
+			final ITypedRegion partition= document.getPartition(
+					editor.getDocumentContentInfo().getPartitioning(), region.getOffset(), true );
+			if (partition.getType() == IRDocumentConstants.R_ROXYGEN_CONTENT_TYPE) {
 				return getTypeRegistry().getContextType(REditorTemplatesContextType.ROXYGEN_CONTEXTTYPE);
 			}
 			else {

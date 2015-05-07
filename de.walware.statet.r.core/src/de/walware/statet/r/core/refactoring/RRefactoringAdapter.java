@@ -25,14 +25,12 @@ import org.eclipse.text.edits.TextEdit;
 
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelManager;
-import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringAdapter;
 import de.walware.ecommons.text.IPartitionConstraint;
 import de.walware.ecommons.text.IndentUtil;
-import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.text.SourceParseInput;
 import de.walware.ecommons.text.StringParseInput;
 
@@ -42,16 +40,15 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rlang.RTerminal;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.IRSourceConstants;
-import de.walware.statet.r.core.rsource.RCodePartitionConstraint;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.RLexer;
 import de.walware.statet.r.core.rsource.RSourceIndenter;
 import de.walware.statet.r.core.rsource.ast.Assignment;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RScanner;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
+import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.core.refactoring.Messages;
 
 
@@ -65,7 +62,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 	
 	
 	public RRefactoringAdapter() {
-		super(RModel.TYPE_ID);
+		super(RModel.R_TYPE_ID);
 	}
 	
 	
@@ -76,17 +73,18 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 	
 	@Override
 	public RHeuristicTokenScanner getScanner(final ISourceUnit su) {
-		return (RHeuristicTokenScanner) LTK.getModelAdapter(su.getModelTypeId(), RHeuristicTokenScanner.class);
+		return RHeuristicTokenScanner.create(su.getDocumentContentInfo());
 	}
 	
 	@Override
 	public boolean isCommentContent(final ITypedRegion partition) {
-		return (partition != null) && partition.getType().equals(IRDocumentPartitions.R_COMMENT);
+		return (partition != null
+				&& partition.getType() == IRDocumentConstants.R_COMMENT_CONTENT_TYPE );
 	}
 	
 	public IRegion trimToAstRegion(final AbstractDocument document, final IRegion region,
 			final RHeuristicTokenScanner scanner) {
-		scanner.configure(document, new RCodePartitionConstraint(scanner.getPartitioningConfig()));
+		scanner.configure(document, IRDocumentConstants.R_CODE_CONTENT_CONSTRAINT);
 		int start = region.getOffset();
 		int stop = start+region.getLength();
 		int result;
@@ -165,7 +163,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		scanner.configure(document, new IPartitionConstraint() {
 			@Override
 			public boolean matches(final String partitionType) {
-				return (partitionType != IRDocumentPartitions.R_COMMENT);
+				return (partitionType != IRDocumentConstants.R_COMMENT_CONTENT_TYPE);
 			}
 		});
 		final int min = limit.getOffset();
@@ -174,11 +172,10 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		int stop = start+region.getLength();
 		int result;
 		
-		final PartitioningConfiguration partitioning = scanner.getPartitioningConfig();
 		while (start > min) {
 			result = scanner.findNonBlankBackward(start, min, true);
 			if (result >= 0) {
-				if (partitioning.getDefaultPartitionConstraint().matches(scanner.getPartition(result).getType())
+				if (IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT.matches(scanner.getPartition(result).getType())
 						&& scanner.getChar() == ';') {
 					start = result;
 					continue;
@@ -197,7 +194,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		while (stop < max) {
 			result = scanner.findNonBlankForward(stop, max, true);
 			if (result >= 0) {
-				if (partitioning.getDefaultPartitionConstraint().matches(scanner.getPartition(result).getType())
+				if (IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT.matches(scanner.getPartition(result).getType())
 						&& scanner.getChar() == ';') {
 					stop = result + 1;
 					continue;
@@ -306,7 +303,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 	}
 	
 	static String indent(final StringBuilder sb, final AbstractDocument orgDoc, final int offset,
-			final ISourceUnit su) throws BadLocationException, CoreException {
+			final ISourceUnit su, final RHeuristicTokenScanner scanner) throws BadLocationException, CoreException {
 		final IRCoreAccess coreConfig = (su instanceof IRSourceUnit) ? ((IRSourceUnit) su).getRCoreAccess() : RCore.getWorkbenchAccess();
 		
 		final IndentUtil indentUtil = new IndentUtil(orgDoc, coreConfig.getRCodeStyle());
@@ -319,10 +316,10 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		final SourceParseInput parseInput = new StringParseInput(text);
 		text = null;
 		
-		final RScanner scanner = new RScanner(parseInput, AstInfo.LEVEL_MINIMAL);
-		final SourceComponent rootNode = scanner.scanSourceUnit();
+		final RScanner astScanner = new RScanner(parseInput, AstInfo.LEVEL_MINIMAL);
+		final SourceComponent rootNode = astScanner.scanSourceUnit();
 		
-		final RSourceIndenter indenter = new RSourceIndenter(coreConfig);
+		final RSourceIndenter indenter = new RSourceIndenter(scanner, coreConfig);
 		final TextEdit edits = indenter.getIndentEdits(doc, rootNode, 0, 1, doc.getNumberOfLines()-1);
 		edits.apply(doc, 0);
 		return doc.get(prefix.length(), doc.getLength()-prefix.length());

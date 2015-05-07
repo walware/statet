@@ -98,7 +98,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.actions.SelectNextWordHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.SelectPreviousWordHandler;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.text.ICharPairMatcher;
-import de.walware.ecommons.text.PartitioningConfiguration;
+import de.walware.ecommons.text.core.sections.DocContentSections;
 import de.walware.ecommons.text.ui.InformationDispatchHandler;
 import de.walware.ecommons.text.ui.TextHandlerUtil;
 import de.walware.ecommons.text.ui.TextViewerAction;
@@ -1024,8 +1024,8 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	}
 	
 	@Override
-	public PartitioningConfiguration getPartitioning() {
-		return fConfigurator.getPartitioning();
+	public DocContentSections getDocumentContentInfo() {
+		return fConfigurator.getDocumentContentInfo();
 	}
 	
 	@Override

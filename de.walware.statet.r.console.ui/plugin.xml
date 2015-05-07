@@ -398,7 +398,7 @@
             categoryId="paths"
             class="de.walware.statet.r.ui.sourceediting.RPathCompletionComputer">
          <partition
-               partitionType="__r_string">
+               partitionType="R.String">
          </partition>
       </computer>
       <computer
@@ -407,10 +407,10 @@
             categoryId="r-elements"
             class="de.walware.statet.r.ui.sourceediting.RElementsCompletionComputer">
          <partition
-               partitionType="__r_default">
+               partitionType="R.Default">
          </partition>
          <partition
-               partitionType="__r_symbol_quoted">
+               partitionType="R.QuotedSymbol">
          </partition>
       </computer>
    </extension>

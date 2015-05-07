@@ -19,14 +19,12 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.text.PartitioningConfiguration;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 
 
 /**
@@ -36,7 +34,7 @@ public class RdSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		implements IRCoreAccess {
 	
 	
-	private static final Set<String> RESET_GROUPS_IDS = new HashSet<String>(Arrays.asList(new String[] {
+	private static final Set<String> RESET_GROUPS_IDS= new HashSet<>(Arrays.asList(new String[] {
 			TaskTagsPreferences.GROUP_ID, 
 	}));
 	
@@ -51,11 +49,6 @@ public class RdSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		setSource(core);
 	}
 	
-	
-	@Override
-	public PartitioningConfiguration getPartitioning() {
-		return IRDocumentPartitions.RDOC_PARTITIONING_CONFIG;
-	}
 	
 	@Override
 	public IDocumentSetupParticipant getDocumentSetupParticipant() {

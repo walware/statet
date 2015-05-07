@@ -61,9 +61,10 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.core.source.RDocumentContentInfo;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.launching.RCodeLaunching;
@@ -94,7 +95,7 @@ public class REditor extends SourceEditor1 implements IREditor {
 		
 		
 		public MarkOccurrencesProvider(final SourceEditor1 editor) {
-			super(editor, IRDocumentPartitions.R_PARTITIONING_CONFIG.getDefaultPartitionConstraint() );
+			super(editor, IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT);
 		}
 		
 		@Override
@@ -134,7 +135,8 @@ public class REditor extends SourceEditor1 implements IREditor {
 		
 		final IRCoreAccess initAccess = RCore.getWorkbenchAccess();
 		fRConfig = new RSourceViewerConfigurator(initAccess,
-				new RSourceViewerConfiguration(this, null, null, SharedUIResources.getColors()) );
+				new RSourceViewerConfiguration(RDocumentContentInfo.INSTANCE, this,
+						null, null, null ));
 		return fRConfig;
 	}
 	

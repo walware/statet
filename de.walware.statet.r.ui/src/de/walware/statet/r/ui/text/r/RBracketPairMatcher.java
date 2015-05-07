@@ -11,11 +11,10 @@
 
 package de.walware.statet.r.ui.text.r;
 
-import de.walware.ecommons.text.ITokenScanner;
 import de.walware.ecommons.text.PairMatcher;
 
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
+import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 
 
 public class RBracketPairMatcher extends PairMatcher {
@@ -23,30 +22,18 @@ public class RBracketPairMatcher extends PairMatcher {
 	
 	public static final char[][] BRACKETS = { {'{', '}'}, {'(', ')'}, {'[', ']'} };
 	
-	private static final String[] DEFAULT_SET = new String[] {
-		IRDocumentPartitions.R_DEFAULT,
-		IRDocumentPartitions.R_DEFAULT_EXPL
+	private static final String[] CONTENT_TYPES= new String[] {
+		IRDocumentConstants.R_DEFAULT_CONTENT_TYPE
 	};
 	
-	private static final String[] EXPL_SET = new String[] {
-		IRDocumentPartitions.R_DEFAULT_EXPL
-	};
-	
-	
-	public RBracketPairMatcher() {
-		this(new RHeuristicTokenScanner());
-	}
 	
 	public RBracketPairMatcher(final RHeuristicTokenScanner scanner) {
-		this(scanner, scanner.getPartitioningConfig().getPartitioning(),
-				scanner.getPartitioningConfig().getDefaultPartitionConstraint().matches(IRDocumentPartitions.R_DEFAULT) ?
-						DEFAULT_SET : EXPL_SET );
+		this(scanner, CONTENT_TYPES);
 	}
 	
-	public RBracketPairMatcher(final ITokenScanner scanner, final String partitioning,
-			final String[] partitions) {
+	public RBracketPairMatcher(final RHeuristicTokenScanner scanner, final String[] partitions) {
 		super(BRACKETS,
-				partitioning,
+				scanner.getDocumentPartitioning(),
 				partitions,
 				scanner,
 				(char) 0);

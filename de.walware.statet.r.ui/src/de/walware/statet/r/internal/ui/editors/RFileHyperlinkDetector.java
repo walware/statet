@@ -38,7 +38,7 @@ import de.walware.ecommons.text.ui.OpenFileHyperlink;
 
 import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RProjects;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.core.source.IRDocumentConstants;
 
 
 public class RFileHyperlinkDetector extends AbstractHyperlinkDetector {
@@ -63,10 +63,10 @@ public class RFileHyperlinkDetector extends AbstractHyperlinkDetector {
 			int stop= 0;
 			
 			final ITypedRegion partition= TextUtilities.getPartition(document,
-					editor.getPartitioning().getPartitioning(), region.getOffset(), false );
+					editor.getDocumentContentInfo().getPartitioning(), region.getOffset(), false );
 			if (partition != null && partition.getLength() > 3) {
-				if (partition.getType().equals(IRDocumentPartitions.R_COMMENT)
-						|| partition.getType().equals(IRDocumentPartitions.R_ROXYGEN) ) {
+				if (partition.getType().equals(IRDocumentConstants.R_COMMENT_CONTENT_TYPE)
+						|| partition.getType().equals(IRDocumentConstants.R_ROXYGEN_CONTENT_TYPE) ) {
 					boolean quote= false;
 					start= region.getOffset();
 					{	final int bound= partition.getOffset()+1;
@@ -99,7 +99,7 @@ public class RFileHyperlinkDetector extends AbstractHyperlinkDetector {
 						}
 					}
 				}
-				else if (partition.getType().equals(IRDocumentPartitions.R_STRING)) {
+				else if (partition.getType().equals(IRDocumentConstants.R_STRING_CONTENT_TYPE)) {
 					start= partition.getOffset()+1;
 					stop= partition.getOffset()+partition.getLength();
 					if (document.getChar(stop-1) == document.getChar(partition.getOffset())) {

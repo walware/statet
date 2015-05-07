@@ -36,6 +36,7 @@ import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.rsource.RSourceIndenter;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.ui.RUIMessages;
 
 
@@ -67,8 +68,8 @@ public class RCorrectIndentHandler extends SourceEditorProgressHandler {
 	@Override
 	protected void doExecute(final ISourceEditor editor, final ISourceUnit su,
 			final ITextSelection selection, final IProgressMonitor monitor) throws Exception {
-		final AbstractDocument document = su.getDocument(monitor);
-		final AstInfo ast = su.getAstInfo(null, true, monitor);
+		final AbstractDocument document= su.getDocument(monitor);
+		final AstInfo ast= su.getAstInfo(null, true, monitor);
 		
 		if (ast == null || monitor.isCanceled() ) {
 			return;
@@ -77,25 +78,26 @@ public class RCorrectIndentHandler extends SourceEditorProgressHandler {
 		monitor.subTask(getTaskLabel() + "...");
 		
 		if (fIndenter == null) {
-			fIndenter = new RSourceIndenter();
+			fIndenter= new RSourceIndenter(
+					RHeuristicTokenScanner.create(editor.getDocumentContentInfo()) );
 		}
-		final int startLine = selection.getStartLine(); // save before change
+		final int startLine= selection.getStartLine(); // save before change
 //		if (length > 0 && fDocument.getLineOffset(fLastLine) == start+length) {
 //			fLastLine--;
 //		}
-		final MultiTextEdit edits = new MultiTextEdit();
-		final List<IRegion> codeRanges = getCodeRanges(document, selection);
+		final MultiTextEdit edits= new MultiTextEdit();
+		final List<? extends IRegion> codeRanges= getCodeRanges(document, selection);
 		for (final IRegion range : codeRanges) {
-			final int rStartLine = document.getLineOfOffset(Math.max(selection.getOffset(), range.getOffset()));
-			int rEndLine = document.getLineOfOffset(Math.min(selection.getOffset()+selection.getLength(), range.getOffset()+range.getLength()));
-			final int rEndLineOffset = document.getLineOffset(rEndLine);
+			final int rStartLine= document.getLineOfOffset(Math.max(selection.getOffset(), range.getOffset()));
+			int rEndLine= document.getLineOfOffset(Math.min(selection.getOffset()+selection.getLength(), range.getOffset()+range.getLength()));
+			final int rEndLineOffset= document.getLineOffset(rEndLine);
 			if (rEndLineOffset == range.getOffset()+range.getLength()
 					|| (rStartLine < rEndLine && rEndLineOffset == selection.getOffset()+selection.getLength())) {
 				rEndLine--;
 			}
 			if (rStartLine <= rEndLine) {
 				fIndenter.setup((su instanceof IRSourceUnit) ? ((IRSourceUnit) su).getRCoreAccess() : RCore.getWorkbenchAccess());
-				final TextEdit rEdits = fIndenter.getIndentEdits(document, ast.root,
+				final TextEdit rEdits= fIndenter.getIndentEdits(document, ast.root,
 						range.getOffset(), rStartLine, rEndLine );
 				if (rEdits.getChildrenSize() > 0) {
 					edits.addChild(rEdits);
@@ -121,7 +123,7 @@ public class RCorrectIndentHandler extends SourceEditorProgressHandler {
 		}
 		
 		if (selection.getLength() == 0) {
-			final int newPos = fIndenter.getNewIndentOffset(startLine);
+			final int newPos= fIndenter.getNewIndentOffset(startLine);
 			if (newPos >= 0) {
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					@Override
@@ -135,8 +137,9 @@ public class RCorrectIndentHandler extends SourceEditorProgressHandler {
 		}
 	}
 	
-	protected List<IRegion> getCodeRanges(final AbstractDocument document, final ITextSelection selection) {
-		final List<IRegion> regions = new ArrayList<IRegion>(1);
+	protected List<? extends IRegion> getCodeRanges(final AbstractDocument document,
+			final ITextSelection selection) throws BadLocationException {
+		final List<IRegion> regions= new ArrayList<>(1);
 		regions.add(new Region(0, document.getLength()));
 		return regions;
 	}

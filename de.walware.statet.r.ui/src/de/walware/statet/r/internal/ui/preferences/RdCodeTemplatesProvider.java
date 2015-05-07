@@ -21,7 +21,6 @@ import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
-import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory;
 
@@ -44,9 +43,7 @@ public class RdCodeTemplatesProvider implements ICodeGenerationTemplatesCategory
 		public RdTemplateConfigurator(
 				final IRCoreAccess rCoreAccess,
 				final TemplateVariableProcessor processor) {
-			super(rCoreAccess, new RdSourceViewerConfiguration(
-					RUIPlugin.getDefault().getEditorPreferenceStore(),
-					SharedUIResources.getColors()) {
+			super(rCoreAccess, new RdSourceViewerConfiguration() {
 				
 				@Override
 				protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {

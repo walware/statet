@@ -17,10 +17,12 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ui.templates.TemplatesUtil.EvaluatedTemplate;
 import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ui.util.DialogUtil;
@@ -28,7 +30,6 @@ import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
 
 import de.walware.statet.r.codegeneration.CodeGeneration;
-import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -50,12 +51,13 @@ public class NewRFileCreationWizard extends NewElementWizard {
 		}
 		
 		@Override
-		protected String getInitialFileContent(final IFile newFileHandle) {
+		protected String getInitialFileContent(final IFile newFileHandle,
+				final SubMonitor progress) {
 			final String lineDelimiter = TextUtil.getLineDelimiter(newFileHandle.getProject());
+			final IRSourceUnit su= (IRSourceUnit) LTK.getSourceUnitManager().getSourceUnit(
+					RModel.R_TYPE_ID, LTK.PERSISTENCE_CONTEXT, newFileHandle, true, progress );
 			try {
-				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle,
-						RModel.TYPE_ID, IRSourceUnit.RD_CONTENT );
-				final EvaluatedTemplate data = CodeGeneration.getNewRFileContent(rcu, lineDelimiter);
+				final EvaluatedTemplate data = CodeGeneration.getNewRFileContent(su, lineDelimiter);
 				if (data != null) {
 					fInitialSelection = data.getRegionToSelect();
 					return data.getContent();
@@ -63,6 +65,11 @@ public class NewRFileCreationWizard extends NewElementWizard {
 			}
 			catch (final CoreException e) {
 				RUIPlugin.logError(ICommonStatusConstants.INTERNAL_TEMPLATE, "An error occured when applying template to new R script file.", e); //$NON-NLS-1$
+			}
+			finally {
+				if (su != null) {
+					su.disconnect(progress);
+				}
 			}
 			return null;
 		}

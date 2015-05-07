@@ -15,7 +15,7 @@ import org.eclipse.ui.editors.text.ForwardingDocumentProvider;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.core.source.IRDocumentConstants;
 import de.walware.statet.r.ui.editors.RdDocumentSetupParticipant;
 
 
@@ -23,7 +23,7 @@ public class RdDocumentProvider extends TextFileDocumentProvider {
 	
 	
 	public RdDocumentProvider() {
-		final IDocumentProvider provider = new ForwardingDocumentProvider(IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING,
+		final IDocumentProvider provider = new ForwardingDocumentProvider(IRDocumentConstants.RDOC_PARTITIONING,
 				new RdDocumentSetupParticipant(), new TextFileDocumentProvider());
 		setParentDocumentProvider(provider);
 	}

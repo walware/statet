@@ -11,23 +11,22 @@
 
 package de.walware.statet.r.ui.editors;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.ui.actions.CompoundContributionItem;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.menus.IWorkbenchContribution;
 import org.eclipse.ui.services.IServiceLocator;
 
 import de.walware.ecommons.ltk.ui.LTKUI;
+import de.walware.ecommons.ui.actions.ListContributionItem;
 
 import de.walware.statet.r.internal.ui.search.Messages;
 
 
-public class RElementSearchContributionItem extends CompoundContributionItem
+public class RElementSearchContributionItem extends ListContributionItem
 		implements IWorkbenchContribution {
 	
 	
@@ -56,7 +55,7 @@ public class RElementSearchContributionItem extends CompoundContributionItem
 	
 	
 	public RElementSearchContributionItem(final String commandId) {
-		super(null);
+		super();
 		
 		this.commandId= commandId;
 	}
@@ -68,14 +67,6 @@ public class RElementSearchContributionItem extends CompoundContributionItem
 	}
 	
 	@Override
-	protected IContributionItem[] getContributionItems() {
-		final List<IContributionItem> items= new ArrayList<>();
-		
-		createContributionItems(items);
-		
-		return items.toArray(new IContributionItem[items.size()]);
-	}
-	
 	public void createContributionItems(final List<IContributionItem> items) {
 		items.add(new CommandContributionItem(new CommandContributionItemParameter(
 				this.serviceLocator, null, this.commandId, Collections.singletonMap(

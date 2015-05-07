@@ -14,7 +14,7 @@ package de.walware.statet.r.internal.ui;
 import org.eclipse.search.ui.ISearchPageScoreComputer;
 import org.eclipse.ui.IEditorInput;
 
-import de.walware.ecommons.ltk.ui.EditorUtility;
+import de.walware.ecommons.ltk.ui.EditorUtil;
 
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -36,7 +36,7 @@ public class RSearchPageScoreComputer implements ISearchPageScoreComputer {
 				return 85;
 			}
 			if (input instanceof IEditorInput
-					&& EditorUtility.isModelTypeEditorInput((IEditorInput) input, RModel.TYPE_ID)) {
+					&& EditorUtil.isModelTypeEditorInput((IEditorInput) input, RModel.TYPE_ID)) {
 				return 85;
 			}
 			return ISearchPageScoreComputer.LOWEST;

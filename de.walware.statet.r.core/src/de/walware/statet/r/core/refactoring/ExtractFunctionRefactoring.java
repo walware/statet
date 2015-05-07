@@ -60,7 +60,6 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.Assignment;
 import de.walware.statet.r.core.rsource.ast.Block;
 import de.walware.statet.r.core.rsource.ast.FDef;
@@ -68,6 +67,7 @@ import de.walware.statet.r.core.rsource.ast.GenericVisitor;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.core.refactoring.Messages;
 
 public class ExtractFunctionRefactoring extends Refactoring {
@@ -458,7 +458,8 @@ public class ExtractFunctionRefactoring extends Refactoring {
 			sb.append(nl);
 			sb.append("}"); //$NON-NLS-1$
 			sb.append(nl);
-			final String fdef = RRefactoringAdapter.indent(sb, document, firstParentChild.getOffset(), fSourceUnit);
+			final String fdef= RRefactoringAdapter.indent(sb, document, firstParentChild.getOffset(),
+					fSourceUnit, scanner );
 			
 			final IRegion region = fAdapter.expandWhitespaceBlock(document, fOperationRegion, scanner);
 			final int insertOffset = fAdapter.expandWhitespaceBlock(document, 

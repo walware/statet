@@ -29,7 +29,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Shell;
 
 import de.walware.ecommons.ltk.IElementName;
-import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ElementNameCompletionProposal;
@@ -49,7 +48,7 @@ import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.rhelp.IREnvHelp;
 import de.walware.statet.r.core.rhelp.IRHelpManager;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.ui.rhelp.RHelpInfoHoverCreator;
 import de.walware.statet.r.internal.ui.rhelp.RHelpUIServlet;
 import de.walware.statet.r.ui.RUI;
@@ -153,8 +152,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal<IR
 		
 		public RHeuristicTokenScanner getScanner() {
 			if (fScanner == null) {
-				fScanner = (RHeuristicTokenScanner) LTK.getModelAdapter(
-						fContext.getEditor().getModelTypeId(), RHeuristicTokenScanner.class );
+				fScanner= RHeuristicTokenScanner.create(fContext.getEditor().getDocumentContentInfo());
 			}
 			return fScanner;
 		}
@@ -373,7 +371,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal<IR
 		model.forceInstall();
 		
 		final RBracketLevel level = new RBracketLevel(util.getDocument(),
-				context.getEditor().getPartitioning().getPartitioning(),
+				context.getEditor().getDocumentContentInfo().getPartitioning(),
 				position, (util.getViewer() instanceof InputSourceViewer), true);
 		
 		/* create UI */

@@ -33,16 +33,18 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import de.walware.ecommons.IDisposable;
+import de.walware.ecommons.ltk.ui.LTKUIPreferences;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistComputerRegistry;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverRegistry;
 import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesManageListener;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.text.ui.settings.TextStyleManager;
+import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.ImageDescriptorRegistry;
 import de.walware.ecommons.ui.util.ImageRegistryUtil;
 
-import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.nico.core.ConsoleInstanceScope;
 import de.walware.statet.nico.core.NicoCore;
 
@@ -57,6 +59,7 @@ import de.walware.statet.r.internal.ui.editors.RFragmentDocumentProvider;
 import de.walware.statet.r.internal.ui.editors.RdDocumentProvider;
 import de.walware.statet.r.internal.ui.graphics.ShowGraphicViewListener;
 import de.walware.statet.r.ui.RUI;
+import de.walware.statet.r.ui.RUIPreferenceConstants;
 import de.walware.statet.r.ui.editors.REditorOptions;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
 
@@ -108,15 +111,18 @@ public class RUIPlugin extends AbstractUIPlugin {
 	}
 	
 	
-	private boolean fStarted;
+	private boolean started;
 	
 	private ImageDescriptorRegistry fImageDescriptorRegistry;
+	
+	private IPreferenceStore fEditorPreferenceStore;
 	
 	private RDocumentProvider fRDocumentProvider;
 	private RFragmentDocumentProvider fRFragmentDocumentProvider;
 	private RdDocumentProvider fRdDocumentProvider;
 	
-	private IPreferenceStore fEditorPreferenceStore;
+	private TextStyleManager rTextStyles;
+	private TextStyleManager rdTextStyles;
 	
 	private RIdentifierGroups fIdentifierGroups;
 	private REditorOptions fEditorSettings;
@@ -153,12 +159,12 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 */
 	@Override
 	public void start(final BundleContext context) throws Exception {
-		fPrefUpdaters = new ArrayList<PreferencesManageListener>();
-		fDisposables = new ArrayList<IDisposable>();
+		fPrefUpdaters = new ArrayList<>();
+		fDisposables = new ArrayList<>();
 		
 		super.start(context);
 		
-		fStarted = true;
+		this.started= true;
 	}
 	
 	/**
@@ -168,7 +174,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	public void stop(final BundleContext context) throws Exception {
 		try {
 			synchronized (this) {
-				fStarted = false;
+				this.started= false;
 				
 				fImageDescriptorRegistry = null;
 			}
@@ -268,7 +274,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	public synchronized ImageDescriptorRegistry getImageDescriptorRegistry() {
 		if (fImageDescriptorRegistry == null) {
-			if (!fStarted) {
+			if (!this.started) {
 				throw new IllegalStateException("Plug-in is not started.");
 			}
 			fImageDescriptorRegistry = new ImageDescriptorRegistry();
@@ -305,7 +311,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 		if (fEditorPreferenceStore == null) {
 			fEditorPreferenceStore = CombinedPreferenceStore.createStore(
 					getPreferenceStore(),
-					StatetUIServices.getBaseUIPreferenceStore(),
+					LTKUIPreferences.getPreferenceStore(),
 					EditorsUI.getPreferenceStore() );
 		}
 		return fEditorPreferenceStore;
@@ -341,6 +347,32 @@ public class RUIPlugin extends AbstractUIPlugin {
 			}
 		}
 		return null;
+	}
+	
+	public synchronized TextStyleManager getRTextStyles() {
+		if (this.rTextStyles == null) {
+			if (!this.started) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
+			this.rTextStyles= new TextStyleManager(SharedUIResources.getColors(),
+					getPreferenceStore(),
+					RUIPreferenceConstants.R.TS_GROUP_ID );
+			PreferencesUtil.getSettingsChangeNotifier().addManageListener(this.rTextStyles);
+		}
+		return this.rTextStyles;
+	}
+	
+	public synchronized TextStyleManager getRdTextStyles() {
+		if (this.rdTextStyles == null) {
+			if (!this.started) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
+			this.rdTextStyles= new TextStyleManager(SharedUIResources.getColors(),
+					getPreferenceStore(),
+					RUIPreferenceConstants.Rd.TS_GROUP_ID );
+			PreferencesUtil.getSettingsChangeNotifier().addManageListener(this.rdTextStyles);
+		}
+		return this.rdTextStyles;
 	}
 	
 	/**
@@ -445,8 +477,9 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	public synchronized ContentAssistComputerRegistry getREditorContentAssistRegistry() {
 		if (fREditorContentAssistRegistry == null) {
-			fREditorContentAssistRegistry = new ContentAssistComputerRegistry(IRSourceUnit.R_CONTENT,
-					RUIPreferenceInitializer.REDITOR_NODE, RUIPreferenceInitializer.REDITOR_ASSIST_GROUP_ID);
+			fREditorContentAssistRegistry = new ContentAssistComputerRegistry(
+					IRSourceUnit.R_CONTENT,
+					RUIPreferenceInitializer.REDITOR_NODE );
 			fDisposables.add(fREditorContentAssistRegistry);
 		}
 		return fREditorContentAssistRegistry;
@@ -454,8 +487,9 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	public synchronized ContentAssistComputerRegistry getRConsoleContentAssistRegistry() {
 		if (fRConsoleContentAssistRegistry == null) {
-			fRConsoleContentAssistRegistry = new ContentAssistComputerRegistry(IRSourceUnit.R_CONTENT+"Console",
-					RUIPreferenceInitializer.RCONSOLE_NODE, RUIPreferenceInitializer.RCONSOLE_ASSIST_GROUP_ID);
+			fRConsoleContentAssistRegistry = new ContentAssistComputerRegistry(
+					IRSourceUnit.R_CONTENT + "Console",
+					RUIPreferenceInitializer.RCONSOLE_NODE );
 			fDisposables.add(fRConsoleContentAssistRegistry);
 		}
 		return fRConsoleContentAssistRegistry;

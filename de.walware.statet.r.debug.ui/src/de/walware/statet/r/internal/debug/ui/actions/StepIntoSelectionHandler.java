@@ -46,9 +46,9 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rlang.RTokens;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.source.IRDocumentConstants;
 import de.walware.statet.r.debug.core.IRStackFrame;
 import de.walware.statet.r.internal.debug.ui.RDebugUIPlugin;
 import de.walware.statet.r.internal.debug.ui.RDebugUIUtils;
@@ -62,13 +62,13 @@ public class StepIntoSelectionHandler extends AbstractHandler {
 		try {
 			final IDocument document = editor.getViewer().getDocument();
 			final ITypedRegion partition = TextUtilities.getPartition(document,
-					editor.getPartitioning().getPartitioning(), region.getOffset(), false );
+					editor.getDocumentContentInfo().getPartitioning(), region.getOffset(), false );
 			final ISourceUnit su = editor.getSourceUnit();
 			if (su instanceof IRSourceUnit && region.getOffset() < document.getLength()
-					&& ( (editor.getPartitioning().getDefaultPartitionConstraint().matches(partition.getType())
+					&& ( (IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT.matches(partition.getType())
 							&& !RTokens.isRobustSeparator(document.getChar(region.getOffset()), false) )
-						|| partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL
-						|| partition.getType() == IRDocumentPartitions.R_STRING )) {
+						|| partition.getType() == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE
+						|| partition.getType() == IRDocumentConstants.R_STRING_CONTENT_TYPE )) {
 				
 				final IRModelInfo info = (IRModelInfo) su.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, new NullProgressMonitor());
 				if (info != null) {

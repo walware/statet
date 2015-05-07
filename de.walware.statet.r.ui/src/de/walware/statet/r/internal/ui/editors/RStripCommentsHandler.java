@@ -26,7 +26,6 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
 import de.walware.ecommons.ltk.IModelManager;
-import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
@@ -35,8 +34,8 @@ import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorProgressHandler;
 import de.walware.ecommons.text.TextUtil;
 
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.ui.RUIMessages;
 
 
@@ -63,7 +62,7 @@ public class RStripCommentsHandler extends SourceEditorProgressHandler {
 			final ITextSelection selection, final IProgressMonitor monitor) throws Exception {
 		final AbstractDocument document = su.getDocument(monitor);
 		final ISourceUnitModelInfo model = su.getModelInfo(null, IModelManager.MODEL_FILE, monitor);
-		final RHeuristicTokenScanner scanner = (RHeuristicTokenScanner) LTK.getModelAdapter(su.getModelTypeId(), RHeuristicTokenScanner.class);
+		final RHeuristicTokenScanner scanner= RHeuristicTokenScanner.create(editor.getDocumentContentInfo());
 		
 		if (model == null || scanner == null || monitor.isCanceled()) {
 			return;

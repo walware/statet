@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.internal.ui.rhelp;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import de.walware.ecommons.text.HtmlParseInput;
@@ -35,7 +38,13 @@ public class RHelpRCodeScanner extends RCodeScanner2 {
 	}
 	
 	public String getDefaultStyle() {
-		return (String) getTextStyleManager().getToken(null).getData();
+		return (String) getTextStyles().getToken(null).getData();
+	}
+	
+	@Override
+	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
+		getTextStyles().handleSettingsChanged(groupIds, options);
+		super.handleSettingsChanged(groupIds, options);
 	}
 	
 }

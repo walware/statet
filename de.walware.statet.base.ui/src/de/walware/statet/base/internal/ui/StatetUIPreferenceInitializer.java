@@ -13,15 +13,10 @@ package de.walware.statet.base.internal.ui;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.text.ui.settings.AssistPreferences;
-import de.walware.ecommons.text.ui.settings.DecorationPreferences;
-
-import de.walware.workbench.ui.IWaThemeConstants;
-import de.walware.workbench.ui.util.ThemeUtil;
 
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 
@@ -29,33 +24,20 @@ import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 public class StatetUIPreferenceInitializer extends AbstractPreferenceInitializer {
 	
 	
-	@Override
-	public void initializeDefaultPreferences() {
-		
-		final IPreferenceStore store = StatetUIPlugin.getDefault().getPreferenceStore();
-		initializeTextEditiongPreferences(store);
+	public StatetUIPreferenceInitializer() {
 	}
 	
 	
-	private static void initializeTextEditiongPreferences(final IPreferenceStore store) {
+	@Override
+	public void initializeDefaultPreferences() {
 //		// set the default values from ExtendedTextEditor
 //		store.setValue(AbstractDecoratedTextEditorPreferenceConstants.USE_QUICK_DIFF_PREFERENCE_PAGE, true);
-		final DefaultScope scope = new DefaultScope();
-		final IEclipsePreferences prefs = scope.getNode(StatetUIPlugin.PLUGIN_ID);
-		final ThemeUtil theme = new ThemeUtil();
+		final IScopeContext context= DefaultScope.INSTANCE;
 		
-		// EditorPreferences
-		prefs.putBoolean(DecorationPreferences.MATCHING_BRACKET_ENABLED_KEY, true);
-		prefs.put(DecorationPreferences.MATCHING_BRACKET_COLOR_KEY, theme.getColorPrefValue(IWaThemeConstants.MATCHING_BRACKET_COLOR));
-		
-		{	final IEclipsePreferences node = scope.getNode(IStatetUIPreferenceConstants.CAT_EDITOR_OPTIONS_QUALIFIER);
-			final AssistPreferences assistPrefs = IStatetUIPreferenceConstants.EDITING_ASSIST_PREFERENCES;
-			PreferencesUtil.setPrefValue(scope, assistPrefs.getAutoActivationEnabledPref(), Boolean.TRUE);
-			PreferencesUtil.setPrefValue(scope, assistPrefs.getAutoActivationDelayPref(), 200);
-			PreferencesUtil.setPrefValue(scope, assistPrefs.getAutoInsertSinglePref(), Boolean.FALSE);
-			PreferencesUtil.setPrefValue(scope, assistPrefs.getAutoInsertPrefixPref(), Boolean.FALSE);
-			node.put("Parameters.background", theme.getColorPrefValue(IWaThemeConstants.INFORMATION_BACKGROUND_COLOR)); //$NON-NLS-1$
-			node.put("Parameters.foreground", theme.getColorPrefValue(IWaThemeConstants.INFORMATION_COLOR)); //$NON-NLS-1$
+		{	final AssistPreferences assistPrefs= IStatetUIPreferenceConstants.EDITING_ASSIST_PREFERENCES;
+			PreferencesUtil.setPrefValue(context, assistPrefs.getAutoActivationEnabledPref(), Boolean.TRUE);
+			PreferencesUtil.setPrefValue(context, assistPrefs.getAutoInsertSinglePref(), Boolean.FALSE);
+			PreferencesUtil.setPrefValue(context, assistPrefs.getAutoInsertPrefixPref(), Boolean.FALSE);
 		}
 //		store.setDefault(EDITOROUTLINE_SORT, false);
 //		store.setDefault(EDITOROUTLINE_LINKWITHEDITOR, true);

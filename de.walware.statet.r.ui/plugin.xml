@@ -17,7 +17,7 @@
 
    <extension
          point="de.walware.ecommons.ltk.modelTypes">
-      <unitType modelTypeId="r"
+      <unitType modelTypeId="R"
             contextKey="editor.default"
             unitFactory="de.walware.statet.r.internal.ui.REditorWorkingCopyFactory">
       </unitType>
@@ -131,13 +131,13 @@
             categoryId="templates"
             class="de.walware.statet.r.internal.ui.editors.REditorTemplatesCompletionComputer">
          <partition
-               partitionType="__r_default">
+               partitionType="R.Default">
          </partition>
          <partition
-               partitionType="__r_comment">
+               partitionType="R.Comment">
          </partition>
          <partition
-               partitionType="__r_roxygen">
+               partitionType="R.Roxygen">
          </partition>
       </computer>
       <category
@@ -150,7 +150,7 @@
             categoryId="paths"
             class="de.walware.statet.r.ui.sourceediting.RPathCompletionComputer">
          <partition
-               partitionType="__r_string">
+               partitionType="R.String">
          </partition>
       </computer>
       <category
@@ -163,10 +163,10 @@
             categoryId="r-elements"
             class="de.walware.statet.r.ui.sourceediting.RElementsCompletionComputer">
          <partition
-               partitionType="__r_default">
+               partitionType="R.Default">
          </partition>
          <partition
-               partitionType="__r_symbol_quoted">
+               partitionType="R.QuotedSymbol">
          </partition>
       </computer>
       <category
@@ -179,10 +179,10 @@
             categoryId="r-elements.runtime"
             class="de.walware.statet.r.ui.sourceediting.RElementsCompletionComputer$CompleteRuntime">
          <partition
-               partitionType="__r_default">
+               partitionType="R.Default">
          </partition>
          <partition
-               partitionType="__r_symbol_quoted">
+               partitionType="R.QuotedSymbol">
          </partition>
       </computer>
       <computer
@@ -191,7 +191,7 @@
             categoryId="r-elements"
             class="de.walware.statet.r.internal.ui.editors.RoxygenCompletionComputer">
          <partition
-               partitionType="__r_roxygen">
+               partitionType="R.Roxygen">
          </partition>
       </computer>
    </extension>
@@ -635,7 +635,7 @@
                         args="1280,1024"
                         forcePluginActivation="true"
                         property="de.walware.ecommons.ltk.isElementC1TypeSelection"
-                        value="r">
+                        value="R">
                   </test>
                </or>
             </with>

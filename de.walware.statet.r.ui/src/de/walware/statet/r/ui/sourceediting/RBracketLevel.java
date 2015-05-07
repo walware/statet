@@ -17,7 +17,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.link.LinkedPosition;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.text.ui.BracketLevel;
 
 
@@ -82,15 +83,6 @@ public final class RBracketLevel extends BracketLevel {
 	}
 	
 	
-	private static boolean isEscaped(final IDocument document, int offset)
-			throws BadLocationException {
-		boolean escaped = false;
-		while (offset > 0 && document.getChar(--offset) == '\\') {
-			escaped = !escaped;
-		}
-		return escaped;
-	}
-	
 	public final static class StringDPosition extends InBracketPosition {
 		
 		public StringDPosition(final IDocument doc, final int offset, final int length,
@@ -115,7 +107,7 @@ public final class RBracketLevel extends BracketLevel {
 		
 		@Override
 		protected boolean isEscaped(final int offset) throws BadLocationException {
-			return RBracketLevel.isEscaped(getDocument(), offset);
+			return (TextUtil.countBackward(getDocument(), offset, '\\') % 2 == 1);
 		}
 		
 	}
@@ -144,7 +136,7 @@ public final class RBracketLevel extends BracketLevel {
 		
 		@Override
 		protected boolean isEscaped(final int offset) throws BadLocationException {
-			return RBracketLevel.isEscaped(getDocument(), offset);
+			return (TextUtil.countBackward(getDocument(), offset, '\\') % 2 == 1);
 		}
 		
 	}
@@ -173,7 +165,7 @@ public final class RBracketLevel extends BracketLevel {
 		
 		@Override
 		protected boolean isEscaped(final int offset) throws BadLocationException {
-			return RBracketLevel.isEscaped(getDocument(), offset);
+			return (TextUtil.countBackward(getDocument(), offset, '\\') % 2 == 1);
 		}
 		
 	}
@@ -232,7 +224,7 @@ public final class RBracketLevel extends BracketLevel {
 	
 	public RBracketLevel(final IDocument document, final String partitioning, final InBracketPosition position,
 			final boolean consoleMode, final boolean autoDelete) {
-		this(document, partitioning, new ConstArrayList<LinkedPosition>(position),
+		this(document, partitioning, ImCollections.<LinkedPosition>newList(position),
 				((consoleMode) ? CONSOLE_MODE : 0) | ((autoDelete) ? AUTODELETE : 0));
 	}
 	

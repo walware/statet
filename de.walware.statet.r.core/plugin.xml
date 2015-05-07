@@ -121,28 +121,25 @@
    <extension
          point="de.walware.ecommons.ltk.modelTypes">
       <modelType
-            id="r">
+            id="R">
       </modelType>
       <contentType
             contentTypeId="de.walware.statet.r.contentTypes.R"
-            modelTypeId="r">
+            modelTypeId="R">
       </contentType>
       <unitType
-            modelTypeId="r"
+            modelTypeId="R"
             contextKey="persistence.default"
             unitFactory="de.walware.statet.r.internal.core.RSourceUnitFactory">
       </unitType>
    </extension>
-   <extension
+   <!--extension
          point="de.walware.ecommons.ltk.modelAdapters">
       <adapterFactory
-            modelTypeId="r"
+            modelTypeId="R"
             class="de.walware.statet.r.internal.core.RModelAdapterFactory">
-         <adapter
-               type="de.walware.statet.r.core.rsource.RHeuristicTokenScanner">
-         </adapter>
       </adapterFactory>
-   </extension>
+   </extension-->
    
    <extension
          point="org.eclipse.ltk.core.refactoring.deleteParticipants">

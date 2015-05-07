@@ -11,12 +11,10 @@
 
 package de.walware.statet.ext.ui.text;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
@@ -25,7 +23,7 @@ import org.eclipse.jface.text.rules.WordRule;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.text.ui.presentation.AbstractRuleBasedScanner;
 import de.walware.ecommons.text.ui.presentation.ITextPresentationConstants;
-import de.walware.ecommons.ui.ColorManager;
+import de.walware.ecommons.text.ui.settings.TextStyleManager;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
@@ -34,8 +32,7 @@ import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 /**
  * Scanner for comments. Provides support for task tags.
  */
-public class CommentScanner extends AbstractRuleBasedScanner 
-		implements ISettingsChangedHandler {
+public class CommentScanner extends AbstractRuleBasedScanner implements ISettingsChangedHandler {
 	
 	private static class TaskTagDetector implements IWordDetector {
 		
@@ -56,71 +53,67 @@ public class CommentScanner extends AbstractRuleBasedScanner
 		
 		public TaskTagRule(final IToken token, final IToken defaultToken) {
 			super(new TaskTagDetector(), defaultToken);
-			fToken = token;
+			this.fToken= token;
 		}
 		
 		public void clearTaskTags() {
-			fWords.clear();
+			this.fWords.clear();
 		}
 		
 		public void addTaskTags(final String[] tags) {
 			for (final String tag : tags) {
-				addWord(tag, fToken);
+				addWord(tag, this.fToken);
 			}
 		}
 	}
 	
 	
-	private TaskTagRule fTaskTagRule;
+	private TaskTagRule taskTagRule;
 	
-	private final String fCommentTokenKey;
-	private final String fTaskTokenKey;
+	private final String commentTokenKey;
+	private final String taskTokenKey;
 	
 	
-	public CommentScanner(final ColorManager colorManager, final IPreferenceStore preferenceStore, final IPreferenceAccess corePrefs,
-			final String stylesGroupId,
-			final String commentTokenKey, final String taskTokenKey) {
-		super(colorManager, preferenceStore, stylesGroupId);
+	public CommentScanner(final TextStyleManager textStyles, final String commentTokenKey,
+			final String taskTokenKey,
+			final IPreferenceAccess corePrefs) {
+		super(textStyles);
 		
-		fCommentTokenKey = commentTokenKey;
-		fTaskTokenKey = taskTokenKey;
+		this.commentTokenKey= commentTokenKey;
+		this.taskTokenKey= taskTokenKey;
 		
-		initialize();
+		initRules();
 		loadTaskTags(corePrefs);
 	}
 	
 	
 	@Override
-	protected List<IRule> createRules() {
-		final List<IRule> list = new ArrayList<IRule>();
-		
-		final IToken defaultToken = getToken(fCommentTokenKey);
-		final IToken taskToken = getToken(fTaskTokenKey);
-		
-		// Add rule for Task Tags.
-		fTaskTagRule = new TaskTagRule(taskToken, defaultToken);
-		list.add(fTaskTagRule);
+	protected void createRules(final List<IRule> rules) {
+		final IToken defaultToken= getToken(this.commentTokenKey);
+		final IToken taskToken= getToken(this.taskTokenKey);
 		
 		setDefaultReturnToken(defaultToken);
 		
-		return list;
+		// Add rule for Task Tags.
+		this.taskTagRule= new TaskTagRule(taskToken, defaultToken);
+		rules.add(this.taskTagRule);
 	}
+	
 	
 	@Override
 	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
-		super.handleSettingsChanged(groupIds, options);
 		if (groupIds.contains(TaskTagsPreferences.GROUP_ID)) {
-			final IPreferenceAccess prefs = (IPreferenceAccess) options.get(ISettingsChangedHandler.PREFERENCEACCESS_KEY);
+			final IPreferenceAccess prefs= (IPreferenceAccess) options.get(ISettingsChangedHandler.PREFERENCEACCESS_KEY);
 			loadTaskTags(prefs);
 			options.put(ITextPresentationConstants.SETTINGSCHANGE_AFFECTSPRESENTATION_KEY, Boolean.TRUE);
 		}
 	}
 	
 	public void loadTaskTags(final IPreferenceAccess prefs) {
-		fTaskTagRule.clearTaskTags();
-		final String[] tags = TaskTagsPreferences.loadTagsOnly(prefs);
+		this.taskTagRule.clearTaskTags();
+		final String[] tags= TaskTagsPreferences.loadTagsOnly(prefs);
 		if (tags != null) {
-			fTaskTagRule.addTaskTags(tags);
+			this.taskTagRule.addTaskTags(tags);
 		}
 	}
 	

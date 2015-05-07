@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
@@ -27,14 +26,12 @@ import org.eclipse.jface.text.rules.Token;
 import de.walware.ecommons.text.BufferedDocumentParseInput;
 import de.walware.ecommons.text.ui.presentation.ITextPresentationConstants;
 import de.walware.ecommons.text.ui.settings.TextStyleManager;
-import de.walware.ecommons.ui.ColorManager;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.RLexer;
 import de.walware.statet.r.internal.ui.RIdentifierGroups;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.ui.RUIPreferenceConstants;
 
 
 /**
@@ -56,10 +53,6 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		for (int i = 0; i < types.length; i++) {
 			map.put(types[i], token);
 		}
-	}
-	
-	protected static TextStyleManager createDefaultTextStyleManager(final ColorManager colorManager, final IPreferenceStore preferenceStore) {
-		return new TextStyleManager(colorManager, preferenceStore, RUIPreferenceConstants.R.TS_GROUP_ID);
 	}
 	
 	
@@ -103,8 +96,8 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 	private int fCurrentLength;
 	
 	
-	public RCodeScanner2(final ColorManager colorManager, final IPreferenceStore preferenceStore) {
-		this(new RTokenScannerLexer(), createDefaultTextStyleManager(colorManager, preferenceStore));
+	public RCodeScanner2(final TextStyleManager textStyles) {
+		this(new RTokenScannerLexer(), textStyles);
 	}
 	
 	protected RCodeScanner2(final RTokenScannerLexer lexer, final TextStyleManager textStyles) {
@@ -133,7 +126,7 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		return fLexer;
 	}
 	
-	protected TextStyleManager getTextStyleManager() {
+	protected TextStyleManager getTextStyles() {
 		return fTextStyles;
 	}
 	
@@ -201,7 +194,6 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 	
 	@Override
 	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
-		fTextStyles.handleSettingsChanged(groupIds, options);
 		if (groupIds.contains(RIdentifierGroups.GROUP_ID)) {
 			resetSpecialSymbols();
 			options.put(ITextPresentationConstants.SETTINGSCHANGE_AFFECTSPRESENTATION_KEY, Boolean.TRUE);

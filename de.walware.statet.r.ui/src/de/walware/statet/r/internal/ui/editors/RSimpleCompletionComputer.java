@@ -21,7 +21,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.SimpleCompletionProposal;
 
 import de.walware.statet.r.core.RSymbolComparator;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.ui.RUI;
 
 

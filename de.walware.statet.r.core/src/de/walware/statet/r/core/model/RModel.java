@@ -36,7 +36,7 @@ import de.walware.statet.r.internal.core.RProject;
 public class RModel {
 	
 	
-	public static final String R_TYPE_ID= "r"; //$NON-NLS-1$
+	public static final String R_TYPE_ID= "R"; //$NON-NLS-1$
 	@Deprecated
 	public static final String TYPE_ID= R_TYPE_ID;
 	

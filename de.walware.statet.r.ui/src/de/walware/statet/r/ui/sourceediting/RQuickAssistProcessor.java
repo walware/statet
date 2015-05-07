@@ -49,5 +49,4 @@ public class RQuickAssistProcessor extends QuickAssistProcessor {
 		fComputer.computeAssistProposals(context, proposals, monitor);
 	}
 	
-	
 }

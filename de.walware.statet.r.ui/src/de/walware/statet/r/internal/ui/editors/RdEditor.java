@@ -16,7 +16,6 @@ import org.eclipse.ui.IEditorInput;
 
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RProjects;
@@ -44,9 +43,8 @@ public class RdEditor extends SourceEditor1 {
 	protected SourceEditorViewerConfigurator createConfiguration() {
 		setDocumentProvider(RUIPlugin.getDefault().getRdDocumentProvider());
 		
-		fRdConfig = new RdSourceViewerConfigurator(null, new RdSourceViewerConfiguration(
-				RUIPlugin.getDefault().getEditorPreferenceStore(),
-				SharedUIResources.getColors()) );
+		fRdConfig = new RdSourceViewerConfigurator(null,
+				new RdSourceViewerConfiguration(this, null, null, null) );
 		return fRdConfig;
 	}
 	

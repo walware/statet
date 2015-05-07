@@ -13,7 +13,6 @@ package de.walware.statet.r.ui.text.r;
 
 import java.util.List;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IRule;
@@ -21,11 +20,9 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.ui.ColorManager;
+import de.walware.ecommons.text.ui.settings.TextStyleManager;
 
 import de.walware.statet.ext.ui.text.CommentScanner;
-
-import de.walware.statet.r.ui.RUIPreferenceConstants;
 
 
 /**
@@ -94,22 +91,16 @@ public class RoxygenScanner extends CommentScanner {
 	}
 	
 	
-	public RoxygenScanner(final ColorManager colorManager, final IPreferenceStore preferenceStore, final IPreferenceAccess corePrefs) {
-		super(colorManager, preferenceStore, corePrefs, 
-				RUIPreferenceConstants.R.TS_GROUP_ID,
-				IRTextTokens.ROXYGEN_KEY, IRTextTokens.TASK_TAG_KEY);
+	public RoxygenScanner(final TextStyleManager textStyles, final IPreferenceAccess corePrefs) {
+		super(textStyles, IRTextTokens.ROXYGEN_KEY, IRTextTokens.TASK_TAG_KEY, corePrefs);
 	}
 	
 	
 	@Override
-	protected List<IRule> createRules() {
-		final List<IRule> rules = super.createRules();
+	protected void createRules(final List<IRule> rules) {
+		super.createRules(rules);
 		
-		rules.add(new RoxygenTagRule(
-				getToken(IRTextTokens.ROXYGEN_TAG_KEY), 
-				fDefaultReturnToken));
-		
-		return rules;
+		rules.add(new RoxygenTagRule(getToken(IRTextTokens.ROXYGEN_TAG_KEY), fDefaultReturnToken));
 	}
 	
 }

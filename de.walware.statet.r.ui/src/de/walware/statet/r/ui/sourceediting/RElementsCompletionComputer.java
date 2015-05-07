@@ -35,7 +35,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IElementName;
-import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.core.model.IModelElement;
@@ -76,12 +75,12 @@ import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rlang.RTokens;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.FCall;
 import de.walware.statet.r.core.rsource.ast.FCall.Args;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.ui.editors.RArgumentListContextInformation;
 import de.walware.statet.r.internal.ui.editors.RElementCompletionProposal;
 import de.walware.statet.r.internal.ui.editors.RKeywordCompletionProposal;
@@ -141,7 +140,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	private static final IPartitionConstraint NO_R_COMMENT_CONSTRAINT = new IPartitionConstraint() {
 		@Override
 		public boolean matches(final String partitionType) {
-			return (partitionType != IRDocumentPartitions.R_COMMENT);
+			return (partitionType != IRDocumentConstants.R_COMMENT_CONTENT_TYPE);
 		};
 	};
 	
@@ -272,8 +271,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	
 	private RHeuristicTokenScanner getScanner() {
 		if (fScanner == null && fEditor != null) {
-			fScanner = (RHeuristicTokenScanner) LTK.getModelAdapter(fEditor.getModelTypeId(),
-					RHeuristicTokenScanner.class );
+			fScanner= RHeuristicTokenScanner.create(fEditor.getDocumentContentInfo());
 		}
 		return fScanner;
 	}
@@ -393,7 +391,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			return;
 		}
 		scanner.configureDefaultParitions(document);
-		if (scanner.getPartitioningConfig().getDefaultPartitionConstraint().matches(scanner.getPartition(offset-1).getType())) {
+		if (IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT.matches(scanner.getPartition(offset - 1).getType())) {
 			final int index = scanner.findOpeningPeer(offset-1, F_BRACKETS);
 			if (index >= 0) {
 				final FCallInfo fcallInfo = searchFCallInfo(context, index-indexShift);
@@ -527,8 +525,9 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			return ""; //$NON-NLS-1$
 		}
 		try {
-			ITypedRegion partition = document.getPartition(context.getEditor().getPartitioning().getPartitioning(), offset, true);
-			if (partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
+			final String partitioning= context.getEditor().getDocumentContentInfo().getPartitioning();
+			ITypedRegion partition = document.getPartition(partitioning, offset, true);
+			if (partition.getType() == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE) {
 				offset = partition.getOffset();
 			}
 			int goodStart = offset;
@@ -552,8 +551,8 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 						}
 						break SEARCH_START;
 					case '`':
-						partition = document.getPartition(context.getEditor().getPartitioning().getPartitioning(), offset, false);
-						if (partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
+						partition = document.getPartition(partitioning, offset, false);
+						if (partition.getType() == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE) {
 							offset = goodStart = partition.getOffset();
 							break SEARCH_START;
 						}
@@ -793,7 +792,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			return;
 		}
 		scanner.configureDefaultParitions(document);
-		if (scanner.getPartitioningConfig().getDefaultPartitionConstraint().matches(scanner.getPartition(offset-1).getType())) {
+		if (IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT.matches(scanner.getPartition(offset - 1).getType())) {
 			final int index = scanner.findOpeningPeer(offset-1, F_BRACKETS);
 			if (index >= 0) {
 				final FCallInfo fcallInfo = searchFCallInfo(context, index-indexShift);

@@ -23,7 +23,6 @@ import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.ui.PartInitException;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.core.model.ISourceElement;
@@ -37,10 +36,10 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rlang.RTokens;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 
 
 public class ROpenDeclarationHandler extends AbstractOpenDeclarationHandler {
@@ -49,20 +48,20 @@ public class ROpenDeclarationHandler extends AbstractOpenDeclarationHandler {
 	public static RElementAccess searchAccess(final ISourceEditor editor, final IRegion region) {
 		try {
 			final IDocument document= editor.getViewer().getDocument();
-			final RHeuristicTokenScanner scanner= (RHeuristicTokenScanner) LTK.getModelAdapter(
-					editor.getModelTypeId(), RHeuristicTokenScanner.class );
+			final RHeuristicTokenScanner scanner= RHeuristicTokenScanner.create(
+					editor.getDocumentContentInfo() );
 			if (scanner == null) {
 				return null;
 			}
 			final ITypedRegion partition= TextUtilities.getPartition(document,
-					scanner.getPartitioningConfig().getPartitioning(), region.getOffset(), false);
+					scanner.getDocumentPartitioning(), region.getOffset(), false );
 			final ISourceUnit su= editor.getSourceUnit();
 			if (su instanceof IRSourceUnit
 					&& region.getOffset() < document.getLength()
-					&& ( (scanner.getPartitioningConfig().getDefaultPartitionConstraint().matches(partition.getType())
+					&& ( (IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT.matches(partition.getType())
 							&& !RTokens.isRobustSeparator(document.getChar(region.getOffset()), false) )
-						|| partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL
-						|| partition.getType() == IRDocumentPartitions.R_STRING )) {
+						|| partition.getType() == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE
+						|| partition.getType() == IRDocumentConstants.R_STRING_CONTENT_TYPE )) {
 				
 				final IRModelInfo modelInfo= (IRModelInfo) su.getModelInfo(RModel.R_TYPE_ID,
 						IRModelManager.MODEL_FILE, new NullProgressMonitor() );

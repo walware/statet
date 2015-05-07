@@ -17,21 +17,22 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Composite;
 
 import de.walware.ecommons.ltk.ui.compare.CompareTextViewer;
-import de.walware.ecommons.ui.SharedUIResources;
 
-import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.RdSourceViewerConfiguration;
 import de.walware.statet.r.ui.editors.RdSourceViewerConfigurator;
 
 
 public class RdTextViewerCreator implements IViewerCreator {
 	
+	
+	public RdTextViewerCreator() {
+	}
+	
+	
 	@Override
 	public Viewer createViewer(final Composite parent, final CompareConfiguration config) {
-		final RdSourceViewerConfigurator viewerConfigurator = new RdSourceViewerConfigurator(
-				null, new RdSourceViewerConfiguration(
-						RUIPlugin.getDefault().getEditorPreferenceStore(),
-						SharedUIResources.getColors()) );
+		final RdSourceViewerConfigurator viewerConfigurator=
+				new RdSourceViewerConfigurator(null, new RdSourceViewerConfiguration());
 		return new CompareTextViewer(parent, config, viewerConfigurator);
 	}
 	

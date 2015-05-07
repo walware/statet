@@ -14,7 +14,7 @@ package de.walware.statet.nico.internal.ui.preferences;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.ui.editors.text.EditorsUI;
 
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
@@ -22,8 +22,9 @@ import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
 import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ScopedPreferenceStore;
+import de.walware.ecommons.text.PartitionerDocumentSetupParticipant;
 import de.walware.ecommons.text.ui.presentation.AbstractTextStylesConfigurationBlock;
-import de.walware.ecommons.ui.ColorManager;
+import de.walware.ecommons.text.ui.settings.TextStyleManager;
 
 import de.walware.statet.nico.ui.NicoUIPreferenceNodes;
 
@@ -46,26 +47,41 @@ public class ConsoleTextStylesPreferencePage extends ConfigurationBlockPreferenc
 
 class ConsoleTextStylesPreferenceBlock extends AbstractTextStylesConfigurationBlock {
 	
+	
+	public ConsoleTextStylesPreferenceBlock() {
+	}
+	
+	
 	@Override
-	protected SyntaxNode[] createItems() {
-		return new SyntaxNode[] {
-				new StyleNode(Messages.TextStyle_Input_label, Messages.TextStyle_Input_description,
-						ConsolePreferences.OUTPUT_INPUT_ROOT_KEY, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
-				new StyleNode(Messages.TextStyle_Info_label, Messages.TextStyle_Info_description,
-						ConsolePreferences.OUTPUT_INFO_ROOT_KEY, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
-				new StyleNode(Messages.TextStyle_StandardOutput_label, Messages.TextStyle_StandardOutput_description,
-						ConsolePreferences.OUTPUT_STANDARD_OUTPUT_ROOT_KEY, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, new SyntaxNode[] {
-					new StyleNode(Messages.TextStyle_SystemOutput_label, Messages.TextStyle_SystemOutput_description,
-							ConsolePreferences.OUTPUT_SYSTEM_OUTPUT_ROOT_KEY, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
-				}),
-				new StyleNode(Messages.TextStyle_StandardError_label, Messages.TextStyle_StandardError_description,
-						ConsolePreferences.OUTPUT_STANDARD_ERROR_ROOT_KEY, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
-		};
+	protected String getSettingsGroup() {
+		return ConsolePreferences.OUTPUT_TEXTSTYLE_GROUP_ID;
 	}
 	
 	@Override
-	protected String[] getSettingsGroups() {
-		return new String[] { ConsolePreferences.OUTPUT_TEXTSTYLE_GROUP_ID };
+	protected SyntaxNode[] createItems() {
+		return new SyntaxNode[] {
+			new StyleNode(Messages.TextStyle_Input_label, Messages.TextStyle_Input_description,
+					ConsolePreferences.OUTPUT_INPUT_ROOT_KEY, new SyntaxNode.UseStyle[] {
+						SyntaxNode.createUseCustomStyle()
+					}, null ),
+			new StyleNode(Messages.TextStyle_Info_label, Messages.TextStyle_Info_description,
+					ConsolePreferences.OUTPUT_INFO_ROOT_KEY, new SyntaxNode.UseStyle[] {
+						SyntaxNode.createUseCustomStyle()
+					}, null ),
+			new StyleNode(Messages.TextStyle_StandardOutput_label, Messages.TextStyle_StandardOutput_description,
+					ConsolePreferences.OUTPUT_STANDARD_OUTPUT_ROOT_KEY, new SyntaxNode.UseStyle[] {
+						SyntaxNode.createUseCustomStyle()
+					}, new SyntaxNode[] {
+				new StyleNode(Messages.TextStyle_SystemOutput_label, Messages.TextStyle_SystemOutput_description,
+						ConsolePreferences.OUTPUT_SYSTEM_OUTPUT_ROOT_KEY, new SyntaxNode.UseStyle[] {
+							SyntaxNode.createUseCustomStyle()
+						}, null ),
+			}),
+			new StyleNode(Messages.TextStyle_StandardError_label, Messages.TextStyle_StandardError_description,
+					ConsolePreferences.OUTPUT_STANDARD_ERROR_ROOT_KEY, new SyntaxNode.UseStyle[] {
+						SyntaxNode.createUseCustomStyle()
+					}, null ),
+		};
 	}
 	
 	@Override
@@ -84,26 +100,29 @@ class ConsoleTextStylesPreferenceBlock extends AbstractTextStylesConfigurationBl
 	}
 	
 	@Override
-	protected SourceEditorViewerConfiguration getSourceViewerConfiguration(
-			final ColorManager colorManager, final IPreferenceStore store) {
-		return new ConsolePreviewSourceViewerConfiguration(
-				CombinedPreferenceStore.createStore(
-						store,
-//						StatetUIServices.getBaseUIPreferenceStore(),
-						EditorsUI.getPreferenceStore() ),
-				colorManager );
+	protected IDocumentSetupParticipant getDocumentSetupParticipant() {
+		return new PartitionerDocumentSetupParticipant() {
+			@Override
+			public String getPartitioningId() {
+				return ConsoleTextStylesPreviewPartitioner.PARTITIONING;
+			}
+			
+			@Override
+			protected IDocumentPartitioner createDocumentPartitioner() {
+				return new ConsoleTextStylesPreviewPartitioner();
+			}
+		};
 	}
 	
 	@Override
-	protected IDocumentSetupParticipant getDocumentSetupParticipant() {
-		return new IDocumentSetupParticipant() {
-			@Override
-			public void setup(final IDocument document) {
-				final ConsoleTextStylesPreviewPartitioner partitioner= new ConsoleTextStylesPreviewPartitioner();
-				partitioner.connect(document);
-				document.setDocumentPartitioner(partitioner);
-			}
-		};
+	protected SourceEditorViewerConfiguration getSourceEditorViewerConfiguration(
+			final IPreferenceStore preferenceStore, final TextStyleManager textStyles) {
+		return new ConsolePreviewSourceViewerConfiguration(
+				CombinedPreferenceStore.createStore(
+						preferenceStore,
+//						StatetUIServices.getBaseUIPreferenceStore(),
+						EditorsUI.getPreferenceStore() ),
+				textStyles );
 	}
 	
 }

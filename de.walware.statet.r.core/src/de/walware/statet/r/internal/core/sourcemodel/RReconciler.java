@@ -17,10 +17,11 @@ import com.ibm.icu.text.DecimalFormat;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import de.walware.ecommons.collections.ImCollections;
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
-import de.walware.ecommons.ltk.SourceContent;
+import de.walware.ecommons.ltk.core.SourceContent;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.text.FixInterningStringCache;
 import de.walware.ecommons.text.IStringCache;
@@ -34,7 +35,6 @@ import de.walware.statet.r.core.model.RChunkElement;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.model.RProblemReporter;
 import de.walware.statet.r.core.model.RSuModelContainer;
-import de.walware.statet.r.core.model.SpecialParseContent;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RScanner;
 import de.walware.statet.r.core.rsource.ast.RoxygenScanner;
@@ -55,7 +55,6 @@ public class RReconciler {
 		public final SourceContent content;
 		
 		public SourceParseInput parseInput;
-		public int parseOffset;
 		
 		public AstInfo ast;
 		
@@ -166,14 +165,11 @@ public class RReconciler {
 	
 	protected void initParseInput(final Data data) {
 		if (data.parseInput == null) {
-			if (data.content instanceof SpecialParseContent) {
-				final SpecialParseContent parseContent= (SpecialParseContent) data.content;
-				data.parseInput= new PartialStringParseInput(data.content.text, parseContent.getOffset());
-				data.parseOffset= parseContent.getOffset();
+			if (data.content.getOffset() != 0) {
+				data.parseInput= new PartialStringParseInput(data.content.text, data.content.getOffset());
 			}
 			else {
 				data.parseInput= new StringParseInput(data.content.text);
-				data.parseOffset= 0;
 			}
 		}
 	}
@@ -191,7 +187,7 @@ public class RReconciler {
 					this.f1AstStringCache );
 			scanner.setCommentLevel(100);
 			final SourceComponent sourceComponent= scanner.scanSourceRange(null,
-					data.parseOffset, data.content.text.length() );
+					data.content.getOffset(), data.content.text.length() );
 			final AstInfo ast= new AstInfo(scanner.getAstLevel(), data.content.stamp, sourceComponent);
 			
 			stopAst= System.nanoTime();
@@ -248,13 +244,13 @@ public class RReconciler {
 			final AstInfo ast= modelInfo.getAst();
 			this.f2ScopeAnalyzer.beginChunkSession(su, ast);
 			for (final RChunkElement chunkElement : chunkElements) {
-				final SourceComponent[] rootNodes;
+				final List<SourceComponent> rootNodes;
 				{	final Object source= chunkElement.getAdapter(SourceComponent.class);
 					if (source instanceof SourceComponent) {
-						rootNodes= new SourceComponent[] { (SourceComponent) source };
+						rootNodes= ImCollections.newList((SourceComponent) source);
 					}
-					else if (source instanceof SourceComponent[]) {
-						rootNodes= (SourceComponent[]) source;
+					else if (source instanceof List<?>) {
+						rootNodes= (List<SourceComponent>) source;
 					}
 					else {
 						continue;

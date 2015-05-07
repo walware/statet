@@ -28,16 +28,15 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchPart3;
-import org.eclipse.ui.editors.text.TextEditor;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.text.core.sections.DocContentSections;
 import de.walware.ecommons.ui.util.MessageUtil;
 
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.rtools.RunHelpInR;
 import de.walware.statet.r.internal.ui.rtools.RunHelpSearchInR;
@@ -49,30 +48,17 @@ import de.walware.statet.r.internal.ui.rtools.RunHelpSearchInR;
 public class EnrichedRHelpContext implements IContext3 {
 	
 	
-	public static String searchContextInfo(Object target) {
+	public static String searchContextInfo(final Object target) {
 		try {
 			String plaintext = null;
-			if (target instanceof TextEditor) {
-				final TextEditor textEditor = (TextEditor) target;
-				plaintext = getPlaintextFromTextSelection(textEditor.getSelectionProvider());
-				if (plaintext == null) {
-					plaintext = getPlaintextFromDocument(
-							textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput()),
-							textEditor.getSelectionProvider());
-				}
-			}
-			else {
-				if (target instanceof IAdaptable) {
-					final ISourceEditor editor = (ISourceEditor) ((IAdaptable) target).getAdapter(ISourceEditor.class);
-					if (editor != null) {
-						target = editor.getViewer();
-					}
-				}
-				if (target instanceof SourceViewer) {
-					final SourceViewer sourceViewer = (SourceViewer) target;
-					plaintext = getPlaintextFromTextSelection(sourceViewer.getSelectionProvider());
+			if (target instanceof IAdaptable) {
+				final ISourceEditor editor = (ISourceEditor) ((IAdaptable) target).getAdapter(ISourceEditor.class);
+				if (editor != null) {
+					final ISelectionProvider selectionProvider= editor.getViewer().getSelectionProvider();
+					plaintext= getPlaintextFromTextSelection(selectionProvider);
 					if (plaintext == null) {
-						plaintext = getPlaintextFromDocument(sourceViewer.getDocument(), sourceViewer.getSelectionProvider());
+						plaintext= getPlaintextFromDocument(editor.getViewer().getDocument(),
+								editor.getDocumentContentInfo(), selectionProvider );
 					}
 				}
 			}
@@ -96,9 +82,11 @@ public class EnrichedRHelpContext implements IContext3 {
 		return null;
 	}
 	
-	private static String getPlaintextFromDocument(final IDocument document, final ISelectionProvider selectionProvider) throws BadLocationException {
+	private static String getPlaintextFromDocument(final IDocument document,
+			final DocContentSections contentInfo, final ISelectionProvider selectionProvider)
+			throws BadLocationException {
 		final ITextSelection textSelection = (ITextSelection) selectionProvider.getSelection();
-		final RHeuristicTokenScanner scanner = new RHeuristicTokenScanner();
+		final RHeuristicTokenScanner scanner= RHeuristicTokenScanner.create(contentInfo);
 		scanner.configure(document);
 		final IRegion region = scanner.findRWord(textSelection.getOffset(), false, true);
 		if (region != null) {

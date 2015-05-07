@@ -78,7 +78,7 @@ public class RModelIndex {
 		
 		static final String NAME= "RINDEX";
 		
-		static final String VERSION= "16";
+		static final String VERSION= "17";
 		
 		static final class Properties {
 			

@@ -127,7 +127,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 		final IDocument document = context.getSourceViewer().getDocument();
 		final int offset = context.getInvocationOffset();
 		final ITypedRegion partition = TextUtilities.getPartition(document,
-				getEditor().getPartitioning().getPartitioning(), offset, true);
+				getEditor().getDocumentContentInfo().getPartitioning(), offset, true);
 		int start = partition.getOffset();
 		int end = partition.getOffset() + partition.getLength();
 		if (start == end) {

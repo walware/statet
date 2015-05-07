@@ -29,7 +29,7 @@ import de.walware.ecommons.text.IndentUtil.IndentEditAction;
 import de.walware.ecommons.text.TextUtil;
 
 import de.walware.statet.r.core.IRCoreAccess;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
@@ -78,7 +78,8 @@ public class RDoubleCommentAction extends Action implements IUpdate {
 		final ITextSelection selection = (ITextSelection) sourceViewer.getSelectionProvider().getSelection();
 		final int offset = selection.getOffset();
 		
-		final RHeuristicTokenScanner scanner = new RHeuristicTokenScanner();
+		final RHeuristicTokenScanner scanner= RHeuristicTokenScanner.create(
+				fEditor.getDocumentContentInfo() );
 		scanner.configure(document);
 		if (selection.getLength() == 0 && scanner.isBlankLine(selection.getOffset())) {
 			document.replace(offset, 0, "## "); //$NON-NLS-1$

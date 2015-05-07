@@ -19,10 +19,11 @@ import org.eclipse.jface.text.ISynchronizable;
 
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelManager;
-import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
+import de.walware.ecommons.ltk.core.SourceContent;
 import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
+import de.walware.ecommons.text.core.sections.DocContentSections;
 
 import de.walware.statet.nico.ui.console.GenericConsoleSourceUnit;
 import de.walware.statet.nico.ui.console.InputDocument;
@@ -33,8 +34,8 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.model.RSuModelContainer;
-import de.walware.statet.r.core.model.SpecialParseContent;
 import de.walware.statet.r.core.renv.IREnv;
+import de.walware.statet.r.core.source.RDocumentContentInfo;
 
 
 public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSourceUnit {
@@ -54,7 +55,7 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSo
 				lock = new Object();
 			}
 			synchronized (lock) {
-				return new SpecialParseContent(
+				return new SourceContent(
 						RConsoleSourceUnit.this.fDocument.getModificationStamp(),
 						RConsoleSourceUnit.this.fDocument.getMasterDocument().get(),
 						-RConsoleSourceUnit.this.fDocument.getOffsetInMasterDocument() );
@@ -77,6 +78,11 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSo
 	@Override
 	public String getContentTypeId() {
 		return R_CONTENT;
+	}
+	
+	@Override
+	public DocContentSections getDocumentContentInfo() {
+		return RDocumentContentInfo.INSTANCE;
 	}
 	
 	

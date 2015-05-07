@@ -16,7 +16,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 
-import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
@@ -26,8 +25,8 @@ import de.walware.ecommons.text.IPartitionConstraint;
 
 import de.walware.statet.nico.ui.console.InputDocument;
 
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
+import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.ui.editors.RContextInformationValidator;
 
 
@@ -37,7 +36,7 @@ public class RContentAssistProcessor extends ContentAssistProcessor {
 	private static IPartitionConstraint NO_R_COMMENT_CONSTRAINT = new IPartitionConstraint() {
 		@Override
 		public boolean matches(final String partitionType) {
-			return (partitionType != IRDocumentPartitions.R_COMMENT);
+			return (partitionType != IRDocumentConstants.R_COMMENT_CONTENT_TYPE);
 		}
 	};
 	
@@ -47,8 +46,7 @@ public class RContentAssistProcessor extends ContentAssistProcessor {
 	public RContentAssistProcessor(final ContentAssist assistant, final String partition, 
 			final ContentAssistComputerRegistry registry, final ISourceEditor editor) {
 		super(assistant, partition, registry, editor);
-		fScanner = (RHeuristicTokenScanner) LTK.getModelAdapter(
-				editor.getModelTypeId(), RHeuristicTokenScanner.class );
+		fScanner= RHeuristicTokenScanner.create(editor.getDocumentContentInfo());
 	}
 	
 	
@@ -97,7 +95,7 @@ public class RContentAssistProcessor extends ContentAssistProcessor {
 				final char c = document.getChar(previousOffset);
 				if (c == '(' || c == ',') {
 					final String partitionType = fScanner.getPartition(previousOffset).getType();
-					return (fScanner.getPartitioningConfig().getDefaultPartitionConstraint().matches(partitionType));
+					return (IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT.matches(partitionType));
 				}
 			}
 			catch (final BadLocationException e) {

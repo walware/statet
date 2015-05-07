@@ -45,9 +45,6 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 	public static final String REDITOR_NODE = RUI.PLUGIN_ID + "/editor.r/options"; //$NON-NLS-1$
 	public static final String RCONSOLE_NODE = RUI.PLUGIN_ID + '/'+NicoPreferenceNodes.SCOPE_QUALIFIER+ "/editor.r/options"; // NicoPreferenceNodes.createScopeQualifier(REDITOR_NODE); //$NON-NLS-1$
 	
-	public static final String REDITOR_ASSIST_GROUP_ID = "r/r.editor/assist"; //$NON-NLS-1$
-	public static final String RCONSOLE_ASSIST_GROUP_ID = "r/r.console/assist"; //$NON-NLS-1$
-	
 	public static final String REDITOR_HOVER_GROUP_ID = "r/r.editor/hover"; //$NON-NLS-1$
 	
 	public static final BooleanPref CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED = new BooleanPref(

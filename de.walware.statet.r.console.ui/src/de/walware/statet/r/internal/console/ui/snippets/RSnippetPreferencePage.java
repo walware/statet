@@ -35,11 +35,15 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.ecommons.collections.ImCollections;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ltk.ui.templates.CodeTemplatesConfigurationBlock;
-import de.walware.ecommons.ltk.ui.templates.CodeTemplatesConfigurationBlock.TemplateStoreContribution;
 import de.walware.ecommons.ltk.ui.templates.EditTemplateDialog;
+import de.walware.ecommons.ltk.ui.templates.config.CodeTemplateConfigurationBlock;
+import de.walware.ecommons.ltk.ui.templates.config.ITemplateCategoryConfiguration;
+import de.walware.ecommons.ltk.ui.templates.config.ITemplateContribution;
+import de.walware.ecommons.ltk.ui.templates.config.TemplateCategory;
+import de.walware.ecommons.ltk.ui.templates.config.TemplateStoreContribution;
+import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
@@ -57,41 +61,48 @@ public class RSnippetPreferencePage
 		extends ConfigurationBlockPreferencePage<ConfigurationBlock> {
 	
 	
-	private static final String R_SNIPPET_GROUP_ID = "r.ConsoleSnippet"; //$NON-NLS-1$
-	
-	private static final List<String> GROUP_IDS = new ConstArrayList<String>(
-			R_SNIPPET_GROUP_ID
-	);
+	private static final String R_SNIPPET_CATEGORY_ID = "r.ConsoleSnippet"; //$NON-NLS-1$
 	
 	
-	private static class RSnippetTemplateContribution extends TemplateStoreContribution {
+	private static class RSnippetTemplateConfiguration implements ITemplateCategoryConfiguration {
 		
 		
-		public RSnippetTemplateContribution(final RSnippets snippets) {
-			super(snippets.getTemplateContextRegistry(), snippets.getTemplateStore() );
+		private final RSnippets snippets;
+		
+		
+		public RSnippetTemplateConfiguration(final RSnippets snippets) {
+			this.snippets= snippets;
 		}
 		
 		
 		@Override
-		public List<String> getGroups() {
-			return GROUP_IDS;
+		public ITemplateContribution getTemplates() {
+			return new TemplateStoreContribution(this.snippets.getTemplateStore());
 		}
 		
 		@Override
-		public TemplatePersistenceData[] getTemplates(final String groupId) {
-			if (groupId == R_SNIPPET_GROUP_ID) {
-				return super.getTemplates(groupId);
-			}
+		public Preference<String> getDefaultPref() {
 			return null;
 		}
 		
 		@Override
-		public String getViewerConfiguraterId(final TemplatePersistenceData data) {
-			return R_SNIPPET_GROUP_ID;
+		public ContextTypeRegistry getContextTypeRegistry() {
+			return this.snippets.getTemplateContextRegistry();
 		}
 		
 		@Override
-		public SourceEditorViewerConfigurator createViewerConfiguator(final TemplatePersistenceData data,
+		public String getDefaultContextTypeId() {
+			return RSnippetTemplatesContextType.TYPE_ID;
+		}
+		
+		@Override
+		public String getViewerConfigId(final TemplatePersistenceData data) {
+			return RSnippetTemplatesContextType.TYPE_ID;
+		}
+		
+		@Override
+		public SourceEditorViewerConfigurator createViewerConfiguator(final String viewerConfigId,
+				final TemplatePersistenceData data,
 				final TemplateVariableProcessor templateProcessor, final IProject project) {
 			return new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(),
 					templateProcessor );
@@ -140,7 +151,7 @@ public class RSnippetPreferencePage
 		}
 	}
 	
-	private static class SnippetConfigurationBlock extends CodeTemplatesConfigurationBlock {
+	private static class SnippetConfigurationBlock extends CodeTemplateConfigurationBlock {
 		
 		
 		private final ICommandService fCommandService;
@@ -149,18 +160,16 @@ public class RSnippetPreferencePage
 		
 		
 		public SnippetConfigurationBlock() throws CoreException {
-			super(Messages.SnippetTemplates_title, true, null);
+			super(Messages.SnippetTemplates_title, ADD_ITEM, null);
 			
-			fSnippets = RConsoleUIPlugin.getDefault().getRSnippets();
-			init(new TemplateGroup[] {
-					new TemplateGroup(R_SNIPPET_GROUP_ID,
-							RConsoleUIPlugin.getDefault().getImageRegistry().get(RConsoleUIPlugin.IMG_OBJ_SNIPPETS),
-							Messages.SnippetTemplates_RSnippet_label,
-							RUI.getImage(RUI.IMG_OBJ_R_SCRIPT) ),
-				},
-				new ITemplateContribution[] {
-					new RSnippetTemplateContribution(fSnippets),
-				});
+			fSnippets= RConsoleUIPlugin.getDefault().getRSnippets();
+			setCategories(	ImCollections.newList(
+							new TemplateCategory(R_SNIPPET_CATEGORY_ID,
+									RConsoleUIPlugin.getDefault().getImageRegistry().getDescriptor(RConsoleUIPlugin.IMG_OBJ_SNIPPETS),
+									Messages.SnippetTemplates_RSnippet_label,
+									RUI.getImageDescriptor(RUI.IMG_OBJ_R_SCRIPT),
+									new RSnippetTemplateConfiguration(fSnippets) )
+					));
 			
 			fCommandService = PlatformUI.getWorkbench().getService(ICommandService.class);
 		}
@@ -176,7 +185,7 @@ public class RSnippetPreferencePage
 				protected Object getData(final SelectionEvent e) {
 					if (fCommand == null) {
 						final Command command = fCommandService.getCommand(RSnippets.SUBMIT_SNIPPET_COMMAND_ID);
-						final List<TemplateItem> templates = getTemplates(getGroups().get(0));
+						final List<TemplateItem> templates = getTemplates(getCategories().get(0));
 						if (!templates.isEmpty()) {
 							final String name = templates.get(0).getData().getTemplate().getName();
 							final Map<String, String> parameters = Collections.singletonMap(RSnippets.SNIPPET_PAR, name);
@@ -202,7 +211,7 @@ public class RSnippetPreferencePage
 	
 	
 	@Override
-	protected CodeTemplatesConfigurationBlock createConfigurationBlock() throws CoreException {
+	protected CodeTemplateConfigurationBlock createConfigurationBlock() throws CoreException {
 		return new SnippetConfigurationBlock();
 	}
 	
