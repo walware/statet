@@ -103,26 +103,24 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 public class SyntaxProblemReporter extends RAstVisitor {
 	
 	
-	public static final int OK = IProblem.SEVERITY_INFO;
-	public static final int WARNING = IProblem.SEVERITY_WARNING;
-	public static final int ERROR = IProblem.SEVERITY_ERROR;
+	private static final int BUFFER_SIZE= 100;
+	
+	private static final int FULL_TEXT_LIMIT= 100;
+	private static final int START_TEXT_LIMIT= 25;
+	
+	private static final int MASK= 0x00ffffff;
 	
 	
-	private static final int FULL_TEXT_LIMIT = 100;
-	private static final int START_TEXT_LIMIT = 25;
-	private static final int BUFFER_SIZE = 100;
+	private final boolean reportSubsequent= false;
 	
-	private static final int MASK = 0x00ffffff;
-	
-	private ISourceUnit fCurrentUnit;
+	private ISourceUnit sourceUnit;
+	private SourceContent sourceContent;
 	private String fCurrentText;
-	private ILineInformation fCurrentLines;
 	private IProblemRequestor fCurrentRequestor;
 	
-	private final MessageBuilder fMessageBuilder = new MessageBuilder();
-	private final List<IProblem> fProblemBuffer = new ArrayList<IProblem>(BUFFER_SIZE);
-	
-	private boolean fReportSubsequent = false;
+	private final StringBuilder tmpBuilder= new StringBuilder();
+	private final MessageBuilder messageBuilder= new MessageBuilder();
+	private final List<IProblem> problemBuffer= new ArrayList<>(BUFFER_SIZE);
 //	private int fMaxOffset;
 	
 	
@@ -133,31 +131,95 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	public void run(final IRSourceUnit su, final SourceContent content,
 			final RAstNode node, final IProblemRequestor problemRequestor) {
 		try {
-			fCurrentUnit = su;
-			fCurrentText = content.getText();
-			fCurrentLines = content.getLines();
-//			fCurrentDoc = su.getDocument(null);
-//			fMaxOffset = fCurrentDoc.getLength();
-			fCurrentRequestor = problemRequestor;
+			this.sourceUnit= su;
+			this.sourceContent= content;
+			this.fCurrentText= content.getText();
+//			fCurrentDoc= su.getDocument(null);
+//			fMaxOffset= fCurrentDoc.getLength();
+			this.fCurrentRequestor= problemRequestor;
 			node.acceptInR(this);
-			if (fProblemBuffer.size() > 0) {
-				fCurrentRequestor.acceptProblems(RModel.TYPE_ID, fProblemBuffer);
+			if (this.problemBuffer.size() > 0) {
+				this.fCurrentRequestor.acceptProblems(RModel.R_TYPE_ID, this.problemBuffer);
 			}
 		}
 		catch (final OperationCanceledException e) {}
 		catch (final InvocationTargetException e) {}
 		finally {
-			fProblemBuffer.clear();
-			fCurrentUnit = null;
-//			fCurrentDoc = null;
-			fCurrentRequestor = null;
+			this.problemBuffer.clear();
+			this.sourceUnit= null;
+//			fCurrentDoc= null;
+			this.fCurrentRequestor= null;
 		}
 	}
 	
 	
-	private void handleCommonCodes(final RAstNode node) throws BadLocationException, InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		switch (code & STATUS_MASK_12) {
+	private boolean requiredCheck(final int code) {
+		return code != STATUS_OK &&
+				(this.reportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0));
+	}
+	
+	protected final void addProblem(final int severity, final int code, final String message,
+			int startOffset, int stopOffset) {
+		final int sourceStartOffset= this.sourceContent.getOffset();
+		final int sourceStopOffset= sourceStartOffset + sourceContent.getText().length();
+		if (startOffset < sourceStartOffset) {
+			startOffset= sourceStartOffset;
+		}
+		if (stopOffset < startOffset) {
+			stopOffset= startOffset;
+		}
+		else if (stopOffset > sourceStopOffset) {
+			stopOffset= sourceStopOffset;
+		}
+		
+		this.problemBuffer.add(new Problem(RModel.R_TYPE_ID, severity, code, message,
+				this.sourceUnit, startOffset, stopOffset ));
+		
+		if (this.problemBuffer.size() >= BUFFER_SIZE) {
+			this.fCurrentRequestor.acceptProblems(RModel.R_TYPE_ID, this.problemBuffer);
+			this.problemBuffer.clear();
+		}
+	}
+	
+	
+	protected final StringBuilder getStringBuilder() {
+		this.tmpBuilder.setLength(0);
+		return this.tmpBuilder;
+	}
+	
+	protected String getStartText(final RAstNode node, final int offset)
+			throws BadLocationException {
+		String text= node.getText();
+		if (text != null) {
+			if (text.length() > START_TEXT_LIMIT) {
+				final StringBuilder sb= getStringBuilder();
+				sb.append(text, 0, START_TEXT_LIMIT);
+				sb.append('…');
+				return sb.toString();
+			}
+			else {
+				return text;
+			}
+		}
+		else {
+			if (node.getLength() - offset > START_TEXT_LIMIT) {
+				final StringBuilder sb= getStringBuilder();
+				sb.append(this.sourceContent.getText(), 
+						node.getOffset() + offset, node.getOffset() + offset + START_TEXT_LIMIT);
+				sb.append('…');
+				return sb.toString();
+			}
+			else {
+				return this.sourceContent.getText().substring(
+						node.getOffset() + offset, node.getStopOffset() + offset );
+			}
+		}
+	}
+	
+	
+	private void handleCommonCodes(final RAstNode node, final int code)
+			throws BadLocationException, InvocationTargetException {
+		STATUS: switch (code & STATUS_MASK_12) {
 		case STATUS_RUNTIME_ERROR:
 			throw new InvocationTargetException(new CoreException(
 					new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
@@ -166,16 +228,19 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		
 		case STATUS2_SYNTAX_TOKEN_UNEXPECTED:
 			addProblem(IProblem.SEVERITY_ERROR, code,
-					fMessageBuilder.bind(ProblemMessages.Syntax_TokenUnexpected_message, getFullText(node)),
+					this.messageBuilder.bind(ProblemMessages.Syntax_TokenUnexpected_message, getFullText(node)),
 					node.getOffset(), node.getStopOffset() );
-			return;
+			break STATUS;
+			
+		default:
+			handleUnknownCodes(node);
+			break STATUS;
 		}
-		handleUnknownCodes(node);
 	}
 	
 	protected void handleUnknownCodes(final RAstNode node) {
-		final int code = (node.getStatusCode() & MASK);
-		final StringBuilder sb = new StringBuilder();
+		final int code= (node.getStatusCode() & MASK);
+		final StringBuilder sb= new StringBuilder();
 		sb.append("Unhandled/Unknown code of R AST node:"); //$NON-NLS-1$
 		sb.append('\n');
 		sb.append("  Code: 0x").append(Integer.toHexString(code)); //$NON-NLS-1$
@@ -183,17 +248,18 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		sb.append("  Node: ").append(node);
 		sb.append(" (").append(node.getOffset()).append(", ").append(node.getLength()).append(')'); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append('\n');
-		if (fCurrentText != null) {
+		if (this.sourceContent != null) {
 			try {
-				final int line = fCurrentLines.getLineOfOffset(node.getOffset());
-				sb.append("  Line ").append((line+1)).append(" (offset )").append(fCurrentLines.getLineOffset(line)); //$NON-NLS-1$ //$NON-NLS-2$
+				final ILineInformation lines= sourceContent.getLines();
+				final int line= lines.getLineOfOffset(node.getOffset());
+				sb.append("  Line ").append((line+1)).append(" (offset )").append(lines.getLineOffset(line)); //$NON-NLS-1$ //$NON-NLS-2$
 				sb.append('\n');
 				
-				final int firstLine = Math.max(0, line-2);
-				final int lastLine = Math.min(fCurrentLines.getNumberOfLines()-1, fCurrentLines.getLineOfOffset(line)+2);
+				final int firstLine= Math.max(0, line-2);
+				final int lastLine= Math.min(lines.getNumberOfLines()-1, lines.getLineOfOffset(line)+2);
 				sb.append("  Source (line ").append((firstLine+1)).append('-').append((lastLine)).append("): \n"); //$NON-NLS-1$ //$NON-NLS-2$
-				sb.append(fCurrentText.substring(fCurrentLines.getLineOffset(firstLine),
-						fCurrentLines.getLineOffset(lastLine) ));
+				sb.append(this.fCurrentText.substring(lines.getLineOffset(firstLine),
+						lines.getLineOffset(lastLine) ));
 			}
 			catch (final BadLocationException e) {
 			}
@@ -204,14 +270,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final SourceComponent node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & IRSourceConstants.STATUS_MASK_2)) {
+//				STATUS: switch ((code & IRSourceConstants.STATUS_MASK_2)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -223,19 +288,18 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Block node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-				switch ((code & STATUS_MASK_12)) {
+				STATUS: switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_CC_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_BlockNotClosed_message,
-							node.getStopOffset()-1, node.getStopOffset()+1 );
-					break;
+							node.getStopOffset() - 1, node.getStopOffset() + 1 );
+					break STATUS;
 				default:
-					handleCommonCodes(node);
-					break;
+					handleCommonCodes(node, code);
+					break STATUS;
 				}
 			}
 			catch (final BadLocationException e) {
@@ -247,19 +311,18 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Group node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-				switch ((code & STATUS_MASK_12)) {
+				STATUS: switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_CC_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_GroupNotClosed_message,
 							node.getStopOffset()-1, node.getStopOffset()+1 );
-					break;
+					break STATUS;
 				default:
-					handleCommonCodes(node);
-					break;
+					handleCommonCodes(node, code);
+					break STATUS;
 				}
 			}
 			catch (final BadLocationException e) {
@@ -271,29 +334,28 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final CIfElse node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-				switch ((code & STATUS_MASK_12)) {
+				STATUS: switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_IF_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_IfOfElseMissing_message,
 							node.getOffset(), node.getOffset()+1 );
-					break;
+					break STATUS;
 				case STATUS2_SYNTAX_CONDITION_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionMissing_If_message,
 							node.getOffset()+1, node.getOffset()+3 );
-					break;
+					break STATUS;
 				case STATUS2_SYNTAX_CONDITION_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionNotClosed_If_message,
 							node.getCondChild().getStopOffset()-1, node.getCondChild().getStopOffset()+1 );
-					break;
+					break STATUS;
 				default:
-					handleCommonCodes(node);
-					break;
+					handleCommonCodes(node, code);
+					break STATUS;
 				}
 			}
 			catch (final BadLocationException e) {
@@ -305,29 +367,28 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final CForLoop node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-				switch ((code & STATUS_MASK_12)) {
+				STATUS: switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_CONDITION_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionMissing_For_message,
 							node.getOffset()+2, node.getOffset()+4 );
-					break;
+					break STATUS;
 				case STATUS2_SYNTAX_CONDITION_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionNotClosed_For_message,
 							node.getCondChild().getStopOffset()-1, node.getCondChild().getStopOffset()+1 );
-					break;
+					break STATUS;
 				case STATUS2_SYNTAX_IN_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_InOfForConditionMissing_message,
 							node.getVarChild().getStopOffset()-1, node.getVarChild().getStopOffset()+1 );
-					break;
+					break STATUS;
 				default:
-					handleCommonCodes(node);
-					break;
+					handleCommonCodes(node, code);
+					break STATUS;
 				}
 			}
 			catch (final BadLocationException e) {
@@ -340,14 +401,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final CRepeatLoop node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -359,11 +419,10 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final CWhileLoop node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-				switch ((code & STATUS_MASK_12)) {
+				STATUS: switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_CONDITION_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionMissing_While_message,
@@ -373,10 +432,10 @@ public class SyntaxProblemReporter extends RAstVisitor {
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionNotClosed_While_message,
 							node.getCondChild().getStopOffset()-1, node.getCondChild().getStopOffset()+1 );
-					break;
+					break STATUS;
 				default:
-					handleCommonCodes(node);
-					break;
+					handleCommonCodes(node, code);
+					break STATUS;
 				}
 			}
 			catch (final BadLocationException e) {
@@ -388,14 +447,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final CLoopCommand node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -407,19 +465,18 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final FCall node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-				switch ((code & STATUS_MASK_12)) {
+				STATUS: switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_FCALL_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_FcallArgsNotClosed_message,
 							node.getArgsChild().getStopOffset()-1, node.getArgsChild().getStopOffset()+1 );
-					break;
+					break STATUS;
 				default:
-					handleCommonCodes(node);
-					break;
+					handleCommonCodes(node, code);
+					break STATUS;
 				}
 			}
 			catch (final BadLocationException e) {
@@ -431,14 +488,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final FCall.Args node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -450,14 +506,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final FCall.Arg node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -469,24 +524,23 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final FDef node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-				switch ((code & STATUS_MASK_12)) {
+				STATUS: switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_FDEF_ARGS_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_FdefArgsMissing_message,
 							node.getOffset()+7, node.getOffset()+9 );
-					break;
+					break STATUS;
 				case STATUS2_SYNTAX_FDEF_ARGS_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_FdefArgsNotClosed_message,
 							node.getArgsChild().getStopOffset()-1, node.getArgsChild().getStopOffset()+1 );
-					break;
+					break STATUS;
 				default:
-					handleCommonCodes(node);
-					break;
+					handleCommonCodes(node, code);
+					break STATUS;
 				}
 			}
 			catch (final BadLocationException e) {
@@ -498,14 +552,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final FDef.Args node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -517,14 +570,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final FDef.Arg node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -536,14 +588,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Assignment node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -555,14 +606,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Model node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -574,21 +624,20 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Relational node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
 				if ((code & STATUS_MASK_123) == (IRSourceConstants.STATUS_SYNTAX_SEQREL_UNEXPECTED & STATUS_MASK_123)) {
-					addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
+					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_TokenUnexpected_SeqRel_message,
 							node.getOperator(0).text ),
 							node.getOffset(), node.getStopOffset() );
 				}
 				else {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 				}
 			}
 			catch (final BadLocationException e) {
@@ -600,14 +649,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Logical node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -619,14 +667,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Arithmetic node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -638,14 +685,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Power node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -657,14 +703,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Seq node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -676,20 +721,19 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Special node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-				switch ((code & STATUS_MASK_12)) {
+				STATUS: switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_TOKEN_NOT_CLOSED:
-					addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
+					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_SpecialNotClosed_message,
-							getStartText(node) ),
+							getStartText(node, 1) ),
 							node.getStopOffset()-1, node.getStopOffset()+1 );
-					break;
+					break STATUS;
 				default:
-					handleCommonCodes(node);
-					break;
+					handleCommonCodes(node, code);
+					break STATUS;
 				}
 			}
 			catch (final BadLocationException e) {
@@ -701,14 +745,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Sign node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -720,36 +763,35 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final SubIndexed node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-				switch ((code & STATUS_MASK_12)) {
+				STATUS: switch ((code & STATUS_MASK_12)) {
 				case IRSourceConstants.STATUS2_SYNTAX_SUBINDEXED_NOT_CLOSED:
-				{
 					if (node.getNodeType() == NodeType.SUB_INDEXED_S) {
-						addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
+						addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 								ProblemMessages.Syntax_SubindexedNotClosed_S_message,
-								getStartText(node) ),
+								getStartText(node, 0) ),
 								node.getStopOffset()-1, node.getStopOffset()+1 );
+						break STATUS;
 					}
 					else if (node.getSublistCloseOffset() != Integer.MIN_VALUE) {
-						addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
+						addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 								ProblemMessages.Syntax_SubindexedNotClosed_Done_message,
-								getStartText(node) ),
+								getStartText(node, 0) ),
 								node.getStopOffset()-1, node.getStopOffset()+1 );
+						break STATUS;
 					}
 					else {
-						addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
+						addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 								ProblemMessages.Syntax_SubindexedNotClosed_Dboth_message,
-								getStartText(node) ),
+								getStartText(node, 0) ),
 								node.getStopOffset()-1, node.getStopOffset()+1 );
+						break STATUS;
 					}
-					break;
-				}
 				default:
-					handleCommonCodes(node);
-					break;
+					handleCommonCodes(node, code);
+					break STATUS;
 				}
 			}
 			catch (final BadLocationException e) {
@@ -761,14 +803,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final SubIndexed.Args node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -780,14 +821,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final SubIndexed.Arg node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -799,14 +839,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final SubNamed node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -818,14 +857,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final NSGet node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -837,20 +875,19 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final StringConst node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-				switch ((code & STATUS_MASK_12)) {
+				STATUS: switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_TOKEN_NOT_CLOSED:
-					addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
+					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_StringNotClosed_message,
-							getStartText(node), node.getOperator(0).text ),
+							getStartText(node, 1), node.getOperator(0).text ),
 							node.getStopOffset()-1, node.getStopOffset()+1 );
-					break;
+					break STATUS;
 				default:
-					handleCommonCodes(node);
-					break;
+					handleCommonCodes(node, code);
+					break STATUS;
 				}
 			}
 			catch (final BadLocationException e) {
@@ -861,26 +898,25 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final NumberConst node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-				switch ((code & STATUS_MASK_12)) {
+				STATUS: switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_FLOAT_WITH_L:
-					addProblem(IProblem.SEVERITY_WARNING, code, fMessageBuilder.bind(
+					addProblem(IProblem.SEVERITY_WARNING, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_FloatWithLLiteral_message,
 							getFullText(node) ),
 							node.getStopOffset()-1, node.getStopOffset() );
-					break;
+					break STATUS;
 				case STATUS2_SYNTAX_FLOAT_EXP_INVALID:
-					addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
+					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_FloatExpInvalid_message,
 							getFullText(node), node.getOperator(0).text ),
 							node.getOffset(), node.getStopOffset() );
-					break;
+					break STATUS;
 				default:
-					handleCommonCodes(node);
-					break;
+					handleCommonCodes(node, code);
+					break STATUS;
 				}
 			}
 			catch (final BadLocationException e) {
@@ -891,14 +927,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final NullConst node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
-//					break;
+					handleCommonCodes(node, code);
+//					break STATUS;
 //				}
 			}
 			catch (final BadLocationException e) {
@@ -910,32 +945,31 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Symbol node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-				switch ((code & STATUS_MASK_12)) {
+				STATUS: switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_SYMBOL_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_SymbolMissing_message,
-							node.getOffset()-1, node.getStopOffset()+1 );
-					break;
+							node.getOffset() - 1, node.getStopOffset() + 1 );
+					break STATUS;
 				case STATUS2_SYNTAX_ELEMENTNAME_MISSING:
 					// this can be a status for string too, but never used there
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ElementnameMissing_message,
-							node.getOffset()-1, node.getStopOffset()+1 );
-					break;
+							node.getOffset() - 1, node.getStopOffset() + 1 );
+					break STATUS;
 				case STATUS2_SYNTAX_TOKEN_NOT_CLOSED:
 					// assert(node.getOperator(0) == RTerminal.SYMBOL_G)
-					addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
+					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_QuotedSymbolNotClosed_message,
-							getStartText(node) ),
-							node.getStopOffset()-1, node.getStopOffset()+1 );
-					break;
+							getStartText(node, 1) ),
+							node.getStopOffset() - 1, node.getStopOffset() + 1 );
+					break STATUS;
 				default:
-					handleCommonCodes(node);
-					break;
+					handleCommonCodes(node, code);
+					break STATUS;
 				}
 			}
 			catch (final BadLocationException e) {
@@ -946,13 +980,12 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Help node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-//				switch ((code & STATUS_MASK_12)) {
+//				STATUS: switch ((code & STATUS_MASK_12)) {
 //				default:
-					handleCommonCodes(node);
+					handleCommonCodes(node, code);
 //					break;
 //				}
 			}
@@ -965,28 +998,27 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Dummy node) throws InvocationTargetException {
-		final int code = (node.getStatusCode() & MASK);
-		if (code != STATUS_OK &&
-				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
+		final int code= (node.getStatusCode() & MASK);
+		if (requiredCheck(code)) {
 			try {
-				STATUS2: switch ((code & STATUS_MASK_12)) {
+				STATUS: switch ((code & STATUS_MASK_12)) {
 				case STATUS2_SYNTAX_TOKEN_UNKNOWN:
-					addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
+					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_TokenUnknown_message,
 							getFullText(node) ),
 							node.getOffset(), node.getStopOffset() );
-					break STATUS2;
+					break STATUS;
 				case STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ExprBeforeOpMissing_message,
 							node.getOffset()-1, node.getStopOffset()+1 );
-					break STATUS2;
+					break STATUS;
 				case STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING:
-					addProblem(IProblem.SEVERITY_ERROR, code, fMessageBuilder.bind(
+					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_ExprAfterOpMissing_message,
 							getFullText(node) ),
 							node.getOffset()-1, node.getStopOffset()+1 );
-					break STATUS2;
+					break STATUS;
 //					case STATUS2_SYNTAX_EXPR_AS_REF_MISSING:
 //					addProblem(IProblem.ERROR, code,
 //							ProblemMessages.,
@@ -996,33 +1028,33 @@ public class SyntaxProblemReporter extends RAstVisitor {
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ExprAsConditionMissing_message,
 							node.getOffset()-1, node.getStopOffset()+1 );
-					break STATUS2;
+					break STATUS;
 				case STATUS2_SYNTAX_EXPR_AS_FORSEQ_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ExprAsForSequenceMissing_message,
 							node.getOffset()-1, node.getStopOffset()+1 );
-					break STATUS2;
+					break STATUS;
 				case STATUS2_SYNTAX_EXPR_AS_BODY_MISSING:
 				{
 					final String message;
 					STATUS3: switch (code & IRSourceConstants.STATUS_MASK_3) {
 					case IRSourceConstants.STATUS3_IF:
-						message = ProblemMessages.Syntax_ExprAsThenBodyMissing_message;
+						message= ProblemMessages.Syntax_ExprAsThenBodyMissing_message;
 						break STATUS3;
 					case IRSourceConstants.STATUS3_ELSE:
-						message = ProblemMessages.Syntax_ExprAsElseBodyMissing_message;
+						message= ProblemMessages.Syntax_ExprAsElseBodyMissing_message;
 						break STATUS3;
 					case IRSourceConstants.STATUS3_FOR:
 					case IRSourceConstants.STATUS3_WHILE:
 					case IRSourceConstants.STATUS3_REPEAT:
-						message = ProblemMessages.Syntax_ExprAsLoopBodyMissing_message;
+						message= ProblemMessages.Syntax_ExprAsLoopBodyMissing_message;
 						break STATUS3;
 					case IRSourceConstants.STATUS3_FDEF:
-						message = ProblemMessages.Syntax_ExprAsFdefBodyMissing_message;
+						message= ProblemMessages.Syntax_ExprAsFdefBodyMissing_message;
 						break STATUS3;
 					default:
 						handleUnknownCodes(node);
-						break STATUS2;
+						break STATUS;
 					}
 					if (node.getLength() > 0) {
 						addProblem(IProblem.SEVERITY_ERROR, code, message,
@@ -1032,13 +1064,13 @@ public class SyntaxProblemReporter extends RAstVisitor {
 						addProblem(IProblem.SEVERITY_ERROR, code, message,
 								node.getOffset()-1, node.getStopOffset()+1 );
 					}
-					break STATUS2;
+					break STATUS;
 				}
 				case STATUS2_SYNTAX_EXPR_IN_GROUP_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ExprInGroupMissing_message,
 							node.getOffset()-1, node.getStopOffset()+1 );
-					break STATUS2;
+					break STATUS;
 				case STATUS2_SYNTAX_EXPR_AS_ARGVALUE_MISSING:
 					if ((code & STATUS_MASK_3) == IRSourceConstants.STATUS3_FDEF) {
 						addProblem(IProblem.SEVERITY_ERROR, code,
@@ -1048,7 +1080,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 					else {
 						handleUnknownCodes(node);
 					}
-					break STATUS2;
+					break STATUS;
 				case STATUS2_SYNTAX_OPERATOR_MISSING:
 					if (node.getChildCount() == 2) {
 						addProblem(IProblem.SEVERITY_ERROR, code,
@@ -1058,10 +1090,10 @@ public class SyntaxProblemReporter extends RAstVisitor {
 					else {
 						handleUnknownCodes(node);
 					}
-					break STATUS2;
+					break STATUS;
 				default:
-					handleCommonCodes(node);
-					break STATUS2;
+					handleCommonCodes(node, code);
+					break STATUS;
 				}
 			}
 			catch (final BadLocationException e) {
@@ -1073,7 +1105,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	
 	protected String getFullText(final RAstNode node) throws BadLocationException {
-		final String text = node.getText();
+		final String text= node.getText();
 		if (text != null) {
 			if (text.length() > FULL_TEXT_LIMIT) {
 				return text.substring(0, FULL_TEXT_LIMIT) + '…';
@@ -1084,50 +1116,12 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		}
 		else {
 			if (node.getLength() > FULL_TEXT_LIMIT) {
-				return fCurrentText.substring(node.getOffset(),
+				return this.fCurrentText.substring(node.getOffset(),
 						node.getOffset()+FULL_TEXT_LIMIT ) + '…';
 			}
 			else {
-				return fCurrentText.substring(node.getOffset(), node.getStopOffset());
+				return this.fCurrentText.substring(node.getOffset(), node.getStopOffset());
 			}
-		}
-	}
-	
-	protected String getStartText(final RAstNode node) throws BadLocationException {
-		final String text = node.getText();
-		if (text != null) {
-			if (text.length() > START_TEXT_LIMIT) {
-				return text.substring(0, START_TEXT_LIMIT) + '…';
-			}
-			else {
-				return text;
-			}
-		}
-		else {
-			if (node.getLength() > START_TEXT_LIMIT) {
-				return fCurrentText.substring(node.getOffset(),
-						node.getOffset()+START_TEXT_LIMIT) + '…';
-			}
-			else {
-				return fCurrentText.substring(node.getOffset(), node.getStopOffset());
-			}
-		}
-	}
-	
-	
-	protected final void addProblem(final int severity, final int code, final String message,
-			int startOffset, int stopOffset) {
-		if (startOffset < 0) {
-			startOffset = 0;
-		}
-		if (stopOffset > fCurrentText.length()) {
-			stopOffset = fCurrentText.length();
-		}
-		fProblemBuffer.add(new Problem(RModel.TYPE_ID, severity, code, message, fCurrentUnit,
-				startOffset, stopOffset ));
-		if (fProblemBuffer.size() >= BUFFER_SIZE) {
-			fCurrentRequestor.acceptProblems(RModel.TYPE_ID, fProblemBuffer);
-			fProblemBuffer.clear();
 		}
 	}
 	
