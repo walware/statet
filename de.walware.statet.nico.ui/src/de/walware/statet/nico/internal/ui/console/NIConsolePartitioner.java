@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -35,6 +36,9 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.progress.WorkbenchJob;
 
+import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.collections.ImList;
+
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleOutputStream;
 
@@ -45,93 +49,137 @@ import de.walware.statet.nico.ui.console.NIConsoleOutputStream;
 public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocumentPartitionerExtension {
 	
 	
-	private final NIConsole fConsole;
+	/**
+	 * Holds data until updateJob can be run and the document can be updated.
+	 */
+	final class PendingPartition {
+		
+		
+		private final NIConsoleOutputStream stream;
+		
+		private final StringBuilder text;
+		
+		
+		PendingPartition(final NIConsoleOutputStream stream, final String text) {
+			this.stream= stream;
+			this.text= new StringBuilder(Math.max(4, 2 + (text.length()/1014)) * 1024);
+			append(text);
+		}
+		
+		
+		public NIConsoleOutputStream getStream() {
+			return this.stream;
+		}
+		
+		public StringBuilder getText() {
+			return this.text;
+		}
+		
+		private void append(final String text) {
+			this.text.append(text);
+			NIConsolePartitioner.this.pendingTextLength+= text.length();
+		}
+		
+	}
 	
-	private final String[] fPartitionIds;
 	
-	private IDocument fDocument;
+	private final NIConsole console;
 	
-	private boolean fConnected = false;
+	private final String[] partitionIds;
 	
+	private AbstractDocument document;
 	
-	private final ArrayList<NIConsolePartition> fPartitions = new ArrayList<NIConsolePartition>();
+	private boolean isConnected= false;
+	
+	private final ArrayList<NIConsolePartition> partitions= new ArrayList<>();
+	
+	/**
+	 * The last partition appended to the document
+	 */
+	private NIConsolePartition lastPartition;
 	
 	/**
 	 * Blocks of data that have not yet been appended to the document.
 	 */
-	private final ArrayList<PendingPartition> fPendingPartitions = new ArrayList<PendingPartition>();
+	private final ArrayList<PendingPartition> pendingPartitions= new ArrayList<>();
+	
+	private int pendingTextLength; 
+	
 	/**
 	 * A list of PendingPartitions to be appended by the updateJob
 	 */
-	private PendingPartition[] fUpdatePartitions;
-	/**
-	 * The last partition appended to the document
-	 */
-	private NIConsolePartition fLastPartition;
+	private ImList<PendingPartition> updatePartitions;
 	
-	private PendingPartition fConsoleClosedPartition;
+	private final QueueProcessingJob queueJob= new QueueProcessingJob();
 	
-	private final QueueProcessingJob fQueueJob = new QueueProcessingJob();
-	
-	private final TrimJob fTrimJob = new TrimJob();
+	private final TrimJob trimJob= new TrimJob();
 	
 	/**
 	 * Flag to indicate that the updateJob is updating the document.
 	 */
-	private boolean fUpdateInProgress;
+	private boolean updateInProgress;
 	/**
 	 * offset used by updateJob
 	 */
-	private int fFirstOffset;
+	private final StreamProcessor streamProcessor;
+	
 	
 	/**
 	 * An array of legal line delimiters
 	 */
-	private int fHighWaterMark = -1;
-	private int fLowWaterMark = -1;
+	private int highWaterMark= -1;
+	private int lowWaterMark= -1;
 	
 	/**
 	 * Lock for appending to and removing from the document - used
 	 * to synchronize addition of new text/partitions in the update
 	 * job and handling buffer overflow/clearing of the console. 
 	 */
-	private final Object fOverflowLock = new Object();
-	
-	private int fBuffer; 
+	private final Object overflowLock= new Object();
 	
 	
 	public NIConsolePartitioner(final NIConsole console, final List<String> ids) {
-		fConsole = console;
-		fPartitionIds = ids.toArray(new String[ids.size()]);
-		fTrimJob.setRule(console.getSchedulingRule());
+		this.console= console;
+		this.streamProcessor= new StreamProcessor(this);
+		this.partitionIds= ids.toArray(new String[ids.size()]);
+		this.trimJob.setRule(console.getSchedulingRule());
 		
-		fQueueJob.setRule(fConsole.getSchedulingRule());
+		this.queueJob.setRule(this.console.getSchedulingRule());
 	}
 	
-	public IDocument getDocument() {
-		return fDocument;
+	
+	public NIConsole getConsole() {
+		return this.console;
+	}
+	
+	public AbstractDocument getDocument() {
+		return this.document;
+	}
+	
+	NIConsolePartition getLastPartition() {
+		return this.lastPartition;
 	}
 	
 	
 	@Override
 	public void connect(final IDocument doc) {
-		fDocument = doc;
-		fDocument.setDocumentPartitioner(this);
+		this.document= (AbstractDocument) doc;
+		this.document.setDocumentPartitioner(this);
 		
-		fConnected = true;
+		this.isConnected= true;
 	}
 	
 	public int getHighWaterMark() {
-		return fHighWaterMark;
+		return this.highWaterMark;
 	}
 	
 	public int getLowWaterMark() {
-		return fLowWaterMark;
+		return this.lowWaterMark;
 	}
 	
 	public void setWaterMarks(final int low, final int high) {
-		fLowWaterMark = low;
-		fHighWaterMark = high;
+		this.lowWaterMark= low;
+		this.highWaterMark= high;
 		ConsolePlugin.getStandardDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -143,20 +191,19 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 	/**
 	 * Notification from the console that all of its streams have been closed.
 	 */
-	public void streamsClosed() {
-		fConsoleClosedPartition = new PendingPartition(null, null);
-		synchronized (fPendingPartitions) {
-			fPendingPartitions.add(fConsoleClosedPartition);
+	public void finish() {
+		synchronized (this.pendingPartitions) {
+			this.pendingPartitions.add(null);
 		}
-		fQueueJob.schedule(); //ensure that all pending partitions are processed.
+		this.queueJob.schedule(); //ensure that all pending partitions are processed.
 	}
 	
 	@Override
 	public void disconnect() {
-		synchronized (fOverflowLock) {
-			fConnected = false;
-			fDocument = null;
-			fPartitions.clear();
+		synchronized (this.overflowLock) {
+			this.isConnected= false;
+			this.document= null;
+			this.partitions.clear();
 		}
 	}
 	
@@ -171,7 +218,7 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 	
 	@Override
 	public String[] getLegalContentTypes() {
-		return fPartitionIds;
+		return this.partitionIds;
 	}
 	
 	@Override
@@ -181,58 +228,58 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 	
 	@Override
 	public ITypedRegion[] computePartitioning(final int offset, final int length) {
-		final int rangeEnd = offset + length;
-		int left = 0;
-		int right = fPartitions.size() - 1;
-		int mid = 0;
-		NIConsolePartition position = null;
+		final int rangeEnd= offset + length;
+		int left= 0;
+		int right= this.partitions.size() - 1;
+		int mid= 0;
+		NIConsolePartition position= null;
 		
 		if (right <= 0) {
 			if (right == 0) {
-				return new NIConsolePartition[] { fPartitions.get(0) };
+				return new NIConsolePartition[] { this.partitions.get(0) };
 			}
 			return new NIConsolePartition[0];
 		}
 		while (left < right) {
-			mid = (left + right) / 2;
-			position = fPartitions.get(mid);
+			mid= (left + right) / 2;
+			position= this.partitions.get(mid);
 			if (rangeEnd < position.getOffset()) {
 				if (left == mid) {
-					right = left;
+					right= left;
 				} else {
-					right = mid -1;
+					right= mid -1;
 				}
 			}
 			else if (offset > (position.getOffset() + position.getLength() - 1)) {
 				if (right == mid) {
-					left = right;
+					left= right;
 				} else {
-					left = mid  +1;
+					left= mid  +1;
 				}
 			}
 			else {
-				left = right = mid;
+				left= right= mid;
 			}
 		}
 		
-		final List<NIConsolePartition> list = new ArrayList<NIConsolePartition>();
-		int index = left - 1;
+		final List<NIConsolePartition> list= new ArrayList<>();
+		int index= left - 1;
 		if (index >= 0) {
-			position = fPartitions.get(index);
+			position= this.partitions.get(index);
 			while (index >= 0 && (position.getOffset() + position.getLength()) > offset) {
 				index--;
 				if (index >= 0) {
-					position = fPartitions.get(index);
+					position= this.partitions.get(index);
 				}
 			}
 		}
 		index++;
-		position = fPartitions.get(index);
-		while (index < fPartitions.size() && (position.getOffset() < rangeEnd)) {
+		position= this.partitions.get(index);
+		while (index < this.partitions.size() && (position.getOffset() < rangeEnd)) {
 			list.add(position);
 			index++;
-			if (index < fPartitions.size()) {
-				position = fPartitions.get(index);
+			if (index < this.partitions.size()) {
+				position= this.partitions.get(index);
 			}
 		}
 		
@@ -241,17 +288,17 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 	
 	@Override
 	public ITypedRegion getPartition(final int offset) {
-		for (int i = 0; i < fPartitions.size(); i++) {
-			final ITypedRegion partition = fPartitions.get(i);
-			final int start = partition.getOffset();
-			final int end = start + partition.getLength();
+		for (int i= 0; i < this.partitions.size(); i++) {
+			final ITypedRegion partition= this.partitions.get(i);
+			final int start= partition.getOffset();
+			final int end= start + partition.getLength();
 			if (offset >= start && offset < end) {
 				return partition;
 			}
 		}
 		
-		return (fLastPartition != null) ? 
-				fLastPartition : new NIConsolePartition(fPartitionIds[0], 0, null);
+		return (this.lastPartition != null) ? 
+				this.lastPartition : new NIConsolePartition(this.partitionIds[0], null);
 	}
 	
 	/**
@@ -261,12 +308,12 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 	 * low water mark.
 	 */
 	private void checkBufferSize() {
-		if (fDocument != null && fHighWaterMark > 0) {
-			final int length = fDocument.getLength();
-			if (length > fHighWaterMark) {
-				if (fTrimJob.getState() == Job.NONE) { //if the job isn't already running
-					fTrimJob.setOffset(length - fLowWaterMark);
-					fTrimJob.schedule();
+		if (this.document != null && this.highWaterMark > 0) {
+			final int length= this.document.getLength();
+			if (length > this.highWaterMark) {
+				if (this.trimJob.getState() == Job.NONE) { //if the job isn't already running
+					this.trimJob.setOffset(length - this.lowWaterMark);
+					this.trimJob.schedule();
 				}
 			}
 		}
@@ -276,44 +323,58 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 	 * Clears the console
 	 */
 	public void clearBuffer() {
-		synchronized (fOverflowLock) {
-			fTrimJob.setOffset(-1);
-			fTrimJob.schedule();
+		synchronized (this.overflowLock) {
+			this.trimJob.setOffset(-1);
+			this.trimJob.schedule();
 		}
 	}
 	
 	@Override
 	public IRegion documentChanged2(final DocumentEvent event) {
-		if (fDocument == null) {
+		if (this.document == null) {
 			return null; //another thread disconnected the partitioner
 		}
-		if (fDocument.getLength() == 0) { //document cleared
-			fPartitions.clear();
-			fLastPartition = null;
+		if (this.document.getLength() == 0) { //document cleared
+			this.partitions.clear();
+			this.lastPartition= null;
+			this.streamProcessor.clear();
 			return new Region(0, 0);
 		}
 		
-		if (fUpdateInProgress) {
-			if (fUpdatePartitions != null) {
-				for (int i = 0; i < fUpdatePartitions.length; i++) {
-					final PendingPartition pp = fUpdatePartitions[i];
-					if (pp == fConsoleClosedPartition) {
-						continue;
+		if (this.updateInProgress) {
+			if (this.updatePartitions != null) {
+				int offset= this.streamProcessor.getTextOffsetInDoc();
+				NIConsolePartition partition= this.lastPartition;
+				for (final PendingPartition pp : this.updatePartitions) {
+					if (pp != null) {
+						final int ppLen= pp.text.length();
+						if (partition != null) {
+							if (partition.getStream() == pp.stream) {
+								partition.setLength(
+										offset + ppLen - partition.getOffset() );
+								offset+= ppLen;
+								continue;
+							}
+							
+							if (partition.getLength() == 0) {
+								final int idx= this.partitions.lastIndexOf(partition);
+								if (idx >= 0) {
+									this.partitions.remove(idx);
+								}
+							}
+							partition= null;
+						}
+						
+						if (ppLen > 0) {
+							partition= new NIConsolePartition(
+									pp.stream.getId(), pp.stream, offset, ppLen);
+							this.partitions.add(partition);
+							offset+= ppLen;
+						}
 					}
-					
-					final int ppLen = pp.text.length();
-					if (fLastPartition != null && fLastPartition.fOutputStream == pp.stream) {
-						final int len = fLastPartition.getLength();
-						fLastPartition.setLength(len + ppLen);
-					}
-					else {
-						final NIConsolePartition partition = new NIConsolePartition(pp.stream.getId(), ppLen, pp.stream);
-						partition.setOffset(fFirstOffset);
-						fLastPartition = partition;
-						fPartitions.add(partition);
-					}
-					fFirstOffset += ppLen;
 				}
+				this.lastPartition= partition;
+				this.streamProcessor.updateApplied();
 			}
 		}
 		
@@ -321,7 +382,7 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 	}
 	
 	private void setUpdateInProgress(final boolean b) {
-		fUpdateInProgress = b;
+		this.updateInProgress= b;
 	}
 	
 	/**
@@ -333,27 +394,31 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 	 * @param s The string that should be appended to the document.
 	 */
 	public void streamAppended(final NIConsoleOutputStream stream, final String s) throws IOException {
-		if (fDocument == null) {
+		if (this.document == null) {
 			throw new IOException("Document is closed"); //$NON-NLS-1$
 		}
-		synchronized(fPendingPartitions) {
-			final PendingPartition last = (fPendingPartitions.size() > 0 ? fPendingPartitions.get(fPendingPartitions.size()-1) : null);
+		if (stream == null) {
+			throw new NullPointerException("stream"); //$NON-NLS-1$
+		}
+		synchronized(this.pendingPartitions) {
+			final PendingPartition last= (this.pendingPartitions.size() > 0 ?
+					this.pendingPartitions.get(this.pendingPartitions.size() - 1) : null );
 			if (last != null && last.stream == stream) {
 				last.append(s);
 			}
 			else {
-				fPendingPartitions.add(new PendingPartition(stream, s));
-				if (fBuffer > 0x1ff) {
-					fQueueJob.schedule();
+				this.pendingPartitions.add(new PendingPartition(stream, s));
+				if (this.pendingTextLength > 0x1ff) {
+					this.queueJob.schedule();
 				} else {
-					fQueueJob.schedule(50);
+					this.queueJob.schedule(50);
 				}
 			}
 			
-			if (fBuffer > 0xffff) {
+			if (this.pendingTextLength > 0xffff) {
 				if (Display.getCurrent() == null){
 					try {
-						fPendingPartitions.wait();
+						this.pendingPartitions.wait();
 					}
 					catch (final InterruptedException e) {
 					}
@@ -361,31 +426,11 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 				else {
 					/*
 					 * if we are in UI thread we cannot lock it, so process
-					 * queued output.
+					 * queued output directly.
 					 */
 					processQueue();
 				}
 			}
-		}
-	}
-	
-	/**
-	 * Holds data until updateJob can be run and the document can be updated.
-	 */
-	private class PendingPartition {
-		StringBuffer text = new StringBuffer(8192);
-		NIConsoleOutputStream stream;
-		
-		PendingPartition(final NIConsoleOutputStream stream, final String text) {
-			this.stream = stream;
-			if (text != null) {
-				append(text);
-			}
-		}
-		
-		void append(final String moreText) {
-			this.text.append(moreText);
-			fBuffer += moreText.length();
 		}
 	}
 	
@@ -416,58 +461,57 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 		 */
 		@Override
 		public boolean shouldRun() {
-			final boolean shouldRun = fConnected && fPendingPartitions.size() > 0;
+			final boolean shouldRun= NIConsolePartitioner.this.isConnected
+					&& NIConsolePartitioner.this.pendingPartitions.size() > 0;
 			return shouldRun;
 		}
 		
 	}
 	
-	void processQueue() {
-		synchronized (fOverflowLock) {
-			final PendingPartition[] pendingCopy;
-			StringBuffer buffer = null;
-			boolean consoleClosed = false;
-			synchronized(fPendingPartitions) {
-				pendingCopy = fPendingPartitions.toArray(new PendingPartition[fPendingPartitions.size()]);
-				fPendingPartitions.clear();
-				fBuffer = 0;
-				fPendingPartitions.notifyAll();
+	private void processQueue() {
+		synchronized (this.overflowLock) {
+			final ImList<PendingPartition> pendingCopy;
+			final int pendingLength;
+			synchronized(this.pendingPartitions) {
+				pendingCopy= ImCollections.newList(this.pendingPartitions.toArray(
+						new PendingPartition[this.pendingPartitions.size()] ));
+				this.pendingPartitions.clear();
+				pendingLength= this.pendingTextLength;
+				this.pendingTextLength= 0;
+				this.pendingPartitions.notifyAll();
 			}
-			// determine buffer size
-			int size = 0;
-			for (int i = 0; i < pendingCopy.length; i++) {
-				if (pendingCopy[i] != fConsoleClosedPartition) { 
-					size += pendingCopy[i].text.length();
-				}
+			if (pendingCopy.isEmpty()) {
+				return;
 			}
-			buffer = new StringBuffer(size);
-			for (int i = 0; i < pendingCopy.length; i++) {
-				if (pendingCopy[i] != fConsoleClosedPartition) { 
-					buffer.append(pendingCopy[i].text);
+			
+			this.streamProcessor.prepareUpdate(pendingCopy, pendingLength);
+			
+			if (this.isConnected) {
+				setUpdateInProgress(true);
+				this.updatePartitions= pendingCopy;
+				try {
+					this.document.replace(
+							this.streamProcessor.getTextOffsetInDoc(),
+							this.streamProcessor.getTextReplaceLengthInDoc(),
+							this.streamProcessor.getText() );
 				}
-				else {
-					consoleClosed = true;
+				catch (final BadLocationException e) {}
+				finally {
+					this.updatePartitions= null;
+					setUpdateInProgress(false);
 				}
 			}
 			
-			if (fConnected) {
-				setUpdateInProgress(true);
-				fUpdatePartitions = pendingCopy;
-				fFirstOffset = fDocument.getLength();
-				try {
-					if (buffer != null) {
-						fDocument.replace(fFirstOffset, 0, buffer.toString());
-					}
-				} catch (final BadLocationException e) {}
-				fUpdatePartitions = null;
-				setUpdateInProgress(false);
+			if (this.streamProcessor.wasFinished()) {
+				this.console.partitionerFinished();
 			}
-			if (consoleClosed) {
-				fConsole.partitionerFinished();
-			}
+			
+			this.streamProcessor.updateDone();
+			
 			checkBufferSize();
 		}
 	}
+	
 	
 	/**
 	 * Job to trim the console document, runs in the  UI thread.
@@ -494,14 +538,14 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 		 * @param offset trims output up to the line containing the given offset
 		 */
 		public void setOffset(final int offset) {
-			this.truncateOffset = offset;
+			this.truncateOffset= offset;
 		}
 		
 		@Override
 		public IStatus runInUIThread(final IProgressMonitor monitor) {
-			final IJobManager jobManager = Job.getJobManager();
+			final IJobManager jobManager= Job.getJobManager();
 			try {
-				jobManager.join(fConsole, monitor);
+				jobManager.join(NIConsolePartitioner.this.console, monitor);
 			}
 			catch (final OperationCanceledException e1) {
 				return Status.CANCEL_STATUS;
@@ -509,43 +553,43 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 			catch (final InterruptedException e1) {
 				return Status.CANCEL_STATUS;
 			}
-			if (fDocument == null) {
+			if (NIConsolePartitioner.this.document == null) {
 				return Status.OK_STATUS;
 			}
 			
-			final int length = fDocument.getLength();
+			final int length= NIConsolePartitioner.this.document.getLength();
 			if (this.truncateOffset < length) {
-				synchronized (fOverflowLock) {
+				synchronized (NIConsolePartitioner.this.overflowLock) {
 					try {
 						if (this.truncateOffset < 0) {
 							// clear
 							setUpdateInProgress(true);
-							fDocument.set(""); //$NON-NLS-1$
+							NIConsolePartitioner.this.document.set(""); //$NON-NLS-1$
 							setUpdateInProgress(false);
-							fPartitions.clear();
+							NIConsolePartitioner.this.partitions.clear();
 						}
 						else {
 							// overflow
-							final int cutoffLine = fDocument.getLineOfOffset(this.truncateOffset);
-							final int cutOffset = fDocument.getLineOffset(cutoffLine);
+							final int cutoffLine= NIConsolePartitioner.this.document.getLineOfOffset(this.truncateOffset);
+							final int cutOffset= NIConsolePartitioner.this.document.getLineOffset(cutoffLine);
 							
 							// set the new length of the first partition
-							final NIConsolePartition partition = (NIConsolePartition) getPartition(cutOffset);
+							final NIConsolePartition partition= (NIConsolePartition) getPartition(cutOffset);
 							partition.setLength(partition.getOffset() + partition.getLength() - cutOffset);
 							
 							setUpdateInProgress(true);
-							fDocument.replace(0, cutOffset, ""); //$NON-NLS-1$
+							NIConsolePartitioner.this.document.replace(0, cutOffset, ""); //$NON-NLS-1$
 							setUpdateInProgress(false);
 							
 							//remove partitions and reset Partition offsets
-							final int index = fPartitions.indexOf(partition);
-							for (int i = 0; i < index; i++) {
-								fPartitions.remove(0);
+							final int index= NIConsolePartitioner.this.partitions.indexOf(partition);
+							for (int i= 0; i < index; i++) {
+								NIConsolePartitioner.this.partitions.remove(0);
 							}
 							
-							int offset = 0;
-							for (final Iterator<NIConsolePartition> i = fPartitions.iterator(); i.hasNext();) {
-								final NIConsolePartition p = i.next();
+							int offset= 0;
+							for (final Iterator<NIConsolePartition> i= NIConsolePartitioner.this.partitions.iterator(); i.hasNext();) {
+								final NIConsolePartition p= i.next();
 								p.setOffset(offset);
 								offset += p.getLength();
 							}
@@ -565,17 +609,17 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 	
 	@Override
 	public StyleRange[] getStyleRanges(final int offset, final int length) {
-		if (!fConnected) {
+		if (!this.isConnected) {
 			return new StyleRange[0];
 		}
-		final NIConsolePartition[] computedPartitions = (NIConsolePartition[]) computePartitioning(offset, length);
-		final StyleRange[] styles = new StyleRange[computedPartitions.length];
-		for (int i = 0; i < computedPartitions.length; i++) {
-			final int rangeStart = Math.max(computedPartitions[i].getOffset(), offset);
-			final int rangeLength = computedPartitions[i].getLength();
-			styles[i] = new StyleRange(rangeStart, rangeLength,
-					computedPartitions[i].fOutputStream.getColor(), null,
-					computedPartitions[i].fOutputStream.getFontStyle() );
+		final NIConsolePartition[] computedPartitions= (NIConsolePartition[]) computePartitioning(offset, length);
+		final StyleRange[] styles= new StyleRange[computedPartitions.length];
+		for (int i= 0; i < computedPartitions.length; i++) {
+			final int rangeStart= Math.max(computedPartitions[i].getOffset(), offset);
+			final int rangeLength= computedPartitions[i].getLength();
+			styles[i]= new StyleRange(rangeStart, rangeLength,
+					computedPartitions[i].getStream().getColor(), null,
+					computedPartitions[i].getStream().getFontStyle() );
 		}
 		return styles;
 	}

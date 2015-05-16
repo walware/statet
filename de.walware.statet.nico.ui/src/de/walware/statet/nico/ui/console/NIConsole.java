@@ -31,7 +31,6 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsole;
@@ -180,8 +179,8 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 		final boolean limitBufferSize = true;
 		if (limitBufferSize) {
 			int lowWater = PreferencesUtil.getInstancePrefs().getPreferenceValue(ConsolePreferences.PREF_CHARLIMIT);
-			if (lowWater < 10000) {
-				lowWater = 10000;
+			if (lowWater < 100000) {
+				lowWater = 100000;
 			}
 			if (lowWater == fCurrentWatermark) {
 				return;
@@ -269,99 +268,15 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 			
 			final NIConsoleOutputStream out = stream;
 			streamMonitor.addListener(new IStreamListener() {
-				
-				private static final int BUFFER_SIZE = 9216;
-				private final StringBuilder fBuffer = new StringBuilder(BUFFER_SIZE);
-				
 				@Override
 				public void streamAppended(final String text, final IStreamMonitor monitor) {
 					try {
-						synchronized (out) {
-							// it would be better to run the check later, e.g. in partitioning job, but this is internal Eclipse
-							int start = 0;
-							final int n = text.length();
-							for (int idx = 0; idx < n;) {
-								final char c = text.charAt(idx);
-								if (c <= 12) {
-									switch (c) {
-									case 7: // bell
-										fBuffer.append(text, start, idx);
-										ring();
-										start = ++idx;
-										continue;
-									case 8: // back
-										fBuffer.append(text, start, idx);
-										if (fBuffer.length() > 0) {
-											final char prev = fBuffer.charAt(fBuffer.length()-1);
-											if (prev != '\n' && prev != '\r') {
-												fBuffer.deleteCharAt(fBuffer.length()-1);
-											}
-										}
-										start = ++idx;
-										continue;
-									case 11: // vertical tab
-										fBuffer.append(text, start, idx);
-										printVTab();
-										start = ++idx;
-										continue;
-									case 12: // formfeed
-										fBuffer.append(text, start, idx);
-										printFormfeed();
-										start = ++idx;
-										continue;
-									}
-								}
-								++idx;
-								continue;
-							}
-							if (start == 0) {
-								out.write(text);
-							}
-							else {
-								fBuffer.append(text, start, n);
-								out.write(fBuffer.toString());
-								if (fBuffer.capacity() > BUFFER_SIZE*5) {
-									fBuffer.setLength(BUFFER_SIZE);
-									fBuffer.trimToSize();
-								}
-								fBuffer.setLength(0);
-							}
-// TODO
-//							if (text.length() >= 7168) {
-//								try {
-//									Thread.sleep(10);
-//								}
-//								catch (final InterruptedException e) {
-//									Thread.interrupted();
-//								}
-//							}
-						}
+						out.write(text);
 					}
 					catch (final IOException e) {
 						NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, "Error of unexpected type occured, when writing to console stream.", e); //$NON-NLS-1$
 					}
 				}
-				
-				private void ring() {
-					final Display display = UIAccess.getDisplay();
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							display.beep();
-						};
-					});
-				}
-				
-				private void printVTab() {
-					final String br = fProcess.getWorkspaceData().getLineSeparator();
-					fBuffer.append(br);
-				}
-				
-				private void printFormfeed() {
-					final String br = fProcess.getWorkspaceData().getLineSeparator();
-					fBuffer.append(br+br);
-				}
-				
 			}, filter);
 		}
 	}
@@ -382,6 +297,7 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 				stream.close();
 			}
 			fStreamsClosed = true;
+			fPartitioner.finish();
 			
 			fAdapter.disconnect();
 			fAdapter = null;

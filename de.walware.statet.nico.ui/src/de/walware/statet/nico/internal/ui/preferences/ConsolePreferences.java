@@ -174,7 +174,7 @@ public class ConsolePreferences extends AbstractPreferenceInitializer {
 		PreferencesUtil.setPrefValue(scope, PREF_FILTER_SUBMIT_TYPES, SubmitType.getDefaultSet());
 		PreferencesUtil.setPrefValue(scope, PREF_FILTER_SHOW_ALL_ERRORS, false);
 		
-		PreferencesUtil.setPrefValue(scope, PREF_CHARLIMIT, 500000);
+		PreferencesUtil.setPrefValue(scope, PREF_CHARLIMIT, 1000000);
 		
 		
 		consolePrefs.put(OUTPUT_INPUT_ROOT_KEY + TEXTSTYLE_COLOR_SUFFIX,

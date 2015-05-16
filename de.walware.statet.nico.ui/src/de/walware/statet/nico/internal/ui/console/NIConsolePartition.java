@@ -19,42 +19,46 @@ import de.walware.statet.nico.ui.console.NIConsoleOutputStream;
 /**
  * Partition of a NIConsole's document.
  */
-public class NIConsolePartition implements ITypedRegion {
+public final class NIConsolePartition implements ITypedRegion {
 	
 	
-	final NIConsoleOutputStream fOutputStream;
+	private final NIConsoleOutputStream outputStream;
 	
 	/**
 	 * The data contained by this partition.
 	 */
-	private final String fType;
+	private final String type;
 	
-	private int fOffset;
-	private int fLength;
+	private int offset;
+	private int length;
 	
 	
 	/**
 	 * Creates a new partition to contain output to console.
 	 */
-	public NIConsolePartition(final String type, final int length, final NIConsoleOutputStream stream) {
-		fType = type;
-		fLength = length;
-		fOutputStream = stream;
+	public NIConsolePartition(final String type, final NIConsoleOutputStream stream) {
+		this.type= type;
+		this.outputStream= stream;
 	}
+	
+	/**
+	 * Creates a new partition to contain output to console.
+	 */
+	public NIConsolePartition(final String type, final NIConsoleOutputStream stream,
+			final int offset, final int length) {
+		this(type, stream);
+		this.offset= offset;
+		this.length= length;
+	}
+	
 	
 	@Override
 	public String getType() {
-		return fType;
+		return this.type;
 	}
 	
-	@Override
-	public int getOffset() {
-		return fOffset;
-	}
-	
-	@Override
-	public int getLength() {
-		return fLength;
+	public NIConsoleOutputStream getStream() {
+		return this.outputStream;
 	}
 	
 	/**
@@ -63,7 +67,7 @@ public class NIConsolePartition implements ITypedRegion {
 	 * @param offset This partitions offset in the document.
 	 */
 	void setOffset(final int offset) {
-		fOffset = offset;
+		this.offset= offset;
 	}
 	
 	/**
@@ -72,7 +76,23 @@ public class NIConsolePartition implements ITypedRegion {
 	 * @param length
 	 */
 	void setLength(final int length) {
-		fLength = length;
+		this.length= length;
+	}
+	
+	@Override
+	public int getOffset() {
+		return this.offset;
+	}
+	
+	@Override
+	public int getLength() {
+		return this.length;
+	}
+	
+	
+	@Override
+	public String toString() {
+		return getType() + ": offset= " + getOffset() + ", length= " + getLength(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 }

@@ -145,21 +145,7 @@ public final class NIConsoleOutputStream {
 		return this.closed;
 	}
 	
-//	public synchronized void close() throws IOException {
-//		if(fClosed) {
-//			throw new IOException("Output Stream is closed"); //$NON-NLS-1$
-//		}
-//		if (fPrependCR) { // force writing of last /r
-//			fPrependCR= false;
-//			notifyParitioner("\r"); //$NON-NLS-1$
-//		}
-//		fConsole.streamClosed(this);
-//		fClosed= true;
-//		fPartitioner= null;
-//	}
-	
 	synchronized void close() {
-		this.closed= true;
 		if (this.prependCR) { // force writing of last /r
 			this.prependCR= false;
 			try {
@@ -167,6 +153,7 @@ public final class NIConsoleOutputStream {
 			}
 			catch (final IOException e) {}
 		}
+		this.closed= true;
 		this.partitioner= null;
 	}
 	
@@ -181,12 +168,12 @@ public final class NIConsoleOutputStream {
 			throw new IOException("Output Stream is closed"); //$NON-NLS-1$
 		}
 		if (this.prependCR){
-			text= "\r"+text; //$NON-NLS-1$
+			text= "\r" + text; //$NON-NLS-1$
 			this.prependCR= false;
 		}
 		if (text.endsWith("\r")) { //$NON-NLS-1$
 			this.prependCR= true;
-			text= text.substring(0, text.length()-1);
+			text= text.substring(0, text.length() - 1);
 		}
 		notifyParitioner(text);
 	}

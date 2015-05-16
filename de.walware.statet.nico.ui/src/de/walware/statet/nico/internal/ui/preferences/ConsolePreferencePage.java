@@ -127,7 +127,7 @@ class ConsolePreferenceBlock extends ManagedConfigurationBlock {
 		db.getContext().bindValue(
 				SWTObservables.observeText(fCharLimitControl, SWT.Modify),
 				createObservable(ConsolePreferences.PREF_CHARLIMIT),
-				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(10000, 1000000000, "Invalid char limit specified (10000-1000000000).")),
+				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(100000, 1000000000, "Invalid char limit specified (100000-1000000000).")),
 				null );
 	}
 	
