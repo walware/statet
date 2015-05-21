@@ -472,6 +472,15 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 					NIConsolePage.this.setFocus();
 				}
 			}
+			@Override
+			public void redraw() {
+				super.redraw();
+				
+				// required for hyperlinks / org.eclipse.ui.internal.console.ConsoleManager$RepaintJob
+				if (UIAccess.isOkToUse(fOutputViewer)) {
+					fOutputViewer.getControl().redraw();
+				}
+			}
 		};
 		final GridLayout layout = new GridLayout(1, false);
 		layout.marginHeight = 0;
