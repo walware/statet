@@ -162,8 +162,8 @@ public class InlineTempRefactoring extends Refactoring {
 		final RAstNode node= writeAccess.getNode();
 		switch (node != null ? node.getNodeType() : NodeType.DUMMY) {
 		case A_LEFT:
-		case A_EQUALS:
 		case A_RIGHT:
+		case A_EQUALS:
 			break;
 		case F_DEF_ARG:
 			result.merge(RefactoringStatus.createFatalErrorStatus(Messages.InlineTemp_error_InvalidSelectionParameter_message));

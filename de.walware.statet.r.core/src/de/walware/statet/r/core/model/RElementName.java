@@ -11,10 +11,6 @@
 
 package de.walware.statet.r.core.model;
 
-import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_TOKEN_NOT_CLOSED;
-import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_MASK_12;
-import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
-
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
@@ -22,8 +18,7 @@ import java.util.List;
 import com.ibm.icu.text.Collator;
 
 import de.walware.ecommons.ltk.IElementName;
-import de.walware.ecommons.text.SourceParseInput;
-import de.walware.ecommons.text.StringParseInput;
+import de.walware.ecommons.text.core.input.StringParserInput;
 
 import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.core.rlang.RTerminal;
@@ -455,70 +450,6 @@ public abstract class RElementName implements IElementName {
 		
 	}
 	
-	/**
-	 * Lexer for RScanner.
-	 */
-	private static class ParseLexer extends RLexer {
-		
-		
-		public ParseLexer(final SourceParseInput input) {
-			super(input);
-		}
-		
-		
-		@Override
-		protected void createSymbolToken() {
-			fFoundType = RTerminal.SYMBOL;
-			fFoundText = fInput.substring(1, fFoundNum);
-			fFoundStatus = STATUS_OK;
-		}
-		
-		@Override
-		protected void createQuotedSymbolToken(final RTerminal type, final int status) {
-			fFoundType = type;
-			fFoundText = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
-					fInput.substring(2, fFoundNum-2) : fInput.substring(2, fFoundNum-1);
-			fFoundStatus = status;
-		}
-		
-		@Override
-		protected void createStringToken(final RTerminal type, final int status) {
-			fFoundType = type;
-			fFoundText = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
-					fInput.substring(2, fFoundNum-2) : fInput.substring(2, fFoundNum-1);
-			fFoundStatus = status;
-		}
-		
-		@Override
-		protected void createNumberToken(final RTerminal type, final int status) {
-			fFoundType = type;
-			fFoundText = fInput.substring(1, fFoundNum);
-			fFoundStatus = status;
-		}
-		
-		@Override
-		protected void createWhitespaceToken() {
-			fFoundType = null;
-		}
-		
-		@Override
-		protected void createCommentToken(final RTerminal type) {
-			fFoundType = null;
-		}
-		
-		@Override
-		protected void createLinebreakToken(final String text) {
-			fFoundType = null;
-		}
-		
-		@Override
-		protected void createUnknownToken(final String text) {
-			fFoundType = RTerminal.UNKNOWN;
-			fFoundText = text;
-			fFoundStatus = STATUS_OK;
-		}
-		
-	}
 	
 	public static RElementName create(final int type, final String segmentName) {
 		return new DefaultImpl(type, segmentName);
@@ -532,8 +463,9 @@ public abstract class RElementName implements IElementName {
 	}
 	
 	public static RElementName parseDefault(final String code) {
-		final ParseLexer lexer = new ParseLexer(new StringParseInput(code));
-		lexer.setFull();
+		final RLexer lexer= new RLexer((RLexer.DEFAULT |
+						RLexer.SKIP_WHITESPACE | RLexer.SKIP_LINEBREAK | RLexer.SKIP_COMMENT ));
+		lexer.reset(new StringParserInput(code).init());
 		
 		int mode = MAIN_DEFAULT;
 		DefaultImpl main = null;
@@ -555,7 +487,7 @@ public abstract class RElementName implements IElementName {
 				return main;
 			}
 			else {
-				switch(type) {
+				switch (type) {
 				case IF:
 				case ELSE:
 				case FOR:

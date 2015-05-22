@@ -369,7 +369,7 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 	@Override
 	protected void printRCode(final PrintWriter writer, final String html) {
 		synchronized (fRCodeScanner) {
-			fRCodeScanner.setCode(html);
+			fRCodeScanner.setHtml(html);
 			writer.write("<span style=\""); //$NON-NLS-1$
 			writer.write(fRCodeScanner.getDefaultStyle());
 			writer.write("\">"); //$NON-NLS-1$

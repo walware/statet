@@ -21,7 +21,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistComputerRegistry;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistProcessor;
-import de.walware.ecommons.text.IPartitionConstraint;
+import de.walware.ecommons.text.core.IPartitionConstraint;
 
 import de.walware.statet.nico.ui.console.InputDocument;
 

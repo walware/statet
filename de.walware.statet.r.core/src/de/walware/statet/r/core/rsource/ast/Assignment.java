@@ -161,6 +161,51 @@ public abstract class Assignment extends StdBinary {
 	}
 	
 	
+	static class LeftC extends Assignment {
+		
+		
+		LeftC() {
+		}
+		
+		
+		@Override
+		public final NodeType getNodeType() {
+			return NodeType.A_COLON;
+		}
+		
+		@Override
+		public final RAstNode getTargetChild() {
+			return fLeftExpr.node;
+		}
+		
+		@Override
+		public final RAstNode getSourceChild() {
+			return fRightExpr.node;
+		}
+		
+		@Override
+		final Expression getTargetExpr() {
+			return fLeftExpr;
+		}
+		
+		@Override
+		final Expression getSourceExpr() {
+			return fRightExpr;
+		}
+		
+		@Override
+		public final RTerminal getOperator(final int index) {
+			return RTerminal.COLON_EQUAL;
+		}
+		
+		@Override
+		public final boolean isSearchOperator() {
+			return false;
+		}
+		
+	}
+	
+	
 	static class RightS extends Assignment {
 		
 		

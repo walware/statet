@@ -16,25 +16,24 @@ import java.util.Set;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import de.walware.ecommons.text.HtmlParseInput;
+import de.walware.ecommons.text.core.util.HtmlStripParserInput;
 import de.walware.ecommons.text.ui.settings.CssTextStyleManager;
 
 import de.walware.statet.r.ui.RUIPreferenceConstants;
-import de.walware.statet.r.ui.text.r.RCodeScanner2;
+import de.walware.statet.r.ui.text.r.RDefaultTextStyleScanner;
 
 
-public class RHelpRCodeScanner extends RCodeScanner2 {
+public class RHelpRCodeScanner extends RDefaultTextStyleScanner {
 	
 	
 	public RHelpRCodeScanner(final IPreferenceStore preferenceStore) {
-		super(new RTokenScannerLexer(),
-				new CssTextStyleManager(preferenceStore, RUIPreferenceConstants.R.TS_GROUP_ID,
-						RUIPreferenceConstants.R.TS_DEFAULT_ROOT ) );
+		super(new CssTextStyleManager(preferenceStore,
+				RUIPreferenceConstants.R.TS_GROUP_ID, RUIPreferenceConstants.R.TS_DEFAULT_ROOT ));
 	}
 	
 	
-	public void setCode(final String html) {
-		getLexer().reset(new HtmlParseInput(html));
+	public void setHtml(final String html) {
+		getLexer().reset(new HtmlStripParserInput(html).init());
 	}
 	
 	public String getDefaultStyle() {

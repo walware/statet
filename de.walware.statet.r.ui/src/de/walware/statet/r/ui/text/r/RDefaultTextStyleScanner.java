@@ -11,8 +11,6 @@
 
 package de.walware.statet.r.ui.text.r;
 
-import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
-
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +21,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
 
-import de.walware.ecommons.text.BufferedDocumentParseInput;
+import de.walware.ecommons.text.core.input.DocumentParserInput;
 import de.walware.ecommons.text.ui.presentation.ITextPresentationConstants;
 import de.walware.ecommons.text.ui.settings.TextStyleManager;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
@@ -40,156 +38,133 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
  * 
  * Version 2 uses RLexer instead of rules to parse the sources.
  */
-public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenScanner, ISettingsChangedHandler {
+public class RDefaultTextStyleScanner extends DocumentParserInput implements ITokenScanner, ISettingsChangedHandler {
 	
 	
 	protected static void putAll(final Map<String, IToken> map, final String[] symbols, final IToken token) {
-		for (int i = 0; i < symbols.length; i++) {
+		for (int i= 0; i < symbols.length; i++) {
 			map.put(symbols[i], token);
 		}
 	}
 	
 	protected static void putAll(final Map<RTerminal, IToken> map, final RTerminal[] types, final IToken token) {
-		for (int i = 0; i < types.length; i++) {
+		for (int i= 0; i < types.length; i++) {
 			map.put(types[i], token);
 		}
 	}
 	
 	
-	protected static class RTokenScannerLexer extends RLexer {
-		
-		
-		public RTokenScannerLexer() {
-			super();
-		}
-		
-		
-		@Override
-		protected final void createSymbolToken() {
-			fFoundType = RTerminal.SYMBOL;
-			fFoundText = (fFoundNum < 50) ? fInput.substring(1, fFoundNum) : null;
-			fFoundStatus = STATUS_OK;
-		}
-		
-		@Override
-		protected final void createWhitespaceToken() {
-			fFoundType = null;
-		}
-		
-		@Override
-		protected void createLinebreakToken(final String text) {
-			fFoundType = null;
-		}
-		
-	}
+	private final RLexer lexer;
+	private RTerminal lexerToken;
+	
+	private final EnumMap<RTerminal, IToken> tokens;
+	private final IToken defaultToken;
+	private final Map<String, IToken> specialSymbols;
+	private final TextStyleManager textStyles;
+	
+	private int currentOffset;
+	private int currentLength;
 	
 	
-	private final RTokenScannerLexer fLexer;
-	private RTerminal fLexerToken;
-	
-	private final EnumMap<RTerminal, IToken> fTokens;
-	private final IToken fDefaultToken;
-	private final Map<String, IToken> fSpecialSymbols;
-	private final TextStyleManager fTextStyles;
-	
-	private int fCurrentOffset;
-	private int fCurrentLength;
-	
-	
-	public RCodeScanner2(final TextStyleManager textStyles) {
-		this(new RTokenScannerLexer(), textStyles);
-	}
-	
-	protected RCodeScanner2(final RTokenScannerLexer lexer, final TextStyleManager textStyles) {
-		fLexer = lexer;
-		fTextStyles = textStyles;
+	public RDefaultTextStyleScanner(final TextStyleManager textStyles) {
+		this.lexer= createLexer();
+		this.lexer.reset(this);
+		this.textStyles= textStyles;
 		
-		fDefaultToken = getToken(IRTextTokens.SYMBOL_KEY);
-		fTokens = new EnumMap<RTerminal, IToken>(RTerminal.class);
-		registerTokens(fTokens);
+		this.defaultToken= getToken(IRTextTokens.SYMBOL_KEY);
+		this.tokens= new EnumMap<>(RTerminal.class);
+		registerTokens(this.tokens);
 //		checkTokenMap();
-		fSpecialSymbols = new HashMap<String, IToken>();
-		updateSymbols(fSpecialSymbols);
+		this.specialSymbols= new HashMap<>();
+		updateSymbols(this.specialSymbols);
+	}
+	
+	
+	protected RLexer createLexer() {
+		return new RLexer((RLexer.DEFAULT | RLexer.SKIP_WHITESPACE | RLexer.SKIP_LINEBREAK |
+				RLexer.ENABLE_QUICK_CHECK ));
 	}
 	
 	protected void checkTokenMap() {
-		final RTerminal[] all = RTerminal.values();
+		final RTerminal[] all= RTerminal.values();
 		for (final RTerminal t : all) {
-			if (fTokens.get(t) == null) {
+			if (this.tokens.get(t) == null) {
 				System.out.println("Style Missing for: " + t.name()); //$NON-NLS-1$
 			}
 		}
 	}
 	
 	
-	protected RTokenScannerLexer getLexer() {
-		return fLexer;
+	protected final RLexer getLexer() {
+		return this.lexer;
 	}
 	
-	protected TextStyleManager getTextStyles() {
-		return fTextStyles;
+	protected final TextStyleManager getTextStyles() {
+		return this.textStyles;
 	}
 	
 	@Override
 	public void setRange(final IDocument document, final int offset, final int length) {
-		super.setRange(document, offset, length);
-		fCurrentOffset = offset;
-		fCurrentLength = 0;
-		fLexer.reset(this);
+		reset(document);
+		init(offset, offset + length);
+		this.lexer.reset(this);
+		
+		this.currentOffset= offset;
+		this.currentLength= 0;
 	}
 	
 	protected void resetSpecialSymbols() {
-		fSpecialSymbols.clear();
-		updateSymbols(fSpecialSymbols);
+		this.specialSymbols.clear();
+		updateSymbols(this.specialSymbols);
 	}
 	
 	
 	@Override
 	public IToken nextToken() {
-		fCurrentOffset += fCurrentLength;
-		if (fLexerToken == null) {
-			fLexerToken = fLexer.next();
+		this.currentOffset+= this.currentLength;
+		if (this.lexerToken == null) {
+			this.lexerToken= this.lexer.next();
 		}
-		fCurrentLength = fLexer.getOffset()-fCurrentOffset;
-		if (fCurrentLength != 0) {
-			return fDefaultToken;
+		this.currentLength= this.lexer.getOffset() - this.currentOffset;
+		if (this.currentLength != 0) {
+			return this.defaultToken;
 		}
-		fCurrentLength = fLexer.getLength();
+		this.currentLength= this.lexer.getLength();
 		return getTokenFromScannerToken();
 	}
 	
 	protected IToken getTokenFromScannerToken() {
 		IToken token;
-		if (fLexerToken == RTerminal.SYMBOL) {
-			final String text = fLexer.getText();
+		if (this.lexerToken == RTerminal.SYMBOL) {
+			final String text= this.lexer.getText();
 			if (text != null) {
-				token = fSpecialSymbols.get(text);
+				token= this.specialSymbols.get(text);
 				if (token != null) {
-					fLexerToken = null;
+					this.lexerToken= null;
 					return token;
 				}
 			}
-			fLexerToken = null;
-			return fDefaultToken;
+			this.lexerToken= null;
+			return this.defaultToken;
 		}
-		token = fTokens.get(fLexerToken);
-		fLexerToken = null;
+		token= this.tokens.get(this.lexerToken);
+		this.lexerToken= null;
 		return token;
 	}
 	
 	@Override
 	public int getTokenOffset() {
-		return fCurrentOffset;
+		return this.currentOffset;
 	}
 	
 	@Override
 	public int getTokenLength() {
-		return fCurrentLength;
+		return this.currentLength;
 	}
 	
 	
 	protected IToken getToken(final String key) {
-		return fTextStyles.getToken(key);
+		return this.textStyles.getToken(key);
 	}
 	
 	@Override
@@ -234,7 +209,7 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 	}
 	
 	protected void updateSymbols(final Map<String, IToken> map) {
-		final RIdentifierGroups groups = RUIPlugin.getDefault().getRIdentifierGroups();
+		final RIdentifierGroups groups= RUIPlugin.getDefault().getRIdentifierGroups();
 		groups.getReadLock().lock();
 		try {
 			putAll(map, groups.getAssignmentIdentifiers(),

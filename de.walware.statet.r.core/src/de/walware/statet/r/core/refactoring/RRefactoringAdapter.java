@@ -29,10 +29,10 @@ import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringAdapter;
-import de.walware.ecommons.text.IPartitionConstraint;
 import de.walware.ecommons.text.IndentUtil;
-import de.walware.ecommons.text.SourceParseInput;
-import de.walware.ecommons.text.StringParseInput;
+import de.walware.ecommons.text.core.IPartitionConstraint;
+import de.walware.ecommons.text.core.input.StringParserInput;
+import de.walware.ecommons.text.core.input.TextParserInput;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
@@ -223,9 +223,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		if (fLexer == null) {
 			fLexer = new RLexer();
 		}
-		final StringParseInput input = new StringParseInput(value);
-		input.init();
-		fLexer.reset(input);
+		fLexer.reset(new StringParserInput(value).init());
 		final RTerminal nextToken = fLexer.next();
 		if (nextToken == RTerminal.EOF) {
 			return (identifierMessageName != null) ?
@@ -233,7 +231,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 					Messages.RIdentifiers_error_Empty_message;
 		}
 		if ((nextToken != RTerminal.SYMBOL && nextToken != RTerminal.SYMBOL_G)
-				|| ((fLexer.getStatusCode() & IRSourceConstants.STATUSFLAG_REAL_ERROR) != 0)
+				|| ((fLexer.getFlags() & IRSourceConstants.STATUSFLAG_REAL_ERROR) != 0)
 				|| (fLexer.next() != RTerminal.EOF)) {
 			return (identifierMessageName != null) ?
 					NLS.bind(Messages.RIdentifiers_error_InvalidFor_message, identifierMessageName, Messages.RIdentifiers_error_Empty_message) :
@@ -245,8 +243,9 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 	static RAstNode getPotentialNameNode(final RAstNode node, final boolean allowAssignRegion) {
 		switch (node.getNodeType()) {
 		case A_LEFT:
-		case A_EQUALS:
 		case A_RIGHT:
+		case A_EQUALS:
+		case A_COLON:
 			if (allowAssignRegion) {
 				final Assignment assignment = (Assignment) node;
 				if (assignment.isSearchOperator()) {
@@ -254,6 +253,8 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 					case SYMBOL:
 					case STRING_CONST:
 						return assignment.getTargetChild();
+					default:
+						break;
 					}
 				}
 			}
@@ -313,11 +314,11 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		sb.insert(0, prefix);
 		String text = sb.toString();
 		final Document doc = new Document(text);
-		final SourceParseInput parseInput = new StringParseInput(text);
+		final TextParserInput parseInput= new StringParserInput(text);
 		text = null;
 		
-		final RScanner astScanner = new RScanner(parseInput, AstInfo.LEVEL_MINIMAL);
-		final SourceComponent rootNode = astScanner.scanSourceUnit();
+		final RScanner astScanner = new RScanner(AstInfo.LEVEL_MINIMAL);
+		final SourceComponent rootNode = astScanner.scanSourceUnit(parseInput.init());
 		
 		final RSourceIndenter indenter = new RSourceIndenter(scanner, coreConfig);
 		final TextEdit edits = indenter.getIndentEdits(doc, rootNode, 0, 1, doc.getNumberOfLines()-1);

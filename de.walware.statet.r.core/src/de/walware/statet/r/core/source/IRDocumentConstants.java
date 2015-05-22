@@ -16,7 +16,7 @@ import java.util.List;
 import org.eclipse.jface.text.IDocument;
 
 import de.walware.ecommons.collections.ImCollections;
-import de.walware.ecommons.text.IPartitionConstraint;
+import de.walware.ecommons.text.core.IPartitionConstraint;
 
 
 public interface IRDocumentConstants {

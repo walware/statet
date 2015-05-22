@@ -71,7 +71,7 @@ import de.walware.statet.r.internal.ui.editors.RQuickOutlineInformationProvider;
 import de.walware.statet.r.ui.editors.REditorOptions;
 import de.walware.statet.r.ui.text.r.IRTextTokens;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
-import de.walware.statet.r.ui.text.r.RCodeScanner2;
+import de.walware.statet.r.ui.text.r.RDefaultTextStyleScanner;
 import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
 import de.walware.statet.r.ui.text.r.RInfixOperatorScanner;
 import de.walware.statet.r.ui.text.r.RoxygenScanner;
@@ -124,7 +124,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		final TextStyleManager textStyles= getTextStyles();
 		
 		addScanner(IRDocumentConstants.R_DEFAULT_CONTENT_TYPE,
-				new RCodeScanner2(textStyles) );
+				new RDefaultTextStyleScanner(textStyles) );
 		addScanner(IRDocumentConstants.R_INFIX_OPERATOR_CONTENT_TYPE,
 				new RInfixOperatorScanner(textStyles) );
 		addScanner(IRDocumentConstants.R_STRING_CONTENT_TYPE,

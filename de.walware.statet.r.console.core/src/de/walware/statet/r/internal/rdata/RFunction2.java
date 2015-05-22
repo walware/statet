@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.text.StringParseInput;
+import de.walware.ecommons.text.core.input.StringParserInput;
 
 import de.walware.rj.data.RFunction;
 import de.walware.rj.data.RJIO;
@@ -55,9 +55,8 @@ public final class RFunction2 extends CombinedElement
 		/*final int options =*/ io.readInt();
 		final String headerSource = io.readString();
 		if (headerSource != null && headerSource.length() > 0) {
-			final RScanner scanner = new RScanner(new StringParseInput(headerSource),
-					AstInfo.LEVEL_MODEL_DEFAULT );
-			final FDef fDef = scanner.scanFDef();
+			final RScanner scanner= new RScanner(AstInfo.LEVEL_MODEL_DEFAULT);
+			final FDef fDef= scanner.scanFDef(new StringParserInput(headerSource).init());
 			if (fDef != null) {
 				fArgs = SourceAnalyzer.createMethodArgDef(fDef, null);
 			}

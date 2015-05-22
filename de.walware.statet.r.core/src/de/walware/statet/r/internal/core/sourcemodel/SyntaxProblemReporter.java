@@ -11,6 +11,20 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTAX_NUMBER_EXP_DIGIT_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTAX_NUMBER_HEX_DIGIT_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTAX_NUMBER_HEX_FLOAT_EXP_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTAX_NUMBER_INT_WITH_DEC_POINT;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTAX_NUMBER_NON_INT_WITH_L;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTAX_TEXT_ESCAPE_SEQ_HEX_DIGIT_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTAX_TEXT_ESCAPE_SEQ_NOT_CLOSED;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTAX_TEXT_ESCAPE_SEQ_UNEXPECTED;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTAX_TEXT_ESCAPE_SEQ_UNKOWN;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTAX_TEXT_NULLCHAR;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS12_SYNTAX_TEXT_INVALID;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS12_SYNTAX_TOKEN_NOT_CLOSED;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS12_SYNTAX_TOKEN_UNEXPECTED;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS12_SYNTAX_TOKEN_UNKNOWN;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_CC_NOT_CLOSED;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_CONDITION_MISSING;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_CONDITION_NOT_CLOSED;
@@ -25,15 +39,10 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_FCALL_NOT_CLOSED;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_FDEF_ARGS_MISSING;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_FDEF_ARGS_NOT_CLOSED;
-import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_FLOAT_EXP_INVALID;
-import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_FLOAT_WITH_L;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_IF_MISSING;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_IN_MISSING;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_OPERATOR_MISSING;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_SYMBOL_MISSING;
-import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_TOKEN_NOT_CLOSED;
-import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_TOKEN_UNEXPECTED;
-import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_TOKEN_UNKNOWN;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUSFLAG_SUBSEQUENT;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_MASK_12;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_MASK_123;
@@ -54,6 +63,7 @@ import org.eclipse.jface.text.BadLocationException;
 import de.walware.ecommons.MessageBuilder;
 import de.walware.ecommons.ltk.IProblem;
 import de.walware.ecommons.ltk.IProblemRequestor;
+import de.walware.ecommons.ltk.ast.StatusDetail;
 import de.walware.ecommons.ltk.core.SourceContent;
 import de.walware.ecommons.ltk.core.impl.Problem;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
@@ -160,16 +170,14 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	protected final void addProblem(final int severity, final int code, final String message,
 			int startOffset, int stopOffset) {
-		final int sourceStartOffset= this.sourceContent.getOffset();
-		final int sourceStopOffset= sourceStartOffset + sourceContent.getText().length();
-		if (startOffset < sourceStartOffset) {
-			startOffset= sourceStartOffset;
+		if (startOffset < this.sourceContent.getBeginOffset()) {
+			startOffset= this.sourceContent.getBeginOffset();
 		}
 		if (stopOffset < startOffset) {
 			stopOffset= startOffset;
 		}
-		else if (stopOffset > sourceStopOffset) {
-			stopOffset= sourceStopOffset;
+		else if (stopOffset > this.sourceContent.getEndOffset()) {
+			stopOffset= this.sourceContent.getEndOffset();
 		}
 		
 		this.problemBuffer.add(new Problem(RModel.R_TYPE_ID, severity, code, message,
@@ -189,7 +197,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	protected String getStartText(final RAstNode node, final int offset)
 			throws BadLocationException {
-		String text= node.getText();
+		final String text= node.getText();
 		if (text != null) {
 			if (text.length() > START_TEXT_LIMIT) {
 				final StringBuilder sb= getStringBuilder();
@@ -216,6 +224,19 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		}
 	}
 	
+	protected String getDetailText(final RAstNode node, final int offset, final StatusDetail detail)
+			throws BadLocationException {
+		final String text= node.getText();
+		if (text != null) {
+			final int begin= detail.getOffset() - node.getOffset() - offset;
+			return text.substring(begin, begin + detail.getLength());
+		}
+		else {
+			return this.sourceContent.getText().substring(
+					detail.getOffset(), detail.getOffset() + detail.getLength() );
+		}
+	}
+	
 	
 	private void handleCommonCodes(final RAstNode node, final int code)
 			throws BadLocationException, InvocationTargetException {
@@ -226,7 +247,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 							"Error occurred when parsing source code. Please submit a bug report with a code snippet.", //$NON-NLS-1$
 							null)));
 		
-		case STATUS2_SYNTAX_TOKEN_UNEXPECTED:
+		case STATUS12_SYNTAX_TOKEN_UNEXPECTED:
 			addProblem(IProblem.SEVERITY_ERROR, code,
 					this.messageBuilder.bind(ProblemMessages.Syntax_TokenUnexpected_message, getFullText(node)),
 					node.getOffset(), node.getStopOffset() );
@@ -250,7 +271,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		sb.append('\n');
 		if (this.sourceContent != null) {
 			try {
-				final ILineInformation lines= sourceContent.getLines();
+				final ILineInformation lines= this.sourceContent.getLines();
 				final int line= lines.getLineOfOffset(node.getOffset());
 				sb.append("  Line ").append((line+1)).append(" (offset )").append(lines.getLineOffset(line)); //$NON-NLS-1$ //$NON-NLS-2$
 				sb.append('\n');
@@ -627,7 +648,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		final int code= (node.getStatusCode() & MASK);
 		if (requiredCheck(code)) {
 			try {
-				if ((code & STATUS_MASK_123) == (IRSourceConstants.STATUS_SYNTAX_SEQREL_UNEXPECTED & STATUS_MASK_123)) {
+				if ((code & STATUS_MASK_123) == (IRSourceConstants.STATUS123_SYNTAX_SEQREL_UNEXPECTED)) {
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_TokenUnexpected_SeqRel_message,
 							node.getOperator(0).text ),
@@ -725,7 +746,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		if (requiredCheck(code)) {
 			try {
 				STATUS: switch ((code & STATUS_MASK_12)) {
-				case STATUS2_SYNTAX_TOKEN_NOT_CLOSED:
+				case STATUS12_SYNTAX_TOKEN_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_SpecialNotClosed_message,
 							getStartText(node, 1) ),
@@ -873,17 +894,58 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		node.acceptInRChildren(this);
 	}
 	
+	private void handleTextInvalid(final RAstNode node, final int code) throws BadLocationException {
+		final StatusDetail detail= StatusDetail.getStatusDetail(node);
+		switch ((code & STATUS_MASK_123)) {
+		case STATUS123_SYNTAX_TEXT_NULLCHAR:
+			addProblem(IProblem.SEVERITY_ERROR, code,
+					ProblemMessages.Syntax_Text_NullCharNotAllowed_message,
+					detail.getOffset(), detail.getOffset() + detail.getLength() );
+			return;
+		case STATUS123_SYNTAX_TEXT_ESCAPE_SEQ_HEX_DIGIT_MISSING:
+			addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
+					ProblemMessages.Syntax_Text_EscapeSeqHexDigitMissing_message,
+					detail.getText() ),
+					detail.getOffset(), detail.getOffset() + detail.getLength() );
+			return;
+		case STATUS123_SYNTAX_TEXT_ESCAPE_SEQ_NOT_CLOSED:
+			addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
+					ProblemMessages.Syntax_Text_EscapeSeqNotClosed_message,
+					detail.getText() ),
+					detail.getOffset(), detail.getOffset() + detail.getLength() );
+			return;
+		case STATUS123_SYNTAX_TEXT_ESCAPE_SEQ_UNEXPECTED:
+			addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
+					ProblemMessages.Syntax_Text_QuotedSymbol_EscapeSeqUnexpected_message,
+					detail.getText() ),
+					detail.getOffset(), detail.getOffset() + detail.getLength() );
+			return;
+		case STATUS123_SYNTAX_TEXT_ESCAPE_SEQ_UNKOWN:
+			addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
+					ProblemMessages.Syntax_Text_EscapeSeqUnknown_message,
+					detail.getText() ),
+					detail.getOffset(), detail.getOffset() + detail.getLength() );
+			return;
+		default:
+			handleUnknownCodes(node);
+			return;
+		}
+	}
+	
 	@Override
 	public void visit(final StringConst node) throws InvocationTargetException {
 		final int code= (node.getStatusCode() & MASK);
 		if (requiredCheck(code)) {
 			try {
 				STATUS: switch ((code & STATUS_MASK_12)) {
-				case STATUS2_SYNTAX_TOKEN_NOT_CLOSED:
+				case STATUS12_SYNTAX_TOKEN_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_StringNotClosed_message,
 							getStartText(node, 1), node.getOperator(0).text ),
 							node.getStopOffset()-1, node.getStopOffset()+1 );
+					break STATUS;
+				case STATUS12_SYNTAX_TEXT_INVALID:
+					handleTextInvalid(node, code);
 					break STATUS;
 				default:
 					handleCommonCodes(node, code);
@@ -901,17 +963,35 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		final int code= (node.getStatusCode() & MASK);
 		if (requiredCheck(code)) {
 			try {
-				STATUS: switch ((code & STATUS_MASK_12)) {
-				case STATUS2_SYNTAX_FLOAT_WITH_L:
-					addProblem(IProblem.SEVERITY_WARNING, code, this.messageBuilder.bind(
-							ProblemMessages.Syntax_FloatWithLLiteral_message,
-							getFullText(node) ),
-							node.getStopOffset()-1, node.getStopOffset() );
-					break STATUS;
-				case STATUS2_SYNTAX_FLOAT_EXP_INVALID:
+				STATUS: switch ((code & STATUS_MASK_123)) {
+				case STATUS123_SYNTAX_NUMBER_HEX_DIGIT_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
-							ProblemMessages.Syntax_FloatExpInvalid_message,
-							getFullText(node), node.getOperator(0).text ),
+							ProblemMessages.Syntax_Number_HexDigitMissing_message,
+							getFullText(node) ),
+							node.getOffset(), node.getStopOffset() );
+					break STATUS;
+				case STATUS123_SYNTAX_NUMBER_HEX_FLOAT_EXP_MISSING:
+					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
+							ProblemMessages.Syntax_Number_HexFloatExpMissing_message,
+							getFullText(node) ),
+							node.getOffset(), node.getStopOffset() );
+					break STATUS;
+				case STATUS123_SYNTAX_NUMBER_EXP_DIGIT_MISSING:
+					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
+							ProblemMessages.Syntax_Number_ExpDigitMissing_message,
+							getFullText(node) ),
+							node.getOffset(), node.getStopOffset() );
+					break STATUS;
+				case STATUS123_SYNTAX_NUMBER_NON_INT_WITH_L:
+					addProblem(IProblem.SEVERITY_WARNING, code, this.messageBuilder.bind(
+							ProblemMessages.Syntax_Number_NonIntWithLLiteral_message,
+							getFullText(node) ),
+							node.getOffset(), node.getStopOffset() );
+					break STATUS;
+				case STATUS123_SYNTAX_NUMBER_INT_WITH_DEC_POINT:
+					addProblem(IProblem.SEVERITY_WARNING, code, this.messageBuilder.bind(
+							ProblemMessages.Syntax_Number_IntWithDecPoint_message,
+							getFullText(node) ),
 							node.getOffset(), node.getStopOffset() );
 					break STATUS;
 				default:
@@ -960,12 +1040,16 @@ public class SyntaxProblemReporter extends RAstVisitor {
 							ProblemMessages.Syntax_ElementnameMissing_message,
 							node.getOffset() - 1, node.getStopOffset() + 1 );
 					break STATUS;
-				case STATUS2_SYNTAX_TOKEN_NOT_CLOSED:
+				case STATUS12_SYNTAX_TOKEN_NOT_CLOSED:
 					// assert(node.getOperator(0) == RTerminal.SYMBOL_G)
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_QuotedSymbolNotClosed_message,
 							getStartText(node, 1) ),
 							node.getStopOffset() - 1, node.getStopOffset() + 1 );
+					break STATUS;
+				case STATUS12_SYNTAX_TEXT_INVALID:
+					// assert(node.getOperator(0) == RTerminal.SYMBOL_G)
+					handleTextInvalid(node, code);
 					break STATUS;
 				default:
 					handleCommonCodes(node, code);
@@ -1002,7 +1086,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		if (requiredCheck(code)) {
 			try {
 				STATUS: switch ((code & STATUS_MASK_12)) {
-				case STATUS2_SYNTAX_TOKEN_UNKNOWN:
+				case STATUS12_SYNTAX_TOKEN_UNKNOWN:
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_TokenUnknown_message,
 							getFullText(node) ),

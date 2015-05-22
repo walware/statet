@@ -47,7 +47,8 @@ import org.eclipse.core.runtime.Status;
 
 import de.walware.ecommons.collections.ImCollections;
 import de.walware.ecommons.collections.ImList;
-import de.walware.ecommons.text.HtmlParseInput;
+import de.walware.ecommons.text.core.input.StringParserInput;
+import de.walware.ecommons.text.core.util.HtmlStripParserInput;
 
 import de.walware.rj.renv.IRPkgDescription;
 
@@ -216,7 +217,8 @@ public class REnvIndexWriter implements IREnvIndex {
 		private final TxtField examplesTxtField= new TxtField(EXAMPLES_TXT_FIELD_NAME, 0.5f);
 		
 		private final StringBuilder tempBuilder= new StringBuilder(65536);
-		private final HtmlParseInput tempHtmlInput= new HtmlParseInput();
+		private final HtmlStripParserInput tempHtmlInput= new HtmlStripParserInput(
+				new StringParserInput(0x800), 0x800 );
 		
 		
 		public PackageWorker() {
@@ -369,10 +371,11 @@ public class REnvIndexWriter implements IREnvIndex {
 		
 		private String html2txt(final String html) {
 			this.tempBuilder.setLength(0);
-			this.tempHtmlInput.reset(html);
+			((StringParserInput) this.tempHtmlInput.getSource()).reset(html);
+			this.tempHtmlInput.init();
 			int c;
 			boolean blank= true;
-			while ((c= this.tempHtmlInput.get(1)) >= 0) {
+			while ((c= this.tempHtmlInput.get(0)) >= 0) {
 				if (c <= 0x20) {
 					if (!blank) {
 						blank= true;

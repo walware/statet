@@ -61,8 +61,9 @@ public enum NodeType {
 	MODEL ("~", 1001, Assoc.LEFTSTD), //$NON-NLS-1$
 	
 	A_RIGHT ("->", 10001, Assoc.LEFTSTD), //$NON-NLS-1$
-	A_EQUALS ("=", 10002, Assoc.RIGHTSTD), //$NON-NLS-1$
+	A_EQUALS ("=", 10005, Assoc.RIGHTSTD), // SPEC: precedence= 10002  //$NON-NLS-1$
 	A_LEFT ("<-", 10003, Assoc.RIGHTSTD), //$NON-NLS-1$
+	A_COLON (":=", 10003, Assoc.RIGHTSTD), // SPEC: missing            //$NON-NLS-1$
 	
 	C_IF ("if", 100001, Assoc.RIGHTSTD), //$NON-NLS-1$
 	C_FOR ("for", 100002, Assoc.LEFTSTD), //$NON-NLS-1$

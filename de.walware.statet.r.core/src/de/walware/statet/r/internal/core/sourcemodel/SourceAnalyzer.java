@@ -934,6 +934,11 @@ public class SourceAnalyzer extends RAstVisitor {
 		node.getSourceChild().acceptInR(this);
 		final Object returnValue= this.returnValue;
 		
+		if (node.getNodeType() == NodeType.A_COLON) {
+			this.returnValue= null;
+			return;
+		}
+		
 		// TODO add direct support for fcall() <- source
 		final RAstNode target= node.getTargetChild();
 		final ElementAccess access= new ElementAccess.Default(node);
@@ -1049,11 +1054,15 @@ public class SourceAnalyzer extends RAstVisitor {
 		}
 		final boolean write;
 		final RAstNode parent= node.getRParent();
-		if (parent instanceof Assignment) {
+		switch ((parent != null) ? parent.getNodeType() : NodeType.DUMMY) {
+		case A_LEFT:
+		case A_RIGHT:
+		case A_EQUALS:
 			write= (((Assignment) parent).getTargetChild() == node);
-		}
-		else {
+			break;
+		default:
 			write= false;
+			break;
 		}
 		
 		IFCallAnalyzer specialist= null;

@@ -16,7 +16,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TextUtilities;
 
-import de.walware.ecommons.text.IPartitionConstraint;
+import de.walware.ecommons.text.core.IPartitionConstraint;
 import de.walware.ecommons.text.core.sections.IDocContentSections;
 import de.walware.ecommons.text.core.treepartitioner.TreePartitionUtil;
 

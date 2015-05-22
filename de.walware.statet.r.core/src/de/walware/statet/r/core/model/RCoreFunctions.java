@@ -62,7 +62,10 @@ public class RCoreFunctions {
 	public final ArgsDefinition BASE_TOPENV_args;
 	
 	public static final String BASE_C_NAME = "c";
-	public final ArgsDefinition BASE_C_args; 
+	public final ArgsDefinition BASE_C_args;
+	
+	public static final String BASE_DATAFRAME_NAME= "data.frame";
+	public final ArgsDefinition BASE_DATAFRAME_args;
 	
 	public static final String BASE_USEMETHOD_NAME = "UseMethod";
 	public final ArgsDefinition BASE_USEMETHOD_args;
@@ -186,7 +189,7 @@ public class RCoreFunctions {
 	public final ArgsDefinition METHODS_SLOT_args;
 	
 	
-	public final HashMap<String, ArgsDefinition> fNameDefMap = new HashMap<String, ArgsDefinition>();
+	public final HashMap<String, ArgsDefinition> fNameDefMap = new HashMap<>();
 	
 	
 	protected RCoreFunctions() {
@@ -224,14 +227,17 @@ public class RCoreFunctions {
 		BASE_TOPENV_args = createBaseTopenv();
 		fNameDefMap.put(BASE_TOPENV_NAME, BASE_TOPENV_args);
 		
+		BASE_C_args = createBaseC();
+		fNameDefMap.put(BASE_C_NAME, BASE_C_args);
+		
+		BASE_DATAFRAME_args = createBaseC();
+		fNameDefMap.put(BASE_DATAFRAME_NAME, BASE_C_args);
+		
 		BASE_USEMETHOD_args = createBaseUseMethod();
 		fNameDefMap.put(BASE_USEMETHOD_NAME, BASE_USEMETHOD_args);
 		
 		BASE_NEXTMETHOD_args = createBaseNextMethod();
 		fNameDefMap.put(BASE_NEXTMETHOD_NAME, BASE_NEXTMETHOD_args);
-		
-		BASE_C_args = createBaseC();
-		fNameDefMap.put(BASE_C_NAME, BASE_C_args);
 		
 		
 		UTILS_METHODS_args = createUtilsMethods();
@@ -412,6 +418,16 @@ public class RCoreFunctions {
 		return new ArgsBuilder()
 				.add("...")
 				.add("recursive")
+				.toDef();
+	}
+	
+	ArgsDefinition createBaseDataFrame() {
+		return new ArgsBuilder()
+				.add("...")
+				.add("row.names")
+				.add("check.rows")
+				.add("check.names")
+				.add("stringsAsFactors")
 				.toDef();
 	}
 	

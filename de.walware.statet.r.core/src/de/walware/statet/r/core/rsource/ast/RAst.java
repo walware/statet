@@ -312,8 +312,8 @@ public class RAst {
 	public static AssignExpr checkAssign(final RAstNode node) {
 		switch (node.getNodeType()) {
 		case A_LEFT:
-		case A_EQUALS:
 		case A_RIGHT:
+		case A_EQUALS:
 			final Assignment assignNode = (Assignment) node;
 			if (assignNode.isSearchOperator()) {
 				return new AssignExpr(node, AssignExpr.GLOBAL, assignNode.getTargetChild(), assignNode.getSourceChild());
@@ -592,14 +592,14 @@ public class RAst {
 		switch (node.getNodeType()) {
 		case SYMBOL:
 			if (node.getOperator(0) == RTerminal.SYMBOL_G) {
-				if ((node.getStatusCode() & IRSourceConstants.STATUS_MASK_12) == IRSourceConstants.STATUS2_SYNTAX_TOKEN_NOT_CLOSED) {
+				if ((node.getStatusCode() & IRSourceConstants.STATUS_MASK_12) == IRSourceConstants.STATUS12_SYNTAX_TOKEN_NOT_CLOSED) {
 					return new Position(node.getOffset()+1, node.getLength()-1);
 				}
 				return new Position(node.getOffset()+1, node.getLength()-2);
 			}
 			return new Position(node.getOffset(), node.getLength());
 		case STRING_CONST:
-			if ((node.getStatusCode() & IRSourceConstants.STATUS_MASK_12) == IRSourceConstants.STATUS2_SYNTAX_TOKEN_NOT_CLOSED) {
+			if ((node.getStatusCode() & IRSourceConstants.STATUS_MASK_12) == IRSourceConstants.STATUS12_SYNTAX_TOKEN_NOT_CLOSED) {
 				return new Position(node.getOffset()+1, node.getLength()-1);
 			}
 			return new Position(node.getOffset()+1, node.getLength()-2);
@@ -615,14 +615,14 @@ public class RAst {
 		switch (node.getNodeType()) {
 		case SYMBOL:
 			if (node.getOperator(0) == RTerminal.SYMBOL_G) {
-				if ((node.getStatusCode() & IRSourceConstants.STATUS_MASK_12) == IRSourceConstants.STATUS2_SYNTAX_TOKEN_NOT_CLOSED) {
+				if ((node.getStatusCode() & IRSourceConstants.STATUS_MASK_12) == IRSourceConstants.STATUS12_SYNTAX_TOKEN_NOT_CLOSED) {
 					return new Region(node.getOffset()+1, node.getLength()-1);
 				}
 				return new Region(node.getOffset()+1, node.getLength()-2);
 			}
 			return node;
 		case STRING_CONST:
-			if ((node.getStatusCode() & IRSourceConstants.STATUS_MASK_12) == IRSourceConstants.STATUS2_SYNTAX_TOKEN_NOT_CLOSED) {
+			if ((node.getStatusCode() & IRSourceConstants.STATUS_MASK_12) == IRSourceConstants.STATUS12_SYNTAX_TOKEN_NOT_CLOSED) {
 				return new Region(node.getOffset()+1, node.getLength()-1);
 			}
 			return new Region(node.getOffset()+1, node.getLength()-2);
@@ -672,9 +672,10 @@ public class RAst {
 			case AND:
 			case OR:
 			case MODEL:
+			case A_LEFT:
 			case A_RIGHT:
-			case A_EQUALS: 
-			case A_LEFT: 
+			case A_EQUALS:
+			case A_COLON:
 			case HELP:
 			case C_IF:
 			case C_FOR:

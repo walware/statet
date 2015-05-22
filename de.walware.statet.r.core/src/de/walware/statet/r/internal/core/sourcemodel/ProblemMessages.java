@@ -25,8 +25,17 @@ public class ProblemMessages extends NLS {
 	public static String Syntax_QuotedSymbolNotClosed_message;
 	public static String Syntax_SpecialNotClosed_message;
 	
-	public static String Syntax_FloatWithLLiteral_message;
-	public static String Syntax_FloatExpInvalid_message;
+	public static String Syntax_Number_HexDigitMissing_message;
+	public static String Syntax_Number_HexFloatExpMissing_message;
+	public static String Syntax_Number_ExpDigitMissing_message;
+	public static String Syntax_Number_NonIntWithLLiteral_message;
+	public static String Syntax_Number_IntWithDecPoint_message;
+	
+	public static String Syntax_Text_NullCharNotAllowed_message;
+	public static String Syntax_Text_EscapeSeqHexDigitMissing_message;
+	public static String Syntax_Text_EscapeSeqNotClosed_message;
+	public static String Syntax_Text_QuotedSymbol_EscapeSeqUnexpected_message;
+	public static String Syntax_Text_EscapeSeqUnknown_message;
 	
 	public static String Syntax_TokenUnknown_message;
 	public static String Syntax_TokenUnexpected_message;
@@ -75,9 +84,9 @@ public class ProblemMessages extends NLS {
 		NLS.initializeMessages(ProblemMessages.class.getName(), ProblemMessages.class);
 		
 		// Combined messages
-		Syntax_SubindexedNotClosed_S_message = NLS.bind(Syntax_SubindexedNotClosed_message, "'[…]'", "]"); //$NON-NLS-1$ //$NON-NLS-2$
-		Syntax_SubindexedNotClosed_Done_message = NLS.bind(Syntax_SubindexedNotClosed_message, "'[[…]]'", "]"); //$NON-NLS-1$ //$NON-NLS-2$
-		Syntax_SubindexedNotClosed_Dboth_message = NLS.bind(Syntax_SubindexedNotClosed_message, "'[[…]]'", "]]"); //$NON-NLS-1$ //$NON-NLS-2$
+		Syntax_SubindexedNotClosed_S_message = NLS.bind(Syntax_SubindexedNotClosed_message, "[…]", "]"); //$NON-NLS-1$ //$NON-NLS-2$
+		Syntax_SubindexedNotClosed_Done_message = NLS.bind(Syntax_SubindexedNotClosed_message, "[[…]]", "]"); //$NON-NLS-1$ //$NON-NLS-2$
+		Syntax_SubindexedNotClosed_Dboth_message = NLS.bind(Syntax_SubindexedNotClosed_message, "[[…]]", "]]"); //$NON-NLS-1$ //$NON-NLS-2$
 		Syntax_ConditionMissing_If_message = NLS.bind(Syntax_ConditionMissing_message, "if"); //$NON-NLS-1$
 		Syntax_ConditionMissing_For_message = NLS.bind(Syntax_ConditionMissing_message, "for"); //$NON-NLS-1$
 		Syntax_ConditionMissing_While_message = NLS.bind(Syntax_ConditionMissing_message, "while"); //$NON-NLS-1$

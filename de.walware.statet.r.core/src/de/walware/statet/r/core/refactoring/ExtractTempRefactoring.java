@@ -224,8 +224,9 @@ public class ExtractTempRefactoring extends Refactoring {
 		case OR:
 		case MODEL:
 		case A_LEFT:
-		case A_EQUALS:
 		case A_RIGHT:
+		case A_EQUALS:
+		case A_COLON:
 		case C_IF:
 		case C_FOR:
 		case C_WHILE:

@@ -35,7 +35,7 @@ public interface IRTextTokens {
 		RTerminal.NUM_INT,
 	};
 	public static final RTerminal[] NUM_SUB_CPLX = new RTerminal[] {
-		RTerminal.NUM_COMPLEX,
+		RTerminal.NUM_CPLX,
 	};
 	public static final RTerminal[] SPECIALCONST = new RTerminal[] {
 		RTerminal.NULL,
@@ -89,6 +89,7 @@ public interface IRTextTokens {
 		RTerminal.ARROW_LEFT_D,
 		RTerminal.ARROW_RIGHT_S,
 		RTerminal.ARROW_RIGHT_D,
+		RTerminal.COLON_EQUAL,
 	};
 	public static final RTerminal[] ASSIGN_SUB_EQUAL = new RTerminal[] {
 		RTerminal.EQUAL,

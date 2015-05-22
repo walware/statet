@@ -58,6 +58,7 @@ public enum RTerminal {
 	ARROW_RIGHT_S ("->"), //$NON-NLS-1$
 	ARROW_RIGHT_D ("->>"), //$NON-NLS-1$
 	EQUAL ("="), //$NON-NLS-1$
+	COLON_EQUAL (":="), //$NON-NLS-1$
 	TILDE ("~"), //$NON-NLS-1$
 	REL_NE ("!="), //$NON-NLS-1$
 	REL_EQ ("=="), //$NON-NLS-1$
@@ -76,14 +77,15 @@ public enum RTerminal {
 	BREAK ("break"), //$NON-NLS-1$
 	FUNCTION ("function"), //$NON-NLS-1$
 	
-	STRING_S ("\'"), //$NON-NLS-1$
-	STRING_D ("\""), //$NON-NLS-1$
-	NUM_INT (""), //$NON-NLS-1$
-	NUM_COMPLEX (""), //$NON-NLS-1$
-	NUM_NUM (""), //$NON-NLS-1$
 	SYMBOL (""), //$NON-NLS-1$
 	SYMBOL_G ("`"), //$NON-NLS-1$
+	NUM_INT (""), //$NON-NLS-1$
+	NUM_NUM (""), //$NON-NLS-1$
+	NUM_CPLX (""), //$NON-NLS-1$
+	STRING_S ("\'"), //$NON-NLS-1$
+	STRING_D ("\""), //$NON-NLS-1$
 	
+	NULL ("NULL"), //$NON-NLS-1$
 	TRUE ("TRUE"), //$NON-NLS-1$
 	FALSE ("FALSE"), //$NON-NLS-1$
 	NA ("NA"), //$NON-NLS-1$
@@ -91,9 +93,9 @@ public enum RTerminal {
 	NA_REAL ("NA_real_"), //$NON-NLS-1$
 	NA_CPLX ("NA_complex_"), //$NON-NLS-1$
 	NA_CHAR ("NA_character_"), //$NON-NLS-1$
-	NULL ("NULL"), //$NON-NLS-1$
 	NAN ("NaN"), //$NON-NLS-1$
 	INF ("Inf"), //$NON-NLS-1$
+	
 	;
 	
 	

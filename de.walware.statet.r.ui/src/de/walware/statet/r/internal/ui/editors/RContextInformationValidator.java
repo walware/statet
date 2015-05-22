@@ -22,7 +22,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.text.PartialStringParseInput;
+import de.walware.ecommons.text.core.input.PartialStringParserInput;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.rsource.ast.FCall;
@@ -123,10 +123,11 @@ public class RContextInformationValidator implements IContextInformationValidato
 		final long stamp = document.getModificationStamp();
 		if (fScannedArgs == null || fScannedArgsStamp != stamp) {
 			try {
-				final String text = document.get(fStartOffset, Math.min(1000, document.getLength()-fStartOffset));
-				final RScanner scanner = new RScanner(new PartialStringParseInput(text, fStartOffset),
-						AstInfo.LEVEL_MODEL_DEFAULT );
-				fScannedArgs = scanner.scanFCallArgs(fStartOffset, text.length(), true);
+				final String text= document.get(fStartOffset, Math.min(0x800, document.getLength() - fStartOffset));
+				final RScanner scanner= new RScanner(AstInfo.LEVEL_MODEL_DEFAULT);
+				fScannedArgs= scanner.scanFCallArgs(
+						new PartialStringParserInput(text, fStartOffset).init(),
+						true );
 				fScannedArgsStamp = stamp;
 			}
 			catch (final Exception e) {

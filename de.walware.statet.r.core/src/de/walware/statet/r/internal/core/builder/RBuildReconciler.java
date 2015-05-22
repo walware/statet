@@ -92,7 +92,6 @@ public class RBuildReconciler extends RReconciler {
 		
 //		final IProblemRequestor problemRequestor= su.getProblemRequestor();
 //		if (problemRequestor != null) {
-			initParseInput(data);
 //			problemRequestor.beginReportingSequence();
 			try {
 				final List<RAstNode> comments= ((SourceComponent) data.ast.root).getComments();
@@ -100,7 +99,7 @@ public class RBuildReconciler extends RReconciler {
 				final ILineInformation lines= data.content.getLines();
 				for (final RAstNode comment : comments) {
 						final int offset= comment.getOffset()+1;
-						this.taskScanner.checkForTasks(data.content.text.substring(
+						this.taskScanner.checkForTasks(data.content.getText().substring(
 								offset, offset+comment.getLength()-1 ), offset, lines );
 				}
 			}

@@ -875,8 +875,9 @@ class ScopeFactory {
 				node = node.getRParent();
 				switch (node.getNodeType()) {
 				case A_LEFT:
-				case A_EQUALS:
 				case A_RIGHT:
+				case A_EQUALS:
+				case A_COLON:
 					continue ITER_OPS;
 				case BLOCK:
 				case SOURCELINES:

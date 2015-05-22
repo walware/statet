@@ -42,6 +42,7 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
@@ -54,8 +55,9 @@ import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.text.ITokenScanner;
 import de.walware.ecommons.text.IndentUtil;
-import de.walware.ecommons.text.StringParseInput;
 import de.walware.ecommons.text.TextUtil;
+import de.walware.ecommons.text.core.input.StringParserInput;
+import de.walware.ecommons.text.core.input.TextParserInput;
 import de.walware.ecommons.text.core.sections.IDocContentSections;
 import de.walware.ecommons.text.core.treepartitioner.TreePartition;
 import de.walware.ecommons.text.ui.BracketLevel.InBracketPosition;
@@ -86,6 +88,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		implements ISourceEditorAddon {
 	
 	private static final char[] CURLY_BRACKETS= new char[] { '{', '}' };
+	
+	private static final StringParserInput DEFAULT_PARSER_INPUT= new StringParserInput();
 	
 	
 	private class RealTypeListener implements VerifyKeyListener {
@@ -602,7 +606,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		int dummyCoffset= c.offset-shift;
 		int dummyCend= dummyCoffset+c.text.length();
 		final AbstractDocument dummyDoc= new Document(text);
-		final StringParseInput parseInput= new StringParseInput(text);
+		final TextParserInput parserInput= (Display.getCurrent() == Display.getDefault()) ?
+				DEFAULT_PARSER_INPUT.reset(text) : new StringParserInput(text);
 		
 		// Lines to indent
 		int dummyFirstLine= dummyDoc.getLineOfOffset(dummyCoffset);
@@ -615,8 +620,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		}
 		
 		// Compute indent
-		final RScanner scanner= new RScanner(parseInput, AstInfo.LEVEL_MINIMAL);
-		final RAstNode rootNode= scanner.scanSourceUnit();
+		final RScanner scanner= new RScanner(AstInfo.LEVEL_MINIMAL);
+		final RAstNode rootNode= scanner.scanSourceUnit(parserInput.init());
 		if (this.indenter == null) {
 			this.indenter= new RSourceIndenter(this.scanner);
 		}

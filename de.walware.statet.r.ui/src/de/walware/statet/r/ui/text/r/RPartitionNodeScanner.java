@@ -15,11 +15,11 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 
+import de.walware.ecommons.text.CharacterScannerReader;
 import de.walware.ecommons.text.core.rules.BufferedDocumentScanner;
 import de.walware.ecommons.text.core.treepartitioner.ITreePartitionNode;
 import de.walware.ecommons.text.core.treepartitioner.ITreePartitionNodeScan;
 import de.walware.ecommons.text.core.treepartitioner.ITreePartitionNodeScanner;
-import de.walware.ecommons.text.core.util.CharacterScannerReader;
 
 
 /**

@@ -17,6 +17,9 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	
 	
+	public static String LineBreakpoint_name;
+	public static String MethodBreakpoint_name;
+	
 	public static String Breakpoint_Line_label;
 	public static String Breakpoint_SubLabel_copula;
 	public static String Breakpoint_Function_prefix;
