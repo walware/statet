@@ -65,7 +65,7 @@ public class RPkgResolver {
 		
 		@Override
 		public RNumVersion next() {
-			return this.list.get(++this.idx).getPkg().getVersion();
+			return this.list.get(this.idx++).getPkg().getVersion();
 		}
 		
 		@Override
