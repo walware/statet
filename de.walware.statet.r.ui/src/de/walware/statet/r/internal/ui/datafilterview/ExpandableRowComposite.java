@@ -16,6 +16,7 @@ package de.walware.statet.r.internal.ui.datafilterview;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -379,8 +380,7 @@ public class ExpandableRowComposite extends Canvas {
 								+ tvmargin;
 					}
 				}
-				final String os = System.getProperty("os.name"); //$NON-NLS-1$
-				if (Constants.OS_LINUX.equalsIgnoreCase(os)) {
+				if (Constants.WS_GTK.equals(Platform.getWS())) {
 					size.x += 1; // See Bug 342610
 				}
 				
