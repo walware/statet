@@ -48,6 +48,7 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.io.FileUtil;
+import de.walware.ecommons.lang.SystemUtils;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
@@ -648,6 +649,20 @@ public class RjsController extends AbstractRDbgController
 					}
 				}
 				catch (final CoreException e) {}
+				
+				try {
+					String sep= fRjs.getProperty(SystemUtils.FILE_SEPARATOR_KEY);
+					if (sep == null) {
+						final String osName= fRjs.getProperty(SystemUtils.OS_NAME_KEY);
+						if (osName != null && SystemUtils.isOSWindows(osName)) {
+							sep= "\\"; //$NON-NLS-1$
+						}
+					}
+					if (sep != null && !sep.isEmpty()) {
+						setFileSeparatorL(sep.charAt(0));
+					}
+				}
+				catch (final Exception e) {}
 			}
 			else {
 				setStartupWD(info.getDirectory());
@@ -673,7 +688,6 @@ public class RjsController extends AbstractRDbgController
 			}
 			// fRjs.runMainLoop(null, null, monitor); must not wait at server side
 			fRjs.activateConsole();
-			
 			scheduleControllerRunnable(new ControllerSystemRunnable(
 					"r/rj/start2", "Finish Initialization / Read Output") { //$NON-NLS-1$
 				
@@ -1057,6 +1071,11 @@ public class RjsController extends AbstractRDbgController
 		fRjs.answerConsole(fCurrentInput + fLineSeparator, monitor);
 	}
 	
+	
+	@Override
+	public String getProperty(String key) {
+		return fRjs.getProperty(key);
+	}
 	
 	@Override
 	public RPlatform getPlatform() {

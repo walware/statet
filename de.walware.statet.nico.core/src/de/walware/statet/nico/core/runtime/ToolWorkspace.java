@@ -11,6 +11,7 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +30,11 @@ import org.eclipse.debug.core.DebugPlugin;
 
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
+import de.walware.ecommons.runtime.core.utils.PathUtils;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
@@ -76,16 +79,16 @@ public class ToolWorkspace {
 			
 			// by definition in tool lifecycle thread
 			if (!newStatus.isRunning()) {
-				if (fCurrentPrompt == null || fCurrentPrompt == fPublishedPrompt) {
+				if (ToolWorkspace.this.currentPrompt == null || ToolWorkspace.this.currentPrompt == ToolWorkspace.this.publishedPrompt) {
 					return;
 				}
-				fPublishedPrompt = fCurrentPrompt;
-				firePrompt(fCurrentPrompt, eventCollection);
+				ToolWorkspace.this.publishedPrompt= ToolWorkspace.this.currentPrompt;
+				firePrompt(ToolWorkspace.this.currentPrompt, eventCollection);
 				return;
 			}
 			else {
-				fPublishedPrompt = fDefaultPrompt;
-				firePrompt(fDefaultPrompt, eventCollection);
+				ToolWorkspace.this.publishedPrompt= ToolWorkspace.this.defaultPrompt;
+				firePrompt(ToolWorkspace.this.defaultPrompt, eventCollection);
 			}
 		}
 		
@@ -106,7 +109,7 @@ public class ToolWorkspace {
 		
 		@Override
 		public boolean isRunnableIn(final ITool tool) {
-			return (tool == fProcess);
+			return (tool == ToolWorkspace.this.process);
 		}
 		
 		@Override
@@ -122,12 +125,12 @@ public class ToolWorkspace {
 		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
-			fIsRefreshing = true;
+			ToolWorkspace.this.isRefreshing= true;
 			try {
 				autoRefreshFromTool((IConsoleService) service, monitor);
 			}
 			finally {
-				fIsRefreshing = false;
+				ToolWorkspace.this.isRefreshing= false;
 			}
 			firePropertiesChanged();
 		}
@@ -135,95 +138,101 @@ public class ToolWorkspace {
 	}
 	
 	
-	public static final int DETAIL_PROMPT = 1;
-	public static final int DETAIL_LINE_SEPARTOR = 2;
+	public static final int DETAIL_PROMPT= 1;
+	public static final int DETAIL_LINE_SEPARTOR= 2;
 	
-	protected final ToolProcess fProcess;
 	
-	private volatile String fLineSeparator;
-	private volatile String fFileSeparator;
+	private final ToolProcess process;
 	
-	private volatile Prompt fCurrentPrompt;
-	private volatile Prompt fDefaultPrompt;
-	private Prompt fPublishedPrompt;
+	private volatile String lineSeparator;
+	private volatile char fileSeparator;
 	
-	private IFileStore fWorkspaceDir;
+	private volatile Prompt currentPrompt;
+	private volatile Prompt defaultPrompt;
+	private Prompt publishedPrompt;
 	
-	private final String fRemoteHost;
-	private IPath fRemoteWorkspaceDir;
+	private IFileStore workspaceDir;
 	
-	private final Map<String, Object> fProperties = new HashMap<String, Object>();
-	private final FastList<Listener> fPropertyListener = new FastList<Listener>(Listener.class);
+	private final String remoteHost;
+	private IPath remoteWorkspaceDirPath;
 	
-	private boolean fAutoRefreshEnabled = true;
+	private final Map<String, Object> properties= new HashMap<>();
+	private final FastList<Listener> propertyListener= new FastList<>(Listener.class);
 	
-	private boolean fIsRefreshing;
+	private boolean autoRefreshEnabled= true;
 	
-	private final FastList<IDynamicVariable> fStringVariables = new FastList<IDynamicVariable>(IDynamicVariable.class);
+	private boolean isRefreshing;
+	
+	private final ImList<IDynamicVariable> stringVariables;
 	
 	
 	public ToolWorkspace(final ToolController controller,
-			Prompt prompt, final String lineSeparator,
+			Prompt prompt, final String lineSeparator, final char fileSeparator,
 			final String remoteHost) {
-		fProcess = controller.getTool();
+		this.process= controller.getTool();
 		if (prompt == null) {
-			prompt = Prompt.DEFAULT;
+			prompt= Prompt.DEFAULT;
 		}
-		fPublishedPrompt = fCurrentPrompt = fDefaultPrompt = prompt;
-		fRemoteHost = remoteHost;
+		this.publishedPrompt= this.currentPrompt= this.defaultPrompt= prompt;
+		this.remoteHost= remoteHost;
 		controlSetLineSeparator(lineSeparator);
-		controlSetFileSeparator(null);
+		controlSetFileSeparator(fileSeparator);
 		
 		controller.addToolStatusListener(new ControllerListener());
 		controller.getQueue().addOnIdle(new AutoUpdater(), 5000);
 		
-		fStringVariables.add(new DateVariable(NicoVariables.SESSION_STARTUP_DATE_VARIABLE) {
-			@Override
-			protected long getTimestamp() {
-				return fProcess.getStartupTimestamp();
-			}
-		});
-		fStringVariables.add(new TimeVariable(NicoVariables.SESSION_STARTUP_TIME_VARIABLE) {
-			@Override
-			protected long getTimestamp() {
-				return fProcess.getStartupTimestamp();
-			}
-		});
-		fStringVariables.add(new DateVariable(NicoVariables.SESSION_CONNECTION_DATE_VARIABLE) {
-			@Override
-			protected long getTimestamp() {
-				return fProcess.getConnectionTimestamp();
-			}
-		});
-		fStringVariables.add(new TimeVariable(NicoVariables.SESSION_CONNECTION_TIME_VARIABLE) {
-			@Override
-			protected long getTimestamp() {
-				return fProcess.getStartupTimestamp();
-			}
-		});
-		fStringVariables.add(new DynamicVariable.LocationVariable(NicoVariables.SESSION_STARTUP_WD_VARIABLE) {
-			@Override
-			public String getValue(final String argument) throws CoreException {
-				return fProcess.getStartupWD();
-			}
-		});
+		this.stringVariables= ImCollections.<IDynamicVariable>newList(
+				new DateVariable(NicoVariables.SESSION_STARTUP_DATE_VARIABLE) {
+					@Override
+					protected long getTimestamp() {
+						return ToolWorkspace.this.process.getStartupTimestamp();
+					}
+				},
+				new TimeVariable(NicoVariables.SESSION_STARTUP_TIME_VARIABLE) {
+					@Override
+					protected long getTimestamp() {
+						return ToolWorkspace.this.process.getStartupTimestamp();
+					}
+				},
+				new DateVariable(NicoVariables.SESSION_CONNECTION_DATE_VARIABLE) {
+					@Override
+					protected long getTimestamp() {
+						return ToolWorkspace.this.process.getConnectionTimestamp();
+					}
+				},
+				new TimeVariable(NicoVariables.SESSION_CONNECTION_TIME_VARIABLE) {
+					@Override
+					protected long getTimestamp() {
+						return ToolWorkspace.this.process.getStartupTimestamp();
+					}
+				},
+				new DynamicVariable.LocationVariable(NicoVariables.SESSION_STARTUP_WD_VARIABLE) {
+					@Override
+					public String getValue(final String argument) throws CoreException {
+						return ToolWorkspace.this.process.getStartupWD();
+					}
+				} );
 	}
 	
 	
 	public ToolProcess getProcess() {
-		return fProcess;
+		return this.process;
+	}
+	
+	public boolean isWindows() {
+		return (getFileSeparator() == '\\');
 	}
 	
 	
 	public void setAutoRefresh(final boolean enable) {
-		synchronized (fProcess.getQueue()) {
-			if (fAutoRefreshEnabled != enable) {
-				fAutoRefreshEnabled = enable;
-				final ToolStatus status = fProcess.getToolStatus();
+		synchronized (this.process.getQueue()) {
+			if (this.autoRefreshEnabled != enable) {
+				this.autoRefreshEnabled= enable;
+				final ToolStatus status= this.process.getToolStatus();
 				if (status != ToolStatus.TERMINATED) {
 					if (enable && status.isWaiting()) {
-						fProcess.getQueue().internalResetIdle();
-						fProcess.getQueue().notifyAll();
+						this.process.getQueue().internalResetIdle();
+						this.process.getQueue().notifyAll();
 					}
 					addPropertyChanged("AutoRefresh.enabled", enable);
 					firePropertiesChanged();
@@ -233,12 +242,12 @@ public class ToolWorkspace {
 	}
 	
 	public boolean isAutoRefreshEnabled() {
-		return fAutoRefreshEnabled;
+		return this.autoRefreshEnabled;
 	}
 	
 	
 	protected void autoRefreshFromTool(final IConsoleService s, final IProgressMonitor monitor) throws CoreException {
-		if (fAutoRefreshEnabled) {
+		if (this.autoRefreshEnabled) {
 			refreshFromTool(0, s, monitor);
 		}
 	}
@@ -247,28 +256,28 @@ public class ToolWorkspace {
 	}
 	
 	public final String getLineSeparator() {
-		return fLineSeparator;
+		return this.lineSeparator;
 	}
 	
-	public final String getFileSeparator() {
-		return fFileSeparator;
+	public final char getFileSeparator() {
+		return this.fileSeparator;
 	}
 	
 	
 	public final Prompt getPrompt() {
-		return fPublishedPrompt;
+		return this.publishedPrompt;
 	}
 	
 	protected final Prompt getCurrentPrompt() {
-		return fCurrentPrompt;
+		return this.currentPrompt;
 	}
 	
 	public final Prompt getDefaultPrompt() {
-		return fDefaultPrompt;
+		return this.defaultPrompt;
 	}
 	
 	public final IFileStore getWorkspaceDir() {
-		return fWorkspaceDir;
+		return this.workspaceDir;
 	}
 	
 	public String getEncoding() {
@@ -277,37 +286,47 @@ public class ToolWorkspace {
 	
 	
 	public final boolean isRemote() {
-		return (fRemoteHost != null);
+		return (this.remoteHost != null);
 	}
 	
 	public String getRemoteAddress() {
-		return fRemoteHost;
+		return this.remoteHost;
 	}
 	
 	public IPath getRemoteWorkspaceDirPath() {
-		return fRemoteWorkspaceDir;
+		return this.remoteWorkspaceDirPath;
+	}
+	
+	public IPath createToolPath(String toolPath) {
+		if (toolPath == null) {
+			return null;
+		}
+		if (isWindows() && File.separatorChar == '/') {
+			toolPath= toolPath.replace('\\', '/');
+		}
+		return PathUtils.check(new Path(toolPath));
 	}
 	
 	public IFileStore toFileStore(final IPath toolPath) throws CoreException {
-		if (fRemoteHost != null) {
+		if (this.remoteHost != null) {
 			return ResourceMappingUtils.getManager()
-					.mapRemoteResourceToFileStore(fRemoteHost, toolPath, fRemoteWorkspaceDir);
+					.mapRemoteResourceToFileStore(this.remoteHost, toolPath,
+							(this.remoteWorkspaceDirPath != null) ? this.remoteWorkspaceDirPath : null );
 		}
-		return FileUtil.getFileStore(toolPath.toString(), fWorkspaceDir);
+		return FileUtil.getFileStore(toolPath.toString(), this.workspaceDir);
 	}
 	
 	public IFileStore toFileStore(final String toolPath) throws CoreException {
-		if (fRemoteHost != null) {
-			return ResourceMappingUtils.getManager()
-					.mapRemoteResourceToFileStore(fRemoteHost, new Path(toolPath), fRemoteWorkspaceDir);
+		if (this.remoteHost != null) {
+			return toFileStore(createToolPath(toolPath));
 		}
-		return FileUtil.getFileStore(toolPath, fWorkspaceDir);
+		return FileUtil.getFileStore(toolPath.toString(), this.workspaceDir);
 	}
 	
 	public String toToolPath(final IFileStore fileStore) throws CoreException {
-		if (fRemoteHost != null) {
-			final IPath path = ResourceMappingUtils.getManager()
-					.mapFileStoreToRemoteResource(fRemoteHost, fileStore);
+		if (this.remoteHost != null) {
+			final IPath path= ResourceMappingUtils.getManager()
+					.mapFileStoreToRemoteResource(this.remoteHost, fileStore);
 			if (path != null) {
 				return path.toString();
 			}
@@ -318,12 +337,12 @@ public class ToolWorkspace {
 	
 	
 	final void controlRefresh(final int options, final IConsoleService adapter, final IProgressMonitor monitor) throws CoreException {
-		fIsRefreshing = true;
+		this.isRefreshing= true;
 		try {
 			refreshFromTool(options, adapter, monitor);
 		}
 		finally {
-			fIsRefreshing = false;
+			this.isRefreshing= false;
 		}
 		firePropertiesChanged();
 	}
@@ -334,12 +353,12 @@ public class ToolWorkspace {
 	 * @param prompt the new prompt, null doesn't change anything
 	 */
 	final void controlSetCurrentPrompt(final Prompt prompt, final ToolStatus status) {
-		if (prompt == fCurrentPrompt || prompt == null) {
+		if (prompt == this.currentPrompt || prompt == null) {
 			return;
 		}
-		fCurrentPrompt = prompt;
+		this.currentPrompt= prompt;
 		if (!status.isRunning()) {
-			fPublishedPrompt = prompt;
+			this.publishedPrompt= prompt;
 			firePrompt(prompt, null);
 		}
 	}
@@ -349,16 +368,16 @@ public class ToolWorkspace {
 	 * @param prompt the new prompt, null doesn't change anything
 	 */
 	final void controlSetDefaultPrompt(final Prompt prompt) {
-		if (prompt == fDefaultPrompt || prompt == null) {
+		if (prompt == this.defaultPrompt || prompt == null) {
 			return;
 		}
-		final Prompt oldDefault = fDefaultPrompt;
-		fDefaultPrompt = prompt;
-		if (oldDefault == fCurrentPrompt) {
-			fCurrentPrompt = prompt;
+		final Prompt oldDefault= this.defaultPrompt;
+		this.defaultPrompt= prompt;
+		if (oldDefault == this.currentPrompt) {
+			this.currentPrompt= prompt;
 		}
-		if (oldDefault == fPublishedPrompt) {
-			fPublishedPrompt = prompt;
+		if (oldDefault == this.publishedPrompt) {
+			this.publishedPrompt= prompt;
 			firePrompt(prompt, null);
 		}
 	}
@@ -372,15 +391,15 @@ public class ToolWorkspace {
 	 * @param newSeparator the new line separator, null sets the default separator
 	 */
 	final void controlSetLineSeparator(final String newSeparator) {
-		final String oldSeparator = fLineSeparator;
+		final String oldSeparator= this.lineSeparator;
 		if (newSeparator != null) {
-			fLineSeparator = newSeparator;
+			this.lineSeparator= newSeparator;
 		}
 		else {
-			fLineSeparator = (fRemoteHost == null) ? System.getProperty("line.separator") : "\n"; //$NON-NLS-1$
+			this.lineSeparator= (this.remoteHost == null) ? System.getProperty("line.separator") : "\n"; //$NON-NLS-1$
 		}
 //		if (!fLineSeparator.equals(oldSeparator)) {
-//			DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_LINE_SEPARTOR);
+//			DebugEvent event= new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_LINE_SEPARTOR);
 //			event.setData(fLineSeparator);
 //			fireEvent(event);
 //		}
@@ -394,30 +413,30 @@ public class ToolWorkspace {
 	 * 
 	 * @param newSeparator the new file separator, null sets the default separator
 	 */
-	final void controlSetFileSeparator(final String newSeparator) {
-		final String oldSeparator = fFileSeparator;
-		if (newSeparator != null) {
-			fFileSeparator = newSeparator;
+	final void controlSetFileSeparator(final char newSeparator) {
+		final char oldSeparator= this.fileSeparator;
+		if (newSeparator != 0) {
+			this.fileSeparator= newSeparator;
 		}
 		else {
-			fFileSeparator = (fRemoteHost == null) ? System.getProperty("file.separator") : "/"; //$NON-NLS-1$
+			this.fileSeparator= (isRemote()) ? '/' : File.separatorChar;
 		}
 	}
 	
 	protected final void controlSetWorkspaceDir(final IFileStore directory) {
-		if ((fWorkspaceDir != null) ? !fWorkspaceDir.equals(directory) : directory != null) {
-			fWorkspaceDir = directory;
-			fProperties.put("wd", directory);
-			if (!fIsRefreshing) {
+		if ((this.workspaceDir != null) ? !this.workspaceDir.equals(directory) : directory != null) {
+			this.workspaceDir= directory;
+			this.properties.put("wd", directory);
+			if (!this.isRefreshing) {
 				firePropertiesChanged();
 			}
 		}
 	}
 	
-	protected final void controlSetRemoteWorkspaceDir(final IPath path) {
-		fRemoteWorkspaceDir = path;
+	protected final void controlSetRemoteWorkspaceDir(final IPath toolPath) {
+		this.remoteWorkspaceDirPath= toolPath;
 		try {
-			controlSetWorkspaceDir(toFileStore(path));
+			controlSetWorkspaceDir(toFileStore(toolPath));
 		}
 		catch (final CoreException e) {
 			controlSetWorkspaceDir(null);
@@ -426,7 +445,7 @@ public class ToolWorkspace {
 	
 	
 	private final void firePrompt(final Prompt prompt, final List<DebugEvent> eventCollection) {
-		final DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_PROMPT);
+		final DebugEvent event= new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_PROMPT);
 		event.setData(prompt);
 		if (eventCollection != null) {
 			eventCollection.add(event);
@@ -438,42 +457,42 @@ public class ToolWorkspace {
 	}
 	
 	protected final void fireEvent(final DebugEvent event) {
-		final DebugPlugin manager = DebugPlugin.getDefault();
+		final DebugPlugin manager= DebugPlugin.getDefault();
 		if (manager != null) {
 			manager.fireDebugEventSet(new DebugEvent[] { event });
 		}
 	}
 	
 	public final void addPropertyListener(final Listener listener) {
-		fPropertyListener.add(listener);
+		this.propertyListener.add(listener);
 	}
 	
 	public final void removePropertyListener(final Listener listener) {
-		fPropertyListener.remove(listener);
+		this.propertyListener.remove(listener);
 	}
 	
 	protected final void addPropertyChanged(final String property, final Object attr) {
-		fProperties.put(property, attr);
+		this.properties.put(property, attr);
 	}
 	
 	protected final void firePropertiesChanged() {
-		if (fProperties.isEmpty()) {
+		if (this.properties.isEmpty()) {
 			return;
 		}
-		final Listener[] listeners = fPropertyListener.toArray();
+		final Listener[] listeners= this.propertyListener.toArray();
 		for (final Listener listener : listeners) {
 			try {
-				listener.propertyChanged(ToolWorkspace.this, fProperties);
+				listener.propertyChanged(ToolWorkspace.this, this.properties);
 			}
 			catch (final Exception e) {
 				NicoPlugin.logError(ICommonStatusConstants.INTERNAL_PLUGGED_IN, "An unexpected exception was thrown when notifying a tool workspace listener about changes.", e);
 			}
 		}
-		fProperties.clear();
+		this.properties.clear();
 	}
 	
-	public List<IDynamicVariable> getStringVariables() {
-		return new ConstArrayList<IDynamicVariable>(fStringVariables.toArray());
+	public ImList<IDynamicVariable> getStringVariables() {
+		return this.stringVariables;
 	}
 	
 	protected void dispose() {

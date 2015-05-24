@@ -1709,6 +1709,10 @@ public abstract class ToolController implements IConsoleService {
 	}
 	
 	
+	public String getProperty(final String key) {
+		return null;
+	}
+	
 	@Override
 	public final void refreshWorkspaceData(final int options, final IProgressMonitor monitor) throws CoreException {
 		fWorkspaceData.controlRefresh(options, this, monitor);
@@ -1742,6 +1746,10 @@ public abstract class ToolController implements IConsoleService {
 	protected void setLineSeparatorL(final String newSeparator) {
 		fLineSeparator = newSeparator;
 		fWorkspaceData.controlSetLineSeparator(newSeparator);
+	}
+	
+	protected void setFileSeparatorL(final char newSeparator) {
+		fWorkspaceData.controlSetFileSeparator(newSeparator);
 	}
 	
 	protected void setWorkspaceDirL(final IFileStore directory) {

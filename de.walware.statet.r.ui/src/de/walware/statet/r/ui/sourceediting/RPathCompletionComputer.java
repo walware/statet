@@ -60,9 +60,10 @@ import de.walware.statet.r.ui.RUI;
 public class RPathCompletionComputer extends PathCompletionComputor {
 	
 	
-	private RProcess fAssociatedTool;
-	private IContainer fBaseResource;
-	private IFileStore fBaseFileStore;
+	private RProcess associatedTool;
+	
+	private IContainer baseResource;
+	private IFileStore baseFileStore;
 	
 	
 	public RPathCompletionComputer() {
@@ -76,27 +77,27 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	
 	@Override
 	public void sessionStarted(final ISourceEditor editor, final ContentAssist assist) {
-		fAssociatedTool = null;
-		fBaseResource = null;
-		fBaseFileStore = null;
+		this.associatedTool= null;
+		this.baseResource= null;
+		this.baseFileStore= null;
 		if (editor instanceof ConsolePageEditor) {
-			final ITool tool = (ITool) editor.getAdapter(ITool.class);
+			final ITool tool= (ITool) editor.getAdapter(ITool.class);
 			if (tool instanceof RProcess) {
-				fAssociatedTool = (RProcess) tool;
+				this.associatedTool= (RProcess) tool;
 			}
 		}
 		else {
-			final ISourceUnit su = editor.getSourceUnit();
+			final ISourceUnit su= editor.getSourceUnit();
 			if (su instanceof IWorkspaceSourceUnit) {
-				final IResource resource = ((IWorkspaceSourceUnit) su).getResource();
-				final IRProject project = RProjects.getRProject(resource.getProject());
-				fBaseResource = (project != null) ? project.getBaseContainer() : null;
-				if (fBaseResource == null) {
-					fBaseResource = resource.getParent();
+				final IResource resource= ((IWorkspaceSourceUnit) su).getResource();
+				final IRProject project= RProjects.getRProject(resource.getProject());
+				this.baseResource= (project != null) ? project.getBaseContainer() : null;
+				if (this.baseResource == null) {
+					this.baseResource= resource.getParent();
 				}
-				if (fBaseResource != null) {
+				if (this.baseResource != null) {
 					try {
-						fBaseFileStore = EFS.getStore(fBaseResource.getLocationURI());
+						this.baseFileStore= EFS.getStore(this.baseResource.getLocationURI());
 					}
 					catch (final CoreException e) {
 					}
@@ -110,13 +111,21 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	@Override
 	public void sessionEnded() {
 		super.sessionEnded();
-		fAssociatedTool = null;
+		this.associatedTool= null;
 	}
 	
 	@Override
-	protected String getDefaultFileSeparator() {
-		if (fAssociatedTool != null) {
-			return fAssociatedTool.getWorkspaceData().getFileSeparator();
+	protected boolean getIsWindows() {
+		if ((this.associatedTool != null)) {
+			return this.associatedTool.getWorkspaceData().isWindows();
+		}
+		return super.getIsWindows();
+	}
+	
+	@Override
+	protected char getDefaultFileSeparator() {
+		if (this.associatedTool != null) {
+			return this.associatedTool.getWorkspaceData().getFileSeparator();
 		}
 		return super.getDefaultFileSeparator();
 	}
@@ -124,17 +133,17 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	@Override
 	protected IRegion getContentRange(final AssistInvocationContext context, final int mode)
 			throws BadLocationException {
-		final IDocument document = context.getSourceViewer().getDocument();
-		final int offset = context.getInvocationOffset();
-		final ITypedRegion partition = TextUtilities.getPartition(document,
+		final IDocument document= context.getSourceViewer().getDocument();
+		final int offset= context.getInvocationOffset();
+		final ITypedRegion partition= TextUtilities.getPartition(document,
 				getEditor().getDocumentContentInfo().getPartitioning(), offset, true);
-		int start = partition.getOffset();
-		int end = partition.getOffset() + partition.getLength();
+		int start= partition.getOffset();
+		int end= partition.getOffset() + partition.getLength();
 		if (start == end) {
 			return null;
 		}
 		
-		final char bound = document.getChar(start);
+		final char bound= document.getChar(start);
 		if (bound == '\"' || bound == '\'') {
 			start++;
 		}
@@ -156,82 +165,83 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	
 	@Override
 	protected IPath getRelativeBasePath() {
-		if (fAssociatedTool != null) {
-			final IFileStore wd = fAssociatedTool.getWorkspaceData().getWorkspaceDir();
+		if (this.associatedTool != null) {
+			final IFileStore wd= this.associatedTool.getWorkspaceData().getWorkspaceDir();
 			if (wd != null) {
 				return URIUtil.toPath(wd.toURI());
 			}
 			return null;
 		}
-		if (fBaseResource != null) {
-			return fBaseResource.getLocation();
+		if (this.baseResource != null) {
+			return this.baseResource.getLocation();
 		}
 		return null;
 	}
 	
 	@Override
 	protected IFileStore getRelativeBaseStore() {
-		if (fAssociatedTool != null) {
-			return fAssociatedTool.getWorkspaceData().getWorkspaceDir();
+		if (this.associatedTool != null) {
+			return this.associatedTool.getWorkspaceData().getWorkspaceDir();
 		}
-		if (fBaseFileStore != null) {
-			return fBaseFileStore;
+		if (this.baseFileStore != null) {
+			return this.baseFileStore;
 		}
 		return null;
 	}
 	
 	@Override
 	protected IFileStore resolveStore(final IPath path) throws CoreException {
-		if (fAssociatedTool != null) {
-			return fAssociatedTool.getWorkspaceData().toFileStore(path);
+		if (this.associatedTool != null) {
+			return this.associatedTool.getWorkspaceData().toFileStore(path);
 		}
 		return super.resolveStore(path);
 	}
 	
 	@Override
 	protected IStatus tryAlternative(final AssistInvocationContext context, final AssistProposalCollector<IAssistCompletionProposal> proposals,
-			final IPath path, final int startOffset, final String startsWith, final String prefix, final String completionPrefix) throws CoreException {
-		if (fAssociatedTool != null) {
-			final String address = fAssociatedTool.getWorkspaceData().getRemoteAddress();
+			final IPath path, final int startOffset,
+			final String segmentPrefix, final String completionPrefix) throws CoreException {
+		if (this.associatedTool != null) {
+			final String address= this.associatedTool.getWorkspaceData().getRemoteAddress();
 			if (address != null) {
-				final boolean root = (path.segmentCount() == 0);
-				final IResourceMappingManager rmManager = ResourceMappingUtils.getManager();
+				final IResourceMappingManager rmManager= ResourceMappingUtils.getManager();
 				if (rmManager != null) {
-					final List<IResourceMapping> mappings = rmManager
+					final List<IResourceMapping> mappings= rmManager
 							.getResourceMappingsFor(address, ResourceMappingOrder.REMOTE);
 					for (final IResourceMapping mapping : mappings) {
-						final IPath remotePath = mapping.getRemotePath();
-						if (remotePath.segmentCount() < path.segmentCount()) {
-							continue;
+						IPath remotePath= mapping.getRemotePath();
+						if (path.isEmpty()) {
+							// remotePath
 						}
-						if (root) {
-							proposals.add(new ResourceProposal(context, startOffset-prefix.length(), mapping.getFileStore(), remotePath.toString(), completionPrefix, null));
+						else if (path.isPrefixOf(remotePath)) {
+							remotePath= remotePath.setDevice(null).makeRelative().removeFirstSegments(path.segmentCount());
 						}
 						else {
-							final int matching = path.matchingFirstSegments(remotePath);
-							final int depth = path.segmentCount();
-							if (matching > 0 || depth == 1) {
-								final String next = remotePath.segment(matching + 1);
-								if (next.startsWith(startsWith)) {
-									// TODO
-								}
-							}
+							continue;
+						}
+						final String name= remotePath.segment(0);
+						if (segmentPrefix.isEmpty()
+								|| (name != null && name.regionMatches(true, 0, segmentPrefix, 0, segmentPrefix.length())) ) {
+							proposals.add(new ResourceProposal(context, startOffset,
+									mapping.getFileStore(), remotePath.toString(), completionPrefix,
+									null ));
 						}
 					}
 					return Status.OK_STATUS;
 				}
 			}
 		}
-		return super.tryAlternative(context, proposals, path, startOffset, startsWith, prefix, completionPrefix);
+		return super.tryAlternative(context, proposals, path, startOffset,
+				segmentPrefix, completionPrefix );
 	}
 	
 	@Override
 	protected String checkPrefix(final String prefix) {
-		String unescaped = RUtil.unescapeCompletely(prefix);
+		String unescaped= RUtil.unescapeCompletely(prefix);
 		// keep a single (not escaped) backslash
 		if (prefix.length() > 0 && prefix.charAt(prefix.length()-1) == '\\' && 
 				(unescaped.isEmpty() || unescaped.charAt(unescaped.length()-1) != '\\')) {
-			unescaped = unescaped + '\\';
+			unescaped= unescaped + '\\';
 		}
 		return super.checkPrefix(unescaped);
 	}
@@ -239,8 +249,8 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	@Override
 	protected String checkPathCompletion(final IDocument document, final int completionOffset, String completion)
 			throws BadLocationException {
-		completion = RUtil.escapeCompletely(completion);
-		int existingBackslashCount = 0;
+		completion= RUtil.escapeCompletely(completion);
+		int existingBackslashCount= 0;
 		if (completionOffset >= 1) {
 			if (document.getChar(completionOffset-1) == '\\') {
 				existingBackslashCount++;
@@ -251,30 +261,22 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 				}
 			}
 		}
-		final boolean startsWithBackslash = (completion.length() >= 2 && 
+		final boolean startsWithBackslash= (completion.length() >= 2 && 
 				completion.charAt(0) == '\\' && completion.charAt(1) == '\\');
 		if ((existingBackslashCount % 2) == 1) {
 			if (startsWithBackslash) {
-				completion = completion.substring(1);
+				completion= completion.substring(1);
 			}
 			else {
-				completion = '\\' + completion;
+				completion= '\\' + completion;
 			}
 		}
 		else if (existingBackslashCount > 0) {
 			if (startsWithBackslash) {
-				completion = completion.substring(2);
+				completion= completion.substring(2);
 			}
 		}
 		return completion;
-	}
-	
-	@Override
-	protected boolean isWin() {
-		if (fAssociatedTool != null && fAssociatedTool.getWorkspaceData().isRemote()) {
-			return false;
-		}
-		return super.isWin();
 	}
 	
 }
