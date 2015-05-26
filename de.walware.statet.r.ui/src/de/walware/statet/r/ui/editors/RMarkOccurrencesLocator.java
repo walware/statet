@@ -22,6 +22,7 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.swt.graphics.Point;
 
+import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ui.sourceediting.AbstractMarkOccurrencesProvider.RunData;
@@ -113,17 +114,16 @@ public class RMarkOccurrencesLocator {
 				return null;
 			}
 			if (run.accept(new Point(nameNode.getOffset(), nameNode.getStopOffset()))) {
-				final RElementAccess[] accessList = access.getAllInUnit();
-				final Map<Annotation, Position> annotations = new LinkedHashMap<>(accessList.length);
-				for (int i = 0; i < accessList.length; i++) {
-					final RElementAccess item = accessList[i];
-					final String message = run.doc.get(item.getNode().getOffset(), item.getNode().getLength());
+				final ImList<? extends RElementAccess> allAccess= access.getAllInUnit(false);
+				final Map<Annotation, Position> annotations= new LinkedHashMap<>(allAccess.size());
+				for (final RElementAccess aAccess : allAccess) {
+					final String message= run.doc.get(aAccess.getNode().getOffset(), aAccess.getNode().getLength());
 					annotations.put(
-							new Annotation(item.isWriteAccess() ? 
+							new Annotation(aAccess.isWriteAccess() ? 
 									ITextPresentationConstants.ANNOTATIONS_WRITE_OCCURRENCES_TYPE:
 									ITextPresentationConstants.ANNOTATIONS_COMMON_OCCURRENCES_TYPE,
 									false, message),
-							RAst.getElementNamePosition(item.getNameNode()) );
+							RAst.getElementNamePosition(aAccess.getNameNode()) );
 				}
 				return annotations;
 			}

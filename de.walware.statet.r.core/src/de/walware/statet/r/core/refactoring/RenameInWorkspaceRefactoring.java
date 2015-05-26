@@ -32,6 +32,7 @@ import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.ReplaceEdit;
 
+import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.core.ElementSet;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
@@ -308,14 +309,14 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 		
 		this.sourceUnit.connect(progress.newChild(1));
 		try {
-			final RElementAccess[] accessList= this.initialAccess.getAllInUnit();
+			final ImList<? extends RElementAccess> accessList= this.initialAccess.getAllInUnit(false);
 			
 			final String unquoted= RRefactoringAdapter.getUnquotedIdentifier(this.newName);
 			final String quoted= RRefactoringAdapter.getQuotedIdentifier(this.newName);
 			final boolean isQuoted= (this.newName.charAt(0) == '`');
 			
-			for (int i= 0; i < accessList.length; i++) {
-				final RAstNode nameNode= accessList[i].getNameNode();
+			for (final RElementAccess aAccess : accessList) {
+				final RAstNode nameNode= aAccess.getNameNode();
 				final String text= (isQuoted && nameNode.getNodeType() == NodeType.SYMBOL && nameNode.getOperator(0) == RTerminal.SYMBOL) ?
 						this.newName : unquoted;
 				final IRegion nameRegion= RAst.getElementNameRegion(nameNode);
@@ -353,7 +354,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 				}
 				if (frame instanceof IRFrameInSource) {
 					final List<? extends RElementAccess> allAccess= ((IRFrameInSource) frame).getAllAccessOf(
-							this.searchProcessor.mainName.getSegmentName() );
+							this.searchProcessor.mainName.getSegmentName(), false );
 					if (allAccess != null && allAccess.size() > 0) {
 						allFrameAccess.add(allAccess);
 					}

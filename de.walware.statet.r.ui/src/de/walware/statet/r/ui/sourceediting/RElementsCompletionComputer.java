@@ -49,7 +49,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistCompletionProposal
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistInformationProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IContentAssistComputer;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ReshowCompletionsRunnable;
-import de.walware.ecommons.text.IPartitionConstraint;
+import de.walware.ecommons.text.core.IPartitionConstraint;
 
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 import de.walware.statet.nico.ui.console.InputDocument;
@@ -491,7 +491,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 					if (candidate != null
 							&& pattern.matches(candidate) 
 							&& !mainNames.contains(candidate)
-							&& !(candidate.equals(namePrefix) && (sframe.getAllAccessOf(candidate).size() <= 1)) ) {
+							&& !(candidate.equals(namePrefix) && (sframe.getAllAccessOf(candidate, false).size() <= 1)) ) {
 						final IAssistCompletionProposal proposal = createProposal(context, orgPrefix, candidate);
 						if (proposal != null) {
 							mainNames.add(candidate);
@@ -707,10 +707,11 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			final IRFrame envir = iter.next();
 			if (envir instanceof IRFrameInSource) {
 				final IRFrameInSource sframe = (IRFrameInSource) envir;
-				final List<? extends RElementAccess> allAccess = sframe.getAllAccessOf(prefixSegments.getSegmentName());
+				final List<? extends RElementAccess> allAccess = sframe.getAllAccessOf(
+						prefixSegments.getSegmentName(), true );
 				if (allAccess != null) {
 					ITER_ELEMENTS: for (final RElementAccess elementAccess : allAccess) {
-						IElementName elementSegment = elementAccess;
+						RElementAccess elementSegment = elementAccess;
 						IElementName prefixSegment = prefixSegments;
 						ITER_SEGMENTS: for (int i = 0; i < count-1; i++) {
 							if (isCompletable(elementSegment)
@@ -722,7 +723,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 							continue ITER_ELEMENTS;
 						}
 						
-						if (elementSegment == null) {
+						if (elementSegment == null || elementSegment.isSlave()) {
 							continue ITER_ELEMENTS;
 						}
 						final String candidate = elementSegment.getSegmentName();

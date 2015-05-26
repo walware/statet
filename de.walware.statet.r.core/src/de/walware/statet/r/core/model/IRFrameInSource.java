@@ -11,15 +11,16 @@
 
 package de.walware.statet.r.core.model;
 
-import java.util.List;
 import java.util.Set;
+
+import de.walware.ecommons.collections.ImList;
 
 
 public interface IRFrameInSource extends IRFrame {
 	
 	
 	Set<String> getAllAccessNames();
-	List<? extends RElementAccess> getAllAccessOf(final String name);
+	ImList<? extends RElementAccess> getAllAccessOf(final String name, boolean includeSlaves);
 	boolean isResolved(String name);
 	
 }

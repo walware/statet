@@ -11,7 +11,6 @@
 
 package de.walware.statet.r.core.refactoring;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +32,8 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
+import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.collections.ImIdentityList;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.core.ElementSet;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringDescriptor;
@@ -139,23 +140,17 @@ public class InlineTempRefactoring extends Refactoring {
 			return;
 		}
 		
-		final RElementAccess[] allInUnit = currentAccess.getAllInUnit();
-		Arrays.sort(allInUnit, RElementAccess.NAME_POSITION_COMPARATOR);
-		int current = -1;
-		for (int i = 0; i < allInUnit.length; i++) {
-			if (currentAccess == allInUnit[i]) {
-				current = i;
-				break;
-			}
-		}
+		final ImIdentityList<? extends RElementAccess> allAccess= ImCollections.toIdentityList(
+				currentAccess.getAllInUnit(false) );
+		int current= allAccess.indexOf(currentAccess);
 		if (current < 0) {
 			throw new IllegalStateException();
 		}
-		RElementAccess writeAccess = null;
+		RElementAccess writeAccess= null;
 		while (current >= 0) {
-			final RElementAccess access = allInUnit[current];
+			final RElementAccess access= allAccess.get(current);
 			if (access.isWriteAccess()) {
-				writeAccess = access;
+				writeAccess= access;
 				break;
 			}
 			current--;
@@ -164,7 +159,7 @@ public class InlineTempRefactoring extends Refactoring {
 			result.merge(RefactoringStatus.createFatalErrorStatus(Messages.InlineTemp_error_MissingDefinition_message));
 			return;
 		}
-		final RAstNode node = writeAccess.getNode();
+		final RAstNode node= writeAccess.getNode();
 		switch (node != null ? node.getNodeType() : NodeType.DUMMY) {
 		case A_LEFT:
 		case A_EQUALS:
@@ -177,24 +172,24 @@ public class InlineTempRefactoring extends Refactoring {
 			result.merge(RefactoringStatus.createFatalErrorStatus(Messages.InlineTemp_error_InvalidSelectionNoArrow_message));
 			return;
 		}
-		final Assignment assignment = (Assignment) node;
-		final RAstNode source = assignment.getSourceChild();
+		final Assignment assignment= (Assignment) node;
+		final RAstNode source= assignment.getSourceChild();
 		
 		if (RAst.hasErrors(source)) {
 			result.merge(RefactoringStatus.createWarningStatus(Messages.InlineTemp_warning_ValueSyntaxError_message));
 		}
 		
-		final int start = current;
+		final int start= current;
 		current++;
-		while (current < allInUnit.length) {
-			if (allInUnit[current].isWriteAccess()) {
+		while (current < allAccess.size()) {
+			if (allAccess.get(current).isWriteAccess()) {
 				break;
 			}
 			current++;
 		}
-		fAccessList = new RElementAccess[current-start];
-		System.arraycopy(allInUnit, start, fAccessList, 0, fAccessList.length);
-		fAssignmentNode = assignment;
+		fAccessList= new RElementAccess[current-start];
+		System.arraycopy(allAccess, start, fAccessList, 0, fAccessList.length);
+		fAssignmentNode= assignment;
 	}
 	
 	public String getVariableName() {

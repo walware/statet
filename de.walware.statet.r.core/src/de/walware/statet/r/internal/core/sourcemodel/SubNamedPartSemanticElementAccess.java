@@ -15,36 +15,36 @@ import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
-final class SubNamedSlotInFunElementAccess extends SubAbstractElementAccess {
+final class SubNamedPartSemanticElementAccess extends SubAbstractElementAccess {
 	
 	
-	final RAstNode fSlotNameNode;
+	private final RAstNode nameNode;
 	
 	
-	SubNamedSlotInFunElementAccess(final ElementAccess root, final RAstNode slotNameNode) {
-		fRoot = root;
-		fSlotNameNode = slotNameNode;
+	SubNamedPartSemanticElementAccess(final ElementAccess root, final RAstNode slotNameNode) {
+		super(root);
+		this.nameNode= slotNameNode;
 	}
 	
 	
 	@Override
 	public final int getType() {
-		return RElementName.SUB_NAMEDSLOT;
+		return RElementName.SUB_NAMEDPART;
 	}
 	
 	@Override
 	public final String getSegmentName() {
-		return fSlotNameNode.getText();
+		return this.nameNode.getText();
 	}
 	
 	@Override
 	public final RAstNode getNode() {
-		return fRoot.getNode();
+		return getRoot().getNode(); // ?
 	}
 	
 	@Override
 	public final RAstNode getNameNode() {
-		return fSlotNameNode;
+		return this.nameNode;
 	}
 	
 }

@@ -80,7 +80,30 @@ abstract class RSourceElementByElementAccess
 		
 	}
 	
-	static final class RMethod extends RSourceElementByElementAccess implements IRMethod, IBuildSourceFrameElement {
+	static abstract class DocuCommentableElement extends RSourceElementByElementAccess {
+		
+		
+		public DocuCommentableElement(IRLangSourceElement parent, int elementType,
+				ElementAccess defAccess) {
+			super(parent, elementType, defAccess);
+		}
+		
+		
+		private DocuComment docu;
+		
+		
+		void setDocu(final DocuComment docu) {
+			this.docu= docu;
+		}
+		
+		@Override
+		public final DocuComment getDocumentationRange() {
+			return this.docu;
+		}
+		
+	}
+	
+	static final class RMethod extends DocuCommentableElement implements IRMethod, IBuildSourceFrameElement {
 		
 		
 		private List<? extends IRLangSourceElement> fSourceChildrenProtected = RSourceElements.NO_R_SOURCE_CHILDREN;
@@ -89,8 +112,6 @@ abstract class RSourceElementByElementAccess
 		
 		private FDef fFDefNode;
 		private ArgsDefinition fArgs;
-		
-		DocuComment fDocu;
 		
 		
 		public RMethod(final IRLangSourceElement parent, final BuildSourceFrame envir, final FDef fdefNode) {
@@ -131,11 +152,6 @@ abstract class RSourceElementByElementAccess
 			return fEnvir;
 		}
 		
-		
-		@Override
-		public IRegion getDocumentationRange() {
-			return fDocu;
-		}
 		
 		public FDef getFDefNode() {
 			return fFDefNode;
@@ -187,7 +203,7 @@ abstract class RSourceElementByElementAccess
 		
 	}
 	
-	static final class RClass extends RSourceElementByElementAccess implements IRClass, IBuildSourceFrameElement {
+	static final class RClass extends DocuCommentableElement implements IRClass, IBuildSourceFrameElement {
 		
 		
 		private static final List<String> NO_PARENTS = Collections.emptyList();
@@ -199,8 +215,6 @@ abstract class RSourceElementByElementAccess
 		
 		private List<String> fSuperClassesTypeNames = NO_PARENTS;
 		private List<String> fSuperClassesTypeNamesProtected = NO_PARENTS;
-		
-		DocuComment fDocu;
 		
 		
 		public RClass(final IRLangSourceElement parent, final ElementAccess defAccess, final BuildSourceFrame envir) {
@@ -219,7 +233,7 @@ abstract class RSourceElementByElementAccess
 				if (count == 0) {
 					return;
 				}
-				fSuperClassesTypeNames = new ArrayList<String>(count);
+				fSuperClassesTypeNames = new ArrayList<>(count);
 				fSuperClassesTypeNamesProtected = Collections.unmodifiableList(fSuperClassesTypeNames);
 			}
 			for (final String name : typeNames) {
@@ -239,11 +253,6 @@ abstract class RSourceElementByElementAccess
 			return fEnvir;
 		}
 		
-		
-		@Override
-		public DocuComment getDocumentationRange() {
-			return fDocu;
-		}
 		
 		@Override
 		public List<String> getExtendedClassNames() {
@@ -374,10 +383,8 @@ abstract class RSourceElementByElementAccess
 		
 	}
 	
-	static final class RVariable extends RSourceElementByElementAccess {
+	static final class RVariable extends DocuCommentableElement {
 		
-		
-		DocuComment fDocu;
 		
 		public RVariable(final IRLangSourceElement parent, final int elementType, final ElementAccess defAccess) {
 			super(parent, elementType, defAccess);
@@ -385,8 +392,36 @@ abstract class RSourceElementByElementAccess
 		
 		
 		@Override
-		public DocuComment getDocumentationRange() {
-			return fDocu;
+		public boolean hasModelChildren(final IModelElement.Filter filter) {
+			return false;
+		}
+		
+		@Override
+		public final List<? extends IRLangSourceElement> getModelChildren(final IModelElement.Filter filter) {
+			return RSourceElements.NO_R_SOURCE_CHILDREN;
+		}
+		
+		@Override
+		public boolean hasSourceChildren(final IModelElement.Filter filter) {
+			return false;
+		}
+		
+		@Override
+		public List<? extends IRLangSourceElement> getSourceChildren(final IModelElement.Filter filter) {
+			return RSourceElements.NO_R_SOURCE_CHILDREN;
+		}
+		
+	}
+	
+	static final class RDataFrame extends DocuCommentableElement {
+		
+		
+		private List<RElementAccess> columns;
+		
+		
+		public RDataFrame(final IRLangSourceElement parent, final int elementType,
+				final List<SubNamedPartSyntacticElementAccess> columns) {
+			super(parent, elementType, null);
 		}
 		
 		
@@ -490,7 +525,7 @@ abstract class RSourceElementByElementAccess
 	
 	@Override
 	public final String getModelTypeId() {
-		return RModel.TYPE_ID;
+		return RModel.R_TYPE_ID;
 	}
 	
 	public final RElementAccess getAccess() {

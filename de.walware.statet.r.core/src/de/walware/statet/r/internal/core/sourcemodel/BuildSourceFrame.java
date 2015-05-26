@@ -13,6 +13,7 @@ package de.walware.statet.r.internal.core.sourcemodel;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,8 @@ import java.util.Set;
 import de.walware.ecommons.collections.CollectionUtils;
 import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.collections.ConstList;
+import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.ltk.core.model.IModelElement;
 
 import de.walware.statet.r.core.model.IRElement;
@@ -54,10 +57,9 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 				Integer.toHexString(type) + ":#" + Integer.toHexString(alt); //$NON-NLS-1$
 	}
 	
-	static class ElementAccessList {
+	static final class ElementAccessList {
 		
-		
-		final String name;
+		private final String name;
 		final List<ElementAccess> entries;
 		IRFrame frame;
 		int isCreated;
@@ -65,15 +67,45 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		
 		public ElementAccessList(final String name) {
 			this.name= name;
-			this.entries= new ArrayList<ElementAccess>(4);
+			this.entries= new ArrayList<>(4);
 			this.isCreated= CREATED_NO;
 		}
 		
+		
+		public String getName() {
+			return this.name;
+		}
 		
 		public void postAdd(final ElementAccess access) {
 			access.fShared= this;
 			this.entries.add(access);
 			access.fFullNode.addAttachment(access);
+		}
+		
+		public ImList<ElementAccess> getAll(final boolean includeSlaves) {
+			if (!includeSlaves) {
+				int counter= 0;
+				for (final ElementAccess element : this.entries) {
+					if (element.isSlave()) {
+						counter++;
+					}
+				}
+				if (counter > 0) {
+					final ElementAccess[] elements= new ElementAccess[this.entries.size() - counter];
+					counter= 0;
+					for (final ElementAccess element : this.entries) {
+						if (element.isMaster()) {
+							elements[counter++]= element;
+						}
+					}
+					Arrays.sort(elements, RElementAccess.NAME_POSITION_COMPARATOR);
+					return ImCollections.newList(elements);
+				}
+			}
+			{	final ElementAccess[] elements= this.entries.toArray(new ElementAccess[this.entries.size()]);
+				Arrays.sort(elements, RElementAccess.NAME_POSITION_COMPARATOR);
+				return ImCollections.newList(elements);
+			}
 		}
 		
 		
@@ -154,17 +186,17 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		
 		DefScope(final int type, final String id, final String name, final BuildSourceFrame[] parents) {
 			super(type, id, parents);
-			fLateWrite = new HashMap<String, ElementAccessList>();
-			fLateRead = new HashMap<String, ElementAccessList>();
+			fLateWrite = new HashMap<>();
+			fLateRead = new HashMap<>();
 			switch (type) {
 			case PROJECT:
 				fElementName = null;
 //				fElementName = RElementName.create(RElementName.MAIN_SEARCH_ENV, ".GlobalEnv");
-				fClasses = new HashMap<String, ElementAccessList>();
+				fClasses = new HashMap<>();
 				break;
 			case PACKAGE:
 				fElementName = RElementName.create(RElementName.MAIN_PACKAGE, name);
-				fClasses = new HashMap<String, ElementAccessList>();
+				fClasses = new HashMap<>();
 				break;
 			default:
 				fClasses = null;
@@ -256,7 +288,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 				ITER_NAMES : for (final ElementAccessList detail : map.values()) {
 					for (int requiredCreation = CREATED_SEARCH; requiredCreation >= 0; requiredCreation--) {
 						for (int i = 0; i < searchList.length; i++) {
-							final ElementAccessList exist = searchList[i].fData.get(detail.name);
+							final ElementAccessList exist = searchList[i].fData.get(detail.getName());
 							if (exist != null && exist.isCreated >= requiredCreation) {
 								for (final ElementAccess access : detail.entries) {
 									access.fShared = exist;
@@ -268,7 +300,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 					}
 					detail.frame = defaultScope;
 					detail.isCreated = CREATED_SEARCH;
-					fData.put(detail.name, detail);
+					fData.put(detail.getName(), detail);
 					continue ITER_NAMES;
 				}
 				fLateWrite = null;
@@ -290,7 +322,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 				ITER_NAMES : for (final ElementAccessList detail : map.values()) {
 					for (int requiredCreation = CREATED_SEARCH; requiredCreation >= 0; requiredCreation--) {
 						for (int i = 0; i < searchList.length; i++) {
-							final ElementAccessList exist = searchList[i].fData.get(detail.name);
+							final ElementAccessList exist = searchList[i].fData.get(detail.getName());
 							if (exist != null && exist.isCreated >= requiredCreation) {
 								for (final ElementAccess access : detail.entries) {
 									access.fShared = exist;
@@ -301,7 +333,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 						}
 					}
 					detail.frame = defaultScope;
-					defaultScope.fData.put(detail.name, detail);
+					defaultScope.fData.put(detail.getName(), detail);
 					continue ITER_NAMES;
 				}
 				fLateRead = null;
@@ -323,12 +355,12 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		fType = type;
 		fId = id;
 		if (parents != null) {
-			fParents = new ConstArrayList<BuildSourceFrame>(parents);
+			fParents = new ConstArrayList<>(parents);
 		}
 		else {
 			fParents = NO_PARENTS;
 		}
-		fData = new HashMap<String, ElementAccessList>();
+		fData = new HashMap<>();
 	}
 	
 	
@@ -336,7 +368,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		final int length = fElements.size();
 		final IBuildSourceFrameElement[] elements = fElements.toArray(new IBuildSourceFrameElement[length+1]);
 		elements[length] = element;
-		fElements = new ConstArrayList<IBuildSourceFrameElement>(elements);
+		fElements = new ConstArrayList<>(elements);
 	}
 	
 	abstract void add(final String name, final ElementAccess access);
@@ -348,7 +380,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 	
 	
 	protected BuildSourceFrame[] createSearchList() {
-		final ArrayList<BuildSourceFrame> list = new ArrayList<BuildSourceFrame>();
+		final ArrayList<BuildSourceFrame> list = new ArrayList<>();
 		int idx = 0;
 		list.add(this);
 		while (idx < list.size()) {
@@ -384,12 +416,12 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 	}
 	
 	@Override
-	public List<? extends RElementAccess> getAllAccessOf(final String name) {
+	public ImList<? extends RElementAccess> getAllAccessOf(final String name, final boolean includeSlaves) {
 		final ElementAccessList list = fData.get(name);
 		if (list == null) {
-			return null;
+			return ImCollections.emptyList();
 		}
-		return Collections.unmodifiableList(list.entries);
+		return list.getAll(includeSlaves);
 	}
 	
 	@Override
@@ -432,7 +464,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 			}
 		}
 		else {
-			children = new ArrayList<IRLangSourceElement>();
+			children = new ArrayList<>();
 			for (final ElementAccessList list : fData.values()) {
 				for (final ElementAccess access : list.entries) {
 					if (access.fModelElement != null 
@@ -443,7 +475,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 			}
 			children = Collections.unmodifiableList(children);
 			if (filter == null) {
-				fModelChildren = new WeakReference<List<IRLangSourceElement>>(children);
+				fModelChildren = new WeakReference<>(children);
 			}
 			return children;
 		}

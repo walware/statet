@@ -14,6 +14,8 @@ package de.walware.statet.r.core.model;
 import java.util.Comparator;
 import java.util.List;
 
+import de.walware.ecommons.collections.ImList;
+
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
@@ -27,9 +29,48 @@ public abstract class RElementAccess extends RElementName {
 	
 	public static final Comparator<RElementAccess> NAME_POSITION_COMPARATOR= 
 		new Comparator<RElementAccess>() {
+			private int comparePosition(final RAstNode n1, final RAstNode n2) {
+				if (n1 != null) {
+					if (n2 != null) {
+						return n1.getOffset() - n2.getOffset();
+					}
+					else {
+						return -1;
+					}
+				}
+				else {
+					if (n2 != null) {
+						return 1;
+					}
+					else {
+						return 0;
+					}
+				}
+			}
 			@Override
-			public int compare(final RElementAccess o1, final RElementAccess o2) {
-				return (o1.getNameNode().getOffset() - o2.getNameNode().getOffset()); 
+			public int compare(RElementAccess o1, RElementAccess o2) {
+				int offset= comparePosition(o1.getNameNode(), o2.getNameNode());
+				while (offset == 0) {
+					o1= o1.getNextSegment();
+					o2= o2.getNextSegment();
+					if (o1 != null) {
+						if (o2 != null) {
+							offset= comparePosition(o1.getNameNode(), o2.getNameNode());
+						}
+						else {
+							return 1;
+						}
+					}
+					else {
+						if (o2 != null) {
+							return -1;
+						}
+						else {
+							return 0;
+						}
+					}
+				}
+				return offset;
 			}
 	};
 	
@@ -41,7 +82,7 @@ public abstract class RElementAccess extends RElementName {
 				if (attachment instanceof RElementAccess) {
 					RElementAccess access= (RElementAccess) attachment;
 					do {
-						if (access.getNameNode() == nameNode) {
+						if (access.isMaster() && access.getNameNode() == nameNode) {
 							return (RElementAccess) attachment;
 						}
 						access= access.getNextSegment();
@@ -61,7 +102,7 @@ public abstract class RElementAccess extends RElementName {
 				if (attachment instanceof RElementAccess) {
 					RElementAccess access= (RElementAccess) attachment;
 					do {
-						if (access.getNameNode() == nameNode) {
+						if (access.isMaster() && access.getNameNode() == nameNode) {
 							return access;
 						}
 						access= access.getNextSegment();
@@ -80,6 +121,20 @@ public abstract class RElementAccess extends RElementName {
 	public abstract boolean isFunctionAccess();
 	public abstract boolean isCallAccess();
 	
+	
+	public boolean isMaster() {
+		return true;
+	}
+	
+	public boolean isSlave() {
+		return false;
+	}
+	
+	public RElementAccess getMaster() {
+		return this;
+	}
+	
+	
 	public abstract RAstNode getNode();
 	
 	public abstract RAstNode getNameNode();
@@ -87,6 +142,6 @@ public abstract class RElementAccess extends RElementName {
 	@Override
 	public abstract RElementAccess getNextSegment();
 	
-	public abstract RElementAccess[] getAllInUnit();
+	public abstract ImList<? extends RElementAccess> getAllInUnit(boolean includeSlaves);
 	
 }

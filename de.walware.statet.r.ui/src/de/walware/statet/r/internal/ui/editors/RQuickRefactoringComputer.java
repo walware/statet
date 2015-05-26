@@ -11,7 +11,6 @@
 
 package de.walware.statet.r.internal.ui.editors;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -19,6 +18,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IRegion;
 
+import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.collections.ImIdentityList;
 import de.walware.ecommons.ltk.LTKUtil;
 import de.walware.ecommons.ltk.core.model.ISourceStructElement;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
@@ -85,50 +86,46 @@ public class RQuickRefactoringComputer implements IQuickAssistComputer {
 	protected void addAccessAssistProposals(final AssistInvocationContext context,
 			final RElementAccess access,
 			final AssistProposalCollector<IAssistCompletionProposal> proposals) {
-		final RElementAccess[] allInUnit = access.getAllInUnit();
+		final ImIdentityList<? extends RElementAccess> allAccess= ImCollections.toIdentityList(
+				access.getAllInUnit(false) );
 		
 		proposals.add(new RLinkedNamesAssistProposal(RLinkedNamesAssistProposal.IN_FILE, context, access));
 		
-		if (allInUnit.length > 2) {
-			Arrays.sort(allInUnit, RElementAccess.NAME_POSITION_COMPARATOR);
-			
-			IRegion chunk = null;
-			{	final ISourceStructElement sourceElement = context.getModelInfo().getSourceElement();
+		if (allAccess.size() > 2) {
+			IRegion chunk= null;
+			{	final ISourceStructElement sourceElement= context.getModelInfo().getSourceElement();
 				if (sourceElement instanceof IRCompositeSourceElement) {
-					final List<? extends IRLangSourceElement> elements = ((IRCompositeSourceElement) sourceElement).getCompositeElements();
-					final IRLangSourceElement element = LTKUtil.getCoveringSourceElement(elements, access.getNameNode().getOffset());
+					final List<? extends IRLangSourceElement> elements= ((IRCompositeSourceElement) sourceElement).getCompositeElements();
+					final IRLangSourceElement element= LTKUtil.getCoveringSourceElement(elements, access.getNameNode().getOffset());
 					if (element != null) {
-						chunk = element.getSourceRange();
+						chunk= element.getSourceRange();
 					}
 				}
 			}
-			int current = 0;
-			for (; current < allInUnit.length; current++) {
-				if (access == allInUnit[current]) {
-					break;
+			final int current= allAccess.indexOf(access);
+			if (current > 0) {
+				if (current > 0 && current < allAccess.size() - 1) {
+					proposals.add(new RLinkedNamesAssistProposal(RLinkedNamesAssistProposal.IN_FILE_PRECEDING, context, access));
+					proposals.add(new RLinkedNamesAssistProposal(RLinkedNamesAssistProposal.IN_FILE_FOLLOWING, context, access));
 				}
-			}
-			if (current > 0 && current < allInUnit.length-1) {
-				proposals.add(new RLinkedNamesAssistProposal(RLinkedNamesAssistProposal.IN_FILE_PRECEDING, context, access));
-				proposals.add(new RLinkedNamesAssistProposal(RLinkedNamesAssistProposal.IN_FILE_FOLLOWING, context, access));
-			}
-			if (chunk != null) {
-				int chunkBegin = 0;
-				for (final int offset = chunk.getOffset();
-						chunkBegin < current; chunkBegin++) {
-					if (offset <= allInUnit[chunkBegin].getNameNode().getOffset()) {
-						break;
+				if (chunk != null) {
+					int chunkBegin= 0;
+					for (final int offset= chunk.getOffset();
+							chunkBegin < current; chunkBegin++) {
+						if (offset <= allAccess.get(chunkBegin).getNameNode().getOffset()) {
+							break;
+						}
 					}
-				}
-				int chunkEnd = current+1;
-				for (final int offset = chunk.getOffset()+chunk.getLength();
-						chunkEnd < allInUnit.length; chunkEnd++) {
-					if (offset <= allInUnit[chunkEnd].getNameNode().getOffset()) {
-						break;
+					int chunkEnd= current + 1;
+					for (final int offset= chunk.getOffset() + chunk.getLength();
+							chunkEnd < allAccess.size(); chunkEnd++) {
+						if (offset <= allAccess.get(chunkEnd).getNameNode().getOffset()) {
+							break;
+						}
 					}
-				}
-				if (chunkEnd - chunkBegin > 1) {
-					proposals.add(new RLinkedNamesAssistProposal(RLinkedNamesAssistProposal.IN_CHUNK, context, access, chunk));
+					if (chunkEnd - chunkBegin > 1) {
+						proposals.add(new RLinkedNamesAssistProposal(RLinkedNamesAssistProposal.IN_CHUNK, context, access, chunk));
+					}
 				}
 			}
 		}

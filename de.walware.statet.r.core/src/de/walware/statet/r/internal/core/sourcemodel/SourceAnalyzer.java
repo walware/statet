@@ -2874,7 +2874,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				SourceAnalyzer.this.argValueToIgnore.add(objectArg);
 				
 				if (slotArg != null && slotArg.getNodeType() == NodeType.STRING_CONST) {
-					access.fNextSegment= new SubNamedSlotInFunElementAccess(access, slotArg);
+					access.fNextSegment= new SubNamedSlotSemanticElementAccess(access, slotArg);
 					SourceAnalyzer.this.argValueToIgnore.add(slotArg);
 				}
 				

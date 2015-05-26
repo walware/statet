@@ -106,7 +106,7 @@ public class RElementSearch extends RElementSearchProcessor {
 				}
 				if (frame instanceof IRFrameInSource) {
 					final List<? extends RElementAccess> allAccess= ((IRFrameInSource) frame).getAllAccessOf(
-							this.mainName.getSegmentName() );
+							this.mainName.getSegmentName(), true );
 					if (allAccess != null && allAccess.size() > 0) {
 						allFrameAccess.add(allAccess);
 					}
@@ -149,7 +149,7 @@ public class RElementSearch extends RElementSearchProcessor {
 	
 	private RElementAccess include(RElementAccess access) {
 		access= searchMatch(access);
-		return (access != null
+		return (access != null && access.isMaster()
 						&& (!searchWrite() || access.isWriteAccess()) ) ?
 				access : null;
 	}

@@ -1,5 +1,5 @@
 /*=============================================================================#
- # Copyright (c) 2012-2015 Stephan Wahlbrink (WalWare.de) and others.
+ # Copyright (c) 2015 Stephan Wahlbrink (WalWare.de) and others.
  # All rights reserved. This program and the accompanying materials
  # are made available under the terms of the Eclipse Public License v1.0
  # which accompanies this distribution, and is available at
@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
-import de.walware.ecommons.collections.ImCollections;
+
 import de.walware.ecommons.collections.ImList;
 
 import de.walware.statet.r.core.model.IRFrame;
@@ -20,74 +20,87 @@ import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
-public final class AnonymousAccess extends RElementAccess {
+public final class SlaveAccess extends RElementAccess {
 	
 	
-	private final RAstNode node;
-	private IRFrame frame;
+	private final RElementAccess master;
+	
+	private RElementAccess nextSegment;
 	
 	
-	public AnonymousAccess(final RAstNode node, final IRFrame frame) {
-		this.node= node;
-		this.frame= frame;
+	public SlaveAccess(final RElementAccess master) {
+		this.master= master;
 	}
 	
 	
 	@Override
 	public int getType() {
-		return RElementName.ANONYMOUS;
-	}
-	
-	
-	@Override
-	public IRFrame getFrame() {
-		return this.frame;
-	}
-	
-	@Override
-	public ImList<? extends RElementAccess> getAllInUnit(final boolean includeSlaves) {
-		return ImCollections.newList(this);
-	}
-	
-	@Override
-	public boolean isWriteAccess() {
-		return true;
-	}
-	
-	@Override
-	public boolean isFunctionAccess() {
-		return true;
-	}
-	
-	@Override
-	public boolean isCallAccess() {
-		return false;
-	}
-	
-	@Override
-	public RAstNode getNode() {
-		return this.node;
-	}
-	
-	@Override
-	public RAstNode getNameNode() {
-		return null;
-	}
-	
-	
-	@Override
-	public RElementName getNamespace() {
-		return null;
+		return this.master.getType();
 	}
 	
 	@Override
 	public String getSegmentName() {
-		return null;
+		return this.master.getSegmentName();
+	}
+	
+	@Override
+	public IRFrame getFrame() {
+		return this.master.getFrame();
+	}
+	
+	@Override
+	public boolean isWriteAccess() {
+		return this.master.isWriteAccess();
+	}
+	
+	@Override
+	public boolean isFunctionAccess() {
+		return this.master.isFunctionAccess();
+	}
+	
+	@Override
+	public boolean isCallAccess() {
+		return this.master.isCallAccess();
+	}
+	
+	@Override
+	public boolean isMaster() {
+		return false;
+	}
+	
+	@Override
+	public boolean isSlave() {
+		return true;
+	}
+	
+	@Override
+	public RElementAccess getMaster() {
+		return this.master;
+	}
+	
+	@Override
+	public RAstNode getNode() {
+		return this.master.getNameNode();
+	}
+	
+	@Override
+	public RAstNode getNameNode() {
+		return this.master.getNameNode();
 	}
 	
 	@Override
 	public RElementAccess getNextSegment() {
-		return null;
+		return this.nextSegment;
+	}
+	
+	@Override
+	public ImList<? extends RElementAccess> getAllInUnit(final boolean includeSlaves) {
+		return this.master.getAllInUnit(includeSlaves);
+	}
+	
+	@Override
+	public RElementName getNamespace() {
+		return this.master.getNamespace();
 	}
 	
 }

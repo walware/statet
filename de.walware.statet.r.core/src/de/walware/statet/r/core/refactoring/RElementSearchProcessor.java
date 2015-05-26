@@ -597,7 +597,7 @@ public class RElementSearchProcessor {
 			}
 			if (frame instanceof IRFrameInSource) {
 				final List<? extends RElementAccess> allAccess= ((IRFrameInSource) frame).getAllAccessOf(
-						this.mainName.getSegmentName() );
+						this.mainName.getSegmentName(), false );
 				if (allAccess != null) {
 					for (final RElementAccess access : allAccess) {
 						if (access.isWriteAccess() && access.getNextSegment() == null) {

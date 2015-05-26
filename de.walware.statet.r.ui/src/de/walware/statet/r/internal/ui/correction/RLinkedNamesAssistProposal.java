@@ -11,14 +11,14 @@
 
 package de.walware.statet.r.internal.ui.correction;
 
-import java.util.Arrays;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.link.LinkedPositionGroup;
 
+import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.collections.ImIdentityList;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.LinkedNamesAssistProposal;
 
@@ -90,30 +90,24 @@ public class RLinkedNamesAssistProposal extends LinkedNamesAssistProposal {
 	@Override
 	protected void collectPositions(final IDocument document, final LinkedPositionGroup group)
 			throws BadLocationException {
-		final RElementAccess[] allInUnit = fAccess.getAllInUnit();
-		Arrays.sort(allInUnit, RElementAccess.NAME_POSITION_COMPARATOR);
-		int current = -1;
-		for (int i = 0; i < allInUnit.length; i++) {
-			if (fAccess == allInUnit[i]) {
-				current = i;
-				break;
-			}
-		}
+		final ImIdentityList<? extends RElementAccess> allAccess= ImCollections.toIdentityList(
+				fAccess.getAllInUnit(false) );
+		final int current= allAccess.indexOf(fAccess);
 		if (current < 0) {
 			return;
 		}
-		int idx = 0;
-		idx = addPosition(group, document, getPosition(allInUnit[current]), idx);
+		int idx= 0;
+		idx= addPosition(group, document, getPosition(allAccess.get(current)), idx);
 		if (fMode == IN_FILE || fMode == IN_FILE_FOLLOWING) {
-			for (int i = current+1; i < allInUnit.length; i++) {
-				idx = addPosition(group, document, getPosition(allInUnit[i]), idx);
+			for (int i= current + 1; i < allAccess.size(); i++) {
+				idx= addPosition(group, document, getPosition(allAccess.get(i)), idx);
 			}
 		}
 		else if (fMode == IN_CHUNK) {
-			final int regionOffset = fRegion.getOffset()+fRegion.getLength();
-			for (int i = current+1; i < allInUnit.length; i++) {
-				if (regionOffset > allInUnit[i].getNameNode().getOffset()) {
-					idx = addPosition(group, document, getPosition(allInUnit[i]), idx);
+			final int regionOffset= fRegion.getOffset()+fRegion.getLength();
+			for (int i= current + 1; i < allAccess.size(); i++) {
+				if (regionOffset > allAccess.get(i).getNameNode().getOffset()) {
+					idx= addPosition(group, document, getPosition(allAccess.get(i)), idx);
 				}
 				else {
 					break;
@@ -121,15 +115,15 @@ public class RLinkedNamesAssistProposal extends LinkedNamesAssistProposal {
 			}
 		}
 		if (fMode == IN_FILE || fMode == IN_FILE_PRECEDING) {
-			for (int i = 0; i < current; i++) {
-				idx = addPosition(group, document, getPosition(allInUnit[i]), idx);
+			for (int i= 0; i < current; i++) {
+				idx= addPosition(group, document, getPosition(allAccess.get(i)), idx);
 			}
 		}
 		else if (fMode == IN_CHUNK) {
-			final int regionOffset = fRegion.getOffset();
-			for (int i = 0; i < current; i++) {
-				if (regionOffset <= allInUnit[i].getNameNode().getOffset()) {
-					idx = addPosition(group, document, getPosition(allInUnit[i]), idx);
+			final int regionOffset= fRegion.getOffset();
+			for (int i= 0; i < current; i++) {
+				if (regionOffset <= allAccess.get(i).getNameNode().getOffset()) {
+					idx= addPosition(group, document, getPosition(allAccess.get(i)), idx);
 				}
 			}
 		}

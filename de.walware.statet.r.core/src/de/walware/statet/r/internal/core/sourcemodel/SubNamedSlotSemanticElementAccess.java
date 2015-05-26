@@ -11,50 +11,40 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
-import de.walware.ecommons.collections.ImList;
-
-import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
-import de.walware.statet.r.core.rsource.ast.SubIndexed;
 
 
-final class SubIndexedSElementAccess extends SubAbstractElementAccess {
+final class SubNamedSlotSemanticElementAccess extends SubAbstractElementAccess {
 	
 	
-	final SubIndexed fNode;
+	private final RAstNode nameNode;
 	
 	
-	SubIndexedSElementAccess(final ElementAccess root, final SubIndexed node) {
+	SubNamedSlotSemanticElementAccess(final ElementAccess root, final RAstNode nameNode) {
 		super(root);
-		fNode = node;
+		this.nameNode= nameNode;
 	}
 	
 	
 	@Override
 	public final int getType() {
-		return RElementName.SUB_INDEXED_S;
+		return RElementName.SUB_NAMEDSLOT;
 	}
 	
 	@Override
 	public final String getSegmentName() {
-		return null;
+		return this.nameNode.getText();
 	}
 	
 	@Override
 	public final RAstNode getNode() {
-		return fNode;
+		return getRoot().getNode(); // ?
 	}
 	
 	@Override
 	public final RAstNode getNameNode() {
-		return null;
-	}
-	
-	
-	@Override
-	public final ImList<? extends RElementAccess> getAllInUnit(final boolean includeSlaves) {
-		return null;
+		return this.nameNode;
 	}
 	
 }

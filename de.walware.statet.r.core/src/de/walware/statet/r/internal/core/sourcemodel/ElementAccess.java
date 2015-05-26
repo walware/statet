@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
+import de.walware.ecommons.collections.ImList;
+
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.RElementAccess;
@@ -111,7 +113,7 @@ public abstract class ElementAccess extends RElementAccess {
 	
 	@Override
 	public final String getSegmentName() {
-		return fShared.name;
+		return fShared.getName();
 	}
 	
 	@Override
@@ -132,8 +134,8 @@ public abstract class ElementAccess extends RElementAccess {
 	}
 	
 	@Override
-	public final RElementAccess[] getAllInUnit() {
-		return fShared.entries.toArray(new RElementAccess[fShared.entries.size()]);
+	public final ImList<? extends RElementAccess> getAllInUnit(final boolean includeSlaves) {
+		return fShared.getAll(includeSlaves);
 	}
 	
 	@Override
@@ -180,10 +182,10 @@ public abstract class ElementAccess extends RElementAccess {
 			return;
 		}
 		SubAbstractElementAccess parent = fNextSegment;
-		while (parent.fNextSub != null) {
-			parent = parent.fNextSub;
+		while (parent.nextSegment != null) {
+			parent = parent.nextSegment;
 		}
-		parent.fNextSub = newSub;
+		parent.nextSegment = newSub;
 	}
 	
 }

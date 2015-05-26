@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
+import de.walware.ecommons.collections.ImList;
+
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
@@ -24,7 +26,7 @@ final class SubIndexedDElementAccess extends SubAbstractElementAccess {
 	
 	
 	SubIndexedDElementAccess(final ElementAccess root, final SubIndexed node) {
-		fRoot = root;
+		super(root);
 		fNode = node;
 	}
 	
@@ -51,7 +53,7 @@ final class SubIndexedDElementAccess extends SubAbstractElementAccess {
 	
 	
 	@Override
-	public final RElementAccess[] getAllInUnit() {
+	public final ImList<? extends RElementAccess> getAllInUnit(final boolean includeSlaves) {
 		return null;
 	}
 	

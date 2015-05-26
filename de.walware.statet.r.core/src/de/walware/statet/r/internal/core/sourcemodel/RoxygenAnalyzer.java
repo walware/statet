@@ -25,9 +25,7 @@ import de.walware.statet.r.core.rsource.ast.DocuTag;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
-import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAccess.RClass;
-import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAccess.RMethod;
-import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAccess.RVariable;
+import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAccess.DocuCommentableElement;
 
 
 public class RoxygenAnalyzer implements IModelElement.Filter {
@@ -92,39 +90,22 @@ public class RoxygenAnalyzer implements IModelElement.Filter {
 		if (fNextComment == null) {
 			return true;
 		}
-		final int offset = rElement.getSourceRange().getOffset();
+		final int offset= rElement.getSourceRange().getOffset();
 		while (fNextCommentRefOffset < offset) {
 			checkElement(null);
 			nextDocuComment();
 		}
 		if (fNextCommentRefOffset == offset) {
-			if (rElement instanceof RClass) {
-				final RClass rClass = (RClass) rElement;
-				final RDocuLink link = new RDocuLink(rClass, fNextComment);
+			if (rElement instanceof DocuCommentableElement) {
+				final RDocuLink link= new RDocuLink(rElement, fNextComment);
 				fNextComment.addAttachment(link);
-				rClass.fDocu = fNextComment;
-				checkElement(rClass);
-				nextDocuComment();
-			}
-			else if (rElement instanceof RMethod) {
-				final RMethod rMethod = (RMethod) rElement;
-				final RDocuLink link = new RDocuLink(rMethod, fNextComment);
-				fNextComment.addAttachment(link);
-				rMethod.fDocu = fNextComment;
-				checkElement(rMethod);
-				nextDocuComment();
-			}
-			else if (rElement instanceof RVariable) {
-				final RVariable rVariable = (RVariable) rElement;
-				final RDocuLink link = new RDocuLink(rVariable, fNextComment);
-				fNextComment.addAttachment(link);
-				rVariable.fDocu = fNextComment;
-				checkElement(rVariable);
+				((DocuCommentableElement) rElement).setDocu(fNextComment);
+				checkElement(rElement);
 				nextDocuComment();
 			}
 		}
 		
-		if (fNextCommentRefOffset < offset+rElement.getSourceRange().getLength()) {
+		if (fNextCommentRefOffset < offset + rElement.getSourceRange().getLength()) {
 			return rElement.hasSourceChildren(this);
 		}
 		return false;

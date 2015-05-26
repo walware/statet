@@ -19,12 +19,12 @@ import de.walware.statet.r.core.rsource.ast.SubNamed;
 final class SubNamedPartSyntacticElementAccess extends SubAbstractElementAccess {
 	
 	
-	final SubNamed fNode;
+	private final SubNamed node;
 	
 	
 	SubNamedPartSyntacticElementAccess(final ElementAccess root, final SubNamed node) {
-		fRoot = root;
-		fNode = node;
+		super(root);
+		this.node= node;
 	}
 	
 	
@@ -35,17 +35,17 @@ final class SubNamedPartSyntacticElementAccess extends SubAbstractElementAccess 
 	
 	@Override
 	public final String getSegmentName() {
-		return fNode.getSubnameChild().getText();
+		return this.node.getSubnameChild().getText();
 	}
 	
 	@Override
 	public final RAstNode getNode() {
-		return fNode;
+		return this.node;
 	}
 	
 	@Override
 	public final RAstNode getNameNode() {
-		return fNode.getSubnameChild();
+		return this.node.getSubnameChild();
 	}
 	
 }
