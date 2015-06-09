@@ -510,7 +510,7 @@ class RweaveTexTool implements IProcess {
 		}
 		catch (final CoreException e) {
 			return new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, -1,
-					Messages.RweaveTexProcessing_Tex_error_OutputDir_message, null );
+					Messages.RweaveTexProcessing_Tex_error_OutputDir_message, e );
 		}
 		this.fTexPathConfig= new TexPathConfig(this.fTexFile, outputDir, this.fOutputFormat);
 		
