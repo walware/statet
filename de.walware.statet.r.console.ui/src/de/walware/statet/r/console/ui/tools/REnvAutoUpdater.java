@@ -126,7 +126,7 @@ public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRun
 					}
 					if (hasNonBasePackages(rPkgManager.getExtRPkgSet())) {
 						handleNewVersion(rConfig, r.getTool(), rPkgManager,
-								rVersion, checkedVersion);
+								checkedVersion, rVersion );
 					}
 				}
 			}
