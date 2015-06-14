@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.internal.debug.ui.breakpoints;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -45,6 +48,10 @@ public class BreakpointMarkerUpdater implements IMarkerUpdater {
 		IMarker.CHAR_START,
 		IMarker.CHAR_END,
 	};
+	
+	
+	public BreakpointMarkerUpdater() {
+	}
 	
 	
 	@Override
@@ -117,29 +124,39 @@ public class BreakpointMarkerUpdater implements IMarkerUpdater {
 	private boolean updateBasic(final IMarker marker,
 			final IDocument document, final Position position) {
 		boolean offsetsInitialized = false;
-		boolean offsetsChanged = false;
-		final int markerStart = MarkerUtilities.getCharStart(marker);
-		final int markerEnd = MarkerUtilities.getCharEnd(marker);
+		final int markerStart= MarkerUtilities.getCharStart(marker);
+		final int markerEnd= MarkerUtilities.getCharEnd(marker);
+		
+		final Map<String, Object> attributes= new IdentityHashMap<>(4);
 		if (markerStart != -1 && markerEnd != -1) {
 			offsetsInitialized = true;
 			
 			int offset= position.getOffset();
 			if (markerStart != offset) {
-				MarkerUtilities.setCharStart(marker, offset);
-				offsetsChanged = true;
+				attributes.put(IMarker.CHAR_START, Integer.valueOf(offset));
 			}
 			
 			offset += position.getLength();
 			if (markerEnd != offset) {
-				MarkerUtilities.setCharEnd(marker, offset);
+				attributes.put(IMarker.CHAR_END, Integer.valueOf(offset));
 			}
 		}
 		
-		if (!offsetsInitialized || (offsetsChanged && MarkerUtilities.getLineNumber(marker) != -1)) {
+		if (!offsetsInitialized || (!attributes.isEmpty() && MarkerUtilities.getLineNumber(marker) != -1)) {
 			try {
 				// marker line numbers are 1-based
-				MarkerUtilities.setLineNumber(marker, document.getLineOfOffset(position.getOffset()) + 1);
+				attributes.put(IMarker.LINE_NUMBER, Integer.valueOf(
+						document.getLineOfOffset(position.getOffset()) + 1 ));
 			} catch (final BadLocationException x) {}
+		}
+		
+		if (!attributes.isEmpty()) {
+			try {
+				marker.setAttributes(attributes);
+			}
+			catch (final CoreException e) {
+				StatusManager.getManager().handle(e.getStatus());
+			}
 		}
 		
 		return true;
