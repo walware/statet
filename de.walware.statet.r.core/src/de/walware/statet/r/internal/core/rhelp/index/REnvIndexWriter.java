@@ -333,24 +333,27 @@ public class REnvIndexWriter implements IREnvIndex {
 					}
 				}
 			}
-			final String[] s= new String[] { html, null };
-			{	if (extract(s, "<h3 id=\"examples\"")) { //$NON-NLS-1$
+			{	final String[] s= new String[] { html, null };
+				if (extract(s, "<h3 id=\"examples\"")) { //$NON-NLS-1$
 					item.examplesTxt= html2txt(s[1]);
 				}
+				item.mainTxt= html2txt(s[0]);
 			}
-			item.mainTxt= html2txt(s[0]);
 		}
 		
 		private boolean extract(final String[] s, final String h3) {
 			final String html= s[0];
 			final int idx0= html.indexOf(h3);
 			if (idx0 >= 0) {
-				int idxBegin= html.indexOf('>', idx0+h3.length());
+				int idxBegin= html.indexOf('>', idx0 + h3.length());
 				if (idxBegin >= 0) {
 					idxBegin= html.indexOf("</h3>", idxBegin+1); //$NON-NLS-1$
 					if (idxBegin >= 0) {
 						idxBegin += 5;
-						final int idxEnd= html.indexOf("<h3", idxBegin); //$NON-NLS-1$
+						int idxEnd= html.indexOf("<h3", idxBegin); //$NON-NLS-1$
+						if (idxEnd < 0) {
+							idxEnd= html.indexOf("<hr");
+						}
 						if (idxEnd >= 0) {
 							this.tempBuilder.setLength(0);
 							this.tempBuilder.append(html, 0, idx0);
