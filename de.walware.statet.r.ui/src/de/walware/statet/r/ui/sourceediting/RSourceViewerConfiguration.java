@@ -43,7 +43,6 @@ import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistComputerRegi
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistProcessor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverDescriptor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverRegistry;
-import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverRegistry.EffectiveHovers;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.QuickAssistProcessor;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.text.ICharPairMatcher;
@@ -291,8 +290,18 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	}
 	
 	@Override
+	protected boolean isInfoHoverDefaultContentType(final String contentType) {
+		return IRDocumentConstants.R_CODE_CONTENT_CONSTRAINT.matches(contentType);
+	}
+	
+	@Override
 	protected InfoHoverRegistry getInfoHoverRegistry() {
 		return RUIPlugin.getDefault().getREditorInfoHoverRegistry();
+	}
+	
+	@Override
+	protected ITextHover createInfoHover(final InfoHoverDescriptor descriptor) {
+		return new REditorTextHover(descriptor, this);
 	}
 	
 	@Override
@@ -300,18 +309,6 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		final ISourceEditor editor = getSourceEditor();
 		if (editor != null) {
 			return new REditorInformationProvider(editor);
-		}
-		return null;
-	}
-	
-	@Override
-	public ITextHover getTextHover(final ISourceViewer sourceViewer, final String contentType, final int stateMask) {
-		final EffectiveHovers effectiveHovers = getEffectiveHovers();
-		if (effectiveHovers != null) {
-			final InfoHoverDescriptor descriptor = effectiveHovers.getDescriptor(stateMask);
-			if (descriptor != null) {
-				return new REditorTextHover(descriptor, this);
-			}
 		}
 		return null;
 	}
