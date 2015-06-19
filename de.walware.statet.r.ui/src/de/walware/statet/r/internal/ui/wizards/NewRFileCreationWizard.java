@@ -32,7 +32,6 @@ import de.walware.statet.ext.ui.wizards.NewElementWizard;
 import de.walware.statet.r.codegeneration.CodeGeneration;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
-import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.RUI;
 
@@ -48,10 +47,11 @@ public class NewRFileCreationWizard extends NewElementWizard {
 		
 		@Override
 		protected String getInitialFileContent(final IFile newFileHandle,
-				final SubMonitor progress) {
+				final SubMonitor m) {
 			final String lineDelimiter = TextUtil.getLineDelimiter(newFileHandle.getProject());
 			final IRSourceUnit su= (IRSourceUnit) LTK.getSourceUnitManager().getSourceUnit(
-					RModel.R_TYPE_ID, LTK.PERSISTENCE_CONTEXT, newFileHandle, true, progress );
+					LTK.PERSISTENCE_CONTEXT, newFileHandle, getContentType(newFileHandle),
+					true, m );
 			try {
 				final EvaluatedTemplate data = CodeGeneration.getNewRFileContent(su, lineDelimiter);
 				if (data != null) {
@@ -64,7 +64,7 @@ public class NewRFileCreationWizard extends NewElementWizard {
 			}
 			finally {
 				if (su != null) {
-					su.disconnect(progress);
+					su.disconnect(m);
 				}
 			}
 			return null;

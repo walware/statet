@@ -95,8 +95,9 @@ public class LaunchShortcutUtil {
 					buffer.append(readBuffer, 0, n);
 				}
 				
+				final IContentType contentType= IDE.getContentType(file);
 				final ICodeSubmitContentHandler handler = RCodeLaunching.getCodeSubmitContentHandler(
-						LaunchShortcutUtil.getContentTypeId(file));
+						(contentType != null) ? contentType.getId() : null );
 				
 				final Document document= new Document(buffer.toString());
 				handler.setup(document);

@@ -37,6 +37,7 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ltk.ISourceUnitManager;
 import de.walware.ecommons.ltk.LTK;
 
 import de.walware.statet.r.core.IRProject;
@@ -45,7 +46,6 @@ import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
-import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.internal.core.Messages;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.sourcemodel.RModelManager;
@@ -63,6 +63,8 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 		}
 	}
 	
+	
+	private final ISourceUnitManager suManager= LTK.getSourceUnitManager();
 	
 	private final List<String> fRemovedRSU = new ArrayList<>();
 	private final ArrayList<IRWorkspaceSourceUnit> fToUpdateRSU = new ArrayList<>();
@@ -125,8 +127,11 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 					}
 					if (RCore.R_CONTENT_ID.equals(contentType.getId())) {
 						clearMarkers(resource);
-						final IRWorkspaceSourceUnit su = (IRWorkspaceSourceUnit) LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, file, true, null);
-						fToUpdateRSU.add(su);
+						final IRWorkspaceSourceUnit su= (IRWorkspaceSourceUnit) this.suManager.getSourceUnit(
+								LTK.PERSISTENCE_CONTEXT, file, contentType, true, null );
+						if (su != null) {
+							fToUpdateRSU.add(su);
+						}
 						return true;
 					}
 					if (RCore.RD_CONTENT_ID.equals(contentType.getId())) {
@@ -201,7 +206,8 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 				}
 				if (RCore.R_CONTENT_ID.equals(contentType.getId())) {
 					clearMarkers(resource);
-					final IRWorkspaceSourceUnit su = (IRWorkspaceSourceUnit) LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, file, true, null);
+					final IRWorkspaceSourceUnit su= (IRWorkspaceSourceUnit) this.suManager.getSourceUnit(
+							LTK.PERSISTENCE_CONTEXT, file, contentType, true, null );
 					if (su != null) {
 						fToUpdateRSU.add(su);
 					}

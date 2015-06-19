@@ -534,8 +534,8 @@ public class RElementSearchProcessor {
 				}
 				else {
 					try {
-						final ISourceUnit editUnit= suManager.getSourceUnit(sourceUnit.getModelTypeId(),
-								LTK.EDITOR_CONTEXT, sourceUnit, true, progress.newChild(1) );
+						final ISourceUnit editUnit= suManager.getSourceUnit(
+								LTK.EDITOR_CONTEXT, sourceUnit, null, true, progress.newChild(1) );
 						if (editUnit != null) {
 							sourceUnits.set(i, editUnit);
 						}

@@ -40,6 +40,7 @@ import org.eclipse.debug.core.IBreakpointManagerListener;
 import org.eclipse.debug.core.IBreakpointsListener;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.jface.text.AbstractDocument;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ISynchronizable;
 import org.eclipse.osgi.util.NLS;
@@ -47,7 +48,6 @@ import org.eclipse.osgi.util.NLS;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
-import de.walware.ecommons.ltk.core.model.IWorkspaceSourceUnit;
 import de.walware.ecommons.text.IMarkerPositionResolver;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
@@ -290,7 +290,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 					
 					if (newPackages != null) {
 						final IBreakpoint[] breakpoints = fBreakpointManager.getBreakpoints(RDebugModel.IDENTIFIER);
-						final Map<IProject, IRProject> rProjects = new HashMap<IProject, IRProject>();
+						final Map<IProject, IRProject> rProjects = new HashMap<>();
 						for (int i = 0; i < breakpoints.length; i++) {
 							if (breakpoints[i] instanceof IRLineBreakpoint) {
 								final IRLineBreakpoint lineBreakpoint = (IRLineBreakpoint) breakpoints[i];
@@ -369,43 +369,54 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 		try {
 			if (srcref instanceof IAdaptable) {
 				final IMarker marker = (IMarker) ((IAdaptable) srcref).getAdapter(IMarker.class);
-				final ISourceUnit su = srcref.getFile();
-				if (marker != null && su instanceof IWorkspaceSourceUnit
-						&& marker.getResource() == su.getResource() ) {
-					final List<IRLineBreakpoint> breakpoints = RDebugModel.getRLineBreakpoints(
-							(IFile) su.getResource() );
-					if (breakpoints.isEmpty()) {
-						return false;
-					}
-					final IMarkerPositionResolver resolver = ((IWorkspaceSourceUnit) su).getMarkerPositionResolver();
-					synchronized ((resolver != null && resolver.getDocument() instanceof ISynchronizable) ? ((ISynchronizable) resolver.getDocument()).getLockObject() : new Object()) {
-						final int lineNumber = getLineNumber(marker, resolver);
-						if (lineNumber < 0) {
-							return false;
-						}
-						for (final IRLineBreakpoint breakpoint : breakpoints) {
-							try {
-								if (isScriptBreakpoint(breakpoint)
-										&& ((resolver != null) ? resolver.getLine(breakpoint.getMarker()) : breakpoint.getLineNumber()) == lineNumber ) {
-									return breakpoint.isEnabled();
-								}
-							}
-							catch (final CoreException e) {
-								RDebugCorePlugin.log(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, 0,
-										"An error occurred when checking breakpoints.", e));
-							}
-							
-						}
-					}
+				final ISourceUnit su= srcref.getFile();
+				if (marker != null && su instanceof IRWorkspaceSourceUnit
+						&& marker.getResource() == su.getResource()) {
+					return doMatchScriptBreakpoint(srcref,
+							(IRWorkspaceSourceUnit) su, marker,
+							monitor );
 				}
 			}
+			return false;
 		}
 		catch (final Exception e) {
 			RDebugCorePlugin.log(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, 0,
 					"An error occurred when looking for script breakpoints.", e));
+			return false;
 		}
-		return false;
 	}
+	
+	private boolean doMatchScriptBreakpoint(final IRModelSrcref srcref,
+			final IRWorkspaceSourceUnit rSourceUnit, final IMarker marker,
+			final IProgressMonitor monitor) throws CoreException {
+		final List<IRLineBreakpoint> breakpoints = RDebugModel.getRLineBreakpoints(
+				(IFile) rSourceUnit.getResource() );
+		if (breakpoints.isEmpty()) {
+			return false;
+		}
+		final IMarkerPositionResolver resolver= rSourceUnit.getMarkerPositionResolver();
+		synchronized ((resolver != null && resolver.getDocument() instanceof ISynchronizable) ? ((ISynchronizable) resolver.getDocument()).getLockObject() : new Object()) {
+			final int lineNumber = getLineNumber(marker, resolver);
+			if (lineNumber < 0) {
+				return false;
+			}
+			for (final IRLineBreakpoint breakpoint : breakpoints) {
+				try {
+					if (isScriptBreakpoint(breakpoint)
+							&& ((resolver != null) ? resolver.getLine(breakpoint.getMarker()) : breakpoint.getLineNumber()) == lineNumber ) {
+						return breakpoint.isEnabled();
+					}
+				}
+				catch (final CoreException e) {
+					RDebugCorePlugin.log(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, 0,
+							"An error occurred when checking breakpoints.", e));
+				}
+				
+			}
+			return false;
+		}
+	}
+	
 	
 	/** Call in R thread */
 	@Override
@@ -413,127 +424,137 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 			final IRModelSrcref srcref,
 			final IProgressMonitor monitor) {
 		try {
-			if (!(srcref.getFile() instanceof IRWorkspaceSourceUnit)) {
-				return null;
+			final ISourceUnit su= srcref.getFile();
+			if (su instanceof IRWorkspaceSourceUnit) {
+				return doGetElementTracepoints(srcfile, srcref,
+						(IRWorkspaceSourceUnit) su,
+						monitor );
 			}
-			final IRWorkspaceSourceUnit workspaceSu = (IRWorkspaceSourceUnit) srcref.getFile();
-			final IResource resource = workspaceSu.getResource();
-			if (!resource.exists() || resource.getType() != IResource.FILE) {
-				return null;
-			}
-			List<? extends IRLangSourceElement> elements = srcref.getElements();
-			if (elements.isEmpty()) {
-				return null;
-			}
-			final int modCounter = fPositionModCounter.get();
-			final List<IRLineBreakpoint> breakpoints = RDebugModel.getRLineBreakpoints(
-					(IFile) resource );
-			if (breakpoints.isEmpty()) {
-				return null;
-			}
-			
-			workspaceSu.connect(monitor);
-			try {
-				final AbstractDocument document = workspaceSu.getDocument(monitor);
-				synchronized ((document instanceof ISynchronizable) ? ((ISynchronizable) document).getLockObject() : new Object()) {
-					final IRModelInfo modelInfo = (IRModelInfo) workspaceSu.getModelInfo(
-							RModel.TYPE_ID, IRModelManager.MODEL_FILE, monitor );
-					if (elements.get(0).getSourceParent() != modelInfo.getSourceElement()) {
-						final List<? extends IRLangSourceElement> orgElements = elements;
-						elements = modelInfo.getSourceElement().getSourceChildren(new IModelElement.Filter() {
-							@Override
-							public boolean include(final IModelElement element) {
-								return orgElements.contains(element);
-//									return map.containsKey(element.getId());
-							}
-						});
-					}
-					if (elements.isEmpty()) {
-						return null;
-					}
-					final IMarkerPositionResolver resolver = ((IWorkspaceSourceUnit) workspaceSu)
-							.getMarkerPositionResolver();
-					final int[] lines = new int[elements.size()*2];
-					for (int i = 0, j = 0; i < elements.size(); i++, j+=2) {
-						final IRegion region = elements.get(i).getSourceRange();
-						lines[j] = document.getLineOfOffset(region.getOffset()) + 1;
-						lines[j+1] = document.getLineOfOffset(region.getOffset()+region.getLength()) + 1;
-					}
-					HashMap<String, Element> map = null;
-					List<String> cleanup = null;
-					for (final IRLineBreakpoint breakpoint : breakpoints) {
-						try {
-							if (isElementBreakpoint(breakpoint)) {
-								final IMarker marker = breakpoint.getMarker();
-								final int breakpointLineNumber = (resolver != null) ?
-										resolver.getLine(breakpoint.getMarker()) :
-										breakpoint.getLineNumber();
-								for (int j = 0; j < lines.length; j+=2) {
-									if (lines[j] <= breakpointLineNumber && lines[j+1] >= breakpointLineNumber) {
-										final RLineBreakpointValidator validator = (resolver != null) ?
-												new RLineBreakpointValidator(workspaceSu,
-												breakpoint.getBreakpointType(),
-												resolver.getPosition(marker).getOffset(),
-												monitor ) :
-												new RLineBreakpointValidator(workspaceSu,
-														breakpoint, monitor );
-										final String elementId;
-										if (validator.getType() == breakpoint.getBreakpointType()
-												&& (elementId = validator.computeElementId()) != null
-												&& elements.contains(validator.getBaseElement()) ) {
-											if (map == null) {
-												map = new HashMap<String, Element>(elements.size());
-											}
-											final BreakpointData breakpointData = (BreakpointData) breakpoint.getTargetData(fDebugTarget);
-											if (breakpointData != null && breakpointData.installed != null
-													&& !elementId.equals(breakpointData.installed.getElementId()) ) {
-												if (cleanup == null) {
-													cleanup = new ArrayList<String>();
-												}
-												if (!cleanup.contains(breakpointData.installed.getElementId())) {
-													cleanup.add(breakpointData.installed.getElementId());
-												}
-											}
-											addBreakpoint(map, srcfile, resource, elementId,
-													breakpoint, validator, modCounter );
-										}
-										break;
-									}
-								}
-							}
-						}
-						catch (final CoreException e) {
-							RDebugCorePlugin.log(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, 0,
-									"An error occurred when checking breakpoint.", e));
-						}
-					}
-					if (cleanup != null) {
-						cleanup.removeAll(map.keySet());
-						if (!cleanup.isEmpty()) {
-							synchronized (fPositionUpdatesLock) {
-								for (int i = 0; i < cleanup.size(); i++) {
-									fPositionUpdatesElements.add(
-											new UpdateData(resource, cleanup.get(i)));
-								}
-							}
-						}
-					}
-					if (map != null) {
-						final ArrayList<Element> list = new ArrayList<>(map.size());
-						addElements(list, map, false);
-						if (!list.isEmpty()) {
-							return new ElementTracepointInstallationRequest(list);
-						}
-					}
-				}
-			}
-			finally {
-				workspaceSu.disconnect(monitor);
-			}
+			return null;
 		}
 		catch (final Exception e) {
 			RDebugCorePlugin.log(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, 0,
 					"An error occurred when looking for script list.", e));
+			return null;
+		}
+	}
+	
+	private ElementTracepointInstallationRequest doGetElementTracepoints(final SrcfileData srcfile,
+			final IRModelSrcref srcref,
+			final IRWorkspaceSourceUnit rSourceUnit,
+			final IProgressMonitor monitor) throws CoreException, BadLocationException {
+		if (rSourceUnit.getResource().getType() != IResource.FILE
+				|| !rSourceUnit.getResource().exists()) {
+			return null;
+		}
+		
+		List<? extends IRLangSourceElement> elements = srcref.getElements();
+		if (elements.isEmpty()) {
+			return null;
+		}
+		final int modCounter = fPositionModCounter.get();
+		final List<IRLineBreakpoint> breakpoints = RDebugModel.getRLineBreakpoints(
+				(IFile) rSourceUnit.getResource() );
+		if (breakpoints.isEmpty()) {
+			return null;
+		}
+		
+		rSourceUnit.connect(monitor);
+		try {
+			final AbstractDocument document = rSourceUnit.getDocument(monitor);
+			synchronized ((document instanceof ISynchronizable) ? ((ISynchronizable) document).getLockObject() : new Object()) {
+				final IRModelInfo modelInfo= (IRModelInfo) rSourceUnit.getModelInfo(
+						RModel.R_TYPE_ID, IRModelManager.MODEL_FILE, monitor );
+				if (elements.get(0).getSourceParent() != modelInfo.getSourceElement()) {
+					final List<? extends IRLangSourceElement> orgElements = elements;
+					elements = modelInfo.getSourceElement().getSourceChildren(new IModelElement.Filter() {
+						@Override
+						public boolean include(final IModelElement element) {
+							return orgElements.contains(element);
+//									return map.containsKey(element.getId());
+						}
+					});
+				}
+				if (elements.isEmpty()) {
+					return null;
+				}
+				final IMarkerPositionResolver resolver = rSourceUnit.getMarkerPositionResolver();
+				final int[] lines = new int[elements.size()*2];
+				for (int i = 0, j = 0; i < elements.size(); i++, j+=2) {
+					final IRegion region = elements.get(i).getSourceRange();
+					lines[j] = document.getLineOfOffset(region.getOffset()) + 1;
+					lines[j+1] = document.getLineOfOffset(region.getOffset()+region.getLength()) + 1;
+				}
+				HashMap<String, Element> map = null;
+				List<String> cleanup = null;
+				for (final IRLineBreakpoint breakpoint : breakpoints) {
+					try {
+						if (isElementBreakpoint(breakpoint)) {
+							final IMarker marker = breakpoint.getMarker();
+							final int breakpointLineNumber = (resolver != null) ?
+									resolver.getLine(breakpoint.getMarker()) :
+									breakpoint.getLineNumber();
+							for (int j = 0; j < lines.length; j+=2) {
+								if (lines[j] <= breakpointLineNumber && lines[j+1] >= breakpointLineNumber) {
+									final RLineBreakpointValidator validator = (resolver != null) ?
+											new RLineBreakpointValidator(rSourceUnit,
+													breakpoint.getBreakpointType(),
+													resolver.getPosition(marker).getOffset(),
+													monitor ) :
+											new RLineBreakpointValidator(rSourceUnit,
+													breakpoint, monitor );
+									final String elementId;
+									if (validator.getType() == breakpoint.getBreakpointType()
+											&& (elementId = validator.computeElementId()) != null
+											&& elements.contains(validator.getBaseElement()) ) {
+										if (map == null) {
+											map = new HashMap<>(elements.size());
+										}
+										final BreakpointData breakpointData = (BreakpointData) breakpoint.getTargetData(fDebugTarget);
+										if (breakpointData != null && breakpointData.installed != null
+												&& !elementId.equals(breakpointData.installed.getElementId()) ) {
+											if (cleanup == null) {
+												cleanup = new ArrayList<>();
+											}
+											if (!cleanup.contains(breakpointData.installed.getElementId())) {
+												cleanup.add(breakpointData.installed.getElementId());
+											}
+										}
+										addBreakpoint(map, srcfile, rSourceUnit.getResource(),
+												elementId, breakpoint, validator, modCounter );
+									}
+									break;
+								}
+							}
+						}
+					}
+					catch (final CoreException e) {
+						RDebugCorePlugin.log(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, 0,
+								"An error occurred when checking breakpoint.", e));
+					}
+				}
+				if (cleanup != null) {
+					cleanup.removeAll(map.keySet());
+					if (!cleanup.isEmpty()) {
+						synchronized (fPositionUpdatesLock) {
+							for (int i = 0; i < cleanup.size(); i++) {
+								fPositionUpdatesElements.add(
+										new UpdateData(rSourceUnit.getResource(), cleanup.get(i)));
+							}
+						}
+					}
+				}
+				if (map != null) {
+					final ArrayList<Element> list = new ArrayList<>(map.size());
+					addElements(list, map, false);
+					if (!list.isEmpty()) {
+						return new ElementTracepointInstallationRequest(list);
+					}
+				}
+			}
+		}
+		finally {
+			rSourceUnit.disconnect(monitor);
 		}
 		return null;
 	}
@@ -543,56 +564,63 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 			final IRSourceUnit su,
 			final IProgressMonitor monitor) {
 		try {
-			if (!(su instanceof IRWorkspaceSourceUnit)) {
-				return null;
+			if (su instanceof IRWorkspaceSourceUnit) {
+				return doPrepareFileElementTracepoints(srcfile, (IRWorkspaceSourceUnit) su, monitor);
 			}
-			final IRWorkspaceSourceUnit workspaceSu = (IRWorkspaceSourceUnit) su;
-			final IResource resource = workspaceSu.getResource();
-			if (!resource.exists() || resource.getType() != IResource.FILE) {
-				return null;
-			}
-			final int modeCounter = fPositionModCounter.get();
-			final List<IRLineBreakpoint> breakpoints = RDebugModel.getRLineBreakpoints(
-					(IFile) resource );
-			if (breakpoints.isEmpty()) {
-				return null;
-			}
-			Map<String, Element> map = null;
-			for (final IRLineBreakpoint breakpoint : breakpoints) {
-				try {
-					if (isElementBreakpoint(breakpoint)) {
-						final RLineBreakpointValidator validator = new RLineBreakpointValidator(
-								workspaceSu, breakpoint, monitor );
-						final String elementId;
-						if (validator.getType() == breakpoint.getBreakpointType()
-								&& (elementId = validator.computeElementId()) != null ) {
-//									|| (((elementId = validator.computeElementId()) != null) ?
-//											!elementId.equals(breakpoint.getElementId()) :
-//											null != breakpoint.getElementId() )) {
-							if (map == null) {
-								map = new HashMap<String, Element>(breakpoints.size());
-							}
-							addBreakpoint(map, srcfile, resource, elementId, breakpoint, validator,
-									modeCounter );
-						}
-					}
-				}
-				catch (final CoreException e) {
-					RDebugCorePlugin.log(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, 0,
-							"An error occurred when checking breakpoint.", e));
-				}
-			}
-			if (map != null) {
-				final ArrayList<Element> list = new ArrayList<>(map.size());
-				addElements(list, map, false);
-				if (!list.isEmpty()) {
-					return new ElementTracepointInstallationRequest(list);
-				}
-			}
+			return null;
 		}
 		catch (final Exception e) {
 			RDebugCorePlugin.log(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, 0,
 					"An error occurred when looking for line breakpoints.", e));
+			return null;
+		}
+	}
+	
+	private ElementTracepointInstallationRequest doPrepareFileElementTracepoints(final SrcfileData srcfile,
+			final IRWorkspaceSourceUnit rSourceUnit,
+			final IProgressMonitor monitor) throws CoreException {
+		if (rSourceUnit.getResource().getType() != IResource.FILE
+				|| !rSourceUnit.getResource().exists()) {
+			return null;
+		}
+		
+		final int modeCounter = fPositionModCounter.get();
+		final List<IRLineBreakpoint> breakpoints = RDebugModel.getRLineBreakpoints(
+				(IFile) rSourceUnit.getResource() );
+		if (breakpoints.isEmpty()) {
+			return null;
+		}
+		Map<String, Element> map = null;
+		for (final IRLineBreakpoint breakpoint : breakpoints) {
+			try {
+				if (isElementBreakpoint(breakpoint)) {
+					final RLineBreakpointValidator validator = new RLineBreakpointValidator(
+							rSourceUnit, breakpoint, monitor );
+					final String elementId;
+					if (validator.getType() == breakpoint.getBreakpointType()
+							&& (elementId = validator.computeElementId()) != null ) {
+//									|| (((elementId = validator.computeElementId()) != null) ?
+//											!elementId.equals(breakpoint.getElementId()) :
+//											null != breakpoint.getElementId() )) {
+						if (map == null) {
+							map = new HashMap<>(breakpoints.size());
+						}
+						addBreakpoint(map, srcfile, rSourceUnit.getResource(), elementId,
+								breakpoint, validator, modeCounter );
+					}
+				}
+			}
+			catch (final CoreException e) {
+				RDebugCorePlugin.log(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, 0,
+						"An error occurred when checking breakpoint.", e));
+			}
+		}
+		if (map != null) {
+			final ArrayList<Element> list = new ArrayList<>(map.size());
+			addElements(list, map, false);
+			if (!list.isEmpty()) {
+				return new ElementTracepointInstallationRequest(list);
+			}
 		}
 		return null;
 	}
@@ -637,7 +665,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 					if (breakpointData != null && breakpointData.installed != null) {
 						Map<String, Element> map = resourceMap.get(breakpointData.installed.getResource());
 						if (map == null) {
-							map = new HashMap<String, Element>();
+							map = new HashMap<>();
 							resourceMap.put(breakpointData.installed.getResource(), map);
 						}
 						map.put(breakpointData.installed.getElementId(), null);
@@ -675,65 +703,24 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 			try {
 				final SrcfileData srcfile = RDbg.createRJSrcfileData(resource);
 				if (resource.exists() && resource.getType() == IResource.FILE) {
-					final IRWorkspaceSourceUnit workspaceSu = (IRWorkspaceSourceUnit) LTK.getSourceUnitManager()
-							.getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, resource, true,
-									monitor );
-					final int modCounter = fPositionModCounter.get();
-					final List<IRLineBreakpoint> breakpoints = RDebugModel.getRLineBreakpoints(
-							(IFile) resource );
-					for (final IRLineBreakpoint lineBreakpoint : breakpoints) {
-						if (contains(breakpointsToUpdate, lineBreakpoint)) {
-							try {
-								if (lineBreakpoint.isEnabled() && isElementBreakpoint(lineBreakpoint)) {
-									final RLineBreakpointValidator validator = new RLineBreakpointValidator(
-											workspaceSu,
-											lineBreakpoint.getBreakpointType(), lineBreakpoint.getCharStart(),
-											monitor );
-									final String elementId;
-									if (validator.getType() == lineBreakpoint.getBreakpointType()
-											&& (elementId = validator.computeElementId()) != null ) {
-										addBreakpoint(map, srcfile, resource, elementId, lineBreakpoint, validator,
-												modCounter );
-									}
-								}
-							}
-							catch (final CoreException e) {
-								logPrepareError(e, lineBreakpoint);
+					final ISourceUnit su= LTK.getSourceUnitManager().getSourceUnit(
+							LTK.PERSISTENCE_CONTEXT, resource, null, true, monitor );
+					if (su != null) {
+						try {
+							if (su instanceof IRWorkspaceSourceUnit) {
+								doGetPendingElementPositions(srcfile, (IRWorkspaceSourceUnit) su,
+										breakpointsToUpdate, map, monitor);
+								continue;
 							}
 						}
-					}
-					for (final IRLineBreakpoint lineBreakpoint : breakpoints) {
-						if (!contains(breakpointsToUpdate, lineBreakpoint)) {
-							try {
-								if (lineBreakpoint.isEnabled() && isElementBreakpoint(lineBreakpoint)) {
-									final RLineBreakpointValidator validator = new RLineBreakpointValidator(
-											workspaceSu,
-											lineBreakpoint.getBreakpointType(), lineBreakpoint.getCharStart(),
-											monitor );
-									final String elementId;
-									if (validator.getType() == lineBreakpoint.getBreakpointType()
-											&& (elementId = validator.computeElementId()) != null
-											&& map.containsKey(elementId) ) {
-										addBreakpoint(map, srcfile, resource, elementId, lineBreakpoint, validator,
-												modCounter );
-									}
-								}
-							}
-							catch (final CoreException e) {
-								logPrepareError(e, lineBreakpoint);
-							}
-						}
-					}
-					for (final Entry<String, Element> elementEntry : map.entrySet()) {
-						if (elementEntry.getValue() == null) {
-							addClear(map, srcfile, resource, elementEntry.getKey());
+						finally {
+							su.disconnect(monitor);
 						}
 					}
 				}
-				else {
-					for (final String elementId : map.keySet()) {
-						addClear(map, srcfile, resource, elementId);
-					}
+				
+				for (final String elementId : map.keySet()) {
+					addClear(map, srcfile, resource, elementId);
 				}
 			}
 			catch (final CoreException e) {
@@ -752,6 +739,62 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 			return list;
 		}
 		return null;
+	}
+	
+	private void doGetPendingElementPositions(final SrcfileData srcfile, final IRWorkspaceSourceUnit rSourceUnit,
+			final IRBreakpoint[] breakpointsToUpdate, final Map<String, Element> map,
+			final IProgressMonitor monitor) throws CoreException {
+		final int modCounter = fPositionModCounter.get();
+		final List<IRLineBreakpoint> breakpoints = RDebugModel.getRLineBreakpoints(
+				(IFile) rSourceUnit.getResource() );
+		for (final IRLineBreakpoint lineBreakpoint : breakpoints) {
+			if (contains(breakpointsToUpdate, lineBreakpoint)) {
+				try {
+					if (lineBreakpoint.isEnabled() && isElementBreakpoint(lineBreakpoint)) {
+						final RLineBreakpointValidator validator = new RLineBreakpointValidator(
+								rSourceUnit,
+								lineBreakpoint.getBreakpointType(), lineBreakpoint.getCharStart(),
+								monitor );
+						final String elementId;
+						if (validator.getType() == lineBreakpoint.getBreakpointType()
+								&& (elementId = validator.computeElementId()) != null ) {
+							addBreakpoint(map, srcfile, rSourceUnit.getResource(), elementId,
+									lineBreakpoint, validator, modCounter );
+						}
+					}
+				}
+				catch (final CoreException e) {
+					logPrepareError(e, lineBreakpoint);
+				}
+			}
+		}
+		for (final IRLineBreakpoint lineBreakpoint : breakpoints) {
+			if (!contains(breakpointsToUpdate, lineBreakpoint)) {
+				try {
+					if (lineBreakpoint.isEnabled() && isElementBreakpoint(lineBreakpoint)) {
+						final RLineBreakpointValidator validator = new RLineBreakpointValidator(
+								rSourceUnit,
+								lineBreakpoint.getBreakpointType(), lineBreakpoint.getCharStart(),
+								monitor );
+						final String elementId;
+						if (validator.getType() == lineBreakpoint.getBreakpointType()
+								&& (elementId = validator.computeElementId()) != null
+								&& map.containsKey(elementId) ) {
+							addBreakpoint(map, srcfile, rSourceUnit.getResource(), elementId,
+									lineBreakpoint, validator, modCounter );
+						}
+					}
+				}
+				catch (final CoreException e) {
+					logPrepareError(e, lineBreakpoint);
+				}
+			}
+		}
+		for (final Entry<String, Element> elementEntry : map.entrySet()) {
+			if (elementEntry.getValue() == null) {
+				addClear(map, srcfile, rSourceUnit.getResource(), elementEntry.getKey());
+			}
+		}
 	}
 	
 	private void logPrepareError(final CoreException e, final IRLineBreakpoint breakpoint) {
@@ -1091,7 +1134,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 		synchronized (fStateUpdatesLock) {
 			List<TracepointState> list = fStateUpdatesMap.get(resource);
 			if (list == null) {
-				list = new ArrayList<TracepointState>(8);
+				list = new ArrayList<>(8);
 				fStateUpdatesMap.put(resource, list);
 			}
 			String filePath;

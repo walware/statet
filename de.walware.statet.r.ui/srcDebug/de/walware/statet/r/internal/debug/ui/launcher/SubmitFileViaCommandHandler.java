@@ -34,7 +34,6 @@ import org.eclipse.ui.menus.UIElement;
 
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ltk.LTK;
-import de.walware.ecommons.ltk.core.IModelTypeDescriptor;
 import de.walware.ecommons.ltk.core.model.ISourceElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
@@ -144,12 +143,8 @@ public class SubmitFileViaCommandHandler extends AbstractHandler implements IEle
 				}
 			}
 			else if (su == null && file != null) {
-				final IModelTypeDescriptor modelType = LTK.getExtContentTypeManager()
-						.getModelTypeForContentType(LaunchShortcutUtil.getContentTypeId(file) );
-				if (modelType != null) {
-					su = LTK.getSourceUnitManager().getSourceUnit(modelType.getId(),
-							LTK.PERSISTENCE_CONTEXT, file, true, null );
-				}
+				su = LTK.getSourceUnitManager().getSourceUnit(
+						LTK.PERSISTENCE_CONTEXT, file, null, true, null );
 			}
 			if (file != null && uri == null) {
 				uri = file.getLocationURI();

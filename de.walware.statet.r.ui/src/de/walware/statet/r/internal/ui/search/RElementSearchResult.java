@@ -12,7 +12,6 @@
 package de.walware.statet.r.internal.ui.search;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
@@ -20,7 +19,6 @@ import org.eclipse.search.ui.text.IEditorMatchAdapter;
 import org.eclipse.search.ui.text.IFileMatchAdapter;
 import org.eclipse.search.ui.text.Match;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.ide.IDE;
 
 import de.walware.ecommons.ltk.IExtContentTypeManager;
 import de.walware.ecommons.ltk.LTK;
@@ -123,18 +121,19 @@ public class RElementSearchResult extends ExtTextSearchResult<IRSourceUnit, REle
 	@Override
 	public Match[] computeContainedMatches(final AbstractTextSearchResult result,
 			final IFile file) {
-		final IContentType contentType= IDE.guessContentType(file);
-		if (contentType != null) {
-			final IExtContentTypeManager typeManager= LTK.getExtContentTypeManager();
-			final IModelTypeDescriptor modelType= typeManager.getModelTypeForContentType(contentType.getId());
-			if (modelType != null && (modelType.getId() == RModel.TYPE_ID
-					|| modelType.getSecondaryTypeIds().contains(RModel.TYPE_ID) )) {
-				final ISourceUnit su= LTK.getSourceUnitManager().getSourceUnit(modelType.getId(),
-						LTK.PERSISTENCE_CONTEXT, file, false, null);
-				if (su != null) {
-					su.disconnect(null);
+		final ISourceUnit su= LTK.getSourceUnitManager().getSourceUnit(LTK.PERSISTENCE_CONTEXT, file,
+				null, false, null );
+		if (su != null) {
+			try {
+				final IExtContentTypeManager typeManager= LTK.getExtContentTypeManager();
+				final IModelTypeDescriptor modelType= typeManager.getModelType(su.getModelTypeId());
+				if (modelType != null && (modelType.getId() == RModel.R_TYPE_ID
+						|| modelType.getSecondaryTypeIds().contains(RModel.R_TYPE_ID) )) {
 					return getMatches(su);
 				}
+			}
+			finally {
+				su.disconnect(null);
 			}
 		}
 		return getComparator().getMatch0();

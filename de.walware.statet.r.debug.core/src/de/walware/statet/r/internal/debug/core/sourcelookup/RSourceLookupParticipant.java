@@ -40,6 +40,7 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ltk.IModelManager;
+import de.walware.ecommons.ltk.ISourceUnitManager;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
@@ -52,6 +53,7 @@ import de.walware.statet.r.console.core.RDbg;
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRModelInfo;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.Block;
 import de.walware.statet.r.core.rsource.ast.FDef;
@@ -593,6 +595,18 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 		return null;
 	}
 	
+	private IRSourceUnit getSourceUnit(final RSourceLookupMatch match, final IProgressMonitor monitor) {
+		final ISourceUnitManager suManager= LTK.getSourceUnitManager();
+		ISourceUnit su= suManager.getSourceUnit(
+				LTK.PERSISTENCE_CONTEXT, match.sourceElement, null, true, monitor );
+		final ISourceUnit editorSu= LTK.getSourceUnitManager().getSourceUnit(
+				LTK.EDITOR_CONTEXT, (su != null) ? su : match.sourceElement, null, true, monitor );
+		if (editorSu != null) {
+			su= editorSu;
+		}
+		return (IRSourceUnit) ((su instanceof IRSourceUnit) ? su : null);
+	}
+	
 	protected int checkPosition(final LookupData data, final RSourceLookupMatch match) {
 		final IProgressMonitor monitor= new NullProgressMonitor();
 		try {
@@ -602,18 +616,8 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 			match.charEnd= -1;
 			match.lineNumber= -1;
 			
-			ISourceUnit su= null;
+			ISourceUnit su= getSourceUnit(match, monitor);
 			ISourceUnit fragmentSu= null;
-			try {
-				su= LTK.getSourceUnitManager().getSourceUnit(RModel.R_TYPE_ID,
-						LTK.PERSISTENCE_CONTEXT, match.sourceElement, true, monitor);
-			} catch (final Exception e) {}
-			{	final ISourceUnit editorSu= LTK.getSourceUnitManager().getSourceUnit(RModel.R_TYPE_ID,
-					LTK.EDITOR_CONTEXT, (su != null) ? su : match.sourceElement, true, monitor);
-				if (editorSu != null) {
-					su= editorSu;
-				}
-			}
 			if (su != null) {
 				try {
 					final AbstractDocument suDocument= su.getDocument(monitor);

@@ -304,7 +304,7 @@ public class RLineBreakpointValidator {
 	
 	private IRModelInfo getModelInfo(final IProgressMonitor monitor) {
 		if (fModelInfo == null) {
-			fModelInfo = (IRModelInfo) fSourceUnit.getModelInfo(RModel.TYPE_ID,
+			fModelInfo = (IRModelInfo) fSourceUnit.getModelInfo(RModel.R_TYPE_ID,
 					IModelManager.MODEL_FILE, monitor );
 		}
 		return fModelInfo;
@@ -317,6 +317,11 @@ public class RLineBreakpointValidator {
 	
 	private IRLangSourceElement searchMethodElement(final int offset, final IProgressMonitor monitor)
 			throws BadLocationException {
+		final IRModelInfo modelInfo= getModelInfo(monitor);
+		if (modelInfo == null) {
+			return null;
+		}
+		
 		final IRegion lineInformation = fDocument.getLineInformationOfOffset(offset);
 		final RHeuristicTokenScanner scanner= RHeuristicTokenScanner.create(
 				fSourceUnit.getDocumentContentInfo() );
@@ -329,7 +334,8 @@ public class RLineBreakpointValidator {
 			charStart = offset;
 		}
 		ISourceStructElement element = LTKUtil.getCoveringSourceElement(
-				getModelInfo(monitor).getSourceElement(), charStart, charStart );
+				modelInfo.getSourceElement(), charStart, charStart );
+		
 		while (element != null) {
 			if (element instanceof IRLangSourceElement
 					&& (element.getElementType() & IModelElement.MASK_C1) == IModelElement.C1_METHOD) {
@@ -341,12 +347,17 @@ public class RLineBreakpointValidator {
 	}
 	
 	private RAstNode searchSuspendAstNode(final int offset, final IProgressMonitor monitor) {
-		final IAstNode astNode = AstSelection.search(getModelInfo(monitor).getAst().root,
+		final IRModelInfo modelInfo= getModelInfo(monitor);
+		if (modelInfo == null) {
+			return null;
+		}
+		
+		final IAstNode astNode = AstSelection.search(modelInfo.getAst().root,
 				offset, offset, AstSelection.MODE_COVERING_SAME_FIRST).getCovering();
 		if (astNode instanceof RAstNode) {
 			RAstNode rNode = (RAstNode) astNode;
 			if (rNode.getOffset() < offset) {
-				final AtomicReference<RAstNode> ref = new AtomicReference<RAstNode>();
+				final AtomicReference<RAstNode> ref = new AtomicReference<>();
 				try {
 					rNode.acceptInR(new GenericVisitor() {
 						@Override

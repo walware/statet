@@ -32,9 +32,9 @@ import org.eclipse.ui.texteditor.MarkerUtilities;
 
 import de.walware.ecommons.ltk.ISourceUnitManager;
 import de.walware.ecommons.ltk.LTK;
+import de.walware.ecommons.ltk.core.model.ISourceUnit;
 
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
-import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.debug.core.breakpoints.IRLineBreakpoint;
 import de.walware.statet.r.debug.core.breakpoints.RLineBreakpointValidator;
 import de.walware.statet.r.ui.RUI;
@@ -88,37 +88,38 @@ public class BreakpointMarkerUpdater implements IMarkerUpdater {
 			final IDocument document, final Position position) {
 		final IProgressMonitor monitor = new NullProgressMonitor();
 		final ISourceUnitManager suManager = LTK.getSourceUnitManager();
-		IRWorkspaceSourceUnit su = (IRWorkspaceSourceUnit) suManager.getSourceUnit(RModel.TYPE_ID,
-				LTK.PERSISTENCE_CONTEXT, marker.getResource(), true, monitor);
-		if (su == null) {
-			return false;
-		}
-		try {
-			su = (IRWorkspaceSourceUnit) suManager.getSourceUnit(RModel.TYPE_ID,
-					LTK.EDITOR_CONTEXT, su, true, monitor);
-			assert (su.getDocument(null) == document);
-			
-			final RLineBreakpointValidator validator = new RLineBreakpointValidator(su,
-					breakpoint.getBreakpointType(), position.getOffset(), monitor );
-			if (validator.getType() == null) {
-//				// TODO search method ?
-//				if (breakpoint.getElementType() != IRLineBreakpoint.R_TOPLEVEL_COMMAND_ELEMENT_TYPE) {
-//				}
+		ISourceUnit su= suManager.getSourceUnit(LTK.PERSISTENCE_CONTEXT, marker.getResource(),
+				null, true, monitor );
+		if (su != null) {
+			try {
+				su = suManager.getSourceUnit(LTK.EDITOR_CONTEXT, su, null, true, monitor);
+				assert (su.getDocument(null) == document);
+				
+				if (su instanceof IRWorkspaceSourceUnit) {
+					final IRWorkspaceSourceUnit rSourceUnit= (IRWorkspaceSourceUnit) su;
+					final RLineBreakpointValidator validator = new RLineBreakpointValidator(rSourceUnit,
+							breakpoint.getBreakpointType(), position.getOffset(), monitor );
+					if (validator.getType() != null) {
+						validator.updateBreakpoint(breakpoint);
+						return true;
+					}
+	//				// TODO search method ?
+	//				if (breakpoint.getElementType() != IRLineBreakpoint.R_TOPLEVEL_COMMAND_ELEMENT_TYPE) {
+	//				}
+				}
 				return false;
 			}
-			
-			validator.updateBreakpoint(breakpoint);
-			return true;
+			catch (final CoreException e) {
+				StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, 0,
+						NLS.bind("An error occurred when updating an R line breakpoint in ''{0}''.",
+								su.getElementName().getDisplayName() ), e ));
+				return false;
+			}
+			finally {
+				su.disconnect(monitor);
+			}
 		}
-		catch (final CoreException e) {
-			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, 0,
-					NLS.bind("An error occurred when updating an R line breakpoint in ''{0}''.",
-							su.getElementName().getDisplayName() ), e ));
-			return false;
-		}
-		finally {
-			su.disconnect(monitor);
-		}
+		return false;
 	}
 	
 	private boolean updateBasic(final IMarker marker,
