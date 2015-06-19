@@ -78,12 +78,6 @@
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
-            class="de.walware.statet.r.ui.editors.RDocumentSetupParticipant"
-            contentTypeId="de.walware.statet.r.contentTypes.R"/>
-   </extension>
-   <extension
-         point="org.eclipse.core.filebuffers.documentSetup">
-      <participant
             class="de.walware.statet.r.ui.editors.RdDocumentSetupParticipant"
             contentTypeId="de.walware.statet.r.contentTypes.Rd"/>
    </extension>

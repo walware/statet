@@ -9,15 +9,13 @@
  #     Stephan Wahlbrink - initial API and implementation
  #=============================================================================*/
 
-package de.walware.statet.r.ui.text.r;
+package de.walware.statet.r.core.source;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 
 import de.walware.ecommons.text.core.treepartitioner.AbstractPartitionNodeType;
 import de.walware.ecommons.text.core.treepartitioner.ITreePartitionNode;
-
-import de.walware.statet.r.core.source.IRDocumentConstants;
 
 
 public abstract class RPartitionNodeType extends AbstractPartitionNodeType {

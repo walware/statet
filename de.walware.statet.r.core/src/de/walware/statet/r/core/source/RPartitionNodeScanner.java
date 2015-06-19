@@ -9,7 +9,7 @@
  #     Stephan Wahlbrink - initial API and implementation
  #=============================================================================*/
 
-package de.walware.statet.r.ui.text.r;
+package de.walware.statet.r.core.source;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;

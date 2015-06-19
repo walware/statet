@@ -9,15 +9,12 @@
  #     Stephan Wahlbrink - initial API and implementation
  #=============================================================================*/
 
-package de.walware.statet.r.ui.editors;
+package de.walware.statet.r.core.source;
 
 import org.eclipse.jface.text.IDocumentPartitioner;
 
 import de.walware.ecommons.text.PartitionerDocumentSetupParticipant;
 import de.walware.ecommons.text.core.treepartitioner.TreePartitioner;
-
-import de.walware.statet.r.core.source.IRDocumentConstants;
-import de.walware.statet.r.ui.text.r.RPartitionNodeScanner;
 
 
 /**

@@ -27,7 +27,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.FragmentDocumentProvider;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
 import de.walware.statet.r.core.model.RModel;
-import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
+import de.walware.statet.r.core.source.RDocumentSetupParticipant;
 
 
 public class RFragmentDocumentProvider extends FragmentDocumentProvider {

@@ -27,8 +27,8 @@ import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.source.RDocumentSetupParticipant;
 import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
-import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
 import de.walware.statet.r.ui.editors.REditorOptions;
 
 

@@ -31,11 +31,11 @@ import de.walware.ecommons.text.core.treepartitioner.TreePartitioner;
 import de.walware.statet.base.ui.sourceeditors.ExtEditorTemplatesPage;
 
 import de.walware.statet.r.core.source.IRDocumentConstants;
+import de.walware.statet.r.core.source.RPartitionNodeType;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.templates.REditorContext;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
 import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
-import de.walware.statet.r.ui.text.r.RPartitionNodeType;
 
 
 /**

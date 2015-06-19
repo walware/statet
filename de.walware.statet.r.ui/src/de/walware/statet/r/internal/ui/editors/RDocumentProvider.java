@@ -32,7 +32,7 @@ import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
-import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
+import de.walware.statet.r.core.source.RDocumentSetupParticipant;
 import de.walware.statet.r.ui.editors.REditorBuild;
 
 

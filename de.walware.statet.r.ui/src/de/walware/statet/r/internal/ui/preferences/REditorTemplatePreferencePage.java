@@ -19,10 +19,10 @@ import de.walware.ecommons.ltk.ui.templates.AbstractTemplatePreferencePage;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.text.core.treepartitioner.TreePartitioner;
 
+import de.walware.statet.r.core.source.RPartitionNodeType;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
 import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
-import de.walware.statet.r.ui.text.r.RPartitionNodeType;
 
 
 public class REditorTemplatePreferencePage extends AbstractTemplatePreferencePage {

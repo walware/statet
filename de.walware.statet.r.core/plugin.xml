@@ -142,6 +142,13 @@
    </extension-->
    
    <extension
+         point="org.eclipse.core.filebuffers.documentSetup">
+      <participant
+            class="de.walware.statet.r.core.source.RDocumentSetupParticipant"
+            contentTypeId="de.walware.statet.r.contentTypes.R"/>
+   </extension>
+   
+   <extension
          point="org.eclipse.ltk.core.refactoring.deleteParticipants">
       <deleteParticipant
             id="de.walware.statet.r.refactoring.RModelDeleteParticipant"
