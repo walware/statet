@@ -83,6 +83,7 @@ import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.debug.core.IRDebugTarget;
 import de.walware.statet.r.debug.core.RDebugModel;
 import de.walware.statet.r.debug.core.breakpoints.IRBreakpoint;
+import de.walware.statet.r.debug.core.breakpoints.IRBreakpoint.ITargetData;
 import de.walware.statet.r.debug.core.breakpoints.IRLineBreakpoint;
 import de.walware.statet.r.debug.core.breakpoints.IRMethodBreakpoint;
 import de.walware.statet.r.debug.core.breakpoints.RLineBreakpointValidator;
@@ -230,6 +231,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
+			boolean checkInstalled= (fController.getHotTasksState() <= 1);
 			if (!fInitialized) {
 				final IBreakpoint[] breakpoints = fBreakpointManager.getBreakpoints(
 						RDebugModel.IDENTIFIER );
@@ -263,14 +265,16 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 				}
 				finally {
 					fInitialized = true;
+					checkInstalled= false;
 					checkUpdates();
 				}
 			}
 			try {
+				List<String> newPackages = null;
+				
 				final List<? extends ICombinedREnvironment> environments = fController.getWorkspaceData().getRSearchEnvironments();
 				if (environments != null) {
 					final List<String> packages = new ArrayList<>(environments.size() - 1);
-					List<String> newPackages = null;
 					for (final ICombinedREnvironment environment : environments) {
 						if (environment.getSpecialType() == REnvironment.ENVTYPE_PACKAGE) {
 							final String pkgName = environment.getElementName().getSegmentName();
@@ -287,29 +291,45 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 						newPackages = packages;
 					}
 					fKnownPackages = packages;
-					
-					if (newPackages != null) {
-						final IBreakpoint[] breakpoints = fBreakpointManager.getBreakpoints(RDebugModel.IDENTIFIER);
-						final Map<IProject, IRProject> rProjects = new HashMap<>();
-						for (int i = 0; i < breakpoints.length; i++) {
-							if (breakpoints[i] instanceof IRLineBreakpoint) {
-								final IRLineBreakpoint lineBreakpoint = (IRLineBreakpoint) breakpoints[i];
-								final IMarker marker = lineBreakpoint.getMarker();
-								if (marker == null) {
+				}
+				
+				if (newPackages != null || checkInstalled) {
+					final IBreakpoint[] breakpoints = fBreakpointManager.getBreakpoints(RDebugModel.IDENTIFIER);
+					Map<String, IRProject> rProjects= null;
+					for (int i = 0; i < breakpoints.length; i++) {
+						if (breakpoints[i] instanceof IRLineBreakpoint) {
+							final IRLineBreakpoint lineBreakpoint = (IRLineBreakpoint) breakpoints[i];
+							final IMarker marker = lineBreakpoint.getMarker();
+							if (marker == null) {
+								continue;
+							}
+							
+							if (checkInstalled) {
+								final ITargetData targetData= lineBreakpoint.getTargetData(fDebugTarget);
+								if (targetData != null && targetData.isInstalled()) {
+									schedulePositionUpdate(lineBreakpoint);
 									continue;
 								}
+							}
+							
+							if (newPackages != null) {
 								final IProject project = marker.getResource().getProject();
-								IRProject rProject = rProjects.get(project);
+								if (rProjects == null) {
+									rProjects= new HashMap<>();
+								}
+								IRProject rProject= rProjects.get(project.getName());
 								if (rProject == null) {
-									rProject = RProjects.getRProject(project);
+									rProject= RProjects.getRProject(project);
 									if (rProject == null) {
 										continue; // ?
 									}
-									rProjects.put(project, rProject);
+									rProjects.put(project.getName(), rProject);
 								}
+								
 								final String pkgName = rProject.getPackageName();
 								if (newPackages.contains(pkgName)) {
 									schedulePositionUpdate(lineBreakpoint);
+									continue;
 								}
 							}
 						}
