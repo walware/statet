@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
 
-import de.walware.statet.r.core.model.IRModelManager;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvManager;
@@ -72,13 +71,6 @@ public class RCore {
 	 */
 	public static IREnvManager getREnvManager() {
 		return RCorePlugin.getDefault().getREnvManager();
-	}
-	
-	/**
-	 * @return the manager for the R model
-	 */
-	public static IRModelManager getRModelManager() {
-		return RCorePlugin.getDefault().getRModelManager();
 	}
 	
 	public static IRPkgManager getRPkgManager(final IREnv env) {

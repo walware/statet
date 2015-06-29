@@ -14,8 +14,6 @@ package de.walware.statet.r.core.model;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.core.impl.SourceUnitModelContainer;
 
-import de.walware.statet.r.core.RCore;
-
 
 public class RSuModelContainer extends SourceUnitModelContainer<IRSourceUnit, IRModelInfo> {
 	
@@ -37,7 +35,7 @@ public class RSuModelContainer extends SourceUnitModelContainer<IRSourceUnit, IR
 	
 	@Override
 	protected IModelManager getModelManager() {
-		return RCore.getRModelManager();
+		return RModel.getRModelManager();
 	}
 	
 }

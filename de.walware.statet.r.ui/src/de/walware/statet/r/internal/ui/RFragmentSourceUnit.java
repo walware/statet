@@ -66,13 +66,13 @@ public class RFragmentSourceUnit extends GenericFragmentSourceUnit2<RSuModelCont
 	@Override
 	protected void register() {
 		super.register();
-		RCore.getRModelManager().registerDependentUnit(this);
+		RModel.getRModelManager().registerDependentUnit(this);
 	}
 	
 	@Override
 	protected void unregister() {
 		super.unregister();
-		RCore.getRModelManager().deregisterDependentUnit(this);
+		RModel.getRModelManager().deregisterDependentUnit(this);
 	}
 	
 	

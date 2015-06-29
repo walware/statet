@@ -127,10 +127,13 @@ public class RModelManager extends AbstractModelManager implements IRModelManage
 	}
 	
 	@Override
-	public IRModelInfo reconcile(final IRSourceUnit su, final ISourceUnitModelInfo modelInfo,
+	public IRModelInfo reconcile(final IRSourceUnit sourceUnit, final ISourceUnitModelInfo modelInfo,
 			final List<? extends RChunkElement> chunks, final List<? extends SourceComponent> inlineNodes,
 			final int level, final IProgressMonitor monitor) {
-		return fReconciler.reconcile(su, modelInfo, chunks, inlineNodes, level, monitor);
+		if (sourceUnit == null) {
+			throw new NullPointerException("sourceUnit"); //$NON-NLS-1$
+		}
+		return fReconciler.reconcile(sourceUnit, modelInfo, chunks, inlineNodes, level, monitor);
 	}
 	
 	

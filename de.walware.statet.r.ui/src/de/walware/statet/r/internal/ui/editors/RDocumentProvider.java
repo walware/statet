@@ -30,7 +30,6 @@ import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier;
 import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
 
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
@@ -108,7 +107,7 @@ public class RDocumentProvider extends SourceDocumentProvider<IRSourceUnit> impl
 		if (fHandleTemporaryProblems != newHandleTemporaryProblems) {
 			fHandleTemporaryProblems = newHandleTemporaryProblems;
 			if (fHandleTemporaryProblems) {
-				RCore.getRModelManager().refresh(LTK.EDITOR_CONTEXT);
+				RModel.getRModelManager().refresh(LTK.EDITOR_CONTEXT);
 			}
 			else {
 				final List<? extends ISourceUnit> sus = LTK.getSourceUnitManager().getOpenSourceUnits(

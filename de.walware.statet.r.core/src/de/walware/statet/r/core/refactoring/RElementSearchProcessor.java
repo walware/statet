@@ -516,7 +516,7 @@ public class RElementSearchProcessor {
 	private List<ISourceUnit> loadSus(final IRProject project, final List<List<ISourceUnit>> projectsSus,
 			final boolean force, final SubMonitor progress) throws CoreException {
 		final ISourceUnitManager suManager= LTK.getSourceUnitManager(); 
-		List<ISourceUnit> sourceUnits= RCore.getRModelManager().findReferencingSourceUnits(
+		List<ISourceUnit> sourceUnits= RModel.getRModelManager().findReferencingSourceUnits(
 				project, this.mainName, progress.newChild(10) );
 		if (sourceUnits == null && force) {
 			sourceUnits= new ArrayList<>(1);

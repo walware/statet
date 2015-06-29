@@ -20,25 +20,48 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
 import de.walware.ecommons.ltk.core.model.ISourceElement;
+import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.core.model.IWorkspaceSourceUnit;
 
 import de.walware.statet.r.core.IRProject;
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.FilteredFrame;
+import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.RProject;
 
 
 /**
  * R LTK model
  */
-public class RModel {
+public final class RModel {
 	
 	
 	public static final String R_TYPE_ID= "R"; //$NON-NLS-1$
 	@Deprecated
 	public static final String TYPE_ID= R_TYPE_ID;
+	
+	
+	/**
+	 * @return the manager for the R model
+	 */
+	public static IRModelManager getRModelManager() {
+		return RCorePlugin.getDefault().getRModelManager();
+	}
+	
+	public static IRModelInfo getRModelInfo(final ISourceUnitModelInfo modelInfo) {
+		if (modelInfo != null) {
+			if (modelInfo instanceof IRModelInfo) {
+				return (IRModelInfo) modelInfo;
+			}
+			for (final Object aAttachment : modelInfo.getAttachments()) {
+				if (aAttachment instanceof IRModelInfo) {
+					return (IRModelInfo) aAttachment;
+				}
+			}
+		}
+		return null;
+	}
 	
 	
 	public static IRFrameInSource searchFrame(RAstNode node) {
@@ -72,7 +95,7 @@ public class RModel {
 	public static List<IRFrame> createProjectFrameList(IRProject project1,
 			final IRSourceUnit exclude, Set<String> packages) throws CoreException {
 		final ArrayList<IRFrame> list= new ArrayList<>();
-		final IRModelManager manager= RCore.getRModelManager();
+		final IRModelManager manager= getRModelManager();
 		if (project1 == null && exclude instanceof IWorkspaceSourceUnit) {
 			project1= RProjects.getRProject(((IWorkspaceSourceUnit) exclude).getResource().getProject());
 		}

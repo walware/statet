@@ -14,7 +14,6 @@ package de.walware.statet.r.internal.ui;
 import de.walware.ecommons.ltk.ui.GenericEditorWorkspaceSourceUnitWorkingCopy2;
 
 import de.walware.statet.r.core.IRCoreAccess;
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RModel;
@@ -45,7 +44,7 @@ public class REditorWorkingCopy
 		super.register();
 		
 		if (!getModelTypeId().equals(RModel.TYPE_ID)) {
-			RCore.getRModelManager().registerDependentUnit(this);
+			RModel.getRModelManager().registerDependentUnit(this);
 		}
 	}
 	
@@ -54,7 +53,7 @@ public class REditorWorkingCopy
 		super.unregister();
 		
 		if (!getModelTypeId().equals(RModel.TYPE_ID)) {
-			RCore.getRModelManager().deregisterDependentUnit(this);
+			RModel.getRModelManager().deregisterDependentUnit(this);
 		}
 	}
 	
