@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.databinding.core.util.UpdateableErrorValidator;
 import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.debug.ui.HelpRequestor;
 import de.walware.ecommons.debug.ui.config.InputArgumentsComposite;
@@ -85,8 +86,8 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		}
 		
 		@Override
-		protected void fillMenu(final Menu menu) {
-			super.fillMenu(menu);
+		protected void fillToolMenu(final Menu menu) {
+			super.fillToolMenu(menu);
 			
 			if (fWithHelp) {
 				fHelpItem = new MenuItem(menu, SWT.PUSH);
@@ -264,8 +265,8 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		fWorkingDirectoryControl.getValidator().setOnEmpty(IStatus.OK);
 		dbc.bindValue(fWorkingDirectoryControl.getObservable(), fWorkingDirectoryValue,
 				new UpdateValueStrategy().setAfterGetValidator(
-						new SavableErrorValidator(fWorkingDirectoryControl.getValidator())),
-				null);
+						new UpdateableErrorValidator(fWorkingDirectoryControl.getValidator())),
+				null );
 		
 		fTypeValue.addValueChangeListener(new IValueChangeListener() {
 			@Override

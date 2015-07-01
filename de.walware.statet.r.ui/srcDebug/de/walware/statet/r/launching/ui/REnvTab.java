@@ -29,6 +29,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
+import de.walware.ecommons.databinding.core.util.UpdateableErrorValidator;
 import de.walware.ecommons.debug.ui.config.LaunchConfigTabWithDbc;
 import de.walware.ecommons.io.FileValidator;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -163,8 +164,8 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		
 		this.rEnvBinding= dbc.bindValue(this.rEnvControl.createObservable(realm), this.rEnvSettingValue,
 				new UpdateValueStrategy().setAfterGetValidator(
-						new SavableErrorValidator(this.rEnvControl.createValidator(dbc))),
-				null);
+						new UpdateableErrorValidator(this.rEnvControl.createValidator(dbc))),
+				null );
 	}
 	
 	@Override

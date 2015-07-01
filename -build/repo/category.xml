@@ -7,6 +7,15 @@
 	<feature id="de.walware.ecommons.e" version="0.0.0">
 		<category name="de.walware.libraries"/>
 	</feature>
+	<bundle id="de.walware.ecommons.databinding.core" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</bundle>
+	<bundle id="de.walware.ecommons.debug.core" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</bundle>
+	<bundle id="de.walware.ecommons.debug.ui" version="0.0.0">
+		<category name="de.walware.libraries"/>
+	</bundle>
 	
 	<feature id="de.walware.rj.core" version="0.0.0">
 		<category name="de.walware.libraries"/>

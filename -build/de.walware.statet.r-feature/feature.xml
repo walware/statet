@@ -2,7 +2,7 @@
 <feature
       id="de.walware.statet.r"
       label="StatET for R"
-      version="3.5.0.qualifier"
+      version="3.5.1.qualifier"
       provider-name="WalWare.de"
       license-feature="de.walware.opensource.license"
       license-feature-version="1.0.0">
@@ -44,13 +44,6 @@
          id="de.walware.ecommons.edb"
          version="0.0.0"/>
 
-   <plugin
-         id="de.walware.ecommons.debug.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-   
    <plugin
          id="de.walware.statet.r"
          download-size="0"

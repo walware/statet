@@ -33,9 +33,9 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 
-import de.walware.ecommons.databinding.ComputedOnChangeValue;
 import de.walware.ecommons.databinding.IntegerValidator;
 import de.walware.ecommons.databinding.NotEmptyValidator;
+import de.walware.ecommons.databinding.core.observable.ComputedOnChangeValue;
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;

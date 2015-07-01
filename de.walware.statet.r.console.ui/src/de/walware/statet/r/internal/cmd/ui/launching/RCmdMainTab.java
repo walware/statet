@@ -57,6 +57,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.AbstractSettingsModelObject;
 import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.databinding.core.util.UpdateableErrorValidator;
 import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.debug.ui.HelpRequestor;
 import de.walware.ecommons.debug.ui.config.InputArgumentsComposite;
@@ -310,7 +311,8 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		this.resourceControl.getValidator().setIgnoreRelative(true);
 		final Binding resourceBinding= dbc.bindValue(this.resourceControl.getObservable(), this.resourceValue,
 				new UpdateValueStrategy().setAfterGetValidator(
-						new SavableErrorValidator(this.resourceControl.getValidator())), null);
+						new UpdateableErrorValidator(this.resourceControl.getValidator())),
+				null );
 		cmdSelection.addValueChangeListener(new IValueChangeListener() {
 			@Override
 			public void handleValueChange(final ValueChangeEvent event) {
@@ -350,8 +352,8 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		this.workingDirectoryControl.getValidator().setOnEmpty(IStatus.OK);
 		dbc.bindValue(this.workingDirectoryControl.getObservable(), this.workingDirectoryValue,
 				new UpdateValueStrategy().setAfterGetValidator(
-						new SavableErrorValidator(this.workingDirectoryControl.getValidator())),
-				null);
+						new UpdateableErrorValidator(this.workingDirectoryControl.getValidator())),
+				null );
 	}
 	
 	
