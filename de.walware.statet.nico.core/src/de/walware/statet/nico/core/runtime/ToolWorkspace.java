@@ -34,7 +34,7 @@ import de.walware.ecommons.collections.ImCollections;
 import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
-import de.walware.ecommons.runtime.core.utils.PathUtils;
+import de.walware.ecommons.runtime.core.util.PathUtils;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;

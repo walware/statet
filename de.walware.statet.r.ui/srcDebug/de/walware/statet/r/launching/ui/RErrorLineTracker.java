@@ -38,7 +38,7 @@ import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
 import de.walware.ecommons.io.FileValidator;
-import de.walware.ecommons.runtime.core.utils.PathUtils;
+import de.walware.ecommons.runtime.core.util.PathUtils;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
