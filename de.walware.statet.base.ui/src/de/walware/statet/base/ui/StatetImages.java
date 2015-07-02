@@ -20,8 +20,6 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 public class StatetImages {
 	// Image files must be registered in StatetUIPlugin
 	
-	public static final String LAUNCHCONFIG_MAIN = StatetUIPlugin.PLUGIN_ID + "/image/obj/launchconfig.main"; //$NON-NLS-1$
-	
 	public static final String OBJ_IMPORT = StatetUIPlugin.PLUGIN_ID + "/image/obj/import"; //$NON-NLS-1$
 	public static final String OBJ_CLASS = StatetUIPlugin.PLUGIN_ID + "/image/obj/class"; //$NON-NLS-1$
 	public static final String OBJ_CLASS_EXT = StatetUIPlugin.PLUGIN_ID + "/image/obj/class_ext"; //$NON-NLS-1$

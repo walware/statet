@@ -111,7 +111,6 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 	@Override
 	protected void initializeImageRegistry(final ImageRegistry reg) {
 		final ImageRegistryUtil util = new ImageRegistryUtil(this);
-		util.register(StatetImages.LAUNCHCONFIG_MAIN, ImageRegistryUtil.T_OBJ, "main_tab.gif"); //$NON-NLS-1$
 		
 		util.register(StatetImages.OBJ_IMPORT, ImageRegistryUtil.T_OBJ, "ltk-import.png"); //$NON-NLS-1$
 		util.register(StatetImages.OBJ_CLASS, ImageRegistryUtil.T_OBJ, "ltk-class.png"); //$NON-NLS-1$

@@ -63,11 +63,10 @@ import de.walware.ecommons.debug.ui.HelpRequestor;
 import de.walware.ecommons.debug.ui.config.InputArgumentsComposite;
 import de.walware.ecommons.debug.ui.config.LaunchConfigTabWithDbc;
 import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
-
-import de.walware.statet.base.ui.StatetImages;
 
 import de.walware.statet.r.cmd.ui.launching.RCmdLaunching;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
@@ -184,7 +183,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	
 	@Override
 	public Image getImage() {
-		return StatetImages.getImage(StatetImages.LAUNCHCONFIG_MAIN);
+		return SharedUIResources.getImages().get(SharedUIResources.OBJ_MAIN_TAB_ID);
 	}
 	
 	@Override
