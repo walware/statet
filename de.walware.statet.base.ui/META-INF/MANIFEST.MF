@@ -11,7 +11,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.eclipse.platform;bundle-version="4.3.0",
  org.eclipse.ui;visibility:=reexport,
  de.walware.statet.base.core;bundle-version="[3.5.0,3.6.0)";visibility:=reexport,
- de.walware.ecommons.uimisc;bundle-version="[1.5.0,1.6.0)";visibility:=reexport,
+ de.walware.ecommons.uimisc;bundle-version="[1.6.0,1.7.0)";visibility:=reexport,
  de.walware.ecommons.ltk.ui;bundle-version="[2.3.0,2.4.0)",
  org.eclipse.core.variables,
  org.eclipse.ui.ide,
