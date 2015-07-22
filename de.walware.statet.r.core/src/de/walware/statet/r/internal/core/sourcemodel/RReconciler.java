@@ -26,7 +26,7 @@ import de.walware.ecommons.ltk.core.impl.SourceModelStamp;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.string.IStringFactory;
 import de.walware.ecommons.string.InternStringCache;
-import de.walware.ecommons.text.core.input.PartialStringParserInput;
+import de.walware.ecommons.text.core.input.OffsetStringParserInput;
 import de.walware.ecommons.text.core.input.StringParserInput;
 import de.walware.ecommons.text.core.input.TextParserInput;
 
@@ -178,7 +178,7 @@ public class RReconciler {
 			
 			final TextParserInput input;
 			if (data.content.getBeginOffset() != 0) {
-				input= new PartialStringParserInput(data.content.getText(), data.content.getBeginOffset());
+				input= new OffsetStringParserInput(data.content.getText(), data.content.getBeginOffset());
 			}
 			else {
 				input= raInput.reset(data.content.getText());

@@ -22,7 +22,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.text.core.input.PartialStringParserInput;
+import de.walware.ecommons.text.core.input.OffsetStringParserInput;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.rsource.ast.FCall;
@@ -126,7 +126,8 @@ public class RContextInformationValidator implements IContextInformationValidato
 				final String text= document.get(fStartOffset, Math.min(0x800, document.getLength() - fStartOffset));
 				final RScanner scanner= new RScanner(AstInfo.LEVEL_MODEL_DEFAULT);
 				fScannedArgs= scanner.scanFCallArgs(
-						new PartialStringParserInput(text, fStartOffset).init(),
+						new OffsetStringParserInput(text, fStartOffset)
+								.init(fStartOffset, fStartOffset + text.length()),
 						true );
 				fScannedArgsStamp = stamp;
 			}
