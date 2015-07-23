@@ -43,7 +43,7 @@ public class RdRCodeParserInput extends FilterParserInput {
 			final int c0= in.get(0);
 			C0: switch (c0) {
 			case EOF:
-				break C0;
+				break ITER_C0;
 			case '\\':
 				switch (in.get(1)) {
 				case 'A':
