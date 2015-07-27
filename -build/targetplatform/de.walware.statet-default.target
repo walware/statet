@@ -5,11 +5,11 @@
 	<locations>
 		<location includeAllPlatforms="false" includeMode="planner" includeConfigurePhase="false" includeSource="false"
 				type="InstallableUnit">
-			<repository location="http://download.eclipse.org/eclipse/updates/4.3"/>
+			<repository location="http://download.eclipse.org/eclipse/updates/4.4"/>
 			<unit id="org.eclipse.platform.feature.group"
-					version="4.3.2.v20140221-1852"/>
+					version="4.4.2.v20150204-1700"/>
 			<unit id="org.eclipse.jdt.feature.group"
-					version="3.9.2.v20140221-1700"/>
+					version="3.10.1.v20150204-1700"/>
 		</location>
 		<location includeAllPlatforms="false" includeMode="planner" includeConfigurePhase="false" includeSource="false"
 				type="InstallableUnit">
