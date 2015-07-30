@@ -30,6 +30,8 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.internal.ui.views.console.ConsoleRemoveAllTerminatedAction;
 import org.eclipse.debug.internal.ui.views.console.ConsoleRemoveLaunchAction;
 import org.eclipse.debug.ui.IDebugUIConstants;
+import org.eclipse.e4.core.contexts.EclipseContextFactory;
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IMenuListener;
@@ -582,11 +584,13 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	
 	
 	private class ConsoleActivationNotifier implements Listener {
+		
 		private ConsoleActivationNotifier() {
 			fControl.addListener(SWT.Activate, this);
+			fControl.addListener(SWT.Deactivate, this);
 			fControl.addListener(SWT.Dispose, this);
 			if (fControl.isVisible()) {
-				NicoUIPlugin.getDefault().getToolRegistry().consoleActivated(fConsoleView, fConsole);
+				activated();
 			}
 		}
 		
@@ -594,13 +598,35 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		public void handleEvent(final Event event) {
 			switch (event.type) {
 			case SWT.Activate:
-				NicoUIPlugin.getDefault().getToolRegistry().consoleActivated(fConsoleView, fConsole);
+				activated();
+				break;
+			case SWT.Deactivate:
+				deactivated();
 				break;
 			case SWT.Dispose:
 				fControl.removeListener(SWT.Activate, this);
 				fControl.removeListener(SWT.Dispose, this);
 				break;
 			}
+		}
+		
+	}
+	
+	private void activated() {
+		NicoUIPlugin.getDefault().getToolRegistry().consoleActivated(fConsoleView, fConsole);
+		
+		// E-Bug 473941
+		final IEclipseContext service= (IEclipseContext) fSite.getService(IEclipseContext.class);
+		if (service != null) {
+			service.activate();
+		}
+	}
+	
+	private void deactivated() {
+		// E-Bug 473941
+		final IEclipseContext service= (IEclipseContext) fSite.getService(IEclipseContext.class);
+		if (service != null) {
+			service.deactivate();
 		}
 	}
 	
