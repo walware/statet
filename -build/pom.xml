@@ -57,6 +57,11 @@
 			<url>${walware.repo.url.base}/3rdparty-commons.pool</url>
 			<layout>p2</layout>
 		</repository>
+		<repository>
+			<id>3rdparty-commons.dbcp</id>
+			<url>${walware.repo.url.base}/3rdparty-commons.dbcp</url>
+			<layout>p2</layout>
+		</repository>
 	</repositories>
 	
 	<build>
