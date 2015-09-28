@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET Base Core
 Bundle-SymbolicName: de.walware.statet.base.core;singleton:=true
-Bundle-Version: 3.5.0.qualifier
+Bundle-Version: 3.5.1.qualifier
 Bundle-Activator: de.walware.statet.base.internal.core.BaseCorePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
@@ -18,7 +18,7 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0";visibility:=reex
  org.eclipse.text;visibility:=reexport,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.debug.core,
- de.walware.ecommons.ltk.core;bundle-version="[2.3.0,2.4.0)",
+ de.walware.ecommons.ltk.core;bundle-version="[2.4.0,2.5.0)",
  com.jcraft.jsch;bundle-version="0.1.41",
  org.eclipse.jsch.core;bundle-version="1.1.400"
 Import-Package: com.ibm.icu.text;version="4.4.2.2",

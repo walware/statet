@@ -13,7 +13,7 @@
 	
 	<groupId>de.walware.statet</groupId>
 	<artifactId>de.walware.statet.nico.core</artifactId>
-	<version>3.5.0-SNAPSHOT</version>
+	<version>3.5.1-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
 	
 </project>
