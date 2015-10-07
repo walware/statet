@@ -80,7 +80,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 		
 		@Override
 		public void visitNode(final RAstNode node) throws InvocationTargetException {
-			if (node.getOffset() >= fStop || node.getStopOffset() < fStart) {
+			if (node.getOffset() >= fStop || node.getEndOffset() < fStart) {
 				return;
 			}
 			final List<Object> attachments= node.getAttachments();
@@ -92,7 +92,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 						continue;
 					}
 					final RAstNode nameNode = access.getNameNode();
-					if (nameNode.getOffset() >= fStart && nameNode.getStopOffset() <= fStop) {
+					if (nameNode.getOffset() >= fStart && nameNode.getEndOffset() <= fStop) {
 						add(access);
 					}
 				}
@@ -271,7 +271,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 					}
 					
 					if (fExpressions != null) {
-						final IRegion region = new Region(fExpressions[0].getOffset(), fExpressions[fExpressions.length-1].getStopOffset()-fExpressions[0].getOffset());
+						final IRegion region = new Region(fExpressions[0].getOffset(), fExpressions[fExpressions.length-1].getEndOffset()-fExpressions[0].getOffset());
 						fOperationRegion = fAdapter.expandSelectionRegion(document, region, fSelectionRegion, scanner);
 					}
 				}
@@ -415,7 +415,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 				startOffset = block.getOffset()+1;
 				stopOffset = block.getBlockCloseOffset();
 				if (stopOffset == Integer.MIN_VALUE) {
-					stopOffset = block.getStopOffset();
+					stopOffset = block.getEndOffset();
 				}
 				lastNode = (block.getChildCount() > 0) ?
 						block.getChild(block.getChildCount()-1) : block.getChild(123);
@@ -423,7 +423,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 			else {
 				startOffset = fExpressions[0].getOffset();
 				lastNode = fExpressions[fExpressions.length-1];
-				stopOffset = lastNode.getStopOffset();
+				stopOffset = lastNode.getEndOffset();
 			}
 			
 			final StringBuilder sb = new StringBuilder();

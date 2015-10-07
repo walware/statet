@@ -55,7 +55,7 @@ public class RMarkOccurrencesLocator {
 			if (info.getAst().root instanceof SourceComponent) {
 				final List<RAstNode> comments = ((SourceComponent) info.getAst().root).getComments();
 				for (final RAstNode comment : comments) {
-					if (comment.getStopOffset() < start) {
+					if (comment.getEndOffset() < start) {
 						continue;
 					}
 					if (comment.getOffset() > stop) {
@@ -65,7 +65,7 @@ public class RMarkOccurrencesLocator {
 						final DocuComment docuComment = (DocuComment) comment;
 						final List<DocuTag> tags = docuComment.getTags();
 						for (final DocuTag tag : tags) {
-							if (tag.getStopOffset() < start) {
+							if (tag.getEndOffset() < start) {
 								continue;
 							}
 							if (tag.getOffset() > stop) {
@@ -113,7 +113,7 @@ public class RMarkOccurrencesLocator {
 			if (nameNode == null) {
 				return null;
 			}
-			if (run.accept(new Point(nameNode.getOffset(), nameNode.getStopOffset()))) {
+			if (run.accept(new Point(nameNode.getOffset(), nameNode.getEndOffset()))) {
 				final ImList<? extends RElementAccess> allAccess= access.getAllInUnit(false);
 				final Map<Annotation, Position> annotations= new LinkedHashMap<>(allAccess.size());
 				for (final RElementAccess aAccess : allAccess) {

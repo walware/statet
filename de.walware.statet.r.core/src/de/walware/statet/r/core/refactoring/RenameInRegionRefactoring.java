@@ -74,7 +74,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 		
 		@Override
 		public void visitNode(final RAstNode node) throws InvocationTargetException {
-			if (node.getOffset() >= fStop || node.getStopOffset() < fStart) {
+			if (node.getOffset() >= fStop || node.getEndOffset() < fStart) {
 				return;
 			}
 			final List<Object> attachments= node.getAttachments();
@@ -86,7 +86,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 					}
 					final RAstNode nameNode = access.getNameNode();
 					if (nameNode != null
-							&& nameNode.getOffset() >= fStart && nameNode.getStopOffset() <= fStop) {
+							&& nameNode.getOffset() >= fStart && nameNode.getEndOffset() <= fStop) {
 						add(access);
 					}
 				}

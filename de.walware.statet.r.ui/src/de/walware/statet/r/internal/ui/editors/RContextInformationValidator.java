@@ -65,7 +65,7 @@ public class RContextInformationValidator implements IContextInformationValidato
 		if (fArgInfo != null) {
 			final Args args = getScannedArgs();
 			if (args != null) {
-				return (offset <= args.getStopOffset());
+				return (offset <= args.getEndOffset());
 			}
 		}
 		return (offset == fStartOffset);

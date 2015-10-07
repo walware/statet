@@ -43,7 +43,7 @@ public class RSourceCodeAdapter extends RRefactoringAdapter {
 			if (element instanceof RChunkElement) {
 				final List<SourceComponent> components = (List<SourceComponent>) element.getAdapter(SourceComponent.class);
 				for (final SourceComponent component : components) {
-					final IRegion range = expandSourceRange(component.getOffset(), component.getStopOffset(), doc, scanner);
+					final IRegion range = expandSourceRange(component.getOffset(), component.getEndOffset(), doc, scanner);
 					if (range != null && range.getLength() > 0) {
 						codeFragments.add(doc.get(range.getOffset(), range.getLength()));
 					}

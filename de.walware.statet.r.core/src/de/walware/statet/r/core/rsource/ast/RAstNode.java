@@ -16,10 +16,8 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import de.walware.ecommons.collections.ImCollections;
-import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.ltk.ast.IAstNode;
-import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
+import de.walware.ecommons.ltk.core.impl.AbstractAstNode;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 
@@ -27,7 +25,8 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  * A node of a R AST
  */
-public abstract class RAstNode implements IAstNode {
+public abstract class RAstNode extends AbstractAstNode
+		implements IAstNode {
 	
 	
 	interface Assoc {
@@ -41,25 +40,19 @@ public abstract class RAstNode implements IAstNode {
 	
 	static final RAstNode[] NO_CHILDREN = new RAstNode[0];
 	
-	private static final ImList<Object> NO_ATTACHMENT= ImCollections.emptyList();
-	
 	
 	RAstNode fRParent;
 	int fStartOffset;
 	int fStopOffset;
 	int fStatus;
 	
-	private ImList<Object> attachments;
-	
 	
 	protected RAstNode() {
 		fStatus = STATUS_OK;
-		this.attachments= NO_ATTACHMENT;
 	}
 	
 	protected RAstNode(final int status) {
 		fStatus = status;
-		this.attachments= NO_ATTACHMENT;
 	}
 	
 	
@@ -72,9 +65,6 @@ public abstract class RAstNode implements IAstNode {
 		return fStatus;
 	}
 	
-	public String getText() {
-		return null;
-	}
 	
 	/**
 	 * @return the parent node, if it is an RAstNode too, otherwise <code>null</code>
@@ -98,16 +88,6 @@ public abstract class RAstNode implements IAstNode {
 	}
 	
 	@Override
-	public final IAstNode getRoot() {
-		IAstNode candidate = this;
-		IAstNode p;
-		while ((p = candidate.getParent()) != null) {
-			candidate = p;
-		}
-		return candidate;
-	}
-	
-	@Override
 	public abstract boolean hasChildren();
 	@Override
 	public abstract int getChildCount();
@@ -124,7 +104,7 @@ public abstract class RAstNode implements IAstNode {
 	}
 	
 	@Override
-	public final int getStopOffset() {
+	public final int getEndOffset() {
 		return fStopOffset;
 	}
 	
@@ -148,11 +128,6 @@ public abstract class RAstNode implements IAstNode {
 		return -1;
 	}
 	
-	
-	@Override
-	public final void accept(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		visitor.visit(this);
-	}
 	
 	public abstract void acceptInR(RAstVisitor visitor) throws InvocationTargetException;
 	
@@ -255,20 +230,5 @@ public abstract class RAstNode implements IAstNode {
 	
 	abstract void updateStopOffset();
 	
-	
-	@Override
-	public synchronized void addAttachment(final Object data) {
-		this.attachments= ImCollections.addElement(this.attachments, data);
-	}
-	
-	@Override
-	public synchronized void removeAttachment(final Object data) {
-		this.attachments= ImCollections.removeElement(this.attachments, data);
-	}
-	
-	@Override
-	public ImList<Object> getAttachments() {
-		return this.attachments;
-	}
 	
 }

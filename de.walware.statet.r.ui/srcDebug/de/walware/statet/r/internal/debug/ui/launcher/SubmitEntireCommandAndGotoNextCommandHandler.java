@@ -63,7 +63,7 @@ public class SubmitEntireCommandAndGotoNextCommandHandler extends SubmitEntireCo
 			}
 			node = parent;
 		}
-		final int line = doc.getLineOfOffset(node.getStopOffset());
+		final int line = doc.getLineOfOffset(node.getEndOffset());
 		if (line+1 < doc.getNumberOfLines()) {
 			return doc.getLineOffset(line+1);
 		}

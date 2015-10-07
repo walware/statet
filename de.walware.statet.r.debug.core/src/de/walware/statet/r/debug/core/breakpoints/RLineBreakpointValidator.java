@@ -369,7 +369,7 @@ public class RLineBreakpointValidator {
 								ref.set(node);
 								return;
 							}
-							if (node.getStopOffset() >= offset) {
+							if (node.getEndOffset() >= offset) {
 								node.acceptInRChildren(this);
 							}
 						}

@@ -154,7 +154,7 @@ public class RDefaultFoldingProvider implements FoldingProvider, NodeFoldingProv
 		@Override
 		public void visit(final Block node) throws InvocationTargetException {
 			if (this.config.enableOtherBlocks) {
-				createRCodeRegion(node.getOffset(), node.getStopOffset());
+				createRCodeRegion(node.getOffset(), node.getEndOffset());
 			}
 			node.acceptInRChildren(this);
 		}
@@ -166,7 +166,7 @@ public class RDefaultFoldingProvider implements FoldingProvider, NodeFoldingProv
 				final RAstNode body= node.getContChild();
 				if (body.getNodeType() == NodeType.BLOCK
 						&& node.getArgsCloseOffset() != Integer.MIN_VALUE) {
-					createRCodeContentRegion(node, node.getArgsCloseOffset(), node.getStopOffset());
+					createRCodeContentRegion(node, node.getArgsCloseOffset(), node.getEndOffset());
 					body.acceptInRChildren(this);
 				}
 				else {
@@ -182,7 +182,7 @@ public class RDefaultFoldingProvider implements FoldingProvider, NodeFoldingProv
 				{
 					final RAstNode body= node.getThenChild();
 					if (body.getNodeType() == NodeType.BLOCK) {
-						createRCodeRegion(node.getCondCloseOffset(), body.getStopOffset());
+						createRCodeRegion(node.getCondCloseOffset(), body.getEndOffset());
 						body.acceptInRChildren(this);
 					}
 					else {
@@ -192,7 +192,7 @@ public class RDefaultFoldingProvider implements FoldingProvider, NodeFoldingProv
 				if (node.hasElse()) {
 					final RAstNode body= node.getElseChild();
 					if (body.getNodeType() == NodeType.BLOCK) {
-						createRCodeRegion(node.getElseOffset(), body.getStopOffset());
+						createRCodeRegion(node.getElseOffset(), body.getEndOffset());
 						body.acceptInRChildren(this);
 					}
 					else {
@@ -212,7 +212,7 @@ public class RDefaultFoldingProvider implements FoldingProvider, NodeFoldingProv
 				{
 					final RAstNode body= node.getContChild();
 					if (body.getNodeType() == NodeType.BLOCK) {
-						createRCodeRegion(node.getCondCloseOffset(), body.getStopOffset());
+						createRCodeRegion(node.getCondCloseOffset(), body.getEndOffset());
 						body.acceptInRChildren(this);
 					}
 					else {
@@ -232,7 +232,7 @@ public class RDefaultFoldingProvider implements FoldingProvider, NodeFoldingProv
 				{
 					final RAstNode body= node.getContChild();
 					if (body.getNodeType() == NodeType.BLOCK) {
-						createRCodeRegion(node.getCondCloseOffset(), body.getStopOffset());
+						createRCodeRegion(node.getCondCloseOffset(), body.getEndOffset());
 						body.acceptInRChildren(this);
 					}
 					else {
@@ -251,7 +251,7 @@ public class RDefaultFoldingProvider implements FoldingProvider, NodeFoldingProv
 				{
 					final RAstNode body= node.getContChild();
 					if (body.getNodeType() == NodeType.BLOCK) {
-						createRCodeRegion(node.getOffset(), body.getStopOffset());
+						createRCodeRegion(node.getOffset(), body.getEndOffset());
 						body.acceptInRChildren(this);
 					}
 					else {
@@ -267,7 +267,7 @@ public class RDefaultFoldingProvider implements FoldingProvider, NodeFoldingProv
 		@Override
 		public void visit(final DocuComment node) throws InvocationTargetException {
 			if (this.config.enableRoxygen) {
-				createRoxygenRegion(node.getOffset(), node.getStopOffset());
+				createRoxygenRegion(node.getOffset(), node.getEndOffset());
 			}
 		}
 		

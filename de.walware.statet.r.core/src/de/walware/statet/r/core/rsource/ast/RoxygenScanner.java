@@ -130,7 +130,7 @@ public class RoxygenScanner {
 		
 		if (!this.currentTagFragments.isEmpty()) {
 			this.currentTag.fFragments= this.currentTagFragments.toArray(new RAstNode[this.currentTagFragments.size()]);
-			this.currentTag.fStopOffset= this.currentTag.fFragments[this.currentTag.fFragments.length - 1].getStopOffset();
+			this.currentTag.fStopOffset= this.currentTag.fFragments[this.currentTag.fFragments.length - 1].getEndOffset();
 			this.currentTagFragments.clear();
 		}
 	}

@@ -219,7 +219,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 			}
 			else {
 				return this.sourceContent.getText().substring(
-						node.getOffset() + offset, node.getStopOffset() + offset );
+						node.getOffset() + offset, node.getEndOffset() + offset );
 			}
 		}
 	}
@@ -250,7 +250,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		case STATUS12_SYNTAX_TOKEN_UNEXPECTED:
 			addProblem(IProblem.SEVERITY_ERROR, code,
 					this.messageBuilder.bind(ProblemMessages.Syntax_TokenUnexpected_message, getFullText(node)),
-					node.getOffset(), node.getStopOffset() );
+					node.getOffset(), node.getEndOffset() );
 			break STATUS;
 			
 		default:
@@ -316,7 +316,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_CC_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_BlockNotClosed_message,
-							node.getStopOffset() - 1, node.getStopOffset() + 1 );
+							node.getEndOffset() - 1, node.getEndOffset() + 1 );
 					break STATUS;
 				default:
 					handleCommonCodes(node, code);
@@ -339,7 +339,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_CC_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_GroupNotClosed_message,
-							node.getStopOffset()-1, node.getStopOffset()+1 );
+							node.getEndOffset()-1, node.getEndOffset()+1 );
 					break STATUS;
 				default:
 					handleCommonCodes(node, code);
@@ -372,7 +372,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_CONDITION_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionNotClosed_If_message,
-							node.getCondChild().getStopOffset()-1, node.getCondChild().getStopOffset()+1 );
+							node.getCondChild().getEndOffset()-1, node.getCondChild().getEndOffset()+1 );
 					break STATUS;
 				default:
 					handleCommonCodes(node, code);
@@ -400,12 +400,12 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_CONDITION_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionNotClosed_For_message,
-							node.getCondChild().getStopOffset()-1, node.getCondChild().getStopOffset()+1 );
+							node.getCondChild().getEndOffset()-1, node.getCondChild().getEndOffset()+1 );
 					break STATUS;
 				case STATUS2_SYNTAX_IN_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_InOfForConditionMissing_message,
-							node.getVarChild().getStopOffset()-1, node.getVarChild().getStopOffset()+1 );
+							node.getVarChild().getEndOffset()-1, node.getVarChild().getEndOffset()+1 );
 					break STATUS;
 				default:
 					handleCommonCodes(node, code);
@@ -452,7 +452,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_CONDITION_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ConditionNotClosed_While_message,
-							node.getCondChild().getStopOffset()-1, node.getCondChild().getStopOffset()+1 );
+							node.getCondChild().getEndOffset()-1, node.getCondChild().getEndOffset()+1 );
 					break STATUS;
 				default:
 					handleCommonCodes(node, code);
@@ -493,7 +493,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_FCALL_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_FcallArgsNotClosed_message,
-							node.getArgsChild().getStopOffset()-1, node.getArgsChild().getStopOffset()+1 );
+							node.getArgsChild().getEndOffset()-1, node.getArgsChild().getEndOffset()+1 );
 					break STATUS;
 				default:
 					handleCommonCodes(node, code);
@@ -557,7 +557,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_FDEF_ARGS_NOT_CLOSED:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_FdefArgsNotClosed_message,
-							node.getArgsChild().getStopOffset()-1, node.getArgsChild().getStopOffset()+1 );
+							node.getArgsChild().getEndOffset()-1, node.getArgsChild().getEndOffset()+1 );
 					break STATUS;
 				default:
 					handleCommonCodes(node, code);
@@ -652,7 +652,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_TokenUnexpected_SeqRel_message,
 							node.getOperator(0).text ),
-							node.getOffset(), node.getStopOffset() );
+							node.getOffset(), node.getEndOffset() );
 				}
 				else {
 //				STATUS: switch ((code & STATUS_MASK_12)) {
@@ -750,7 +750,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_SpecialNotClosed_message,
 							getStartText(node, 1) ),
-							node.getStopOffset()-1, node.getStopOffset()+1 );
+							node.getEndOffset()-1, node.getEndOffset()+1 );
 					break STATUS;
 				default:
 					handleCommonCodes(node, code);
@@ -793,21 +793,21 @@ public class SyntaxProblemReporter extends RAstVisitor {
 						addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 								ProblemMessages.Syntax_SubindexedNotClosed_S_message,
 								getStartText(node, 0) ),
-								node.getStopOffset()-1, node.getStopOffset()+1 );
+								node.getEndOffset()-1, node.getEndOffset()+1 );
 						break STATUS;
 					}
 					else if (node.getSublistCloseOffset() != Integer.MIN_VALUE) {
 						addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 								ProblemMessages.Syntax_SubindexedNotClosed_Done_message,
 								getStartText(node, 0) ),
-								node.getStopOffset()-1, node.getStopOffset()+1 );
+								node.getEndOffset()-1, node.getEndOffset()+1 );
 						break STATUS;
 					}
 					else {
 						addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 								ProblemMessages.Syntax_SubindexedNotClosed_Dboth_message,
 								getStartText(node, 0) ),
-								node.getStopOffset()-1, node.getStopOffset()+1 );
+								node.getEndOffset()-1, node.getEndOffset()+1 );
 						break STATUS;
 					}
 				default:
@@ -942,7 +942,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_StringNotClosed_message,
 							getStartText(node, 1), node.getOperator(0).text ),
-							node.getStopOffset()-1, node.getStopOffset()+1 );
+							node.getEndOffset()-1, node.getEndOffset()+1 );
 					break STATUS;
 				case STATUS12_SYNTAX_TEXT_INVALID:
 					handleTextInvalid(node, code);
@@ -968,31 +968,31 @@ public class SyntaxProblemReporter extends RAstVisitor {
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_Number_HexDigitMissing_message,
 							getFullText(node) ),
-							node.getOffset(), node.getStopOffset() );
+							node.getOffset(), node.getEndOffset() );
 					break STATUS;
 				case STATUS123_SYNTAX_NUMBER_HEX_FLOAT_EXP_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_Number_HexFloatExpMissing_message,
 							getFullText(node) ),
-							node.getOffset(), node.getStopOffset() );
+							node.getOffset(), node.getEndOffset() );
 					break STATUS;
 				case STATUS123_SYNTAX_NUMBER_EXP_DIGIT_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_Number_ExpDigitMissing_message,
 							getFullText(node) ),
-							node.getOffset(), node.getStopOffset() );
+							node.getOffset(), node.getEndOffset() );
 					break STATUS;
 				case STATUS123_SYNTAX_NUMBER_NON_INT_WITH_L:
 					addProblem(IProblem.SEVERITY_WARNING, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_Number_NonIntWithLLiteral_message,
 							getFullText(node) ),
-							node.getOffset(), node.getStopOffset() );
+							node.getOffset(), node.getEndOffset() );
 					break STATUS;
 				case STATUS123_SYNTAX_NUMBER_INT_WITH_DEC_POINT:
 					addProblem(IProblem.SEVERITY_WARNING, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_Number_IntWithDecPoint_message,
 							getFullText(node) ),
-							node.getOffset(), node.getStopOffset() );
+							node.getOffset(), node.getEndOffset() );
 					break STATUS;
 				default:
 					handleCommonCodes(node, code);
@@ -1032,20 +1032,20 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_SYMBOL_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_SymbolMissing_message,
-							node.getOffset() - 1, node.getStopOffset() + 1 );
+							node.getOffset() - 1, node.getEndOffset() + 1 );
 					break STATUS;
 				case STATUS2_SYNTAX_ELEMENTNAME_MISSING:
 					// this can be a status for string too, but never used there
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ElementnameMissing_message,
-							node.getOffset() - 1, node.getStopOffset() + 1 );
+							node.getOffset() - 1, node.getEndOffset() + 1 );
 					break STATUS;
 				case STATUS12_SYNTAX_TOKEN_NOT_CLOSED:
 					// assert(node.getOperator(0) == RTerminal.SYMBOL_G)
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_QuotedSymbolNotClosed_message,
 							getStartText(node, 1) ),
-							node.getStopOffset() - 1, node.getStopOffset() + 1 );
+							node.getEndOffset() - 1, node.getEndOffset() + 1 );
 					break STATUS;
 				case STATUS12_SYNTAX_TEXT_INVALID:
 					// assert(node.getOperator(0) == RTerminal.SYMBOL_G)
@@ -1090,18 +1090,18 @@ public class SyntaxProblemReporter extends RAstVisitor {
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_TokenUnknown_message,
 							getFullText(node) ),
-							node.getOffset(), node.getStopOffset() );
+							node.getOffset(), node.getEndOffset() );
 					break STATUS;
 				case STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ExprBeforeOpMissing_message,
-							node.getOffset()-1, node.getStopOffset()+1 );
+							node.getOffset()-1, node.getEndOffset()+1 );
 					break STATUS;
 				case STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 							ProblemMessages.Syntax_ExprAfterOpMissing_message,
 							getFullText(node) ),
-							node.getOffset()-1, node.getStopOffset()+1 );
+							node.getOffset()-1, node.getEndOffset()+1 );
 					break STATUS;
 //					case STATUS2_SYNTAX_EXPR_AS_REF_MISSING:
 //					addProblem(IProblem.ERROR, code,
@@ -1111,12 +1111,12 @@ public class SyntaxProblemReporter extends RAstVisitor {
 				case STATUS2_SYNTAX_EXPR_AS_CONDITION_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ExprAsConditionMissing_message,
-							node.getOffset()-1, node.getStopOffset()+1 );
+							node.getOffset()-1, node.getEndOffset()+1 );
 					break STATUS;
 				case STATUS2_SYNTAX_EXPR_AS_FORSEQ_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ExprAsForSequenceMissing_message,
-							node.getOffset()-1, node.getStopOffset()+1 );
+							node.getOffset()-1, node.getEndOffset()+1 );
 					break STATUS;
 				case STATUS2_SYNTAX_EXPR_AS_BODY_MISSING:
 				{
@@ -1142,24 +1142,24 @@ public class SyntaxProblemReporter extends RAstVisitor {
 					}
 					if (node.getLength() > 0) {
 						addProblem(IProblem.SEVERITY_ERROR, code, message,
-								node.getOffset(), node.getStopOffset() );
+								node.getOffset(), node.getEndOffset() );
 					}
 					else {
 						addProblem(IProblem.SEVERITY_ERROR, code, message,
-								node.getOffset()-1, node.getStopOffset()+1 );
+								node.getOffset()-1, node.getEndOffset()+1 );
 					}
 					break STATUS;
 				}
 				case STATUS2_SYNTAX_EXPR_IN_GROUP_MISSING:
 					addProblem(IProblem.SEVERITY_ERROR, code,
 							ProblemMessages.Syntax_ExprInGroupMissing_message,
-							node.getOffset()-1, node.getStopOffset()+1 );
+							node.getOffset()-1, node.getEndOffset()+1 );
 					break STATUS;
 				case STATUS2_SYNTAX_EXPR_AS_ARGVALUE_MISSING:
 					if ((code & STATUS_MASK_3) == IRSourceConstants.STATUS3_FDEF) {
 						addProblem(IProblem.SEVERITY_ERROR, code,
 								ProblemMessages.Syntax_ExprAsFdefArgDefaultMissing_message,
-								node.getOffset()-1, node.getStopOffset() );
+								node.getOffset()-1, node.getEndOffset() );
 					}
 					else {
 						handleUnknownCodes(node);
@@ -1169,7 +1169,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 					if (node.getChildCount() == 2) {
 						addProblem(IProblem.SEVERITY_ERROR, code,
 								ProblemMessages.Syntax_OperatorMissing_message,
-								node.getChild(0).getStopOffset()-1, node.getChild(1).getOffset()+1 );
+								node.getChild(0).getEndOffset()-1, node.getChild(1).getOffset()+1 );
 					}
 					else {
 						handleUnknownCodes(node);
@@ -1204,7 +1204,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 						node.getOffset()+FULL_TEXT_LIMIT ) + '…';
 			}
 			else {
-				return this.fCurrentText.substring(node.getOffset(), node.getStopOffset());
+				return this.fCurrentText.substring(node.getOffset(), node.getEndOffset());
 			}
 		}
 	}

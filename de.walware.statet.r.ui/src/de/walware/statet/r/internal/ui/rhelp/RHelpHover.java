@@ -238,7 +238,7 @@ public class RHelpHover implements IInfoHover {
 			final RAstNode nameNode = current.getNameNode();
 			if (nameNode != null
 					&& nameNode.getOffset() <= region.getOffset()
-					&& nameNode.getStopOffset() >= region.getOffset()+region.getLength() ) {
+					&& nameNode.getEndOffset() >= region.getOffset()+region.getLength() ) {
 				final RElementAccess segment = access;
 				if (segment.getSegmentName() == null
 						|| segment.getNextSegment() != null) {

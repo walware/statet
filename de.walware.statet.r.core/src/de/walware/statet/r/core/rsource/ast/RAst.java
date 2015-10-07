@@ -23,6 +23,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
 
+import de.walware.ecommons.ltk.ast.Ast;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 
@@ -36,7 +37,7 @@ import de.walware.statet.r.core.rsource.IRSourceConstants;
 /**
  * 
  */
-public class RAst {
+public class RAst extends Ast {
 	
 	
 	private static class LowestFDefAssignmentSearchVisitor extends GenericVisitor implements ICommonAstVisitor {
@@ -59,7 +60,7 @@ public class RAst {
 				((RAstNode) node).acceptInR(this);
 				return;
 			}
-			if (node.getStopOffset() >= fStartOffset && fStopOffset >= node.getOffset()) {
+			if (node.getEndOffset() >= fStartOffset && fStopOffset >= node.getOffset()) {
 				node.acceptInChildren(this);
 				return;
 			}
@@ -67,7 +68,7 @@ public class RAst {
 		
 		@Override
 		public void visitNode(final RAstNode node) throws InvocationTargetException {
-			if (node.getStopOffset() >= fStartOffset && fStopOffset >= node.getOffset()) {
+			if (node.getEndOffset() >= fStartOffset && fStopOffset >= node.getOffset()) {
 				node.acceptInRChildren(this);
 				return;
 			}
@@ -79,7 +80,7 @@ public class RAst {
 				node.getSourceChild().acceptInR(this);
 				return;
 			}
-			if (node.getStopOffset() >= fStartOffset && fStopOffset >= node.getOffset()) {
+			if (node.getEndOffset() >= fStartOffset && fStopOffset >= node.getOffset()) {
 				fInAssignment = true;
 				node.getSourceChild().acceptInR(this);
 				fInAssignment = false;
@@ -90,7 +91,7 @@ public class RAst {
 		@Override
 		public void visit(final FDef node) throws InvocationTargetException {
 			if (fInAssignment || 
-					(node.getStopOffset() >= fStartOffset && fStopOffset >= node.getOffset())) {
+					(node.getEndOffset() >= fStartOffset && fStopOffset >= node.getOffset())) {
 				RAstNode take = node;
 				RAstNode candidate = node.getRParent();
 				// TODO: use analyzed ElementAccess if possible
@@ -139,7 +140,7 @@ public class RAst {
 				((RAstNode) node).acceptInR(this);
 				return;
 			}
-			if (node.getStopOffset() >= fStartOffset && fStopOffset >= node.getOffset()) {
+			if (node.getEndOffset() >= fStartOffset && fStopOffset >= node.getOffset()) {
 				node.acceptInChildren(this);
 				return;
 			}
@@ -211,7 +212,7 @@ public class RAst {
 				((RAstNode) node).acceptInR(this);
 				return;
 			}
-			if (node.getStopOffset() >= fOffset && fOffset >= node.getOffset()) {
+			if (node.getEndOffset() >= fOffset && fOffset >= node.getOffset()) {
 				node.acceptInChildren(this);
 				return;
 			}
@@ -260,7 +261,7 @@ public class RAst {
 				final IAstNode parent = node.getParent();
 				if (node.fStopOffset >= fOffset &&
 						// R script file or inside R chunk
-						(parent == null || (parent.getOffset() <= fOffset && fOffset <= parent.getStopOffset())) ) {
+						(parent == null || (parent.getOffset() <= fOffset && fOffset <= parent.getEndOffset())) ) {
 					fContainer = node;
 					node.acceptInRChildren(this);
 					return;

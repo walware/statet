@@ -67,7 +67,7 @@ public class ExtractTempRefactoring extends Refactoring {
 		
 		@Override
 		public void visitNode(final RAstNode node) throws InvocationTargetException {
-			if (node.getStopOffset() < fStart) {
+			if (node.getEndOffset() < fStart) {
 				return;
 			}
 			if (fExpression.equalsValue(node)) {

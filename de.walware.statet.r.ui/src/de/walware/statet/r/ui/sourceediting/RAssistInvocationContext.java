@@ -151,7 +151,7 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 			final RAstNode nameNode = current.getNameNode();
 			if (nameNode != null
 					&& nameNode.getOffset() <= region.getOffset()
-					&& nameNode.getStopOffset() >= region.getOffset()+region.getLength() ) {
+					&& nameNode.getEndOffset() >= region.getOffset()+region.getLength() ) {
 				final RElementName[] segments = new RElementName[segmentCount];
 				RElementAccess segment = access;
 				for (int i = 0; i < segments.length; i++) {

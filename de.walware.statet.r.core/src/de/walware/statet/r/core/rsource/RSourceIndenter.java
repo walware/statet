@@ -114,10 +114,10 @@ public class RSourceIndenter {
 		private boolean checkNode(final RAstNode node) throws InvocationTargetException {
 			final int offset = node.getOffset();
 			if (checkOffset(offset)) {
-				return (node.getStopOffset() >= fLineOffsets[fCurrentLine]);
+				return (node.getEndOffset() >= fLineOffsets[fCurrentLine]);
 			}
 			// touches format region
-			if (node.getStopOffset() >= fStartOffset && offset <= fStopOffset) {
+			if (node.getEndOffset() >= fStartOffset && offset <= fStopOffset) {
 				return true;
 			}
 			// not interesting
@@ -141,7 +141,7 @@ public class RSourceIndenter {
 		
 		@Override
 		public void visit(final IAstNode node) throws InvocationTargetException {
-			if (node.getStopOffset() >= fStartOffset && node.getOffset() <= fStopOffset) {
+			if (node.getEndOffset() >= fStartOffset && node.getOffset() <= fStopOffset) {
 				if (node instanceof RAstNode) {
 					((RAstNode) node).acceptInR(this);
 				}
@@ -155,7 +155,7 @@ public class RSourceIndenter {
 		public void visit(final SourceComponent node) throws InvocationTargetException {
 			try {
 				fFactory.createSourceScope(0, node);
-				if (node.getStopOffset() >= fStartOffset && node.getOffset() <= fStopOffset) {
+				if (node.getEndOffset() >= fStartOffset && node.getOffset() <= fStopOffset) {
 					checkExprListChilds(node);
 				}
 				checkOffset(Integer.MAX_VALUE-2);
@@ -172,9 +172,9 @@ public class RSourceIndenter {
 				if (checkNode(node)) {
 					fFactory.updateEnterBrackets();
 					checkExprListChilds(node);
-					checkBeforeOffset(node.getStopOffset());
+					checkBeforeOffset(node.getEndOffset());
 					fFactory.updateLeaveBrackets();
-					checkOffset(node.getStopOffset());
+					checkOffset(node.getEndOffset());
 				}
 				fFactory.leaveScope();
 			} catch (final BadLocationException e) {
@@ -188,9 +188,9 @@ public class RSourceIndenter {
 				if (checkNode(node)) {
 					fFactory.createGroupContScope(node.getOffset()+1, node.getExprChild());
 					node.getExprChild().acceptInR(this);
-					checkBeforeOffset(node.getStopOffset());
+					checkBeforeOffset(node.getEndOffset());
 					
-					checkOffset(node.getStopOffset());
+					checkOffset(node.getEndOffset());
 					fFactory.leaveScope();
 				}
 			} catch (final BadLocationException e) {
@@ -243,7 +243,7 @@ public class RSourceIndenter {
 						checkOffset(node.getElseOffset());
 						checkControlContChild(node.getElseChild());
 					}
-					checkOffset(node.getStopOffset());
+					checkOffset(node.getEndOffset());
 				}
 				if (inElseIf) {
 					fFactory.createDummy();
@@ -263,7 +263,7 @@ public class RSourceIndenter {
 				if (checkNode(node)) {
 					checkControlCondChild(node.getCondOpenOffset(), node.getCondChild(), node.getCondCloseOffset());
 					checkControlContChild(node.getContChild());
-					checkOffset(node.getStopOffset());
+					checkOffset(node.getEndOffset());
 				}
 				fFactory.leaveScope();
 			} catch (final BadLocationException e) {
@@ -278,7 +278,7 @@ public class RSourceIndenter {
 				if (checkNode(node)) {
 					checkControlCondChild(node.getCondOpenOffset(), node.getCondChild(), node.getCondCloseOffset());
 					checkControlContChild(node.getContChild());
-					checkOffset(node.getStopOffset());
+					checkOffset(node.getEndOffset());
 				}
 				fFactory.leaveScope();
 			} catch (final BadLocationException e) {
@@ -292,7 +292,7 @@ public class RSourceIndenter {
 				fFactory.createControlScope(node.getOffset(), node);
 				if (checkNode(node)) {
 					checkControlContChild(node.getContChild());
-					checkOffset(node.getStopOffset());
+					checkOffset(node.getEndOffset());
 				}
 				fFactory.leaveScope();
 			} catch (final BadLocationException e) {
@@ -306,7 +306,7 @@ public class RSourceIndenter {
 				if (checkNode(node)) {
 					node.acceptInRChildren(this);
 		//			checkBeforeOffset(node.getStopOffset());
-					checkOffset(node.getStopOffset());
+					checkOffset(node.getEndOffset());
 				}
 				fFactory.leaveScope();
 			} catch (final BadLocationException e) {
@@ -320,7 +320,7 @@ public class RSourceIndenter {
 				if (checkNode(node)) {
 					node.acceptInRChildren(this);
 		//			checkBeforeOffset(node.getStopOffset());
-					checkOffset(node.getStopOffset());
+					checkOffset(node.getEndOffset());
 				}
 				fFactory.leaveScope();
 			} catch (final BadLocationException e) {
@@ -333,7 +333,7 @@ public class RSourceIndenter {
 				fFactory.createCommonExprScope(node.getOffset(), node);
 				if (checkNode(node)) {
 					node.acceptInRChildren(this);
-					checkOffset(node.getStopOffset());
+					checkOffset(node.getEndOffset());
 				}
 				fFactory.leaveScope();
 			} catch (final BadLocationException e) {
@@ -349,7 +349,7 @@ public class RSourceIndenter {
 					node.getArgsChild().acceptInR(this);
 					fFactory.updateEnterFDefBody();
 					checkControlContChild(node.getContChild());
-					checkOffset(node.getStopOffset());
+					checkOffset(node.getEndOffset());
 				}
 				fFactory.leaveScope();
 			} catch (final BadLocationException e) {
@@ -374,7 +374,7 @@ public class RSourceIndenter {
 				if (checkNode(node)) {
 					node.getRefChild().acceptInR(this);
 					node.getArgsChild().acceptInR(this);
-					checkOffset(node.getStopOffset());
+					checkOffset(node.getEndOffset());
 				}
 				fFactory.leaveScope();
 			} catch (final BadLocationException e) {
@@ -399,7 +399,7 @@ public class RSourceIndenter {
 				if (checkNode(node)) {
 					node.getRefChild().acceptInR(this);
 					node.getArgsChild().acceptInR(this);
-					checkOffset(node.getStopOffset());
+					checkOffset(node.getEndOffset());
 				}
 				fFactory.leaveScope();
 			} catch (final BadLocationException e) {
@@ -421,7 +421,7 @@ public class RSourceIndenter {
 		public void visitNode(final RAstNode node) throws InvocationTargetException {
 			if (checkNode(node)) {
 				node.acceptInRChildren(this);
-				checkOffset(node.getStopOffset());
+				checkOffset(node.getEndOffset());
 			}
 		}
 		
@@ -866,7 +866,7 @@ class ScopeFactory {
 		}
 		if (compact
 				&& fScope.startLine == fScope.parent.startLine
-				&& sameLine(fScope.commandNode.getStopOffset(), fScope.parent.commandNode.getStopOffset())
+				&& sameLine(fScope.commandNode.getEndOffset(), fScope.parent.commandNode.getEndOffset())
 				) {
 			return true;
 		}
