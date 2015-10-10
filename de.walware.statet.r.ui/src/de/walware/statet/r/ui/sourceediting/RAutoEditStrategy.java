@@ -213,7 +213,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	private final boolean isSmartInsertEnabled() {
 		return ((this.editor3 != null) ?
 				(this.editor3.getInsertMode() == ITextEditorExtension3.SMART_INSERT) :
-				this.editorOptions.isSmartModeByDefaultEnabled() );
+				this.editorOptions.isSmartInsertEnabledByDefault() );
 	}
 	
 	private final boolean isBlockSelection() {
@@ -362,7 +362,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 						
 						if (this.rCodeStyle.getReplaceOtherTabsWithSpaces()) {
 							final IndentUtil indentation= new IndentUtil(this.document, this.rCodeStyle);
-							command.text= indentation.createTabSpacesCompletionString(indentation.getColumnAtOffset(command.offset));
+							command.text= indentation.createTabSpacesCompletionString(indentation.getColumn(command.offset));
 							break KEY;
 						}
 					}
@@ -769,8 +769,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 //			}
 //		}
 		final IndentUtil indentation= new IndentUtil(this.document, this.rCodeStyle);
-		final int column= indentation.getColumnAtOffset(c.offset);
-		if (this.editorOptions.getSmartTabAction() != ISmartInsertSettings.TabAction.INSERT_TAB_CHAR) {
+		final int column= indentation.getColumn(c.offset);
+		if (this.editorOptions.getSmartInsertTabAction() != ISmartInsertSettings.TabAction.INSERT_TAB_CHAR) {
 			c.text= indentation.createIndentCompletionString(column);
 		}
 		return 1;

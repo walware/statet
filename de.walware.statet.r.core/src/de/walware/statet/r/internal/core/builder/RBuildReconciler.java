@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.text.ILineInformation;
+import de.walware.ecommons.text.core.ILineInformation;
 
 import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;

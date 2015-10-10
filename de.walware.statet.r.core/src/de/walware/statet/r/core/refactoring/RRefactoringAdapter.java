@@ -308,7 +308,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		final IRCoreAccess coreConfig = (su instanceof IRSourceUnit) ? ((IRSourceUnit) su).getRCoreAccess() : RCore.getWorkbenchAccess();
 		
 		final IndentUtil indentUtil = new IndentUtil(orgDoc, coreConfig.getRCodeStyle());
-		final int column = indentUtil.getColumnAtOffset(offset);
+		final int column = indentUtil.getColumn(offset);
 		final String initial = indentUtil.createIndentString(column);
 		final String prefix = initial+"1\n"; //$NON-NLS-1$
 		sb.insert(0, prefix);

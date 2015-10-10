@@ -67,7 +67,7 @@ import de.walware.ecommons.ltk.ast.StatusDetail;
 import de.walware.ecommons.ltk.core.SourceContent;
 import de.walware.ecommons.ltk.core.impl.Problem;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
-import de.walware.ecommons.text.ILineInformation;
+import de.walware.ecommons.text.core.ILineInformation;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;

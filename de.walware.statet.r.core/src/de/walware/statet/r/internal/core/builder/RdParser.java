@@ -16,7 +16,9 @@ import org.apache.commons.collections.primitives.IntList;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 
-import de.walware.ecommons.text.ILineInformation;
+import de.walware.ecommons.text.core.ILineInformation;
+import de.walware.ecommons.text.core.ITextRegion;
+import de.walware.ecommons.text.core.TextRegion;
 
 
 public class RdParser {
@@ -75,9 +77,7 @@ public class RdParser {
 		
 		@Override
 		public int getLineEndOffset(final int line) throws BadLocationException {
-			return (line + 1 == fOffsets.size()) ?
-					fContent.length :
-					this.fOffsets.get(line + 1);
+			return (line + 1 == fOffsets.size()) ? fContent.length : this.fOffsets.get(line + 1);
 		}
 		
 		@Override
@@ -85,6 +85,15 @@ public class RdParser {
 			return (line + 1 == fOffsets.size()) ?
 					(fContent.length - fOffsets.get(line)) :
 					(this.fOffsets.get(line + 1) - this.fOffsets.get(line) );
+		}
+		
+		@Override
+		public ITextRegion getLineRegion(final int line) throws BadLocationException {
+			if (line < 0 || line >= fOffsets.size()) {
+				throw new BadLocationException();
+			}
+			return new TextRegion(fOffsets.get(line),
+					(line + 1 == fOffsets.size()) ? fContent.length : this.fOffsets.get(line + 1) );
 		}
 		
 	}

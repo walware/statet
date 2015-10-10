@@ -22,7 +22,7 @@ import org.eclipse.jface.text.IRegion;
 
 import de.walware.ecommons.ltk.core.SourceContent;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
-import de.walware.ecommons.text.ILineInformation;
+import de.walware.ecommons.text.core.ILineInformation;
 import de.walware.ecommons.workbench.search.ui.LineElement;
 
 import de.walware.statet.r.core.IRProject;

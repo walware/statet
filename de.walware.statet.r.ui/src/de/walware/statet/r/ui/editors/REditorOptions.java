@@ -129,12 +129,16 @@ public class REditorOptions extends AbstractPreferencesModelObject
 	}
 	
 	
-	public boolean isSmartModeByDefaultEnabled() {
+	@Override
+	public boolean isSmartInsertEnabledByDefault() {
 		return fIsSmartByDefaultEnabled;
 	}
-	public TabAction getSmartTabAction() {
+	
+	@Override
+	public TabAction getSmartInsertTabAction() {
 		return fSmartTabAction;
 	}
+	
 	public boolean isSmartPasteEnabled() {
 		return fIsSmartPasteEnabled;
 	}

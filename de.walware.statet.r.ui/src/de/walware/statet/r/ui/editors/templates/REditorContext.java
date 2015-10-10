@@ -52,7 +52,7 @@ public class REditorContext extends SourceEditorTemplateContext {
 								throws BadLocationException {
 							TextEdit edit;
 							if (text != null) {
-								final int position = util.getIndentedIndex(text, column);
+								final int position = util.getIndentedOffsetAt(text, column);
 								edit = new ReplaceEdit(offset, length, text.substring(position, text.length()));
 							}
 							else {
