@@ -69,7 +69,7 @@ import de.walware.statet.r.internal.core.rhelp.RPkgHelp;
 public class REnvIndexWriter implements IREnvIndex {
 	
 	
-	public static final boolean DEBUG= true;
+	public static final boolean DEBUG= Boolean.parseBoolean(System.getProperty("de.walware.statet.r.rhelp.debug") ); //$NON-NLS-1$
 	
 	
 	public static class AbortIndexException extends Exception {
