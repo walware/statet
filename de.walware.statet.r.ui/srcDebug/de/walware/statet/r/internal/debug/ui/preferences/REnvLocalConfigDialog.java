@@ -17,6 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -72,9 +73,12 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.debug.ui.ProcessOutputCollector;
+import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ui.components.ButtonGroup;
 import de.walware.ecommons.ui.components.DataAdapter;
 import de.walware.ecommons.ui.components.ExtensibleTextCellEditor;
@@ -637,60 +641,96 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		try {
 			final IStringVariableManager variables = VariablesPlugin.getDefault().getStringVariableManager();
 			
-			String loc = variables.performStringSubstitution("${env_var:R_HOME}", false); //$NON-NLS-1$
-			if (loc != null && loc.length() > 0) {
-				if (EFS.getLocalFileSystem().getStore(
-						new Path(loc)).fetchInfo().exists()) {
-					return new String[] { loc, Messages.REnv_SystemRHome_name };
+			{	String loc= variables.performStringSubstitution("${env_var:R_HOME}", false); //$NON-NLS-1$
+				if (loc != null && loc.length() > 0) {
+					loc= resolve(loc);
+					if (loc != null) {
+						final IFileStore locStore= EFS.getLocalFileSystem().getStore(new Path(loc));
+						if (locStore.fetchInfo().exists()) {
+							return new String[] { loc, Messages.REnv_SystemRHome_name };
+						}
+					}
 				}
 			}
+			
+			final ImList<String> locCandidates;
+			String prefixPattern= null;
+			String prefixReplacement= null;
 			if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
-				loc = "${env_var:PROGRAMFILES}\\R";  //$NON-NLS-1$
-				final IFileStore res = EFS.getLocalFileSystem().getStore(
-						new Path(variables.performStringSubstitution(loc)));
-				if (!res.fetchInfo().exists()) {
-					return null;
-				}
-				final String[] childNames = res.childNames(EFS.NONE, null);
-				Arrays.sort(childNames, 0, childNames.length, Collator.getInstance());
-				for (int i = childNames.length-1; i >= 0; i--) {
-					if (fConfigModel.isValidRHomeLocation(res.getChild(childNames[i]))) {
-						return new String[] { loc + '\\' + childNames[i], childNames[i] };
+				String baseLoc= "${env_var:PROGRAMFILES}\\R";  //$NON-NLS-1$
+				final IFileStore baseStore= EFS.getLocalFileSystem().getStore(
+						new Path(variables.performStringSubstitution(baseLoc)));
+				if (baseStore.fetchInfo().exists()) {
+					prefixReplacement= baseLoc;
+					prefixPattern= baseLoc= FileUtil.toString(baseStore);
+					
+					final String[] names= baseStore.childNames(EFS.NONE, null);
+					Arrays.sort(names, 0, names.length,
+							Collections.reverseOrder(Collator.getInstance()) );
+					for (int i= 0; i < names.length; i++) {
+						names[i]= baseLoc + '\\' + names[i];
 					}
+					locCandidates= ImCollections.newList(names);
+				}
+				else {
+					locCandidates= ImCollections.newList();
 				}
 			}
 			else if (Platform.getOS().equals(Platform.OS_MACOSX)) {
-				loc = "/Library/Frameworks/R.framework/Resources";  //$NON-NLS-1$
-				if (fConfigModel.isValidRHomeLocation(EFS.getLocalFileSystem().getStore(new Path(loc)))) {
-					return new String[] { loc, null };
-				}
+				locCandidates= ImCollections.newList(
+						"/Library/Frameworks/R.framework/Resources" //$NON-NLS-1$
+				);
 			}
 			else {
-				final String[] defLocations = new String[] {
+				locCandidates= ImCollections.newList(
 						"/usr/local/lib64/R", //$NON-NLS-1$
 						"/usr/lib64/R", //$NON-NLS-1$
 						"/usr/local/lib/R", //$NON-NLS-1$
-						"/usr/lib/R", //$NON-NLS-1$
-				};
-				for (int i = 0; i < defLocations.length; i++) {
-					try {
-						java.nio.file.Path path= Paths.get(defLocations[i]);
-						path= path.toRealPath();
-						loc= path.toString();
-					}
-					catch (final IOException e2) {
-						continue;
-					}
-					if (fConfigModel.isValidRHomeLocation(EFS.getLocalFileSystem().getStore(new Path(loc)))) {
-						return new String[] { loc, null };
+						"/usr/lib/R" //$NON-NLS-1$
+				);
+			};
+			for (String loc : locCandidates) {
+				loc= resolve(loc);
+				if (loc != null) {
+					final IFileStore locStore= EFS.getLocalFileSystem().getStore(new Path(loc));
+					if (fConfigModel.isValidRHomeLocation(locStore)) {
+						if (prefixPattern != null && loc.startsWith(prefixPattern)) {
+							loc= prefixReplacement + loc.substring(prefixPattern.length());
+						}
+						String name= locStore.getName();
+						if (name.equals("Resources")) { //$NON-NLS-1$
+							final IFileStore parent= locStore.getParent();
+							name= (parent != null) ? parent.getName() : null;
+						}
+						if (name != null) {
+							if (name.isEmpty() || name.equals("R")) { //$NON-NLS-1$
+								name= null;
+							}
+							else if (Character.isDigit(name.charAt(0))) {
+								name= "R " + name; //$NON-NLS-1$
+							}
+						}
+						return new String[] { loc, name };
 					}
 				}
 			}
+			return null;
 		}
 		catch (final Exception e) {
 			RUIPlugin.logError(-1, "Error when searching R_HOME location", e); //$NON-NLS-1$
+			return null;
 		}
-		return null;
+	}
+	
+	private String resolve(final String loc) {
+		try {
+			java.nio.file.Path path= Paths.get(loc);
+			path= path.toRealPath();
+			return path.toString();
+		}
+		catch (final IOException e2) {
+			return null;
+		}
 	}
 	
 	private void updateArchs(final boolean conservative) {
