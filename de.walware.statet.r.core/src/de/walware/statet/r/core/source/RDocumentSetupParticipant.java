@@ -23,10 +23,6 @@ import de.walware.ecommons.text.core.treepartitioner.TreePartitioner;
 public class RDocumentSetupParticipant extends PartitionerDocumentSetupParticipant {
 	
 	
-	private static final String[] CONTENT_TYPES= IRDocumentConstants.R_CONTENT_TYPES.toArray(
-			new String[IRDocumentConstants.R_CONTENT_TYPES.size()] );
-	
-	
 	public RDocumentSetupParticipant() {
 	}
 	
@@ -38,7 +34,9 @@ public class RDocumentSetupParticipant extends PartitionerDocumentSetupParticipa
 	
 	@Override
 	protected IDocumentPartitioner createDocumentPartitioner() {
-		return new TreePartitioner(new RPartitionNodeScanner(), CONTENT_TYPES);
+		return new TreePartitioner(getPartitioningId(),
+				new RPartitionNodeScanner(),
+				IRDocumentConstants.R_CONTENT_TYPES );
 	}
 	
 }
