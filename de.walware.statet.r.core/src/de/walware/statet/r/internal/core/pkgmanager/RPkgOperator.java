@@ -198,7 +198,7 @@ public class RPkgOperator {
 		sb.append(')');
 		fR.submitToConsole(sb.toString(), monitor);
 		
-		fManager.fPkgScanner.addExpectedPkg(action.getLibraryLocation(), action.getPkg());
+		fManager.pkgScanner.addExpectedPkg(action.getLibraryLocation(), action.getPkg());
 	}
 	
 	private void uninstallPkg(final RPkgAction.Uninstall action, final StringBuilder sb,

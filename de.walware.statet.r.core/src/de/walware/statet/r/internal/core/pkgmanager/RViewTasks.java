@@ -42,108 +42,106 @@ class RViewTasks {
 	
 	private static class CRANViewHandler extends DefaultHandler {
 		
-		private static final int S_VIEW = 1;
-		private static final int S_NAME = 2;
-		private static final int S_TOPIC = 3;
-		private static final int S_PKGLIST = 4;
-		private static final int S_PKGLIST_PKG = 5;
-		private static final int S_SKIP = 9;
+		private static final int S_VIEW= 1;
+		private static final int S_NAME= 2;
+		private static final int S_TOPIC= 3;
+		private static final int S_PKGLIST= 4;
+		private static final int S_PKGLIST_PKG= 5;
 		
 		
-		private final List<RView> fViewList;
+		private final List<RView> viewList;
 		
-		private RView fView;
+		private RView view;
 		
-		private final StringBuilder fString = new StringBuilder();
+		private final StringBuilder string= new StringBuilder();
 		
-		private int fState = -1;
-		private int fDepth;
-		private final int[] fStateDepth = new int[10];
-		private int fSkipState;
+		private int state= -1;
+		private int depth;
+		private int skipDepth;
 		
 		
 		public CRANViewHandler(final List<RView> viewList) {
-			fViewList = viewList;
+			this.viewList= viewList;
 		}
 		
 		
 		@Override
 		public void startDocument() throws SAXException {
-			fView = null;
-			fState = 0;
+			this.state= 0;
+			this.depth= 0;
+			this.skipDepth= Integer.MAX_VALUE;
 		}
 		
 		@Override
 		public void endDocument() throws SAXException {
-			fState = -1;
+			this.state= -1;
 		}
 		
 		private void enter(final int newState) {
-			fState = newState;
-			fStateDepth[newState] = fDepth;
+			this.state= newState;
 		}
 		
 		private void exit(final int newState) {
-			fState = newState;
+			this.state= newState;
 		}
 		
 		@Override
 		public void startElement(final String uri, final String localName, final String qName, final Attributes attributes)
 				throws SAXException {
-			fDepth++;
-			switch (fState) {
-			case 0:
-				if (localName.equals("CRANTaskView")) { //$NON-NLS-1$
-					enter(S_VIEW);
-					fView = null;
-					return;
-				}
-				break;
-			case S_VIEW:
-				if (localName.equals("name")) { //$NON-NLS-1$
-					if (fView == null) {
-						enter(S_NAME);
-						fString.setLength(0);
-						return;
-					}
-				}
-				else if (localName.equals("topic")) { //$NON-NLS-1$
-					if (fView != null) {
-						enter(S_TOPIC);
-						fString.setLength(0);
-						return;
-					}
-				}
-				else if (localName.equals("packagelist")) { //$NON-NLS-1$
-					if (fView != null) {
-						enter(S_PKGLIST);
-						return;
-					}
-				}
-				break;
-			case S_PKGLIST:
-				if (localName.equals("pkg")) { //$NON-NLS-1$
-					enter(S_PKGLIST_PKG);
-					fString.setLength(0);
-					return;
-				}
-				break;
-			case S_SKIP:
-				return;
-			}
+			this.depth++;
 			
-			fSkipState = fState;
-			enter(S_SKIP);
+			if (this.depth < this.skipDepth) {
+				switch (this.state) {
+				case 0:
+					if (localName.equals("CRANTaskView")) { //$NON-NLS-1$
+						enter(S_VIEW);
+						this.view= null;
+						return;
+					}
+					break;
+				case S_VIEW:
+					if (localName.equals("name")) { //$NON-NLS-1$
+						if (this.view == null) {
+							enter(S_NAME);
+							this.string.setLength(0);
+							return;
+						}
+					}
+					else if (localName.equals("topic")) { //$NON-NLS-1$
+						if (this.view != null) {
+							enter(S_TOPIC);
+							this.string.setLength(0);
+							return;
+						}
+					}
+					else if (localName.equals("packagelist")) { //$NON-NLS-1$
+						if (this.view != null) {
+							enter(S_PKGLIST);
+							return;
+						}
+					}
+					break;
+				case S_PKGLIST:
+					if (localName.equals("pkg")) { //$NON-NLS-1$
+						enter(S_PKGLIST_PKG);
+						this.string.setLength(0);
+						return;
+					}
+					break;
+				}
+				
+				this.skipDepth= this.depth;
+			}
 		}
 		
 		@Override
 		public void endElement(final String uri, final String localName, final String qName) throws SAXException {
-			if (fState > 0 && fStateDepth[fState] == fDepth) {
-				switch (fState) {
+			if (this.depth < this.skipDepth) {
+				switch (this.state) {
 				case S_VIEW:
-					if (fView != null && !fView.getPkgList().isEmpty()) {
-						fViewList.add(fView);
-						fView = null;
+					if (this.view != null && !this.view.getPkgList().isEmpty()) {
+						this.viewList.add(this.view);
+						this.view= null;
 					}
 					exit(0);
 					break;
@@ -151,38 +149,39 @@ class RViewTasks {
 					exit(S_VIEW);
 					break;
 				case S_NAME:
-					if (fString.length() > 0) {
-						fView = new RView(fString.toString());
+					if (this.string.length() > 0) {
+						this.view= new RView(this.string.toString());
 					}
 					exit(S_VIEW);
 					break;
 				case S_TOPIC:
-					if (fString.length() > 0) {
-						fView.setTopic(fString.toString());
+					if (this.string.length() > 0) {
+						this.view.setTopic(this.string.toString());
 					}
 					exit(S_VIEW);
 					break;
 				case S_PKGLIST_PKG:
-					if (fString.length() > 0) {
-						fView.getPkgList().add(fString.toString().intern());
+					if (this.string.length() > 0) {
+						this.view.getPkgList().add(this.string.toString().intern());
 					}
 					exit(S_PKGLIST);
 					break;
-				case S_SKIP:
-					exit(fSkipState);
-					break;
 				}
 			}
-			fDepth--;
+			else if (this.depth == this.skipDepth) {
+				this.skipDepth= Integer.MAX_VALUE;
+			}
+			
+			this.depth--;
 		}
 		
 		@Override
 		public void characters(final char[] ch, final int start, final int length) throws SAXException {
-			switch (fState) {
+			switch (this.state) {
 			case S_NAME:
 			case S_TOPIC:
 			case S_PKGLIST_PKG:
-				fString.append(ch, start, length);
+				this.string.append(ch, start, length);
 				break;
 			}
 		}
@@ -190,34 +189,34 @@ class RViewTasks {
 	
 	
 	static List<RView> loadRViews(final RService r, final IProgressMonitor monitor) {
-		Exception error = null;
+		Exception error= null;
 		monitor.subTask("Loading R task views...");
 		try {
 			final String dir;
-			{	final FunctionCall call = r.createFunctionCall("system.file"); //$NON-NLS-1$
+			{	final FunctionCall call= r.createFunctionCall("system.file"); //$NON-NLS-1$
 				call.addChar("ctv"); //$NON-NLS-1$
 				call.addChar("package", "ctv"); //$NON-NLS-1$ //$NON-NLS-2$
-				dir = RDataUtil.checkSingleChar(call.evalData(monitor));
+				dir= RDataUtil.checkSingleChar(call.evalData(monitor));
 			}
 			if (dir == null || dir.equals("")) { //$NON-NLS-1$
 				return null;
 			}
 			
 			final String[] files ;
-			{	final FunctionCall call = r.createFunctionCall("dir"); //$NON-NLS-1$
+			{	final FunctionCall call= r.createFunctionCall("dir"); //$NON-NLS-1$
 				call.addChar("path", dir); //$NON-NLS-1$
-				final RCharacterStore data = RDataUtil.checkRCharVector(call.evalData(monitor)).getData();
-				files = data.toArray();
+				final RCharacterStore data= RDataUtil.checkRCharVector(call.evalData(monitor)).getData();
+				files= data.toArray();
 			}
 			
-			final List<RView> views = new ArrayList<RView>(files.length);
-			{	final String sep = r.getPlatform().getFileSep();
-				final CRANViewHandler handler = new CRANViewHandler(views);
-				final XMLReader reader = XMLReaderFactory.createXMLReader();
+			final List<RView> views= new ArrayList<>(files.length);
+			{	final String sep= r.getPlatform().getFileSep();
+				final CRANViewHandler handler= new CRANViewHandler(views);
+				final XMLReader reader= XMLReaderFactory.createXMLReader();
 				reader.setContentHandler(handler);
-				for (int i = 0; i < files.length; i++) {
+				for (int i= 0; i < files.length; i++) {
 					if (files[i].endsWith(".ctv")) { //$NON-NLS-1$
-						final byte[] file = r.downloadFile(dir + sep + files[i], 0, monitor);
+						final byte[] file= r.downloadFile(dir + sep + files[i], 0, monitor);
 						if (file.length > 0) {
 							reader.parse(new InputSource(new ByteArrayInputStream(file)));
 						}
@@ -227,38 +226,28 @@ class RViewTasks {
 			
 			return views;
 		}
-		catch (final UnexpectedRDataException e) {
-			error = e;
+		catch (final UnexpectedRDataException | IOException | SAXException | CoreException e) {
+			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
+					"An error occurred when loading R task views.", error));
 		}
-		catch (final IOException e) {
-			error = e;
-		}
-		catch (final SAXException e) {
-			error = e;
-		}
-		catch (final CoreException e) {
-			error = e;
-		}
-		RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
-				"An error occurred when loading R task views.", error));
 		return null;
 	}
 	
 	//	private void loadBioCViews(final RService r, final ISelectedRepos repoSettings,
 	//	final AvailableRPkgs pkgs, final Change event,
 	//	final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException, IOException {
-	//	final IRPkgInfo pkg = getInstalled(pkgs, "biocViews"); //$NON-NLS-1$
+	//	final IRPkgInfo pkg= getInstalled(pkgs, "biocViews"); //$NON-NLS-1$
 	//	if (pkg == null || (pkg.getVersion().equals(fBioCViewsVersion)
 	//				&& Math.abs(event.stamp - fBioCViewsStamp) < MIRROR_CHECK ) ) {
 	//		return;
 	//	}
 	//	
-	//	Collection<RRepo> repos = repoSettings.getRepos();
+	//	Collection<RRepo> repos= repoSettings.getRepos();
 	//	r.evalVoid("data(biocViewsVocab, package= 'biocViews', envir= rj::.rj.tmp)", monitor);
 	//	for (RRepo repo : repos) {
 	//		if (repo.getId().startsWith(RRepo.BIOC_ID_PREFIX)) {
 	//			try {
-	//				RObject data = r.evalData("biocViews:::getBiocViews('" + repo.getURL() + "', " +
+	//				RObject data= r.evalData("biocViews:::getBiocViews('" + repo.getURL() + "', " +
 	//						"rj::.rj.tmp$biocViewsVocab, 'NoViewProvided')", monitor );
 	//				System.out.println(data);
 	//			}
@@ -268,26 +257,26 @@ class RViewTasks {
 	//		}
 	//	}
 	//	final String dir;
-	//	{	final FunctionCall call = r.createFunctionCall("system.file"); //$NON-NLS-1$
+	//	{	final FunctionCall call= r.createFunctionCall("system.file"); //$NON-NLS-1$
 	//		call.addChar("ctv"); //$NON-NLS-1$
 	//		call.addChar("package", "ctv"); //$NON-NLS-1$
-	//		dir = RDataUtil.checkSingleChar(call.evalData(monitor));
+	//		dir= RDataUtil.checkSingleChar(call.evalData(monitor));
 	//	}
 	//	if (dir == null || dir.equals("")) { //$NON-NLS-1$
 	//		return;
 	//	}
 	//	
 	//	final String[] files ;
-	//	{	final FunctionCall call = r.createFunctionCall("dir"); //$NON-NLS-1$
+	//	{	final FunctionCall call= r.createFunctionCall("dir"); //$NON-NLS-1$
 	//		call.addChar("path", dir); //$NON-NLS-1$
-	//		final RCharacterStore data = RDataUtil.checkRCharVector(call.evalData(monitor)).getData();
-	//		files = data.toArray();
+	//		final RCharacterStore data= RDataUtil.checkRCharVector(call.evalData(monitor)).getData();
+	//		files= data.toArray();
 	//	}
 	//	
-	//	fBioCViews = views;
-	//	fBioCViewsVersion = pkg.getVersion();
-	//	fBioCViewsStamp = event.stamp;
-	//	event.fViews = true;
+	//	fBioCViews= views;
+	//	fBioCViewsVersion= pkg.getVersion();
+	//	fBioCViewsStamp= event.stamp;
+	//	event.fViews= true;
 	//}
 	
 }

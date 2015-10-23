@@ -33,7 +33,8 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 
 import de.walware.ecommons.FastList;
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.ecommons.collections.ImCollections;
+import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference.StringPref2;
@@ -71,6 +72,7 @@ import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.IRPkgSet;
 import de.walware.statet.r.core.pkgmanager.IRView;
 import de.walware.statet.r.core.pkgmanager.ISelectedRepos;
+import de.walware.statet.r.core.pkgmanager.RRepoMirror;
 import de.walware.statet.r.core.pkgmanager.RPkgAction;
 import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 import de.walware.statet.r.core.pkgmanager.RRepo;
@@ -86,112 +88,111 @@ import de.walware.statet.r.internal.core.renv.REnvConfiguration;
 public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.ManageListener {
 	
 	
-	private final static int REQUIRE_CRAN =                 0x10000000;
-	private final static int REQUIRE_BIOC =                 0x20000000;
-	private final static int REQUIRE_REPOS =                0x80000000;
+	private final static int REQUIRE_CRAN=                  0x0_1000_0000;
+	private final static int REQUIRE_BIOC=                  0x0_2000_0000;
+	private final static int REQUIRE_REPOS=                 0x0_8000_0000;
 	
-	private final static int REQUIRE_REPO_PKGS =            0x01000000;
-	private final static int REQUIRE_INST_PKGS =            0x08000000;
+	private final static int REQUIRE_REPO_PKGS=             0x0_0100_0000;
+	private final static int REQUIRE_INST_PKGS=             0x0_0800_0000;
 	
-	private final static RRepoPref LAST_CRAN_PREF = new RRepoPref(PREF_QUALIFIER, "LastCRAN.repo"); //$NON-NLS-1$
-	private final static RRepoPref LAST_BIOC_PREF = new RRepoPref(PREF_QUALIFIER, "LastBioC.repo"); //$NON-NLS-1$
+	private final static RRepoPref LAST_CRAN_PREF= new RRepoPref(PREF_QUALIFIER, "LastCRAN.repo"); //$NON-NLS-1$
+	private final static RRepoPref LAST_BIOC_PREF= new RRepoPref(PREF_QUALIFIER, "LastBioC.repo"); //$NON-NLS-1$
 	
-	private final static int MIRROR_CHECK = 1000 * 60 * 60 * 6;
-	private final static int PKG_CHECK = 1000 * 60 * 60 * 3;
+	private final static int MIRROR_CHECK= 1000 * 60 * 60 * 6;
+	private final static int PKG_CHECK= 1000 * 60 * 60 * 3;
 	
 	
-	private final IREnv fREnv;
-	private RPlatform fRPlatform;
+	private final IREnv rEnv;
+	private RPlatform rPlatform;
 	
-	private final IFileStore fREnvDirectory;
+	private final IFileStore rEnvDirectory;
 	
-	private boolean fFirstTime;
+	private boolean firstTime;
 	
-	private String fBioCVersion;
-	private final StringPref2 fBioCVersionPref;
+	private String bioCVersion;
+	private final StringPref2 bioCVersionPref;
 	
-	private List<RRepo> fCustomRepos;
-	private final List<RRepo> fAddRepos;
-	private List<RRepo> fRRepos;
-	private List<RRepo> fAllRepos;
-	private List<RRepo> fSelectedReposInR;
-	private final RRepoListPref fSelectedReposPref;
+	private List<RRepo> customRepos;
+	private final List<RRepo> addRepos;
+	private List<RRepo> rRepos;
+	private List<RRepo> allRepos;
+	private List<RRepo> selectedReposInR;
+	private final RRepoListPref selectedReposPref;
 	
-	private List<RRepo> fCustomCRAN;
-	private List<RRepo> fRCRAN;
-	private RRepo fRCRANByCountry;
-	private List<RRepo> fAllCRAN;
-	private String fSelectedCRANInR;
-	private final RRepoPref fSelectedCRANPref;
+	private List<RRepo> customCRAN;
+	private List<RRepoMirror> rCRANMirrors;
+	private ImList<RRepo> allCRAN;
+	private String selectedCRANInR;
+	private final RRepoPref selectedCRANPref;
 	
-	private List<RRepo> fCustomBioC;
-	private List<RRepo> fRBioC;
-	private List<RRepo> fAllBioC;
-	private String fSelectedBioCInR;
-	private final RRepoPref fSelectedBioCPref;
-	private long fMirrorsStamp;
+	private List<RRepo> customBioC;
+	private List<RRepoMirror> rBioCMirrors;
+	private ImList<RRepo> allBioC;
+	private String selectedBioCInR;
+	private final RRepoPref selectedBioCPref;
+	private long mirrorsStamp;
 	
-	private SelectedRepos fSelectedRepos;
+	private SelectedRepos selectedRepos;
 	
-	private RVector<RNumericStore> fLibs = null;
-	private REnvLibGroups fRLibGroups;
-	private RLibPaths fRLibPaths;
+	private RVector<RNumericStore> libs= null;
+	private REnvLibGroups rLibGroups;
+	private RLibPaths rLibPaths;
 	
-	private RPkgSet fPkgsLight;
-	private FullRPkgSet fPkgsExt;
-	private long fPkgsStamp;
-	final RPkgScanner fPkgScanner = new RPkgScanner();
+	private RPkgSet pkgsLight;
+	private FullRPkgSet pkgsExt;
+	private long pkgsStamp;
+	final RPkgScanner pkgScanner= new RPkgScanner();
 	
-	private volatile int fRequireLoad;
-	private volatile int fRequireConfirm;
+	private volatile int requireLoad;
+	private volatile int requireConfirm;
 	
-	private final FastList<Listener> fListeners = new FastList<>(Listener.class);
+	private final FastList<Listener> listeners= new FastList<>(Listener.class);
 	
-	private final ReentrantReadWriteLock fLock = new ReentrantReadWriteLock();
+	private final ReentrantReadWriteLock lock= new ReentrantReadWriteLock();
 	
-	private List<RView> fRViews;
-	private RNumVersion fRViewsVersion;
-//	private List<RView> fBioCViews;
-//	private String fBioCViewsVersion;
-//	private long fBioCViewsStamp;
+	private List<RView> rViews;
+	private RNumVersion rViewsVersion;
+//	private List<RView> bioCViews;
+//	private String bioCViewsVersion;
+//	private long bioCViewsStamp;
 	
-	private ITool fRProcess;
-	private int fRTask;
-	private Change fRTaskEvent;
+	private ITool rProcess;
+	private int rTask;
+	private Change rTaskEvent;
 	
-	private DB fDB;
-	private final Cache fCache;
+	private DB db;
+	private final Cache cache;
 	
 	
 	public RPkgManager(final IREnvConfiguration rConfig) {
-		fREnv = rConfig.getReference();
-		fREnvDirectory = EFS.getLocalFileSystem().getStore(REnvConfiguration.getStateLocation(fREnv));
-		final String qualifier = ((AbstractPreferencesModelObject) rConfig).getNodeQualifiers()[0];
-		fSelectedReposPref = new RRepoListPref(qualifier, "RPkg.Repos.repos"); //$NON-NLS-1$
-		fSelectedCRANPref = new RRepoPref(qualifier, "RPkg.CRANMirror.repo"); //$NON-NLS-1$
-		fBioCVersionPref = new StringPref2(qualifier, "RPkg.BioCVersion.ver"); //$NON-NLS-1$
-		fSelectedBioCPref = new RRepoPref(qualifier, "RPkg.BioCMirror.repo"); //$NON-NLS-1$
+		this.rEnv= rConfig.getReference();
+		this.rEnvDirectory= EFS.getLocalFileSystem().getStore(REnvConfiguration.getStateLocation(this.rEnv));
+		final String qualifier= ((AbstractPreferencesModelObject) rConfig).getNodeQualifiers()[0];
+		this.selectedReposPref= new RRepoListPref(qualifier, "RPkg.Repos.repos"); //$NON-NLS-1$
+		this.selectedCRANPref= new RRepoPref(qualifier, "RPkg.CRANMirror.repo"); //$NON-NLS-1$
+		this.bioCVersionPref= new StringPref2(qualifier, "RPkg.BioCVersion.ver"); //$NON-NLS-1$
+		this.selectedBioCPref= new RRepoPref(qualifier, "RPkg.BioCMirror.repo"); //$NON-NLS-1$
 		
-		final IPreferenceAccess prefs = PreferencesUtil.getInstancePrefs();
-		fAddRepos = new ArrayList<>();
+		final IPreferenceAccess prefs= PreferencesUtil.getInstancePrefs();
+		this.addRepos= new ArrayList<>();
 		if (rConfig.getType() == IREnvConfiguration.USER_LOCAL_TYPE) {
-			final String rjVersion = "" + ServerUtil.RJ_VERSION[0] + '.' + ServerUtil.RJ_VERSION[1]; //$NON-NLS-1$
-			fAddRepos.add(new RRepo(RRepo.SPECIAL_PREFIX+"rj", "RJ", "http://download.walware.de/rj-" + rjVersion, null)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			final String rjVersion= "" + ServerUtil.RJ_VERSION[0] + '.' + ServerUtil.RJ_VERSION[1]; //$NON-NLS-1$
+			this.addRepos.add(new RRepo(RRepo.SPECIAL_PREFIX+"rj", "RJ", "http://download.walware.de/rj-" + rjVersion, null)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
-		fSelectedRepos = new SelectedRepos(
-				prefs.getPreferenceValue(fSelectedReposPref),
-				prefs.getPreferenceValue(fSelectedCRANPref),
-				prefs.getPreferenceValue(fBioCVersionPref),
-				prefs.getPreferenceValue(fSelectedBioCPref) );
+		this.selectedRepos= new SelectedRepos(
+				prefs.getPreferenceValue(this.selectedReposPref),
+				prefs.getPreferenceValue(this.selectedCRANPref),
+				prefs.getPreferenceValue(this.bioCVersionPref),
+				prefs.getPreferenceValue(this.selectedBioCPref) );
 		
-		fDB = DB.create(fREnv, fREnvDirectory);
-		fCache = new Cache(fREnvDirectory);
+		this.db= DB.create(this.rEnv, this.rEnvDirectory);
+		this.cache= new Cache(this.rEnvDirectory);
 		resetPkgs(rConfig);
 		
-		fFirstTime = true;
-		fMirrorsStamp = fPkgsStamp = System.currentTimeMillis();
-		fRequireLoad |= (REQUIRE_CRAN | REQUIRE_BIOC | REQUIRE_REPOS);
-		fRequireLoad |= (REQUIRE_REPO_PKGS | REQUIRE_INST_PKGS);
+		this.firstTime= true;
+		this.mirrorsStamp= this.pkgsStamp= System.currentTimeMillis();
+		this.requireLoad |= (REQUIRE_CRAN | REQUIRE_BIOC | REQUIRE_REPOS);
+		this.requireLoad |= (REQUIRE_REPO_PKGS | REQUIRE_INST_PKGS);
 		
 		PreferencesUtil.getSettingsChangeNotifier().addManageListener(this);
 		
@@ -205,39 +206,39 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	}
 	
 	private void resetPkgs(final IREnvConfiguration config) {
-		fPkgsExt = null;
-		if (fDB != null && config != null) {
-			fPkgsLight = fDB.loadPkgs(config.getRLibraryGroups());
+		this.pkgsExt= null;
+		if (this.db != null && config != null) {
+			this.pkgsLight= this.db.loadPkgs(config.getRLibraryGroups());
 		}
-		if (fPkgsLight == null) {
-			fDB = null;
-			fPkgsLight = new RPkgSet(0);
+		if (this.pkgsLight == null) {
+			this.db= null;
+			this.pkgsLight= new RPkgSet(0);
 		}
 	}
 	
 	
 	@Override
 	public IREnv getREnv() {
-		return fREnv;
+		return this.rEnv;
 	}
 	
 	Cache getCache() {
-		return fCache;
+		return this.cache;
 	}
 	
 	@Override
 	public RPlatform getRPlatform() {
-		return fRPlatform;
+		return this.rPlatform;
 	}
 	
 	@Override
 	public Lock getReadLock() {
-		return fLock.readLock();
+		return this.lock.readLock();
 	}
 	
 	@Override
 	public Lock getWriteLock() {
-		return fLock.writeLock();
+		return this.lock.writeLock();
 	}
 	
 	
@@ -245,20 +246,20 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	public void clear() {
 		getWriteLock().lock();
 		try {
-			fSelectedRepos = new SelectedRepos(Collections.<RRepo> emptyList(),
+			this.selectedRepos= new SelectedRepos(Collections.<RRepo> emptyList(),
 					null, null, null);
-			savePrefs(fSelectedRepos);
+			savePrefs(this.selectedRepos);
 			
-			fRequireLoad |= (REQUIRE_CRAN | REQUIRE_BIOC);
-			fRequireLoad |= (REQUIRE_REPOS);
+			this.requireLoad |= (REQUIRE_CRAN | REQUIRE_BIOC);
+			this.requireLoad |= (REQUIRE_REPOS);
 			
-			final Change change = new Change(fREnv);
-			change.fRepos = 1;
+			final Change change= new Change(this.rEnv);
+			change.fRepos= 1;
 			checkRepos(change);
 			
-			fRequireLoad |= (REQUIRE_REPO_PKGS | REQUIRE_INST_PKGS);
-			resetPkgs(fREnv.getConfig());
-			fFirstTime = true;
+			this.requireLoad |= (REQUIRE_REPO_PKGS | REQUIRE_INST_PKGS);
+			resetPkgs(this.rEnv.getConfig());
+			this.firstTime= true;
 		}
 		finally {
 			getWriteLock().unlock();
@@ -289,12 +290,12 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	
 	private void checkInit(final int flags,
 			final RService r, final IProgressMonitor monitor) throws CoreException {
-		if ((flags & INITIAL) == INITIAL || fRPlatform == null) {
+		if ((flags & INITIAL) == INITIAL || this.rPlatform == null) {
 			checkRVersion(r.getPlatform());
 			
-			final IREnvConfiguration config = fREnv.getConfig();
+			final IREnvConfiguration config= this.rEnv.getConfig();
 			if (config != null && config.isRemote()) {
-				fRLibGroups = REnvLibGroups.loadFromR(r, monitor);
+				this.rLibGroups= REnvLibGroups.loadFromR(r, monitor);
 			}
 		}
 	}
@@ -307,8 +308,8 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		try {
 			checkInstalled(null, r, monitor);
 			
-			if (fRTaskEvent != null) {
-				fireUpdate(fRTaskEvent);
+			if (this.rTaskEvent != null) {
+				fireUpdate(this.rTaskEvent);
 			}
 		}
 		catch (final Exception e) {
@@ -316,59 +317,59 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 					"An error occurred when checking for new and updated R packages.", e));
 		}
 		finally {
-			fRTaskEvent = null;
+			this.rTaskEvent= null;
 			endRTask();
 		}
 	}
 	
 	private void checkRVersion(final RPlatform rPlatform) {
-		if (fRPlatform != null && !fRPlatform.getRVersion().equals(rPlatform.getRVersion())) {
+		if (this.rPlatform != null && !this.rPlatform.getRVersion().equals(rPlatform.getRVersion())) {
 			getWriteLock().lock();
 			try {
-				fRequireLoad |= (REQUIRE_REPOS | REQUIRE_CRAN | REQUIRE_BIOC);
-				fRequireLoad |= (REQUIRE_REPO_PKGS | REQUIRE_INST_PKGS);
+				this.requireLoad |= (REQUIRE_REPOS | REQUIRE_CRAN | REQUIRE_BIOC);
+				this.requireLoad |= (REQUIRE_REPO_PKGS | REQUIRE_INST_PKGS);
 			}
 			finally {
 				getWriteLock().unlock();
 			}
 			refreshPkgs();
 		}
-		fRPlatform = rPlatform;
+		this.rPlatform= rPlatform;
 	}
 	
 	
 	@Override
 	public boolean requiresUpdate() {
-		final long stamp = System.currentTimeMillis();
-		if (Math.abs(fMirrorsStamp - stamp) > MIRROR_CHECK) {
+		final long stamp= System.currentTimeMillis();
+		if (Math.abs(this.mirrorsStamp - stamp) > MIRROR_CHECK) {
 			getWriteLock().lock();
 			try {
-				fRequireLoad |= (REQUIRE_CRAN | REQUIRE_BIOC);
+				this.requireLoad |= (REQUIRE_CRAN | REQUIRE_BIOC);
 				return true;
 			}
 			finally {
 				getWriteLock().unlock();
 			}
 		}
-		if ((fRequireLoad & (REQUIRE_REPOS | REQUIRE_CRAN | REQUIRE_BIOC)) != 0) {
+		if ((this.requireLoad & (REQUIRE_REPOS | REQUIRE_CRAN | REQUIRE_BIOC)) != 0) {
 			return true;
 		}
-		final IStatus status = getReposStatus(null);
+		final IStatus status= getReposStatus(null);
 		if (!status.isOK()) {
 			return false;
 		}
 		
-		if (Math.abs(fPkgsStamp - stamp) > MIRROR_CHECK) {
+		if (Math.abs(this.pkgsStamp - stamp) > MIRROR_CHECK) {
 			getWriteLock().lock();
 			try {
-				fRequireLoad |= (REQUIRE_REPO_PKGS);
+				this.requireLoad |= (REQUIRE_REPO_PKGS);
 				return true;
 			}
 			finally {
 				getWriteLock().unlock();
 			}
 		}
-		if ((fRequireLoad & (REQUIRE_REPO_PKGS | REQUIRE_INST_PKGS)) != 0) {
+		if ((this.requireLoad & (REQUIRE_REPO_PKGS | REQUIRE_INST_PKGS)) != 0) {
 			return true;
 		}
 		return false;
@@ -377,8 +378,8 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	
 	@Override
 	public IStatus getReposStatus(final ISelectedRepos repos) {
-		final ISelectedRepos current = fSelectedRepos;
-		final int confirm = fRequireConfirm;
+		final ISelectedRepos current= this.selectedRepos;
+		final int confirm= this.requireConfirm;
 		return getReposStatus((repos != null) ? repos : current, current, confirm);
 	}
 	
@@ -387,11 +388,11 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 			return createStatus(IStatus.ERROR, "No repository is selected. Select the repositories where to install R packages from.");
 		}
 		
-		final boolean requireCRAN = RVarRepo.requireCRANMirror(repos.getRepos());
+		final boolean requireCRAN= RVarRepo.requireCRANMirror(repos.getRepos());
 		if (requireCRAN && repos.getCRANMirror() == null) {
 			return createStatus(IStatus.ERROR, "No CRAN mirror is selected. Selected a mirror for CRAN.");
 		}
-		final boolean requireBioC = RVarRepo.requireBioCMirror(repos.getRepos());
+		final boolean requireBioC= RVarRepo.requireBioCMirror(repos.getRepos());
 		if (requireBioC && repos.getBioCMirror() == null) {
 			return createStatus(IStatus.ERROR, "No BioC mirror is selected. Selected a mirror for Bioconductor.");
 		}
@@ -415,157 +416,160 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		try {
 			checkInit(0, r, monitor);
 			
-			fRTaskEvent = new Change(fREnv);
+			this.rTaskEvent= new Change(this.rEnv);
 			
-			final ISelectedRepos settings = runLoadRepos(r, monitor);
+			final ISelectedRepos settings= runLoadRepos(r, monitor);
 			if (settings != null) {
 				runApplyRepo(settings, r, monitor);
 				runLoadPkgs(settings, r, monitor);
 			}
-			fireUpdate(fRTaskEvent);
+			fireUpdate(this.rTaskEvent);
 		}
 		finally {
-			fRTaskEvent = null;
+			this.rTaskEvent= null;
 			endRTask();
 		}
 	}
 	
 	
 	private void checkMirrors(final Change event) {
-		if ((fRequireLoad & (REQUIRE_CRAN | REQUIRE_BIOC)) != 0) {
+		if ((this.requireLoad & (REQUIRE_CRAN | REQUIRE_BIOC)) != 0) {
 			return;
 		}
 		
-		SelectedRepos selected = fSelectedRepos;
-		fAllCRAN = ConstArrayList.concat(fCustomCRAN, fRCRAN);
+		SelectedRepos selected= this.selectedRepos;
+		this.allCRAN= ImCollections.concatList(this.customCRAN, this.rCRANMirrors);
 		
-		RRepo selectedCRAN = selected.getCRANMirror();
+		RRepo selectedCRAN= selected.getCRANMirror();
 		if (selected.getCRANMirror() != null) {
-			selectedCRAN = Util.findRepo(fAllCRAN, selectedCRAN);
+			selectedCRAN= Util.findRepo(this.allCRAN, selectedCRAN);
 		}
-		else if (fFirstTime && fSelectedCRANInR != null) {
-			selectedCRAN = Util.getRepoByURL(fAllCRAN, fSelectedCRANInR);
+		else if (this.firstTime && this.selectedCRANInR != null) {
+			selectedCRAN= Util.getRepoByURL(this.allCRAN, this.selectedCRANInR);
 		}
 		if (selectedCRAN == null) {
-			fRequireConfirm |= REQUIRE_CRAN;
-			selectedCRAN = PreferencesUtil.getInstancePrefs().getPreferenceValue(LAST_CRAN_PREF);
+			this.requireConfirm |= REQUIRE_CRAN;
+			selectedCRAN= PreferencesUtil.getInstancePrefs().getPreferenceValue(LAST_CRAN_PREF);
 			if (selectedCRAN != null) {
-				selectedCRAN = Util.findRepo(fAllCRAN, selectedCRAN);
+				selectedCRAN= Util.findRepo(this.allCRAN, selectedCRAN);
 			}
-			if (!fCustomCRAN.isEmpty()
+			if (!this.customCRAN.isEmpty()
 					&& (selectedCRAN == null || !selectedCRAN.getId().startsWith(RRepo.CUSTOM_PREFIX)) ) {
-				selectedCRAN = fCustomCRAN.get(0);
+				selectedCRAN= this.customCRAN.get(0);
 			}
-			if (fFirstTime && selectedCRAN == null) {
-				selectedCRAN = fRCRANByCountry;
+			if (this.firstTime && selectedCRAN == null && !this.rCRANMirrors.isEmpty()) {
+				selectedCRAN= getRegionMirror(this.rCRANMirrors);
 			}
 		}
 		
 		
-		RRepo selectedBioC = selected.getBioCMirror();
-		fAllBioC = ConstArrayList.concat(fCustomBioC, fRBioC);
+		RRepo selectedBioC= selected.getBioCMirror();
+		this.allBioC= ImCollections.concatList(this.customBioC, this.rBioCMirrors);
 		if (selectedBioC != null) {
-			selectedBioC = Util.findRepo(fAllBioC, selectedBioC);
+			selectedBioC= Util.findRepo(this.allBioC, selectedBioC);
 		}
-		else if (fFirstTime && fSelectedBioCInR != null) {
-			selectedBioC = RPkgUtil.getRepoByURL(fAllBioC, fSelectedBioCInR);
+		else if (this.firstTime && this.selectedBioCInR != null) {
+			selectedBioC= RPkgUtil.getRepoByURL(this.allBioC, this.selectedBioCInR);
 		}
 		if (selectedBioC == null) {
-			fRequireConfirm |= REQUIRE_BIOC;
-			selectedBioC = PreferencesUtil.getInstancePrefs().getPreferenceValue(LAST_BIOC_PREF);
-			if (!fCustomBioC.isEmpty()
+			this.requireConfirm |= REQUIRE_BIOC;
+			selectedBioC= PreferencesUtil.getInstancePrefs().getPreferenceValue(LAST_BIOC_PREF);
+			if (!this.customBioC.isEmpty()
 					&& (selectedBioC == null || !selectedBioC.getId().startsWith(RRepo.CUSTOM_PREFIX)) ) {
-				selectedBioC = fCustomBioC.get(0);
+				selectedBioC= this.customBioC.get(0);
 			}
-			if (fFirstTime && selectedBioC == null) {
-				selectedBioC = Util.getRepoByURL(fAllBioC, "http://www.bioconductor.org"); //$NON-NLS-1$
+			if (this.firstTime && selectedBioC == null && !this.rBioCMirrors.isEmpty()) {
+				selectedBioC= getRegionMirror(this.rBioCMirrors);
+				if (selectedBioC == null) {
+					selectedBioC= this.rBioCMirrors.get(0);
+				}
 			}
 		}
 		
-		selected = new SelectedRepos(
+		selected= new SelectedRepos(
 				selected.getRepos(),
 				selectedCRAN,
-				fBioCVersion,
+				this.bioCVersion,
 				selectedBioC );
-		if ((fRequireLoad & (REQUIRE_REPOS)) == 0) {
-			for (final RRepo repo : fAllRepos) {
+		if ((this.requireLoad & (REQUIRE_REPOS)) == 0) {
+			for (final RRepo repo : this.allRepos) {
 				if (repo instanceof RVarRepo) {
 					((RVarRepo) repo).updateURL(selected);
 				}
 			}
 		}
-		fSelectedRepos = selected;
+		this.selectedRepos= selected;
 		
-		event.fPkgs = 1;
+		event.fPkgs= 1;
 	}
 	
 	private void checkRepos(final Change event) {
-		if ((fRequireLoad & (REQUIRE_CRAN | REQUIRE_BIOC | REQUIRE_REPOS)) != 0) {
+		if ((this.requireLoad & (REQUIRE_CRAN | REQUIRE_BIOC | REQUIRE_REPOS)) != 0) {
 			return;
 		}
 		
-		SelectedRepos selected = fSelectedRepos;
+		SelectedRepos selected= this.selectedRepos;
 		
-		fAllRepos = new ArrayList<>(fCustomRepos.size() + fAddRepos.size() + fRRepos.size());
-		fAllRepos.addAll(fCustomRepos);
-		fAllRepos.addAll(fAddRepos);
-		for (final RRepo repo : fAllRepos) {
+		this.allRepos= new ArrayList<>(this.customRepos.size() + this.addRepos.size() + this.rRepos.size());
+		this.allRepos.addAll(this.customRepos);
+		this.allRepos.addAll(this.addRepos);
+		for (final RRepo repo : this.allRepos) {
 			if (repo instanceof RVarRepo) {
 				((RVarRepo) repo).updateURL(selected);
 			}
 		}
-		for (final RRepo repo : fRRepos) {
+		for (final RRepo repo : this.rRepos) {
 			if (repo instanceof RVarRepo) {
 				((RVarRepo) repo).updateURL(selected);
 			}
 		}
-		for (final RRepo repo : fRRepos) {
+		for (final RRepo repo : this.rRepos) {
 			if (!repo.getId().isEmpty()) {
-				if (RPkgUtil.getRepoById(fAllRepos, repo.getId()) == null) {
-					fAllRepos.add(repo);
+				if (RPkgUtil.getRepoById(this.allRepos, repo.getId()) == null) {
+					this.allRepos.add(repo);
 				}
 			}
 			else {
-				if (Util.getRepoByURL(fAllRepos, repo) == null) {
-					fAllRepos.add(RVarRepo.create(RRepo.R_PREFIX + repo.getURL(), repo.getName(),
+				if (Util.getRepoByURL(this.allRepos, repo) == null) {
+					this.allRepos.add(RVarRepo.create(RRepo.R_PREFIX + repo.getURL(), repo.getName(),
 							repo.getURL(), null ));
 				}
 			}
 		}
 		
-		{	final Collection<RRepo> selectedRepos = selected.getRepos();
-			final Collection<RRepo> previous = (fFirstTime && selectedRepos.isEmpty()) ?
-					fSelectedReposInR : selectedRepos;
-			final List<RRepo> repos = new ArrayList<>(previous.size());
+		{	final Collection<RRepo> selectedRepos= selected.getRepos();
+			final Collection<RRepo> previous= (this.firstTime && selectedRepos.isEmpty()) ?
+					this.selectedReposInR : selectedRepos;
+			final List<RRepo> repos= new ArrayList<>(previous.size());
 			for (RRepo repo : previous) {
-				repo = Util.findRepo(fAllRepos, repo);
+				repo= Util.findRepo(this.allRepos, repo);
 				if (repo != null) {
 					repos.add(repo);
 				}
 			}
-			selected = new SelectedRepos(
+			selected= new SelectedRepos(
 					repos,
 					selected.getCRANMirror(),
 					selected.getBioCVersion(),
 					selected.getBioCMirror() );
-			fSelectedRepos = selected;
+			this.selectedRepos= selected;
 		}
 		
-		fRequireLoad |= REQUIRE_REPO_PKGS;
+		this.requireLoad |= REQUIRE_REPO_PKGS;
 		
-		event.fRepos = 1;
+		event.fRepos= 1;
 	}
 	
 	
 	private void loadPrefs(final boolean custom) {
-		final Change event = new Change(fREnv);
-		final IPreferenceAccess prefs = PreferencesUtil.getInstancePrefs();
+		final Change event= new Change(this.rEnv);
+		final IPreferenceAccess prefs= PreferencesUtil.getInstancePrefs();
 		getWriteLock().lock();
 		try {
 			if (custom) {
-				fCustomRepos = prefs.getPreferenceValue(CUSTOM_REPO_PREF);
-				fCustomCRAN = prefs.getPreferenceValue(CUSTOM_CRAN_MIRROR_PREF);
-				fCustomBioC = prefs.getPreferenceValue(CUSTOM_BIOC_MIRROR_PREF);
+				this.customRepos= prefs.getPreferenceValue(CUSTOM_REPO_PREF);
+				this.customCRAN= prefs.getPreferenceValue(CUSTOM_CRAN_MIRROR_PREF);
+				this.customBioC= prefs.getPreferenceValue(CUSTOM_BIOC_MIRROR_PREF);
 				
 				checkRepos(event);
 			}
@@ -579,20 +583,20 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	
 	@Override
 	public void addListener(final Listener listener) {
-		fListeners.add(listener);
+		this.listeners.add(listener);
 	}
 	
 	@Override
 	public void removeListener(final Listener listener) {
-		fListeners.remove(listener);
+		this.listeners.remove(listener);
 	}
 	
 	private void fireUpdate(final Event event) {
 		if (event.reposChanged() == 0 && event.pkgsChanged() == 0 && event.viewsChanged() == 0) {
 			return;
 		}
-		final Listener[] listeners = fListeners.toArray();
-		for (int i = 0; i < listeners.length; i++) {
+		final Listener[] listeners= this.listeners.toArray();
+		for (int i= 0; i < listeners.length; i++) {
 			listeners[i].handleChange(event);
 		}
 	}
@@ -600,54 +604,54 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	
 	@Override
 	public List<RRepo> getAvailableRepos() {
-		return fAllRepos;
+		return this.allRepos;
 	}
 	
 	@Override
 	public ISelectedRepos getSelectedRepos() {
-		return fSelectedRepos;
+		return this.selectedRepos;
 	}
 	
 	@Override
 	public void setSelectedRepos(final ISelectedRepos repos) {
 		List<RRepo> selectedRepos;
-		{	final Collection<RRepo> selected = repos.getRepos();
-			selectedRepos = new ArrayList<>(selected.size());
-			for (final RRepo repo : fAllRepos) {
+		{	final Collection<RRepo> selected= repos.getRepos();
+			selectedRepos= new ArrayList<>(selected.size());
+			for (final RRepo repo : this.allRepos) {
 				if (selected.contains(repo)) {
 					selectedRepos.add(repo);
 				}
 			}
 		}
 		RRepo selectedCRAN;
-		{	final RRepo repo = repos.getCRANMirror();
-			selectedCRAN = (repo != null) ? Util.findRepo(fAllCRAN, repo) : null;
-			fRequireConfirm &= ~REQUIRE_CRAN;
+		{	final RRepo repo= repos.getCRANMirror();
+			selectedCRAN= (repo != null) ? Util.findRepo(this.allCRAN, repo) : null;
+			this.requireConfirm &= ~REQUIRE_CRAN;
 		}
 		RRepo selectedBioC;
-		{	final RRepo repo = repos.getBioCMirror();
-			selectedBioC = (repo != null) ? Util.findRepo(fAllBioC, repo) : null;
-			fRequireConfirm &= ~REQUIRE_BIOC;
+		{	final RRepo repo= repos.getBioCMirror();
+			selectedBioC= (repo != null) ? Util.findRepo(this.allBioC, repo) : null;
+			this.requireConfirm &= ~REQUIRE_BIOC;
 		}
 		
-		final SelectedRepos previousSettings = fSelectedRepos;
-		final SelectedRepos newSettings = new SelectedRepos(
+		final SelectedRepos previousSettings= this.selectedRepos;
+		final SelectedRepos newSettings= new SelectedRepos(
 				selectedRepos,
 				selectedCRAN,
 				previousSettings.getBioCVersion(), selectedBioC );
-		for (final RRepo repo : fAllRepos) {
+		for (final RRepo repo : this.allRepos) {
 			if (repo instanceof RVarRepo) {
 				((RVarRepo) repo).updateURL(newSettings);
 			}
 		}
-		fSelectedRepos = newSettings;
+		this.selectedRepos= newSettings;
 		savePrefs(newSettings);
 		
 		if (!newSettings.equals(previousSettings)) {
-			fRequireLoad |= (REQUIRE_REPO_PKGS);
+			this.requireLoad |= (REQUIRE_REPO_PKGS);
 			
-			final Change event = new Change(fREnv);
-			event.fRepos = 1;
+			final Change event= new Change(this.rEnv);
+			event.fRepos= 1;
 			fireUpdate(event);
 		}
 	}
@@ -657,25 +661,25 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		if (repoId.isEmpty()) {
 			return null;
 		}
-		RRepo repo = fSelectedRepos.getRepo(repoId);
+		RRepo repo= this.selectedRepos.getRepo(repoId);
 		if (repo == null) {
-			repo = RPkgUtil.getRepoById(fAllRepos, repoId);
+			repo= RPkgUtil.getRepoById(this.allRepos, repoId);
 		}
 		return repo;
 	}
 	
 	private void savePrefs(final SelectedRepos repos) {
-		if (fREnv.getConfig() == null) {
+		if (this.rEnv.getConfig() == null) {
 			return;
 		}
-		final IScopeContext prefs = InstanceScope.INSTANCE;
+		final IScopeContext prefs= InstanceScope.INSTANCE;
 		
-		final IEclipsePreferences node = prefs.getNode(fSelectedReposPref.getQualifier());
+		final IEclipsePreferences node= prefs.getNode(this.selectedReposPref.getQualifier());
 		
-		PreferencesUtil.setPrefValue(node, fSelectedReposPref, repos.getRepos());
-		PreferencesUtil.setPrefValue(node, fSelectedCRANPref, repos.getCRANMirror());
-		PreferencesUtil.setPrefValue(node, fBioCVersionPref, repos.getBioCVersion());
-		PreferencesUtil.setPrefValue(node, fSelectedBioCPref, repos.getBioCMirror());
+		PreferencesUtil.setPrefValue(node, this.selectedReposPref, repos.getRepos());
+		PreferencesUtil.setPrefValue(node, this.selectedCRANPref, repos.getCRANMirror());
+		PreferencesUtil.setPrefValue(node, this.bioCVersionPref, repos.getBioCVersion());
+		PreferencesUtil.setPrefValue(node, this.selectedBioCPref, repos.getBioCMirror());
 		
 		if (repos.getCRANMirror() != null) {
 			PreferencesUtil.setPrefValue(prefs, LAST_CRAN_PREF, repos.getCRANMirror());
@@ -695,30 +699,30 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	
 	@Override
 	public void refreshPkgs() {
-		fRequireLoad |= (REQUIRE_REPO_PKGS | REQUIRE_INST_PKGS);
+		this.requireLoad |= (REQUIRE_REPO_PKGS | REQUIRE_INST_PKGS);
 	}
 	
 	
 	@Override
-	public List<RRepo> getAvailableCRANMirrors() {
-		return fAllCRAN;
+	public ImList<RRepo> getAvailableCRANMirrors() {
+		return this.allCRAN;
 	}
 	
 	@Override
 	public List<RRepo> getAvailableBioCMirrors() {
-		return fAllBioC;
+		return this.allBioC;
 	}
 	
 	@Override
 	public IRLibPaths getRLibPaths() {
-		return fRLibPaths;
+		return this.rLibPaths;
 	}
 	
 	public REnvLibGroups getRLibGroups() {
-		if (fRLibGroups != null) {
-			return fRLibGroups;
+		if (this.rLibGroups != null) {
+			return this.rLibGroups;
 		}
-		final IREnvConfiguration config = fREnv.getConfig();
+		final IREnvConfiguration config= this.rEnv.getConfig();
 		if (config != null) {
 			return new REnvLibGroups(config);
 		}
@@ -727,17 +731,17 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	
 	@Override
 	public IRPkgSet getRPkgSet() {
-		return (fPkgsExt != null) ? fPkgsExt : fPkgsLight;
+		return (this.pkgsExt != null) ? this.pkgsExt : this.pkgsLight;
 	}
 	
 	@Override
 	public IRPkgSet.Ext getExtRPkgSet() {
-		return fPkgsExt;
+		return this.pkgsExt;
 	}
 	
 	@Override
 	public List<? extends IRView> getRViews() {
-		return fRViews;
+		return this.rViews;
 	}
 	
 //	@Override
@@ -761,11 +765,11 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	private boolean beginRTaskSilent(final IToolService r,
 			final IProgressMonitor monitor) {
 		synchronized (this) {
-			if (fRProcess != null) {
+			if (this.rProcess != null) {
 				return false;
 			}
-			fRProcess = r.getTool();
-			fRTask = 1;
+			this.rProcess= r.getTool();
+			this.rTask= 1;
 			return true;
 		}
 	}
@@ -773,8 +777,8 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	private void beginRTask(final IToolService r,
 			final IProgressMonitor monitor) throws CoreException {
 		synchronized (this) {
-			while (fRProcess != null) {
-				if (fRTask == 1) {
+			while (this.rProcess != null) {
+				if (this.rTask == 1) {
 					monitor.subTask("Waiting for package check...");
 					try {
 						wait();
@@ -786,22 +790,22 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 					}
 				}
 				else {
-					final Status status = new Status(IStatus.ERROR, RCore.PLUGIN_ID,
+					final Status status= new Status(IStatus.ERROR, RCore.PLUGIN_ID,
 							NLS.bind("Another package manager task for ''{0}'' is already running in ''{0}''", 
-									fREnv.getName(), fRProcess.getLabel(ITool.DEFAULT_LABEL) ));
+									this.rEnv.getName(), this.rProcess.getLabel(ITool.DEFAULT_LABEL) ));
 	//				r.handleStatus(status, monitor);
 					throw new CoreException(status);
 				}
 			}
-			fRProcess = r.getTool();
-			fRTask = 2;
+			this.rProcess= r.getTool();
+			this.rTask= 2;
 		}
 	}
 	
 	private void endRTask() {
 		synchronized (this) {
-			fRProcess = null;
-			fRTask = 0;
+			this.rProcess= null;
+			this.rTask= 0;
 			notifyAll();
 		}
 	}
@@ -813,23 +817,23 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 			final ISelectedRepos selectedRepos;
 			getReadLock().lock();
 			try {
-				selectedRepos = fSelectedRepos;
+				selectedRepos= this.selectedRepos;
 			}
 			finally {
 				getReadLock().unlock();
 			}
 			
 			if (getReposStatus(selectedRepos).getSeverity() != IStatus.ERROR) {
-				fRTaskEvent = new Change(fREnv);
+				this.rTaskEvent= new Change(this.rEnv);
 				
 				runApplyRepo(selectedRepos, r, monitor);
 				runLoadPkgs(selectedRepos, r, monitor);
 				
-				fireUpdate(fRTaskEvent);
+				fireUpdate(this.rTaskEvent);
 			}
 		}
 		finally {
-			fRTaskEvent = null;
+			this.rTaskEvent= null;
 			endRTask();
 		}
 	}
@@ -848,108 +852,97 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 					bioCVersion= RDataUtil.checkSingleCharValue(data);
 				}
 				catch (final CoreException ignore) {
-					final Status status = new Status(IStatus.ERROR, RCore.PLUGIN_ID, 0,
+					final Status status= new Status(IStatus.ERROR, RCore.PLUGIN_ID, 0,
 							"Failed to get the version of BioC.", e );
 					RCorePlugin.log(status);
 				}
 			}
 			
-			final boolean loadRMirrors = ((fRequireLoad & (REQUIRE_CRAN | REQUIRE_BIOC)) != 0);
-			final boolean loadRRepos = ((fRequireLoad & (REQUIRE_REPOS)) != 0);
+			final boolean loadRMirrors= ((this.requireLoad & (REQUIRE_CRAN | REQUIRE_BIOC)) != 0);
+			final boolean loadRRepos= ((this.requireLoad & (REQUIRE_REPOS)) != 0);
 			
-			List<RRepo> rCRAN = null;
-			List<RRepo> rBioC = null;
-			String selectedCRAN = null;
-			RRepo rCRANByCountry = null;
-			String selectedBioC = null;
+			List<RRepoMirror> rCRANMirrors= null;
+			List<RRepoMirror> rBioCMirrors= null;
+			String selectedCRAN= null;
+			String selectedBioC= null;
 			if (loadRMirrors) {
 				monitor.subTask("Fetching available mirrors...");
-				final String region = Locale.getDefault().getCountry().toLowerCase();
-				{	final RObject data = r.evalData("getCRANmirrors()[c('Name', 'URL', 'CountryCode')]", monitor); //$NON-NLS-1$
-					final RDataFrame df = RDataUtil.checkRDataFrame(data);
-					final RCharacterStore names = RDataUtil.checkRCharVector(df.get("Name")).getData(); //$NON-NLS-1$
-					final RCharacterStore urls = RDataUtil.checkRCharVector(df.get("URL")).getData(); //$NON-NLS-1$
-					final RCharacterStore regions = RDataUtil.checkRCharVector(df.get("CountryCode")).getData(); //$NON-NLS-1$
-					
-					final int l = RDataUtil.checkIntLength(names);
-					rCRAN = new ArrayList<>(l);
-					for (int i = 0; i < l; i++) {
-						final String url = Util.checkURL(urls.getChar(i));
-						if (!url.isEmpty()) {
-							final RRepo repo = new RRepo(RRepo.R_PREFIX + url, names.getChar(i),
-									url, null );
-							rCRAN.add(repo);
-							if (rCRANByCountry == null && !region.isEmpty()
-									&& region.equals(regions.getChar(i))) {
-								rCRANByCountry = repo;
-							}
-						}
-					}
-				}
+				final String mirrorArgs= "all= FALSE, local.only= FALSE"; //$NON-NLS-1$
 				
-				{	final String[][] fix = new String[][] {
-							{ "Seattle (USA)", "http://www.bioconductor.org" },
-							{ "Bethesda (USA)", "http://watson.nci.nih.gov/bioc_mirror" },
-							{ "Dortmund (Germany)", "http://bioconductor.statistik.tu-dortmund.de" },
-							{ "Bergen (Norway)", "http://bioconductor.uib.no" },
-							{ "Cambridge (UK)", "http://mirrors.ebi.ac.uk/bioconductor" }
+				rCRANMirrors= fetchMirrors("getCRANmirrors(" + mirrorArgs + ')', r, monitor); //$NON-NLS-1$
+				
+				try {
+					rBioCMirrors= fetchMirrors("utils:::.getMirrors('https://bioconductor.org/BioC_mirrors.csv', file.path(R.home('doc'), 'BioC_mirrors.csv'), " + mirrorArgs + ')', r, monitor); //$NON-NLS-1$
+				}
+				catch (final Exception e) {
+				}
+				if (rBioCMirrors == null || rBioCMirrors.isEmpty()) {
+					final String[][] s= new String[][] {
+							{ "United States (Seattle)", "http://www.bioconductor.org", "us" },
+							{ "United States (Rockville)", "http://watson.nci.nih.gov/bioc_mirror", "us" },
+							{ "Germany (Dortmund)", "http://bioconductor.statistik.tu-dortmund.de", "de" },
+							{ "China (Anhui)", "http://mirrors.ustc.edu.cn/bioc/", "cn" },
+							{ "United Kingdom (Hinxton)", "http://mirrors.ebi.ac.uk/bioconductor/", "uk" },
+							{ "Riken, Kobe (Japan)", "http://bioconductor.jp/", "jp" },
+							{ "Australia (Sydney)", "http://mirror.aarnet.edu.au/pub/bioconductor/", "au" },
+							{ "Brazil (Ribeirão Preto)", "http://bioconductor.fmrp.usp.br/", "br" },
 					};
-					rBioC = new ArrayList<>(fix.length);
-					for (int i = 0; i < fix.length; i++) {
-						final String url = Util.checkURL(fix[i][1]);
+					rBioCMirrors= new ArrayList<>(s.length);
+					for (int i= 0; i < s.length; i++) {
+						final String url= Util.checkURL(s[i][1]);
 						if (!url.isEmpty()) {
-							rBioC.add(new RRepo(RRepo.R_PREFIX + url, fix[i][0], url, null));
+							rBioCMirrors.add(new RRepoMirror(RRepo.R_PREFIX + url, s[i][0], url, s[i][2]));
 						}
 					}
 				}
 			}
 			
-			List<RRepo> rrepos = null;
-			List<RRepo> selected = null;
+			List<RRepo> rrepos= null;
+			List<RRepo> selected= null;
 			if (loadRRepos) {
 				monitor.subTask("Fetching available repositories...");
-				{	final RObject data = r.evalData("options('repos')[[1L]]", monitor); //$NON-NLS-1$
+				{	final RObject data= r.evalData("options('repos')[[1L]]", monitor); //$NON-NLS-1$
 					if (data.getRObjectType() != RObject.TYPE_NULL) {
-						final RCharacterStore urls = RDataUtil.checkRCharVector(data).getData();
-						final RStore ids = ((RVector<?>) data).getNames();
+						final RCharacterStore urls= RDataUtil.checkRCharVector(data).getData();
+						final RStore<?> ids= ((RVector<?>) data).getNames();
 						
-						final int l = RDataUtil.checkIntLength(urls);
-						selected = new ArrayList<>(l);
-						for (int i = 0; i < l; i++) {
-							final String id = (ids != null) ? ids.getChar(i) : null;
-							final String url = urls.getChar(i);
+						final int l= RDataUtil.checkIntLength(urls);
+						selected= new ArrayList<>(l);
+						for (int i= 0; i < l; i++) {
+							final String id= (ids != null) ? ids.getChar(i) : null;
+							final String url= urls.getChar(i);
 							
-							final RRepo repo = Util.createRepoFromR(id, null, url);
+							final RRepo repo= Util.createRepoFromR(id, null, url);
 							if (repo != null) {
 								selected.add(repo);
 							}
 						}
 					}
 					else {
-						selected = new ArrayList<>(4);
+						selected= new ArrayList<>(4);
 					}
 				}
 				
-				final RObject data = r.evalData("local({" + //$NON-NLS-1$
+				final RObject data= r.evalData("local({" + //$NON-NLS-1$
 						"p <- file.path(Sys.getenv('HOME'), '.R', 'repositories')\n" + //$NON-NLS-1$
 						"if (!file.exists(p)) p <- file.path(R.home('etc'), 'repositories')\n" + //$NON-NLS-1$
-						"r <- utils::read.delim(p, header = TRUE, comment.char = '#', colClasses = c(rep.int('character', 3L), rep.int('logical', 4L)))\n" + //$NON-NLS-1$
+						"r <- utils::read.delim(p, header= TRUE, comment.char= '#', colClasses= c(rep.int('character', 3L), rep.int('logical', 4L)))\n" + //$NON-NLS-1$
 						"r[c(names(r)[1L], 'URL', 'default')]\n" + //$NON-NLS-1$
 				"})", monitor); //$NON-NLS-1$
-				final RDataFrame df = RDataUtil.checkRDataFrame(data);
-				final RStore ids = df.getRowNames();
-				final RCharacterStore labels = RDataUtil.checkRCharVector(df.get(0)).getData();
-				final RCharacterStore urls = RDataUtil.checkRCharVector(df.get("URL")).getData(); //$NON-NLS-1$
-				final RLogicalStore isDefault = (selected.isEmpty()) ?
+				final RDataFrame df= RDataUtil.checkRDataFrame(data);
+				final RStore<?> ids= df.getRowNames();
+				final RCharacterStore labels= RDataUtil.checkRCharVector(df.get(0)).getData();
+				final RCharacterStore urls= RDataUtil.checkRCharVector(df.get("URL")).getData(); //$NON-NLS-1$
+				final RLogicalStore isDefault= (selected.isEmpty()) ?
 						RDataUtil.checkRLogiVector(df.get("default")).getData() : null; //$NON-NLS-1$
 				
-				{	final int l = RDataUtil.checkIntLength(labels);
-					rrepos = new ArrayList<>(l + 4);
-					for (int i = 0; i < l; i++) {
-						final String id = (ids != null) ? ids.getChar(i) : null;
-						final String url = urls.getChar(i);
+				{	final int l= RDataUtil.checkIntLength(labels);
+					rrepos= new ArrayList<>(l + 4);
+					for (int i= 0; i < l; i++) {
+						final String id= (ids != null) ? ids.getChar(i) : null;
+						final String url= urls.getChar(i);
 						
-						final RRepo repo = Util.createRepoFromR(id, labels.getChar(i), url);
+						final RRepo repo= Util.createRepoFromR(id, labels.getChar(i), url);
 						if (repo != null) {
 							rrepos.add(repo);
 							if (isDefault != null && isDefault.getLogi(i)) {
@@ -959,20 +952,20 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 					}
 				}
 				
-				for (int i = 0; i < selected.size(); i++) {
-					final RRepo repo = selected.get(i);
-					RRepo rrepo = null;
+				for (int i= 0; i < selected.size(); i++) {
+					final RRepo repo= selected.get(i);
+					RRepo rrepo= null;
 					if (!repo.getURL().isEmpty()) {
-						rrepo = RPkgUtil.getRepoByURL(rrepos, repo.getURL());
+						rrepo= RPkgUtil.getRepoByURL(rrepos, repo.getURL());
 					}
 					if (rrepo != null) {
 						selected.set(i, rrepo);
 						continue;
 					}
 					if (!repo.getId().isEmpty()) {
-						final int j = rrepos.indexOf(repo); // by id
+						final int j= rrepos.indexOf(repo); // by id
 						if (j >= 0) {
-							rrepo = rrepos.get(j);
+							rrepo= rrepos.get(j);
 							if (!RVarRepo.hasVars(rrepo.getURL())) {
 								rrepo.setURL(repo.getURL());
 							}
@@ -987,54 +980,53 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 			
 			if (loadRMirrors) {
 				if (loadRRepos) {
-					final RRepo repo = RPkgUtil.getRepoById(rrepos, RRepo.CRAN_ID);
+					final RRepo repo= RPkgUtil.getRepoById(rrepos, RRepo.CRAN_ID);
 					if (repo != null && !repo.getURL().isEmpty()
 							&& !RVarRepo.hasVars(repo.getURL()) ) {
-						selectedCRAN = repo.getURL();
+						selectedCRAN= repo.getURL();
 					}
 				}
 				else {
-					final RObject data = r.evalData("options('repos')[[1L]]['CRAN']", monitor); //$NON-NLS-1$
+					final RObject data= r.evalData("options('repos')[[1L]]['CRAN']", monitor); //$NON-NLS-1$
 					if (data.getRObjectType() != RObject.TYPE_NULL) {
-						final String url = Util.checkURL(RDataUtil.checkSingleChar(data));
+						final String url= Util.checkURL(RDataUtil.checkSingleChar(data));
 						if (!url.isEmpty() && !RVarRepo.hasVars(url)) {
-							selectedCRAN = url;
+							selectedCRAN= url;
 						}
 					}
 				}
-				{	final RObject data = r.evalData("options('BioC_mirror')[[1L]]", monitor); //$NON-NLS-1$
+				{	final RObject data= r.evalData("options('BioC_mirror')[[1L]]", monitor); //$NON-NLS-1$
 					if (data.getRObjectType() != RObject.TYPE_NULL) {
-						selectedBioC = RDataUtil.checkSingleChar(data);
+						selectedBioC= RDataUtil.checkSingleChar(data);
 					}
 				}
 			}
 			
 			getWriteLock().lock();
 			try {
-				fBioCVersion = bioCVersion;
+				this.bioCVersion= bioCVersion;
 				
 				if (loadRMirrors) {
-					fRequireLoad &= ~(REQUIRE_CRAN | REQUIRE_BIOC);
-					fRCRAN = rCRAN;
-					fRCRANByCountry = rCRANByCountry;
-					fSelectedCRANInR = selectedCRAN;
-					fRBioC = rBioC;
-					fSelectedBioCInR = selectedBioC;
-					fMirrorsStamp = fRTaskEvent.fStamp;
+					this.requireLoad &= ~(REQUIRE_CRAN | REQUIRE_BIOC);
+					this.rCRANMirrors= rCRANMirrors;
+					this.selectedCRANInR= selectedCRAN;
+					this.rBioCMirrors= rBioCMirrors;
+					this.selectedBioCInR= selectedBioC;
+					this.mirrorsStamp= this.rTaskEvent.fStamp;
 					
-					checkMirrors(fRTaskEvent);
+					checkMirrors(this.rTaskEvent);
 				}
 				if (loadRRepos) {
-					fRequireLoad &= ~(REQUIRE_REPOS);
-					fRRepos = rrepos;
-					fSelectedReposInR = selected;
+					this.requireLoad &= ~(REQUIRE_REPOS);
+					this.rRepos= rrepos;
+					this.selectedReposInR= selected;
 					
-					checkRepos(fRTaskEvent);
+					checkRepos(this.rTaskEvent);
 				}
-				fFirstTime = false;
+				this.firstTime= false;
 				
-				if (getReposStatus(fSelectedRepos, fSelectedRepos, fRequireConfirm).isOK()) {
-					return fSelectedRepos;
+				if (getReposStatus(this.selectedRepos, this.selectedRepos, this.requireConfirm).isOK()) {
+					return this.selectedRepos;
 				}
 				return null;
 			}
@@ -1048,27 +1040,63 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		}
 	}
 	
+	private List<RRepoMirror> fetchMirrors(final String rExpr, final RService r,
+			final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
+		final RObject data= r.evalData(rExpr + "[c('Name', 'URL', 'CountryCode')]", monitor); //$NON-NLS-1$
+		final RDataFrame df= RDataUtil.checkRDataFrame(data);
+		final RCharacterStore names= RDataUtil.checkRCharVector(df.get("Name")).getData(); //$NON-NLS-1$
+		final RCharacterStore urls= RDataUtil.checkRCharVector(df.get("URL")).getData(); //$NON-NLS-1$
+		final RCharacterStore countryCodes= RDataUtil.checkRCharVector(df.get("CountryCode")).getData(); //$NON-NLS-1$
+		
+		final int l= RDataUtil.checkIntLength(names);
+		final List<RRepoMirror> mirrors= new ArrayList<>(l);
+		for (int i= 0; i < l; i++) {
+			final String url= Util.checkURL(urls.getChar(i));
+			if (!url.isEmpty()) {
+				mirrors.add(new RRepoMirror(RRepo.R_PREFIX + url, names.getChar(i), url,
+						countryCodes.getChar(i) ));
+			}
+		}
+		return mirrors;
+	}
+	
+	private RRepoMirror getRegionMirror(final List<RRepoMirror> mirrors) {
+		final String countryCode= Locale.getDefault().getCountry().toLowerCase();
+		RRepoMirror http= null;
+		for (final RRepoMirror repo : mirrors) {
+			if (countryCode.equals(repo.getCountryCode())) {
+				if (repo.getURL().startsWith("https:")) { //$NON-NLS-1$
+					return repo;
+				}
+				else if (http == null) {
+					http= repo;
+				}
+			}
+		}
+		return http;
+	}
+	
 	private void runApplyRepo(final ISelectedRepos repos, final RService r,
 			final IProgressMonitor monitor) throws CoreException {
 		monitor.subTask("Setting repository configuration...");
 		try {
 			if (repos.getBioCMirror() != null) {
-				final FunctionCall call = r.createFunctionCall("options");
+				final FunctionCall call= r.createFunctionCall("options");
 				call.addChar("BioC_mirror", repos.getBioCMirror().getURL());
 				call.evalVoid(monitor);
 			}
-			{	final List<RRepo> selectedRepos = (List<RRepo>) repos.getRepos();
-				final String[] ids = new String[selectedRepos.size()];
-				final String[] urls = new String[selectedRepos.size()];
-				for (int i = 0; i < urls.length; i++) {
-					final RRepo repo = selectedRepos.get(i);
-					ids[i] = repo.getId();
-					urls[i] = repo.getURL();
+			{	final List<RRepo> selectedRepos= (List<RRepo>) repos.getRepos();
+				final String[] ids= new String[selectedRepos.size()];
+				final String[] urls= new String[selectedRepos.size()];
+				for (int i= 0; i < urls.length; i++) {
+					final RRepo repo= selectedRepos.get(i);
+					ids[i]= repo.getId();
+					urls[i]= repo.getURL();
 				}
-				final RVector<RCharacterStore> data = new RVectorImpl<RCharacterStore>(
+				final RVector<RCharacterStore> data= new RVectorImpl<RCharacterStore>(
 						new RCharacterDataImpl(urls), RObject.CLASSNAME_CHARACTER, ids);
 				
-				final FunctionCall call = r.createFunctionCall("options");
+				final FunctionCall call= r.createFunctionCall("options");
 				call.add("repos", data);
 				call.evalVoid(monitor);
 			}
@@ -1082,28 +1110,26 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	
 	private void runLoadPkgs(final ISelectedRepos repoSettings, final RService r,
 			final IProgressMonitor monitor) throws CoreException {
-		final boolean loadRepoPkgs = (fRequireLoad & (REQUIRE_REPO_PKGS)) != 0
+		final boolean loadRepoPkgs= (this.requireLoad & (REQUIRE_REPO_PKGS)) != 0
 				&& getReposStatus(repoSettings).isOK();
-		final boolean loadInstPkgs = ((fRequireLoad & (REQUIRE_INST_PKGS)) != 0);
+		final boolean loadInstPkgs= ((this.requireLoad & (REQUIRE_INST_PKGS)) != 0);
 		
-		FullRPkgSet pkgs = null;
+		FullRPkgSet pkgs= null;
 		if (loadRepoPkgs) {
-			fRTaskEvent.fOldPkgs = getRPkgSet();
-			fRTaskEvent.fNewPkgs = pkgs = fPkgScanner.loadAvailable(repoSettings, r, monitor);
+			this.rTaskEvent.fOldPkgs= getRPkgSet();
+			this.rTaskEvent.fNewPkgs= pkgs= this.pkgScanner.loadAvailable(repoSettings, r, monitor);
 		}
 		
 		if (loadInstPkgs) {
 			if (pkgs == null) {
-				if (fPkgsExt != null) {
-					pkgs = fPkgsExt.cloneAvailable();
+				if (this.pkgsExt != null) {
+					pkgs= this.pkgsExt.cloneAvailable();
 				}
 				else {
-					pkgs = new FullRPkgSet(0);
+					pkgs= new FullRPkgSet(0);
 				}
 			}
 			checkInstalled(pkgs, r, monitor);
-			
-			updateRViews(repoSettings, pkgs, r, monitor);
 		}
 		
 		if (pkgs != null) {
@@ -1112,12 +1138,12 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 				setPkgs();
 				
 				if (loadRepoPkgs) {
-					fRequireLoad &= ~REQUIRE_REPO_PKGS;
-					fPkgsStamp = fRTaskEvent.fStamp;
-					fRTaskEvent.fPkgs |= AVAILABLE;
+					this.requireLoad &= ~REQUIRE_REPO_PKGS;
+					this.pkgsStamp= this.rTaskEvent.fStamp;
+					this.rTaskEvent.fPkgs |= AVAILABLE;
 				}
 				if (loadInstPkgs) {
-					fRequireLoad &= ~REQUIRE_INST_PKGS;
+					this.requireLoad &= ~REQUIRE_INST_PKGS;
 				}
 			}
 			finally {
@@ -1130,31 +1156,31 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	private void checkInstalled(final FullRPkgSet pkgs,
 			final RService r, final IProgressMonitor monitor)
 			throws CoreException {
-		RVector<RNumericStore> libs = null;
-		boolean[] update = null;
+		RVector<RNumericStore> libs= null;
+		boolean[] update= null;
 		
 		try {
-			libs = RDataUtil.checkRNumVector(r.evalData(
+			libs= RDataUtil.checkRNumVector(r.evalData(
 					"rj:::.renv.checkLibs()", monitor )); //$NON-NLS-1$
 			
-			final int l = RDataUtil.checkIntLength(libs.getData());
-			ITER_LIBS: for (int idxLib = 0; idxLib < l; idxLib++) {
-				final String libPath = libs.getNames().getChar(idxLib);
-				if (fLibs != null) {
-					final int idx = (int) fLibs.getNames().indexOf(libPath);
+			final int l= RDataUtil.checkIntLength(libs.getData());
+			ITER_LIBS: for (int idxLib= 0; idxLib < l; idxLib++) {
+				final String libPath= libs.getNames().getChar(idxLib);
+				if (this.libs != null) {
+					final int idx= (int) this.libs.getNames().indexOf(libPath);
 					if (idx >= 0) {
-						if (fLibs.getData().getNum(idx) == libs.getData().getNum(idxLib)) {
+						if (this.libs.getData().getNum(idx) == libs.getData().getNum(idxLib)) {
 							continue ITER_LIBS;
 						}
 					}
 				}
 				if (update == null) {
-					update = new boolean[l];
+					update= new boolean[l];
 				}
-				update[idxLib] = true;
+				update[idxLib]= true;
 			}
 			
-			fLibs = libs;
+			this.libs= libs;
 		}
 		catch (final UnexpectedRDataException | CoreException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
@@ -1163,72 +1189,76 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		}
 		
 		if (update != null || pkgs != null) {
-			if (fRTaskEvent == null) {
-				fRTaskEvent = new Change(fREnv);
+			if (this.rTaskEvent == null) {
+				this.rTaskEvent= new Change(this.rEnv);
 			}
-			if (fRTaskEvent.fOldPkgs == null) {
-				fRTaskEvent.fOldPkgs = getRPkgSet();
+			if (this.rTaskEvent.fOldPkgs == null) {
+				this.rTaskEvent.fOldPkgs= getRPkgSet();
 			}
-			if (fPkgsExt != null || pkgs != null) {
-				final FullRPkgSet newPkgs = (pkgs != null) ? pkgs : fPkgsExt.cloneAvailable();
-				fRTaskEvent.fNewPkgs = newPkgs;
-				fRLibPaths = RLibPaths.create(getRLibGroups(), libs, r, monitor);
-				fPkgScanner.updateInstFull(fRLibPaths, update, newPkgs, fRTaskEvent, r, monitor);
+			if (this.pkgsExt != null || pkgs != null) {
+				final FullRPkgSet newPkgs= (pkgs != null) ? pkgs : this.pkgsExt.cloneAvailable();
+				this.rTaskEvent.fNewPkgs= newPkgs;
+				this.rLibPaths= RLibPaths.create(getRLibGroups(), libs, r, monitor);
+				this.pkgScanner.updateInstFull(this.rLibPaths, update, newPkgs, this.rTaskEvent, r, monitor);
 			}
 			else {
-				final RPkgSet newPkgs = new RPkgSet((int) libs.getLength());
-				fRTaskEvent.fNewPkgs = newPkgs;
-				fRLibPaths = RLibPaths.createLight(getRLibGroups(), libs);
-				fPkgScanner.updateInstLight(fRLibPaths, update, newPkgs, fRTaskEvent, r, monitor);
+				final RPkgSet newPkgs= new RPkgSet((int) libs.getLength());
+				this.rTaskEvent.fNewPkgs= newPkgs;
+				this.rLibPaths= RLibPaths.createLight(getRLibGroups(), libs);
+				this.pkgScanner.updateInstLight(this.rLibPaths, update, newPkgs, this.rTaskEvent, r, monitor);
 			}
 			
-			if (fRTaskEvent.fInstalledPkgs != null && fRTaskEvent.fInstalledPkgs.names.isEmpty()) {
-				fRTaskEvent.fInstalledPkgs = null;
+			if (this.rTaskEvent.fInstalledPkgs != null && this.rTaskEvent.fInstalledPkgs.names.isEmpty()) {
+				this.rTaskEvent.fInstalledPkgs= null;
 			}
 			if (pkgs == null) {
 				setPkgs();
 			}
-			if (fRTaskEvent.fInstalledPkgs != null && fDB != null) {
-				fDB.updatePkgs(fRTaskEvent);
+			if (this.rTaskEvent.fInstalledPkgs != null && this.db != null) {
+				this.db.updatePkgs(this.rTaskEvent);
+			}
+			
+			if (this.pkgsExt != null) {
+				checkRViews(this.pkgsExt, r, monitor);
 			}
 		}
 	}
 	
 	private void setPkgs() {
-		final Change event = fRTaskEvent;
+		final Change event= this.rTaskEvent;
 		if (event.fNewPkgs instanceof FullRPkgSet) {
-			fPkgsExt = (FullRPkgSet) event.fNewPkgs;
-			fPkgsLight = null;
+			this.pkgsExt= (FullRPkgSet) event.fNewPkgs;
+			this.pkgsLight= null;
 		}
 		else if (event.fNewPkgs instanceof RPkgSet) {
-			fPkgsExt = null;
-			fPkgsLight = (RPkgSet) event.fNewPkgs;
+			this.pkgsExt= null;
+			this.pkgsLight= (RPkgSet) event.fNewPkgs;
 		}
 		if (event.fInstalledPkgs != null) {
 			event.fPkgs |= INSTALLED;
 		}
 	}
 	
-	private void updateRViews(final ISelectedRepos repoSettings, final FullRPkgSet pkgs,
+	private void checkRViews(final FullRPkgSet pkgs,
 			final RService r, final IProgressMonitor monitor) {
-		final RPkgInfoAndData pkg = pkgs.getInstalled().getFirstByName("ctv"); //$NON-NLS-1$
-		if (pkg == null || pkg.getVersion().equals(fRViewsVersion)) {
+		final RPkgInfoAndData pkg= pkgs.getInstalled().getFirstByName("ctv"); //$NON-NLS-1$
+		if (pkg == null || pkg.getVersion().equals(this.rViewsVersion)) {
 			return;
 		}
-		final List<RView> rViews = RViewTasks.loadRViews(r, monitor);
+		final List<RView> rViews= RViewTasks.loadRViews(r, monitor);
 		if (rViews != null) {
-			fRViews = rViews;
-			fRViewsVersion = pkg.getVersion();
-			fRTaskEvent.fViews = 1;
+			this.rViews= rViews;
+			this.rViewsVersion= pkg.getVersion();
+			this.rTaskEvent.fViews= 1;
 		}
 	}
 	
 	
 	@Override
 	public IRPkgData addToCache(final IFileStore store, final IProgressMonitor monitor) throws CoreException {
-		final IRPkg pkg = RPkgUtil.checkPkgFileName(store.getName());
-		final RPkgType type = RPkgUtil.checkPkgType(store.getName(), fRPlatform);
-		fCache.add(pkg.getName(), type, store, monitor);
+		final IRPkg pkg= RPkgUtil.checkPkgFileName(store.getName());
+		final RPkgType type= RPkgUtil.checkPkgType(store.getName(), this.rPlatform);
+		this.cache.add(pkg.getName(), type, store, monitor);
 		return new RPkgData(pkg.getName(), RNumVersion.NONE, RRepo.WS_CACHE_PREFIX + type.name().toLowerCase());
 	}
 	
@@ -1238,9 +1268,9 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		if (actions.isEmpty()) {
 			return;
 		}
-		final String label = (actions.get(0).getAction() == RPkgAction.UNINSTALL) ?
+		final String label= (actions.get(0).getAction() == RPkgAction.UNINSTALL) ?
 				"Uninstall R Packages" : "Install/Update R Packages";
-		final RPkgOperator op = new RPkgOperator(this);
+		final RPkgOperator op= new RPkgOperator(this);
 		rTool.getQueue().add(new AbstractStatetRRunnable("r/renv/pkgs.inst", label) { //$NON-NLS-1$
 			@Override
 			protected void run(final IRConsoleService r, final IProgressMonitor monitor) throws CoreException {
@@ -1266,7 +1296,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	@Override
 	public void loadPkgs(final ITool rTool, final List<? extends IRPkgInfoAndData> pkgs,
 			final boolean expliciteLocation) {
-		final RPkgOperator op = new RPkgOperator(this);
+		final RPkgOperator op= new RPkgOperator(this);
 		rTool.getQueue().add(new AbstractStatetRRunnable("r/renv/pkgs.load", //$NON-NLS-1$
 				"Load R Packages") {
 			@Override
