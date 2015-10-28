@@ -23,7 +23,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
+
 import de.walware.ecommons.io.FileUtil;
 
 import de.walware.rj.data.RCharacterStore;
@@ -128,19 +129,19 @@ public class REnvLibGroups {
 				}
 			}
 		}
-		fGroups = new ConstArrayList<IRLibraryGroup>(
+		fGroups = ImCollections.<IRLibraryGroup>newList(
 				new RLibraryGroup.Final(RLibraryGroup.R_OTHER,
 						RLibraryGroup.getLabel(RLibraryGroup.R_OTHER),
-						new ConstArrayList<>(groups[0]) ),
+						ImCollections.toList(groups[0]) ),
 				new RLibraryGroup.Final(RLibraryGroup.R_USER,
 						RLibraryGroup.getLabel(RLibraryGroup.R_USER),
-						new ConstArrayList<>(groups[1]) ),
+						ImCollections.toList(groups[1]) ),
 				new RLibraryGroup.Final(RLibraryGroup.R_SITE,
 						RLibraryGroup.getLabel(RLibraryGroup.R_SITE),
-						new ConstArrayList<>(groups[2]) ),
+						ImCollections.toList(groups[2]) ),
 				new RLibraryGroup.Final(RLibraryGroup.R_DEFAULT,
 						RLibraryGroup.getLabel(RLibraryGroup.R_DEFAULT),
-						new ConstArrayList<>(groups[3]) ));
+						ImCollections.toList(groups[3]) ));
 	}
 	
 	public REnvLibGroups(final IREnvConfiguration config) {

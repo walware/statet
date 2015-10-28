@@ -11,7 +11,8 @@
 
 package de.walware.statet.r.core.source;
 
-import de.walware.ecommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImCollections;
+
 import de.walware.ecommons.text.core.sections.AbstractDocContentSections;
 
 

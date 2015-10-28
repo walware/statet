@@ -17,7 +17,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
+
 import de.walware.ecommons.graphics.core.ColorAlphaDef;
 import de.walware.ecommons.graphics.core.ColorDef;
 import de.walware.ecommons.graphics.core.HSVColorDef;
@@ -89,18 +90,18 @@ public class RGraphicFunctions {
 	
 	
 	protected RGraphicFunctions() {
-		RGB_args = createRGB();
-		HSV_args = createHSV();
-		ADJUST_COLOR_args = createAdjustColor();
+		this.RGB_args= createRGB();
+		this.HSV_args= createHSV();
+		this.ADJUST_COLOR_args= createAdjustColor();
 		
-		{	final Map<String, RColorsDef> map = new LinkedHashMap<String, RColorsDef>();
+		{	final Map<String, RColorsDef> map= new LinkedHashMap<>();
 			addNamedColors(map);
-			colorsMap = Collections.unmodifiableMap(map);
-			colorsList = new ConstArrayList<NamedColorDef>(colorsMap.values());
+			this.colorsMap= Collections.unmodifiableMap(map);
+			this.colorsList= ImCollections.toList(colorsMap.values());
 		}
-		{	final List<ColorDef> list = new ArrayList<ColorDef>();
+		{	final List<ColorDef> list= new ArrayList<>();
 			addDefaultPaletteColors(list);
-			defaultPalette = new ConstArrayList<ColorDef>(list);
+			this.defaultPalette= ImCollections.toList(list);
 		}
 	}
 	

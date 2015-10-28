@@ -17,8 +17,9 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.link.LinkedPositionGroup;
 
-import de.walware.ecommons.collections.ImCollections;
-import de.walware.ecommons.collections.ImIdentityList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImIdentityList;
+
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.LinkedNamesAssistProposal;
 

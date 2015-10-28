@@ -22,7 +22,8 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.swt.graphics.Point;
 
-import de.walware.ecommons.collections.ImList;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ui.sourceediting.AbstractMarkOccurrencesProvider.RunData;

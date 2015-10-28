@@ -14,7 +14,7 @@ package de.walware.statet.r.core.model;
 import java.util.Comparator;
 import java.util.List;
 
-import de.walware.ecommons.collections.ImList;
+import de.walware.jcommons.collections.ImList;
 
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 

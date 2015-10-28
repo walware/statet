@@ -24,7 +24,9 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IStackFrame;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
@@ -405,9 +407,9 @@ public class RMainThread extends RDebugElement implements IRThread,
 	 * @throws DebugException 
 	 */
 	public void stepToFrame(final RStackFrame refFrame, final int relIdx) throws DebugException {
-		List<RStackFrame> frames;
+		ImList<RStackFrame> frames;
 		synchronized (fFramesLock) {
-			frames = new ConstArrayList<>(fFrames);
+			frames= ImCollections.newList(fFrames);
 		}
 		if (frames.isEmpty()) {
 			return;

@@ -23,13 +23,13 @@ import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.resourcemapping.IResourceMapping;
 
 
-public class ResourceMapping implements IResourceMapping {
+public final class ResourceMapping implements IResourceMapping {
 	
 	
 	private static String cleanDirectory(final String path) {
-		int idx = path.length() - 1;
+		int idx= path.length() - 1;
 		while (idx > 0) {
-			final char c = path.charAt(idx);
+			final char c= path.charAt(idx);
 			if (c == '/' || c == '\\') {
 				idx--;
 			}
@@ -41,14 +41,14 @@ public class ResourceMapping implements IResourceMapping {
 	}
 	
 	
-	private String fId;
+	private String id;
 	
-	private final String fLocalText;
-	private final IFileStore fFileStore;
-	private final IPath fRemotePath;
+	private final String localText;
+	private final IFileStore fileStore;
+	private final IPath remotePath;
 	
-	private final String fHostName;
-	private InetAddress[] fHostAddress;
+	private final String hostName;
+	private InetAddress[] hostAddress;
 	
 	
 	/**
@@ -60,48 +60,48 @@ public class ResourceMapping implements IResourceMapping {
 	 * @throws CoreException if a path is invalid
 	 */
 	public ResourceMapping(final String id, final String localPath, final String hostname, final String remotePath) throws CoreException {
-		fId = id;
-		fLocalText = localPath;
-		fFileStore = FileUtil.getFileStore(fLocalText);
-		fHostName = hostname;
-		fRemotePath = new Path(cleanDirectory(remotePath));
+		this.id= id;
+		this.localText= localPath;
+		this.fileStore= FileUtil.getFileStore(this.localText);
+		this.hostName= hostname;
+		this.remotePath= new Path(cleanDirectory(remotePath));
 	}
 	
 	
 	public String getId() {
-		return fId;
+		return this.id;
 	}
 	
 	public void setId(final String id) {
-		assert (fId == null);
-		fId = id;
+		assert (this.id == null);
+		this.id= id;
 	}
 	
 	public InetAddress[] getHostAddresses() {
-		return fHostAddress;
+		return this.hostAddress;
 	}
 	
 	public void resolve() throws UnknownHostException {
-		fHostAddress = InetAddress.getAllByName(fHostName);
+		this.hostAddress= InetAddress.getAllByName(this.hostName);
 	}
 	
 	public String getLocalText() {
-		return fLocalText;
+		return this.localText;
 	}
 	
 	@Override
 	public IFileStore getFileStore() {
-		return fFileStore;
+		return this.fileStore;
 	}
 	
 	@Override
 	public String getHost() {
-		return fHostName;
+		return this.hostName;
 	}
 	
 	@Override
 	public IPath getRemotePath() {
-		return fRemotePath;
+		return this.remotePath;
 	}
 	
 }

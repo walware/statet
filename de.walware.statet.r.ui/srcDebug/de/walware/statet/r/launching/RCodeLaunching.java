@@ -39,6 +39,8 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.jcommons.collections.ImCollections;
+
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.core.model.IWorkspaceSourceUnit;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
@@ -454,7 +456,8 @@ public final class RCodeLaunching {
 						runnables[i] = new SubmitEntireCommandRunnable(
 								lines.toArray(new String[lines.size()]), region);
 					}
-					final IStatus status = controller.getTool().getQueue().add(runnables);
+					final IStatus status = controller.getTool().getQueue().add(
+							ImCollections.newList(runnables) );
 					if (!status.isOK()) {
 						for (int i = 0; i < runnables.length; i++) {
 							runnables[i].changed(IToolRunnable.BEING_ABANDONED, null);

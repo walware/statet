@@ -19,7 +19,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.ecommons.collections.ImList;
+import de.walware.jcommons.collections.ImList;
 
 import de.walware.rj.renv.IRPkgDescription;
 
@@ -37,61 +37,61 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.rhelp.index.REnvIndexReader;
 
 
-public class REnvHelp implements IREnvHelp {
+public final class REnvHelp implements IREnvHelp {
 	
 	
-	private final IREnv fREnv;
+	private final IREnv rEnv;
 	
-	private final String fDocDir;
+	private final String docDir;
 	
-	private final ImList<IRHelpKeyword.Group> fKeywords;
+	private final ImList<IRHelpKeyword.Group> keywords;
 	
-	private final ImList<IRPkgHelp> fPackages;
-	private volatile Map<String, IRPkgHelp> fPackageMap;
-	private volatile REnvIndexReader fIndexReader;
+	private final ImList<IRPkgHelp> packages;
+	private volatile Map<String, IRPkgHelp> packageMap;
+	private volatile REnvIndexReader indexReader;
 	
-	private boolean fDisposed;
+	private boolean disposed;
 	
-	private final ReentrantReadWriteLock fLock = new ReentrantReadWriteLock();
+	private final ReentrantReadWriteLock lock= new ReentrantReadWriteLock();
 	
 	
 	public REnvHelp(final IREnv rEnv, final String docDir,
 			final ImList<Group> keywords, final ImList<IRPkgHelp> packages) {
-		fREnv= rEnv;
-		fDocDir= docDir;
-		fKeywords= keywords;
-		fPackages= packages;
+		this.rEnv= rEnv;
+		this.docDir= docDir;
+		this.keywords= keywords;
+		this.packages= packages;
 	}
 	
 	
 	public void dispose() {
-		fLock.writeLock().lock();
+		this.lock.writeLock().lock();
 		try {
-			fDisposed = true;
-			fPackageMap = null;
-			if (fIndexReader != null) {
-				fIndexReader.dispose();
-				fIndexReader = null;
+			this.disposed= true;
+			this.packageMap= null;
+			if (this.indexReader != null) {
+				this.indexReader.dispose();
+				this.indexReader= null;
 			}
 		}
 		finally {
-			fLock.writeLock().unlock();
+			this.lock.writeLock().unlock();
 		}
 	}
 	
 	@Override
 	public IREnv getREnv() {
-		return fREnv;
+		return this.rEnv;
 	}
 	
 	@Override
 	public ImList<IRHelpKeyword.Group> getKeywords() {
-		return fKeywords;
+		return this.keywords;
 	}
 	
 	@Override
 	public ImList<IRPkgHelp> getRPackages() {
-		return fPackages;
+		return this.packages;
 	}
 	
 	@Override
@@ -100,19 +100,19 @@ public class REnvHelp implements IREnvHelp {
 	}
 	
 	private Map<String, IRPkgHelp> getPackageMap() {
-		Map<String, IRPkgHelp> map = fPackageMap;
+		Map<String, IRPkgHelp> map= this.packageMap;
 		if (map == null) {
-			if (fDisposed) {
+			if (this.disposed) {
 				throw new IllegalStateException("This help index is no longer valid.");
 			}
 			synchronized (this) {
-				map = fPackageMap;
+				map= this.packageMap;
 				if (map == null) {
-					map = new HashMap<>(fPackages.size());
-					for (final IRPkgHelp pkgHelp : fPackages) {
+					map= new HashMap<>(this.packages.size());
+					for (final IRPkgHelp pkgHelp : this.packages) {
 						map.put(pkgHelp.getName(), pkgHelp);
 					}
-					fPackageMap = map;
+					this.packageMap= map;
 				}
 			}
 		}
@@ -120,27 +120,27 @@ public class REnvHelp implements IREnvHelp {
 	}
 	
 	private REnvIndexReader getIndex() {
-		REnvIndexReader reader = fIndexReader;
+		REnvIndexReader reader= this.indexReader;
 		if (reader == null) {
-			if (fDisposed) {
+			if (this.disposed) {
 				throw new IllegalStateException("This help index is no longer valid.");
 			}
 			synchronized (this) {
-				reader = fIndexReader;
+				reader= this.indexReader;
 				if (reader == null) {
-					final IREnvConfiguration config = fREnv.getConfig();
+					final IREnvConfiguration config= this.rEnv.getConfig();
 					if (config == null) {
 						throw new IllegalStateException("This R environment is no longer valid.");
 					}
 					try {
-						reader = new REnvIndexReader(config);
+						reader= new REnvIndexReader(config);
 					}
 					catch (final Exception e) {
 						RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 								"An error occurred when initializing searcher for the R help index.", e));
 						throw new RuntimeException("An error occurred when reading R help index.");
 					}
-					fIndexReader = reader;
+					this.indexReader= reader;
 				}
 			}
 		}
@@ -149,7 +149,7 @@ public class REnvHelp implements IREnvHelp {
 	
 	@Override
 	public IRHelpPage getPage(final String packageName, final String name) {
-		final IRPkgHelp pkgHelp = getPackageMap().get(packageName);
+		final IRPkgHelp pkgHelp= getPackageMap().get(packageName);
 		if (pkgHelp != null) {
 			return pkgHelp.getHelpPage(name);
 		}
@@ -158,7 +158,7 @@ public class REnvHelp implements IREnvHelp {
 	
 	@Override
 	public IRHelpPage getPageForTopic(final String packageName, final String topic) {
-		final IRPkgHelp pkgHelp = getPackageMap().get(packageName);
+		final IRPkgHelp pkgHelp= getPackageMap().get(packageName);
 		if (pkgHelp != null) {
 			return getIndex().getPageForTopic(pkgHelp, topic);
 		}
@@ -188,7 +188,7 @@ public class REnvHelp implements IREnvHelp {
 	
 	
 	public boolean search(final RHelpSearchQuery.Compiled query, final IRHelpSearchRequestor requestor) {
-		return getIndex().search(query, fPackages, getPackageMap(), requestor);
+		return getIndex().search(query, this.packages, getPackageMap(), requestor);
 	}
 	
 	
@@ -206,17 +206,17 @@ public class REnvHelp implements IREnvHelp {
 	}
 	
 	public String getDocDir() {
-		return fDocDir;
+		return this.docDir;
 	}
 	
 	
 	public void lock() {
-		fLock.readLock().lock();
+		this.lock.readLock().lock();
 	}
 	
 	@Override
 	public void unlock() {
-		fLock.readLock().unlock();
+		this.lock.readLock().unlock();
 	}
 	
 }

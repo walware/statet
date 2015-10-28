@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
 
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RJIO;
@@ -207,10 +207,10 @@ public class RListVar extends CombinedElement
 			return Collections.emptyList();
 		}
 		if (filter == null) {
-			return new ConstArrayList<IRLangElement>(this.components);
+			return ImCollections.newList(this.components);
 		}
 		else {
-			final List<CombinedElement> list = new ArrayList<CombinedElement>();
+			final List<CombinedElement> list= new ArrayList<>();
 			for (final CombinedElement component : this.components) {
 				if (filter.include(component)) {
 					list.add(component);

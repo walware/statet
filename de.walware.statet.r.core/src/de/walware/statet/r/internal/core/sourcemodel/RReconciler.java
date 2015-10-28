@@ -17,15 +17,16 @@ import com.ibm.icu.text.DecimalFormat;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import de.walware.ecommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.string.IStringFactory;
+import de.walware.jcommons.string.InternStringCache;
+
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.core.SourceContent;
 import de.walware.ecommons.ltk.core.impl.SourceModelStamp;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
-import de.walware.ecommons.string.IStringFactory;
-import de.walware.ecommons.string.InternStringCache;
 import de.walware.ecommons.text.core.input.OffsetStringParserInput;
 import de.walware.ecommons.text.core.input.StringParserInput;
 import de.walware.ecommons.text.core.input.TextParserInput;

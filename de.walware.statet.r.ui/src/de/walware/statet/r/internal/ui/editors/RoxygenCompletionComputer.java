@@ -21,7 +21,8 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
+
 import de.walware.ecommons.ltk.ui.LTKUI;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
@@ -35,64 +36,65 @@ import de.walware.ecommons.ltk.ui.sourceediting.assist.IContentAssistComputer;
 public class RoxygenCompletionComputer implements IContentAssistComputer {
 	
 	
-	@SuppressWarnings("nls")
-	private static final String[] TAGS= new String[] {
-		"docType",
-		"export",
-		"exportClass",
-		"exportMethod",
-		"exportPattern",
-		"import",
-		"importFrom",
-		"importClassesFrom",
-		"importMethodsFrom",
-		"name",
-		"aliases",
-		"title",
-		"usage",
-		"references",
-		"note",
-		"include",
-		"slot",
-		"param",
-		"return",
-		"returnType",
-		"seealso",
-		"example",
-		"examples",
-		"author",
-		"concept",
-		"keywords",
-		"method",
-		"prototype",
-		"S3method", // deprecated 4.0
-		"S3class",
-		"listObject",
-		"attributeObject",
-		"environmentObject",
-		"noRd",
-		"useDynLib",
-		"rdname", // 2.0
-		"template", // 2.0
-		"section", // 2.0
-		"description", // 2.0
-		"details", // 2.0
-		"family", // 2.0
-		"inheritParams", // 2.0
-		"format", // 2.0
-		"source", // 2.1
-		"encoding", // 2.2
-		"describeIn", // since 4.0
-		"field", // since 4.0 (for fields of reference classes)
-	};
-	
 	private static final List<String> TAG_COMMANDS;
+	
 	static {
-		final String [] commands= new String[TAGS.length];
+		@SuppressWarnings("nls")
+		final String[] tags= new String[] {
+			"docType",
+			"export",
+			"exportClass",
+			"exportMethod",
+			"exportPattern",
+			"import",
+			"importFrom",
+			"importClassesFrom",
+			"importMethodsFrom",
+			"name",
+			"aliases",
+			"title",
+			"usage",
+			"references",
+			"note",
+			"include",
+			"slot",
+			"param",
+			"return",
+			"returnType",
+			"seealso",
+			"example",
+			"examples",
+			"author",
+			"concept",
+			"keywords",
+			"method",
+			"prototype",
+			"S3method", // deprecated 4.0
+			"S3class",
+			"listObject",
+			"attributeObject",
+			"environmentObject",
+			"noRd",
+			"useDynLib",
+			"rdname", // 2.0
+			"template", // 2.0
+			"section", // 2.0
+			"description", // 2.0
+			"details", // 2.0
+			"family", // 2.0
+			"inheritParams", // 2.0
+			"format", // 2.0
+			"source", // 2.1
+			"encoding", // 2.2
+			"describeIn", // since 4.0
+			"field", // since 4.0 (for fields of reference classes)
+		};
+		
+		final String [] commands= new String[tags.length];
 		for (int i= 0; i < commands.length; i++) {
-			commands[i]= '@' + TAGS[i];
+			commands[i]= '@' + tags[i];
 		}
-		TAG_COMMANDS= new ConstArrayList<>(commands);
+		TAG_COMMANDS= ImCollections.newList(commands);
 	}
 	
 	private static class TagProposal extends RKeywordCompletionProposal {

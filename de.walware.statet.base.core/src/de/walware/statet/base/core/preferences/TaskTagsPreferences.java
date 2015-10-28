@@ -16,9 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.walware.ecommons.collections.CollectionUtils;
-import de.walware.ecommons.collections.ConstArrayList;
-import de.walware.ecommons.collections.ConstList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.EnumListPref;
@@ -45,7 +45,7 @@ public class TaskTagsPreferences {
 	}
 	
 	
-	private final ConstList<TaskTag> taskTags;
+	private final ImList<TaskTag> taskTags;
 	
 	
 	/**
@@ -54,14 +54,14 @@ public class TaskTagsPreferences {
 	 * @param taskTags
 	 */
 	public TaskTagsPreferences(final Collection<TaskTag> taskTags) {
-		this.taskTags= CollectionUtils.asConstList(taskTags);
+		this.taskTags= ImCollections.toList(taskTags);
 	}
 	
 	/**
 	 * Creates preferences with default values.
 	 */
 	public TaskTagsPreferences() {
-		this(new ConstArrayList<>(
+		this(ImCollections.newList(
 				new TaskTag("TODO", TaskPriority.NORMAL), //$NON-NLS-1$
 				new TaskTag("FIXME", TaskPriority.NORMAL) )); //$NON-NLS-1$
 	}
@@ -80,10 +80,10 @@ public class TaskTagsPreferences {
 			for (int i= 0; i < array.length; i++) {
 				array[i]= new TaskTag(keywords[i], priorities.get(i));
 			}
-			this.taskTags= new ConstArrayList<>(array);
+			this.taskTags= ImCollections.newList(array);
 		}
 		else {
-			this.taskTags= CollectionUtils.emptyConstList();
+			this.taskTags= ImCollections.emptyList();
 		}
 	}
 	
@@ -116,7 +116,7 @@ public class TaskTagsPreferences {
 	 */
 	public Map<Preference<?>, Object> addPreferencesToMap(final Map<Preference<?>, Object> map) {
 		map.put(PREF_TAGS, getTags());
-		map.put(PREF_PRIORITIES, new ConstArrayList<>(getPriorities()));
+		map.put(PREF_PRIORITIES, ImCollections.newList(getPriorities()));
 		return map;
 	}
 	

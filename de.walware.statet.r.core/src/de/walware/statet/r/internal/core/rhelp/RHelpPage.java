@@ -16,62 +16,65 @@ import de.walware.statet.r.core.rhelp.IRHelpPage;
 import de.walware.statet.r.core.rhelp.IRPkgHelp;
 
 
-public class RHelpPage implements IRHelpPage {
+public final class RHelpPage implements IRHelpPage {
 	
 	
-	private final IRPkgHelp fPackage;
+	private final IRPkgHelp pkg;
 	
-	private final String fName;
+	private final String name;
 	
-	private final String fTitle;
+	private final String title;
 	
 	
 	public RHelpPage(final IRPkgHelp pkgHelp, final String name, final String title) {
-		fPackage = pkgHelp;
-		fName = name;
-		fTitle = title;
+		this.pkg= pkgHelp;
+		this.name= name;
+		this.title= title;
 	}
 	
 	
 	@Override
 	public IRPkgHelp getPackage() {
-		return fPackage;
+		return this.pkg;
 	}
 	
 	@Override
 	public String getName() {
-		return fName;
+		return this.name;
 	}
 	
 	@Override
 	public String getTitle() {
-		return fTitle;
+		return this.title;
 	}
 	
 	
 	@Override
 	public int hashCode() {
-		return fPackage.hashCode() + fName.hashCode();
+		return this.pkg.hashCode() + this.name.hashCode();
 	}
 	
 	@Override
 	public boolean equals(final Object obj) {
-		if (!(obj instanceof IRHelpPage)) {
-			return false;
+		if (this == obj) {
+			return true;
 		}
-		final IRHelpPage other = (IRHelpPage) obj;
-		return (this == other || (fName.equals(other.getName())
-				&& fPackage.equals(other.getPackage()) ));
+		if (obj instanceof IRHelpPage) {
+			final IRHelpPage other= (IRHelpPage) obj;
+			return (this.name.equals(other.getName())
+					&& this.pkg.equals(other.getPackage()) );
+		}
+		return false;
 	}
 	
 	@Override
 	public int compareTo(final IRHelpPage o) {
-		return RSymbolComparator.R_NAMES_COLLATOR.compare(fName, o.getName());
+		return RSymbolComparator.R_NAMES_COLLATOR.compare(this.name, o.getName());
 	}
 	
 	@Override
 	public String toString() {
-		return fPackage.getName() + "::" +  fName;
+		return this.pkg.getName() + "::" +  this.name;
 	}
 	
 }

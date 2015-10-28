@@ -33,9 +33,10 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.osgi.util.NLS;
 
+import de.walware.jcommons.collections.ImCollections;
+
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.IDisposable;
-import de.walware.ecommons.collections.CollectionUtils;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolCommandHandler;
@@ -676,7 +677,7 @@ public abstract class ToolController implements IConsoleService {
 	 * @return the counter value
 	 */
 	public int getCounter() {
-		return fQueue.fCounter;
+		return fQueue.counter;
 	}
 	
 	/**
@@ -764,8 +765,8 @@ public abstract class ToolController implements IConsoleService {
 		}
 	}
 	
-	protected void setTracks(List<? extends ITrack> tracks) {
-		fProcess.setTracks(CollectionUtils.asConstList(tracks));
+	protected void setTracks(final List<? extends ITrack> tracks) {
+		fProcess.setTracks(tracks);
 	}
 	
 	protected final void beginInternalTask() {
@@ -898,7 +899,7 @@ public abstract class ToolController implements IConsoleService {
 		
 		if (newStatus == ToolStatus.STARTED_PROCESSING
 				&& (fStatus != ToolStatus.STARTED_PAUSED || fStatusPrevious != ToolStatus.STARTED_PROCESSING)) {
-			fQueue.fCounterNext = ++fQueue.fCounter;
+			fQueue.counterNext= ++fQueue.counter;
 			fQueue.internalResetIdle();
 		}
 		
@@ -1007,7 +1008,7 @@ public abstract class ToolController implements IConsoleService {
 			}
 			monitor.worked(1);
 			
-			return fQueue.add(runs);
+			return fQueue.add(ImCollections.newList(runs));
 		}
 		finally {
 			monitor.done();
@@ -1186,7 +1187,7 @@ public abstract class ToolController implements IConsoleService {
 						if (type != Queue.RUN_RESERVED
 								&& (fCurrentRunnable instanceof ConsoleCommandRunnable)
 								&& !runConsoleCommandInSuspend(((ConsoleCommandRunnable) fCurrentRunnable).fText) ) {
-							fQueue.fCounterNext = fQueue.fCounter--;
+							fQueue.counterNext= fQueue.counter--;
 							try {
 								fQueue.internalFinished(fCurrentRunnable, IToolRunnable.FINISHING_CANCEL);
 							}
@@ -1452,7 +1453,7 @@ public abstract class ToolController implements IConsoleService {
 				final SuspendResumeRunnable runnable;
 				synchronized (fQueue) {
 					fSuspendExitDetail = DebugEvent.UNSPECIFIED;
-					fQueue.fCounterNext = ++fQueue.fCounter + 1;
+					fQueue.counterNext= ++fQueue.counter + 1;
 					if (fIsTerminated) {
 						setSuspended(0, 0, null);
 						return;

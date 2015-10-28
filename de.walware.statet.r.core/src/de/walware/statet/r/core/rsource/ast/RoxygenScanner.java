@@ -23,10 +23,11 @@ import java.util.List;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 
-import de.walware.ecommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.string.IStringFactory;
+import de.walware.jcommons.string.StringFactory;
+
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.string.IStringFactory;
-import de.walware.ecommons.string.StringFactory;
 import de.walware.ecommons.text.core.input.RegionParserInput;
 import de.walware.ecommons.text.core.input.TextParserInput;
 
@@ -88,7 +89,7 @@ public class RoxygenScanner {
 			}
 			finishTag();
 			
-			comment.fTags= ImCollections.toList(this.list);
+			comment.tags= ImCollections.toList(this.list);
 		}
 		finally {
 			this.list.clear();

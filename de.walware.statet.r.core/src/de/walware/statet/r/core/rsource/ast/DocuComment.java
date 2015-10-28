@@ -14,6 +14,8 @@ package de.walware.statet.r.core.rsource.ast;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 
@@ -31,7 +33,7 @@ public final class DocuComment extends RAstNode {
 	
 	int fNextOffset = Integer.MIN_VALUE;
 	Comment[] fLines;
-	List<DocuTag> fTags;
+	ImList<DocuTag> tags;
 	
 	
 	public DocuComment() {
@@ -54,7 +56,7 @@ public final class DocuComment extends RAstNode {
 	
 	
 	public List<DocuTag> getTags() {
-		return fTags;
+		return this.tags;
 	}
 	
 	@Override
@@ -103,7 +105,7 @@ public final class DocuComment extends RAstNode {
 	}
 	
 	public final void acceptInRDocu(final RAstVisitor visitor) throws InvocationTargetException {
-		for (final DocuTag tag : fTags) {
+		for (final DocuTag tag : this.tags) {
 			visitor.visit(tag);
 		}
 	}

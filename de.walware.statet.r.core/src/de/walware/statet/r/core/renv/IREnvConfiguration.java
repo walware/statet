@@ -19,6 +19,8 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 
+import de.walware.jcommons.collections.ImList;
+
 
 /**
  * Configuration and properties of an R "runtime" environment.
@@ -83,7 +85,7 @@ public interface IREnvConfiguration {
 		void setRIncludeDirectoryPath(String directory);
 		
 		@Override
-		List<IRLibraryGroup.WorkingCopy> getRLibraryGroups();
+		ImList<IRLibraryGroup.WorkingCopy> getRLibraryGroups();
 		
 		@Override
 		IRLibraryGroup.WorkingCopy getRLibraryGroup(String id);
@@ -131,7 +133,7 @@ public interface IREnvConfiguration {
 	
 	String getRIncludeDirectoryPath();
 	
-	List<? extends IRLibraryGroup> getRLibraryGroups();
+	ImList<? extends IRLibraryGroup> getRLibraryGroups();
 	
 	IRLibraryGroup getRLibraryGroup(String id);
 	

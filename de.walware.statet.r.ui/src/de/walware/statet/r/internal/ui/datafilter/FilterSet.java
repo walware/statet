@@ -19,8 +19,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.osgi.util.NLS;
 
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.FastList;
-import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
@@ -252,23 +254,23 @@ public class FilterSet {
 		}
 	}
 	
-	public List<FilterType> getAvailableFilters(final RDataTableColumn column) {
+	public ImList<FilterType> getAvailableFilters(final RDataTableColumn column) {
 		switch (column.getVarType()) {
 		case IRDataTableVariable.LOGI:
 		case IRDataTableVariable.RAW:
-			return new ConstArrayList<FilterType>(FilterType.LEVEL);
+			return ImCollections.newList(FilterType.LEVEL);
 		case IRDataTableVariable.FACTOR:
 			if (((RFactorStore) column.getDataStore()).isOrdered()) {
-				return new ConstArrayList<FilterType>(FilterType.LEVEL, FilterType.INTERVAL);
+				return ImCollections.newList(FilterType.LEVEL, FilterType.INTERVAL);
 			}
-			return new ConstArrayList<FilterType>(FilterType.LEVEL);
+			return ImCollections.newList(FilterType.LEVEL);
 		case IRDataTableVariable.INT:
 		case IRDataTableVariable.NUM:
 		case IRDataTableVariable.DATE:
 		case IRDataTableVariable.DATETIME:
-			return new ConstArrayList<FilterType>(FilterType.INTERVAL, FilterType.LEVEL);
+			return ImCollections.newList(FilterType.INTERVAL, FilterType.LEVEL);
 		case IRDataTableVariable.CHAR:
-			return new ConstArrayList<FilterType>(FilterType.TEXT, FilterType.LEVEL);
+			return ImCollections.newList(FilterType.TEXT, FilterType.LEVEL);
 		default:
 			return null;
 		}
@@ -315,8 +317,8 @@ public class FilterSet {
 		}
 	}
 	
-	public synchronized List<VariableFilter> getFilters() {
-		return new ConstArrayList<VariableFilter>(fFilters);
+	public synchronized ImList<VariableFilter> getFilters() {
+		return ImCollections.toList(fFilters);
 	}
 	
 	

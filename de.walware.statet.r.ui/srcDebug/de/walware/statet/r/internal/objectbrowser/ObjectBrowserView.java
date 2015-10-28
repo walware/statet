@@ -67,7 +67,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 import de.walware.ecommons.FastList;
-import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.ui.IElementNameProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
@@ -317,8 +316,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	private RProcess process; // note: we write only in ui thread
 	
 	private IToolRegistryListener fToolRegistryListener;
-	private final FastList<IToolRetargetable> fToolListenerList =
-			new FastList<IToolRetargetable>(IToolRetargetable.class);
+	private final FastList<IToolRetargetable> fToolListenerList= new FastList<>(IToolRetargetable.class);
 	
 	private final RefreshWorkspaceR fManualRefreshRunnable = new RefreshWorkspaceR();
 	
@@ -964,19 +962,19 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				segmentIdx = 1;
 			}
 		}
-		final List<RElementName> names = new ArrayList<RElementName>(treePath.getSegmentCount()-segmentIdx+1);
-		final ICombinedRElement first = ContentProvider.getCombinedRElement(treePath.getSegment(segmentIdx++));
+		final List<RElementName> names= new ArrayList<>(treePath.getSegmentCount() - segmentIdx + 1);
+		final ICombinedRElement first= ContentProvider.getCombinedRElement(treePath.getSegment(segmentIdx++));
 		names.add(first.getModelParent().getElementName());
 		names.add(first.getElementName());
 		while (segmentIdx < treePath.getSegmentCount()) {
-			final Object object = treePath.getSegment(segmentIdx++);
+			final Object object= treePath.getSegment(segmentIdx++);
 			if (object instanceof IElementPartition) {
 				continue;
 			}
-			final ICombinedRElement rElement = ContentProvider.getCombinedRElement(object);
+			final ICombinedRElement rElement= ContentProvider.getCombinedRElement(object);
 			names.add(rElement.getElementName());
 		}
-		return RElementName.concat(new ConstArrayList<RElementName>(names));
+		return RElementName.concat(names);
 	}
 	
 }

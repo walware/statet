@@ -11,9 +11,9 @@
 
 package de.walware.statet.r.internal.ui.datafilter;
 
-import java.util.List;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
 
-import de.walware.ecommons.collections.ConstArrayList;
 
 public abstract class TextSearchType {
 	
@@ -21,7 +21,7 @@ public abstract class TextSearchType {
 	public static final TextSearchType REGEX = new Regex();
 	public static final TextSearchType EXACT = new Exact();
 	
-	public static final List<TextSearchType> TYPES = new ConstArrayList<TextSearchType>(ECLIPSE, REGEX, EXACT);
+	public static final ImList<TextSearchType> TYPES= ImCollections.newList(ECLIPSE, REGEX, EXACT);
 	
 	
 	private static class Eclipse extends TextSearchType {

@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
-import de.walware.ecommons.collections.ImCollections;
-import de.walware.ecommons.collections.ImList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
 
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.RElementAccess;

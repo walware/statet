@@ -11,8 +11,6 @@
 
 package de.walware.statet.r.internal.debug.ui.actions;
 
-import java.util.List;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -32,6 +30,8 @@ import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.statushandlers.StatusManager;
+
+import de.walware.jcommons.collections.ImList;
 
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ast.AstSelection;
@@ -81,7 +81,7 @@ public class StepIntoSelectionHandler extends AbstractHandler {
 						final RAstNode node = (RAstNode) covering;
 						RAstNode current = node;
 						do {
-							final List<Object> attachments= current.getAttachments();
+							final ImList<Object> attachments= current.getAttachments();
 							for (final Object attachment : attachments) {
 								if (attachment instanceof RElementAccess) {
 									final RElementAccess access= (RElementAccess) attachment;

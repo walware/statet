@@ -24,12 +24,13 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.views.navigator.ResourceComparator;
 
-import de.walware.ecommons.collections.SortedArraySet;
-import de.walware.ecommons.collections.SortedListSet;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.workbench.search.ui.ExtTextSearchResult;
 import de.walware.ecommons.workbench.search.ui.LineElement;
 import de.walware.ecommons.workbench.search.ui.TextSearchResultTreeContentProvider;
+
+import de.walware.jcommons.collections.SortedArraySet;
+import de.walware.jcommons.collections.SortedListSet;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
 

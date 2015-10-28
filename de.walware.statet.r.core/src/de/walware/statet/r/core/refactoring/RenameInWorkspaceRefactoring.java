@@ -32,7 +32,8 @@ import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.ReplaceEdit;
 
-import de.walware.ecommons.collections.ImList;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.core.ElementSet;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;

@@ -55,8 +55,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.jcommons.collections.ImCollections;
+
 import de.walware.ecommons.AbstractSettingsModelObject;
-import de.walware.ecommons.collections.ImCollections;
 import de.walware.ecommons.databinding.core.util.UpdateableErrorValidator;
 import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.debug.ui.HelpRequestor;

@@ -46,9 +46,10 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.osgi.util.NLS;
 
+import de.walware.jcommons.lang.SystemUtils;
+
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.io.FileUtil;
-import de.walware.ecommons.lang.SystemUtils;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
@@ -677,7 +678,7 @@ public class RjsController extends AbstractRDbgController
 			initTracks(info.getDirectory(), monitor, warnings);
 			
 			if (fStartup && !fStartupsRunnables.isEmpty()) {
-				fQueue.add(fStartupsRunnables.toArray(new IToolRunnable[fStartupsRunnables.size()]));
+				fQueue.add(fStartupsRunnables);
 				fStartupsRunnables.clear();
 			}
 			

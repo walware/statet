@@ -28,7 +28,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.debug.core.IStreamListener;
@@ -65,7 +64,7 @@ public class History {
 	private final ReentrantReadWriteLock fLock = new ReentrantReadWriteLock();
 	
 	private final ToolProcess fProcess;
-	private final IPreferenceChangeListener fPreferenceListener;
+	private IPreferenceChangeListener fPreferenceListener;
 	private HistoryPreferences fCurrentPreferences;
 	private final Map<SubmitType, IStreamListener> fStreamListeners = new EnumMap<SubmitType, IStreamListener>(SubmitType.class);
 	
@@ -141,7 +140,7 @@ public class History {
 	}
 	
 	
-	public History(final ToolProcess process) {
+	History(final ToolProcess process) {
 		fProcess = process;
 		
 		fPreferenceListener = new IPreferenceChangeListener() {
@@ -150,10 +149,8 @@ public class History {
 				checkSettings(false);
 			}
 		};
-		final IEclipsePreferences[] nodes = PreferencesUtil.getInstancePrefs().getPreferenceNodes(NicoPreferenceNodes.CAT_HISTORY_QUALIFIER);
-		for (final IEclipsePreferences node : nodes) {
-			node.addPreferenceChangeListener(fPreferenceListener);
-		}
+		PreferencesUtil.getInstancePrefs().addPreferenceNodeListener(
+				NicoPreferenceNodes.CAT_HISTORY_QUALIFIER, fPreferenceListener );
 		checkSettings(false);
 	}
 	
@@ -175,6 +172,14 @@ public class History {
 				fStreamListeners.put(submitType, listener);
 				streams.getInputStreamMonitor().addListener(listener, EnumSet.of(submitType));
 			}
+		}
+	}
+	
+	void dispose() {
+		if (fPreferenceListener != null) {
+			PreferencesUtil.getInstancePrefs().addPreferenceNodeListener(
+					NicoPreferenceNodes.CAT_HISTORY_QUALIFIER, fPreferenceListener );
+			fPreferenceListener= null;
 		}
 	}
 	

@@ -15,32 +15,32 @@ import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.core.rhelp.IRHelpPage;
 
 
-public class RHelpTopicEntry implements Comparable<RHelpTopicEntry> {
+public final class RHelpTopicEntry implements Comparable<RHelpTopicEntry> {
 	
 	
-	private final String fAlias;
+	private final String alias;
 	
-	private final IRHelpPage fPage;
+	private final IRHelpPage page;
 	
 	
 	public RHelpTopicEntry(final String alias, final IRHelpPage page) {
-		fAlias = alias;
-		fPage = page;
+		this.alias= alias;
+		this.page= page;
 	}
 	
 	
 	public String getAlias() {
-		return fAlias;
+		return this.alias;
 	}
 	
 	public IRHelpPage getPage() {
-		return fPage;
+		return this.page;
 	}
 	
 	
 	@Override
 	public int hashCode() {
-		return fAlias.hashCode();
+		return this.alias.hashCode();
 	}
 	
 	@Override
@@ -48,20 +48,20 @@ public class RHelpTopicEntry implements Comparable<RHelpTopicEntry> {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof RHelpTopicEntry)) {
-			return false;
+		if (obj instanceof RHelpTopicEntry) {
+			final RHelpTopicEntry other= (RHelpTopicEntry) obj;
+			return this.alias.equals(other.alias) && this.page.equals(other.page);
 		}
-		final RHelpTopicEntry other = (RHelpTopicEntry) obj;
-		return fAlias.equals(other.fAlias) && fPage.equals(other.fPage);
+		return false;
 	}
 	
 	@Override
 	public int compareTo(final RHelpTopicEntry o) {
-		final int diff = RSymbolComparator.R_NAMES_COLLATOR.compare(fAlias, o.fAlias);
+		final int diff= RSymbolComparator.R_NAMES_COLLATOR.compare(this.alias, o.alias);
 		if (diff != 0) {
 			return diff;
 		}
-		return fPage.compareTo(o.fPage);
+		return this.page.compareTo(o.page);
 	}
 	
 }

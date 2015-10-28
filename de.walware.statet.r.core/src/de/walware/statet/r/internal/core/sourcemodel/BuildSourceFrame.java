@@ -20,11 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.walware.ecommons.collections.CollectionUtils;
-import de.walware.ecommons.collections.ConstArrayList;
-import de.walware.ecommons.collections.ConstList;
-import de.walware.ecommons.collections.ImCollections;
-import de.walware.ecommons.collections.ImList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.ltk.core.model.IModelElement;
 
 import de.walware.statet.r.core.model.IRElement;
@@ -45,7 +43,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 	static final int CREATED_IMPORTED = 4;
 	
 	
-	private static final ConstList<BuildSourceFrame> NO_PARENTS = CollectionUtils.emptyConstList();
+	private static final ImList<BuildSourceFrame> NO_PARENTS= ImCollections.emptyList();
 	
 	
 	public static String createId(final int type, final String name, final int alt) {
@@ -346,7 +344,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 	protected final Map<String, ElementAccessList> fData;
 	protected final int fType;
 	protected final String fId;
-	ConstList<BuildSourceFrame> fParents;
+	ImList<BuildSourceFrame> fParents;
 	private List<IBuildSourceFrameElement> fElements = Collections.emptyList();
 	private WeakReference<List<IRLangSourceElement>> fModelChildren;
 	
@@ -355,7 +353,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		fType = type;
 		fId = id;
 		if (parents != null) {
-			fParents = new ConstArrayList<>(parents);
+			fParents= ImCollections.newList(parents);
 		}
 		else {
 			fParents = NO_PARENTS;
@@ -368,7 +366,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		final int length = fElements.size();
 		final IBuildSourceFrameElement[] elements = fElements.toArray(new IBuildSourceFrameElement[length+1]);
 		elements[length] = element;
-		fElements = new ConstArrayList<>(elements);
+		fElements= ImCollections.newList(elements);
 	}
 	
 	abstract void add(final String name, final ElementAccess access);

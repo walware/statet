@@ -17,8 +17,8 @@ import java.util.List;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.search.ui.text.Match;
 
-import de.walware.ecommons.collections.SortedArraySet;
-import de.walware.ecommons.collections.SortedListSet;
+import de.walware.jcommons.collections.SortedArraySet;
+import de.walware.jcommons.collections.SortedListSet;
 
 
 public class TextSearchResultTableContentProvider<E, M extends Match>

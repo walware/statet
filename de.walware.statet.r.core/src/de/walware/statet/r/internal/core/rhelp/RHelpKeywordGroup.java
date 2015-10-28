@@ -11,15 +11,16 @@
 
 package de.walware.statet.r.internal.core.rhelp;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
 
 import de.walware.statet.r.core.rhelp.IRHelpKeyword;
 
 
-public class RHelpKeywordGroup implements IRHelpKeyword.Group {
+public final class RHelpKeywordGroup implements IRHelpKeyword.Group {
 	
 	
 	private final String label;
@@ -28,10 +29,16 @@ public class RHelpKeywordGroup implements IRHelpKeyword.Group {
 	
 	
 	public RHelpKeywordGroup(final String label, final String description,
-			final List<IRHelpKeyword> keywords) {
+			final ImList<IRHelpKeyword> keywords) {
 		this.label= label;
 		this.description= description;
 		this.nested= keywords;
+	}
+	
+	public RHelpKeywordGroup(final String label, final String description) {
+		this.label= label;
+		this.description= description;
+		this.nested= new ArrayList<>();
 	}
 	
 	
@@ -62,14 +69,9 @@ public class RHelpKeywordGroup implements IRHelpKeyword.Group {
 	}
 	
 	public void freeze() {
-		if (this.nested.size() == 0) {
-			this.nested= Collections.emptyList();
-		}
-		else {
-			this.nested= new ConstArrayList<IRHelpKeyword>(this.nested);
-			for (int i= 0; i < this.nested.size(); i++) {
-				((RHelpKeyword) this.nested.get(i)).freeze();
-			}
+		this.nested= ImCollections.toList(this.nested);
+		for (int i= 0; i < this.nested.size(); i++) {
+			((RHelpKeyword) this.nested.get(i)).freeze();
 		}
 	}
 	

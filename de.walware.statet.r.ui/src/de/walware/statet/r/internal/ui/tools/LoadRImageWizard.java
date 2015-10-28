@@ -11,8 +11,6 @@
 
 package de.walware.statet.r.internal.ui.tools;
 
-import java.util.List;
-
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Realm;
@@ -30,7 +28,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
@@ -44,7 +44,7 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 public class LoadRImageWizard extends Wizard {
 	
 	
-	private static final List<String[]> RIMAGE_FILE_FILTERS = new ConstArrayList<String[]>(
+	private static final ImList<String[]> RIMAGE_FILE_FILTERS = ImCollections.<String[]>newList(
 			new String[] { "*.RData", Messages.LoadData_Wizard_File_RImages_name } ); //$NON-NLS-1$
 	
 	private class SelectFileDialog extends WizardPage {

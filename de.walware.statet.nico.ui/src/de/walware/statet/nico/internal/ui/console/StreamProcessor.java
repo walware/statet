@@ -15,7 +15,8 @@ import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.swt.widgets.Display;
 
-import de.walware.ecommons.collections.ImList;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.internal.ui.console.NIConsolePartitioner.PendingPartition;

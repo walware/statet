@@ -253,13 +253,13 @@ public class RTermController extends AbstractRController implements IRequireSync
 			fProcessInputWriter = new OutputStreamWriter(processInput, fCharset);
 			setCurrentPromptL(fDefaultPrompt);
 			
-			final List<IStatus> warnings = new ArrayList<IStatus>();
+			final List<IStatus> warnings= new ArrayList<>();
 			
 			initTracks(fConfig.directory().toString(), monitor, warnings);
 			
 			fQueue.add(new UpdateProcessIdTask());
 			if (!fStartupsRunnables.isEmpty()) {
-				fQueue.add(fStartupsRunnables.toArray(new IToolRunnable[fStartupsRunnables.size()]));
+				fQueue.add(fStartupsRunnables);
 				fStartupsRunnables.clear();
 			}
 			

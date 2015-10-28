@@ -15,14 +15,14 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0";visibility:=reex
  de.walware.ecommons.debug.core;bundle-version="1.0.0";visibility:=reexport
 Import-Package: com.ibm.icu.text;version="4.4.2.2",
  de.walware.ecommons,
- de.walware.ecommons.collections;version="1.1.0",
  de.walware.ecommons.io,
  de.walware.ecommons.net.resourcemapping;version="1.0.0",
  de.walware.ecommons.preferences,
  de.walware.ecommons.runtime.core.util,
  de.walware.ecommons.ts;version="1.1.0",
  de.walware.ecommons.ts.util,
- de.walware.ecommons.variables.core
+ de.walware.ecommons.variables.core,
+ de.walware.jcommons.collections;version="1.0"
 Export-Package: de.walware.statet.nico.core,
  de.walware.statet.nico.core.runtime,
  de.walware.statet.nico.core.util,

@@ -24,8 +24,9 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS12_SYNTAX
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_MASK_12;
 
 import de.walware.ecommons.ltk.ast.StatusDetail;
-import de.walware.ecommons.string.IStringFactory;
 import de.walware.ecommons.text.core.input.TextParserInput;
+
+import de.walware.jcommons.string.IStringFactory;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 

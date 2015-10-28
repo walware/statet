@@ -32,8 +32,9 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
-import de.walware.ecommons.collections.ImCollections;
-import de.walware.ecommons.collections.ImIdentityList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImIdentityList;
+
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.core.ElementSet;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringDescriptor;
@@ -223,7 +224,7 @@ public class InlineTempRefactoring extends Refactoring {
 			}
 			createChanges(textFileChange, progress.newChild(1));
 			
-			final Map<String, String> arguments = new HashMap<String, String>();
+			final Map<String, String> arguments = new HashMap<>();
 			final String description = NLS.bind(Messages.InlineTemp_Descriptor_description,
 					RUtil.formatVarName(getVariableName()) );
 			final IProject resource = fElementSet.getSingleProject();

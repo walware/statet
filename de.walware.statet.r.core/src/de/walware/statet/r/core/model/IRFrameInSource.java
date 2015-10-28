@@ -13,7 +13,7 @@ package de.walware.statet.r.core.model;
 
 import java.util.Set;
 
-import de.walware.ecommons.collections.ImList;
+import de.walware.jcommons.collections.ImList;
 
 
 public interface IRFrameInSource extends IRFrame {

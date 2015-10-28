@@ -27,9 +27,10 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.search.ui.text.MatchEvent;
 import org.eclipse.search.ui.text.RemoveAllEvent;
 
+import de.walware.jcommons.collections.SortedArraySet;
+import de.walware.jcommons.collections.SortedListSet;
+
 import de.walware.ecommons.FastList;
-import de.walware.ecommons.collections.SortedArraySet;
-import de.walware.ecommons.collections.SortedListSet;
 
 
 /**

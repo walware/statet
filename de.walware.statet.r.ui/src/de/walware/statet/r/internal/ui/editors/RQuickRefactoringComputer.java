@@ -18,8 +18,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IRegion;
 
-import de.walware.ecommons.collections.ImCollections;
-import de.walware.ecommons.collections.ImIdentityList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImIdentityList;
+
 import de.walware.ecommons.ltk.LTKUtil;
 import de.walware.ecommons.ltk.core.model.ISourceStructElement;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;

@@ -42,8 +42,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.collections.ImCollections;
-import de.walware.ecommons.collections.ImSet;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImSet;
 
 import de.walware.rj.renv.IRPkgDescription;
 import de.walware.rj.renv.RNumVersion;

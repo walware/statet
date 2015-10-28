@@ -20,7 +20,8 @@ import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
+
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
@@ -180,7 +181,7 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 					}
 					segment = segment.getNextSegment();
 				}
-				return RElementName.concat(new ConstArrayList<>(segments));
+				return RElementName.concat(ImCollections.newList(segments));
 			}
 			current = current.getNextSegment();
 		}

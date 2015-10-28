@@ -13,7 +13,8 @@ package de.walware.statet.r.core.pkgmanager;
 
 import java.util.List;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
 
 import de.walware.statet.r.internal.core.pkgmanager.FullRPkgSet;
 
@@ -23,7 +24,7 @@ public interface IRPkgSet {
 	
 	interface Ext extends IRPkgSet {
 		
-		List<String> DEFAULT_PRIORITIES = new ConstArrayList<>(
+		ImList<String> DEFAULT_PRIORITIES= ImCollections.newList(
 				"base", "recommended", "other"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		
 		
@@ -40,7 +41,7 @@ public interface IRPkgSet {
 		
 	}
 	
-	IRPkgSet.Ext DUMMY = FullRPkgSet.DUMMY;
+	IRPkgSet.Ext DUMMY= FullRPkgSet.DUMMY;
 	
 	
 	IRPkgCollection<? extends IRPkgInfo> getInstalled();

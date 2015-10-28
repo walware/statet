@@ -32,9 +32,10 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.FastList;
-import de.walware.ecommons.collections.ImCollections;
-import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference.StringPref2;
@@ -72,10 +73,10 @@ import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.IRPkgSet;
 import de.walware.statet.r.core.pkgmanager.IRView;
 import de.walware.statet.r.core.pkgmanager.ISelectedRepos;
-import de.walware.statet.r.core.pkgmanager.RRepoMirror;
 import de.walware.statet.r.core.pkgmanager.RPkgAction;
 import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 import de.walware.statet.r.core.pkgmanager.RRepo;
+import de.walware.statet.r.core.pkgmanager.RRepoMirror;
 import de.walware.statet.r.core.pkgmanager.SelectedRepos;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;

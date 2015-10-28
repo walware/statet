@@ -11,7 +11,6 @@
 
 package de.walware.statet.nico.core.runtime;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +26,9 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchesListener;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
+
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
 
 import de.walware.ecommons.debug.core.model.AbstractProcess;
 import de.walware.ecommons.io.FileUtil;
@@ -145,7 +147,7 @@ public class ToolProcess extends AbstractProcess implements IProcess, ITool, ITo
 	
 	private volatile ToolStatus fStatus = ToolStatus.STARTING;
 	
-	private List<? extends ITrack> fTracks = Collections.emptyList();
+	private ImList<? extends ITrack> fTracks= ImCollections.emptyList();
 	
 	
 	public ToolProcess(final ILaunch launch, final String mainType,
@@ -511,14 +513,17 @@ public class ToolProcess extends AbstractProcess implements IProcess, ITool, ITo
 		if (fQueue != null) {
 			fQueue.dispose();
 		}
+		if (fHistory != null) {
+			fHistory.dispose();
+		}
 	}
 	
 	
 	void setTracks(final List<? extends ITrack> tracks) {
-		fTracks = tracks;
+		fTracks= ImCollections.toList(tracks);
 	}
 	
-	public List<? extends ITrack> getTracks() {
+	public ImList<? extends ITrack> getTracks() {
 		return fTracks;
 	}
 	

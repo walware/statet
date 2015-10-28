@@ -43,9 +43,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.osgi.util.NLS;
 
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.collections.ConstArrayList;
-import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.collections.IntArrayMap;
 import de.walware.ecommons.collections.IntMap;
 import de.walware.ecommons.edb.EmbeddedDB;
@@ -584,7 +585,7 @@ public class RModelIndex {
 		}
 	}
 	
-	private static final ConstList<String> R_MODEL_TYPES= new ConstArrayList<>(RModel.TYPE_ID);
+	private static final ImList<String> R_MODEL_TYPES= ImCollections.newList(RModel.R_TYPE_ID);
 	public void update(final IRProject rProject, final List<String> remove,
 			final List<IRWorkspaceSourceUnit> update, final MultiStatus status, final IProgressMonitor progress) throws CoreException {
 		this.reconciler.init(rProject, status);

@@ -23,7 +23,8 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
+
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
@@ -47,7 +48,7 @@ import de.walware.statet.nico.ui.NicoUIPreferenceNodes;
 public class NIConsoleColorAdapter {
 	
 	
-	private static final List<String> STREAM_IDS= new ConstArrayList<String>(
+	private static final List<String> STREAM_IDS= ImCollections.newList(
 			INFO_STREAM_ID, INPUT_STREAM_ID, OUTPUT_STREAM_ID, ERROR_STREAM_ID,
 			SYSTEM_OUTPUT_STREAM_ID );
 	

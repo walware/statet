@@ -44,8 +44,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.IStatusChangeListener;
-import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.databinding.NotEmptyValidator;
 import de.walware.ecommons.databinding.URLValidator;
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
@@ -201,11 +203,10 @@ class RRepoConfigurationBlock extends ManagedConfigurationBlock implements IActi
 	private static final int CRAN = 1;
 	private static final int BIOC = 2;
 	
-	private static final Preference<List<RRepo>>[] PREFS = new Preference[] {
-		IRPkgManager.CUSTOM_REPO_PREF,
-		IRPkgManager.CUSTOM_CRAN_MIRROR_PREF,
-		IRPkgManager.CUSTOM_BIOC_MIRROR_PREF
-	};
+	private static final ImList<Preference<List<RRepo>>> PREFS= ImCollections.newList(
+			IRPkgManager.CUSTOM_REPO_PREF,
+			IRPkgManager.CUSTOM_CRAN_MIRROR_PREF,
+			IRPkgManager.CUSTOM_BIOC_MIRROR_PREF );
 	
 	private static final Comparator<RRepo> COMPARATOR = new Comparator<RRepo>() {
 		
@@ -341,7 +342,7 @@ class RRepoConfigurationBlock extends ManagedConfigurationBlock implements IActi
 		super.updateControls();
 		for (int i = 0; i < R_SIZE; i++) {
 			fLists[i].clear();
-			final List<RRepo> repos = getPreferenceValue(PREFS[i]);
+			final List<RRepo> repos= getPreferenceValue(PREFS.get(i));
 			for (final RRepo repo : repos) {
 				fIds.add(repo.getId());
 			}
@@ -355,7 +356,7 @@ class RRepoConfigurationBlock extends ManagedConfigurationBlock implements IActi
 		for (int i = 0; i < R_SIZE; i++) {
 			final RRepo[] array = (RRepo[]) fLists[i].toArray(new RRepo[fLists[i].size()]);
 			Arrays.sort(array, COMPARATOR);
-			setPrefValue(PREFS[i], new ConstArrayList<RRepo>(array));
+			setPrefValue(PREFS.get(i), ImCollections.newList(array));
 		}
 		super.updatePreferences();
 	}

@@ -45,9 +45,10 @@ import java.util.List;
 
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ast.IAstNode;
-import de.walware.ecommons.string.IStringFactory;
-import de.walware.ecommons.string.StringFactory;
 import de.walware.ecommons.text.core.input.TextParserInput;
+
+import de.walware.jcommons.string.IStringFactory;
+import de.walware.jcommons.string.StringFactory;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.RLexer;

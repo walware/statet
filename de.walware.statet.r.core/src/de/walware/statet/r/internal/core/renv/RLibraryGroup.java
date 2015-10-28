@@ -14,7 +14,7 @@ package de.walware.statet.r.internal.core.renv;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
 
 import de.walware.statet.r.core.renv.IRLibraryGroup;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
@@ -45,11 +45,11 @@ public abstract class RLibraryGroup implements IRLibraryGroup {
 		
 		
 		private static List<IRLibraryLocation> copy(final List<? extends IRLibraryLocation> locations) {
-			final IRLibraryLocation[] copies = new IRLibraryLocation[locations.size()];
-			for (int i = 0; i < copies.length; i++) {
-				copies[i] = new RLibraryLocation(locations.get(i));
+			final IRLibraryLocation[] copies= new IRLibraryLocation[locations.size()];
+			for (int i= 0; i < copies.length; i++) {
+				copies[i]= new RLibraryLocation(locations.get(i));
 			}
-			return new ConstArrayList<IRLibraryLocation>(copies);
+			return ImCollections.newList(copies);
 		}
 		
 		public Final(final String id, final String label, final List<IRLibraryLocation> libraries) {
@@ -66,7 +66,7 @@ public abstract class RLibraryGroup implements IRLibraryGroup {
 		
 		
 		private static List<IRLibraryLocation.WorkingCopy> copy(final List<? extends IRLibraryLocation> locations) {
-			final List<IRLibraryLocation.WorkingCopy> copies = new ArrayList<IRLibraryLocation.WorkingCopy>(locations.size());
+			final List<IRLibraryLocation.WorkingCopy> copies= new ArrayList<>(locations.size());
 			for (final IRLibraryLocation location : locations) {
 				copies.add(((RLibraryLocation) location).createWorkingCopy());
 			}
@@ -89,47 +89,47 @@ public abstract class RLibraryGroup implements IRLibraryGroup {
 		
 		@Override
 		public List<IRLibraryLocation.WorkingCopy> getLibraries() {
-			return (List<IRLibraryLocation.WorkingCopy>) fLibraries;
+			return (List<IRLibraryLocation.WorkingCopy>) this.libraries;
 		}
 		
 	}
 	
 	
-	private final String fId;
-	private String fLabel;
-	protected final List<? extends IRLibraryLocation> fLibraries;
+	private final String id;
+	private String label;
+	protected final List<? extends IRLibraryLocation> libraries;
 	
 	
 	private RLibraryGroup(final String id, final String label, final List<? extends IRLibraryLocation> libraries) {
-		fId = id;
-		fLabel = label;
-		fLibraries = libraries;
+		this.id= id;
+		this.label= label;
+		this.libraries= libraries;
 	}
 	
 	
 	@Override
 	public String getId() {
-		return fId;
+		return this.id;
 	}
 	
 	@Override
 	public String getLabel() {
-		return fLabel;
+		return this.label;
 	}
 	
 	public void setLabel(final String label) {
-		fLabel = label;
+		this.label= label;
 	}
 	
 	@Override
 	public List<? extends IRLibraryLocation> getLibraries() {
-		return fLibraries;
+		return this.libraries;
 	}
 	
 	
 	@Override
 	public int hashCode() {
-		return fId.hashCode();
+		return this.id.hashCode();
 	}
 	
 	@Override
@@ -137,13 +137,13 @@ public abstract class RLibraryGroup implements IRLibraryGroup {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof RLibraryGroup)) {
-			return false;
+		if (obj instanceof RLibraryGroup) {
+			final RLibraryGroup other= (RLibraryGroup) obj;
+			return (this.id.equals(other.id)
+					&& this.label.equals(other.label)
+					&& this.libraries.equals(other.libraries) );
 		}
-		final RLibraryGroup other = (RLibraryGroup) obj;
-		return (fId.equals(other.fId)
-				&& fLabel.equals(other.fLabel)
-				&& fLibraries.equals(other.fLibraries) );
+		return false;
 	}
 	
 }

@@ -39,7 +39,9 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.net.resourcemapping.IResourceMapping;
 import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingOrder;
@@ -50,18 +52,18 @@ import de.walware.statet.nico.core.NicoCore;
 public class ResourceMappingManager implements IResourceMappingManager {
 	
 	
-	private static final String QUALIFIER = NicoCore.PLUGIN_ID + "/resoursemappings"; //$NON-NLS-1$
+	private static final String QUALIFIER= NicoCore.PLUGIN_ID + "/resoursemappings"; //$NON-NLS-1$
 	
-	private static final String LOCAL_KEY = "local.path"; //$NON-NLS-1$
-	private static final String HOST_KEY = "host.name"; //$NON-NLS-1$
-	private static final String REMOTE_KEY = "remote.path"; //$NON-NLS-1$
+	private static final String LOCAL_KEY= "local.path"; //$NON-NLS-1$
+	private static final String HOST_KEY= "host.name"; //$NON-NLS-1$
+	private static final String REMOTE_KEY= "remote.path"; //$NON-NLS-1$
 	
 	
-	public static final Comparator<IResourceMapping> DEFAULT_COMPARATOR = new Comparator<IResourceMapping>() {
+	public static final Comparator<IResourceMapping> DEFAULT_COMPARATOR= new Comparator<IResourceMapping>() {
 		
 		@Override
 		public int compare(final IResourceMapping o1, final IResourceMapping o2) {
-			final int diff = o1.getHost().compareTo(o2.getHost());
+			final int diff= o1.getHost().compareTo(o2.getHost());
 			if (diff != 0) {
 				return diff;
 			}
@@ -70,7 +72,7 @@ public class ResourceMappingManager implements IResourceMappingManager {
 		
 	};
 	
-	private static final Comparator<IResourceMapping> LOCAL_COMPARATOR = new Comparator<IResourceMapping>() {
+	private static final Comparator<IResourceMapping> LOCAL_COMPARATOR= new Comparator<IResourceMapping>() {
 		
 		@Override
 		public int compare(final IResourceMapping o1, final IResourceMapping o2) {
@@ -79,7 +81,7 @@ public class ResourceMappingManager implements IResourceMappingManager {
 		
 	};
 	
-	private static final Comparator<IResourceMapping> REMOTE_COMPARATOR = new Comparator<IResourceMapping>() {
+	private static final Comparator<IResourceMapping> REMOTE_COMPARATOR= new Comparator<IResourceMapping>() {
 		
 		@Override
 		public int compare(final IResourceMapping o1, final IResourceMapping o2) {
@@ -99,26 +101,26 @@ public class ResourceMappingManager implements IResourceMappingManager {
 		
 		@Override
 		protected IStatus run(final IProgressMonitor monitor) {
-			final List<ResourceMapping> list = fList;
+			final List<ResourceMapping> list= ResourceMappingManager.this.list;
 			if (list == null) {
 				return Status.OK_STATUS;
 			}
-			final Map<String, List<IResourceMapping>[]> mappingsByHost = new HashMap<String, List<IResourceMapping>[]>();
+			final Map<String, List<IResourceMapping>[]> mappingsByHost= new HashMap<>();
 			
-			final SubMonitor progress = SubMonitor.convert(monitor, list.size() +1);
-			final MultiStatus status = new MultiStatus(NicoCore.PLUGIN_ID, 0, "Update Resource Mapping", null);
-			for (int i = 0; i < list.size(); i++) {
+			final SubMonitor progress= SubMonitor.convert(monitor, list.size() +1);
+			final MultiStatus status= new MultiStatus(NicoCore.PLUGIN_ID, 0, "Update Resource Mapping", null);
+			for (int i= 0; i < list.size(); i++) {
 				progress.setWorkRemaining(list.size()-i +1);
-				final ResourceMapping mapping = list.get(i);
+				final ResourceMapping mapping= list.get(i);
 				try {
 					mapping.resolve();
 					
-					final InetAddress[] addresses = mapping.getHostAddresses();
+					final InetAddress[] addresses= mapping.getHostAddresses();
 					for (final InetAddress inetAddress : addresses) {
-						final String host = inetAddress.getHostAddress();
-						List<IResourceMapping>[] mappings = mappingsByHost.get(host);
+						final String host= inetAddress.getHostAddress();
+						List<IResourceMapping>[] mappings= mappingsByHost.get(host);
 						if (mappings == null) {
-							mappings = new List[] { new ArrayList<IResourceMapping>(), null };
+							mappings= new List[] { new ArrayList<>(), null };
 							mappingsByHost.put(host, mappings);
 						}
 						mappings[0].add(mapping);
@@ -129,17 +131,16 @@ public class ResourceMappingManager implements IResourceMappingManager {
 				}
 			}
 			for (final List<IResourceMapping>[] lists : mappingsByHost.values()) {
-				final IResourceMapping[] list0 = lists[0].toArray(new IResourceMapping[lists[0].size()]);
-				final IResourceMapping[] list1 = lists[0].toArray(new IResourceMapping[lists[0].size()]);
-				Arrays.sort(list0, LOCAL_COMPARATOR);
-				Arrays.sort(list1, REMOTE_COMPARATOR);
-				lists[ResourceMappingOrder.LOCAL.ordinal()] = new ConstArrayList<IResourceMapping>(list0);
-				lists[ResourceMappingOrder.REMOTE.ordinal()] = new ConstArrayList<IResourceMapping>(list1);
+				final List<IResourceMapping> unsorted= lists[0];
+				lists[ResourceMappingOrder.LOCAL.ordinal()]= ImCollections.toList(unsorted,
+						LOCAL_COMPARATOR );
+				lists[ResourceMappingOrder.REMOTE.ordinal()]= ImCollections.toList(unsorted,
+						REMOTE_COMPARATOR );
 			}
 			
 			synchronized(ResourceMappingManager.this) {
-				if (fList == list) {
-					fMappingsByHost = mappingsByHost;
+				if (ResourceMappingManager.this.list == list) {
+					ResourceMappingManager.this.mappingsByHost= mappingsByHost;
 				}
 			}
 			return status;
@@ -148,34 +149,34 @@ public class ResourceMappingManager implements IResourceMappingManager {
 	}
 	
 	
-	private List<ResourceMapping> fList;
-	private Map<String, List<IResourceMapping>[]> fMappingsByHost;
+	private ImList<ResourceMapping> list;
+	private Map<String, List<IResourceMapping>[]> mappingsByHost;
 	
-	private final UpdateJob fUpdateJob;
+	private final UpdateJob updateJob;
 	
 	
 	public ResourceMappingManager() {
-		fUpdateJob = new UpdateJob();
+		this.updateJob= new UpdateJob();
 		load();
 	}
 	
 	
 	public void dispose() {
 		synchronized (this) {
-			fList = null;
-			fUpdateJob.cancel();
+			this.list= null;
+			this.updateJob.cancel();
 		}
 	}
 	
 	
 	public List<ResourceMapping> getList() {
-		return fList;
+		return this.list;
 	}
 	
 	public List<IResourceMapping> getMappingsFor(final String hostAddress, final ResourceMappingOrder order) {
-		final Map<String, List<IResourceMapping>[]> byHost = fMappingsByHost;
+		final Map<String, List<IResourceMapping>[]> byHost= this.mappingsByHost;
 		if (byHost != null) {
-			final List<IResourceMapping>[] lists = byHost.get(hostAddress);
+			final List<IResourceMapping>[] lists= byHost.get(hostAddress);
 			if (lists != null) {
 				return lists[(order != null) ? order.ordinal() : 0];
 			}
@@ -185,23 +186,23 @@ public class ResourceMappingManager implements IResourceMappingManager {
 	
 	public void load() {
 		try {
-			final List<ResourceMapping> list = new ArrayList<ResourceMapping>();
+			final List<ResourceMapping> list= new ArrayList<>();
 			
-			final IEclipsePreferences rootNode = new InstanceScope().getNode(QUALIFIER);
-			final String[] names = rootNode.childrenNames();
+			final IEclipsePreferences rootNode= InstanceScope.INSTANCE.getNode(QUALIFIER);
+			final String[] names= rootNode.childrenNames();
 			for (final String name : names) {
-				final ResourceMapping mapping = read(rootNode.node(name));
+				final ResourceMapping mapping= read(rootNode.node(name));
 				if (mapping != null) {
 					list.add(mapping);
 				}
 			}
-			final ResourceMapping[] array = list.toArray(new ResourceMapping[list.size()]);
+			final ResourceMapping[] array= list.toArray(new ResourceMapping[list.size()]);
 			Arrays.sort(array, DEFAULT_COMPARATOR);
 			
 			synchronized (this) {
-				fList = new ConstArrayList<ResourceMapping>(array);
-				fUpdateJob.cancel();
-				fUpdateJob.schedule();
+				this.list= ImCollections.newList(array);
+				this.updateJob.cancel();
+				this.updateJob.schedule();
 			}
 		}
 		catch (final BackingStoreException e) {
@@ -210,22 +211,22 @@ public class ResourceMappingManager implements IResourceMappingManager {
 	}
 	
 	public void setMappings(final List<ResourceMapping> list) {
-		Collections.sort(list, DEFAULT_COMPARATOR);
+		final ImList<ResourceMapping> newMappings= ImCollections.toList(list, DEFAULT_COMPARATOR);
 		try {
-			final IEclipsePreferences rootNode = new InstanceScope().getNode(QUALIFIER);
+			final IEclipsePreferences rootNode= InstanceScope.INSTANCE.getNode(QUALIFIER);
 			
-			final List<String> names = new LinkedList<String>(Arrays.asList(rootNode.childrenNames()));
-			final List<ResourceMapping> mappings = new LinkedList<ResourceMapping>(list);
+			final List<String> names= new LinkedList<>(ImCollections.newList(rootNode.childrenNames()));
+			final List<ResourceMapping> todo= new LinkedList<>(newMappings);
 			
-			int maxIdx = 0;
-			for (final Iterator<ResourceMapping> iter = mappings.iterator(); iter.hasNext(); ) {
-				final ResourceMapping mapping = iter.next();
-				final String id = mapping.getId();
+			int maxIdx= 0;
+			for (final Iterator<ResourceMapping> iter= todo.iterator(); iter.hasNext(); ) {
+				final ResourceMapping mapping= iter.next();
+				final String id= mapping.getId();
 				if (id != null) {
 					try {
-						final int idx = Integer.parseInt(id);
+						final int idx= Integer.parseInt(id);
 						if (idx > maxIdx) {
-							maxIdx = idx;
+							maxIdx= idx;
 						}
 					}
 					catch (final NumberFormatException e) {
@@ -236,25 +237,25 @@ public class ResourceMappingManager implements IResourceMappingManager {
 					write(rootNode.node(id), mapping);
 				}
 			}
-			for (final Iterator<ResourceMapping> iter = mappings.iterator(); iter.hasNext(); ) {
-				final ResourceMapping mapping = iter.next();
-				final String id = Integer.toString(++maxIdx);
+			for (final Iterator<ResourceMapping> iter= todo.iterator(); iter.hasNext(); ) {
+				final ResourceMapping mapping= iter.next();
+				final String id= Integer.toString(++maxIdx);
 				mapping.setId(id);
 				names.remove(id);
 				write(rootNode.node(id), mapping);
 			}
 			for (final String name : names) {
 				if (rootNode.nodeExists(name)) {
-					final Preferences node = rootNode.node(name);
+					final Preferences node= rootNode.node(name);
 					node.removeNode();
 				}
 			}
 			rootNode.flush();
 			
 			synchronized (this) {
-				fList = list;
-				fUpdateJob.cancel();
-				fUpdateJob.schedule();
+				this.list= newMappings;
+				this.updateJob.cancel();
+				this.updateJob.schedule();
 			}
 		}
 		catch (final BackingStoreException e) {
@@ -264,10 +265,10 @@ public class ResourceMappingManager implements IResourceMappingManager {
 	
 	
 	protected ResourceMapping read(final Preferences node) {
-		final String id = node.name();
-		final String local = node.get(LOCAL_KEY, null);
-		final String host = node.get(HOST_KEY, null);
-		final String remote = node.get(REMOTE_KEY, null);
+		final String id= node.name();
+		final String local= node.get(LOCAL_KEY, null);
+		final String host= node.get(HOST_KEY, null);
+		final String remote= node.get(REMOTE_KEY, null);
 		if (local != null && host != null && remote != null) {
 			try {
 				return new ResourceMapping(id, local, host, remote);
@@ -288,7 +289,7 @@ public class ResourceMappingManager implements IResourceMappingManager {
 	
 	@Override
 	public List<IResourceMapping> getResourceMappingsFor(final String hostAddress, final ResourceMappingOrder order) {
-		final List<IResourceMapping> mappings = getMappingsFor(hostAddress, order);
+		final List<IResourceMapping> mappings= getMappingsFor(hostAddress, order);
 		if (mappings != null) {
 			return mappings;
 		}
@@ -301,14 +302,14 @@ public class ResourceMappingManager implements IResourceMappingManager {
 			if (relativeBasePath == null) {
 				return null;
 			}
-			remotePath = relativeBasePath.append(remotePath);
+			remotePath= relativeBasePath.append(remotePath);
 		}
-		final List<IResourceMapping> mappings = getResourceMappingsFor(hostAddress, ResourceMappingOrder.REMOTE);
+		final List<IResourceMapping> mappings= getResourceMappingsFor(hostAddress, ResourceMappingOrder.REMOTE);
 		for (final IResourceMapping mapping : mappings) {
-			final IPath remoteBase = mapping.getRemotePath();
+			final IPath remoteBase= mapping.getRemotePath();
 			if (remoteBase.isPrefixOf(remotePath)) {
-				final IPath subPath = remotePath.removeFirstSegments(remoteBase.segmentCount());
-				final IFileStore localBaseStore = mapping.getFileStore();
+				final IPath subPath= remotePath.removeFirstSegments(remoteBase.segmentCount());
+				final IFileStore localBaseStore= mapping.getFileStore();
 				return localBaseStore.getFileStore(subPath);
 			}
 		}
@@ -317,18 +318,18 @@ public class ResourceMappingManager implements IResourceMappingManager {
 	
 	@Override
 	public IPath mapFileStoreToRemoteResource(final String hostAddress, final IFileStore fileStore) {
-		final List<IResourceMapping> mappings = getResourceMappingsFor(hostAddress, ResourceMappingOrder.LOCAL);
+		final List<IResourceMapping> mappings= getResourceMappingsFor(hostAddress, ResourceMappingOrder.LOCAL);
 		for (final IResourceMapping mapping : mappings) {
-			final IFileStore localBaseStore = mapping.getFileStore();
+			final IFileStore localBaseStore= mapping.getFileStore();
 			if (localBaseStore.equals(fileStore)) {
 				return mapping.getRemotePath();
 			}
 			if (localBaseStore.isParentOf(fileStore)) {
-				final IPath localBasePath = new Path(localBaseStore.toURI().getPath());
-				final IPath fileStorePath = new Path(fileStore.toURI().getPath());
+				final IPath localBasePath= new Path(localBaseStore.toURI().getPath());
+				final IPath fileStorePath= new Path(fileStore.toURI().getPath());
 				if (localBasePath.isPrefixOf(fileStorePath)) {
-					final IPath subPath = fileStorePath.removeFirstSegments(localBasePath.segmentCount());
-					final IPath remotePath = mapping.getRemotePath();
+					final IPath subPath= fileStorePath.removeFirstSegments(localBasePath.segmentCount());
+					final IPath remotePath= mapping.getRemotePath();
 					return remotePath.append(subPath);
 				}
 			}

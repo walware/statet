@@ -33,8 +33,9 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
-import de.walware.ecommons.collections.ConstArrayList;
-import de.walware.ecommons.collections.ConstList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.ui.dialogs.ToolPopup;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
@@ -121,7 +122,7 @@ public class RFontFamilyChooser extends ToolPopup {
 	protected static abstract class GenericTab extends ToolTab {
 		
 		
-		private static final ConstList<String> VALUES = new ConstArrayList<String>(
+		private static final ImList<String> VALUES= ImCollections.newList(
 				"serif", //$NON-NLS-1$
 				"sansserif", //$NON-NLS-1$
 				"mono" ); //$NON-NLS-1$

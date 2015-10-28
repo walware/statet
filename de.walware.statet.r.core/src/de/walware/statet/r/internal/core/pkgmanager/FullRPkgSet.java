@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.collections.ConstArrayList;
-import de.walware.ecommons.collections.SortedArraySet;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.SortedArraySet;
 
 import de.walware.rj.renv.IRPkg;
 import de.walware.rj.renv.RNumVersion;
@@ -96,8 +96,8 @@ public class FullRPkgSet implements IRPkgSet.Ext {
 	}
 	
 	
-	private List<RPkgList<RPkgData>> getAll() {
-		return ConstArrayList.<RPkgList<RPkgData>>concat((List) this.installed.getAll(), this.available.getAll());
+	private List<RPkgList<? extends RPkgData>> getAll() {
+		return ImCollections.concatList(this.installed.getAll(), this.available.getAll());
 	}
 	
 	@Override
@@ -114,7 +114,7 @@ public class FullRPkgSet implements IRPkgSet.Ext {
 			RPkgList<VersionListRPkg> linkingTo= null;
 			RPkgList<VersionListRPkg> suggests= null;
 			RPkgList<VersionListRPkg> enhances= null;
-			for (final RPkgList<RPkgData> list : getAll()) {
+			for (final RPkgList<? extends RPkgData> list : getAll()) {
 				for (int i= 0; i < list.size(); i++) {
 					final RPkgData pkg= list.get(i);
 					if (name.equals(pkg)) {

@@ -12,8 +12,9 @@
 package de.walware.statet.nico.core;
 
 import org.eclipse.core.runtime.preferences.DefaultScope;
-import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+
+import de.walware.jcommons.collections.ImCollections;
 
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesUtil;
@@ -38,8 +39,11 @@ public class NicoCore {
 	public static final int EXITVALUE_RUNTIME_EXCEPTION = STATUSCODE_RUNTIME_ERROR | 2;
 	
 	
-	private static IPreferenceAccess CONSOLE_PREFS = PreferencesUtil.createAccess(new IScopeContext[] {
-			new ConsoleInstanceScope(), new ConsoleDefaultScope(), new InstanceScope(), new DefaultScope() });
+	private static IPreferenceAccess CONSOLE_PREFS= PreferencesUtil.createAccess(ImCollections.newList(
+			new ConsoleInstanceScope(),
+			new ConsoleDefaultScope(),
+			InstanceScope.INSTANCE,
+			DefaultScope.INSTANCE ));
 	
 	/**
 	 * The instance preferences for consoles with the scope search path:

@@ -28,10 +28,11 @@ import org.eclipse.core.variables.IDynamicVariable;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.collections.ImCollections;
-import de.walware.ecommons.collections.ImList;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
 import de.walware.ecommons.runtime.core.util.PathUtils;

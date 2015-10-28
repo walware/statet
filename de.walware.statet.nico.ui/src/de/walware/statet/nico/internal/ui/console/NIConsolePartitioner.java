@@ -36,8 +36,8 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.progress.WorkbenchJob;
 
-import de.walware.ecommons.collections.ImCollections;
-import de.walware.ecommons.collections.ImList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
 
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleOutputStream;
@@ -473,8 +473,7 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 			final ImList<PendingPartition> pendingCopy;
 			final int pendingLength;
 			synchronized(this.pendingPartitions) {
-				pendingCopy= ImCollections.newList(this.pendingPartitions.toArray(
-						new PendingPartition[this.pendingPartitions.size()] ));
+				pendingCopy= ImCollections.toList(this.pendingPartitions);
 				this.pendingPartitions.clear();
 				pendingLength= this.pendingTextLength;
 				this.pendingTextLength= 0;

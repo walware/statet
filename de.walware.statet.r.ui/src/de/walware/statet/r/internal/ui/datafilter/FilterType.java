@@ -11,9 +11,8 @@
 
 package de.walware.statet.r.internal.ui.datafilter;
 
-import java.util.List;
-
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
 
 
 public class FilterType {
@@ -23,7 +22,7 @@ public class FilterType {
 	public static final FilterType INTERVAL = new FilterType(1, Messages.IntervalFilter_label);
 	public static final FilterType TEXT = new FilterType(2, Messages.TextFilter_label);
 	
-	public static final List<FilterType> TYPES = new ConstArrayList<FilterType>(LEVEL, INTERVAL, TEXT);
+	public static final ImList<FilterType> TYPES= ImCollections.newList(LEVEL, INTERVAL, TEXT);
 	
 	
 	private final int fId;

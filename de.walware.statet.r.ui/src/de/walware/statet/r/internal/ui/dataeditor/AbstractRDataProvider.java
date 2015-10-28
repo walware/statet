@@ -28,8 +28,10 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.FastList;
-import de.walware.ecommons.collections.ConstArrayList;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
@@ -877,14 +879,14 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			final RElementName elementName, final long columnIndex, final String columnName,
 			final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		
-		final ConstArrayList<String> classNames;
+		final ImList<String> classNames;
 		
 		RObject rObject;
 		{	final FunctionCall call = r.createFunctionCall("class"); //$NON-NLS-1$
 			call.add(expression);
 			rObject = call.evalData(monitor);
 			final RVector<RCharacterStore> names = RDataUtil.checkRCharVector(rObject);
-			classNames = new ConstArrayList<String>(names.getData().toArray());
+			classNames= ImCollections.newList(names.getData().toArray());
 		}
 		RDataTableColumn column;
 		final RDataFormatter format = new RDataFormatter();
@@ -1048,7 +1050,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		format.setAutoWidth(Math.max(Long.toString(count).length(), 3));
 		return new RDataTableColumn(-1, null, null, null,
 				IRDataTableVariable.INT, RObjectFactoryImpl.INT_STRUCT_DUMMY,
-				new ConstArrayList<String>(RObject.CLASSNAME_INTEGER),
+				ImCollections.newList(RObject.CLASSNAME_INTEGER),
 				format);
 	}
 	

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.collections.SortedArraySet;
+import de.walware.jcommons.collections.SortedArraySet;
 
 import de.walware.rj.renv.IRPkg;
 

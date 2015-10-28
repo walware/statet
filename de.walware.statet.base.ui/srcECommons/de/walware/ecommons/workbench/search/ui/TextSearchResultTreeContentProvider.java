@@ -16,7 +16,7 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.search.ui.text.Match;
 
-import de.walware.ecommons.collections.SortedArraySet;
+import de.walware.jcommons.collections.SortedArraySet;
 
 
 public abstract class TextSearchResultTreeContentProvider<E, M extends Match>

@@ -13,7 +13,7 @@ package de.walware.statet.r.internal.core.pkgmanager;
 
 import java.util.List;
 
-import de.walware.ecommons.collections.SortedArraySet;
+import de.walware.jcommons.collections.SortedArraySet;
 
 import de.walware.statet.r.core.pkgmanager.IRPkgChangeSet;
 import de.walware.statet.r.core.pkgmanager.IRPkgInfo;

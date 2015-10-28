@@ -12,12 +12,13 @@
 package de.walware.statet.r.ui.sourceediting;
 
 import java.beans.PropertyChangeListener;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
+
+import de.walware.jcommons.collections.ImCollections;
 
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.preferences.IPreferenceAccess;
@@ -39,10 +40,9 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		implements IRCoreAccess, PropertyChangeListener {
 	
 	
-	private static final Set<String> RESET_GROUP_IDS = new HashSet<String>(Arrays.asList(new String[] {
+	private static final Set<String> RESET_GROUP_IDS= new HashSet<>(ImCollections.newList(
 			RCodeStyleSettings.INDENT_GROUP_ID,
-			TaskTagsPreferences.GROUP_ID,
-	}));
+			TaskTagsPreferences.GROUP_ID ));
 	
 	
 	private IRCoreAccess fSourceCoreAccess;

@@ -164,7 +164,7 @@ public class QueueView extends ViewPart {
 						case IToolRunnable.ADDING_TO:
 						case IToolRunnable.MOVING_TO:
 							if (!fExpectInfoEvent) {
-								if (events.length > i+1 && delta.data.length == 1) {
+								if (events.length > i+1 && delta.data.size() == 1) {
 									// Added and removed in same set
 									final DebugEvent next = events[i+1];
 									if (next.getSource() == queue
@@ -172,7 +172,7 @@ public class QueueView extends ViewPart {
 											&& next.getDetail() == DebugEvent.CONTENT) {
 										final Queue.Delta nextDelta = (Queue.Delta) next.getData();
 										if (nextDelta.type == IToolRunnable.STARTING
-												&& delta.data[0] == nextDelta.data[0]) {
+												&& delta.data.get(0) == nextDelta.data.get(0)) {
 											updateProgress = true;
 											i++;
 											continue EVENT;
@@ -186,8 +186,8 @@ public class QueueView extends ViewPart {
 											return;
 										}
 										if (delta.position >= 0) {
-											for (int j = 0; j < delta.data.length; j++) {
-												fTableViewer.insert(delta.data[j], delta.position+j);
+											for (int j = 0; j < delta.data.size(); j++) {
+												fTableViewer.insert(delta.data.get(j), delta.position+j);
 											}
 										}
 										else {

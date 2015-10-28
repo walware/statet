@@ -45,8 +45,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.ecommons.collections.ImCollections;
-import de.walware.ecommons.collections.ImList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.text.core.input.StringParserInput;
 import de.walware.ecommons.text.core.util.HtmlStripParserInput;
 
@@ -545,8 +546,7 @@ public class REnvIndexWriter implements IREnvIndex {
 		if (path.length == 1) { // group
 			final String key= path[0].trim().intern();
 			if (key.length() > 0) {
-				this.keywordGroups.put(key, new RHelpKeywordGroup(key, description,
-						new ArrayList<IRHelpKeyword>()));
+				this.keywordGroups.put(key, new RHelpKeywordGroup(key, description));
 			}
 			return;
 		}
@@ -557,8 +557,7 @@ public class REnvIndexWriter implements IREnvIndex {
 				if (i == path.length-1) {
 					if (path[i].length() > 0) {
 						final String key= path[i].intern();
-						node.getNestedKeywords().add(new RHelpKeyword(key, description,
-								new ArrayList<IRHelpKeyword>()));
+						node.getNestedKeywords().add(new RHelpKeyword(key, description));
 						return;
 					}
 				}

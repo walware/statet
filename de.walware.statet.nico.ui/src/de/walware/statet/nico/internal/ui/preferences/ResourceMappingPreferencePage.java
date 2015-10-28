@@ -11,8 +11,6 @@
 
 package de.walware.statet.nico.internal.ui.preferences;
 
-import java.util.ArrayList;
-
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.databinding.observable.value.WritableValue;
@@ -208,7 +206,7 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 	@Override
 	public boolean performOk() {
 		if (fManager != null) {
-			fManager.setMappings(new ArrayList<ResourceMapping>(fList));
+			fManager.setMappings(fList);
 		}
 		return true;
 	}

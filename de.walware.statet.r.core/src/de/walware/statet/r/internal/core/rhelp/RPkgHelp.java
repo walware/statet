@@ -15,7 +15,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
 
 import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.core.renv.IREnv;
@@ -48,7 +49,7 @@ public class RPkgHelp implements IRPkgHelp {
 	
 	public RPkgHelp(final String name, final String title, final String version,
 			final IREnv rEnv, final String built,
-			final ConstArrayList<IRHelpPage> pages) {
+			final ImList<IRHelpPage> pages) {
 		this.name= name;
 		this.title= title;
 		this.version= version;
@@ -107,7 +108,7 @@ public class RPkgHelp implements IRPkgHelp {
 	public void freeze() {
 		final IRHelpPage[] array= this.helpPages.toArray(new IRHelpPage[this.helpPages.size()]);
 		Arrays.sort(array);
-		this.helpPages= new ConstArrayList<>(array);
+		this.helpPages= ImCollections.newList(array);
 	}
 	
 	

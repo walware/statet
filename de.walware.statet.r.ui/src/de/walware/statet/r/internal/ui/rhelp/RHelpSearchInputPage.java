@@ -40,8 +40,9 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 
-import de.walware.ecommons.collections.CollectionUtils;
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -81,12 +82,12 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 	
 	private static final Pattern SEPARATOR_PATTERN = Pattern.compile("[\\,\\;\\s]+"); //$NON-NLS-1$
 	
-	private static List<String> toList(final String input) {
+	private static ImList<String> toList(final String input) {
 		final String[] array = SEPARATOR_PATTERN.split(input);
 		if (array.length == 1 && array[0].isEmpty()) {
-			return CollectionUtils.emptyConstList();
+			return ImCollections.emptyList();
 		}
-		return new ConstArrayList<String>(array);
+		return ImCollections.newList(array);
 	}
 	
 	private static String[] notNull(final String[] array) {
@@ -94,22 +95,22 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 	}
 	
 	private RHelpSearchQuery loadQuery(final IDialogSettings settings) {
-		final int type = settings.getInt("type"); //$NON-NLS-1$
-		final String text = settings.get("text"); //$NON-NLS-1$
-		final List<String> fields = new ConstArrayList<String>(settings.getArray("fields")); //$NON-NLS-1$
-		final List<String> keywords = new ConstArrayList<String>(settings.getArray("keywords")); //$NON-NLS-1$
-		final List<String> packages = new ConstArrayList<String>(settings.getArray("packages")); //$NON-NLS-1$
+		final int type= settings.getInt("type"); //$NON-NLS-1$
+		final String text= settings.get("text"); //$NON-NLS-1$
+		final ImList<String> fields= ImCollections.newList(settings.getArray("fields")); //$NON-NLS-1$
+		final ImList<String> keywords= ImCollections.newList(settings.getArray("keywords")); //$NON-NLS-1$
+		final ImList<String> packages= ImCollections.newList(settings.getArray("packages")); //$NON-NLS-1$
 		return new RHelpSearchQuery(type, text, fields, keywords, packages, null);
 	}
 	
 	private void saveQuery(final RHelpSearchQuery query, final IDialogSettings settings) {
 		settings.put("type", query.getSearchType()); //$NON-NLS-1$
 		settings.put("text", query.getSearchString()); //$NON-NLS-1$
-		final List<String> fields = query.getEnabledFields();
+		final ImList<String> fields= query.getEnabledFields();
 		settings.put("fields", fields.toArray(new String[fields.size()])); //$NON-NLS-1$
-		final List<String> keywords = query.getKeywords();
+		final ImList<String> keywords= query.getKeywords();
 		settings.put("keywords", keywords.toArray(new String[keywords.size()])); //$NON-NLS-1$
-		final List<String> packages = query.getPackages();
+		final ImList<String> packages= query.getPackages();
 		settings.put("packages", packages.toArray(new String[packages.size()])); //$NON-NLS-1$
 	}
 	
@@ -550,8 +551,8 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 		if (fFieldConceptsControl.getSelection()) {
 			fields.add(RHelpSearchQuery.CONCEPTS_FIELD);
 		}
-		final List<String> keywords = toList(fKeywordsInputControl.getText());
-		final List<String> packages = toList(fPackagesInputControl.getText());
+		final ImList<String> keywords= toList(fKeywordsInputControl.getText());
+		final ImList<String> packages= toList(fPackagesInputControl.getText());
 		final IREnv renv = fREnvControl.getSelection();
 		return new RHelpSearchQuery(type, text, fields, keywords, packages, renv);
 	}

@@ -16,7 +16,7 @@ import de.walware.statet.r.core.rhelp.IRHelpSearchMatch;
 import de.walware.statet.r.internal.core.rhelp.index.IREnvIndex;
 
 
-public class RHelpSearchMatch implements IRHelpSearchMatch {
+public final class RHelpSearchMatch implements IRHelpSearchMatch {
 	
 	
 	public static class Fragment implements MatchFragment {

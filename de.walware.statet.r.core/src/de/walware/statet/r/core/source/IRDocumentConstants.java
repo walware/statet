@@ -11,11 +11,11 @@
 
 package de.walware.statet.r.core.source;
 
-import java.util.List;
-
 import org.eclipse.jface.text.IDocument;
 
-import de.walware.ecommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.text.core.IPartitionConstraint;
 
 
@@ -75,7 +75,7 @@ public interface IRDocumentConstants {
 	/**
 	 * List with all partition content types of R documents.
 	 */
-	List<String> R_CONTENT_TYPES= ImCollections.newList(
+	ImList<String> R_CONTENT_TYPES= ImCollections.newList(
 			R_DEFAULT_CONTENT_TYPE, 
 			R_QUOTED_SYMBOL_CONTENT_TYPE, 
 			R_INFIX_OPERATOR_CONTENT_TYPE, 
@@ -150,7 +150,7 @@ public interface IRDocumentConstants {
 	/**
 	 * List with all partition content types of Rd documents.
 	 */
-	List<String> RDOC_CONTENT_TYPES= ImCollections.newList(
+	ImList<String> RDOC_CONTENT_TYPES= ImCollections.newList(
 			RDOC_DEFAULT_CONTENT_TYPE, 
 			RDOC_COMMENT_CONTENT_TYPE, 
 			RDOC_PLATFORM_SPECIF );

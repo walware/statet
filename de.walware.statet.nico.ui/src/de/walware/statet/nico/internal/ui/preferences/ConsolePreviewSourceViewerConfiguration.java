@@ -14,7 +14,8 @@ package de.walware.statet.nico.internal.ui.preferences;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISourceViewer;
 
-import de.walware.ecommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImCollections;
+
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.text.core.sections.AbstractDocContentSections;
 import de.walware.ecommons.text.core.sections.IDocContentSections;

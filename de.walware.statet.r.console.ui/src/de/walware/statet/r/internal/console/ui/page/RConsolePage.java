@@ -30,7 +30,8 @@ import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.services.IServiceLocator;
 
-import de.walware.ecommons.collections.ConstArrayList;
+import de.walware.jcommons.collections.ImCollections;
+
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.actions.HandlerCollection;
 import de.walware.ecommons.ui.actions.HandlerContributionItem;
@@ -182,7 +183,7 @@ public class RConsolePage extends NIConsolePage {
 						new OpenRPkgManagerHandler((RProcess) getTool(), getSite().getShell()) {
 							@Override
 							protected StartAction getStartAction() {
-								return new StartAction(StartAction.INSTALL, new ConstArrayList<String>("zic")); //$NON-NLS-1$
+								return new StartAction(StartAction.INSTALL, ImCollections.newList("zic")); //$NON-NLS-1$
 							}
 				}));
 			}
