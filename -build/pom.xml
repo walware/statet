@@ -6,7 +6,7 @@
 	
 	<groupId>de.walware.statet</groupId>
 	<artifactId>statet</artifactId>
-	<version>3.5-SNAPSHOT</version>
+	<version>3.6-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>StatET</name>
 	
@@ -48,7 +48,7 @@
 		</repository>
 		<repository>
 			<id>eclipse-emf</id>
-			<url>${walware.repo.url.base}/eclipse-4.3/emf</url>
+			<url>${walware.repo.url.base}/eclipse-emf</url>
 			<layout>p2</layout>
 		</repository>
 		
@@ -101,7 +101,7 @@
 						<artifact>
 							<groupId>de.walware.statet</groupId>
 							<artifactId>de.walware.statet-default</artifactId>
-							<version>3.5.1-SNAPSHOT</version>
+							<version>3.6.0-SNAPSHOT</version>
 						</artifact>
 					</target>
 				</configuration>
