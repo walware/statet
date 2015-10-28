@@ -26,7 +26,7 @@ public abstract class SelectionOptionsGroup<ItemT extends Object> implements Opt
 	private final boolean fGrabSelectionHorizontal;
 	private final boolean fGrabVertical;
 	
-	private final List<ItemT> fSelectionModel = new ArrayList<ItemT>();
+	private final List<ItemT> fSelectionModel= new ArrayList<>();
 	private Composite fComposite;
 	
 	

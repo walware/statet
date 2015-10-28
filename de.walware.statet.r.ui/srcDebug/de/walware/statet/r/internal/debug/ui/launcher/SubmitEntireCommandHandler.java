@@ -91,7 +91,7 @@ public class SubmitEntireCommandHandler extends AbstractHandler {
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final IWorkbenchPart workbenchPart = HandlerUtil.getActivePart(event);
-		final AtomicReference<IStatus> success = new AtomicReference<IStatus>();
+		final AtomicReference<IStatus> success= new AtomicReference<>();
 		
 		try {
 			if (workbenchPart instanceof IEditorPart) {
@@ -203,7 +203,7 @@ public class SubmitEntireCommandHandler extends AbstractHandler {
 		}
 		try {
 			data.nodes = nodes;
-			final List<SourceRegion> list = new ArrayList<RCodeLaunching.SourceRegion>(nodes.length);
+			final List<SourceRegion> list= new ArrayList<>(nodes.length);
 			for (int i = 0; i < nodes.length; i++) {
 				if (RAst.hasErrors(nodes[i])) {
 					return new Status(IStatus.ERROR, RUI.PLUGIN_ID,

@@ -64,7 +64,7 @@ public abstract class AbstractRCommandHandler extends AbstractHandler {
 	
 	
 	protected String getRSelection() {
-		final AtomicReference<String> topic = new AtomicReference<String>();
+		final AtomicReference<String> topic= new AtomicReference<>();
 		UIAccess.getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {

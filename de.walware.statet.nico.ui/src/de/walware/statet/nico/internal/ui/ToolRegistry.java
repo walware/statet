@@ -114,7 +114,7 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 		
 		@Override
 		public void launchesRemoved(final ILaunch[] launches) {
-			final List<ToolProcess> list = new ArrayList<ToolProcess>();
+			final List<ToolProcess> list= new ArrayList<>();
 			for (final ILaunch launch : launches) {
 				final IProcess[] processes = launch.getProcesses();
 				for (final IProcess process : processes) {
@@ -138,7 +138,7 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 		}
 		
 		private void removeConsoles(final List<ToolProcess> processes) {
-			final List<IConsole> toRemove = new ArrayList<IConsole>();
+			final List<IConsole> toRemove= new ArrayList<>();
 			final IConsoleManager manager = ConsolePlugin.getDefault().getConsoleManager();
 			final IConsole[] consoles = manager.getConsoles();
 			for (final IConsole console : consoles) {
@@ -153,13 +153,13 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 	}
 	
 	
-	private final Map<IWorkbenchPage, PageRegistry> fPageRegistries = new HashMap<IWorkbenchPage, PageRegistry>();
+	private final Map<IWorkbenchPage, PageRegistry> fPageRegistries= new HashMap<>();
 	private boolean isDisposed = false;
 	
 	private LaunchesListener fLaunchesListener;
 	private JobListener fJobListener;
 	
-	private final FastList<IToolRegistryListener> fListenersWorkbench = new FastList<IToolRegistryListener>(IToolRegistryListener.class, FastList.IDENTITY);
+	private final FastList<IToolRegistryListener> fListenersWorkbench= new FastList<>(IToolRegistryListener.class, FastList.IDENTITY);
 	
 	
 	public ToolRegistry() {

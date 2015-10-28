@@ -113,7 +113,7 @@ public class RGWLauncher implements IRCodeSubmitConnector {
 	private void doRunConnector(final SubmitType connectorCmd, final List<String> writeToProcess) throws CoreException {
 		final String[] processCmd = new String[] {
 			fExecutable, connectorCmd.toString().toLowerCase() };
-		final AtomicReference<Process> process = new AtomicReference<Process>();
+		final AtomicReference<Process> process= new AtomicReference<>();
 		
 		final IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
 		

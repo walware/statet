@@ -149,7 +149,7 @@ public class RepoTab extends Composite {
 	
 	
 	ISelectedRepos createRepoSettings() {
-		final List<RRepo> list = new ArrayList<RRepo>(fSelectedRepos.size());
+		final List<RRepo> list= new ArrayList<>(fSelectedRepos.size());
 		for (final RRepo repo : fAvailableRepos) {
 			if (fSelectedRepos.contains(repo)) {
 				list.add(repo);

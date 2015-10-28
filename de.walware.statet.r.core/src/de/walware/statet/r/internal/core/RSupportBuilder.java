@@ -45,7 +45,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	
 	static class ExceptionCollector {
 		
-		private final ArrayList<IStatus> fExceptionList = new ArrayList<IStatus>(20);
+		private final ArrayList<IStatus> fExceptionList= new ArrayList<>(20);
 		
 		public void reset() {
 			fExceptionList.clear();

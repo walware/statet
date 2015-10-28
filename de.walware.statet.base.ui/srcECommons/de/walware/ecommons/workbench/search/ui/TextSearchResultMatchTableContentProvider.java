@@ -36,7 +36,7 @@ public class TextSearchResultMatchTableContentProvider<E, M extends Match>
 		super(page, viewer);
 		
 		this.comparator= page.comparator;
-		this.currentMatches= new CategoryElementList<E, M>(this.comparator.getMatch0(), this.comparator);
+		this.currentMatches= new CategoryElementList<>(this.comparator.getMatch0(), this.comparator);
 	}
 	
 	
@@ -81,9 +81,9 @@ public class TextSearchResultMatchTableContentProvider<E, M extends Match>
 		
 		final TableViewer viewer= getViewer();
 		
-		final List<M> toAdd= new ArrayList<M>();
-		final List<M> toUpdate= new ArrayList<M>();
-		final List<M> toRemove= new ArrayList<M>();
+		final List<M> toAdd= new ArrayList<>();
+		final List<M> toUpdate= new ArrayList<>();
+		final List<M> toRemove= new ArrayList<>();
 		for (int i= 0; i < elements.length; i++) {
 			final E element= (E) elements[i];
 			final M[] matches= result.getPickedMatches(element);

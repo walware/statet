@@ -634,7 +634,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			if (stack != null) {
 				final List<? extends Frame> frames = stack.getFrames();
 				if (list == null) {
-					list = new HashSet<Long>(frames.size());
+					list= new HashSet<>(frames.size());
 				}
 				for (int i = 0; i < frames.size(); i++) {
 					final long handle = frames.get(i).getHandle();

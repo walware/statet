@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -204,7 +205,7 @@ public class RCodeLaunchRegistry {
 /* Instance *******************************************************************/
 	
 	private IRCodeSubmitConnector fConnector;
-	private final HashMap<String, ContentHandler> fContentHandler = new HashMap<String, ContentHandler>();
+	private final HashMap<String, ContentHandler> fContentHandler= new HashMap<>();
 	private ContentHandler fDefaultHandler;
 	
 	
@@ -213,7 +214,7 @@ public class RCodeLaunchRegistry {
 		loadConnectorExtensions();
 		loadHandlerExtensions();
 		
-		final InstanceScope scope = new InstanceScope();
+		final IScopeContext scope= InstanceScope.INSTANCE;
 		scope.getNode(RRunDebugPreferenceConstants.PREF_R_CONNECTOR.getQualifier())
 				.addPreferenceChangeListener(new IPreferenceChangeListener() {
 			@Override
@@ -276,7 +277,7 @@ public class RCodeLaunchRegistry {
 	}
 	
 	private void loadHandlerPreferences() {
-		final IEclipsePreferences node = new InstanceScope().getNode(
+		final IEclipsePreferences node= InstanceScope.INSTANCE.getNode(
 				RRunDebugPreferenceConstants.CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER );
 		if (node == null) {
 			return;
@@ -324,7 +325,7 @@ public class RCodeLaunchRegistry {
 	
 	public FileCommand[] getFileCommands() {
 		synchronized (fContentHandler) {
-			final List<FileCommand> list = new ArrayList<FileCommand>(fContentHandler.size()*2);
+			final List<FileCommand> list= new ArrayList<>(fContentHandler.size()*2);
 			for (final ContentHandler data : fContentHandler.values()) {
 				for (final FileCommand fileCommand : data.getFileCommands()) {
 					list.add(fileCommand);

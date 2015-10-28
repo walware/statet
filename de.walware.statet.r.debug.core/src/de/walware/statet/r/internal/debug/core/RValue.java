@@ -47,7 +47,7 @@ public class RValue extends RDebugElement implements IValue {
 		
 		@Override
 		protected IVariable createPartition(final IIndexedValue value, final VariablePartitionFactory<IIndexedValue>.PartitionHandle partition) {
-			return new RVariablePartition<IIndexedValue>(value, partition);
+			return new RVariablePartition<>(value, partition);
 		}
 		
 	};

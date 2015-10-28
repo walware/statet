@@ -214,7 +214,7 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 				new Category(Messages.RSyntaxColoring_Identifier_Custom2_label, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_CUSTOM2_ITEMS),
 		};
 		
-		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
+		final Map<Preference<?>, String> prefs= new HashMap<>();
 		
 		for (int i = 0; i < fCategories.length; i++) {
 			prefs.put(fCategories[i].fPref, RIdentifierGroups.GROUP_ID);

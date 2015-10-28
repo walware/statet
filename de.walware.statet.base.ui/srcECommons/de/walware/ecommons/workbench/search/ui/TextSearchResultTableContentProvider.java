@@ -35,7 +35,7 @@ public class TextSearchResultTableContentProvider<E, M extends Match>
 		super(page, viewer);
 		
 		this.comparator= page.comparator;
-		this.currentElements= new SortedArraySet<E>(this.comparator.getElement0(), this.comparator.getElementComparator());
+		this.currentElements= new SortedArraySet<>(this.comparator.getElement0(), this.comparator.getElementComparator());
 	}
 	
 	
@@ -59,7 +59,7 @@ public class TextSearchResultTableContentProvider<E, M extends Match>
 			final int limit= getElementLimit();
 			
 			if (elements.length <= limit && result.getActiveMatchFilters() == null) {
-				this.currentElements.addAll(new SortedArraySet<E>(elements, result.getComparator().getElementComparator()));
+				this.currentElements.addAll(new SortedArraySet<>(elements, result.getComparator().getElementComparator()));
 				
 				this.active= true;
 				return elements;
@@ -88,7 +88,7 @@ public class TextSearchResultTableContentProvider<E, M extends Match>
 		viewer.getTable().setRedraw(false);
 		try {
 //			final List<E> toAdd= new ArrayList<E>();
-			final List<E> toUpdate= new ArrayList<E>();
+			final List<E> toUpdate= new ArrayList<>();
 //			final List<E> toRemove= new ArrayList<E>();
 			for (int i= 0; i < elements.length; i++) {
 				final E element= (E) elements[i];

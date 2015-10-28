@@ -34,7 +34,7 @@ public class RLineBreakpoint extends RGenericLineBreakpoint {
 			final int elementType, final String elementId, final String elementLabel, final String subLabel,
 			final boolean temporary) throws CoreException {
 		
-		final Map<String, Object> attributes = new HashMap<String, Object>();
+		final Map<String, Object> attributes= new HashMap<>();
 		addStandardLineBreakpointAttributes(attributes, true, lineNumber, charStart, charEnd,
 				elementType, elementId, elementLabel, subLabel );
 		

@@ -281,7 +281,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	public Change createChange(final IProgressMonitor monitor) throws CoreException {
 		final SubMonitor progress= SubMonitor.convert(monitor, RefactoringMessages.Common_CreateChanges_label, 3);
 		try {
-			final Map<String, String> arguments= new HashMap<String, String>();
+			final Map<String, String> arguments= new HashMap<>();
 			final String description= NLS.bind(Messages.RenameInWorkspace_Descriptor_description,
 					RUtil.formatVarName(getNewName()) );
 			final IProject resource= this.elementSet.getSingleProject();
@@ -344,7 +344,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 			final String quoted= RRefactoringAdapter.getQuotedIdentifier(this.newName);
 			final boolean isQuoted= (this.newName.charAt(0) == '`');
 			
-			final List<List<? extends RElementAccess>> allFrameAccess= new ArrayList<List<? extends RElementAccess>>();
+			final List<List<? extends RElementAccess>> allFrameAccess= new ArrayList<>();
 			for (final String frameId : definitionFrameIds) {
 				final IRFrame frame;
 				if (frameId == null) {

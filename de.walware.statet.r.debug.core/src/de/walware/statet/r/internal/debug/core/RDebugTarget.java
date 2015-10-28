@@ -51,7 +51,7 @@ public class RDebugTarget extends RDebugElement implements IRDebugTarget, IStepF
 	
 	private final RControllerBreakpointAdapter fBreakpointAdapter;
 	
-	protected final List<IThread> fThreads = new ArrayList<IThread>(1);
+	protected final List<IThread> fThreads= new ArrayList<>(1);
 	private RMainThread fMainThread;
 	
 	protected boolean fStepFiltersEnabled;

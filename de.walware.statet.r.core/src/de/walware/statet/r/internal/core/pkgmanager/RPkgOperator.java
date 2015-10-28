@@ -77,7 +77,7 @@ public class RPkgOperator {
 	private void requireLibDir(final String dir,
 			final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
 		if (fCreatedDirs == null) {
-			fCreatedDirs = new HashSet<String>();
+			fCreatedDirs= new HashSet<>();
 		}
 		if (fCreatedDirs.contains(dir)) {
 			return;

@@ -148,7 +148,7 @@ public class ToolRunner {
 	}
 	
 	private IStatus createStatus(final ToolProcess process, final String message, final Throwable e) {
-		final List<IStatus> list = new ArrayList<IStatus>();
+		final List<IStatus> list= new ArrayList<>();
 		final IProcess[] processes = process.getLaunch().getProcesses();
 		for (int i = 0; i < processes.length; i++) {
 			final IStatus logStatus = createOutputLogStatus((ILogOutput) processes[i].getAdapter(ILogOutput.class));

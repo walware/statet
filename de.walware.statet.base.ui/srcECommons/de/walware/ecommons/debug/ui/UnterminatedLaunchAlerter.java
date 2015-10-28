@@ -54,7 +54,7 @@ public class UnterminatedLaunchAlerter implements IWorkbenchListener {
 	}
 	
 	
-	private final Set<String> fLauchTypeIds = new HashSet<String>();
+	private final Set<String> fLauchTypeIds= new HashSet<>();
 	
 	private UnterminatedLaunchAlerter() { 
 		PlatformUI.getWorkbench().addWorkbenchListener(this);
@@ -64,7 +64,7 @@ public class UnterminatedLaunchAlerter implements IWorkbenchListener {
 	@Override
 	public boolean preShutdown(final IWorkbench workbench, final boolean forced) {
 		final ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
-		final List<ILaunchConfigurationType> programTypes = new LinkedList<ILaunchConfigurationType>();
+		final List<ILaunchConfigurationType> programTypes= new LinkedList<>();
 		synchronized (gMutex) {
 			for (final String id : fLauchTypeIds) {
 				final ILaunchConfigurationType programType = manager.getLaunchConfigurationType(id);
@@ -77,7 +77,7 @@ public class UnterminatedLaunchAlerter implements IWorkbenchListener {
 			return true;
 		}
 		
-		final Set<ILaunchConfigurationType> stillRunningTypes = new HashSet<ILaunchConfigurationType>();
+		final Set<ILaunchConfigurationType> stillRunningTypes= new HashSet<>();
 		int count = 0;
 		final ILaunch launches[] = manager.getLaunches();
 		for (final ILaunch launch : launches) {

@@ -155,7 +155,7 @@ public class ChooseFileHandler extends AbstractConsoleCommandHandler {
 			message = s;
 		}
 		final Boolean newFile = ToolCommandHandlerUtil.getCheckedData(data, "newResource", Boolean.class, true); //$NON-NLS-1$
-		final AtomicReference<IFileStore> file = new AtomicReference<IFileStore>();
+		final AtomicReference<IFileStore> file= new AtomicReference<>();
 		final Runnable runnable = new Runnable() {
 			@Override
 			public void run() {

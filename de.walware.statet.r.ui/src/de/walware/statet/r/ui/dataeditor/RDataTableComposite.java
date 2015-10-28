@@ -192,12 +192,9 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			updateSelection();
 		}
 	};
-	private final FastList<ISelectionChangedListener> fSelectionListeners =
-			new FastList<ISelectionChangedListener>(ISelectionChangedListener.class);
-	private final FastList<IFindListener> fFindListeners =
-			new FastList<IFindListener>(IFindListener.class);
-	private final FastList<IRDataTableListener> fTableListeners =
-			new FastList<IRDataTableListener>(IRDataTableListener.class);
+	private final FastList<ISelectionChangedListener> fSelectionListeners= new FastList<>(ISelectionChangedListener.class);
+	private final FastList<IFindListener> fFindListeners= new FastList<>(IFindListener.class);
+	private final FastList<IRDataTableListener> fTableListeners= new FastList<>(IRDataTableListener.class);
 	
 	private final RDataFormatter fFormatter = new RDataFormatter();
 	
@@ -283,7 +280,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		
 		final ISortModel sortModel = dataProvider.getSortModel();
 		if (sortModel != null) {
-			final SortHeaderLayer<?> sortHeaderLayer = new SortHeaderLayer<Object>(
+			final SortHeaderLayer<?> sortHeaderLayer= new SortHeaderLayer<>(
 					columnHeaderLayer, sortModel, false);
 			sortHeaderLayer.addConfiguration(new UIBindings.SortConfiguration());
 			fTableLayers.topColumnHeaderLayer = sortHeaderLayer;
@@ -702,7 +699,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 							final IProgressMonitor monitor) throws CoreException {
 						final IRToolService r = (IRToolService) service;
 						
-						final AtomicReference<AbstractRDataProvider<?>> dataProvider = new AtomicReference<AbstractRDataProvider<?>>();
+						final AtomicReference<AbstractRDataProvider<?>> dataProvider= new AtomicReference<>();
 						Exception error = null;
 						try {
 							final RObject struct = r.evalData(input.getFullName(),

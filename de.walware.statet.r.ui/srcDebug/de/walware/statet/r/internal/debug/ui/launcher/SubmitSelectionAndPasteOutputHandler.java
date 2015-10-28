@@ -86,7 +86,7 @@ public class SubmitSelectionAndPasteOutputHandler extends AbstractHandler {
 			fDocument = viewer.getDocument();
 			try {
 				if (selection.getLength() > 0) {
-					final ArrayList<String> lines = new ArrayList<String>(0);
+					final ArrayList<String> lines= new ArrayList<>(0);
 					TextUtil.addLines(fDocument, selection.getOffset(), selection.getLength(), lines);
 					fLines = lines.toArray(new String[lines.size()]);
 					

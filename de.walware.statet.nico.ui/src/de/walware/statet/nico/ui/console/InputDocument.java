@@ -303,7 +303,7 @@ public class InputDocument extends AbstractDocument {
 	
 	
 	private ITypedRegion[] remap(final ITypedRegion[] masterRegions) {
-		final ArrayList<IRegion> regions = new ArrayList<IRegion>(masterRegions.length);
+		final ArrayList<IRegion> regions= new ArrayList<>(masterRegions.length);
 		for (final ITypedRegion masterRegion : masterRegions) {
 			final ITypedRegion region = remap(masterRegion);
 			if (region != null) {

@@ -38,7 +38,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject
 	public static final IntPref TAB_SIZE_PREF = new IntPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "tab.size"); //$NON-NLS-1$
 	
-	public static final EnumPref<IndentationType> INDENT_DEFAULT_TYPE_PREF = new EnumPref<IndentationType>(
+	public static final EnumPref<IndentationType> INDENT_DEFAULT_TYPE_PREF= new EnumPref<>(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.default.type", IndentationType.class); //$NON-NLS-1$
 	
 	public static final IntPref INDENT_SPACES_COUNT_PREF = new IntPref(

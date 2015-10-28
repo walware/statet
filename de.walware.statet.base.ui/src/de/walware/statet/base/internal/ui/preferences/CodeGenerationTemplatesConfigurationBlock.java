@@ -139,7 +139,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 				break;
 			
 			case IDX_EXPORT:
-				final List<TemplatePersistenceData> datas = new ArrayList<TemplatePersistenceData>();
+				final List<TemplatePersistenceData> datas= new ArrayList<>();
 				for (final Iterator<?> iter = rawSelection.iterator(); iter.hasNext();) {
 					final Object curr = iter.next();
 					if (curr instanceof TemplateItem) {

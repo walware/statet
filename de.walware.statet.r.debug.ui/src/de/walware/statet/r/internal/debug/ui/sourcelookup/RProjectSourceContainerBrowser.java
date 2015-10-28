@@ -44,7 +44,7 @@ public class RProjectSourceContainerBrowser extends AbstractSourceContainerBrows
 		final ProjectSelectionDialog dialog= new ProjectSelectionDialog(shell, projects);
 		if (dialog.open() == Dialog.OK) {
 			final Set<?> selectedProjects= dialog.getCheckedElements();
-			final List<ISourceContainer> containers= new ArrayList<ISourceContainer>();
+			final List<ISourceContainer> containers= new ArrayList<>();
 			for (final IProject project : projects) {
 				if (selectedProjects.contains(project)) {
 					final RProjectSourceContainer container= new RProjectSourceContainer(project, false);
@@ -70,7 +70,7 @@ public class RProjectSourceContainerBrowser extends AbstractSourceContainerBrows
 	
 	protected List<IProject> getRResourceProjects() {
 		final IProject[] projects= ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		final List<IProject> collected= new ArrayList<IProject>();
+		final List<IProject> collected= new ArrayList<>();
 		for (final IProject project : projects) {
 			try {
 				if (project.hasNature(RProjects.R_NATURE_ID)) {

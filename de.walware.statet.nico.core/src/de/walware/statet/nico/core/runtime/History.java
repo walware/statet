@@ -66,7 +66,7 @@ public class History {
 	private final ToolProcess fProcess;
 	private IPreferenceChangeListener fPreferenceListener;
 	private HistoryPreferences fCurrentPreferences;
-	private final Map<SubmitType, IStreamListener> fStreamListeners = new EnumMap<SubmitType, IStreamListener>(SubmitType.class);
+	private final Map<SubmitType, IStreamListener> fStreamListeners= new EnumMap<>(SubmitType.class);
 	
 	private volatile Entry[] fArrayCache;
 	

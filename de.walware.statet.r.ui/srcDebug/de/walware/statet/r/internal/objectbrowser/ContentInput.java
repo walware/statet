@@ -66,7 +66,7 @@ class ContentInput {
 	}
 	
 	public List<ICombinedRElement> filterEnvChildren(final List<? extends ICombinedRElement> children) {
-		final List<ICombinedRElement> list = new ArrayList<ICombinedRElement>(children.size());
+		final List<ICombinedRElement> list= new ArrayList<>(children.size());
 		for (final ICombinedRElement rElement : children) {
 			if (this.envFilter.include(rElement)) {
 				list.add(rElement);

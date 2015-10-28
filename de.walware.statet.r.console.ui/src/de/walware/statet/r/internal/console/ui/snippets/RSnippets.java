@@ -102,7 +102,7 @@ public class RSnippets {
 		final IStringVariable[] variables = VariablesPlugin.getDefault()
 				.getStringVariableManager().getVariables();
 		
-		final List<IStringVariable> all = new ArrayList<IStringVariable>(variables.length + 2);
+		final List<IStringVariable> all= new ArrayList<>(variables.length + 2);
 		for (int i = 0; i < variables.length; i++) {
 			all.add(variables[i]);
 		}
@@ -159,7 +159,7 @@ public class RSnippets {
 	private Map<String, IStringVariable> createResolveVariables() {
 		final ResourceVariableUtil util = new ResourceVariableUtil();
 		
-		final Map<String, IStringVariable> variables = new HashMap<String, IStringVariable>();
+		final Map<String, IStringVariable> variables= new HashMap<>();
 		add(variables, new DynamicVariable.ResolverVariable(
 				RSnippets.RESOURCE_ENCODING_VARIABLE, new RResourceEncodingVariableResolver(util)));
 		add(variables, new EchoEnabledVariable());

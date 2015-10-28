@@ -55,7 +55,7 @@ public class DecoratorsRegistry {
 		
 	}
 	
-	private final HashMap<String, RunnableDecorator> fRunnableIconMap = new HashMap<String, RunnableDecorator>();
+	private final HashMap<String, RunnableDecorator> fRunnableIconMap= new HashMap<>();
 	
 	private final Display fDisplay;
 	private ResourceManager fManager;

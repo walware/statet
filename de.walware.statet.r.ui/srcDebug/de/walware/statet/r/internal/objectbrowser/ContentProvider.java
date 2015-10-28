@@ -133,7 +133,7 @@ class ContentProvider implements ITreeContentProvider {
 	private ContentInput activeInput;
 	
 	/** References used by the viewer. Use only in UI thread */
-	private Set<RReference> usedReferences = new HashSet<RReference>();
+	private Set<RReference> usedReferences= new HashSet<>();
 	
 	
 	public ContentProvider() {
@@ -260,7 +260,7 @@ class ContentProvider implements ITreeContentProvider {
 			return Collections.emptySet();
 		}
 		final Set<RReference> previousReferences = this.usedReferences;
-		this.usedReferences = new HashSet<RReference>();
+		this.usedReferences= new HashSet<>();
 		return previousReferences;
 	}
 	

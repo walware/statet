@@ -231,7 +231,7 @@ public class PkgTab extends Composite {
 	private String fSelectedPkgName;
 	private int fSelectedPkgVersionGroup;
 	private IRPkgData fSelectedPkgVersion;
-	private final Map<String, String> fSelectedPkgVersions = new HashMap<String, String>();
+	private final Map<String, String> fSelectedPkgVersions= new HashMap<>();
 	
 	private SearchText fFilterText;
 	private Button fFilterInstButton;
@@ -848,7 +848,7 @@ public class PkgTab extends Composite {
 			new ObservableSetBinding(fFilterController, fFilterRViewsSet, filter) {
 				@Override
 				protected Collection<?> createFilterSet(final Collection<?> set) {
-					final Set<String> pkgNames = new HashSet<String>(set.size() * 50);
+					final Set<String> pkgNames= new HashSet<>(set.size() * 50);
 					for (final IRView view : (Collection<? extends IRView>) set) {
 						pkgNames.addAll(view.getPkgList());
 					}
@@ -1061,7 +1061,7 @@ public class PkgTab extends Composite {
 				available = false;
 				allInstalled = true;
 				allRemovable = true;
-				final List<String> checkedLocations = new ArrayList<String>(8);
+				final List<String> checkedLocations= new ArrayList<>(8);
 				for (final Iterator<?> iterator = selection.iterator(); iterator.hasNext();) {
 					final String name = (String) iterator.next();
 					if (!available && fPkgSet.getAvailable().containsByName(name)) {
@@ -1178,7 +1178,7 @@ public class PkgTab extends Composite {
 		if (pkgs == null) {
 			return;
 		}
-		final List<RPkgAction> actions = new ArrayList<RPkgAction>(pkgs.size());
+		final List<RPkgAction> actions= new ArrayList<>(pkgs.size());
 		for (final IRPkgInfoAndData pkg : pkgs) {
 			actions.add(new RPkgAction.Uninstall(pkg));
 		}
@@ -1233,13 +1233,13 @@ public class PkgTab extends Composite {
 					return null;
 				}
 			}
-			final List<IRPkgInfoAndData> list = new ArrayList<IRPkgInfoAndData>(1);
+			final List<IRPkgInfoAndData> list= new ArrayList<>(1);
 			list.add(inst);
 			return list;
 		}
 		else {
 			final IStructuredSelection selection = (IStructuredSelection) fPkgTable.viewer.getSelection();
-			final List<IRPkgInfoAndData> list = new ArrayList<IRPkgInfoAndData>(selection.size());
+			final List<IRPkgInfoAndData> list= new ArrayList<>(selection.size());
 			ITER_SELECTED: for (final Object element : selection.toList()) {
 				final String name = (String) element;
 				final IRPkgInfoAndData inst = fPkgSet.getInstalled().getFirstByName(name);
@@ -1286,13 +1286,13 @@ public class PkgTab extends Composite {
 					return null;
 				}
 			}
-			final List<RPkgAction.Install> list = new ArrayList<RPkgAction.Install>(1);
+			final List<RPkgAction.Install> list= new ArrayList<>(1);
 			list.add(new RPkgAction.Install(avail, null, inst));
 			return Collections.singletonMap(name, list);
 		}
 		else {
 			final IStructuredSelection selection = (IStructuredSelection) fPkgTable.viewer.getSelection();
-			final Map<String, List<RPkgAction.Install>> map = new HashMap<String, List<RPkgAction.Install>>(selection.size());
+			final Map<String, List<RPkgAction.Install>> map= new HashMap<>(selection.size());
 			ITER_SELECTED: for (final Object element : selection.toList()) {
 				final String name = (String) element;
 				IRPkgData avail = fPkgSet.getAvailable().getFirstByName(name);
@@ -1308,7 +1308,7 @@ public class PkgTab extends Composite {
 						continue ITER_SELECTED;
 					}
 				}
-				final List<RPkgAction.Install> list = new ArrayList<RPkgAction.Install>(1);
+				final List<RPkgAction.Install> list= new ArrayList<>(1);
 				list.add(new RPkgAction.Install(avail, null, inst));
 				map.put(name, list);
 			}
@@ -1337,7 +1337,7 @@ public class PkgTab extends Composite {
 			if (instList.isEmpty()) {
 				return null;
 			}
-			final List<RPkgAction.Install> list = new ArrayList<RPkgAction.Install>(instList.size());
+			final List<RPkgAction.Install> list= new ArrayList<>(instList.size());
 			ITER_INST: for (final IRPkgInfoAndData inst : instList) {
 				final IRPkgData instAvail = (sameRepo) ? getAvailSameRepo(inst, avail) : avail;
 				for (int j = 0; j < filters.length; j++) {
@@ -1357,7 +1357,7 @@ public class PkgTab extends Composite {
 			if (names == null) {
 				names = ((IStructuredSelection) fPkgTable.viewer.getSelection()).toList();
 			}
-			final Map<String, List<RPkgAction.Install>> map = new HashMap<String, List<RPkgAction.Install>>(names.size());
+			final Map<String, List<RPkgAction.Install>> map= new HashMap<>(names.size());
 			for (final String name : names) {
 				final IRPkgData avail = fPkgSet.getAvailable().getFirstByName(name);
 				if (avail == null) {
@@ -1367,7 +1367,7 @@ public class PkgTab extends Composite {
 				if (instList.isEmpty()) {
 					continue;
 				}
-				final List<RPkgAction.Install> list = new ArrayList<RPkgAction.Install>(instList.size());
+				final List<RPkgAction.Install> list = new ArrayList<>(instList.size());
 				ITER_INST: for (final IRPkgInfoAndData inst : instList) {
 					final IRPkgData instAvail = (sameRepo) ? getAvailSameRepo(inst, avail) : avail;
 					for (int j = 0; j < filters.length; j++) {

@@ -125,7 +125,7 @@ public class RAst extends Ast {
 		private final int fStartOffset;
 		private final int fStopOffset;
 		private RAstNode fContainer;
-		private final List<RAstNode> fCommands = new ArrayList<RAstNode>();
+		private final List<RAstNode> fCommands= new ArrayList<>();
 		
 		
 		public DeepestCommandsSearchVisitor(final int startOffset, final int stopOffset) {

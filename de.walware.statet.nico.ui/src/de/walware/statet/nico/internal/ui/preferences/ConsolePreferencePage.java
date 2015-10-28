@@ -66,7 +66,7 @@ class ConsolePreferenceBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Map<Preference<?>, String> prefs= new HashMap<Preference<?>, String>();
+		final Map<Preference<?>, String> prefs= new HashMap<>();
 		
 		prefs.put(ConsolePreferences.PREF_HISTORYNAVIGATION_SUBMIT_TYPES, ConsolePreferences.GROUP_ID);
 		prefs.put(ConsolePreferences.PREF_CHARLIMIT, ConsolePreferences.GROUP_ID);

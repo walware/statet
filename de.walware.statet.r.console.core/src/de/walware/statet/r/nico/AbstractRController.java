@@ -80,13 +80,13 @@ public abstract class AbstractRController extends ToolController
 	
 	public static final String INIT_RGRAPHIC_FACTORY_HANDLER_ID = "r/initRGraphicFactory"; //$NON-NLS-1$
 	
-	protected List<IToolRunnable> fStartupsRunnables = new ArrayList<IToolRunnable>();
+	protected List<IToolRunnable> fStartupsRunnables= new ArrayList<>();
 	
 	protected String fContinuePromptText;
 	protected String fDefaultPromptText;
 	
 	protected int fChanged;
-	protected final Set<RElementName> fChangedEnvirs = new HashSet<RElementName>();
+	protected final Set<RElementName> fChangedEnvirs= new HashSet<>();
 	
 	protected List<TrackingConfiguration> fTrackingConfigurations;
 	
@@ -158,7 +158,7 @@ public abstract class AbstractRController extends ToolController
 	protected void initTracks(final String directory, final IProgressMonitor monitor, final List<IStatus> warnings)
 			throws CoreException {
 		if (fTrackingConfigurations != null) {
-			final List<ITrack> tracks = new ArrayList<ITrack>(fTrackingConfigurations.size());
+			final List<ITrack> tracks= new ArrayList<>(fTrackingConfigurations.size());
 			for (final TrackingConfiguration trackingConfig : fTrackingConfigurations) {
 				final TrackWriter tracker = new TrackWriter(this, trackingConfig);
 				final IStatus status = tracker.init(monitor);
@@ -246,7 +246,7 @@ public abstract class AbstractRController extends ToolController
 	protected void doRunSuspendedLoopL(final int o, final int level) {
 		fChanged |= RWorkspace.REFRESH_AUTO;
 		final int savedChanged = fChanged;
-		final Set<RElementName> savedChangedEnvirs = new HashSet<RElementName>(fChangedEnvirs);
+		final Set<RElementName> savedChangedEnvirs= new HashSet<>(fChangedEnvirs);
 		try {
 			super.doRunSuspendedLoopL(o, level);
 		}

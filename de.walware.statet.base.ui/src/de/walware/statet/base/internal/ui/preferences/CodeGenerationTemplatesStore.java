@@ -181,7 +181,7 @@ public final class CodeGenerationTemplatesStore {
 		if (fProjectStore != null) {
 			fProjectStore.load();
 			
-			final Set<String> collectedDatas = new HashSet<String>();
+			final Set<String> collectedDatas= new HashSet<>();
 			TemplatePersistenceData[] datas = fProjectStore.getTemplateData(false);
 			for (int i = 0; i < datas.length; i++) {
 				collectedDatas.add(datas[i].getId());

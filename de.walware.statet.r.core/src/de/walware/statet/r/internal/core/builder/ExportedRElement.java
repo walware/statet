@@ -39,7 +39,7 @@ public class ExportedRElement implements IRLangElement, Serializable {
 			return children;
 		}
 		else {
-			final ArrayList<IRLangElement> filtered = new ArrayList<IRLangElement>(children.size());
+			final ArrayList<IRLangElement> filtered= new ArrayList<>(children.size());
 			for (final IRLangElement child : children) {
 				if (filter.include(child)) {
 					filtered.add(child);

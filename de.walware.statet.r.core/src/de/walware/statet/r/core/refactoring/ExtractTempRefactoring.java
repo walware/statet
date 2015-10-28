@@ -262,7 +262,7 @@ public class ExtractTempRefactoring extends Refactoring {
 			result.merge(RefactoringStatus.createWarningStatus(Messages.ExtractTemp_warning_ChangedRange_message));
 		}
 		
-		fOccurrencesList = new ArrayList<RAstNode>();
+		fOccurrencesList= new ArrayList<>();
 		try {
 			parent.acceptInRChildren(new OccurrencesSearcher());
 		}
@@ -311,7 +311,7 @@ public class ExtractTempRefactoring extends Refactoring {
 			}
 			createChanges(textFileChange, progress.newChild(1));
 			
-			final Map<String, String> arguments = new HashMap<String, String>();
+			final Map<String, String> arguments= new HashMap<>();
 			final String varName = RRefactoringAdapter.getUnquotedIdentifier(fTempName);
 			final String description = NLS.bind(Messages.ExtractTemp_Descriptor_description,
 					RUtil.formatVarName(varName) );

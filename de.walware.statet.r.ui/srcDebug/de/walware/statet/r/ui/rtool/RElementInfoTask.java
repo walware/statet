@@ -345,7 +345,7 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 				|| envName.getSegmentName().isEmpty()) {
 			return false;
 		}
-		final List<RElementName> segments = new ArrayList<RElementName>();
+		final List<RElementName> segments= new ArrayList<>();
 		segments.add(envName);
 		RElementName a = this.fElementName;
 		while (a != null) {

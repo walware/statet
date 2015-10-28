@@ -31,7 +31,7 @@ public class RSourceLookupDirector extends AbstractSourceLookupDirector {
 	
 	private static final Set<String> gFilteredSourceContainerTypes;
 	static {
-		gFilteredSourceContainerTypes = new HashSet<String>();
+		gFilteredSourceContainerTypes= new HashSet<>();
 	}
 	
 	

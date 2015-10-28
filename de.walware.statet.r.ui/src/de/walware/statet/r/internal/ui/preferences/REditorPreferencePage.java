@@ -95,7 +95,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
+		final Map<Preference<?>, String> prefs= new HashMap<>();
 		
 		prefs.put(REditorOptions.SMARTINSERT_BYDEFAULT_ENABLED_PREF, REditorOptions.SMARTINSERT_GROUP_ID);
 		prefs.put(REditorOptions.SMARTINSERT_TAB_ACTION_PREF, REditorOptions.SMARTINSERT_GROUP_ID);

@@ -829,7 +829,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			@Override
 			protected void execute() throws ExecutionException {
 				final Shell shell = getSite().getShell();
-				final List<String> pageIds = new ArrayList<String>();
+				final List<String> pageIds= new ArrayList<>();
 				NIConsolePage.this.collectContextMenuPreferencePages(pageIds);
 				if (!pageIds.isEmpty() && (shell == null || !shell.isDisposed())) {
 					org.eclipse.ui.dialogs.PreferencesUtil.createPreferenceDialogOn(shell,
@@ -1130,7 +1130,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	
 	@Override
 	public void settingsChanged(final Set<String> groupIds) {
-		final Map<String, Object> options = new HashMap<String, Object>();
+		final Map<String, Object> options= new HashMap<>();
 		UIAccess.getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {

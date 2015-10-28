@@ -150,9 +150,9 @@ class DeleteHandler extends AbstractHandler {
 				return (e1 == e2);
 			}
 		};
-		final List<String> commands = new ArrayList<String>(treePaths.length);
-		final List<String> names = new ArrayList<String>(treePaths.length);
-		final Set<IElementName> topEnvirs = new HashSet<IElementName>(treePaths.length);
+		final List<String> commands= new ArrayList<>(treePaths.length);
+		final List<String> names= new ArrayList<>(treePaths.length);
+		final Set<IElementName> topEnvirs= new HashSet<>(treePaths.length);
 		ITER_ELEMENTS: for (int i = 0; i < treePaths.length; i++) {
 			for (int j = 0; j < i; j++) {
 				if (treePaths[j] != null && treePaths[i].startsWith(treePaths[j], comparer)) {

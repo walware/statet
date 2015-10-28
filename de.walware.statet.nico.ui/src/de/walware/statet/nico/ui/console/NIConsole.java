@@ -89,7 +89,7 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 	}
 	
 	private final NIConsolePartitioner fPartitioner;
-	private final Map<String, NIConsoleOutputStream> fStreams = new HashMap<String, NIConsoleOutputStream>();
+	private final Map<String, NIConsoleOutputStream> fStreams= new HashMap<>();
 	private boolean fStreamsClosed;
 	
 	private final ToolProcess fProcess;

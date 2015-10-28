@@ -254,7 +254,7 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 	public void settingsChanged(final Set<String> groupIds) {
 		if (groupIds.contains(RUIPreferenceConstants.R.TS_GROUP_ID)
 				|| groupIds.contains(RIdentifierGroups.GROUP_ID)) {
-			final Map<String, Object> options = new HashMap<String, Object>();
+			final Map<String, Object> options= new HashMap<>();
 			synchronized (fRCodeScanner) {
 				fRCodeScanner.handleSettingsChanged(groupIds, options);
 			}

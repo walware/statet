@@ -32,7 +32,7 @@ public class RToolDataTableInput implements IRDataTableInput {
 	private final ToolProcess fProcess;
 	private IToolLifeListener fProcessListener;
 	
-	private final FastList<IRDataTableInput.StateListener> fListeners = new FastList<IRDataTableInput.StateListener>(IRDataTableInput.StateListener.class);
+	private final FastList<IRDataTableInput.StateListener> fListeners= new FastList<>(IRDataTableInput.StateListener.class);
 	
 	
 	public RToolDataTableInput(RElementName name, final ToolProcess process) {

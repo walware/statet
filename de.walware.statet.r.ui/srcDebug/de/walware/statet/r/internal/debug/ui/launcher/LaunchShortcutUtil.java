@@ -134,7 +134,7 @@ public class LaunchShortcutUtil {
 				if (textSelection.getLength() > 0) {
 					final String code = textSelection.getText();
 					if (code != null) {
-						final ArrayList<String> lines = new ArrayList<String>(2 + code.length()/30);
+						final ArrayList<String> lines= new ArrayList<>(2 + code.length()/30);
 						TextUtil.addLines(code, lines);
 						return lines;
 					}
@@ -154,7 +154,7 @@ public class LaunchShortcutUtil {
 					}
 				}
 				if (document != null) {
-					final ArrayList<String> lines = new ArrayList<String>(
+					final ArrayList<String> lines= new ArrayList<>(
 							document.getNumberOfLines(textSelection.getOffset(), textSelection.getLength()) );
 					if (textSelection.getLength() > 0) {
 						TextUtil.addLines(document, textSelection.getOffset(), textSelection.getLength(), lines);

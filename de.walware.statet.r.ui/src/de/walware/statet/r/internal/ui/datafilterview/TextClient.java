@@ -94,7 +94,7 @@ public class TextClient extends FilterClient {
 		
 		@Override
 		public Object execute(final ExecutionEvent event) throws ExecutionException {
-			final List<String> values = new ArrayList<String>((int) fAvailableValues.getLength() - fSelectedValueSet.size());
+			final List<String> values= new ArrayList<>((int) fAvailableValues.getLength() - fSelectedValueSet.size());
 			for (int i = 0; i < fAvailableValues.getLength(); i++) {
 				final String value = fAvailableValues.get(i);
 				if (!fSelectedValueSet.contains(value)) {

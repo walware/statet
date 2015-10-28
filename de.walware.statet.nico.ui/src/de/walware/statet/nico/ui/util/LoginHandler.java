@@ -87,7 +87,7 @@ public class LoginHandler implements IToolEventHandler {
 		
 		private String fUsername;
 		
-		private final List<Runnable> fOkRunners = new ArrayList<Runnable>();
+		private final List<Runnable> fOkRunners= new ArrayList<>();
 		
 		
 		public LoginDialog(final ToolProcess process, final Shell shell) {
@@ -282,7 +282,7 @@ public class LoginHandler implements IToolEventHandler {
 			if (callbacks.length == 0) {
 				return Status.OK_STATUS;
 			}
-			final AtomicReference<IStatus> result = new AtomicReference<IStatus>(Status.CANCEL_STATUS);
+			final AtomicReference<IStatus> result= new AtomicReference<>(Status.CANCEL_STATUS);
 			UIAccess.getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {

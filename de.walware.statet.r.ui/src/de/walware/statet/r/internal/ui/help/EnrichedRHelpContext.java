@@ -194,7 +194,7 @@ public class EnrichedRHelpContext implements IContext3 {
 	
 	private void enrich(final String plaintext) {
 		try {
-			final List<IHelpResource> resources = new ArrayList<IHelpResource>(fRelatedTopics.length + 1);
+			final List<IHelpResource> resources= new ArrayList<>(fRelatedTopics.length + 1);
 			final String urlText = URLEncoder.encode(plaintext, "UTF-8"); //$NON-NLS-1$
 			
 			resources.add(new RHelpCommand(NLS.bind(Messages.RHelp_Run_Help_label, plaintext), 

@@ -329,7 +329,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		fPinValue = new WritableValue(realm, Boolean.class);
 		dbc.bindValue(SWTObservables.observeSelection(fPinControl), fPinValue, null, null);
 		
-		fTrackingList = new WritableList(realm, new ArrayList<Object>(), TrackingConfiguration.class);
+		fTrackingList= new WritableList(realm, new ArrayList<>(), TrackingConfiguration.class);
 		fTrackingTable.setContentProvider(new ObservableListContentProvider());
 		fTrackingTable.setInput(fTrackingList);
 		
@@ -368,7 +368,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 			}
 		});
 		
-		fTrackingEnabledSet = new WritableSet(realm, new HashSet<Object>(), TrackingConfiguration.class);
+		fTrackingEnabledSet= new WritableSet(realm, new HashSet<>(), TrackingConfiguration.class);
 		fTrackingButtons.setCheckedModel(fTrackingEnabledSet);
 		dbc.bindSet(ViewersObservables.observeCheckedElements(fTrackingTable, TrackingConfiguration.class), fTrackingEnabledSet);
 	}
@@ -558,7 +558,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 			configuration.setAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, max.intValue());
 		}
 		
-		final List<String> trackingIds = new ArrayList<String>(fTrackingList.size());
+		final List<String> trackingIds= new ArrayList<>(fTrackingList.size());
 		
 		final List<TrackingConfiguration> trackingList = fTrackingList;
 		for (final TrackingConfiguration trackingConfig : trackingList) {
@@ -568,7 +568,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		}
 		configuration.setAttribute(TRACKING_IDS, trackingIds);
 		
-		final List<String> trackingEnabledIds = new ArrayList<String>(fTrackingEnabledSet.size());
+		final List<String> trackingEnabledIds= new ArrayList<>(fTrackingEnabledSet.size());
 		final Set<TrackingConfiguration> trackingEnabledSet = fTrackingEnabledSet;
 		for (final TrackingConfiguration trackingConfig : trackingEnabledSet) {
 			final String id = trackingConfig.getId();

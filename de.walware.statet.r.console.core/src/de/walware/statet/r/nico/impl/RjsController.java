@@ -228,7 +228,7 @@ public class RjsController extends AbstractRDbgController
 		@Override
 		protected void initGraphicFactory() {
 			final IToolCommandHandler handler = getCommandHandler(INIT_RGRAPHIC_FACTORY_HANDLER_ID);
-			final Map<String, Object> data = new HashMap<String, Object>();
+			final Map<String, Object> data= new HashMap<>();
 			final IStatus status = executeHandler(INIT_RGRAPHIC_FACTORY_HANDLER_ID, handler, data, null);
 			final RClientGraphicFactory factory = (RClientGraphicFactory) data.get("factory"); //$NON-NLS-1$
 			if (status != null && status.isOK() && factory != null) {
@@ -308,7 +308,7 @@ public class RjsController extends AbstractRDbgController
 				converter.setKeepArray1(false);
 				converter.setRObjectFactory(fRObjectFactory);
 				
-				final Map<String, Object> javaArgs = new HashMap<String, Object>();
+				final Map<String, Object> javaArgs= new HashMap<>();
 				if (args != null) {
 					for (int i = 0; i < args.getLength(); i++) {
 						javaArgs.put(args.getName(i), converter.toJava(args.get(i)));
@@ -564,7 +564,7 @@ public class RjsController extends AbstractRDbgController
 		fRjsId = RjsComConfig.registerClientComHandler(fRjs);
 		fRjs.initClient(getTool(), this, fRjsProperties, fRjsId);
 		try {
-			final Map<String, Object> data = new HashMap<String, Object>();
+			final Map<String, Object> data= new HashMap<>();
 			final IToolCommandHandler loginHandler = getCommandHandler(LOGIN_REQUEST_EVENT_ID);
 			String msg = null;
 			boolean connected = false;
@@ -574,7 +574,7 @@ public class RjsController extends AbstractRDbgController
 				try {
 					final Callback[] callbacks = login.getCallbacks();
 					if (callbacks != null) {
-						final List<Callback> checked = new ArrayList<Callback>();
+						final List<Callback> checked= new ArrayList<>();
 						FxCallback fx = null;
 						for (final Callback callback : callbacks) {
 							if (callback instanceof FxCallback) {
@@ -611,7 +611,7 @@ public class RjsController extends AbstractRDbgController
 						throw new CoreException(Status.CANCEL_STATUS);
 					}
 					
-					final Map<String, Object> args = new HashMap<String, Object>();
+					final Map<String, Object> args= new HashMap<>();
 					args.putAll(fRjsProperties);
 					ConsoleEngine rjServer;
 					if (fStartup) {
@@ -673,7 +673,7 @@ public class RjsController extends AbstractRDbgController
 				setStartupTimestamp(timestamp);
 			}
 			
-			final List<IStatus> warnings = new ArrayList<IStatus>();
+			final List<IStatus> warnings= new ArrayList<>();
 			
 			initTracks(info.getDirectory(), monitor, warnings);
 			
@@ -933,8 +933,8 @@ public class RjsController extends AbstractRDbgController
 		prepare.add("lines", fRObjectFactory.createVector(fRObjectFactory.createCharData(lines)));
 		
 		if (srcfile != null && srcref != null) {
-			final List<String> attributeNames = new ArrayList<String>();
-			final List<RObject> attributeValues = new ArrayList<RObject>();
+			final List<String> attributeNames= new ArrayList<>();
+			final List<RObject> attributeValues= new ArrayList<>();
 			
 			if (srcfile.getName() != null) {
 				prepare.addChar("filename", srcfile.getName());
@@ -967,8 +967,8 @@ public class RjsController extends AbstractRDbgController
 				final IRModelSrcref modelSrcref = (IRModelSrcref) srcref;
 				final List<IRLangSourceElement> elements = modelSrcref.getElements();
 				if (elements.size() > 0) {
-					final List<String> elementIds = new ArrayList<String>(elements.size());
-					final List<RObject> elementIndexes = new ArrayList<RObject>(elements.size());
+					final List<String> elementIds= new ArrayList<>(elements.size());
+					final List<RObject> elementIndexes= new ArrayList<>(elements.size());
 					for (final IRLangSourceElement element : elements) {
 						if (TAG_ELEMENT_FILTER.include(element)) {
 							final FDef fdef = (FDef) element.getAdapter(FDef.class);
@@ -1026,8 +1026,8 @@ public class RjsController extends AbstractRDbgController
 					final List<? extends IRLangSourceElement> elements = modelInfo.getSourceElement()
 							.getSourceChildren(TAG_ELEMENT_FILTER);
 					
-					final List<String> elementIds = new ArrayList<String>(elements.size());
-					final List<RObject> elementIndexes = new ArrayList<RObject>(elements.size());
+					final List<String> elementIds= new ArrayList<>(elements.size());
+					final List<RObject> elementIndexes= new ArrayList<>(elements.size());
 					
 					for (final IRLangSourceElement element : elements) {
 						final FDef fdef = (FDef) element.getAdapter(FDef.class);

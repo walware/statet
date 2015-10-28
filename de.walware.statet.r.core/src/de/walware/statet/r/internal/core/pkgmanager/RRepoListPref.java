@@ -40,7 +40,7 @@ public class RRepoListPref extends Preference<List<RRepo>> {
 			return Collections.emptyList();
 		}
 		final String[] repos = IS2_SEPARATOR_PATTERN.split(s);
-		final List<RRepo> list = new ArrayList<RRepo>(repos.length);
+		final List<RRepo> list= new ArrayList<>(repos.length);
 		for (int i = 0; i < repos.length; i++) {
 			final String[] parts = IS1_SEPARATOR_PATTERN.split(repos[i]);
 			if (parts.length >= 3) {

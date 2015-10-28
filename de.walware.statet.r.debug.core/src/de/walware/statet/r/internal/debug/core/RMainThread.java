@@ -183,7 +183,7 @@ public class RMainThread extends RDebugElement implements IRThread,
 				if (l > 0) {
 					final boolean special = DebugPlugin.isUseStepFilters();
 					int m = prevFrameStack.length - 1;
-					final List<RStackFrame> frameStack = new ArrayList<RStackFrame>(l);
+					final List<RStackFrame> frameStack= new ArrayList<>(l);
 					for (int i = 0; i < l; i++) {
 						Frame dbgFrame = stack.getFrames().get(i);
 						String call;

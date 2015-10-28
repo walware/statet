@@ -23,14 +23,14 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
 public final class ConsoleDefaultScope implements IScopeContext {
 	
 	
-	public static final String SCOPE = "nico.default"; //$NON-NLS-1$
+	public static final String SCOPE= "nico.default"; //$NON-NLS-1$
 	
 	
 	private final IScopeContext fBaseScope;
 	
 	
 	public ConsoleDefaultScope() {
-		fBaseScope = new DefaultScope();
+		fBaseScope= DefaultScope.INSTANCE;
 	}
 	
 	

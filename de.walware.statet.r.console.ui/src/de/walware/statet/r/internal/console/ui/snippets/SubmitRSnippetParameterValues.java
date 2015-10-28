@@ -35,7 +35,7 @@ public class SubmitRSnippetParameterValues implements IParameterValues {
 	public Map getParameterValues() {
 		final Template[] templates = fSnippets.getTemplateStore().getTemplates();
 		
-		final Map<String, String> parameters = new HashMap<String, String>();
+		final Map<String, String> parameters= new HashMap<>();
 		for (final Template template : templates) {
 			parameters.put(template.getDescription(), template.getName());
 		}

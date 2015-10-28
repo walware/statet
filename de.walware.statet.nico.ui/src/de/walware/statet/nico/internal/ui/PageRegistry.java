@@ -205,7 +205,7 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 			final List<ToolProcess> exclude = fExclude;
 			
 			if (console == null) {
-				final AtomicReference<NIConsole> ref = new AtomicReference<NIConsole>();
+				final AtomicReference<NIConsole> ref= new AtomicReference<>();
 				UIAccess.getDisplay(fPage.getWorkbenchWindow().getShell()).syncExec(new Runnable() {
 					@Override
 					public void run() {
@@ -304,7 +304,7 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 	
 	PageRegistry(final IWorkbenchPage page, final IToolRegistryListener[] initial) {
 		fPage = page;
-		fListeners = new FastList<IToolRegistryListener>(IToolRegistryListener.class, FastList.IDENTITY, initial);
+		fListeners= new FastList<>(IToolRegistryListener.class, FastList.IDENTITY, initial);
 		
 		DebugUITools.getDebugContextManager().getContextService(fPage.getWorkbenchWindow()).addDebugContextListener(this);
 		DebugPlugin.getDefault().addDebugEventListener(this);
@@ -458,7 +458,7 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 	}
 	
 	private List<IConsoleView> getConsoleViews() {
-		final List<IConsoleView> consoleViews = new ArrayList<IConsoleView>();
+		final List<IConsoleView> consoleViews= new ArrayList<>();
 		
 		final IViewReference[] allReferences = fPage.getViewReferences();
 		for (final IViewReference reference : allReferences) {

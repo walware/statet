@@ -54,7 +54,7 @@ public final class BaseCorePlugin extends Plugin {
 	
 	private boolean fStarted;
 	
-	private final CopyOnWriteArraySet<IDisposable> fStopListeners = new CopyOnWriteArraySet<IDisposable>();
+	private final CopyOnWriteArraySet<IDisposable> fStopListeners= new CopyOnWriteArraySet<>();
 	
 	private ServiceTracker fSshTracker;
 	private SshSessionManager fSshSessions;

@@ -88,7 +88,7 @@ public abstract class SubIndexed extends RAstNode {
 		
 		Args(final SubIndexed parent) {
 			fRParent = parent;
-			fSpecs = new ArrayList<SubIndexed.Arg>();
+			fSpecs= new ArrayList<>();
 		}
 		
 		@Override

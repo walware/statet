@@ -43,7 +43,7 @@ public abstract class AbstractBreakpointDetailPane implements IDetailPane3 {
 	private IWorkbenchPartSite fSite;
 	
 	// property listeners
-	private final FastList<IPropertyListener> fListeners = new FastList<IPropertyListener>(IPropertyListener.class);
+	private final FastList<IPropertyListener> fListeners= new FastList<>(IPropertyListener.class);
 	
 	private Composite fComposite;
 	

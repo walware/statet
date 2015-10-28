@@ -108,7 +108,7 @@ public class RDebugModel {
 				if (marker != null && marker.exists()
 						&& file.equals(marker.getResource()) ) {
 					if (matches == null) {
-						matches = new ArrayList<IRLineBreakpoint>(4);
+						matches= new ArrayList<>(4);
 					}
 					matches.add(breakpoint);
 				}
@@ -139,7 +139,7 @@ public class RDebugModel {
 						&& file.equals(marker.getResource())
 						&& lineNumber == breakpoint.getLineNumber() ) {
 					if (matches == null) {
-						matches = new ArrayList<IRLineBreakpoint>(4);
+						matches= new ArrayList<>(4);
 					}
 					matches.add(breakpoint);
 				}

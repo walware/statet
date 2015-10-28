@@ -144,7 +144,7 @@ public abstract class RGenericLineBreakpoint extends RBreakpoint implements IRLi
 //	}
 	
 	
-	private final AtomicReference<CachedData> fCachedData = new AtomicReference<RGenericLineBreakpoint.CachedData>();
+	private final AtomicReference<CachedData> fCachedData= new AtomicReference<>();
 	
 	
 	protected RGenericLineBreakpoint() {

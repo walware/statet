@@ -39,7 +39,7 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 	
 	private class ActionWrapper extends Action {
 		
-		private final Map<Widget, IAction> fWidgetActionMap = new HashMap<Widget, IAction>();
+		private final Map<Widget, IAction> fWidgetActionMap= new HashMap<>();
 		
 		ActionWrapper() {
 		}
@@ -71,8 +71,8 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 	
 	
 	private Widget fActiveWidget;
-	private final List<Widget> fKnownWidgets = new ArrayList<Widget>();
-	private final Map<String, ActionWrapper> fActions = new HashMap<String, ActionWrapper>();
+	private final List<Widget> fKnownWidgets= new ArrayList<>();
+	private final Map<String, ActionWrapper> fActions= new HashMap<>();
 	
 	
 	MultiActionHandler() {

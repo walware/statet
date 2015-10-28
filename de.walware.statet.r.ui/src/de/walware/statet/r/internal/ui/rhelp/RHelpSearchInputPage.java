@@ -118,7 +118,7 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 	private ISearchPageContainer fContainer;
 	
 	private IDialogSettings fDialogSettings;
-	private final LinkedHashMap<String, RHelpSearchQuery> fQueryHistory = new LinkedHashMap<String, RHelpSearchQuery>(25);
+	private final LinkedHashMap<String, RHelpSearchQuery> fQueryHistory= new LinkedHashMap<>(25);
 	
 	private Combo fSearchTextControl;
 	
@@ -371,8 +371,8 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 						}
 					}
 					if (packages != null) {
-						final List<String> currentNames = toList(fPackagesInputControl.getText());
-						final List<IRPkgHelp> currentPkgs = new ArrayList<IRPkgHelp>(currentNames.size());
+						final ImList<String> currentNames= toList(fPackagesInputControl.getText());
+						final List<IRPkgHelp> currentPkgs= new ArrayList<>(currentNames.size());
 						for (final String name : currentNames) {
 							for (final IRPkgHelp pkg : packages) {
 								if (pkg.getName().equals(name)) {
@@ -440,7 +440,7 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 		fPackagesInputControl.setItems(notNull(dialogSettings.getArray("packages"))); //$NON-NLS-1$
 		
 		int num = 0;
-		final List<String> texts = new ArrayList<String>();
+		final List<String> texts= new ArrayList<>();
 		while (true) {
 			final IDialogSettings section = dialogSettings.getSection("searchhist"+(num++)); //$NON-NLS-1$
 			if (section != null) {
@@ -541,7 +541,7 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 			type = RHelpSearchQuery.DOC_SEARCH;
 		}
 		final String text = fSearchTextControl.getText();
-		final List<String> fields = new ArrayList<String>(3);
+		final List<String> fields= new ArrayList<>(3);
 		if (fFieldAliasControl.getSelection()) {
 			fields.add(RHelpSearchQuery.TOPICS_FIELD);
 		}

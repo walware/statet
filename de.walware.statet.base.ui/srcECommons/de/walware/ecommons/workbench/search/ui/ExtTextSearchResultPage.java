@@ -72,7 +72,7 @@ public abstract class ExtTextSearchResultPage<E, M extends Match> extends Abstra
 	}
 	
 	protected TextSearchResultContentProvider<E, M, TableViewer> createTableContentProvider(final TableViewer viewer) {
-		return new TextSearchResultTableContentProvider<E, M>(this, viewer);
+		return new TextSearchResultTableContentProvider<>(this, viewer);
 	}
 	
 	protected abstract TextSearchResultContentProvider<E, M, TreeViewer> createTreeContentProvider(TreeViewer viewer);

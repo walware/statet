@@ -90,7 +90,7 @@ public class RFastPartitionScanner implements IPartitionTokenScanner, IPartition
 	
 	
 	public RFastPartitionScanner() {
-		final Map<Integer, IToken> list = new HashMap<Integer, IToken>();
+		final Map<Integer, IToken> list= new HashMap<>();
 		initTokens(list);
 		final int count = maxState(list.keySet())+1;
 		fTokens = new IToken[count];

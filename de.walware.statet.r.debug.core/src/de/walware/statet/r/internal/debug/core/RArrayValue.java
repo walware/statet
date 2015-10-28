@@ -141,7 +141,7 @@ public class RArrayValue extends RValue implements IIndexedValue {
 				return null;
 			}
 			if (fDimNameStore == null) {
-				fDimNameStore = new LazyRStore<RVector<?>>(fDimCount, 1,
+				fDimNameStore= new LazyRStore<>(fDimCount, 1,
 						DEFAULT_FRAGMENT_COUNT,
 						fVariable.new RDataLoader<RVector<?>>() {
 					@Override
@@ -176,7 +176,7 @@ public class RArrayValue extends RValue implements IIndexedValue {
 				fDimItemNameStore = new LazyRStore[fDimCount];
 			}
 			if (fDimItemNameStore[dimIdx] == null) {
-				fDimItemNameStore[dimIdx] = new LazyRStore<RVector<?>>(fDim.get(dimIdx), 1,
+				fDimItemNameStore[dimIdx]= new LazyRStore<>(fDim.get(dimIdx), 1,
 						DEFAULT_FRAGMENT_COUNT, fVariable.new RDataLoader<RVector<?>>() {
 					@Override
 					protected RVector<?> doLoad(final String refExpr, final Fragment<RVector<?>> fragment,
@@ -208,7 +208,7 @@ public class RArrayValue extends RValue implements IIndexedValue {
 			}
 			if (fDataStore == null) {
 				final int fragmentSize = estimateFragmentSize();
-				fDataStore = new LazyRStore<RVector<?>>(fLength, 1,
+				fDataStore= new LazyRStore<>(fLength, 1,
 						(int) Math.ceil((double) (DEFAULT_FRAGMENT_SIZE * DEFAULT_FRAGMENT_COUNT) / fragmentSize), fragmentSize,
 						fVariable.new RDataLoader<RVector<?>>() {
 					@Override

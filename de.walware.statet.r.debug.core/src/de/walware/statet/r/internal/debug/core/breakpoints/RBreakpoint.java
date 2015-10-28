@@ -32,7 +32,7 @@ public abstract class RBreakpoint extends Breakpoint implements IRBreakpoint {
 //	public static final String HIT_COUNT_MARKER_ATTR = "de.walware.statet.r.debug.markers.HitCountAttribute"; //$NON-NLS-1$
 	
 	
-	private final Map<IRDebugTarget, ITargetData> fInstalledTargets = new ConcurrentHashMap<IRDebugTarget, ITargetData>();
+	private final Map<IRDebugTarget, ITargetData> fInstalledTargets= new ConcurrentHashMap<>();
 	private final AtomicInteger fInstallCount = new AtomicInteger();
 	
 	

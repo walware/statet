@@ -41,7 +41,7 @@ public abstract class RoxygenTagType {
 	public static final int FRAGMENT_ACTION_PACKAGE_IMPORT = 0x4; 
 	
 	
-	public static final HashMap<String, RoxygenTagType> TYPES = new HashMap<String, RoxygenTagType>();
+	public static final HashMap<String, RoxygenTagType> TYPES= new HashMap<>();
 	
 	static {
 		TYPES.put("param", new RoxygenTagType() {

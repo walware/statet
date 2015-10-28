@@ -574,7 +574,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 			if (fStamp != stamp) {
 				return null;
 			}
-			final List<RElementName> segments = new ArrayList<RElementName>();
+			final List<RElementName> segments= new ArrayList<>();
 			createName(element, segments);
 			return RElementName.createDisplayName(RElementName.concat(segments),
 						RElementName.DISPLAY_NS_PREFIX | RElementName.DISPLAY_EXACT);
@@ -633,7 +633,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 			if (fStamp == stamp && fVariables != null) {
 				synchronized (fVariables) {
 					if (fReferences == null) {
-						fReferences = new HashMap<Long, ICombinedRElement>();
+						fReferences= new HashMap<>();
 					}
 					final Long handle = Long.valueOf(reference.getHandle());
 					if (!fReferences.containsKey(handle)) {

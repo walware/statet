@@ -35,7 +35,7 @@ public class StatetCore {
 	
 	public static Set<StatetProject> getStatetProjects() {
 		final IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		final Set<StatetProject> collected = new HashSet<StatetProject>();
+		final Set<StatetProject> collected= new HashSet<>();
 		try {
 			for (final IProject project : projects) {
 				final StatetProject sp = (StatetProject) project.getNature(StatetProject.NATURE_ID);
@@ -45,7 +45,7 @@ public class StatetCore {
 			}
 		} catch (final CoreException e) {
 			logError(e);
-			return new HashSet<StatetProject>(0);
+			return new HashSet<>(0);
 		}
 		return collected;
 	}

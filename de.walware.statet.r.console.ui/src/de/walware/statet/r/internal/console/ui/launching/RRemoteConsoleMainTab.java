@@ -172,7 +172,7 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 	
 	@Override
 	protected RConsoleType[] loadTypes() {
-		final List<RConsoleType> types = new ArrayList<RConsoleType>();
+		final List<RConsoleType> types= new ArrayList<>();
 		types.add(new RConsoleType("RJ (RMI/JRI) - Manual", REMOTE_RJS, false, false)); //$NON-NLS-1$
 		types.add(new RConsoleType("RJ (RMI/JRI) - Start over SSH", REMOTE_RJS_SSH, false, false)); 
 		types.add(new RConsoleType("RJ (RMI/JRI) - Quick Reconnect", REMOTE_RJS_RECONNECT, false, false)); 
@@ -202,10 +202,10 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 4));
 		group.setText("Connection:");
 		
-		fAddressControls = new ArrayList<Control>(8);
-		fLoginControls = new ArrayList<Control>(8);
-		fSshControls = new ArrayList<Control>(8);
-		fCommandControls = new ArrayList<Control>(8);
+		fAddressControls= new ArrayList<>(8);
+		fLoginControls= new ArrayList<>(8);
+		fSshControls= new ArrayList<>(8);
+		fCommandControls= new ArrayList<>(8);
 		
 		{	// Address:
 			final Label label = new Label(group, SWT.NONE);
@@ -253,7 +253,7 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 							
 							if (fSshTunnelControl.isEnabled() && fSshTunnelControl.getSelection()
 									&& userName != null) {
-								final Map<String, Object> loginData = new HashMap<String, Object>();
+								final Map<String, Object> loginData= new HashMap<>();
 								loginData.put(LOGIN_SSH_HOST_DATA_KEY, rmiAddress.getHost());
 								final Object sshPort = fSshPortValue.getValue();
 								loginData.put(LOGIN_SSH_PORT_DATA_KEY, (sshPort instanceof Integer) ?

@@ -23,7 +23,7 @@ import de.walware.statet.r.core.model.ArgsDefinition.Arg;
 public final class ArgsBuilder {
 	
 	
-	private final List<Arg> fArgs = new ArrayList<Arg>();
+	private final List<Arg> fArgs= new ArrayList<>();
 	
 	
 	public ArgsBuilder() {

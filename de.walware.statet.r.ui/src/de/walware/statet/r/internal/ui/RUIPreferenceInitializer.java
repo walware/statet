@@ -65,8 +65,8 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		EditorsUI.useAnnotationsPreferencePage(store);
 		EditorsUI.useQuickDiffPreferencePage(store);
 		
-		final IScopeContext scope = DefaultScope.INSTANCE;
-		final Map<Preference<?>, Object> map = new HashMap<Preference<?>, Object>();
+		final IScopeContext scope= DefaultScope.INSTANCE;
+		final Map<Preference<?>, Object> map= new HashMap<>();
 		RUIPreferenceConstants.initializeDefaultValues(scope);
 		
 		new REditorOptions(0).deliverToPreferencesMap(map);

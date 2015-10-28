@@ -84,7 +84,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
 		fConnectors = RCodeLaunchRegistry.getAvailableConnectors();
-		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
+		final Map<Preference<?>, String> prefs= new HashMap<>();
 		
 		prefs.put(RRunDebugPreferenceConstants.PREF_R_CONNECTOR, null);
 		
@@ -230,7 +230,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 /* Load/Save of Handlers *****************************************************/
 	
 	private void saveHandlerConfig(final boolean save) {
-		final IEclipsePreferences node = new InstanceScope().getNode(
+		final IEclipsePreferences node= InstanceScope.INSTANCE.getNode(
 				RRunDebugPreferenceConstants.CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER );
 		for (int i = 0; i < fFileCommands.length; i++) {
 			if (fCommandEditors[i] != null) {

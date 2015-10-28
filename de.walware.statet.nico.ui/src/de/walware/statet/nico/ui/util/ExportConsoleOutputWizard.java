@@ -224,7 +224,7 @@ public class ExportConsoleOutputWizard extends Wizard {
 					jobManager.beginRule(schedulingRule, progress.newChild(1));
 					try {
 						if (fSelectionLength > 0) {
-							final AtomicReference<ITextSelection> currentSelection = new AtomicReference<ITextSelection>();
+							final AtomicReference<ITextSelection> currentSelection= new AtomicReference<>();
 							getShell().getDisplay().syncExec(new Runnable() {
 								@Override
 								public void run() {

@@ -66,7 +66,7 @@ public class RElementSearchResultTreeContentProvider extends TextSearchResultTre
 	
 	private int level= BY_PROJECT;
 	
-	private final Map<Object, SortedListSet<Object>> levelChildren= new HashMap<Object, SortedListSet<Object>>();
+	private final Map<Object, SortedListSet<Object>> levelChildren= new HashMap<>();
 	
 	
 	public RElementSearchResultTreeContentProvider(final RElementSearchResultPage page, final TreeViewer viewer) {
@@ -147,7 +147,7 @@ public class RElementSearchResultTreeContentProvider extends TextSearchResultTre
 	
 	@Override
 	public Object[] getShownMatches(final RElementMatch[] matches) {
-		final List<LineElement<?>> groups= new ArrayList<LineElement<?>>();
+		final List<LineElement<?>> groups= new ArrayList<>();
 		LineElement<?> lastGroup= null;
 		for (int i= 0; i < matches.length; i++) {
 			final LineElement<?> group= matches[i].getMatchGroup();
@@ -177,7 +177,7 @@ public class RElementSearchResultTreeContentProvider extends TextSearchResultTre
 			if (parent != null) {
 				doAdd(viewer, parent);
 			}
-			children= new SortedArraySet<Object>(NO_ELEMENTS, new LevelComparator());
+			children= new SortedArraySet<>(NO_ELEMENTS, new LevelComparator());
 			this.levelChildren.put(parent, children);
 		}
 		final int idx;

@@ -118,7 +118,7 @@ public class RVectorValue extends RValue implements IIndexedValue {
 				return null;
 			}
 			if (fNamesStore == null) {
-				fNamesStore = new LazyRStore<RVector<?>>(fLength, 1,
+				fNamesStore= new LazyRStore<>(fLength, 1,
 						DEFAULT_FRAGMENT_COUNT,
 						fVariable.new RDataLoader<RVector<?>>() {
 					@Override
@@ -150,7 +150,7 @@ public class RVectorValue extends RValue implements IIndexedValue {
 				return null;
 			}
 			if (fDataStore == null) {
-				fDataStore = new LazyRStore<RVector<?>>(fLength, 1,
+				fDataStore= new LazyRStore<>(fLength, 1,
 						DEFAULT_FRAGMENT_COUNT,
 						fVariable.new RDataLoader<RVector<?>>() {
 					@Override

@@ -27,7 +27,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 abstract class SpecList extends RAstNode {
 	
 	
-	List<SpecItem> fSpecs = new ArrayList<SpecItem>(0);
+	List<SpecItem> fSpecs= new ArrayList<>(0);
 	
 	
 	protected SpecList() {

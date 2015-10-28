@@ -62,7 +62,7 @@ public class SubmitFileViaCommandLaunchShortcut implements ILaunchShortcut {
 			final IHandlerService handlerService = (IHandlerService) site.getService(IHandlerService.class);
 			final ICommandService commandService = (ICommandService) site.getService(ICommandService.class);
 			
-			final Map<String, String> parameters = new HashMap<String, String>();
+			final Map<String, String> parameters= new HashMap<>();
 			parameters.put(RCodeLaunching.FILE_COMMAND_ID_PARAMTER_ID, fFileCommandId);
 			final Command command = commandService.getCommand(!fGotoConsole ?
 					RCodeLaunching.SUBMIT_FILEVIACOMMAND_COMMAND_ID : RCodeLaunching.SUBMIT_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID);
@@ -99,7 +99,7 @@ public class SubmitFileViaCommandLaunchShortcut implements ILaunchShortcut {
 			final IHandlerService handlerService = (IHandlerService) site.getService(IHandlerService.class);
 			final ICommandService commandService = (ICommandService) site.getService(ICommandService.class);
 			
-			final Map<String, String> parameters = new HashMap<String, String>();
+			final Map<String, String> parameters= new HashMap<>();
 			parameters.put(RCodeLaunching.FILE_COMMAND_ID_PARAMTER_ID, fFileCommandId);
 			final Command command = commandService.getCommand(!fGotoConsole ?
 					RCodeLaunching.SUBMIT_FILEVIACOMMAND_COMMAND_ID : RCodeLaunching.SUBMIT_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID);

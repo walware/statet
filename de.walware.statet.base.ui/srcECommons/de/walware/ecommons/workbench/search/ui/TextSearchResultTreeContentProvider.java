@@ -35,7 +35,7 @@ public abstract class TextSearchResultTreeContentProvider<E, M extends Match>
 		super(page, viewer);
 		
 		this.comparator= page.comparator;
-		this.currentElements= new SortedArraySet<E>(this.comparator.getElement0(), this.comparator.getElementComparator());
+		this.currentElements= new SortedArraySet<>(this.comparator.getElement0(), this.comparator.getElementComparator());
 	}
 	
 	

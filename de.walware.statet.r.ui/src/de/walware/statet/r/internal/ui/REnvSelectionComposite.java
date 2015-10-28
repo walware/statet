@@ -138,7 +138,7 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 	private IREnv fCurrentREnv;
 	private String fCurrentEncoded;
 	private IREnv fCurrentSpecified;
-	private final FastList<ChangeListener> fListeners = new FastList<ChangeListener>(ChangeListener.class);
+	private final FastList<ChangeListener> fListeners= new FastList<>(ChangeListener.class);
 	
 	private DataBindingContext fBindindContexts;
 	private Binding fBindings;
@@ -289,7 +289,7 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 	}
 	
 	protected List<IREnv> getValidREnvs(final List<IREnvConfiguration> configurations) {
-		final List<IREnv> list = new ArrayList<IREnv>(configurations.size());
+		final List<IREnv> list= new ArrayList<>(configurations.size());
 		for (final IREnvConfiguration rEnvConfig : configurations) {
 			if (isValid(rEnvConfig)) {
 				list.add(rEnvConfig.getReference());

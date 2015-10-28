@@ -170,7 +170,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 	
 	private static class RemoteRContentProvider implements ITreeContentProvider {
 		
-		private final HashMap<String, RemoteR[]> fMapping = new HashMap<String, RemoteR[]>();
+		private final HashMap<String, RemoteR[]> fMapping= new HashMap<>();
 		
 		@Override
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
@@ -187,7 +187,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 				final String username = r.info.getUsername(ServerInfo.USER_OWNER).toLowerCase();
 				List<RemoteR> list = (List<RemoteR>) mapping.get(username);
 				if (list == null) {
-					list = new ArrayList<RemoteR>();
+					list= new ArrayList<>();
 					mapping.put(username, list);
 				}
 				list.add(r);
@@ -271,9 +271,9 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 	
 	private String fUsername;
 	
-	private final List<String> fHistoryAddress = new ArrayList<String>(DialogUtil.HISTORY_MAX + 10);
-	private final List<String> fAdditionalAddress = new ArrayList<String>(8);
-	private final Map<String, SpecialAddress> fSpecialAddress = new HashMap<String, SpecialAddress>(8);
+	private final List<String> fHistoryAddress= new ArrayList<>(DialogUtil.HISTORY_MAX + 10);
+	private final List<String> fAdditionalAddress= new ArrayList<>(8);
+	private final Map<String, SpecialAddress> fSpecialAddress= new HashMap<>(8);
 	private String fInitialAddress;
 	
 	
@@ -450,7 +450,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 	private void update() {
 		final String input = fHostAddressControl.getText();
 		fRServerList = null;
-		final AtomicReference<IStatus> status = new AtomicReference<IStatus>();
+		final AtomicReference<IStatus> status= new AtomicReference<>();
 		if (input != null && input.length() > 0) {
 			try {
 				new ProgressMonitorDialog(getShell()).run(true, true, new IRunnableWithProgress() {
@@ -496,7 +496,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 	
 	private void updateInput() {
 		final String selectedAddress = fHostAddressControl.getText();
-		final List<String> list = new ArrayList<String>(fHistoryAddress.size() + fAdditionalAddress.size());
+		final List<String> list = new ArrayList<>(fHistoryAddress.size() + fAdditionalAddress.size());
 		list.addAll(fHistoryAddress);
 		for (final String address : fAdditionalAddress) {
 			if (!list.contains(address)) {
@@ -551,7 +551,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 	}
 	
 	private IStatus updateRServerList(final String combined, final IProgressMonitor monitor) {
-		final List<RemoteR> infos = new ArrayList<RemoteR>();
+		final List<RemoteR> infos= new ArrayList<>();
 		
 		final String[] addresses = ADDRESS_MULTI_PATTERN.split(combined, -1);
 		if (addresses.length == 0) {
@@ -560,7 +560,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		final SubMonitor progress = SubMonitor.convert(monitor, Messages.RRemoteConsoleSelectionDialog_task_Gathering_message, addresses.length*2 +2);
 		
 		String failedHosts = null;
-		final List<IStatus> failedStatus = new ArrayList<IStatus>();
+		final List<IStatus> failedStatus= new ArrayList<>();
 		progress.worked(1);
 		
 		// Collect R engines for each address

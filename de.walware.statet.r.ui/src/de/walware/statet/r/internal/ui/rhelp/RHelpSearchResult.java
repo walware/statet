@@ -25,7 +25,7 @@ import de.walware.statet.r.ui.RUI;
 public class RHelpSearchResult extends ExtTextSearchResult<IRPkgHelp, RHelpSearchMatch> {
 	
 	
-	public static final ElementMatchComparator<IRPkgHelp, RHelpSearchMatch> COMPARATOR= new ElementMatchComparator<IRPkgHelp, RHelpSearchMatch>(
+	public static final ElementMatchComparator<IRPkgHelp, RHelpSearchMatch> COMPARATOR= new ElementMatchComparator<>(
 			new IRPkgHelp[0], null,
 			new RHelpSearchMatch[0], null );
 	

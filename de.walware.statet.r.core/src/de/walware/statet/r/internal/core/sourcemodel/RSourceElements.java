@@ -29,7 +29,7 @@ public class RSourceElements {
 			return children;
 		}
 		else {
-			final ArrayList<IRLangSourceElement> filtered = new ArrayList<IRLangSourceElement>(children.size());
+			final ArrayList<IRLangSourceElement> filtered= new ArrayList<>(children.size());
 			for (final IRLangSourceElement child : children) {
 				if (filter.include(child)) {
 					filtered.add(child);

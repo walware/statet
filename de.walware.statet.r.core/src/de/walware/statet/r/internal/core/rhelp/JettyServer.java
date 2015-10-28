@@ -58,7 +58,7 @@ public class JettyServer {
 			throw new IllegalStateException("bundle 'org.eclipse.equinox.http.registry' is missing."); //$NON-NLS-1$
 		}
 		
-		final Dictionary<String, Object> dict = new Hashtable<String, Object>();
+		final Dictionary<String, Object> dict= new Hashtable<>();
 		dict.put(JettyConstants.HTTP_HOST, fHost);
 		dict.put(JettyConstants.HTTP_PORT, Integer.valueOf((fPort == -1) ? 0 : fPort)); //$NON-NLS-1$
 		

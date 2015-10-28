@@ -66,7 +66,7 @@ public class ToolSourceProvider extends AbstractSourceProvider implements IWindo
 	
 	
 	public ToolSourceProvider() {
-		fCreatedListeners = new ArrayList<RegistryListerner>();
+		fCreatedListeners= new ArrayList<>();
 		fRegistry = NicoUIPlugin.getDefault().getToolRegistry();
 		PlatformUI.getWorkbench().addWindowListener(this);
 		for (final IWorkbenchWindow window : PlatformUI.getWorkbench().getWorkbenchWindows()) {
@@ -153,7 +153,7 @@ public class ToolSourceProvider extends AbstractSourceProvider implements IWindo
 	
 	@Override
 	public Map getCurrentState() {
-		final Map<String, Object> map = new HashMap<String, Object>();
+		final Map<String, Object> map= new HashMap<>();
 		Object tool = null;
 		if (fActiveWindow != null) {
 			tool = fRegistry.getActiveToolSession(fActiveWindow.getActivePage()).getProcess();

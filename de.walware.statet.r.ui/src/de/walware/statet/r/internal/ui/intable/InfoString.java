@@ -18,7 +18,7 @@ import org.eclipse.swt.graphics.Font;
 public class InfoString {
 	
 	
-	public static final ConfigAttribute<Font> CELL_STYLE_FONT_ATTRIBUTE = new ConfigAttribute<Font>();
+	public static final ConfigAttribute<Font> CELL_STYLE_FONT_ATTRIBUTE= new ConfigAttribute<>();
 	
 	public static final InfoString NA = new InfoString("NA"); //$NON-NLS-1$
 	public static final InfoString DUMMY = new InfoString(""); //$NON-NLS-1$

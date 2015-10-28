@@ -38,7 +38,7 @@ public class REditorOptions extends AbstractPreferencesModelObject
 	public static final BooleanPref SMARTINSERT_ONPASTE_ENABLED_PREF = new BooleanPref(
 			REDITOR_NODE, "smartinsert.on_paste.enabled"); //$NON-NLS-1$
 	
-	public static final Preference<TabAction> SMARTINSERT_TAB_ACTION_PREF = new EnumPref<TabAction>(
+	public static final Preference<TabAction> SMARTINSERT_TAB_ACTION_PREF= new EnumPref<>(
 			REDITOR_NODE, "SmartInsert.Tab.action", TabAction.class); //$NON-NLS-1$
 	
 	public static final BooleanPref SMARTINSERT_CLOSECURLY_ENABLED_PREF = new BooleanPref(

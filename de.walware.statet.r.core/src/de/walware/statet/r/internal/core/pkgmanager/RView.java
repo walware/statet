@@ -23,7 +23,7 @@ class RView implements IRView {
 	private final String fName;
 	private String fTopic;
 	
-	private final List<String> fPkgs = new ArrayList<String>();
+	private final List<String> fPkgs= new ArrayList<>();
 	
 	
 	public RView(final String name) {

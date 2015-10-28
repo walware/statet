@@ -64,7 +64,7 @@ public class ConsolePreferences extends AbstractPreferenceInitializer {
 	
 	public static final String KEY_HISTORYNAVIGATION_SUBMIT_TYPES= "HistoryNavigation.SubmitTypes.include"; //$NON-NLS-1$
 	
-	public static final Preference<EnumSet<SubmitType>> PREF_FILTER_SUBMIT_TYPES= new EnumSetPref<SubmitType>(
+	public static final Preference<EnumSet<SubmitType>> PREF_FILTER_SUBMIT_TYPES= new EnumSetPref<>(
 			NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER, KEY_FILTER_SUBMIT_TYPES, SubmitType.class);
 	public static final Preference<Boolean> PREF_FILTER_SHOW_ALL_ERRORS= new BooleanPref(
 			NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER, KEY_FILTER_SHOW_ALL_ERRORS);
@@ -72,7 +72,7 @@ public class ConsolePreferences extends AbstractPreferenceInitializer {
 	public static final Preference<Integer> PREF_CHARLIMIT= new IntPref(
 			NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER, KEY_CHARLIMIT);
 	
-	public static final Preference<EnumSet<SubmitType>> PREF_HISTORYNAVIGATION_SUBMIT_TYPES= new EnumSetPref<SubmitType>(
+	public static final Preference<EnumSet<SubmitType>> PREF_HISTORYNAVIGATION_SUBMIT_TYPES= new EnumSetPref<>(
 			NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER, KEY_HISTORYNAVIGATION_SUBMIT_TYPES, SubmitType.class);
 	
 	

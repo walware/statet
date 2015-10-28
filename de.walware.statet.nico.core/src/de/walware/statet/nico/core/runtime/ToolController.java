@@ -421,15 +421,15 @@ public abstract class ToolController implements IConsoleService {
 	
 	private IToolRunnable fCurrentRunnable;
 	private SubmitType fCurrentSubmitType;
-	private final List<IToolRunnable> fControllerRunnables = new ArrayList<IToolRunnable>();
+	private final List<IToolRunnable> fControllerRunnables= new ArrayList<>();
 	private IToolRunnable fPostControllerRunnable;
 	private RunnableProgressMonitor fRunnableProgressMonitor;
 	
 	private Thread fControllerThread;
 	private ToolStatus fStatus = ToolStatus.STARTING;
 	private ToolStatus fStatusPrevious;
-	private final FastList<IToolStatusListener> fToolStatusListeners = new FastList<IToolStatusListener>(IToolStatusListener.class, FastList.IDENTITY);
-	private final List<DebugEvent> fEventCollector = new LinkedList<DebugEvent>();
+	private final FastList<IToolStatusListener> fToolStatusListeners= new FastList<>(IToolStatusListener.class, FastList.IDENTITY);
+	private final List<DebugEvent> fEventCollector= new LinkedList<>();
 	private int fInternalTask;
 	private boolean fPauseRequested;
 	private boolean fTerminateForced;
@@ -443,7 +443,7 @@ public abstract class ToolController implements IConsoleService {
 	private int fLoopCurrentLevel; // only within loop
 	private int fSuspendedRunLevel; // also when running exit/continue suspended
 	private int fSuspendedLowerLevel;
-	private final FastList<IToolRunnable> fSuspendUpdateRunnables = new FastList<IToolRunnable>(IToolRunnable.class);
+	private final FastList<IToolRunnable> fSuspendUpdateRunnables= new FastList<>(IToolRunnable.class);
 	private SuspendResumeRunnable fSuspendExitRunnable;
 	private int fSuspendEnterDetail;
 	private Object fSuspendEnterData;
@@ -451,7 +451,7 @@ public abstract class ToolController implements IConsoleService {
 	
 	protected ToolWorkspace fWorkspaceData;
 	
-	private final Map<String, IToolCommandHandler> fActionHandlers = new HashMap<String, IToolCommandHandler>();
+	private final Map<String, IToolCommandHandler> fActionHandlers= new HashMap<>();
 	
 	// RunnableAdapter proxy for tool lifecycle thread
 	protected String fCurrentInput;
@@ -459,7 +459,7 @@ public abstract class ToolController implements IConsoleService {
 	protected Prompt fDefaultPrompt;
 	protected String fLineSeparator;
 	
-	protected final FastList<IDisposable> fDisposables = new FastList<IDisposable>(IDisposable.class);
+	protected final FastList<IDisposable> fDisposables= new FastList<>(IDisposable.class);
 	
 	
 	protected ToolController(final ToolProcess process, final Map<String, Object> initData) {
@@ -744,7 +744,7 @@ public abstract class ToolController implements IConsoleService {
 		try {
 			final IToolCommandHandler handler = fActionHandlers.get(SCHEDULE_QUIT_EVENT_ID);
 			if (handler != null) {
-				final Map<String, Object> data = new HashMap<String, Object>();
+				final Map<String, Object> data= new HashMap<>();
 				data.put("scheduledQuitTasks", getQuitTasks()); //$NON-NLS-1$
 				final IStatus status = executeHandler(SCHEDULE_QUIT_EVENT_ID, handler, data, new NullProgressMonitor());
 				if (status != null && !status.isOK()) {
@@ -815,7 +815,7 @@ public abstract class ToolController implements IConsoleService {
 	}
 	
 	private final IToolRunnable[] getQuitTasks() {
-		final List<IToolRunnable> quit = new ArrayList<IToolRunnable>();
+		final List<IToolRunnable> quit= new ArrayList<>();
 		final IToolRunnable current = fCurrentRunnable;
 		if (current != null && current.getTypeId() == QUIT_TYPE_ID) {
 			quit.add(current);

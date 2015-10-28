@@ -63,7 +63,7 @@ public class REnvRemoteConfigDialog extends ExtStatusDialog {
 		
 		fConfigModel = config;
 		fIsNewConfig = isNewConfig;
-		fExistingNames = new HashSet<String>();
+		fExistingNames= new HashSet<>();
 		for (final IREnvConfiguration ec : existingConfigs) {
 			fExistingNames.add(ec.getName());
 		}

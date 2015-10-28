@@ -61,7 +61,7 @@ public class RControllerCodeLaunchConnector implements IRCodeSubmitConnector {
 	}
 	
 	public boolean submit(final CommandsCreator rCommands, final boolean gotoConsole) throws CoreException {
-		final AtomicReference<ToolSessionUIData> info = new AtomicReference<ToolSessionUIData>();
+		final AtomicReference<ToolSessionUIData> info= new AtomicReference<>();
 		UIAccess.checkedSyncExec(new UIAccess.CheckedRunnable() {
 			@Override
 			public void run() throws CoreException {

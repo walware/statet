@@ -95,11 +95,11 @@ public class FilterSet {
 	};
 	private boolean fUpdateAll;
 	
-	private final List<VariableFilter> fFilters = new ArrayList<VariableFilter>();
-	private final List<String> fFilterNames = new ArrayList<String>();
+	private final List<VariableFilter> fFilters= new ArrayList<>();
+	private final List<String> fFilterNames= new ArrayList<>();
 	
-	private final FastList<IFilterListener> fListeners = new FastList<IFilterListener>(IFilterListener.class);
-	private final FastList<IFilterListener> fPostListeners = new FastList<IFilterListener>(IFilterListener.class);
+	private final FastList<IFilterListener> fListeners= new FastList<>(IFilterListener.class);
+	private final FastList<IFilterListener> fPostListeners= new FastList<>(IFilterListener.class);
 	private volatile int fListenerScheduled;
 	private final Runnable fListenerRunnable = new Runnable() {
 		@Override

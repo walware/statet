@@ -227,7 +227,7 @@ class RRepoConfigurationBlock extends ManagedConfigurationBlock implements IActi
 	
 	private final WritableList[] fLists = new WritableList[R_SIZE];
 	
-	private final Set<String> fIds = new HashSet<String>();
+	private final Set<String> fIds= new HashSet<>();
 	
 	
 	public RRepoConfigurationBlock(final IStatusChangeListener statusListener) {
@@ -237,7 +237,7 @@ class RRepoConfigurationBlock extends ManagedConfigurationBlock implements IActi
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
+		final Map<Preference<?>, String> prefs= new HashMap<>();
 		
 		prefs.put(IRPkgManager.CUSTOM_REPO_PREF, IRPkgManager.CUSTOM_GROUP_ID);
 		prefs.put(IRPkgManager.CUSTOM_CRAN_MIRROR_PREF, IRPkgManager.CUSTOM_GROUP_ID);
@@ -297,7 +297,7 @@ class RRepoConfigurationBlock extends ManagedConfigurationBlock implements IActi
 			
 			ViewerUtil.scheduleStandardSelection(table.viewer);
 		}
-		{	final ButtonGroup<RRepo> buttons = new ButtonGroup<RRepo>(parent, this, false);
+		{	final ButtonGroup<RRepo> buttons= new ButtonGroup<>(parent, this, false);
 			buttons.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 			
 			buttons.addAddButton(null);

@@ -257,7 +257,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 		
 		final ArgsDefinition argsDef = fFunction.getArgsDefinition();
 		final int count = (argsDef != null) ? argsDef.size() : 0;
-		fVariablesList = new ArrayList<Variable>(count);
+		fVariablesList= new ArrayList<>(count);
 		boolean dots = false;
 		for (int i = 0; i < count; i++) {
 			final Arg arg = argsDef.get(i);
@@ -306,7 +306,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 			}
 			createChanges(textFileChange, progress.newChild(1));
 			
-			final Map<String, String> arguments = new HashMap<String, String>();
+			final Map<String, String> arguments= new HashMap<>();
 			final String varName = RRefactoringAdapter.getUnquotedIdentifier(fFunctionName);
 			final String description = NLS.bind(Messages.FunctionToS4Method_Descriptor_description,
 					RUtil.formatVarName(varName) );

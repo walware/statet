@@ -67,7 +67,7 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
+		final Map<Preference<?>, String> prefs= new HashMap<>();
 		
 		// Content Assist
 		final AssistPreferences assistPreferences = IStatetUIPreferenceConstants.EDITING_ASSIST_PREFERENCES;

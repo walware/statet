@@ -31,7 +31,7 @@ public class PackageReferences implements IPackageReferences {
 	
 	
 	public PackageReferences() {
-		fData = new HashMap<String, ElementAccessList>();
+		fData= new HashMap<>();
 	}
 	
 	

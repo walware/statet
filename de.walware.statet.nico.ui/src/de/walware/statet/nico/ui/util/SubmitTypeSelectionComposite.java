@@ -35,7 +35,7 @@ import de.walware.statet.nico.core.runtime.SubmitType;
 public class SubmitTypeSelectionComposite extends Composite {
 	
 	
-	public static final EnumSetPref<SubmitType> SOURCE_ENCODER = new EnumSetPref<SubmitType>(null, null, SubmitType.class);
+	public static final EnumSetPref<SubmitType> SOURCE_ENCODER= new EnumSetPref<>(null, null, SubmitType.class);
 	
 	private class Observable extends AbstractSWTObservableValue {
 		

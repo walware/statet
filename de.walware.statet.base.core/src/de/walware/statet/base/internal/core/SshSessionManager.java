@@ -47,7 +47,7 @@ public class SshSessionManager implements ISshSessionService, IDisposable {
 	
 	
 	public SshSessionManager() {
-		fPool = new HashMap<String, Session>();
+		fPool= new HashMap<>();
 	}
 	
 	

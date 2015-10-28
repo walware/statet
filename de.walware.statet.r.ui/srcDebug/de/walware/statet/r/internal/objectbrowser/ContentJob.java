@@ -86,7 +86,7 @@ class ContentJob extends Job implements ToolWorkspace.Listener {
 	/** update all environment */
 	private boolean force;
 	/** environments to update, if force is false*/
-	private final Set<ICombinedREnvironment> updateSet = new HashSet<ICombinedREnvironment>();
+	private final Set<ICombinedREnvironment> updateSet= new HashSet<>();
 	
 	private List<? extends ICombinedREnvironment> rawInput;
 	private List<? extends ICombinedRElement> userspaceInput;
@@ -207,7 +207,7 @@ class ContentJob extends Job implements ToolWorkspace.Listener {
 				if (process != this.view.getTool() || this.forceOnWorkspaceChange) {
 					return Status.OK_STATUS;
 				}
-				updateList = new ArrayList<ICombinedREnvironment>(this.updateSet.size());
+				updateList= new ArrayList<>(this.updateSet.size());
 				updateList.addAll(this.updateSet);
 				this.updateSet.clear();
 				this.updateProcess = null;
@@ -311,7 +311,7 @@ class ContentJob extends Job implements ToolWorkspace.Listener {
 			TRY_PARTIAL : if (!input.showCondensedUserspace
 					&& this.rawInput != null && oldInput != null && this.rawInput.size() == oldInput.size()
 					&& updateList != null && updateList.size() < this.rawInput.size() ) {
-				updateEntries = new ArrayList<ICombinedREnvironment>(updateList.size());
+				updateEntries= new ArrayList<>(updateList.size());
 				for (int i = 0; i < this.rawInput.size(); i++) {
 					final ICombinedREnvironment envir = this.rawInput.get(i);
 					if (envir.equals(oldInput.get(i))) {
@@ -333,7 +333,7 @@ class ContentJob extends Job implements ToolWorkspace.Listener {
 			// Prepare Userspace filter
 			if (input.showCondensedUserspace) {
 				int length = 0;
-				final List<ICombinedREnvironment> userEntries = new ArrayList<ICombinedREnvironment>(this.rawInput.size());
+				final List<ICombinedREnvironment> userEntries= new ArrayList<>(this.rawInput.size());
 				for (final ICombinedREnvironment env : this.rawInput) {
 					if (env.getSpecialType() > 0 && env.getSpecialType() <= REnvironment.ENVTYPE_PACKAGE) {
 						continue;
@@ -341,7 +341,7 @@ class ContentJob extends Job implements ToolWorkspace.Listener {
 					userEntries.add(env);
 					length += env.getLength();
 				}
-				final List<IModelElement> elements = new ArrayList<IModelElement>(length);
+				final List<IModelElement> elements= new ArrayList<>(length);
 				for (final ICombinedREnvironment entry : userEntries) {
 					elements.addAll(entry.getModelChildren((IModelElement.Filter) null));
 				}

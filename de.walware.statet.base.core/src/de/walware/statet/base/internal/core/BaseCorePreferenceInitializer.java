@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
@@ -31,9 +32,9 @@ public class BaseCorePreferenceInitializer extends AbstractPreferenceInitializer
 	
 	@Override
 	public void initializeDefaultPreferences() {
-		final DefaultScope scope = new DefaultScope();
+		final IScopeContext scope= DefaultScope.INSTANCE;
 		
-		final Map<Preference<?>, Object> map = new HashMap<Preference<?>, Object>();
+		final Map<Preference<?>, Object> map= new HashMap<>();
 		
 		new TaskTagsPreferences().addPreferencesToMap(map);
 		

@@ -128,7 +128,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 	
 	private final SaveUtil fSaveUtil = new SaveUtil();
 	
-	private final Map<String, EnvItem> fHelpIndexes = new HashMap<String, EnvItem>();
+	private final Map<String, EnvItem> fHelpIndexes= new HashMap<>();
 	
 	
 	public RHelpManager() {
@@ -607,7 +607,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 				items[i] = item;
 			}
 		}
-		final List<IREnv> withHelp = new ArrayList<IREnv>(configurations.size());
+		final List<IREnv> withHelp= new ArrayList<>(configurations.size());
 		for (int i = 0; i < items.length; i++) {
 			final EnvItem item = items[i];
 			final IREnvConfiguration rEnvConfig = configurations.get(i);

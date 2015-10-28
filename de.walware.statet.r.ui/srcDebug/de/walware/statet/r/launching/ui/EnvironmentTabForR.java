@@ -49,7 +49,7 @@ public class EnvironmentTabForR extends EnvironmentTab {
 	@Override
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
 		super.setDefaults(configuration);
-		final Map<String, String> map = new HashMap<String, String>();
+		final Map<String, String> map= new HashMap<>();
 		map.put(VAR_R_KEEP_PKG_SOURCE, "yes"); //$NON-NLS-1$
 		configuration.setAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, map);
 	}

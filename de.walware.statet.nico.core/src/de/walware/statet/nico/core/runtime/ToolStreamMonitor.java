@@ -28,7 +28,7 @@ public class ToolStreamMonitor implements IStreamMonitor {
 	
 	public ToolStreamMonitor() {
 		// Create listener lists
-		fListeners = new EnumMap<SubmitType, ListenerList>(SubmitType.class);
+		fListeners= new EnumMap<>(SubmitType.class);
 		for (final SubmitType type : EnumSet.allOf(SubmitType.class)) {
 			fListeners.put(type, new ListenerList(ListenerList.IDENTITY));
 		}

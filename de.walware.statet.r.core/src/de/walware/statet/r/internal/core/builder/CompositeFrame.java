@@ -74,7 +74,7 @@ public class CompositeFrame implements IRFrame {
 		fLock.lock();
 		try {
 			final Collection<RUnitElement> values = fModelElements.values();
-			final List<IRElement> list = new ArrayList<IRElement>(values.size());
+			final List<IRElement> list= new ArrayList<>(values.size());
 			list.addAll(values);
 			return list;
 		}
@@ -109,7 +109,7 @@ public class CompositeFrame implements IRFrame {
 			if (fModelElements.isEmpty()) {
 				return Collections.EMPTY_LIST;
 			}
-			final ArrayList<IRLangElement> children = new ArrayList<IRLangElement>();
+			final ArrayList<IRLangElement> children= new ArrayList<>();
 			for (final IRLangElement element : fModelElements.values()) {
 				final List<? extends IRLangElement> elementChildren = element.getModelChildren(null);
 				if (!elementChildren.isEmpty()) {

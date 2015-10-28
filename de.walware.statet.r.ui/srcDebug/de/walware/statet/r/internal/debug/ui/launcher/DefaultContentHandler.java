@@ -40,7 +40,7 @@ public class DefaultContentHandler implements ICodeSubmitContentHandler {
 	@Override
 	public List<String> getCodeLines(final IDocument document)
 			throws BadLocationException, CoreException {
-		final ArrayList<String> lines = new ArrayList<String>(document.getNumberOfLines() + 1);
+		final ArrayList<String> lines= new ArrayList<>(document.getNumberOfLines() + 1);
 		
 		TextUtil.addLines(document, 0, document.getLength(), lines);
 		
@@ -50,7 +50,7 @@ public class DefaultContentHandler implements ICodeSubmitContentHandler {
 	@Override
 	public List<String> getCodeLines(final IDocument document, final int offset, final int length)
 			throws CoreException, BadLocationException {
-		final ArrayList<String> lines = new ArrayList<String>(
+		final ArrayList<String> lines= new ArrayList<>(
 				document.getNumberOfLines(0, length) + 1 );
 		
 		TextUtil.addLines(document, offset, length, lines);

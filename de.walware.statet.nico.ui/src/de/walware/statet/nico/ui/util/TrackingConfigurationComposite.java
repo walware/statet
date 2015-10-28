@@ -89,7 +89,7 @@ public class TrackingConfigurationComposite extends Composite {
 	
 	private Button fPrependTimestampControl;
 	
-	private final List<SaveTemplate> fSaveTemplates = new ArrayList<SaveTemplate>();
+	private final List<SaveTemplate> fSaveTemplates= new ArrayList<>();
 	
 	private TrackingConfiguration fInput;
 	

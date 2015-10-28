@@ -87,10 +87,10 @@ public class ReconnectEngineHandler extends ToolRetargetableHandler {
 					originalConfig = ((OverlayLaunchConfiguration) originalConfig).getOriginal();
 				}
 				
-				final Map<String, Object> reconnect = new HashMap<String, Object>();
+				final Map<String, Object> reconnect= new HashMap<>();
 				process.prepareRestart(reconnect);
 				
-				final Map<String, Object> add = new HashMap<String, Object>();
+				final Map<String, Object> add= new HashMap<>();
 				add.put(IRemoteEngineController.LAUNCH_RECONNECT_ATTRIBUTE, reconnect);
 				final ILaunchConfiguration reconnectConfig = new OverlayLaunchConfiguration(originalConfig, add);
 				try {

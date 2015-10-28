@@ -47,7 +47,7 @@ public class RDataLayer extends AbstractLayer implements IUniqueIndexLayer {
 	private final int fColumnAutoMinWidth = 3;
 	private final int fColumnAutoMaxWidth = 1000;
 	
-	private final Map<Long, Integer> fCustomColumnWidths = new HashMap<Long, Integer>();
+	private final Map<Long, Integer> fCustomColumnWidths= new HashMap<>();
 	
 	
 	public RDataLayer(final AbstractRDataProvider<?> dataProvider, final LayoutSizeConfig sizeConfig) {

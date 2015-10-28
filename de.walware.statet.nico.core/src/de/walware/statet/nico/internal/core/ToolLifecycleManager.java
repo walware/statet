@@ -55,7 +55,7 @@ public class ToolLifecycleManager implements IDebugEventSetListener {
 	}
 	
 	
-	private final FastList<IToolLifeListener> fLifeListeners = new FastList<IToolLifeListener>(IToolLifeListener.class, FastList.IDENTITY);
+	private final FastList<IToolLifeListener> fLifeListeners= new FastList<>(IToolLifeListener.class, FastList.IDENTITY);
 	
 	
 	public ToolLifecycleManager() {

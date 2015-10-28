@@ -52,7 +52,7 @@ public class VariableContainer {
 	public VariableContainer(final IServiceLocator serviceLocator, final ScrolledPageComposite variableComposite) {
 		fServiceLocator = serviceLocator;
 		fVariableComposite = variableComposite;
-		fVariables = new ArrayList<VariableComposite>();
+		fVariables= new ArrayList<>();
 		
 		fVariableComposite.getContent().setLayout(LayoutUtil.createContentGrid(1));
 		

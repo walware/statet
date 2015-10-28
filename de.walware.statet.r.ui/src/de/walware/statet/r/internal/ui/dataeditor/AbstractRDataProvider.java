@@ -214,7 +214,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	protected class RowDataProvider implements IDataProvider {
 		
 		
-		private final LazyRStore<RVector<?>> fRowNamesStore = new LazyRStore<RVector<?>>(fRowCount, 1,
+		private final LazyRStore<RVector<?>> fRowNamesStore= new LazyRStore<>(fRowCount, 1,
 				10, fFragmentsLock);
 		
 		
@@ -451,8 +451,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	private long fFullRowCount;
 	private long fRowCount;
 	
-	private final FastList<IDataProviderListener> fDataListeners =
-			new FastList<IDataProviderListener>(IDataProviderListener.class);
+	private final FastList<IDataProviderListener> fDataListeners= new FastList<>(IDataProviderListener.class);
 	
 	private boolean fInitScheduled;
 	private volatile boolean fDisposeScheduled;
@@ -511,7 +510,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		else {
 			dataMax = 25;
 		}
-		fDataStore = new LazyRStore<T>(fRowCount, fColumnCount, dataMax, fFragmentsLock);
+		fDataStore= new LazyRStore<>(fRowCount, fColumnCount, dataMax, fFragmentsLock);
 		fFindManager = new FindManager(this);
 		
 		fColumnDataProvider = createColumnDataProvider();

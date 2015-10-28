@@ -82,7 +82,7 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 	 */
 	@Override
 	public void start(final BundleContext context) throws Exception {
-		fDisposables = new ArrayList<IDisposable>();
+		fDisposables= new ArrayList<>();
 		super.start(context);
 	}
 	

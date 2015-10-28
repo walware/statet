@@ -170,7 +170,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 	}
 	
-	private static final EnumSetPref<SubmitType> SOURCE_ENCODER = new EnumSetPref<SubmitType>(null, null, SubmitType.class);
+	private static final EnumSetPref<SubmitType> SOURCE_ENCODER= new EnumSetPref<>(null, null, SubmitType.class);
 	
 	
 	private class ViewReloadJob extends Job {
@@ -215,8 +215,8 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 		private History fCurrentSource;
 		private boolean fIsScheduled;
-		private final FastArrayBufferList<Entry> fToAdd = new FastArrayBufferList<Entry>(Entry.class, 16);
-		private final FastArrayBufferList<Entry> fToRemove = new FastArrayBufferList<Entry>(Entry.class, 16);
+		private final FastArrayBufferList<Entry> fToAdd= new FastArrayBufferList<>(Entry.class, 16);
+		private final FastArrayBufferList<Entry> fToRemove= new FastArrayBufferList<>(Entry.class, 16);
 		private Entry[] fNewEntrys;
 		
 		public synchronized void setNewSource(final History source, final Entry[] es) {
@@ -439,7 +439,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	private static final String M_FILTER_EMPTY = "FilterEmpty.enabled"; //$NON-NLS-1$
 	private boolean fDoFilterEmpty;
 	private Action fFilterEmptyAction;
-	private final FastList<EntryFilter> fFilter = new FastList<EntryFilter>(EntryFilter.class, FastList.IDENTITY);
+	private final FastList<EntryFilter> fFilter= new FastList<>(EntryFilter.class, FastList.IDENTITY);
 	
 	private static final String M_AUTOSCROLL = "Autoscroll.enabled"; //$NON-NLS-1$
 	private boolean fDoAutoscroll;
@@ -448,7 +448,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	private static final String M_FILTER_BY_SOURCE = "FilterBySource.include"; //$NON-NLS-1$
 	private SubmitTypeFilter fFilterBySource;
 	
-	private final FastList<IToolRetargetable> fToolListenerList = new FastList<IToolRetargetable>(IToolRetargetable.class);
+	private final FastList<IToolRetargetable> fToolListenerList= new FastList<>(IToolRetargetable.class);
 	
 	private Action fSelectAllAction;
 	private Action fCopyAction;

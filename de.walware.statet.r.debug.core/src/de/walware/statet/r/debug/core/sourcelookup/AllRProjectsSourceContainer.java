@@ -50,7 +50,7 @@ public class AllRProjectsSourceContainer extends CompositeSourceContainer implem
 	
 	@Override
 	protected ISourceContainer[] createSourceContainers() throws CoreException {
-		final List<ISourceContainer> list = new ArrayList<ISourceContainer>();
+		final List<ISourceContainer> list= new ArrayList<>();
 		final IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		for (final IProject project : projects) {
 			try {

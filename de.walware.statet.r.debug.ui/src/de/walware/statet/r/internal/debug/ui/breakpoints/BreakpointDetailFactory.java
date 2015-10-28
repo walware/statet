@@ -32,7 +32,7 @@ public class BreakpointDetailFactory implements IDetailPaneFactory {
 	
 	@Override
 	public Set getDetailPaneTypes(final IStructuredSelection selection) {
-		final Set<String> types = new HashSet<String>();
+		final Set<String> types= new HashSet<>();
 		if (selection.size() == 1 && selection.getFirstElement() instanceof IRBreakpoint) {
 			final String breakpointType = ((IRBreakpoint) selection.getFirstElement()).getBreakpointType();
 			if (breakpointType == RDebugModel.R_LINE_BREAKPOINT_TYPE_ID) {

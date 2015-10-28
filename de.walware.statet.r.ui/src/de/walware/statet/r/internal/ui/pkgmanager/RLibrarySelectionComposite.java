@@ -124,7 +124,7 @@ public class RLibrarySelectionComposite extends Composite {
 			public Object[] getChildren(final Object parentElement) {
 				if (parentElement instanceof IRLibraryGroup) {
 					final List<? extends IRLibraryLocation> all = ((IRLibraryGroup) parentElement).getLibraries();
-					final List<IRLibraryLocation> list = new ArrayList<IRLibraryLocation>(all.size());
+					final List<IRLibraryLocation> list= new ArrayList<>(all.size());
 					for (final IRLibraryLocation location : all) {
 						if (fValidator.matchesRequired(location)) {
 							list.add(location);

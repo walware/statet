@@ -101,7 +101,7 @@ public class RCorePlugin extends Plugin {
 	
 	private boolean fStarted;
 	
-	private final List<IDisposable> fDisposables = new ArrayList<IDisposable>();
+	private final List<IDisposable> fDisposables= new ArrayList<>();
 	
 	private CoreAccess fWorkspaceCoreAccess;
 	private CoreAccess fDefaultsCoreAccess;

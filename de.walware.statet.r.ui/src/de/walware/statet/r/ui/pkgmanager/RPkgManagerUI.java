@@ -42,7 +42,7 @@ import de.walware.statet.r.internal.ui.pkgmanager.RPkgManagerDialog;
 
 public class RPkgManagerUI {
 	
-	private static final Map<IREnv, RPkgManagerDialog> DIALOGS = new HashMap<IREnv, RPkgManagerDialog>();
+	private static final Map<IREnv, RPkgManagerDialog> DIALOGS= new HashMap<>();
 	
 	private static Shell getShell(final IShellProvider shellProvider) {
 		Shell shell = null;
@@ -95,7 +95,7 @@ public class RPkgManagerUI {
 			manager.update(r, monitor);
 		}
 		final IRPkgSet rPkgSet = manager.getRPkgSet();
-		final List<String> missingPkgs = new ArrayList<String>(pkgNames.size());
+		final List<String> missingPkgs= new ArrayList<>(pkgNames.size());
 		final StringBuilder sb = new StringBuilder();
 		for (final String pkgName : pkgNames) {
 			if (rPkgSet.getInstalled().containsByName(pkgName)) {

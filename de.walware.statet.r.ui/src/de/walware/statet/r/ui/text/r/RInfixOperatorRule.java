@@ -44,7 +44,7 @@ public class RInfixOperatorRule implements IRule {
 		fInvalidOpToken = invalidOpToken;
 		
 		fBuffer = new StringBuilder();
-		fSpecialOperators = new HashMap<String, IToken>();
+		fSpecialOperators= new HashMap<>();
 		
 		for (final String op : RTokens.PREDIFINED_INFIX_OPERATORS) {
 			fSpecialOperators.put(op, fPredefinedOpToken);

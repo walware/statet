@@ -73,7 +73,7 @@ class CopyElementNameHandler extends AbstractHandler {
 		if (treePaths.length == 0) {
 			return null;
 		}
-		final List<String> list = new ArrayList<String>();
+		final List<String> list= new ArrayList<>();
 		int length = 0;
 		int failed = 0;
 		for (int i = 0; i < treePaths.length; i++) {

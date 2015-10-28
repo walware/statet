@@ -39,7 +39,7 @@ public class FDef extends RAstNode {
 		
 		Args(final FDef parent) {
 			fRParent = parent;
-			fSpecs = new ArrayList<Arg>(0);
+			fSpecs= new ArrayList<>(0);
 		}
 		
 		

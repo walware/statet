@@ -123,7 +123,7 @@ class FindManager {
 	private final FindLock fLock = new FindLock();
 	private final LazyRStore<RObject> fFindStore;
 	
-	private final FastList<IFindListener> fListeners = new FastList<IFindListener>(IFindListener.class);
+	private final FastList<IFindListener> fListeners= new FastList<>(IFindListener.class);
 	
 	private final AbstractRDataProvider<?> fDataProvider;
 	
@@ -131,7 +131,7 @@ class FindManager {
 	public FindManager(final AbstractRDataProvider<?> dataProvider) {
 		fDataProvider = dataProvider;
 		
-		fFindStore = new LazyRStore<RObject>(0, 1, 5, fLock);
+		fFindStore= new LazyRStore<>(0, 1, 5, fLock);
 	}
 	
 	

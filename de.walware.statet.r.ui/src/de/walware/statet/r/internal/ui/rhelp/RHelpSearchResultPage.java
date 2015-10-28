@@ -351,7 +351,7 @@ public class RHelpSearchResultPage extends ExtTextSearchResultPage<IRPkgHelp, RH
 	@Override
 	protected TextSearchResultContentProvider<IRPkgHelp, RHelpSearchMatch, TableViewer> createTableContentProvider(
 			final TableViewer viewer) {
-		return new TextSearchResultMatchTableContentProvider<IRPkgHelp, RHelpSearchMatch>(this, viewer);
+		return new TextSearchResultMatchTableContentProvider<>(this, viewer);
 	}
 	
 	@Override

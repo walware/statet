@@ -137,7 +137,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Map<Preference<?>, String> prefs = new HashMap<Preference<?>, String>();
+		final Map<Preference<?>, String> prefs= new HashMap<>();
 		
 		prefs.put(RRunDebugPreferenceConstants.PREF_RENV_CHECK_UPDATE, null);
 		
@@ -158,7 +158,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 				table.setLayoutData(gd);
 			}
 			
-			fListButtons = new ButtonGroup<IREnvConfiguration.WorkingCopy>(composite, this, false);
+			fListButtons= new ButtonGroup<>(composite, this, false);
 			fListButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, true));
 			final SelectionListener addDefaultListener = new SelectionAdapter() {
 				@Override
@@ -290,7 +290,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 	}
 	
 	private boolean doEdit(final IREnvConfiguration.WorkingCopy config, final boolean newConfig) {
-		final List<IREnvConfiguration> existingConfigs = new ArrayList<IREnvConfiguration>(fList);
+		final List<IREnvConfiguration> existingConfigs= new ArrayList<>(fList);
 		if (!newConfig) {
 			for (final Iterator<IREnvConfiguration> iter = existingConfigs.iterator(); iter.hasNext();) {
 				final IREnvConfiguration existing = iter.next();

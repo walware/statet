@@ -46,7 +46,7 @@ import de.walware.statet.r.ui.dataeditor.RDataTableComposite;
 public class FindDataDialog extends ExtStatusDialog {
 	
 	
-	private static final Map<IWorkbenchWindow, FindDataDialog> gDialogs = new HashMap<IWorkbenchWindow, FindDataDialog>();
+	private static final Map<IWorkbenchWindow, FindDataDialog> gDialogs= new HashMap<>();
 	
 	
 	public static FindDataDialog get(final IWorkbenchWindow window, final boolean create) {
@@ -120,7 +120,7 @@ public class FindDataDialog extends ExtStatusDialog {
 	private Button fDirectionFirstInRowControl;
 	private Button fSelectedOnlyControl;
 	
-	private final Map<String, String> fHistoryModeMap = new HashMap<String, String>();
+	private final Map<String, String> fHistoryModeMap= new HashMap<>();
 	
 	
 	private final IFindListener fFindListener = new IFindListener() {

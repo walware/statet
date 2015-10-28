@@ -59,7 +59,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 	
 	public static String resolveVariables(final String path, final ToolWorkspace workspace) throws CoreException {
 		final List<IDynamicVariable> variables = workspace.getStringVariables();
-		final List<IDynamicVariable> checkedVariables = new ArrayList<IDynamicVariable>(variables.size());
+		final List<IDynamicVariable> checkedVariables= new ArrayList<>(variables.size());
 		for (final IDynamicVariable variable : variables) {
 			if (variable instanceof ILocationVariable) {
 				checkedVariables.add(variable);

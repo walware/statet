@@ -34,7 +34,7 @@ public class TextSearchLabelUtil {
 	public static final Collection<String> DEFAULT_SEARCH_LABEL_PROPERTIES;
 	
 	static {
-		final Set<String> properties= new HashSet<String>();
+		final Set<String> properties= new HashSet<>();
 		properties.addAll(DecoratingStyledLabelProvider.DEFAULT_UPDATE_PROPERTIES);
 		properties.add(TextSearchLabelUtil.HIGHLIGHT_COLOR_KEY);
 		DEFAULT_SEARCH_LABEL_PROPERTIES= Collections.unmodifiableSet(properties);

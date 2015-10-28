@@ -23,15 +23,16 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 public final class ConsoleInstanceScope implements IScopeContext {
 	
 	
-	public static final String SCOPE = "nico.instance"; //$NON-NLS-1$
+	public static final String SCOPE= "nico.instance"; //$NON-NLS-1$
 	
 	
-	private final InstanceScope fBaseScope;
+	private final IScopeContext fBaseScope;
 	
 	
 	public ConsoleInstanceScope() {
-		fBaseScope = new InstanceScope();
+		fBaseScope= InstanceScope.INSTANCE;
 	}
+	
 	
 	@Override
 	public IPath getLocation() {

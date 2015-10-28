@@ -41,7 +41,7 @@ public class FCall extends RAstNode {
 		
 		Args(final FCall parent) {
 			fRParent = parent;
-			fSpecs = new ArrayList<FCall.Arg>(1);
+			fSpecs= new ArrayList<>(1);
 			fSepList = new ArrayIntList(1);
 		}
 		
