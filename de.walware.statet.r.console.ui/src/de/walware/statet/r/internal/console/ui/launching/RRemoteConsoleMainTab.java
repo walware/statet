@@ -173,9 +173,9 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 	@Override
 	protected RConsoleType[] loadTypes() {
 		final List<RConsoleType> types= new ArrayList<>();
-		types.add(new RConsoleType("RJ (RMI/JRI) - Manual", REMOTE_RJS, false, false)); //$NON-NLS-1$
-		types.add(new RConsoleType("RJ (RMI/JRI) - Start over SSH", REMOTE_RJS_SSH, false, false)); 
-		types.add(new RConsoleType("RJ (RMI/JRI) - Quick Reconnect", REMOTE_RJS_RECONNECT, false, false)); 
+		types.add(new RConsoleType("RJ (RMI/JRI) - Manual", REMOTE_RJS, false, true, false));
+		types.add(new RConsoleType("RJ (RMI/JRI) - Start over SSH", REMOTE_RJS_SSH, false, true, false));
+		types.add(new RConsoleType("RJ (RMI/JRI) - Quick Reconnect", REMOTE_RJS_RECONNECT, false, true, false));
 		return types.toArray(new RConsoleType[types.size()]);
 	}
 	

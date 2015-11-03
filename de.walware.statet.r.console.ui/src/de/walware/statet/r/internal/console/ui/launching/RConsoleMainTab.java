@@ -23,20 +23,24 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.IValueChangeListener;
 import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.databinding.observable.value.WritableValue;
+import org.eclipse.core.databinding.validation.IValidator;
+import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -130,8 +134,8 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	
 	protected RConsoleType[] loadTypes() {
 		final List<RConsoleType> types = new ArrayList<>();
-		types.add(new RConsoleType("RJ (default)", RConsoleLaunching.LOCAL_RJS, true, true)); //$NON-NLS-1$
-		types.add(new RConsoleType("Rterm", RConsoleLaunching.LOCAL_RTERM, false, false)); //$NON-NLS-1$
+		types.add(new RConsoleType("RJ (default)", RConsoleLaunching.LOCAL_RJS, true, true, true)); //$NON-NLS-1$
+		types.add(new RConsoleType("Rterm", RConsoleLaunching.LOCAL_RTERM, false, false, false)); //$NON-NLS-1$
 		return types.toArray(new RConsoleType[types.size()]);
 	}
 	
@@ -162,7 +166,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		{	// Type
 			final Composite composite = new Composite(mainComposite, SWT.NONE);
 			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+			composite.setLayout(LayoutUtil.createCompositeGrid(2));
 			
 			final Label label = new Label(composite, SWT.LEFT);
 			label.setText(Messages.RConsole_MainTab_LaunchType_label+':');
@@ -217,7 +221,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		fWithHelp = (fREnvTab != null) && (getLaunchConfigurationDialog() instanceof TrayDialog);
 		
 		final Group group = new Group(parent, SWT.NONE);
-		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 3));
+		group.setLayout(LayoutUtil.createGroupGrid(3));
 		group.setText("R options:");
 		
 		fWorkingDirectoryControl = new ResourceInputComposite(group,
@@ -255,16 +259,36 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		fWorkingDirectoryValue = new WritableValue(realm, null, String.class);
 		fArgumentsValue = new WritableValue(realm, String.class);
 		
-		final IObservableValue typeSelection = ViewersObservables.observeSingleSelection(fTypesCombo);
-		dbc.bindValue(typeSelection, fTypeValue, null, null);
+		IValidator typeValidator= null;
+		if (getLaunchConfigurationDialog().getMode().equals(ILaunchManager.DEBUG_MODE)) {
+			typeValidator= new UpdateableErrorValidator(new IValidator() {
+				@Override
+				public IStatus validate(Object value) {
+					RConsoleType type= (RConsoleType) value;
+					if (!type.isDebugSupported()) {
+						return ValidationStatus.error(NLS.bind(
+								"R launch type ''{0}'' does not support debug mode.",
+								type.getName() ));
+					}
+					return ValidationStatus.ok();
+				}
+			});
+		}
+		dbc.bindValue(ViewersObservables.observeSingleSelection(fTypesCombo),
+				fTypeValue,
+				(typeValidator != null) ? 
+						new UpdateValueStrategy().setAfterGetValidator(typeValidator) :
+						null,
+				null );
 		
-		dbc.bindValue(SWTObservables.observeText(fArgumentsControl.getTextControl(), SWT.Modify),
-				fArgumentsValue, null, null);
+		dbc.bindValue(WidgetProperties.text(SWT.Modify).observe(fArgumentsControl.getTextControl()),
+				fArgumentsValue,
+				null, null );
 		
 		fWorkingDirectoryControl.getValidator().setOnEmpty(IStatus.OK);
 		dbc.bindValue(fWorkingDirectoryControl.getObservable(), fWorkingDirectoryValue,
 				new UpdateValueStrategy().setAfterGetValidator(
-						new UpdateableErrorValidator(fWorkingDirectoryControl.getValidator())),
+						new UpdateableErrorValidator(fWorkingDirectoryControl.getValidator()) ),
 				null );
 		
 		fTypeValue.addValueChangeListener(new IValueChangeListener() {

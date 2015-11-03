@@ -15,34 +15,42 @@ package de.walware.statet.r.internal.console.ui.launching;
 public final class RConsoleType {
 	
 	
-	private final String fName;
-	private final String fId;
-	private final boolean fRequireJRE;
-	private final boolean fSupportsJDebug;
+	private final String name;
+	private final String id;
+	private final boolean requireJRE;
+	private final boolean isDebugSupported;
+	private final boolean isJDebugSupported;
 	
 	
-	public RConsoleType(final String name, final String id, final boolean requireJRE, final boolean supportsJDebug) {
-		fName = name;
-		fId = id;
-		fRequireJRE = requireJRE;
-		fSupportsJDebug = supportsJDebug;
+	public RConsoleType(final String name, final String id,
+			final boolean requireJRE,
+			final boolean isDebugSupported, final boolean isJDebugSupported) {
+		this.name= name;
+		this.id= id;
+		this.requireJRE= requireJRE;
+		this.isDebugSupported= isDebugSupported;
+		this.isJDebugSupported= isJDebugSupported;
 	}
 	
 	
 	public String getName() {
-		return fName;
+		return this.name;
 	}
 	
 	public String getId() {
-		return fId;
+		return this.id;
 	}
 	
 	public boolean requireJRE() {
-		return fRequireJRE;
+		return this.requireJRE;
 	}
 	
-	public boolean supportsJDebug() {
-		return fSupportsJDebug;
+	public boolean isDebugSupported() {
+		return this.isDebugSupported;
+	}
+	
+	public boolean isJDebugSupported() {
+		return this.isJDebugSupported;
 	}
 	
 }
