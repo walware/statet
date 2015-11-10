@@ -22,7 +22,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public class Block extends ExpressionList {
 	
 	
-	int fBlockCloseOffset = Integer.MIN_VALUE;
+	int fBlockCloseOffset = NA_OFFSET;
 	
 	
 	Block() {
@@ -58,7 +58,7 @@ public class Block extends ExpressionList {
 	
 	@Override
 	final void updateStopOffset() {
-		if (fBlockCloseOffset != Integer.MIN_VALUE) {
+		if (fBlockCloseOffset != NA_OFFSET) {
 			fStopOffset = fBlockCloseOffset+1;
 		}
 		else {

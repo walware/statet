@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
+import static de.walware.ecommons.ltk.ast.IAstNode.NA_OFFSET;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -70,7 +72,7 @@ public class RoxygenAnalyzer implements IModelElement.Filter {
 			if (next.getNodeType() == NodeType.DOCU_AGGREGATION) {
 				fNextComment = (DocuComment) next;
 				fNextCommentRefOffset = fNextComment.getSubsequentNodeOffset();
-				if (fNextCommentRefOffset != Integer.MIN_VALUE) {
+				if (fNextCommentRefOffset != NA_OFFSET) {
 					return true;
 				}
 				else {

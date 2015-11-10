@@ -29,9 +29,9 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public class CWhileLoop extends RAstNode {
 	
 	
-	int fCondOpenOffset = Integer.MIN_VALUE;
+	int fCondOpenOffset = NA_OFFSET;
 	final Expression fCondExpr = new Expression();
-	int fCondCloseOffset = Integer.MIN_VALUE;
+	int fCondCloseOffset = NA_OFFSET;
 	final Expression fLoopExpr = new Expression();
 	
 	
@@ -165,13 +165,13 @@ public class CWhileLoop extends RAstNode {
 		if (fLoopExpr.node != null) {
 			fStopOffset = fLoopExpr.node.fStopOffset;
 		}
-		else if (fCondCloseOffset != Integer.MIN_VALUE) {
+		else if (fCondCloseOffset != NA_OFFSET) {
 			fStopOffset = fCondCloseOffset+1;
 		}
 		else if (fCondExpr.node != null) {
 			fStopOffset = fCondExpr.node.fStopOffset;
 		}
-		else if (fCondOpenOffset != Integer.MIN_VALUE) {
+		else if (fCondOpenOffset != NA_OFFSET) {
 			fStopOffset = fCondOpenOffset+1;
 		}
 		else {

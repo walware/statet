@@ -293,9 +293,9 @@ public class FDef extends RAstNode {
 	}
 	
 	
-	int fArgsOpenOffset = Integer.MIN_VALUE;
+	int fArgsOpenOffset = NA_OFFSET;
 	Args fArgs = new Args(this);
-	int fArgsCloseOffset = Integer.MIN_VALUE;
+	int fArgsCloseOffset = NA_OFFSET;
 	final Expression fExpr = new Expression();
 	
 	
@@ -422,13 +422,13 @@ public class FDef extends RAstNode {
 		if (fExpr.node != null) {
 			fStopOffset = fExpr.node.fStopOffset;
 		}
-		else if (fArgsCloseOffset != Integer.MIN_VALUE) {
+		else if (fArgsCloseOffset != NA_OFFSET) {
 			fStopOffset = fArgsCloseOffset+1;
 		}
 		else if (fArgs != null) {
 			fStopOffset = fArgs.fStopOffset;
 		}
-		else if (fArgsOpenOffset != Integer.MIN_VALUE) {
+		else if (fArgsOpenOffset != NA_OFFSET) {
 			fStopOffset = fArgsOpenOffset+1;
 		}
 		else {

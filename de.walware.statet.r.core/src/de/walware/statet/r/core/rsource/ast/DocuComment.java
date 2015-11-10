@@ -31,7 +31,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public final class DocuComment extends RAstNode {
 	
 	
-	int fNextOffset = Integer.MIN_VALUE;
+	int fNextOffset = NA_OFFSET;
 	Comment[] fLines;
 	ImList<DocuTag> tags;
 	

@@ -30,10 +30,10 @@ public class CForLoop extends RAstNode {
 	
 	
 	Symbol fVarSymbol;
-	int fCondOpenOffset = Integer.MIN_VALUE;
-	int fInOffset = Integer.MIN_VALUE;
+	int fCondOpenOffset = NA_OFFSET;
+	int fInOffset = NA_OFFSET;
 	final Expression fCondExpr = new Expression();
-	int fCondCloseOffset = Integer.MIN_VALUE;
+	int fCondCloseOffset = NA_OFFSET;
 	final Expression fLoopExpr = new Expression();
 	
 	
@@ -178,19 +178,19 @@ public class CForLoop extends RAstNode {
 		if (fLoopExpr.node != null) {
 			fStopOffset = fLoopExpr.node.fStopOffset;
 		}
-		else if (fCondCloseOffset != Integer.MIN_VALUE) {
+		else if (fCondCloseOffset != NA_OFFSET) {
 			fStopOffset = fCondCloseOffset+1;
 		}
 		else if (fCondExpr.node != null) {
 			fStopOffset = fCondExpr.node.fStopOffset;
 		}
-		else if (fInOffset != Integer.MIN_VALUE) {
+		else if (fInOffset != NA_OFFSET) {
 			fStopOffset = fInOffset+2;
 		}
 		else if (fVarSymbol != null) {
 			fStopOffset = fVarSymbol.fStopOffset;
 		}
-		else if (fCondOpenOffset != Integer.MIN_VALUE) {
+		else if (fCondOpenOffset != NA_OFFSET) {
 			fStopOffset = fCondOpenOffset+1;
 		}
 		else {

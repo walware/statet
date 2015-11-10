@@ -28,7 +28,7 @@ abstract class SpecItem extends RAstNode {
 	
 	
 	RAstNode fArgName;
-	int fEqualsOffset = Integer.MIN_VALUE;
+	int fEqualsOffset = NA_OFFSET;
 	final Expression fValueExpr = new Expression();
 	
 	
@@ -179,7 +179,7 @@ abstract class SpecItem extends RAstNode {
 		if (fValueExpr.node != null) {
 			fStopOffset = fValueExpr.node.fStopOffset;
 		}
-		else if (fEqualsOffset != Integer.MIN_VALUE) {
+		else if (fEqualsOffset != NA_OFFSET) {
 			fStopOffset = fEqualsOffset+1;
 		}
 		else if (fArgName != null) {

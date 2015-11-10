@@ -28,7 +28,7 @@ public class Group extends RAstNode {
 	
 	
 	final Expression fExpr = new Expression();
-	int fGroupCloseOffset = Integer.MIN_VALUE;
+	int fGroupCloseOffset = NA_OFFSET;
 	
 	
 	Group() {
@@ -137,7 +137,7 @@ public class Group extends RAstNode {
 	
 	@Override
 	final void updateStopOffset() {
-		if (fGroupCloseOffset != Integer.MIN_VALUE) {
+		if (fGroupCloseOffset != NA_OFFSET) {
 			fStopOffset = fGroupCloseOffset+1;
 		}
 		else if (fExpr.node != null){

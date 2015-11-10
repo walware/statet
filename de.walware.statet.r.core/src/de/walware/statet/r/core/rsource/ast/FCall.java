@@ -174,9 +174,9 @@ public class FCall extends RAstNode {
 	
 	
 	final Expression fRefExpr = new Expression();
-	int fArgsOpenOffset = Integer.MIN_VALUE;
+	int fArgsOpenOffset = NA_OFFSET;
 	final Args fArgs = new Args(this);
-	int fArgsCloseOffset = Integer.MIN_VALUE;
+	int fArgsCloseOffset = NA_OFFSET;
 	
 	
 	FCall() {
@@ -309,7 +309,7 @@ public class FCall extends RAstNode {
 	
 	@Override
 	final void updateStopOffset() {
-		if (fArgsCloseOffset != Integer.MIN_VALUE) {
+		if (fArgsCloseOffset != NA_OFFSET) {
 			fStopOffset = fArgsCloseOffset+1;
 		}
 		else {

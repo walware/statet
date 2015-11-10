@@ -32,11 +32,11 @@ public class CIfElse extends RAstNode {
 	
 	boolean fWithElse = false;
 	
-	int fCondOpenOffset = Integer.MIN_VALUE;
+	int fCondOpenOffset = NA_OFFSET;
 	final Expression fCondExpr = new Expression();
-	int fCondCloseOffset = Integer.MIN_VALUE;
+	int fCondCloseOffset = NA_OFFSET;
 	final Expression fThenExpr = new Expression();
-	int fElseOffset = Integer.MIN_VALUE;
+	int fElseOffset = NA_OFFSET;
 	final Expression fElseExpr = new Expression();
 	
 	
@@ -210,19 +210,19 @@ public class CIfElse extends RAstNode {
 		if (fWithElse && fElseExpr.node != null) {
 			fStopOffset = fElseExpr.node.fStopOffset;
 		}
-		else if (fWithElse && fElseOffset != Integer.MIN_VALUE) {
+		else if (fWithElse && fElseOffset != NA_OFFSET) {
 			fStopOffset = fElseOffset+4;
 		}
 		else if (fThenExpr.node != null) {
 			fStopOffset = fThenExpr.node.fStopOffset;
 		}
-		else if (fCondCloseOffset != Integer.MIN_VALUE) {
+		else if (fCondCloseOffset != NA_OFFSET) {
 			fStopOffset = fCondCloseOffset+1;
 		}
 		else if (fCondExpr.node != null) {
 			fStopOffset = fCondExpr.node.fStopOffset;
 		}
-		else if (fCondOpenOffset != Integer.MIN_VALUE) {
+		else if (fCondOpenOffset != NA_OFFSET) {
 			fStopOffset = fCondOpenOffset+1;
 		}
 		else {

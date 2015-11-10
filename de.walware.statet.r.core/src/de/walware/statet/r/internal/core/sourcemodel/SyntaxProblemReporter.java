@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
+import static de.walware.ecommons.ltk.ast.IAstNode.NA_OFFSET;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTAX_NUMBER_EXP_DIGIT_MISSING;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTAX_NUMBER_HEX_DIGIT_MISSING;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTAX_NUMBER_HEX_FLOAT_EXP_MISSING;
@@ -63,6 +64,7 @@ import org.eclipse.jface.text.BadLocationException;
 import de.walware.ecommons.MessageBuilder;
 import de.walware.ecommons.ltk.IProblem;
 import de.walware.ecommons.ltk.IProblemRequestor;
+import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ast.StatusDetail;
 import de.walware.ecommons.ltk.core.SourceContent;
 import de.walware.ecommons.ltk.core.impl.Problem;
@@ -796,7 +798,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 								node.getEndOffset()-1, node.getEndOffset()+1 );
 						break STATUS;
 					}
-					else if (node.getSublistCloseOffset() != Integer.MIN_VALUE) {
+					else if (node.getSublistCloseOffset() != NA_OFFSET) {
 						addProblem(IProblem.SEVERITY_ERROR, code, this.messageBuilder.bind(
 								ProblemMessages.Syntax_SubindexedNotClosed_Done_message,
 								getStartText(node, 0) ),

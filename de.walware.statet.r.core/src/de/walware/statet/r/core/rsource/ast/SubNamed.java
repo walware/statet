@@ -80,7 +80,7 @@ public abstract class SubNamed extends RAstNode {
 	
 	final Expression fExpr = new Expression();
 	SingleValue fSubname;
-	int fOperatorOffset = Integer.MIN_VALUE;
+	int fOperatorOffset = NA_OFFSET;
 	
 	
 	protected SubNamed() {

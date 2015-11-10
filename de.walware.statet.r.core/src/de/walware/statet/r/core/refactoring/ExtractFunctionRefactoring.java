@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.core.refactoring;
 
+import static de.walware.ecommons.ltk.ast.IAstNode.NA_OFFSET;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -414,7 +416,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 				final Block block = (Block) fExpressions[0];
 				startOffset = block.getOffset()+1;
 				stopOffset = block.getBlockCloseOffset();
-				if (stopOffset == Integer.MIN_VALUE) {
+				if (stopOffset == NA_OFFSET) {
 					stopOffset = block.getEndOffset();
 				}
 				lastNode = (block.getChildCount() > 0) ?

@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.ecommons.ltk.ast.IAstNode.NA_OFFSET;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTAX_SEQREL_UNEXPECTED;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS12_SYNTAX_TOKEN_UNEXPECTED;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS12_SYNTAX_TOKEN_UNKNOWN;
@@ -43,12 +44,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import de.walware.jcommons.string.IStringFactory;
+import de.walware.jcommons.string.StringFactory;
+
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.text.core.input.TextParserInput;
-
-import de.walware.jcommons.string.IStringFactory;
-import de.walware.jcommons.string.StringFactory;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.RLexer;
@@ -126,7 +127,7 @@ public final class RScanner {
 			comment.fLines = lines;
 			comment.fStartOffset = lines[0].fStartOffset;
 			comment.fStopOffset = lines[this.fLineCount-1].fStopOffset;
-			comment.fNextOffset = (lexer != null && lexer.getType() != RTerminal.EOF) ? lexer.getOffset() : Integer.MIN_VALUE;
+			comment.fNextOffset = (lexer != null && lexer.getType() != RTerminal.EOF) ? lexer.getOffset() : NA_OFFSET;
 			
 			this.fLineCount = 0;
 			this.fCurrent = null;
@@ -267,7 +268,7 @@ public final class RScanner {
 			this.lexer.reset(input);
 			init();
 			final FCall call= new FCall();
-			call.fStopOffset= Integer.MIN_VALUE;
+			call.fStopOffset= NA_OFFSET;
 			scanInSpecArgs(call.fArgs);
 			if (expand) {
 				call.fArgs.fStartOffset= input.getStartIndex();
@@ -1348,7 +1349,7 @@ public final class RScanner {
 	Dummy.Terminal errorNonExistExpression(final RAstNode parent, final int stopHint, final int status) {
 		final Dummy.Terminal error = new Dummy.Terminal(status);
 		error.fRParent = parent;
-		error.fStartOffset = error.fStopOffset = (stopHint != Integer.MIN_VALUE) ? stopHint : parent.fStopOffset;
+		error.fStartOffset = error.fStopOffset = (stopHint != NA_OFFSET) ? stopHint : parent.fStopOffset;
 		error.fText = ""; //$NON-NLS-1$
 		parent.fStatus |= STATUSFLAG_ERROR_IN_CHILD;
 		return error;
