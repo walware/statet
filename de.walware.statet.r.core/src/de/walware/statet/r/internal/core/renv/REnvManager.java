@@ -11,8 +11,6 @@
 
 package de.walware.statet.r.internal.core.renv;
 
-import static de.walware.statet.r.core.RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,6 +19,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
@@ -38,19 +37,21 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
-import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.Preference.IntPref;
-import de.walware.ecommons.preferences.Preference.StringPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
-import de.walware.ecommons.preferences.SettingsChangeNotifier;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.IPreferenceSetService;
+import de.walware.ecommons.preferences.core.Preference;
+import de.walware.ecommons.preferences.core.Preference.IntPref;
+import de.walware.ecommons.preferences.core.Preference.StringPref;
+import de.walware.ecommons.preferences.core.util.PreferenceUtils;
 
 import de.walware.rj.rsetups.RSetup;
 import de.walware.rj.rsetups.RSetupUtil;
 
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RCorePreferenceNodes;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvConfiguration.WorkingCopy;
@@ -65,24 +66,26 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 public class REnvManager implements IREnvManager {
 	
 	private static final StringPref PREF_DEFAULT_CONFIGURATION_NAME= new StringPref(
-			RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER, "default_configuration.name"); //$NON-NLS-1$
+			IREnvManager.PREF_QUALIFIER, "default_configuration.name"); //$NON-NLS-1$
 	
 	private static final IntPref PREF_VERSION= new IntPref(
-			RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER, "version"); //$NON-NLS-1$
+			IREnvManager.PREF_QUALIFIER, "version"); //$NON-NLS-1$
+	
+	private static final IntPref STAMP_PREF= new IntPref(
+			IREnvManager.PREF_QUALIFIER, "stamp"); //$NON-NLS-1$
 	
 	
 	private volatile int state;
 	private final ReadWriteLock lock;
-	private final SettingsChangeNotifier notifier;
 	
 	private Set<String> names;
 	private Map<String, IREnv> nameMap;
 	private Map<String, REnvConfiguration> idMap;
 	private final REnvProxy defaultEnv= new REnvProxy(IREnv.DEFAULT_WORKBENCH_ENV_ID);
 	
-	public REnvManager(final SettingsChangeNotifier notifier) {
+	
+	public REnvManager() {
 		this.state= 0;
-		this.notifier= notifier;
 		this.lock= new ReentrantReadWriteLock(true);
 	}
 	
@@ -142,7 +145,7 @@ public class REnvManager implements IREnvManager {
 		}
 	}
 	
-	private boolean update(final IREnvConfiguration[] configs, final String defaultREnvId) {
+	private boolean update(final ImList<IREnvConfiguration> configs, final String defaultREnvId) {
 		final Set<String> newREnvs= new HashSet<>();
 		for (final IREnvConfiguration config : configs) {
 			newREnvs.add(config.getReference().getId());
@@ -152,21 +155,21 @@ public class REnvManager implements IREnvManager {
 		
 		// update or add configurations
 		boolean changed= false;
-		for (int i= 0; i < configs.length; i++) {
-			final REnvConfiguration config= new REnvConfiguration(configs[i]);
-			final REnvReference rEnv= (REnvReference) config.getReference();
-			IREnvConfiguration oldConfig= this.idMap.put(rEnv.getId(), config);
+		for (final IREnvConfiguration config : configs) {
+			final REnvConfiguration newConfig= new REnvConfiguration(config);
+			final REnvReference rEnv= (REnvReference) newConfig.getReference();
+			IREnvConfiguration oldConfig= this.idMap.put(rEnv.getId(), newConfig);
 			if (oldConfig == null) {
-				final IREnv altREnv= this.nameMap.get(config.getName());
+				final IREnv altREnv= this.nameMap.get(newConfig.getName());
 				if (altREnv != null && !newREnvs.contains(altREnv.getId())) {
 					oldConfig= this.idMap.remove(altREnv.getId());
 				}
 			}
-			if (!changed && (oldConfig == null || !oldConfig.equals(config))) {
+			if (!changed && (oldConfig == null || !oldConfig.equals(newConfig))) {
 				changed= true;
 			}
-			rEnv.fName= config.getName();
-			rEnv.fConfig= config;
+			rEnv.fName= newConfig.getName();
+			rEnv.fConfig= newConfig;
 			this.nameMap.put(rEnv.fName, rEnv);
 			managedNames.add(rEnv.fName);
 			oldIds.remove(rEnv.getId());
@@ -186,7 +189,7 @@ public class REnvManager implements IREnvManager {
 		final IREnv oldDefault= (this.defaultEnv.getConfig() != null) ? this.defaultEnv.getConfig().getReference() : null;
 		updateDefault(defaultREnvId);
 		final IREnv newDefault= (this.defaultEnv.getConfig() != null) ? this.defaultEnv.getConfig().getReference() : null;
-		changed |= !(((oldDefault != null) ? oldDefault.equals(newDefault) : null == newDefault)); 
+		changed |= !Objects.equals(oldDefault, newDefault); 
 		
 		// dirty?
 		return changed;
@@ -239,7 +242,7 @@ public class REnvManager implements IREnvManager {
 		if (version == null || version.intValue() == 0) {
 			for (final Iterator<IScopeContext> iter= prefs.getPreferenceContexts().iterator();
 					configs.isEmpty() && iter.hasNext(); ) {
-				final IEclipsePreferences prefNode= iter.next().getNode(CAT_R_ENVIRONMENTS_QUALIFIER);
+				final IEclipsePreferences prefNode= iter.next().getNode(IREnvManager.PREF_QUALIFIER);
 				if (prefNode == null) {
 					continue;
 				}
@@ -267,7 +270,7 @@ public class REnvManager implements IREnvManager {
 		else if (version.intValue() == 2) {
 			for (final Iterator<IScopeContext> iter= prefs.getPreferenceContexts().iterator();
 					configs.isEmpty() && iter.hasNext(); ) {
-				final IEclipsePreferences prefNode= iter.next().getNode(CAT_R_ENVIRONMENTS_QUALIFIER);
+				final IEclipsePreferences prefNode= iter.next().getNode(IREnvManager.PREF_QUALIFIER);
 				if (prefNode == null) {
 					continue;
 				}
@@ -296,7 +299,7 @@ public class REnvManager implements IREnvManager {
 	
 	private void saveToWorkspace() throws BackingStoreException {
 		final IScopeContext context= PreferencesUtil.getInstancePrefs().getPreferenceContexts().get(0);
-		final IEclipsePreferences node= context.getNode(RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER);
+		final IEclipsePreferences node= context.getNode(IREnvManager.PREF_QUALIFIER);
 		final List<String> oldNames= new ArrayList<>(Arrays.asList(node.childrenNames()));
 		oldNames.removeAll(this.idMap.keySet());
 		for (final String name : oldNames) {
@@ -304,7 +307,10 @@ public class REnvManager implements IREnvManager {
 				node.node(name).removeNode();
 			}
 		}
-		final Map<Preference<?>, Object>map= new HashMap<>();
+		final Map<Preference<?>, Object> map= new HashMap<>();
+		map.put(PREF_VERSION, 2);
+		map.put(STAMP_PREF, System.currentTimeMillis());
+		
 		for (final IREnvConfiguration config : this.idMap.values()) {
 			if (config instanceof AbstractPreferencesModelObject) {
 				((AbstractPreferencesModelObject) config).deliverToPreferencesMap(map);
@@ -312,7 +318,6 @@ public class REnvManager implements IREnvManager {
 		}
 		map.put(PREF_DEFAULT_CONFIGURATION_NAME, (this.defaultEnv.getConfig() != null) ?
 				this.defaultEnv.getConfig().getReference().getId() : null);
-		map.put(PREF_VERSION, 2);
 		
 		PreferencesUtil.setPrefValues(InstanceScope.INSTANCE, map);
 		node.flush();
@@ -337,15 +342,27 @@ public class REnvManager implements IREnvManager {
 	
 	
 	@Override
-	public String[] set(final IREnvConfiguration[] configs, final String defaultConfigId) throws CoreException {
+	public void set(final ImList<IREnvConfiguration> configs, final String defaultConfigId)
+			throws CoreException {
 		checkAndLock(true);
 		try {
 			final boolean changed= update(configs, defaultConfigId);
 			if (!changed) {
-				return null;
+				return;
 			}
-			saveToWorkspace();
-			return new String[] { SETTINGS_GROUP_ID };
+			
+			final IPreferenceSetService preferenceSetService= PreferenceUtils.getPreferenceSetService();
+			final String sourceId= "REnv" + System.identityHashCode(this); //$NON-NLS-1$
+			final boolean resume= preferenceSetService.pause(sourceId);
+			try {
+				saveToWorkspace();
+				return;
+			}
+			finally {
+				if (resume) {
+					preferenceSetService.resume(sourceId);
+				}
+			}
 		}
 		catch (final BackingStoreException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, Messages.REnvManager_error_Saving_message, e));

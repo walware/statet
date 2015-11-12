@@ -47,11 +47,11 @@ import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
 import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
-import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.Preference.IntPref;
-import de.walware.ecommons.preferences.Preference.StringArrayPref;
-import de.walware.ecommons.preferences.Preference.StringPref;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.Preference;
+import de.walware.ecommons.preferences.core.Preference.IntPref;
+import de.walware.ecommons.preferences.core.Preference.StringArrayPref;
+import de.walware.ecommons.preferences.core.Preference.StringPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
 
 import de.walware.rj.rsetups.RSetup;
@@ -60,6 +60,7 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RCorePreferenceNodes;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
+import de.walware.statet.r.core.renv.IREnvManager;
 import de.walware.statet.r.core.renv.IRLibraryGroup;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
 import de.walware.statet.r.internal.core.Messages;
@@ -249,7 +250,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		this.type= type;
 		this.rEnv= link;
 		
-		this.nodeQualifier= RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER + '/' +
+		this.nodeQualifier= IREnvManager.PREF_QUALIFIER + '/' +
 				((key != null) ? key : link.getId());
 		
 		this.rBits= 64;
@@ -271,7 +272,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		this.type= type;
 		this.rEnv= link;
 		
-		this.nodeQualifier= RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER + '/' + link.getId();
+		this.nodeQualifier= IREnvManager.PREF_QUALIFIER + '/' + link.getId();
 		
 		setName(setup.getName());
 		setROS(setup.getOS());
@@ -423,7 +424,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	
 	void upgradePref() {
 		this.checkId= null;
-		this.nodeQualifier= RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER + '/' + this.rEnv.getId();
+		this.nodeQualifier= IREnvManager.PREF_QUALIFIER + '/' + this.rEnv.getId();
 	}
 	
 	protected void checkExistence(final IPreferenceAccess prefs) {

@@ -64,6 +64,7 @@ import de.walware.statet.nico.ui.util.TrackingConfigurationComposite;
 import de.walware.statet.nico.ui.util.TrackingConfigurationDialog;
 
 import de.walware.statet.r.console.ui.launching.RConsoleLaunching;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
@@ -260,7 +261,8 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		
 		final TemplateVariableProcessor templateVariableProcessor = new TemplateVariableProcessor();
 		final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(
-				null, templateVariableProcessor );
+				RCore.WORKBENCH_ACCESS,
+				templateVariableProcessor );
 		fStartupSnippetEditor = new SnippetEditor(configurator);
 		fStartupSnippetEditor.create(container, SnippetEditor.DEFAULT_MULTI_LINE_STYLE);
 		final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);

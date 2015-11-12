@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -33,14 +32,16 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 
 import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImIdentitySet;
 import de.walware.jcommons.collections.ImList;
 
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
-import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.preferences.Preference.StringPref2;
-import de.walware.ecommons.preferences.PreferencesUtil;
-import de.walware.ecommons.preferences.SettingsChangeNotifier;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.IPreferenceSetService;
+import de.walware.ecommons.preferences.core.IPreferenceSetService.IChangeEvent;
+import de.walware.ecommons.preferences.core.Preference.StringPref2;
+import de.walware.ecommons.preferences.core.util.PreferenceUtils;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
 
@@ -86,25 +87,30 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.renv.REnvConfiguration;
 
 
-public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.ManageListener {
+public class RPkgManager implements IRPkgManager.Ext, IPreferenceSetService.IChangeListener {
 	
 	
-	private final static int REQUIRE_CRAN=                  0x0_1000_0000;
-	private final static int REQUIRE_BIOC=                  0x0_2000_0000;
-	private final static int REQUIRE_REPOS=                 0x0_8000_0000;
+	private static final int REQUIRE_CRAN=                  0x0_1000_0000;
+	private static final int REQUIRE_BIOC=                  0x0_2000_0000;
+	private static final int REQUIRE_REPOS=                 0x0_8000_0000;
 	
-	private final static int REQUIRE_REPO_PKGS=             0x0_0100_0000;
-	private final static int REQUIRE_INST_PKGS=             0x0_0800_0000;
+	private static final int REQUIRE_REPO_PKGS=             0x0_0100_0000;
+	private static final int REQUIRE_INST_PKGS=             0x0_0800_0000;
 	
-	private final static RRepoPref LAST_CRAN_PREF= new RRepoPref(PREF_QUALIFIER, "LastCRAN.repo"); //$NON-NLS-1$
-	private final static RRepoPref LAST_BIOC_PREF= new RRepoPref(PREF_QUALIFIER, "LastBioC.repo"); //$NON-NLS-1$
+	private static final ImIdentitySet<String> PREF_QUALIFIERS= ImCollections.newIdentitySet(
+			PREF_QUALIFIER );
 	
-	private final static int MIRROR_CHECK= 1000 * 60 * 60 * 6;
-	private final static int PKG_CHECK= 1000 * 60 * 60 * 3;
+	private static final RRepoPref LAST_CRAN_PREF= new RRepoPref(PREF_QUALIFIER, "LastCRAN.repo"); //$NON-NLS-1$
+	private static final RRepoPref LAST_BIOC_PREF= new RRepoPref(PREF_QUALIFIER, "LastBioC.repo"); //$NON-NLS-1$
+	
+	private static final int MIRROR_CHECK= 1000 * 60 * 60 * 6;
+	private static final int PKG_CHECK= 1000 * 60 * 60 * 3;
 	
 	
 	private final IREnv rEnv;
 	private RPlatform rPlatform;
+	
+	private final IPreferenceAccess prefAccess;
 	
 	private final IFileStore rEnvDirectory;
 	
@@ -174,17 +180,17 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		this.bioCVersionPref= new StringPref2(qualifier, "RPkg.BioCVersion.ver"); //$NON-NLS-1$
 		this.selectedBioCPref= new RRepoPref(qualifier, "RPkg.BioCMirror.repo"); //$NON-NLS-1$
 		
-		final IPreferenceAccess prefs= PreferencesUtil.getInstancePrefs();
+		this.prefAccess= PreferenceUtils.getInstancePrefs();
 		this.addRepos= new ArrayList<>();
 		if (rConfig.getType() == IREnvConfiguration.USER_LOCAL_TYPE) {
 			final String rjVersion= "" + ServerUtil.RJ_VERSION[0] + '.' + ServerUtil.RJ_VERSION[1]; //$NON-NLS-1$
 			this.addRepos.add(new RRepo(RRepo.SPECIAL_PREFIX+"rj", "RJ", "http://download.walware.de/rj-" + rjVersion, null)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		this.selectedRepos= new SelectedRepos(
-				prefs.getPreferenceValue(this.selectedReposPref),
-				prefs.getPreferenceValue(this.selectedCRANPref),
-				prefs.getPreferenceValue(this.bioCVersionPref),
-				prefs.getPreferenceValue(this.selectedBioCPref) );
+				this.prefAccess.getPreferenceValue(this.selectedReposPref),
+				this.prefAccess.getPreferenceValue(this.selectedCRANPref),
+				this.prefAccess.getPreferenceValue(this.bioCVersionPref),
+				this.prefAccess.getPreferenceValue(this.selectedBioCPref) );
 		
 		this.db= DB.create(this.rEnv, this.rEnvDirectory);
 		this.cache= new Cache(this.rEnvDirectory);
@@ -195,7 +201,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		this.requireLoad |= (REQUIRE_CRAN | REQUIRE_BIOC | REQUIRE_REPOS);
 		this.requireLoad |= (REQUIRE_REPO_PKGS | REQUIRE_INST_PKGS);
 		
-		PreferencesUtil.getSettingsChangeNotifier().addManageListener(this);
+		this.prefAccess.addPreferenceSetListener(this, PREF_QUALIFIERS);
 		
 		getWriteLock().lock();
 		try {
@@ -244,6 +250,16 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	
 	
 	@Override
+	public void preferenceChanged(final IChangeEvent event) {
+		if (event.contains(PREF_QUALIFIER)
+				&& (event.contains(CUSTOM_REPO_PREF)
+						|| event.contains(CUSTOM_CRAN_MIRROR_PREF)
+						|| event.contains(CUSTOM_BIOC_MIRROR_PREF) )) {
+			loadPrefs(true);
+		}
+	}
+	
+	@Override
 	public void clear() {
 		getWriteLock().lock();
 		try {
@@ -268,18 +284,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	}
 	
 	public void dispose() {
-		PreferencesUtil.getSettingsChangeNotifier().removeManageListener(this);
-	}
-	
-	@Override
-	public void beforeSettingsChangeNotification(final Set<String> groupIds) {
-		if (groupIds.contains(CUSTOM_GROUP_ID)) {
-			loadPrefs(groupIds.contains(CUSTOM_GROUP_ID));
-		}
-	}
-	
-	@Override
-	public void afterSettingsChangeNotification(final Set<String> groupIds) {
+		this.prefAccess.removePreferenceSetListener(this);
 	}
 	
 	
@@ -450,7 +455,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		}
 		if (selectedCRAN == null) {
 			this.requireConfirm |= REQUIRE_CRAN;
-			selectedCRAN= PreferencesUtil.getInstancePrefs().getPreferenceValue(LAST_CRAN_PREF);
+			selectedCRAN= this.prefAccess.getPreferenceValue(LAST_CRAN_PREF);
 			if (selectedCRAN != null) {
 				selectedCRAN= Util.findRepo(this.allCRAN, selectedCRAN);
 			}
@@ -474,7 +479,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		}
 		if (selectedBioC == null) {
 			this.requireConfirm |= REQUIRE_BIOC;
-			selectedBioC= PreferencesUtil.getInstancePrefs().getPreferenceValue(LAST_BIOC_PREF);
+			selectedBioC= this.prefAccess.getPreferenceValue(LAST_BIOC_PREF);
 			if (!this.customBioC.isEmpty()
 					&& (selectedBioC == null || !selectedBioC.getId().startsWith(RRepo.CUSTOM_PREFIX)) ) {
 				selectedBioC= this.customBioC.get(0);
@@ -564,7 +569,7 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 	
 	private void loadPrefs(final boolean custom) {
 		final Change event= new Change(this.rEnv);
-		final IPreferenceAccess prefs= PreferencesUtil.getInstancePrefs();
+		final IPreferenceAccess prefs= PreferenceUtils.getInstancePrefs();
 		getWriteLock().lock();
 		try {
 			if (custom) {
@@ -677,16 +682,16 @@ public class RPkgManager implements IRPkgManager.Ext, SettingsChangeNotifier.Man
 		
 		final IEclipsePreferences node= prefs.getNode(this.selectedReposPref.getQualifier());
 		
-		PreferencesUtil.setPrefValue(node, this.selectedReposPref, repos.getRepos());
-		PreferencesUtil.setPrefValue(node, this.selectedCRANPref, repos.getCRANMirror());
-		PreferencesUtil.setPrefValue(node, this.bioCVersionPref, repos.getBioCVersion());
-		PreferencesUtil.setPrefValue(node, this.selectedBioCPref, repos.getBioCMirror());
+		PreferenceUtils.setPrefValue(node, this.selectedReposPref, repos.getRepos());
+		PreferenceUtils.setPrefValue(node, this.selectedCRANPref, repos.getCRANMirror());
+		PreferenceUtils.setPrefValue(node, this.bioCVersionPref, repos.getBioCVersion());
+		PreferenceUtils.setPrefValue(node, this.selectedBioCPref, repos.getBioCMirror());
 		
 		if (repos.getCRANMirror() != null) {
-			PreferencesUtil.setPrefValue(prefs, LAST_CRAN_PREF, repos.getCRANMirror());
+			PreferenceUtils.setPrefValue(prefs, LAST_CRAN_PREF, repos.getCRANMirror());
 		}
 		if (repos.getBioCMirror() != null) {
-			PreferencesUtil.setPrefValue(prefs, LAST_BIOC_PREF, repos.getBioCMirror());
+			PreferenceUtils.setPrefValue(prefs, LAST_BIOC_PREF, repos.getBioCMirror());
 		}
 		
 		try {

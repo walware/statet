@@ -72,7 +72,7 @@ import de.walware.jcommons.collections.ImCollections;
 
 import de.walware.ecommons.FastArrayBufferList;
 import de.walware.ecommons.FastList;
-import de.walware.ecommons.preferences.Preference.EnumSetPref;
+import de.walware.ecommons.preferences.core.Preference.EnumSetPref;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.actions.HandlerContributionItem;

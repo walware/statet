@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.core;
 
-import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
 
 
 /**
@@ -20,10 +20,11 @@ import de.walware.ecommons.preferences.IPreferenceAccess;
 public interface IRCoreAccess {
 	
 	
-	public IPreferenceAccess getPrefs();
+	IPreferenceAccess getPrefs();
 	
-	public RCodeStyleSettings getRCodeStyle();
 	
 /*	public REnvConfiguration getREnvironment();*/
+	
+	RCodeStyleSettings getRCodeStyle();
 	
 }

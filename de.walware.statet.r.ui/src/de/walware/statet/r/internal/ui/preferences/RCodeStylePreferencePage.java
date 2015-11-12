@@ -57,7 +57,7 @@ public class RCodeStylePreferencePage extends PropertyAndPreferencePage {
 	
 	@Override
 	protected boolean hasProjectSpecificSettings(final IProject project) {
-		return ((ManagedConfigurationBlock) fBlock).hasProjectSpecificOptions(project);
+		return ((ManagedConfigurationBlock) getBlock()).hasProjectSpecificOptions(project);
 	}
 	
 }

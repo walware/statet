@@ -60,11 +60,8 @@ public abstract class RResourceUnit extends GenericResourceSourceUnit {
 	}
 	
 	public IRCoreAccess getRCoreAccess() {
-		final IRProject project = RProjects.getRProject(getResource().getProject());
-		if (project != null) {
-			return project;
-		}
-		return RCore.getWorkbenchAccess();
+		final IRProject rProject= RProjects.getRProject(getResource().getProject());
+		return (rProject != null) ? rProject : RCore.WORKBENCH_ACCESS;
 	}
 	
 	public IREnv getREnv() {

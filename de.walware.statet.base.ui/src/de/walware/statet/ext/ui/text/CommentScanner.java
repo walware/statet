@@ -20,7 +20,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.WordRule;
 
-import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
 import de.walware.ecommons.text.ui.presentation.AbstractRuleBasedScanner;
 import de.walware.ecommons.text.ui.presentation.ITextPresentationConstants;
 import de.walware.ecommons.text.ui.settings.TextStyleManager;

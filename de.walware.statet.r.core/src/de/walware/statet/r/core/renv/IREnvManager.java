@@ -16,6 +16,10 @@ import java.util.concurrent.locks.Lock;
 
 import org.eclipse.core.runtime.CoreException;
 
+import de.walware.jcommons.collections.ImList;
+
+import de.walware.statet.r.core.RCore;
+
 
 /**
  * Manages R environment configurations.
@@ -23,10 +27,10 @@ import org.eclipse.core.runtime.CoreException;
 public interface IREnvManager {
 	
 	
-	String SETTINGS_GROUP_ID = "r.envs"; //$NON-NLS-1$
+	String PREF_QUALIFIER= RCore.PLUGIN_ID + "/r.environments"; //$NON-NLS-1$ //$NON-NLS-1$
 	
 	
-	String[] set(IREnvConfiguration[] configs, String defaultConfigName) throws CoreException;
+	void set(ImList<IREnvConfiguration> configs, String defaultConfigName) throws CoreException;
 	
 	Lock getReadLock();
 	List<IREnvConfiguration> getConfigurations();

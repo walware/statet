@@ -14,9 +14,9 @@ package de.walware.statet.nico.internal.core.preferences;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.Preference.IntPref;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.Preference;
+import de.walware.ecommons.preferences.core.Preference.IntPref;
 
 import de.walware.statet.nico.core.NicoPreferenceNodes;
 

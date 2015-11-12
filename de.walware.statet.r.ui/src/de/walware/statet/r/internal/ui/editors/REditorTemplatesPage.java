@@ -30,6 +30,7 @@ import de.walware.ecommons.text.core.treepartitioner.TreePartitioner;
 
 import de.walware.statet.base.ui.sourceeditors.ExtEditorTemplatesPage;
 
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.source.IRDocumentConstants;
 import de.walware.statet.r.core.source.RPartitionNodeType;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -98,14 +99,18 @@ public class REditorTemplatesPage extends ExtEditorTemplatesPage {
 	@Override
 	protected SourceEditorViewerConfigurator getTemplatePreviewConfig(final Template template, final TemplateVariableProcessor templateProcessor) {
 		if (fRPreviewConfigurator == null) {
-			fRPreviewConfigurator = new RTemplateSourceViewerConfigurator(null, templateProcessor);
+			fRPreviewConfigurator = new RTemplateSourceViewerConfigurator(
+					RCore.WORKBENCH_ACCESS,
+					templateProcessor );
 		}
 		return fRPreviewConfigurator;
 	}
 	
 	@Override
 	protected SourceEditorViewerConfigurator getTemplateEditConfig(final Template template, final TemplateVariableProcessor templateProcessor) {
-		return new RTemplateSourceViewerConfigurator(null, templateProcessor);
+		return new RTemplateSourceViewerConfigurator(
+				RCore.WORKBENCH_ACCESS,
+				templateProcessor );
 	}
 	
 	@Override

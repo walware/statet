@@ -23,12 +23,9 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.IDisposable;
-import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.preferences.PreferencesManageListener;
-import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.core.util.PreferenceUtils;
 
 import de.walware.statet.r.core.IRCoreAccess;
-import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.core.pkgmanager.REnvPkgManager;
 import de.walware.statet.r.internal.core.renv.REnvManager;
@@ -53,67 +50,36 @@ public class RCorePlugin extends Plugin {
 	}
 	
 	public static final void log(final IStatus status) {
-		final Plugin plugin = getDefault();
+		final Plugin plugin= getDefault();
 		if (plugin != null) {
 			plugin.getLog().log(status);
 		}
 	}
 	
 	public static final void logError(final int code, final String message, final Throwable e) {
-		final Plugin plugin = getDefault();
+		final Plugin plugin= getDefault();
 		if (plugin != null) {
 			plugin.getLog().log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, code, message, e));
 		}
 	}
 	
 	
-	private static class CoreAccess implements IRCoreAccess {
-		
-		private final IPreferenceAccess fPrefs;
-		private final RCodeStyleSettings fRCodeStyle;
-		private final PreferencesManageListener fListener;
-		
-		private CoreAccess(final IPreferenceAccess prefs) {
-			fPrefs = prefs;
-			
-			fRCodeStyle = new RCodeStyleSettings(1);
-			fRCodeStyle.load(prefs);
-			fRCodeStyle.resetDirty();
-			
-			fListener = new PreferencesManageListener(fRCodeStyle, fPrefs, RCodeStyleSettings.ALL_GROUP_IDS);
-		}
-		
-		@Override
-		public IPreferenceAccess getPrefs() {
-			return fPrefs;
-		}
-		
-		@Override
-		public RCodeStyleSettings getRCodeStyle() {
-			return fRCodeStyle;
-		};
-		
-		private void dispose() {
-			fListener.dispose();
-		}
-	};
+	private boolean started;
 	
+	private final List<IDisposable> disposables= new ArrayList<>();
 	
-	private boolean fStarted;
+	private REnvManager rEnvManager;
 	
-	private final List<IDisposable> fDisposables= new ArrayList<>();
+	private RCoreAccess workspaceCoreAccess;
+	private RCoreAccess defaultsCoreAccess;
 	
-	private CoreAccess fWorkspaceCoreAccess;
-	private CoreAccess fDefaultsCoreAccess;
-	private REnvManager fREnvManager;
-	private RModelManager fRModelManager;
-	private ResourceTracker fResourceTracker;
+	private RModelManager rModelManager;
+	private ResourceTracker resourceTracker;
 	
-	private REnvPkgManager fREnvPkgManager;
-	private RHelpManager fRHelpManager;
+	private REnvPkgManager rEnvPkgManager;
+	private RHelpManager rHelpManager;
 	
-	private ServiceTracker fProxyService;
-	
+	private ServiceTracker proxyService;
 	
 	
 	/**
@@ -129,18 +95,22 @@ public class RCorePlugin extends Plugin {
 	@Override
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
-		gPlugin = this;
+		gPlugin= this;
 		
-		fREnvManager = new REnvManager(PreferencesUtil.getSettingsChangeNotifier());
-		fWorkspaceCoreAccess = new CoreAccess(PreferencesUtil.getInstancePrefs());
-		fRModelManager = new RModelManager();
-		fResourceTracker = new ResourceTracker(fRModelManager);
+		this.rEnvManager= new REnvManager();
 		
-		fREnvPkgManager = new REnvPkgManager(fREnvManager);
-		fRHelpManager = new RHelpManager();
-		fDisposables.add(fRHelpManager);
+		this.workspaceCoreAccess= new RCoreAccess(
+				PreferenceUtils.getInstancePrefs(),
+				this.rEnvManager.getDefault() );
 		
-		fStarted = true;
+		this.rModelManager= new RModelManager();
+		this.resourceTracker= new ResourceTracker(this.rModelManager);
+		
+		this.rEnvPkgManager= new REnvPkgManager(this.rEnvManager);
+		this.rHelpManager= new RHelpManager();
+		this.disposables.add(this.rHelpManager);
+		
+		this.started= true;
 	}
 	
 	/**
@@ -150,34 +120,34 @@ public class RCorePlugin extends Plugin {
 	public void stop(final BundleContext context) throws Exception {
 		try {
 			synchronized (this) {
-				fStarted = false;
+				this.started= false;
 			}
-			if (fResourceTracker != null) {
+			if (this.resourceTracker != null) {
 				try {
-					fResourceTracker.dispose();
+					this.resourceTracker.dispose();
 				}
 				catch (final Exception e) {}
-				fResourceTracker = null;
+				this.resourceTracker= null;
 			}
 			
-			if (fRModelManager != null) {
-				fRModelManager.dispose();
-				fRModelManager = null;
+			if (this.rModelManager != null) {
+				this.rModelManager.dispose();
+				this.rModelManager= null;
 			}
-			if (fWorkspaceCoreAccess != null) {
-				fWorkspaceCoreAccess.dispose();
-				fWorkspaceCoreAccess = null;
+			if (this.workspaceCoreAccess != null) {
+				this.workspaceCoreAccess.dispose();
+				this.workspaceCoreAccess= null;
 			}
-			if (fDefaultsCoreAccess != null) {
-				fDefaultsCoreAccess.dispose();
-				fDefaultsCoreAccess = null;
+			if (this.defaultsCoreAccess != null) {
+				this.defaultsCoreAccess.dispose();
+				this.defaultsCoreAccess= null;
 			}
-			if (fREnvManager != null) {
-				fREnvManager.dispose();
-				fREnvManager = null;
+			if (this.rEnvManager != null) {
+				this.rEnvManager.dispose();
+				this.rEnvManager= null;
 			}
 			
-			for (final IDisposable listener : fDisposables) {
+			for (final IDisposable listener : this.disposables) {
 				try {
 					listener.dispose();
 				}
@@ -185,58 +155,66 @@ public class RCorePlugin extends Plugin {
 					getLog().log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.INTERNAL_PLUGGED_IN, "Error occured when dispose module", e)); 
 				}
 			}
-			fDisposables.clear();
+			this.disposables.clear();
 		}
 		finally {
-			gPlugin = null;
+			gPlugin= null;
 			super.stop(context);
 		}
 	}
 	
+	private void checkStarted() {
+		if (!this.started) {
+			throw new IllegalStateException("Plug-in is not started.");
+		}
+	}
+	
+	
 	public REnvManager getREnvManager() {
-		return fREnvManager;
+		return this.rEnvManager;
 	}
 	
 	public RModelManager getRModelManager() {
-		return fRModelManager;
+		return this.rModelManager;
 	}
 	
 	public ResourceTracker getResourceTracker() {
-		return fResourceTracker;
+		return this.resourceTracker;
 	}
 	
 	public REnvPkgManager getREnvPkgManager() {
-		return fREnvPkgManager;
+		return this.rEnvPkgManager;
 	}
 	
 	public RHelpManager getRHelpManager() {
-		return fRHelpManager;
+		return this.rHelpManager;
 	}
 	
-	public IRCoreAccess getWorkspaceRCoreAccess() {
-		return fWorkspaceCoreAccess;
+	public synchronized IRCoreAccess getWorkspaceRCoreAccess() {
+		if (this.workspaceCoreAccess == null) {
+			checkStarted();
+		}
+		return this.workspaceCoreAccess;
 	}
 	
 	public synchronized IRCoreAccess getDefaultsRCoreAccess() {
-		if (fDefaultsCoreAccess == null) {
-			if (!fStarted) {
-				throw new IllegalStateException("Plug-in is not started.");
-			}
-			fDefaultsCoreAccess = new CoreAccess(PreferencesUtil.getDefaultPrefs());
+		if (this.defaultsCoreAccess == null) {
+			checkStarted();
+			this.defaultsCoreAccess= new RCoreAccess(
+					PreferenceUtils.getDefaultPrefs(),
+					this.rEnvManager.getDefault() );
 		}
-		return fDefaultsCoreAccess;
+		return this.defaultsCoreAccess;
 	}
 	
 	public synchronized IProxyService getProxyService() {
-		if (fProxyService == null) {
-			if (!fStarted) {
-				throw new IllegalStateException("Plug-in is not started.");
-			}
-			fProxyService = new ServiceTracker(getBundle().getBundleContext(),
+		if (this.proxyService == null) {
+			checkStarted();
+			this.proxyService= new ServiceTracker(getBundle().getBundleContext(),
 					IProxyService.class.getName(), null );
-			fProxyService.open();
+			this.proxyService.open();
 		}
-		return (IProxyService) fProxyService.getService();
+		return (IProxyService) this.proxyService.getService();
 	}
 	
 }

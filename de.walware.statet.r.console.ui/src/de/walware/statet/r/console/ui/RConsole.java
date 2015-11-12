@@ -14,7 +14,7 @@ package de.walware.statet.r.console.ui;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.part.IPageBookViewPage;
 
-import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
 
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.ui.console.NIConsole;
@@ -31,15 +31,15 @@ import de.walware.statet.r.launching.ui.RErrorLineTracker;
 public class RConsole extends NIConsole implements IRCoreAccess {
 	
 	
-	private final IPreferenceAccess fPrefs;
+	private final IPreferenceAccess prefs;
 	
 	
 	public RConsole(final RProcess process, final NIConsoleColorAdapter adapter) {
 		super(process, adapter);
 		
-		final RErrorLineTracker lineMatcher = new RErrorLineTracker(process);
+		final RErrorLineTracker lineMatcher= new RErrorLineTracker(process);
 		addPatternMatchListener(lineMatcher);
-		fPrefs = NicoCore.getInstanceConsolePreferences();
+		this.prefs= NicoCore.getInstanceConsolePreferences();
 	}
 	
 	
@@ -55,7 +55,7 @@ public class RConsole extends NIConsole implements IRCoreAccess {
 	
 	@Override
 	public IPreferenceAccess getPrefs() {
-		return fPrefs;
+		return this.prefs;
 	}
 	
 	@Override

@@ -33,7 +33,7 @@ import org.eclipse.ui.PlatformUI;
 import org.osgi.service.prefs.BackingStoreException;
 
 import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditor;
-import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.core.Preference;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
@@ -41,6 +41,7 @@ import de.walware.ecommons.ui.dialogs.groups.Layouter;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.ContentHandler.FileCommand;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -190,7 +191,8 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
 			final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(
-					null, templateVariableProcessor );
+					RCore.WORKBENCH_ACCESS,
+					templateVariableProcessor );
 			fCommandEditors[i] = new SnippetEditor(configurator, fFileCommands[i].getCurrentCommand(), PlatformUI.getWorkbench());
 			fCommandEditors[i].create(group, SnippetEditor.DEFAULT_SINGLE_LINE_STYLE);
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);

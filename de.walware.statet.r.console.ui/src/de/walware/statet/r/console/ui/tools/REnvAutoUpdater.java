@@ -22,8 +22,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.osgi.framework.Version;
 
-import de.walware.ecommons.preferences.Preference.StringPref2;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.core.Preference.StringPref2;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ui.util.UIAccess;
@@ -34,12 +34,12 @@ import de.walware.statet.nico.ui.util.ToolMessageDialog;
 import de.walware.statet.r.console.core.AbstractRDataRunnable;
 import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RProcess;
-import de.walware.statet.r.core.RCorePreferenceNodes;
 import de.walware.statet.r.core.pkgmanager.IRPkgInfoAndData;
 import de.walware.statet.r.core.pkgmanager.IRPkgList;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.IRPkgSet;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
+import de.walware.statet.r.core.renv.IREnvManager;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
 import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.nico.AbstractRController;
@@ -110,8 +110,8 @@ public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRun
 		if (rConfig == null) {
 			return;
 		}
-		final StringPref2 pref = new StringPref2(
-				RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER + '/' + rConfig.getReference().getId(),
+		final StringPref2 pref= new StringPref2(
+				IREnvManager.PREF_QUALIFIER + '/' + rConfig.getReference().getId(),
 				"CheckedR.version" ); //$NON-NLS-1$
 		final String s = PreferencesUtil.getInstancePrefs().getPreferenceValue(pref);
 		if (s != null) {

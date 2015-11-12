@@ -20,6 +20,8 @@ import de.walware.ecommons.templates.TemplateVariableProcessor;
 
 import de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory;
 
+import de.walware.statet.r.core.IRProject;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProjects;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
@@ -52,7 +54,10 @@ public class RCodeTemplatesProvider implements ICodeGenerationTemplatesCategory 
 	
 	@Override
 	public SourceEditorViewerConfigurator getEditTemplateDialogConfiguator(final TemplateVariableProcessor processor, final IProject project) {
-		return new RTemplateSourceViewerConfigurator(RProjects.getRProject(project), processor);
+		final IRProject rProject= RProjects.getRProject(project);
+		return new RTemplateSourceViewerConfigurator(
+				(rProject != null) ? rProject : RCore.WORKBENCH_ACCESS,
+				processor );
 	}
 	
 }

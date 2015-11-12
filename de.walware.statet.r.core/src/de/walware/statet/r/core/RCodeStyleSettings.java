@@ -15,11 +15,11 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
 import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
-import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.Preference.BooleanPref;
-import de.walware.ecommons.preferences.Preference.EnumPref;
-import de.walware.ecommons.preferences.Preference.IntPref;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.Preference;
+import de.walware.ecommons.preferences.core.Preference.BooleanPref;
+import de.walware.ecommons.preferences.core.Preference.EnumPref;
+import de.walware.ecommons.preferences.core.Preference.IntPref;
 import de.walware.ecommons.text.IIndentSettings;
 
 

@@ -25,10 +25,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.osgi.service.prefs.BackingStoreException;
 
-import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.preferences.Preference.StringPref2;
 import de.walware.ecommons.preferences.PreferencesManageListener;
-import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.Preference.StringPref2;
+import de.walware.ecommons.preferences.core.util.PreferenceUtils;
 import de.walware.ecommons.resources.AbstractProjectNature;
 import de.walware.ecommons.resources.ProjectUtil;
 
@@ -166,7 +166,7 @@ public class RProject extends AbstractProjectNature implements IRProject {
 		boolean changed= false;
 		try {
 			final IScopeContext context= getProjectContext();
-			PreferencesUtil.setPrefValue(context, PREF_PACKAGE_NAME, pkgName);
+			PreferenceUtils.setPrefValue(context, PREF_PACKAGE_NAME, pkgName);
 			context.getNode(PREF_PACKAGE_NAME.getQualifier()).flush();
 			RCorePlugin.getDefault().getRModelManager().getIndex().updateProjectConfig(this, pkgName);
 			changed= (pkgName != null) != (this.rPackageName != null);

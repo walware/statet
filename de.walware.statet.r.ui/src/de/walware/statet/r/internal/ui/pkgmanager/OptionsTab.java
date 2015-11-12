@@ -21,8 +21,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.TabItem;
 
-import de.walware.ecommons.preferences.Preference.BooleanPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.core.Preference.BooleanPref;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.r.ui.RUI;

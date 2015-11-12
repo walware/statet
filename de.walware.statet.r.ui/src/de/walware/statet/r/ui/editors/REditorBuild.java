@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.ui.editors;
 
-import de.walware.ecommons.preferences.Preference.BooleanPref;
+import de.walware.ecommons.preferences.core.Preference.BooleanPref;
 
 import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
 

@@ -18,8 +18,8 @@ import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 
-import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.core.Preference;
 
 import de.walware.statet.nico.core.NicoPreferenceNodes;
 import de.walware.statet.nico.internal.core.preferences.HistoryPreferences;

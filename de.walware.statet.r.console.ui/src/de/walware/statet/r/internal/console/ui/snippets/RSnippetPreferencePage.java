@@ -44,7 +44,7 @@ import de.walware.ecommons.ltk.ui.templates.config.ITemplateCategoryConfiguratio
 import de.walware.ecommons.ltk.ui.templates.config.ITemplateContribution;
 import de.walware.ecommons.ltk.ui.templates.config.TemplateCategory;
 import de.walware.ecommons.ltk.ui.templates.config.TemplateStoreContribution;
-import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.core.Preference;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.components.ButtonGroup;
@@ -118,7 +118,8 @@ class SnippetConfigurationBlock extends CodeTemplateConfigurationBlock {
 		public SourceEditorViewerConfigurator createViewerConfiguator(final String viewerConfigId,
 				final TemplatePersistenceData data,
 				final TemplateVariableProcessor templateProcessor, final IProject project) {
-			return new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(),
+			return new RTemplateSourceViewerConfigurator(
+					RCore.WORKBENCH_ACCESS,
 					templateProcessor );
 		}
 		

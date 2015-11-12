@@ -17,10 +17,10 @@ import java.util.Map;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISmartInsertSettings;
 import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
-import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.Preference.BooleanPref;
-import de.walware.ecommons.preferences.Preference.EnumPref;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.Preference;
+import de.walware.ecommons.preferences.core.Preference.BooleanPref;
+import de.walware.ecommons.preferences.core.Preference.EnumPref;
 
 
 public class REditorOptions extends AbstractPreferencesModelObject

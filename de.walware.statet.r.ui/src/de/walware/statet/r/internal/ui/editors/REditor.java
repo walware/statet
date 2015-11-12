@@ -86,7 +86,7 @@ import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 public class REditor extends SourceEditor1 implements IREditor {
 	
 	public static IRCoreAccess getRCoreAccess(final ISourceEditor editor) {
-		final IRCoreAccess adapter = (IRCoreAccess) editor.getAdapter(IRCoreAccess.class);
+		final IRCoreAccess adapter= (IRCoreAccess) editor.getAdapter(IRCoreAccess.class);
 		return (adapter != null) ? adapter : RCore.getWorkbenchAccess();
 	}
 	
@@ -95,13 +95,13 @@ public class REditor extends SourceEditor1 implements IREditor {
 			"de.walware.statet.r.contexts.REditor" ); //$NON-NLS-1$
 	
 	private static final ImList<String> CONTEXT_IDS= ImCollections.concatList(
-			ACTION_SET_CONTEXT_IDS, KEY_CONTEXTS ); //$NON-NLS-1$
+			ACTION_SET_CONTEXT_IDS, KEY_CONTEXTS );
 	
 	
 	private static class MarkOccurrencesProvider extends AbstractMarkOccurrencesProvider {
 		
 		
-		private final RMarkOccurrencesLocator fLocator = new RMarkOccurrencesLocator();
+		private final RMarkOccurrencesLocator locator= new RMarkOccurrencesLocator();
 		
 		
 		public MarkOccurrencesProvider(final SourceEditor1 editor) {
@@ -112,14 +112,15 @@ public class REditor extends SourceEditor1 implements IREditor {
 		protected void doUpdate(final RunData run, final ISourceUnitModelInfo info,
 				final AstSelection astSelection, final ITextSelection orgSelection)
 				throws BadLocationException, BadPartitioningException, UnsupportedOperationException {
-			fLocator.run(run, info, astSelection, orgSelection);
+			this.locator.run(run, info, astSelection, orgSelection);
 		}
 		
 	}
 	
 	
-	protected RSourceViewerConfigurator fRConfig;
-	protected IContextProvider fHelpContextProvider;
+	private RSourceViewerConfigurator rConfig;
+	
+	private IContextProvider helpContextProvider;
 	
 	
 	public REditor() {
@@ -145,17 +146,17 @@ public class REditor extends SourceEditor1 implements IREditor {
 				REditorOptions.FOLDING_ENABLED_PREF,
 				REditorOptions.PREF_MARKOCCURRENCES_ENABLED );
 		
-		final IRCoreAccess initAccess = RCore.getWorkbenchAccess();
-		fRConfig = new RSourceViewerConfigurator(initAccess,
+		final IRCoreAccess initAccess= RCore.WORKBENCH_ACCESS;
+		this.rConfig= new RSourceViewerConfigurator(initAccess,
 				new RSourceViewerConfiguration(RDocumentContentInfo.INSTANCE, this,
 						null, null, null ));
-		return fRConfig;
+		return this.rConfig;
 	}
 	
 	@Override
 	protected SourceEditorViewerConfigurator createInfoConfigurator() {
-		return new RSourceViewerConfigurator(getRCoreAccess(), new RSourceViewerConfiguration(
-				null, SharedUIResources.getColors() ));
+		return new RSourceViewerConfigurator(getRCoreAccess(),
+				new RSourceViewerConfiguration(null, SharedUIResources.getColors()) );
 	}
 	
 	@Override
@@ -180,12 +181,12 @@ public class REditor extends SourceEditor1 implements IREditor {
 		super.createPartControl(parent);
 		
 		// Editor Help:
-		final SourceViewer viewer = (SourceViewer) getSourceViewer();
-		fHelpContextProvider = RUIHelp.createEnrichedRHelpContextProvider(this, IRUIHelpContextIds.R_EDITOR);
+		final SourceViewer viewer= (SourceViewer) getSourceViewer();
+		this.helpContextProvider= RUIHelp.createEnrichedRHelpContextProvider(this, IRUIHelpContextIds.R_EDITOR);
 		viewer.getTextWidget().addHelpListener(new HelpListener() {
 			@Override
 			public void helpRequested(final HelpEvent e) {
-				PlatformUI.getWorkbench().getHelpSystem().displayHelp(fHelpContextProvider.getContext(null));
+				PlatformUI.getWorkbench().getHelpSystem().displayHelp(REditor.this.helpContextProvider.getContext(null));
 			}
 		});
 	}
@@ -207,15 +208,15 @@ public class REditor extends SourceEditor1 implements IREditor {
 	}
 	
 	protected IRCoreAccess getRCoreAccess() {
-		return fRConfig;
+		return this.rConfig.getRCoreAccess();
 	}
 	
 	@Override
 	protected void setupConfiguration(final IEditorInput newInput) {
 		super.setupConfiguration(newInput);
 		
-		final IRSourceUnit su = getSourceUnit();
-		fRConfig.setSource((su != null) ? su.getRCoreAccess() : null);
+		final IRSourceUnit su= getSourceUnit();
+		this.rConfig.setSource((su != null) ? su.getRCoreAccess() : RCore.WORKBENCH_ACCESS);
 	}
 	
 	
@@ -251,27 +252,27 @@ public class REditor extends SourceEditor1 implements IREditor {
 	@Override
 	protected void createActions() {
 		super.createActions();
-		final IHandlerService handlerService = (IHandlerService) getServiceLocator().getService(IHandlerService.class);
+		final IHandlerService handlerService= (IHandlerService) getServiceLocator().getService(IHandlerService.class);
 		
-		{	final IHandler2 handler = new InsertAssignmentHandler(this);
+		{	final IHandler2 handler= new InsertAssignmentHandler(this);
 			handlerService.activateHandler(LTKUI.INSERT_ASSIGNMENT_COMMAND_ID, handler);
 			markAsStateDependentHandler(handler, true);
 		}
-		{	final Action action = new RDoubleCommentAction(this, getRCoreAccess());
+		{	final Action action= new RDoubleCommentAction(this, getRCoreAccess());
 			setAction(action.getId(), action);
 			markAsStateDependentAction(action.getId(), true);
 		}
-		{	final IHandler2 handler = new SpecificContentAssistHandler(this, RUIPlugin.getDefault().getREditorContentAssistRegistry());
+		{	final IHandler2 handler= new SpecificContentAssistHandler(this, RUIPlugin.getDefault().getREditorContentAssistRegistry());
 			handlerService.activateHandler(ISourceEditorCommandIds.SPECIFIC_CONTENT_ASSIST_COMMAND_ID, handler);
 		}
-		{	final IHandler2 handler = new RStripCommentsHandler(this);
+		{	final IHandler2 handler= new RStripCommentsHandler(this);
 			handlerService.activateHandler(LTKUI.STRIP_COMMENTS_COMMAND_ID, handler);
 		}
 	}
 	
 	@Override
 	protected IHandler2 createCorrectIndentHandler() {
-		final IHandler2 handler = new RCorrectIndentHandler(this);
+		final IHandler2 handler= new RCorrectIndentHandler(this);
 		markAsStateDependentHandler(handler, true);
 		return handler;
 	}
@@ -279,12 +280,12 @@ public class REditor extends SourceEditor1 implements IREditor {
 	@Override
 	protected void editorContextMenuAboutToShow(final IMenuManager m) {
 		super.editorContextMenuAboutToShow(m);
-		final IRSourceUnit su = getSourceUnit();
+		final IRSourceUnit su= getSourceUnit();
 		
 		m.insertBefore(SharedUIResources.ADDITIONS_MENU_ID, new Separator("search")); //$NON-NLS-1$
 		
 		m.insertBefore(SharedUIResources.ADDITIONS_MENU_ID, new Separator(IStatetUIMenuIds.GROUP_SUBMIT_MENU_ID));
-		final IContributionItem additions = m.find(SharedUIResources.ADDITIONS_MENU_ID);
+		final IContributionItem additions= m.find(SharedUIResources.ADDITIONS_MENU_ID);
 		if (additions != null) {
 			additions.setVisible(false);
 		}
@@ -321,7 +322,7 @@ public class REditor extends SourceEditor1 implements IREditor {
 	@Override
 	public Object getAdapter(final Class required) {
 		if (IContextProvider.class.equals(required)) {
-			return fHelpContextProvider;
+			return this.helpContextProvider;
 		}
 		if (IRCoreAccess.class.equals(required)) {
 			return getRCoreAccess();

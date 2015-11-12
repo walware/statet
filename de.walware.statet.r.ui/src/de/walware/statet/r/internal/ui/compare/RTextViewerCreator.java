@@ -28,9 +28,9 @@ public class RTextViewerCreator implements IViewerCreator {
 	
 	@Override
 	public Viewer createViewer(final Composite parent, final CompareConfiguration config) {
-		final RSourceViewerConfigurator viewerConfigurator = new RSourceViewerConfigurator(
-				RCore.getWorkbenchAccess(), new RSourceViewerConfiguration(
-						null, SharedUIResources.getColors() ));
+		final RSourceViewerConfigurator viewerConfigurator= new RSourceViewerConfigurator(
+				RCore.WORKBENCH_ACCESS,
+				new RSourceViewerConfiguration(null, SharedUIResources.getColors()) );
 		return new CompareTextViewer(parent, config, viewerConfigurator);
 	}
 	

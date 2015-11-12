@@ -11,7 +11,6 @@
 
 package de.walware.statet.r.ui.sourceediting;
 
-import java.beans.PropertyChangeListener;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -21,14 +20,13 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import de.walware.jcommons.collections.ImCollections;
 
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.preferences.IPreferenceAccess;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.source.RDocumentSetupParticipant;
+import de.walware.statet.r.core.util.RCoreAccessWrapper;
 import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
 import de.walware.statet.r.ui.editors.REditorOptions;
 
@@ -36,8 +34,7 @@ import de.walware.statet.r.ui.editors.REditorOptions;
 /**
  * Configurator for R code source viewers.
  */
-public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
-		implements IRCoreAccess, PropertyChangeListener {
+public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator {
 	
 	
 	private static final Set<String> RESET_GROUP_IDS= new HashSet<>(ImCollections.newList(
@@ -45,28 +42,36 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 			TaskTagsPreferences.GROUP_ID ));
 	
 	
-	private IRCoreAccess fSourceCoreAccess;
-	
-	private final RCodeStyleSettings fRCodeStyleCopy;
+	private RCoreAccessWrapper rCoreAccess;
 	
 	
 	public RSourceViewerConfigurator(final IRCoreAccess coreAccess,
 			final RSourceViewerConfiguration config) {
 		super(config);
-		fRCodeStyleCopy = new RCodeStyleSettings(1);
-		config.setCoreAccess(this);
-		setSource(coreAccess);
+		this.rCoreAccess= new RCoreAccessWrapper(coreAccess) {
+			private final RCodeStyleSettings codeStyle= new RCodeStyleSettings(1);
+			@Override
+			public RCodeStyleSettings getRCodeStyle() {
+				return this.codeStyle;
+			}
+		};
+		config.setCoreAccess(this.rCoreAccess);
 		
-		fRCodeStyleCopy.load(fSourceCoreAccess.getRCodeStyle());
-		fRCodeStyleCopy.resetDirty();
-		fRCodeStyleCopy.addPropertyChangeListener(this);
+		this.rCoreAccess.getRCodeStyle().load(this.rCoreAccess.getParent().getRCodeStyle());
+		this.rCoreAccess.getRCodeStyle().resetDirty();
+		this.rCoreAccess.getRCodeStyle().addPropertyChangeListener(this);
 	}
 	
+	
+	public final IRCoreAccess getRCoreAccess() {
+		return this.rCoreAccess;
+	}
 	
 	@Override
 	public IDocumentSetupParticipant getDocumentSetupParticipant() {
 		return new RDocumentSetupParticipant();
 	}
+	
 	
 	@Override
 	protected Set<String> getResetGroupIds() {
@@ -74,12 +79,9 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 	}
 	
 	
-	public void setSource(IRCoreAccess newAccess) {
-		if (newAccess == null) {
-			newAccess = RCore.getWorkbenchAccess();
-		}
-		if (fSourceCoreAccess != newAccess) {
-			fSourceCoreAccess = newAccess;
+	public void setSource(final IRCoreAccess rCoreAccess) {
+		if (rCoreAccess != null) {
+			this.rCoreAccess.setParent(rCoreAccess);
 			handleSettingsChanged(null, null);
 		}
 	}
@@ -89,7 +91,7 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 		super.handleSettingsChanged(groupIds, options);
 		
-		fRCodeStyleCopy.resetDirty();
+		this.rCoreAccess.getRCodeStyle().resetDirty();
 	}
 	
 	@Override
@@ -98,7 +100,8 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		
 		if (groupIds.contains(RCodeStyleSettings.INDENT_GROUP_ID)
 				|| groupIds.contains(RCodeStyleSettings.WS_GROUP_ID)) {
-			fRCodeStyleCopy.load(fSourceCoreAccess.getRCodeStyle());
+			this.rCoreAccess.getRCodeStyle().load(
+					this.rCoreAccess.getParent().getRCodeStyle() );
 		}
 		if (groupIds.contains(REditorOptions.GROUP_ID)) {
 			fUpdateCompleteConfig = true;
@@ -106,16 +109,6 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		if (groupIds.contains(RUIPreferenceInitializer.REDITOR_HOVER_GROUP_ID)) {
 			fUpdateInfoHovers = true;
 		}
-	}
-	
-	@Override
-	public RCodeStyleSettings getRCodeStyle() {
-		return fRCodeStyleCopy;
-	}
-	
-	@Override
-	public IPreferenceAccess getPrefs() {
-		return fSourceCoreAccess.getPrefs();
 	}
 	
 }

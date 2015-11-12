@@ -37,7 +37,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 
 import de.walware.ecommons.preferences.PreferencesUtil;
-import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
+import de.walware.ecommons.preferences.SettingsChangeNotifier;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -47,7 +47,7 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 
 
-public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListener, ChangeListener {
+public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListener, SettingsChangeNotifier.ChangeListener {
 	
 	private static final long serialVersionUID = 1L;
 	

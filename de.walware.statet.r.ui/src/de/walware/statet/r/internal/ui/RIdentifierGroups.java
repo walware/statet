@@ -15,9 +15,9 @@ import java.util.Arrays;
 import java.util.Map;
 
 import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
-import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.Preference.StringArrayPref;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.Preference;
+import de.walware.ecommons.preferences.core.Preference.StringArrayPref;
 
 import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.ui.RUI;

@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import com.ibm.icu.text.Collator;
 
@@ -34,15 +32,19 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImIdentitySet;
+
 import de.walware.ecommons.FastList;
-import de.walware.ecommons.preferences.ui.SettingsUpdater;
-import de.walware.ecommons.ui.ISettingsChangedHandler;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.IPreferenceSetService.IChangeEvent;
+import de.walware.ecommons.preferences.core.util.PreferenceUtils;
+import de.walware.ecommons.preferences.ui.PreferenceSetUIListener;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.r.core.RCore;
@@ -56,7 +58,11 @@ import de.walware.statet.r.internal.debug.ui.preferences.REnvPreferencePage;
 /**
  * Composite to choose a configured R Environment.
  */
-public class REnvSelectionComposite extends Composite implements ISettingsChangedHandler {
+public class REnvSelectionComposite extends Composite {
+	
+	
+	private static final ImIdentitySet<String> PREF_QUALIFIERS= ImCollections.newIdentitySet(
+			IREnvManager.PREF_QUALIFIER );
 	
 	
 	private static final Comparator<IREnv> RENV_COMPARATOR = new Comparator<IREnv>() {
@@ -130,6 +136,8 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 	}
 	
 	
+	private final IPreferenceAccess prefAccess;
+	
 	private final boolean fEnableNone;
 	
 	private boolean fInvalidPreference;
@@ -163,19 +171,29 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 		
 		createControls();
 		fWorkbenchDefaultButton.setSelection(true);
+		
+		this.prefAccess= PreferenceUtils.getInstancePrefs();
 		initPreferences();
 		updateState(true, false);
 	}
 	
 	
 	private void initPreferences() {
-		new SettingsUpdater(this, fSpecificCombo, new String[] { IREnvManager.SETTINGS_GROUP_ID });
+		new PreferenceSetUIListener(this.prefAccess, this.fSpecificCombo) {
+			@Override
+			protected void handlePreferenceChanged(final IChangeEvent event) {
+				if (event.contains(IREnvManager.PREF_QUALIFIER)) {
+					loadREnvironments();
+				}
+			}
+		}.subscribe(PREF_QUALIFIERS);
+		
 		loadREnvironments();
 	}
 	
 	private void createControls() {
 		final Composite container = this;
-		container.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 3));
+		container.setLayout(LayoutUtil.createCompositeGrid(3));
 		
 		if (fEnableNone) {
 			fNoneButton = new Button(container, SWT.RADIO);
@@ -247,11 +265,6 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 						null).open();
 			}
 		});
-	}
-	
-	@Override
-	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
-		loadREnvironments();
 	}
 	
 	private void loadREnvironments() {

@@ -13,7 +13,6 @@ package de.walware.statet.r.internal.console.ui.launching;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -41,9 +40,13 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImIdentitySet;
+
 import de.walware.ecommons.debug.ui.config.InputArgumentsComposite;
-import de.walware.ecommons.preferences.PreferencesUtil;
-import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
+import de.walware.ecommons.debug.ui.config.LaunchConfigUtils;
+import de.walware.ecommons.preferences.core.IPreferenceSetService;
+import de.walware.ecommons.preferences.core.util.PreferenceUtils;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -60,7 +63,7 @@ import de.walware.statet.r.launching.ui.REnvTab;
  *   <li>Optional requirement/validation of JRE</li>
  *   <li>VM Arguments</li>
  */
-class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
+class ExtJavaJRETab extends JavaJRETab implements IPreferenceSetService.IChangeListener {
 	
 	
 	private boolean is32(final String arch) {
@@ -72,6 +75,9 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 		return (arch.equals(Platform.ARCH_X86_64)
 				|| arch.equals("amd64") ); //$NON-NLS-1$
 	}
+	
+	private final ImIdentitySet<String> PREF_QUALIFIERS= ImCollections.newIdentitySet(
+			IREnvManager.PREF_QUALIFIER );
 	
 	
 	private final RConsoleMainTab fMainTab;
@@ -90,7 +96,7 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 		fMainTab = mainTab;
 		fREnvTab = renvTab;
 		
-		PreferencesUtil.getSettingsChangeNotifier().addChangeListener(this);
+		PreferenceUtils.getInstancePrefs().addPreferenceSetListener(this, PREF_QUALIFIERS);
 		
 		fEnableVMArchCheck = ((Platform.getOS().startsWith("win") || Platform.getOS().equals(Platform.OS_LINUX)) //$NON-NLS-1$
 				&& (Platform.getOSArch().startsWith("x86") || Platform.getOSArch().startsWith("amd64")) ); //$NON-NLS-1$ //$NON-NLS-2$
@@ -142,14 +148,16 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 	}
 	
 	@Override
-	public void settingsChanged(final Set<String> groupIds) {
-		if (groupIds.contains(IREnvManager.SETTINGS_GROUP_ID)) {
+	public void preferenceChanged(final IPreferenceSetService.IChangeEvent event) {
+		if (event.contains(IREnvManager.PREF_QUALIFIER)) {
 			UIAccess.getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
-					final int previous = fLastCheckedRBits;
+					final int previous= fLastCheckedRBits;
 					updateRBits();
-					if (previous != fLastCheckedRBits) {
+					if (previous != fLastCheckedRBits
+							&& UIAccess.isOkToUse(getControl())
+							&& LaunchConfigUtils.isActiveTabGroup(getLaunchConfigurationDialog(), ExtJavaJRETab.this)) {
 						getLaunchConfigurationDialog().updateMessage();
 						getLaunchConfigurationDialog().updateButtons();
 					}
@@ -160,7 +168,7 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 	
 	@Override
 	public void dispose() {
-		PreferencesUtil.getSettingsChangeNotifier().removeChangeListener(this);
+		PreferenceUtils.getInstancePrefs().removePreferenceSetListener(this);
 		
 		super.dispose();
 	}

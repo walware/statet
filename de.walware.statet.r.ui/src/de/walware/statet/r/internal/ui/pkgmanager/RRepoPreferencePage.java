@@ -51,7 +51,7 @@ import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.databinding.NotEmptyValidator;
 import de.walware.ecommons.databinding.URLValidator;
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
-import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.core.Preference;
 import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
@@ -239,9 +239,9 @@ class RRepoConfigurationBlock extends ManagedConfigurationBlock implements IActi
 	protected void createBlockArea(final Composite pageComposite) {
 		final Map<Preference<?>, String> prefs= new HashMap<>();
 		
-		prefs.put(IRPkgManager.CUSTOM_REPO_PREF, IRPkgManager.CUSTOM_GROUP_ID);
-		prefs.put(IRPkgManager.CUSTOM_CRAN_MIRROR_PREF, IRPkgManager.CUSTOM_GROUP_ID);
-		prefs.put(IRPkgManager.CUSTOM_BIOC_MIRROR_PREF, IRPkgManager.CUSTOM_GROUP_ID);
+		prefs.put(IRPkgManager.CUSTOM_REPO_PREF, null);
+		prefs.put(IRPkgManager.CUSTOM_CRAN_MIRROR_PREF, null);
+		prefs.put(IRPkgManager.CUSTOM_BIOC_MIRROR_PREF, null);
 		
 		setupPreferenceManager(prefs);
 		

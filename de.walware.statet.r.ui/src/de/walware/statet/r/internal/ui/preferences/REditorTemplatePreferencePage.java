@@ -19,6 +19,7 @@ import de.walware.ecommons.ltk.ui.templates.AbstractTemplatePreferencePage;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.text.core.treepartitioner.TreePartitioner;
 
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.source.RPartitionNodeType;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
@@ -37,7 +38,9 @@ public class REditorTemplatePreferencePage extends AbstractTemplatePreferencePag
 	@Override
 	protected SourceEditorViewerConfigurator createSourceViewerConfigurator(
 			final TemplateVariableProcessor templateProcessor) {
-		return new RTemplateSourceViewerConfigurator(null, templateProcessor);
+		return new RTemplateSourceViewerConfigurator(
+				RCore.WORKBENCH_ACCESS,
+				templateProcessor );
 	}
 	
 	

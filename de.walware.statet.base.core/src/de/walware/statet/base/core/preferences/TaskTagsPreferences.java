@@ -19,10 +19,10 @@ import java.util.Map;
 import de.walware.jcommons.collections.ImCollections;
 import de.walware.jcommons.collections.ImList;
 
-import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.Preference.EnumListPref;
-import de.walware.ecommons.preferences.Preference.StringArrayPref;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.Preference;
+import de.walware.ecommons.preferences.core.Preference.EnumListPref;
+import de.walware.ecommons.preferences.core.Preference.StringArrayPref;
 import de.walware.ecommons.tasklist.TaskPriority;
 import de.walware.ecommons.tasklist.TaskTag;
 

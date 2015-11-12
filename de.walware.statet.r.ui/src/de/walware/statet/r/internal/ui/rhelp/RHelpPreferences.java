@@ -11,10 +11,10 @@
 
 package de.walware.statet.r.internal.ui.rhelp;
 
-import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.Preference.BooleanPref;
-import de.walware.ecommons.preferences.Preference.IntPref;
-import de.walware.ecommons.preferences.Preference.StringPref;
+import de.walware.ecommons.preferences.core.Preference;
+import de.walware.ecommons.preferences.core.Preference.BooleanPref;
+import de.walware.ecommons.preferences.core.Preference.IntPref;
+import de.walware.ecommons.preferences.core.Preference.StringPref;
 
 import de.walware.statet.r.ui.RUI;
 

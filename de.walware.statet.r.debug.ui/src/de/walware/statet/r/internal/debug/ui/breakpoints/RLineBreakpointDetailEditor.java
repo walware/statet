@@ -69,8 +69,8 @@ public class RLineBreakpointDetailEditor extends AbstractBreakpointDetailEditor 
 		fConditionEnabledControl.setText(checkLabel("&Conditional / Expression:"));
 		
 		final RSourceViewerConfigurator viewerConfigurator = new RSourceViewerConfigurator(
-				RCore.getWorkbenchAccess(), new RSourceViewerConfiguration(
-						null, SharedUIResources.getColors() ));
+				RCore.WORKBENCH_ACCESS,
+				new RSourceViewerConfiguration(null, SharedUIResources.getColors()) );
 		fConditionCodeEditor = new SnippetEditor(viewerConfigurator);
 		fConditionCodeEditor.create(composite, SWT.BORDER | SWT.H_SCROLL | SWT.MULTI | SWT.LEFT_TO_RIGHT);
 		fConditionCodeEditor.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

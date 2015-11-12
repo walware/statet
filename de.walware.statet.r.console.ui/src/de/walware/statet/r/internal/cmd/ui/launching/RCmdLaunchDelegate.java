@@ -42,7 +42,7 @@ import org.eclipse.ui.console.TextConsole;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
-import de.walware.ecommons.debug.ui.config.LaunchConfigUtil;
+import de.walware.ecommons.debug.ui.config.LaunchConfigUtils;
 import de.walware.ecommons.io.FileUtil;
 
 import de.walware.statet.r.cmd.ui.launching.RCmdLaunching;
@@ -181,7 +181,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 				((TextConsole) console).addPatternMatchListener(lineMatcher);
 			}
 			
-			LaunchConfigUtil.launchResourceRefresh(configuration, process, new SubProgressMonitor(m, 5));
+			LaunchConfigUtils.launchResourceRefresh(configuration, process, new SubProgressMonitor(m, 5));
 		}
 		finally {
 			m.done();

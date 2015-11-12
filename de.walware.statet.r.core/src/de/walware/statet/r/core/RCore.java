@@ -52,11 +52,14 @@ public class RCore {
 	}
 	
 	
+	public static final IRCoreAccess WORKBENCH_ACCESS= RCorePlugin.getDefault().getWorkspaceRCoreAccess();
+	
+	
 	/**
 	 * Usually used, if no other context (e.g. project) specified.
 	 */
 	public static IRCoreAccess getWorkbenchAccess() {
-		return RCorePlugin.getDefault().getWorkspaceRCoreAccess();
+		return WORKBENCH_ACCESS;
 	}
 	
 	/**

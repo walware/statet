@@ -59,11 +59,13 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.jcommons.collections.ImCollections;
+
 import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
-import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.Preference;
 import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
@@ -454,14 +456,10 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock
 	
 	private boolean saveValues(final boolean saveStore) {
 		try {
-			final IREnvConfiguration defaultREnv = (IREnvConfiguration) fDefault.getValue();
-			final String[] groupIds = RCore.getREnvManager().set(
-					(IREnvConfiguration[]) fList.toArray(new IREnvConfiguration[fList.size()]),
-					(defaultREnv != null) ? defaultREnv.getReference().getId() : null);
-			if (groupIds != null) {
-				ConfigurationBlock.scheduleChangeNotification(
-						getContainer(), groupIds, saveStore);
-			}
+			final IREnvConfiguration defaultREnv= (IREnvConfiguration) fDefault.getValue();
+			RCore.getREnvManager().set(
+					ImCollections.toList((List<IREnvConfiguration>) fList),
+					(defaultREnv != null) ? defaultREnv.getReference().getId() : null );
 			return true;
 		}
 		catch (final CoreException e) {

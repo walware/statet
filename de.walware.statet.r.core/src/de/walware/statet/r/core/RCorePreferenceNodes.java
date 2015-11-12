@@ -11,7 +11,9 @@
 
 package de.walware.statet.r.core;
 
-import de.walware.ecommons.preferences.Preference.BooleanPref;
+import de.walware.ecommons.preferences.core.Preference.BooleanPref;
+
+import de.walware.statet.r.core.renv.IREnvManager;
 
 
 /**
@@ -22,8 +24,6 @@ public class RCorePreferenceNodes {
 	
 	public static final String CAT_R_CODESTYLE_QUALIFIER = RCore.PLUGIN_ID + "/codestyle/r"; //$NON-NLS-1$
 	
-	public static final String CAT_R_ENVIRONMENTS_QUALIFIER = RCore.PLUGIN_ID + "/r.environments"; //$NON-NLS-1$
-	
-	public static final BooleanPref PREF_RENV_NETWORK_USE_ECLIPSE = new BooleanPref(CAT_R_ENVIRONMENTS_QUALIFIER, "network.use_eclipse"); //$NON-NLS-1$
+	public static final BooleanPref PREF_RENV_NETWORK_USE_ECLIPSE = new BooleanPref(IREnvManager.PREF_QUALIFIER, "network.use_eclipse"); //$NON-NLS-1$
 	
 }

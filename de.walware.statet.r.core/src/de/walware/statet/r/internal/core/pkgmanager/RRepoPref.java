@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.internal.core.pkgmanager;
 
-import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.core.Preference;
 
 import de.walware.statet.r.core.pkgmanager.RRepo;
 
@@ -20,7 +20,7 @@ public class RRepoPref extends Preference<RRepo> {
 	
 	
 	public RRepoPref(final String qualifier, final String key) {
-		super(qualifier, key, Type.STRING);
+		super(qualifier, key);
 	}
 	
 	
@@ -30,10 +30,10 @@ public class RRepoPref extends Preference<RRepo> {
 	}
 	
 	@Override
-	public RRepo store2Usage(final Object obj) {
-		final String s = (String) obj;
+	public RRepo store2Usage(final String storeValue) {
+		final String s= storeValue;
 		if (s != null && !s.isEmpty()) {
-			final String[] parts = IS1_SEPARATOR_PATTERN.split(s); 
+			final String[] parts= IS1_SEPARATOR_PATTERN.split(s); 
 			if (parts.length >= 3) {
 				return RVarRepo.create(parts[0].intern(), parts[1], parts[2],
 						(parts.length >= 4) ? Util.getPkgType(parts[3]) : null );
@@ -43,12 +43,8 @@ public class RRepoPref extends Preference<RRepo> {
 	}
 	
 	@Override
-	public Object usage2Store(final RRepo repo) {
-		if (repo == null) {
-			return null;
-		}
-		
-		final StringBuilder sb = new StringBuilder(32);
+	public String usage2Store(final RRepo repo) {
+		final StringBuilder sb= new StringBuilder(32);
 		sb.append(repo.getId());
 		sb.append(IS1_SEPARATOR_CHAR);
 		sb.append(repo.getName());

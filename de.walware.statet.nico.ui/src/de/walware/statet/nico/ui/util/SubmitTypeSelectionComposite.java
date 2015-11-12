@@ -26,7 +26,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import de.walware.ecommons.databinding.jface.AbstractSWTObservableValue;
-import de.walware.ecommons.preferences.Preference.EnumSetPref;
+import de.walware.ecommons.preferences.core.Preference.EnumSetPref;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.nico.core.runtime.SubmitType;

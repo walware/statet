@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 
-import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.core.Preference;
 import de.walware.ecommons.ts.ITool;
 
 import de.walware.rj.services.RPlatform;
@@ -38,7 +38,6 @@ public interface IRPkgManager {
 	Preference<List<RRepo>> CUSTOM_CRAN_MIRROR_PREF = new RRepoListPref(RCore.PLUGIN_ID + PREF_QUALIFIER, "CustomCRANMirror.list"); //$NON-NLS-1$
 	Preference<List<RRepo>> CUSTOM_BIOC_MIRROR_PREF = new RRepoListPref(RCore.PLUGIN_ID + PREF_QUALIFIER, "CustomBIOCMirror.list"); //$NON-NLS-1$
 	
-	String CUSTOM_GROUP_ID = "r/r.repo/custom"; //$NON-NLS-1$
 	
 	int NONE = 0;
 	int INITIAL = 1;

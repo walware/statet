@@ -11,7 +11,7 @@
 
 package de.walware.statet.nico.core;
 
-import de.walware.ecommons.preferences.Preference.IntPref;
+import de.walware.ecommons.preferences.core.Preference.IntPref;
 
 
 /**

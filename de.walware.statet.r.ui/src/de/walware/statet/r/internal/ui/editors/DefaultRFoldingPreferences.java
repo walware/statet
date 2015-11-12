@@ -13,9 +13,9 @@ package de.walware.statet.r.internal.ui.editors;
 
 import org.eclipse.core.runtime.preferences.IScopeContext;
 
-import de.walware.ecommons.preferences.Preference.BooleanPref;
-import de.walware.ecommons.preferences.Preference.IntPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.core.Preference.BooleanPref;
+import de.walware.ecommons.preferences.core.Preference.IntPref;
 
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.editors.RDefaultFoldingProvider;

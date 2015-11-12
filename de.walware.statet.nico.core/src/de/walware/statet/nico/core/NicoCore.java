@@ -16,8 +16,8 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import de.walware.jcommons.collections.ImCollections;
 
-import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.util.PreferenceUtils;
 
 import de.walware.statet.nico.internal.core.NicoPlugin;
 
@@ -39,11 +39,12 @@ public class NicoCore {
 	public static final int EXITVALUE_RUNTIME_EXCEPTION = STATUSCODE_RUNTIME_ERROR | 2;
 	
 	
-	private static IPreferenceAccess CONSOLE_PREFS= PreferencesUtil.createAccess(ImCollections.newList(
-			new ConsoleInstanceScope(),
-			new ConsoleDefaultScope(),
-			InstanceScope.INSTANCE,
-			DefaultScope.INSTANCE ));
+	private static IPreferenceAccess CONSOLE_PREF_ACCESS= PreferenceUtils.createAccess(
+			ImCollections.newList(
+					new ConsoleInstanceScope(),
+					new ConsoleDefaultScope(),
+					InstanceScope.INSTANCE,
+					DefaultScope.INSTANCE ));
 	
 	/**
 	 * The instance preferences for consoles with the scope search path:
@@ -55,7 +56,7 @@ public class NicoCore {
 	 * @return shared preference access to the preferences
 	 */
 	public static IPreferenceAccess getInstanceConsolePreferences() {
-		return CONSOLE_PREFS;
+		return CONSOLE_PREF_ACCESS;
 	}
 	
 	public static void addToolLifeListener(final IToolLifeListener listener) {

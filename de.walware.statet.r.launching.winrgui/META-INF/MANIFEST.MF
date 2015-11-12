@@ -12,4 +12,5 @@ Eclipse-PlatformFilter: (osgi.ws=win32)
 Require-Bundle: de.walware.statet.base.ui;bundle-version="[3.6.0,3.7.0)",
  org.eclipse.debug.core,
  de.walware.statet.r.ui
-Import-Package: de.walware.ecommons.preferences
+Import-Package: de.walware.ecommons.preferences,
+ de.walware.ecommons.preferences.core

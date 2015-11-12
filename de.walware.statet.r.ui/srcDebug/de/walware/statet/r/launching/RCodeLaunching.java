@@ -43,8 +43,8 @@ import de.walware.jcommons.collections.ImCollections;
 
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.core.model.IWorkspaceSourceUnit;
-import de.walware.ecommons.preferences.Preference.BooleanPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.core.Preference.BooleanPref;
 import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.variables.core.DynamicVariable;

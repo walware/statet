@@ -65,9 +65,9 @@ import de.walware.ecommons.net.RMIAddress;
 import de.walware.ecommons.net.RMIUtil;
 import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
-import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.Preference.StringPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.core.Preference;
+import de.walware.ecommons.preferences.core.Preference.StringPref;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.variables.core.StringVariable;
 

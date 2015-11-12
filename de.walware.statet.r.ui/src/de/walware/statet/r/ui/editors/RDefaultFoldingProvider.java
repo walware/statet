@@ -25,8 +25,8 @@ import de.walware.ecommons.ltk.ui.sourceediting.folding.FoldingEditorAddon.Foldi
 import de.walware.ecommons.ltk.ui.sourceediting.folding.FoldingProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.folding.NodeFoldingProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.folding.SimpleFoldingPosition;
-import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
 
 import de.walware.statet.r.core.rsource.ast.Block;
 import de.walware.statet.r.core.rsource.ast.CForLoop;

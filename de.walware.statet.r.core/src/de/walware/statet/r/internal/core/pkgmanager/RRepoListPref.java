@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.core.Preference;
 
 import de.walware.statet.r.core.pkgmanager.RRepo;
 
@@ -24,7 +24,7 @@ public class RRepoListPref extends Preference<List<RRepo>> {
 	
 	
 	public RRepoListPref(final String qualifier, final String key) {
-		super(qualifier, key, Type.STRING);
+		super(qualifier, key);
 	}
 	
 	
@@ -34,15 +34,15 @@ public class RRepoListPref extends Preference<List<RRepo>> {
 	}
 	
 	@Override
-	public List<RRepo> store2Usage(final Object obj) {
-		final String s = (String) obj;
+	public List<RRepo> store2Usage(final String storeValue) {
+		final String s= storeValue;
 		if (s == null || s.isEmpty()) {
 			return Collections.emptyList();
 		}
-		final String[] repos = IS2_SEPARATOR_PATTERN.split(s);
+		final String[] repos= IS2_SEPARATOR_PATTERN.split(s);
 		final List<RRepo> list= new ArrayList<>(repos.length);
-		for (int i = 0; i < repos.length; i++) {
-			final String[] parts = IS1_SEPARATOR_PATTERN.split(repos[i]);
+		for (int i= 0; i < repos.length; i++) {
+			final String[] parts= IS1_SEPARATOR_PATTERN.split(repos[i]);
 			if (parts.length >= 3) {
 				list.add(RVarRepo.create(parts[0].intern(), parts[1], parts[2],
 						(parts.length >= 4) ? Util.getPkgType(parts[3]) : null ));
@@ -52,18 +52,14 @@ public class RRepoListPref extends Preference<List<RRepo>> {
 	}
 	
 	@Override
-	public Object usage2Store(final List<RRepo> obj) {
-		if (obj == null) {
-			return null;
-		}
-		if (obj.isEmpty()) {
+	public String usage2Store(final List<RRepo> usageValue) {
+		if (usageValue.isEmpty()) {
 			return ""; //$NON-NLS-1$
 		}
 		
-		final StringBuilder sb = new StringBuilder(32 * obj.size());
-		
-		for (int i = 0; i < obj.size(); i++) {
-			final RRepo repo = obj.get(i);
+		final StringBuilder sb= new StringBuilder(32 * usageValue.size());
+		for (int i= 0; i < usageValue.size(); i++) {
+			final RRepo repo= usageValue.get(i);
 			sb.append(repo.getId());
 			sb.append(IS1_SEPARATOR_CHAR);
 			sb.append(repo.getName());
@@ -75,7 +71,7 @@ public class RRepoListPref extends Preference<List<RRepo>> {
 			}
 			sb.append(IS2_SEPARATOR_CHAR);
 		}
-		return sb.substring(0, sb.length()-1);
+		return sb.substring(0, sb.length() - 1);
 	}
 	
 }

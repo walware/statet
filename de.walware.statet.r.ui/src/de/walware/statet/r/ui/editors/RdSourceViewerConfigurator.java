@@ -18,7 +18,7 @@ import java.util.Set;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 
@@ -73,13 +73,13 @@ public class RdSourceViewerConfigurator extends SourceEditorViewerConfigurator
 	
 	
 	@Override
-	public RCodeStyleSettings getRCodeStyle() {
-		return null;
+	public IPreferenceAccess getPrefs() {
+		return fSourceCoreAccess.getPrefs();
 	}
 	
 	@Override
-	public IPreferenceAccess getPrefs() {
-		return fSourceCoreAccess.getPrefs();
+	public RCodeStyleSettings getRCodeStyle() {
+		return null;
 	}
 	
 }

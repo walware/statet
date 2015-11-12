@@ -13,8 +13,8 @@ package de.walware.statet.r.launching;
 
 import org.eclipse.core.runtime.preferences.IScopeContext;
 
-import de.walware.ecommons.preferences.Preference.StringPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.core.Preference.StringPref;
 
 import de.walware.statet.r.internal.debug.ui.RControllerCodeLaunchConnector;
 

@@ -69,12 +69,12 @@ public class CodeGenerationTemplatesPreferencePage extends PropertyAndPreference
 //			Object id = ((Map) data).get(DATA_SELECT_TEMPLATE);
 //			if (id instanceof String) {
 //				System.out.println("todo");
-//				final TemplatePersistenceData[] templates = fBlock.fTemplateStore.getTemplateData();
+//				final TemplatePersistenceData[] templates = block.fTemplateStore.getTemplateData();
 //				TemplatePersistenceData template = null;
 //				for (int index = 0; index < templates.length; index++) {
 //					template = templates[index];
 //					if (template.getId().equals(id)) {
-//						fBlock.postSetSelection(template);
+//						block.postSetSelection(template);
 //						break;
 //					}
 //				}

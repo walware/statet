@@ -28,11 +28,11 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
-import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.Preference.BooleanPref;
-import de.walware.ecommons.preferences.Preference.EnumSetPref;
-import de.walware.ecommons.preferences.Preference.IntPref;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.Preference;
+import de.walware.ecommons.preferences.core.Preference.BooleanPref;
+import de.walware.ecommons.preferences.core.Preference.EnumSetPref;
+import de.walware.ecommons.preferences.core.Preference.IntPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
 
 import de.walware.workbench.ui.IWaThemeConstants;

@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,9 +24,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImIdentitySet;
+
 import de.walware.ecommons.IDisposable;
-import de.walware.ecommons.preferences.PreferencesUtil;
-import de.walware.ecommons.preferences.SettingsChangeNotifier;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.IPreferenceSetService;
+import de.walware.ecommons.preferences.core.IPreferenceSetService.IChangeEvent;
+import de.walware.ecommons.preferences.core.util.PreferenceUtils;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnv;
@@ -44,7 +48,7 @@ import de.walware.statet.r.internal.core.renv.REnvManager;
 import de.walware.statet.r.internal.core.rhelp.RHelpWebapp.ContentInfo;
 
 
-public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.ChangeListener, IDisposable {
+public class RHelpManager implements IRHelpManager, IPreferenceSetService.IChangeListener, IDisposable {
 // Compatible to dynamic R help
 // 1) With dynamic = TRUE from tools:::httpd()
 //    Here generated links are of the forms
@@ -55,6 +59,10 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 //    ../../pkg/help/topic for the current packages, and this means
 //    'search this package then all the others, and show all matches
 //    if we need to go outside this packages'
+	
+	
+	private static final ImIdentitySet<String> PREF_QUALIFIERS= ImCollections.newIdentitySet(
+			IREnvManager.PREF_QUALIFIER );
 	
 	
 	private static class EnvItem {
@@ -118,6 +126,8 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 	private static final String RHELP_PAGE_PATH = "/page"; //$NON-NLS-1$
 	
 	
+	private final IPreferenceAccess prefAccess;
+	
 	private final REnvManager fREnvManager = RCorePlugin.getDefault().getREnvManager();
 	private boolean fRunning;
 	
@@ -132,7 +142,8 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 	
 	
 	public RHelpManager() {
-		PreferencesUtil.getSettingsChangeNotifier().addChangeListener(this);
+		this.prefAccess= PreferenceUtils.getInstancePrefs();
+		this.prefAccess.addPreferenceSetListener(this, PREF_QUALIFIERS);
 		new InitJob().schedule(1000);
 	}
 	
@@ -502,9 +513,9 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 	
 	
 	@Override
-	public void settingsChanged(final Set<String> groupIds) {
-		if (groupIds.contains(IREnvManager.SETTINGS_GROUP_ID)) {
-			final List<IREnvConfiguration> configurations = fREnvManager.getConfigurations();
+	public void preferenceChanged(final IChangeEvent event) {
+		if (event.contains(IREnvManager.PREF_QUALIFIER)) {
+			final List<IREnvConfiguration> configurations= fREnvManager.getConfigurations();
 			final EnvItem[] items = new EnvItem[configurations.size()]; 
 			synchronized (fIndexLock) {
 				for (int i = 0; i < configurations.size(); i++) {
@@ -728,10 +739,8 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 	
 	@Override
 	public void dispose() {
-		final SettingsChangeNotifier changeNotifier = PreferencesUtil.getSettingsChangeNotifier();
-		if (changeNotifier != null) {
-			changeNotifier.removeChangeListener(this);
-		}
+		this.prefAccess.removePreferenceSetListener(this);
+		
 		stopServer();
 	}
 	

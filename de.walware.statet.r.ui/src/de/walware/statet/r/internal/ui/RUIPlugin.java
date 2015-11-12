@@ -32,14 +32,16 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.IDisposable;
 import de.walware.ecommons.ltk.ui.LTKUIPreferences;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistComputerRegistry;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverRegistry;
 import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
-import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesManageListener;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
 import de.walware.ecommons.text.ui.settings.TextStyleManager;
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.ImageDescriptorRegistry;
@@ -327,9 +329,9 @@ public class RUIPlugin extends AbstractUIPlugin {
 	}
 	
 	public synchronized REditorOptions getREditorSettings(final IPreferenceAccess prefs) {
-		final IScopeContext[] contexts = prefs.getPreferenceContexts();
-		for (int i = 0; i < contexts.length; i++) {
-			if (contexts[i].getName().equals(ConsoleInstanceScope.SCOPE)) {
+		final ImList<IScopeContext> contexts = prefs.getPreferenceContexts();
+		for (IScopeContext context : contexts) {
+			if (context.getName().equals(ConsoleInstanceScope.SCOPE)) {
 				if (fConsoleSettings== null) {
 					fConsoleSettings = new REditorOptions(1);
 					fPrefUpdaters.add(new PreferencesManageListener(
@@ -337,7 +339,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 				}
 				return fConsoleSettings;
 			}
-			if (contexts[i].getName().equals(InstanceScope.SCOPE)) {
+			if (context.getName().equals(InstanceScope.SCOPE)) {
 				if (fEditorSettings == null) {
 					fEditorSettings = new REditorOptions(1);
 					fPrefUpdaters.add(new PreferencesManageListener(
