@@ -14,7 +14,6 @@ package de.walware.statet.r.core.model;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
 
 import de.walware.statet.r.core.IRCoreAccess;
-import de.walware.statet.r.core.renv.IREnv;
 
 
 /**
@@ -44,11 +43,5 @@ public interface IRSourceUnit extends ISourceUnit {
 	 * @return access of scope of the source unit
 	 */
 	IRCoreAccess getRCoreAccess();
-	
-	/**
-	 * Returns the R environment associated with the source unit
-	 * @return the R environment of the source unit
-	 */
-	IREnv getREnv();
 	
 }

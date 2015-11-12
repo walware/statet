@@ -87,7 +87,7 @@ public class RConsolePage extends NIConsolePage {
 	
 	@Override
 	protected ConsolePageEditor createInputGroup() {
-		return new RInputGroup(this);
+		return new RConsoleEditor(this);
 	}
 	
 	@Override

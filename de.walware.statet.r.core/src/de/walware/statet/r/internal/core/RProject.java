@@ -25,8 +25,13 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.osgi.service.prefs.BackingStoreException;
 
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImIdentitySet;
+
 import de.walware.ecommons.preferences.PreferencesManageListener;
 import de.walware.ecommons.preferences.core.IPreferenceAccess;
+import de.walware.ecommons.preferences.core.IPreferenceSetService;
+import de.walware.ecommons.preferences.core.IPreferenceSetService.IChangeEvent;
 import de.walware.ecommons.preferences.core.Preference.StringPref2;
 import de.walware.ecommons.preferences.core.util.PreferenceUtils;
 import de.walware.ecommons.resources.AbstractProjectNature;
@@ -36,15 +41,25 @@ import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProjects;
+import de.walware.statet.r.core.renv.IREnv;
+import de.walware.statet.r.core.renv.IREnvManager;
+import de.walware.statet.r.core.renv.REnvUtil;
 
 
-public class RProject extends AbstractProjectNature implements IRProject {
+public class RProject extends AbstractProjectNature implements IRProject, IPreferenceSetService.IChangeListener {
 	
 	
-	public static final String RPROJECT_QUALIFIER= "de.walware.r.core/RProjectBuild"; //$NON-NLS-1$
-	public static final String BASE_FOLDER_KEY= "BaseFolder.path"; //$NON-NLS-1$
+	public static final String OLD_QUALIFIER= "de.walware.r.core/RProjectBuild"; //$NON-NLS-1$
 	
-	private static final StringPref2 PREF_PACKAGE_NAME= new StringPref2(RPROJECT_QUALIFIER, "Package.name"); //$NON-NLS-1$
+	public static final String BASE_FOLDER_PATH_KEY= "BaseFolder.path"; //$NON-NLS-1$
+	public static final String RENV_CODE_KEY= "REnv.code"; //$NON-NLS-1$
+	
+	private static final StringPref2 PACKAGE_NAME_OLD_PREF= new StringPref2(OLD_QUALIFIER, "Package.name"); //$NON-NLS-1$
+	
+	
+	private static final ImIdentitySet<String> PREF_QUALIFIERS= ImCollections.newIdentitySet(
+			IREnvManager.PREF_QUALIFIER,
+			BUILD_PREF_QUALIFIER );
 	
 	
 	public static RProject getRProject(final IProject project) {
@@ -64,6 +79,8 @@ public class RProject extends AbstractProjectNature implements IRProject {
 	
 	private RCodeStyleSettings rCodeStyle;
 	
+	private IREnv rEnv;
+	
 	
 	public RProject() {
 		super();
@@ -74,11 +91,18 @@ public class RProject extends AbstractProjectNature implements IRProject {
 	public void setProject(final IProject project) {
 		super.setProject(project);
 		
+		addPreferenceSetListener(this, PREF_QUALIFIERS);
+		
+		updateREnv();
+		
 		this.rCodeStyle= new RCodeStyleSettings(1);
 		this.preferenceListener= new PreferencesManageListener(this.rCodeStyle, getPrefs(),
 				RCodeStyleSettings.ALL_GROUP_IDS );
 		
-		this.rPackageName= getPrefs().getPreferenceValue(PREF_PACKAGE_NAME);
+		this.rPackageName= getProjectValue(PACKAGE_NAME_OLD_PREF);
+		if (this.rPackageName == null) {
+			this.rPackageName= getProjectValue(PACKAGE_NAME_OLD_PREF);
+		}
 		try {
 			if ((this.rPackageName != null) != project.hasNature(RProjects.R_PKG_NATURE_ID)) {
 				checkPackageNature();
@@ -90,13 +114,18 @@ public class RProject extends AbstractProjectNature implements IRProject {
 		RCorePlugin.getDefault().getResourceTracker().register(project, this);
 	}
 	
+	@Override
 	public void dispose() {
+		RCorePlugin.getDefault().getResourceTracker().unregister(getProject());
+		
+		super.dispose();
+		
 		if (this.preferenceListener != null) {
 			this.preferenceListener.dispose();
 			this.preferenceListener= null;
-			
-			RCorePlugin.getDefault().getResourceTracker().unregister(getProject());
 		}
+		
+		this.rEnv= null;
 	}
 	
 	@Override
@@ -131,8 +160,30 @@ public class RProject extends AbstractProjectNature implements IRProject {
 	
 	
 	@Override
+	public void preferenceChanged(final IChangeEvent event) {
+		if (event.contains(IREnvManager.PREF_QUALIFIER)
+				|| event.contains(IRProject.RENV_CODE_PREF) ) {
+			updateREnv();
+		}
+		if (event.contains(IRProject.PACKAGE_NAME_PREF)) {
+			updateRPkgConfig(checkRPkgName(getProjectValue(IRProject.PACKAGE_NAME_PREF)));
+		}
+	}
+	
+	private void updateREnv() {
+		final IREnvManager rEnvManager= RCore.getREnvManager();
+		final String s= getProjectValue(IRProject.RENV_CODE_PREF);
+		this.rEnv= (s != null) ? REnvUtil.decode(s, rEnvManager) : rEnvManager.getDefault();
+	}
+	
+	@Override
 	public IPreferenceAccess getPrefs() {
 		return this;
+	}
+	
+	@Override
+	public IREnv getREnv() {
+		return this.rEnv;
 	}
 	
 	@Override
@@ -142,9 +193,9 @@ public class RProject extends AbstractProjectNature implements IRProject {
 	
 	@Override
 	public IContainer getBaseContainer() {
-		final String value= getPrefs().getPreferenceValue(IRProject.BASE_FOLDER_PREF);
-		if (value != null) {
-			final IPath path= Path.fromPortableString(value);
+		final String s= getPreferenceValue(IRProject.BASE_FOLDER_PATH_PREF);
+		if (s != null) {
+			final IPath path= Path.fromPortableString(s);
 			if (path.segmentCount() == 0) {
 				return getProject();
 			}
@@ -162,19 +213,43 @@ public class RProject extends AbstractProjectNature implements IRProject {
 	}
 	
 	@Override
-	public void setPackageConfig(final String pkgName) throws CoreException {
-		boolean changed= false;
+	public void setPackageConfig(String pkgName) throws CoreException {
+		pkgName= checkRPkgName(pkgName);
 		try {
-			final IScopeContext context= getProjectContext();
-			PreferenceUtils.setPrefValue(context, PREF_PACKAGE_NAME, pkgName);
-			context.getNode(PREF_PACKAGE_NAME.getQualifier()).flush();
-			RCorePlugin.getDefault().getRModelManager().getIndex().updateProjectConfig(this, pkgName);
-			changed= (pkgName != null) != (this.rPackageName != null);
-			this.rPackageName= pkgName;
+			synchronized (this) {
+				if (pkgName == this.rPackageName) {
+					return;
+				}
+				
+				final IScopeContext context= getProjectContext();
+				PreferenceUtils.setPrefValue(context, PACKAGE_NAME_PREF, pkgName);
+				context.getNode(PACKAGE_NAME_PREF.getQualifier()).flush();
+				
+				if (PreferenceUtils.getPrefValue(context, PACKAGE_NAME_OLD_PREF) != null) {
+					PreferenceUtils.setPrefValue(context, PACKAGE_NAME_OLD_PREF, null);
+				}
+				
+				updateRPkgConfig(pkgName);
+			}
 		}
 		catch (final BackingStoreException e) {
-			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "An error occurred when saving the R project configuration."));
+			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
+					"An error occurred when saving the R project configuration." ));
 		}
+	}
+	
+	private String checkRPkgName(final String pkgName) {
+		if (pkgName != null) {
+			return pkgName.intern();
+		}
+		return null;
+	}
+	
+	private void updateRPkgConfig(final String pkgName) {
+		RCorePlugin.getDefault().getRModelManager().getIndex().updateProjectConfig(this, pkgName);
+		final boolean changed= (pkgName != null) != (this.rPackageName != null);
+		this.rPackageName= pkgName;
+		
 		if (changed) {
 			checkPackageNature();
 		}

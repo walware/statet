@@ -17,18 +17,21 @@ import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.services.IServiceLocator;
 
-import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.ui.LTKUI;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.actions.HandlerCollection;
 
+import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
 import de.walware.statet.r.console.core.ContinuePrompt;
 import de.walware.statet.r.console.core.IRBasicAdapter;
+import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.ui.editors.IRSourceEditor;
 import de.walware.statet.r.ui.sourceediting.InsertAssignmentHandler;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 
@@ -36,38 +39,48 @@ import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 /**
  * R Console input line
  */
-public class RInputGroup extends ConsolePageEditor implements ISettingsChangedHandler {
+public class RConsoleEditor extends ConsolePageEditor implements IRSourceEditor, ISettingsChangedHandler {
 	
 	
-	private RSourceViewerConfigurator fRConfig;
+	private RSourceViewerConfigurator rConfig;
 	
 	
-	public RInputGroup(final RConsolePage page) {
+	public RConsoleEditor(final RConsolePage page) {
 		super(page, RCore.R_CONTENT_TYPE);
 	}
 	
 	
 	@Override
-	protected ISourceUnit createSourceUnit() {
-		return new RConsoleSourceUnit((RConsolePage) getConsolePage(), fDocument);
+	protected IRSourceUnit createSourceUnit() {
+		return new RConsoleSourceUnit((RConsolePage) getConsolePage(), this.fDocument);
 	}
 	
 	
 	@Override
+	public IRCoreAccess getRCoreAccess() {
+		return this.rConfig.getRCoreAccess();
+	}
+	
+	@Override
+	public IRSourceUnit getSourceUnit() {
+		return (IRSourceUnit) super.getSourceUnit();
+	}
+	
+	@Override
 	protected void onPromptUpdate(final Prompt prompt) {
 		if ((prompt.meta & IRBasicAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) {
-			final ContinuePrompt p = (ContinuePrompt) prompt;
-			fDocument.setPrefix(p.getPreviousInput());
+			final ContinuePrompt p= (ContinuePrompt) prompt;
+			this.fDocument.setPrefix(p.getPreviousInput());
 		}
 		else {
-			fDocument.setPrefix(""); //$NON-NLS-1$
+			this.fDocument.setPrefix(""); //$NON-NLS-1$
 		}
 	}
 	
 	@Override
 	public Composite createControl(final Composite parent, final SourceEditorViewerConfigurator editorConfig) {
-		fRConfig = (RSourceViewerConfigurator) editorConfig;
-		final Composite control = super.createControl(parent, editorConfig);
+		this.rConfig= (RSourceViewerConfigurator) editorConfig;
+		final Composite control= super.createControl(parent, editorConfig);
 		return control;
 	}
 	
@@ -78,11 +91,17 @@ public class RInputGroup extends ConsolePageEditor implements ISettingsChangedHa
 		((IContextService) serviceLocator.getService(IContextService.class))
 				.activateContext("de.walware.statet.r.contexts.REditor"); //$NON-NLS-1$
 		
-		final IHandlerService handlerService = (IHandlerService) serviceLocator.getService(IHandlerService.class);
+		final IHandlerService handlerService= (IHandlerService) serviceLocator.getService(IHandlerService.class);
 		
-		{	final IHandler2 handler = new InsertAssignmentHandler(this);
+		{	final IHandler2 handler= new InsertAssignmentHandler(this);
 			handlerService.activateHandler(LTKUI.INSERT_ASSIGNMENT_COMMAND_ID, handler);
 		}
+	}
+	
+	
+	@Override
+	public Object getAdapter(final Class required) {
+		return super.getAdapter(required);
 	}
 	
 }

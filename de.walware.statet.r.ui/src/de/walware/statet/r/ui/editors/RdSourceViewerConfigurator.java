@@ -25,6 +25,7 @@ import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.renv.IREnv;
 
 
 /**
@@ -75,6 +76,11 @@ public class RdSourceViewerConfigurator extends SourceEditorViewerConfigurator
 	@Override
 	public IPreferenceAccess getPrefs() {
 		return fSourceCoreAccess.getPrefs();
+	}
+	
+	@Override
+	public IREnv getREnv() {
+		return fSourceCoreAccess.getREnv();
 	}
 	
 	@Override

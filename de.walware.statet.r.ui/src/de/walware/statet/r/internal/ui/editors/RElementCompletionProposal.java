@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ElementNameCompletionProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IInfoHover;
@@ -52,6 +53,7 @@ import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.ui.rhelp.RHelpInfoHoverCreator;
 import de.walware.statet.r.internal.ui.rhelp.RHelpUIServlet;
 import de.walware.statet.r.ui.RUI;
+import de.walware.statet.r.ui.editors.IRSourceEditor;
 import de.walware.statet.r.ui.sourceediting.RAssistInvocationContext;
 import de.walware.statet.r.ui.sourceediting.RBracketLevel;
 
@@ -227,6 +229,13 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal<IR
 		return fApplyData;
 	}
 	
+	protected IRCoreAccess getRCoreAccess() {
+		final ISourceEditor editor= getInvocationContext().getEditor();
+		return (editor instanceof IRSourceEditor) ?
+				((IRSourceEditor) editor).getRCoreAccess() :
+				RCore.WORKBENCH_ACCESS;
+	}
+	
 	
 	@Override
 	protected int computeReplacementLength(final int replacementOffset, final Point selection, final int caretOffset, final boolean overwrite) {
@@ -303,7 +312,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal<IR
 		int linkedMode = -1;
 		if (isArgumentName()) {
 			if (!isFollowedByEqualAssign(data, replacementOffset+replacementLength)) {
-				final RCodeStyleSettings codeStyle = getCodeStyleSettings();
+				final RCodeStyleSettings codeStyle= getRCoreAccess().getRCodeStyle();
 				final String argAssign = codeStyle.getArgAssignString();
 				replacement.append(argAssign);
 				cursor += argAssign.length();
@@ -390,14 +399,6 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal<IR
 	
 	protected boolean isArgumentName() {
 		return false;
-	}
-	
-	protected RCodeStyleSettings getCodeStyleSettings() {
-		final IRCoreAccess access = (IRCoreAccess) getInvocationContext().getEditor().getAdapter(IRCoreAccess.class);
-		if (access != null) {
-			return access.getRCodeStyle();
-		}
-		return RCore.getWorkbenchAccess().getRCodeStyle();
 	}
 	
 	

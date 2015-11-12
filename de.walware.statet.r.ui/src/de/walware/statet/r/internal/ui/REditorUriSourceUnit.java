@@ -28,7 +28,6 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
-import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.source.RDocumentContentInfo;
 
 
@@ -92,12 +91,7 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit2<RUISuModelContai
 	
 	@Override
 	public IRCoreAccess getRCoreAccess() {
-		return RCore.getWorkbenchAccess();
-	}
-	
-	@Override
-	public IREnv getREnv() {
-		return RCore.getREnvManager().getDefault();
+		return RCore.WORKBENCH_ACCESS;
 	}
 	
 }

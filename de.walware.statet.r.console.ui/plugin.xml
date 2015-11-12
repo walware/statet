@@ -500,7 +500,7 @@
                      <with
                            variable="activePart">
                         <instanceof
-                              value="de.walware.statet.r.ui.editors.IREditor">
+                              value="de.walware.statet.r.ui.editors.IRSourceEditor">
                         </instanceof>
                      </with>
                      <with

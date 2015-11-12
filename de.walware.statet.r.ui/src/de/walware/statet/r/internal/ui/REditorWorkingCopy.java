@@ -18,7 +18,6 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.model.RSuModelContainer;
-import de.walware.statet.r.core.renv.IREnv;
 
 
 /**
@@ -60,11 +59,6 @@ public class REditorWorkingCopy
 	@Override
 	public IRCoreAccess getRCoreAccess() {
 		return ((IRSourceUnit) getUnderlyingUnit()).getRCoreAccess();
-	}
-	
-	@Override
-	public IREnv getREnv() {
-		return ((IRSourceUnit) getUnderlyingUnit()).getREnv();
 	}
 	
 }

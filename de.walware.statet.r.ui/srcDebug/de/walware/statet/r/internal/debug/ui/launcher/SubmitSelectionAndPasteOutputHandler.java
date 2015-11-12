@@ -57,9 +57,11 @@ import de.walware.statet.r.console.core.IRBasicAdapter;
 import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.ui.RUI;
+import de.walware.statet.r.ui.editors.IRSourceEditor;
 
 
 /**
@@ -209,6 +211,13 @@ public class SubmitSelectionAndPasteOutputHandler extends AbstractHandler {
 			}
 		}
 		
+		protected IRCoreAccess getRCoreAccess() {
+			final ISourceEditor editor= fEditor;
+			return (editor instanceof IRSourceEditor) ?
+					((IRSourceEditor) editor).getRCoreAccess() :
+					RCore.WORKBENCH_ACCESS;
+		}
+		
 		@Override
 		public void run() {
 			// After R in display
@@ -232,8 +241,7 @@ public class SubmitSelectionAndPasteOutputHandler extends AbstractHandler {
 			}
 			
 			try {
-				final IRCoreAccess rCore = (IRCoreAccess) fEditor.getAdapter(IRCoreAccess.class);
-				final IndentUtil util = new IndentUtil(fDocument, rCore.getRCodeStyle());
+				final IndentUtil util= new IndentUtil(fDocument, getRCoreAccess().getRCodeStyle());
 				
 				final int indent = util.getMultilineIndentColumn(fDocument.getLineOfOffset(fPosition.getOffset()),
 						fDocument.getLineOfOffset(fPosition.getOffset() + fPosition.getLength()));
@@ -255,7 +263,8 @@ public class SubmitSelectionAndPasteOutputHandler extends AbstractHandler {
 				if (progressService != null) {
 					progressService.warnOfContentChange();
 				}
-			} catch (final BadLocationException e) {
+			}
+			catch (final BadLocationException e) {
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
 						RLaunchingMessages.SubmitCodeAndPasteOutput_error_WhenPasting_message, e),
 						StatusManager.LOG | StatusManager.SHOW);

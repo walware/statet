@@ -24,6 +24,7 @@ import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.internal.console.ui.page.RConsolePage;
 import de.walware.statet.r.launching.ui.RErrorLineTracker;
 
@@ -59,8 +60,13 @@ public class RConsole extends NIConsole implements IRCoreAccess {
 	}
 	
 	@Override
+	public IREnv getREnv() {
+		return (IREnv) getProcess().getAdapter(IREnv.class);
+	}
+	
+	@Override
 	public RCodeStyleSettings getRCodeStyle() {
-		return RCore.getWorkbenchAccess().getRCodeStyle();
+		return RCore.WORKBENCH_ACCESS.getRCodeStyle();
 	}
 	
 }

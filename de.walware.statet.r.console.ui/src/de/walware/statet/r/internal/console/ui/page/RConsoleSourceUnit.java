@@ -29,11 +29,9 @@ import de.walware.statet.nico.ui.console.InputDocument;
 
 import de.walware.statet.r.console.ui.RConsole;
 import de.walware.statet.r.core.IRCoreAccess;
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.model.RSuModelContainer;
-import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.source.RDocumentContentInfo;
 
 
@@ -106,12 +104,6 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSo
 	@Override
 	public IRCoreAccess getRCoreAccess() {
 		return this.rConsole;
-	}
-	
-	@Override
-	public IREnv getREnv() {
-		final IREnv rEnv = (IREnv) this.rConsole.getProcess().getAdapter(IREnv.class);
-		return (rEnv != null) ? rEnv : RCore.getREnvManager().getDefault();
 	}
 	
 	@Override

@@ -20,6 +20,7 @@ import de.walware.ecommons.preferences.core.util.PreferenceAccessWrapper;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
+import de.walware.statet.r.core.renv.IREnv;
 
 
 public class RCoreAccessWrapper extends PreferenceAccessWrapper
@@ -68,6 +69,11 @@ public class RCoreAccessWrapper extends PreferenceAccessWrapper
 	@Override
 	public IPreferenceAccess getPrefs() {
 		return this;
+	}
+	
+	@Override
+	public IREnv getREnv() {
+		return this.parent.getREnv();
 	}
 	
 	@Override

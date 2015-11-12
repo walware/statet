@@ -52,7 +52,7 @@ import de.walware.statet.r.debug.core.breakpoints.IRBreakpoint;
 import de.walware.statet.r.debug.core.breakpoints.IRLineBreakpoint;
 import de.walware.statet.r.debug.core.breakpoints.RLineBreakpointValidator;
 import de.walware.statet.r.ui.RUI;
-import de.walware.statet.r.ui.editors.IREditor;
+import de.walware.statet.r.ui.editors.IRSourceEditor;
 
 
 /**
@@ -65,20 +65,20 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 	private static class Data {
 		
 		
-		private final IREditor fEditor;
+		private final IRSourceEditor fEditor;
 		
 		private final IRWorkspaceSourceUnit fSourceUnit;
 		
 		private AbstractDocument fDocument;
 		
 		
-		Data(final IREditor editor, final IRWorkspaceSourceUnit su) {
+		Data(final IRSourceEditor editor, final IRWorkspaceSourceUnit su) {
 			fEditor = editor;
 			fSourceUnit = su;
 		}
 		
 		
-		public IREditor getEditor() {
+		public IRSourceEditor getEditor() {
 			return fEditor;
 		}
 		
@@ -105,7 +105,7 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 	}
 	
 	
-	private Data createData(final IREditor editor) {
+	private Data createData(final IRSourceEditor editor) {
 		if (editor == null) {
 			return null;
 		}
@@ -118,7 +118,7 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 	
 	@Override
 	public boolean canToggleLineBreakpoints(final IWorkbenchPart part, final ISelection selection) {
-		final IREditor editor = getREditor(part, selection);
+		final IRSourceEditor editor = getREditor(part, selection);
 		return (editor != null && editor.getSourceUnit() instanceof IWorkspaceSourceUnit
 				&& selection instanceof ITextSelection );
 	}
@@ -154,7 +154,7 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 	
 	@Override
 	public boolean canToggleMethodBreakpoints(final IWorkbenchPart part, final ISelection selection) {
-		final IREditor editor = getREditor(part, selection);
+		final IRSourceEditor editor = getREditor(part, selection);
 		return (editor != null && editor.getSourceUnit() instanceof IWorkspaceSourceUnit
 				&& selection instanceof ITextSelection );
 	}
@@ -199,7 +199,7 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 	
 	@Override
 	public boolean canToggleBreakpoints(final IWorkbenchPart part, final ISelection selection) {
-		final IREditor editor = getREditor(part, selection);
+		final IRSourceEditor editor = getREditor(part, selection);
 		return (editor != null && editor.getSourceUnit() instanceof IWorkspaceSourceUnit
 				&& selection instanceof ITextSelection );
 	}
@@ -242,10 +242,10 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 			final ISelection selection, final Event event) throws CoreException {
 		if (event != null) {
 			if ((event.stateMask & SWT.MOD2) > 0) {
-				final IREditor rEditor = getREditor(part, selection);
-				if (rEditor != null && selection instanceof ITextSelection) {
+				final IRSourceEditor rSourceEditor = getREditor(part, selection);
+				if (rSourceEditor != null && selection instanceof ITextSelection) {
 					try {
-						final Data data = createData(rEditor);
+						final Data data = createData(rSourceEditor);
 						if (data == null) {
 							return;
 						}
@@ -403,13 +403,13 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 		return false;
 	}
 	
-	private IREditor getREditor(final IWorkbenchPart part, final ISelection selection) {
-		if (part instanceof IREditor) {
-			return (IREditor) part;
+	private IRSourceEditor getREditor(final IWorkbenchPart part, final ISelection selection) {
+		if (part instanceof IRSourceEditor) {
+			return (IRSourceEditor) part;
 		}
 		final Object adapter = part.getAdapter(ISourceEditor.class);
-		if (adapter instanceof IREditor) {
-			return (IREditor) adapter;
+		if (adapter instanceof IRSourceEditor) {
+			return (IRSourceEditor) adapter;
 		}
 		return null;
 	}
@@ -423,7 +423,7 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 		return null;
 	}
 	
-	protected AbstractMarkerAnnotationModel getAnnotationModel(final IREditor editor) {
+	protected AbstractMarkerAnnotationModel getAnnotationModel(final IRSourceEditor editor) {
 		if (editor instanceof AbstractTextEditor) {
 			final AbstractTextEditor textEditor = (AbstractTextEditor) editor;
 			final IDocumentProvider provider = textEditor.getDocumentProvider();

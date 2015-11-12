@@ -13,6 +13,8 @@ package de.walware.statet.r.core;
 
 import de.walware.ecommons.preferences.core.IPreferenceAccess;
 
+import de.walware.statet.r.core.renv.IREnv;
+
 
 /**
  * Interface to access R Core services, respecting the scope.
@@ -23,7 +25,7 @@ public interface IRCoreAccess {
 	IPreferenceAccess getPrefs();
 	
 	
-/*	public REnvConfiguration getREnvironment();*/
+	IREnv getREnv();
 	
 	RCodeStyleSettings getRCodeStyle();
 	

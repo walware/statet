@@ -24,8 +24,10 @@ import de.walware.ecommons.ltk.ui.templates.SourceEditorTemplateContext;
 import de.walware.ecommons.text.IndentUtil;
 import de.walware.ecommons.text.IndentUtil.IndentEditAction;
 
+import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.internal.ui.editors.REditor;
+import de.walware.statet.r.ui.editors.IRSourceEditor;
 
 
 public class REditorContext extends SourceEditorTemplateContext {
@@ -37,13 +39,20 @@ public class REditorContext extends SourceEditorTemplateContext {
 	}
 	
 	
+	protected IRCoreAccess getRCoreAccess() {
+		final ISourceEditor editor= getEditor();
+		return (editor instanceof IRSourceEditor) ?
+				((IRSourceEditor) editor).getRCoreAccess() :
+				RCore.WORKBENCH_ACCESS;
+	}
+	
 	@Override
 	public void setVariable(final String name, String value) {
 		if ("selection".equals(name) && value != null && value.length() > 0) { //$NON-NLS-1$
 			try {
 				final IDocument valueDoc = new Document(value);
 				
-				final IndentUtil util = new IndentUtil(valueDoc, REditor.getRCoreAccess(getEditor()).getRCodeStyle());
+				final IndentUtil util = new IndentUtil(valueDoc, getRCoreAccess().getRCodeStyle());
 				final int column = util.getMultilineIndentColumn(0, valueDoc.getNumberOfLines()-1);
 				if (column > 0) {
 					final IndentEditAction action = new IndentEditAction(column) {

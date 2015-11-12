@@ -44,6 +44,11 @@ final class RCoreAccess implements IRCoreAccess {
 	}
 	
 	@Override
+	public IREnv getREnv() {
+		return this.rEnv;
+	}
+	
+	@Override
 	public RCodeStyleSettings getRCodeStyle() {
 		RCodeStyleSettings codeStyle= this.codeStyle;
 		if (codeStyle == null) {

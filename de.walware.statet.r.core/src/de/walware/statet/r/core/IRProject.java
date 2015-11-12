@@ -25,7 +25,13 @@ import de.walware.statet.r.internal.core.RProject;
 public interface IRProject extends IPreferenceAccess, IRCoreAccess {
 	
 	
-	Preference<String> BASE_FOLDER_PREF= new StringPref2(RProject.RPROJECT_QUALIFIER, RProject.BASE_FOLDER_KEY);
+	String BUILD_PREF_QUALIFIER= RCore.PLUGIN_ID + "/build/RProject"; //$NON-NLS-1$
+	
+	Preference<String> BASE_FOLDER_PATH_PREF= new StringPref2(BUILD_PREF_QUALIFIER, RProject.BASE_FOLDER_PATH_KEY);
+	
+	Preference<String> RENV_CODE_PREF= new StringPref2(BUILD_PREF_QUALIFIER, RProject.RENV_CODE_KEY);
+	
+	Preference<String> PACKAGE_NAME_PREF= new StringPref2(BUILD_PREF_QUALIFIER, "Package.name"); //$NON-NLS-1$
 	
 	
 	IProject getProject();

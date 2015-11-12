@@ -650,31 +650,32 @@ public class RHelpManager implements IRHelpManager, IPreferenceSetService.IChang
 	public boolean hasHelp(IREnv rEnv) {
 		if (rEnv != null) {
 			rEnv = rEnv.resolve();
-		}
-		if (rEnv != null) {
-			final String id = rEnv.getId();
-			EnvItem item;
-			synchronized (fIndexLock) {
-				item = fHelpIndexes.get(id);
-				if (item == null) {
-					item = new EnvItem(id);
-					fHelpIndexes.put(id, item);
-				}
-			}
-			synchronized (item.helpLock) {
-				switch (item.state) {
-				case HELP_LOADED:
-					return true;
-				case 0:
-					if (fSaveUtil.hasIndex(rEnv.getConfig())) {
-						return true;
+			
+			if (rEnv != null) {
+				final String id = rEnv.getId();
+				EnvItem item;
+				synchronized (fIndexLock) {
+					item = fHelpIndexes.get(id);
+					if (item == null) {
+						item = new EnvItem(id);
+						fHelpIndexes.put(id, item);
 					}
-					else {
-						item.state = HELP_MISSING;
+				}
+				synchronized (item.helpLock) {
+					switch (item.state) {
+					case HELP_LOADED:
+						return true;
+					case 0:
+						if (fSaveUtil.hasIndex(rEnv.getConfig())) {
+							return true;
+						}
+						else {
+							item.state = HELP_MISSING;
+							return false;
+						}
+					default:
 						return false;
 					}
-				default:
-					return false;
 				}
 			}
 		}
@@ -685,39 +686,40 @@ public class RHelpManager implements IRHelpManager, IPreferenceSetService.IChang
 	public REnvHelp getHelp(IREnv rEnv) {
 		if (rEnv != null) {
 			rEnv = rEnv.resolve();
-		}
-		if (rEnv != null) {
-			final String rEnvId = rEnv.getId();
-			EnvItem item;
-			synchronized (fIndexLock) {
-				item = fHelpIndexes.get(rEnvId);
-				if (item == null) {
-					item = new EnvItem(rEnvId);
-					fHelpIndexes.put(rEnvId, item);
-				}
-			}
-			synchronized (item.helpLock) {
-				switch (item.state) {
-				case HELP_LOADED:
-					item.help.lock();
-					return item.help;
-				case 0:
-					final IREnvConfiguration rEnvConfig = rEnv.getConfig();
-					if (rEnvConfig != null) {
-						item.indexDir = rEnvConfig.getIndexDirectoryPath();
-						item.help = fSaveUtil.load(rEnvConfig);
+			
+			if (rEnv != null) {
+				final String rEnvId = rEnv.getId();
+				EnvItem item;
+				synchronized (fIndexLock) {
+					item = fHelpIndexes.get(rEnvId);
+					if (item == null) {
+						item = new EnvItem(rEnvId);
+						fHelpIndexes.put(rEnvId, item);
 					}
-					if (item.help != null) {
-						item.state = HELP_LOADED;
+				}
+				synchronized (item.helpLock) {
+					switch (item.state) {
+					case HELP_LOADED:
 						item.help.lock();
 						return item.help;
-					}
-					else {
-						item.state = HELP_MISSING;
+					case 0:
+						final IREnvConfiguration rEnvConfig = rEnv.getConfig();
+						if (rEnvConfig != null) {
+							item.indexDir = rEnvConfig.getIndexDirectoryPath();
+							item.help = fSaveUtil.load(rEnvConfig);
+						}
+						if (item.help != null) {
+							item.state = HELP_LOADED;
+							item.help.lock();
+							return item.help;
+						}
+						else {
+							item.state = HELP_MISSING;
+							return null;
+						}
+					default:
 						return null;
 					}
-				default:
-					return null;
 				}
 			}
 		}

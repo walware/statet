@@ -17,10 +17,12 @@ import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.WorkingContext;
 import de.walware.ecommons.ltk.core.impl.GenericFragmentSourceUnit2;
+import de.walware.ecommons.preferences.core.IPreferenceAccess;
 import de.walware.ecommons.text.ISourceFragment;
 import de.walware.ecommons.text.core.sections.IDocContentSections;
 
 import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
@@ -29,7 +31,7 @@ import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.source.RDocumentContentInfo;
 
 
-public class RFragmentSourceUnit extends GenericFragmentSourceUnit2<RSuModelContainer> implements IRSourceUnit {
+public class RFragmentSourceUnit extends GenericFragmentSourceUnit2<RSuModelContainer> implements IRSourceUnit, IRCoreAccess {
 	
 	
 	public RFragmentSourceUnit(final String id, final ISourceFragment fragment) {
@@ -83,16 +85,26 @@ public class RFragmentSourceUnit extends GenericFragmentSourceUnit2<RSuModelCont
 	
 	@Override
 	public IRCoreAccess getRCoreAccess() {
-		return RCore.getWorkbenchAccess();
+		return this;
+	}
+	
+	@Override
+	public IPreferenceAccess getPrefs() {
+		return RCore.WORKBENCH_ACCESS.getPrefs();
 	}
 	
 	@Override
 	public IREnv getREnv() {
-		final IREnv rEnv = (IREnv) getFragment().getAdapter(IREnv.class);
+		final IREnv rEnv= (IREnv) getFragment().getAdapter(IREnv.class);
 		if (rEnv != null) {
 			return rEnv;
 		}
 		return RCore.getREnvManager().getDefault();
+	}
+	
+	@Override
+	public RCodeStyleSettings getRCodeStyle() {
+		return RCore.WORKBENCH_ACCESS.getRCodeStyle();
 	}
 	
 }

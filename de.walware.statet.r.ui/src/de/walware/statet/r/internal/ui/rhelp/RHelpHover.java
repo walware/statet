@@ -22,6 +22,7 @@ import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IInfoHover;
 
+import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
@@ -91,15 +92,12 @@ public class RHelpHover implements IInfoHover {
 			return null;
 		}
 		
-		IREnv rEnv = null;
-		if (context.getSourceUnit() instanceof IRSourceUnit) {
-			rEnv = ((IRSourceUnit) context.getSourceUnit()).getREnv();
-		}
+		final IRCoreAccess rCoreAccess= (context.getSourceUnit() instanceof IRSourceUnit) ?
+				((IRSourceUnit) context.getSourceUnit()).getRCoreAccess() :
+				RCore.WORKBENCH_ACCESS;
+		IREnv rEnv= rCoreAccess.getREnv();
 		if (rEnv == null) {
-			rEnv = RCore.getREnvManager().getDefault();
-			if (rEnv == null) {
-				return null;
-			}
+			rEnv= RCore.WORKBENCH_ACCESS.getREnv();
 		}
 		Object helpObject= null;
 		

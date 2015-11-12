@@ -13,13 +13,16 @@ package de.walware.statet.r.ui.editors;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 
+import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.model.IRSourceUnit;
 
 
-public interface IREditor extends ISourceEditor {
+public interface IRSourceEditor extends ISourceEditor {
 	
+	
+	IRCoreAccess getRCoreAccess();
 	
 	@Override
-	public IRSourceUnit getSourceUnit();
+	IRSourceUnit getSourceUnit();
 	
 }

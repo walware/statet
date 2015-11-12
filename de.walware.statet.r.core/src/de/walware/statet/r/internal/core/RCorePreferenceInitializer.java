@@ -18,10 +18,12 @@ import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 
-import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.core.Preference;
+import de.walware.ecommons.preferences.core.util.PreferenceUtils;
 
+import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCodeStyleSettings;
+import de.walware.statet.r.core.renv.IREnv;
 
 
 /**
@@ -37,7 +39,9 @@ public class RCorePreferenceInitializer extends AbstractPreferenceInitializer {
 		
 		new RCodeStyleSettings(0).deliverToPreferencesMap(map);
 		
-		PreferencesUtil.setPrefValues(scope, map);
+		PreferenceUtils.setPrefValues(scope, map);
+		
+		PreferenceUtils.setPrefValue(scope, IRProject.RENV_CODE_PREF, IREnv.DEFAULT_WORKBENCH_ENV_ID);
 	}
 	
 }

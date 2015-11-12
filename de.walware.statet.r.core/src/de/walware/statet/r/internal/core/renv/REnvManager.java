@@ -413,21 +413,21 @@ public class REnvManager implements IREnvManager {
 	}
 	
 	@Override
-	public synchronized IREnv get(String id, final String name) {
-		id= resolveId(id);
+	public synchronized IREnv get(final String id, final String name) {
 		checkAndLock(false);
 		try {
 			if (id != null) {
-				if (id.equals(IREnv.DEFAULT_WORKBENCH_ENV_ID)) {
-					return this.defaultEnv;
+				{	final IREnv rEnv= getEnv(id);
+					if (rEnv != null) {
+						return rEnv;
+					}
 				}
-				IREnvConfiguration config= this.idMap.get(id);
-				if (config == null) {
-					id= REnvReference.updateId(id);
-					config= this.idMap.get(id);
-				}
-				if (config != null) {
-					return config.getReference();
+				final String altId= REnvReference.updateId(id);
+				if (!id.equals(altId)) {
+					final IREnv rEnv= getEnv(id);
+					if (rEnv != null) {
+						return rEnv;
+					}
 				}
 			}
 			if (name != null) {
@@ -438,6 +438,20 @@ public class REnvManager implements IREnvManager {
 		finally {
 			this.lock.readLock().unlock();
 		}
+	}
+	
+	private IREnv getEnv(final String id) {
+		if (id.equals(IREnv.DEFAULT_WORKBENCH_ENV_ID)) {
+			return this.defaultEnv;
+		}
+		IREnvConfiguration config= this.idMap.get(id);
+		if (config == null) {
+			config= this.idMap.get(id);
+		}
+		if (config != null) {
+			return config.getReference();
+		}
+		return null;
 	}
 	
 	public synchronized IREnvConfiguration getConfig(String id, final String name) {

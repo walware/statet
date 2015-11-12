@@ -38,7 +38,7 @@ import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.internal.ui.rtools.Messages;
 import de.walware.statet.r.ui.RUI;
-import de.walware.statet.r.ui.editors.IREditor;
+import de.walware.statet.r.ui.editors.IRSourceEditor;
 import de.walware.statet.r.ui.sourceediting.RAssistInvocationContext;
 
 
@@ -98,7 +98,7 @@ public class RElementNameVariableResolver implements IDynamicVariableResolver {
 			}
 			
 			final ISourceEditor editor = (ISourceEditor) part.getAdapter(ISourceEditor.class);
-			if (editor instanceof IREditor) {
+			if (editor instanceof IRSourceEditor) {
 				final Point range = editor.getViewer().getSelectedRange();
 				final RAssistInvocationContext context = new RAssistInvocationContext(editor,
 						new Region(range.x, range.y), null);

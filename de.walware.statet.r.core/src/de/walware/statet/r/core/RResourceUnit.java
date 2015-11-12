@@ -21,7 +21,6 @@ import de.walware.ecommons.ltk.core.impl.GenericResourceSourceUnit;
 import de.walware.ecommons.text.core.sections.IDocContentSections;
 
 import de.walware.statet.r.core.model.RElementName;
-import de.walware.statet.r.core.renv.IREnv;
 
 
 /**
@@ -62,10 +61,6 @@ public abstract class RResourceUnit extends GenericResourceSourceUnit {
 	public IRCoreAccess getRCoreAccess() {
 		final IRProject rProject= RProjects.getRProject(getResource().getProject());
 		return (rProject != null) ? rProject : RCore.WORKBENCH_ACCESS;
-	}
-	
-	public IREnv getREnv() {
-		return RCore.getREnvManager().getDefault();
 	}
 	
 	

@@ -47,7 +47,6 @@ import de.walware.ecommons.ltk.core.model.ISourceStructElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ui.LTKUI;
 import de.walware.ecommons.ltk.ui.sourceediting.AbstractMarkOccurrencesProvider;
-import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceFragmentEditorInput;
@@ -73,7 +72,7 @@ import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.launching.RCodeLaunching;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.RUIHelp;
-import de.walware.statet.r.ui.editors.IREditor;
+import de.walware.statet.r.ui.editors.IRSourceEditor;
 import de.walware.statet.r.ui.editors.RCorrectIndentHandler;
 import de.walware.statet.r.ui.editors.RDefaultFoldingProvider;
 import de.walware.statet.r.ui.editors.REditorOptions;
@@ -83,12 +82,7 @@ import de.walware.statet.r.ui.sourceediting.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 
 
-public class REditor extends SourceEditor1 implements IREditor {
-	
-	public static IRCoreAccess getRCoreAccess(final ISourceEditor editor) {
-		final IRCoreAccess adapter= (IRCoreAccess) editor.getAdapter(IRCoreAccess.class);
-		return (adapter != null) ? adapter : RCore.getWorkbenchAccess();
-	}
+public class REditor extends SourceEditor1 implements IRSourceEditor {
 	
 	
 	private static final ImList<String> KEY_CONTEXTS= ImCollections.newIdentityList(
@@ -207,7 +201,8 @@ public class REditor extends SourceEditor1 implements IREditor {
 		return (IRSourceUnit) super.getSourceUnit();
 	}
 	
-	protected IRCoreAccess getRCoreAccess() {
+	@Override
+	public IRCoreAccess getRCoreAccess() {
 		return this.rConfig.getRCoreAccess();
 	}
 	
@@ -323,9 +318,6 @@ public class REditor extends SourceEditor1 implements IREditor {
 	public Object getAdapter(final Class required) {
 		if (IContextProvider.class.equals(required)) {
 			return this.helpContextProvider;
-		}
-		if (IRCoreAccess.class.equals(required)) {
-			return getRCoreAccess();
 		}
 		return super.getAdapter(required);
 	}
