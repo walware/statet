@@ -84,18 +84,34 @@ public final class REnvHelp implements IREnvHelp {
 		return this.rEnv;
 	}
 	
+	
+	public String getDocDir() {
+		return this.docDir;
+	}
+	
+	
+	public void lock() {
+		this.lock.readLock().lock();
+	}
+	
+	@Override
+	public void unlock() {
+		this.lock.readLock().unlock();
+	}
+	
+	
 	@Override
 	public ImList<IRHelpKeyword.Group> getKeywords() {
 		return this.keywords;
 	}
 	
 	@Override
-	public ImList<IRPkgHelp> getRPackages() {
+	public ImList<IRPkgHelp> getPkgs() {
 		return this.packages;
 	}
 	
 	@Override
-	public IRPkgHelp getRPackage(final String packageName) {
+	public IRPkgHelp getPkgHelp(final String packageName) {
 		return getPackageMap().get(packageName);
 	}
 	
@@ -205,18 +221,13 @@ public final class REnvHelp implements IREnvHelp {
 		return null;
 	}
 	
-	public String getDocDir() {
-		return this.docDir;
-	}
-	
-	
-	public void lock() {
-		this.lock.readLock().lock();
-	}
-	
 	@Override
-	public void unlock() {
-		this.lock.readLock().unlock();
+	public boolean searchTopics(final String prefix, final String topicType,
+			final List<String> packages, final ITopicSearchRequestor requestor) {
+		if (requestor == null) {
+			throw new NullPointerException("requestor"); //$NON-NLS-1$
+		}
+		return getIndex().searchTopics(prefix, topicType, packages, requestor);
 	}
 	
 }

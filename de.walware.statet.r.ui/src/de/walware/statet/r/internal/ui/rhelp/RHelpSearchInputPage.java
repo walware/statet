@@ -351,7 +351,7 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 						final IREnvHelp help = rHelpManager.getHelp(rEnv);
 						if (help != null) {
 							try {
-								packages = help.getRPackages();
+								packages = help.getPkgs();
 							}
 							finally {
 								help.unlock();
@@ -363,7 +363,7 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 						final IREnvHelp help = rHelpManager.getHelp(rEnv);
 						if (help != null) {
 							try {
-								packages = help.getRPackages();
+								packages = help.getPkgs();
 							}
 							finally {
 								help.unlock();

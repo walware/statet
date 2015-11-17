@@ -106,7 +106,7 @@ public class RHelpHover implements IInfoHover {
 		if (help != null) {
 			try {
 				if (RElementName.isPackageFacetScopeType(name.getType())) {
-					helpObject = help.getRPackage(name.getSegmentName());
+					helpObject = help.getPkgHelp(name.getSegmentName());
 				}
 				else {
 					if (name.getScope() != null

@@ -11,8 +11,7 @@
 
 package de.walware.statet.r.internal.core.rhelp;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import de.walware.jcommons.collections.ImCollections;
@@ -38,18 +37,7 @@ public class RPkgHelp implements IRPkgHelp {
 	
 	
 	public RPkgHelp(final String name, final String title, final String version,
-			final IREnv rEnv, final String built) {
-		this.name= name;
-		this.title= title;
-		this.version= version;
-		this.rEnv= rEnv;
-		this.built= built;
-		this.helpPages= new ArrayList<>();
-	}
-	
-	public RPkgHelp(final String name, final String title, final String version,
-			final IREnv rEnv, final String built,
-			final ImList<IRHelpPage> pages) {
+			final IREnv rEnv, final String built, final List<IRHelpPage> pages) {
 		this.name= name;
 		this.title= title;
 		this.version= version;
@@ -105,10 +93,12 @@ public class RPkgHelp implements IRPkgHelp {
 		this.helpPages.add(page);
 	}
 	
+	public void setPages(final ImList<IRHelpPage> pages) {
+		this.helpPages= pages;
+	}
+	
 	public void freeze() {
-		final IRHelpPage[] array= this.helpPages.toArray(new IRHelpPage[this.helpPages.size()]);
-		Arrays.sort(array);
-		this.helpPages= ImCollections.newList(array);
+		this.helpPages= ImCollections.toList(this.helpPages, (Comparator<IRHelpPage>) null);
 	}
 	
 	

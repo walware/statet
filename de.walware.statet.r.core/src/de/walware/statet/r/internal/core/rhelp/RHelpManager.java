@@ -365,7 +365,7 @@ public class RHelpManager implements IRHelpManager, IPreferenceSetService.IChang
 							final REnvHelp help = getHelp(rEnv);
 							if (help != null) {
 								try {
-									final IRPkgHelp pkgHelp = help.getRPackage(info.packageName);
+									final IRPkgHelp pkgHelp = help.getPkgHelp(info.packageName);
 									if (pkgHelp != null && info.command == RHelpWebapp.COMMAND_HTML_PAGE) {
 										final IRHelpPage page = pkgHelp.getHelpPage(info.detail);
 										if (page != null) {

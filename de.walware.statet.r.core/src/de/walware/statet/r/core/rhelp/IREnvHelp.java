@@ -23,10 +23,13 @@ public interface IREnvHelp {
 	
 	IREnv getREnv();
 	
+	void unlock();
+	
+	
 	List<IRHelpKeyword.Group> getKeywords();
 	
-	List<IRPkgHelp> getRPackages();
-	IRPkgHelp getRPackage(String pkgName);
+	List<IRPkgHelp> getPkgs();
+	IRPkgHelp getPkgHelp(String pkgName);
 	IRPkgDescription getPkgDescription(String pkgName);
 	
 	/**
@@ -60,6 +63,14 @@ public interface IREnvHelp {
 	String getHtmlPage(String pkgName, String pageName,
 			String queryString, String[] preTags, String[] postTags);
 	
-	void unlock();
+	
+	interface ITopicSearchRequestor {
+		
+		void matchFound(String topic, String packageName);
+		
+	}
+	
+	boolean searchTopics(String prefix, String topicType, List<String> packages,
+			ITopicSearchRequestor requestor);
 	
 }

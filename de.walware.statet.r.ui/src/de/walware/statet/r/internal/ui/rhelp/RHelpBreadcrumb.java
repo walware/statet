@@ -130,7 +130,7 @@ public class RHelpBreadcrumb extends AbstractBreadcrumb {
 				final IREnvHelp help = fHelpManager.getHelp((IREnv) element);
 				if (help != null) {
 					try {
-						return help.getRPackages().toArray();
+						return help.getPkgs().toArray();
 					}
 					finally {
 						help.unlock();

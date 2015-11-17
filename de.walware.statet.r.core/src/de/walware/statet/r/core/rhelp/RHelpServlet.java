@@ -129,7 +129,7 @@ public abstract class RHelpServlet extends HttpServlet {
 	}
 	
 	
-	private RCorePlugin fPlugin;
+	private RCorePlugin plugin;
 	
 	
 	public RHelpServlet() {
@@ -140,14 +140,14 @@ public abstract class RHelpServlet extends HttpServlet {
 	public void init(final ServletConfig config) throws ServletException {
 		super.init(config);
 		
-		fPlugin = RCorePlugin.getDefault();
+		this.plugin= RCorePlugin.getDefault();
 	}
 	
 	@Override
 	public void destroy() {
 		super.destroy();
 		
-		fPlugin = null;
+		this.plugin= null;
 	}
 	
 	
@@ -204,7 +204,7 @@ public abstract class RHelpServlet extends HttpServlet {
 	
 	private boolean checkREnv(final HttpServletRequest req, final HttpServletResponse resp,
 			final String id) throws IOException {
-		final IREnvManager rEnvManager = fPlugin.getREnvManager();
+		final IREnvManager rEnvManager = this.plugin.getREnvManager();
 		IREnv rEnv = rEnvManager.get(id, null);
 		if (rEnv != null) {
 			rEnv = rEnv.resolve();
@@ -212,7 +212,7 @@ public abstract class RHelpServlet extends HttpServlet {
 		if (rEnv != null && rEnv.getConfig() != null) {
 			req.setAttribute(ATTR_RENV_ID, id);
 			req.setAttribute(ATTR_RENV_RESOLVED, rEnv);
-			final IRHelpManager rHelpManager = fPlugin.getRHelpManager();
+			final IRHelpManager rHelpManager = this.plugin.getRHelpManager();
 			final IREnvHelp help = rHelpManager.getHelp(rEnv);
 			if (help != null) {
 				req.setAttribute(ATTR_RENV_HELP, help);
@@ -267,7 +267,7 @@ public abstract class RHelpServlet extends HttpServlet {
 	private void processPackageIndex(final HttpServletRequest req, final HttpServletResponse resp,
 			final String packageName) throws IOException {
 		final REnvHelp help = (REnvHelp) req.getAttribute(ATTR_RENV_HELP);
-		final IRPkgHelp pkgHelp = help.getRPackage(packageName);
+		final IRPkgHelp pkgHelp = help.getPkgHelp(packageName);
 		if (pkgHelp != null) {
 			final List<RHelpTopicEntry> topics = help.getPkgTopics(pkgHelp);
 			if (topics != null) {
@@ -650,7 +650,7 @@ public abstract class RHelpServlet extends HttpServlet {
 		final REnvHelp envHelp = (REnvHelp) req.getAttribute(ATTR_RENV_HELP);
 		final IREnv rEnv = envHelp.getREnv();
 		final IFileStore docDirectory = getDocDirectory(envHelp);
-		final List<IRPkgHelp> packages = envHelp.getRPackages();
+		final List<IRPkgHelp> packages = envHelp.getPkgs();
 		final PrintWriter writer = createHtmlDoc(req, resp,
 				NLS.bind("R Environment {0}", '\''+rEnv.getName()+'\'') );
 		final String baseDocPath = req.getContextPath() + req.getServletPath() + '/'+rEnv.getId() +

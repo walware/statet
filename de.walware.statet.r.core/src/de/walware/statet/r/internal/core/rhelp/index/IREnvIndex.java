@@ -93,9 +93,9 @@ public interface IREnvIndex {
 	String EXAMPLES_TXT_FIELD_NAME= "examples.txt"; //$NON-NLS-1$ 
 	
 	
-	int PKG_DESCRIPTION_DOCTYPE=                            00_10;
+	int PKG_DESCRIPTION_DOCTYPE=                            0b0_1000;
 	
-	int PAGE_DOCTYPE=                                       00_14;
+	int PAGE_DOCTYPE=                                       0b0_1100;
 	
 	
 	Similarity SIMILARITY= new BM25Similarity();

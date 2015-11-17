@@ -411,7 +411,7 @@ public class PkgTab extends Composite {
 				public void update(final ViewerCell cell) {
 					final String name = (String) cell.getElement();
 					cell.setImage(RUI.getImage((fPkgSet.getInstalled().containsByName(name)) ?
-							RUI.IMG_OBJ_R_PACKAGE : RUI.IMG_OBJ_R_PACKAGE_NOTA));
+							RUI.IMG_OBJ_R_PACKAGE : RUI.IMG_OBJ_R_PACKAGE_NA));
 					cell.setText(name);
 				}
 				@Override

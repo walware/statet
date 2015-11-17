@@ -57,6 +57,7 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.rhelp.IRHelpKeyword;
 import de.walware.statet.r.core.rhelp.IRHelpKeywordNode;
+import de.walware.statet.r.core.rhelp.IRHelpPage;
 import de.walware.statet.r.core.rhelp.IRPkgHelp;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.rhelp.REnvHelp;
@@ -472,7 +473,7 @@ public class REnvIndexWriter implements IREnvIndex {
 								BytesRef term;
 								while ((term= termsEnum.next()) != null) {
 									final String name= term.utf8ToString();
-									final IRPkgHelp pkgHelp= (oldHelp != null) ? oldHelp.getRPackage(name) : null;
+									final IRPkgHelp pkgHelp= (oldHelp != null) ? oldHelp.getPkgHelp(name) : null;
 									this.existingPackages.put(name, pkgHelp);
 								}
 							}
@@ -605,7 +606,8 @@ public class REnvIndexWriter implements IREnvIndex {
 			
 			this.currentPackage= new RPkgHelp(name, packageDesription.getTitle(),
 					packageDesription.getVersion().toString(),
-					this.rEnvConfig.getReference(), packageDesription.getBuilt() );
+					this.rEnvConfig.getReference(), packageDesription.getBuilt(),
+					new ArrayList<IRHelpPage>() );
 			synchronized (this.packages) {
 				this.existingPackages.remove(name);
 				this.packages.put(name, this.currentPackage);

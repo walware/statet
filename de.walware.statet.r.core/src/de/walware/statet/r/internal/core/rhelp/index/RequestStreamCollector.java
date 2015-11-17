@@ -13,23 +13,20 @@ package de.walware.statet.r.internal.core.rhelp.index;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.AtomicReader;
-import org.apache.lucene.index.AtomicReaderContext;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.Collector;
-import org.apache.lucene.search.Scorer;
+import org.apache.lucene.index.FieldInfo;
 import org.apache.lucene.search.vectorhighlight.CSimpleBoundaryScanner;
 import org.apache.lucene.search.vectorhighlight.FastVectorHighlighter;
 import org.apache.lucene.search.vectorhighlight.FieldQuery;
 import org.apache.lucene.search.vectorhighlight.ScoreOrderFragmentsBuilder;
 import org.apache.lucene.search.vectorhighlight.SimpleFragListBuilder;
+
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImSet;
 
 import de.walware.statet.r.core.rhelp.IRHelpPage;
 import de.walware.statet.r.core.rhelp.IRHelpSearchMatch;
@@ -38,7 +35,7 @@ import de.walware.statet.r.core.rhelp.IRPkgHelp;
 import de.walware.statet.r.internal.core.rhelp.RHelpSearchMatch;
 
 
-public class RequestStreamCollector extends Collector implements IREnvIndex {
+public class RequestStreamCollector extends DocFieldVisitorCollector.Visitor implements IREnvIndex {
 	
 	
 	private static final FastVectorHighlighter HIGHLIGHTER;
@@ -52,41 +49,41 @@ public class RequestStreamCollector extends Collector implements IREnvIndex {
 	}
 	
 	
-	private final SearchQuery query;
+	private static final ImSet<String> LOAD_ID_SELECTOR= ImCollections.newSet(
+			PAGE_FIELD_NAME,
+			PACKAGE_FIELD_NAME );
 	
-	private Scorer scorer;
+	
+	private final SearchQuery query;
 	
 	private final Map<String, IRPkgHelp> packageMap;
 	
 	private final IRHelpSearchRequestor requestor;
-	
-	private AtomicReader reader;
-	private int docBase;
-	private final Set<String> fieldSelector;
 	
 	private final List<IRHelpSearchMatch.MatchFragment> fragmentCollection= new ArrayList<>();
 	
 	private final FieldQuery fieldQuery;
 	private final int maxNumFragments;
 	
+	private AtomicReader reader;
+	private int doc;
+	private float score;
 	
-	public RequestStreamCollector(final Map<String, IRPkgHelp> packageMap,
-			final SearchQuery query, final IndexReader reader,
+	private String pkgName;
+	private String pageName;
+	
+	
+	public RequestStreamCollector(final SearchQuery query, final Map<String, IRPkgHelp> packageMap,
 			final IRHelpSearchRequestor requestor) throws IOException {
+		super(LOAD_ID_SELECTOR);
+		
 		this.query= query;
 		this.packageMap= packageMap;
 		this.requestor= requestor;
 		
-		this.fieldSelector= new HashSet<>(this.query.fieldNames.length + 2);
-		this.fieldSelector.add(PACKAGE_FIELD_NAME);
-		this.fieldSelector.add(PAGE_FIELD_NAME);
-		for (int i= 0; i < this.query.fieldNames.length; i++) {
-			this.fieldSelector.add(this.query.fieldNames[i]);
-		}
-		
 		this.maxNumFragments= requestor.maxFragments();
-		if (this.query.fieldNames != null && this.query.fieldNames.length > 0 && this.maxNumFragments > 0) {
-			this.fieldQuery= HIGHLIGHTER.getFieldQuery(query.luceneQuery, reader);
+		if (this.query.fieldNames != null && this.query.fieldNames.size() > 0 && this.maxNumFragments > 0) {
+			this.fieldQuery= HIGHLIGHTER.getFieldQuery(query.luceneQuery, this.reader);
 		}
 		else {
 			this.fieldQuery= null;
@@ -95,42 +92,46 @@ public class RequestStreamCollector extends Collector implements IREnvIndex {
 	
 	
 	@Override
-	public void setScorer(final Scorer scorer) throws IOException {
-		this.scorer= scorer;
+	public void newDocMatch(final AtomicReader reader, final int doc, final float score) {
+		this.reader= reader;
+		
+		this.doc= doc;
+		this.score= score;
+		this.pkgName= null;
+		this.pageName= null;
 	}
 	
 	@Override
-	public boolean acceptsDocsOutOfOrder() {
-		return true;
+	public void stringField(final FieldInfo fieldInfo, final String value) throws IOException {
+		switch (fieldInfo.name) {
+		case PACKAGE_FIELD_NAME:
+			this.pkgName= value;
+			return;
+		case PAGE_FIELD_NAME:
+			this.pageName= value;
+			return;
+		default:
+			return;
+		}
 	}
 	
 	@Override
-	public void setNextReader(final AtomicReaderContext context) throws IOException {
-		this.reader= context.reader();
-		this.docBase= context.docBase;
-	}
-	
-	@Override
-	public void collect(final int doc) throws IOException {
-		final float score= this.scorer.score();
-		if (score > 0) {
-			// TODO: reader#document not recommend
-			final Document document= this.reader.document(doc, this.fieldSelector);
-			final String packageName= document.get(PACKAGE_FIELD_NAME);
-			final IRPkgHelp pkgHelp= this.packageMap.get(packageName);
+	public void finalizeDocMatch() throws IOException {
+		if (this.pkgName != null && this.pageName != null) {
+			final IRPkgHelp pkgHelp= this.packageMap.get(this.pkgName);
 			if (pkgHelp != null) {
-				final IRHelpPage page= pkgHelp.getHelpPage(document.get(PAGE_FIELD_NAME));
+				final IRHelpPage page= pkgHelp.getHelpPage(this.pageName);
 				if (page != null) {
-//					System.out.println(packageName + "/" + page.getName() + ": " + score);
-					final RHelpSearchMatch match= new RHelpSearchMatch(page, score);
-					addHighlighting(doc, document, match);
+//					System.out.println(packageName + "?" + page.getName() + ": " + score);
+					final RHelpSearchMatch match= new RHelpSearchMatch(page, this.score);
+					addHighlighting(match);
 					this.requestor.matchFound(match);
 				}
 			}
 		}
 	}
 	
-	private void addHighlighting(final int doc, final Document document, final RHelpSearchMatch match) throws IOException {
+	private void addHighlighting(final RHelpSearchMatch match) throws IOException {
 		if (this.fieldQuery == null) {
 			return;
 		}
@@ -138,7 +139,7 @@ public class RequestStreamCollector extends Collector implements IREnvIndex {
 			final AtomicInteger counter= new AtomicInteger();
 			for (final String fieldName : this.query.fieldNames) {
 				final String[] fragments= HIGHLIGHTER.getBestFragments(this.fieldQuery, this.reader,
-						doc, fieldName, 80, this.maxNumFragments,
+						this.doc, fieldName, 80, this.maxNumFragments,
 						IRHelpSearchMatch.PRE_TAGS, IRHelpSearchMatch.POST_TAGS, REnvIndexReader.DEFAULT_ENCODER,
 						counter );
 				if (fragments != null) {

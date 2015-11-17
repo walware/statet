@@ -172,7 +172,7 @@ class SaveUtil {
 				saveKeywordGroup(keywordGroups.get(i), fio);
 			}
 		}
-		{	final List<IRPkgHelp> packages= help.getRPackages();
+		{	final List<IRPkgHelp> packages= help.getPkgs();
 			final int count= packages.size();
 			fio.out.writeInt(count);
 			for (int i= 0; i < packages.size(); i++) {
@@ -278,11 +278,12 @@ class SaveUtil {
 		
 		final int count= fio.in.readInt();
 		final IRHelpPage[] pages= new IRHelpPage[count];
-		final RPkgHelp pkg= new RPkgHelp(name, title, version,
-				rEnvConfig.getReference(), built, ImCollections.newList(pages) );
+		final RPkgHelp pkg= new RPkgHelp(name, title, version, rEnvConfig.getReference(), built,
+				null );
 		for (int i= 0; i < count; i++) {
 			pages[i]= loadPage(pkg, fio);
 		}
+		pkg.setPages(ImCollections.newList(pages));
 		return pkg;
 	}
 	

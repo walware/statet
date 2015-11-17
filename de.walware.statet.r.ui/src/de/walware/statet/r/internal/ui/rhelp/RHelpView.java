@@ -398,7 +398,7 @@ public class RHelpView extends PageBookBrowserView
 					final String url;
 					try {
 						if (RElementName.isPackageFacetScopeType(name.getType())) {
-							final IRPkgHelp packageHelp= help.getRPackage(name.getSegmentName());
+							final IRPkgHelp packageHelp= help.getPkgHelp(name.getSegmentName());
 							if (packageHelp != null) {
 								url= rHelpManager.getPackageHttpUrl(packageHelp, RHelpUIServlet.BROWSE_TARGET);
 							}

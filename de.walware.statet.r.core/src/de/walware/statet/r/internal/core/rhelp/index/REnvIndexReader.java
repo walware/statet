@@ -17,20 +17,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.primitives.IntList;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.AtomicReader;
-import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.FieldInfo;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Collector;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.NumericRangeQuery;
-import org.apache.lucene.search.Scorer;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.highlight.DefaultEncoder;
 import org.apache.lucene.search.highlight.Encoder;
@@ -38,12 +33,21 @@ import org.apache.lucene.search.vectorhighlight.FastVectorHighlighter;
 import org.apache.lucene.search.vectorhighlight.FieldQuery;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.SimpleFSDirectory;
+import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.BytesRefBuilder;
+import org.apache.lucene.util.NumericUtils;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImList;
 import de.walware.jcommons.collections.ImSet;
+
+import de.walware.alucene.queries.ChainedFilter;
+import de.walware.alucene.queries.PrefixTermsFilter;
+import de.walware.alucene.queries.TermFilter;
+import de.walware.alucene.queries.TermsFilter;
 
 import de.walware.rj.renv.IRPkgDescription;
 import de.walware.rj.renv.RNumVersion;
@@ -51,6 +55,7 @@ import de.walware.rj.renv.RPkgDescription;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
+import de.walware.statet.r.core.rhelp.IREnvHelp;
 import de.walware.statet.r.core.rhelp.IRHelpPage;
 import de.walware.statet.r.core.rhelp.IRHelpSearchRequestor;
 import de.walware.statet.r.core.rhelp.IRPkgHelp;
@@ -77,6 +82,10 @@ public class REnvIndexReader implements IREnvIndex {
 			PAGE_FIELD_NAME,
 			ALIAS_FIELD_NAME );
 	
+	private static final ImSet<String> LOAD_TOPICS_SELECTOR= ImCollections.newSet(
+			PACKAGE_FIELD_NAME,
+			ALIAS_FIELD_NAME );
+	
 	private static final ImSet<String> LOAD_PKG_DESCRIPTION_SELECTOR= ImCollections.newSet(
 			DESCRIPTION_TXT_FIELD_NAME,
 			AUTHORS_TXT_FIELD_NAME,
@@ -84,15 +93,58 @@ public class REnvIndexReader implements IREnvIndex {
 			URL_TXT_FIELD_NAME );
 	
 	
-	private static final String[] DOC_HTML_SEARCH_FIELDS= new String[] {
-			DOC_HTML_FIELD_NAME };
+	private static final ImList<String> DOC_HTML_SEARCH_FIELDS= ImCollections.newList(
+			DOC_HTML_FIELD_NAME );
 	
 	
-	static final NumericRangeQuery<Integer> DOCTYPE_PKG_DESCRIPTION_QUERY= NumericRangeQuery.newIntRange(
-			DOCTYPE_FIELD_NAME, Integer.MAX_VALUE, PKG_DESCRIPTION_DOCTYPE, PKG_DESCRIPTION_DOCTYPE, true, true );
+	static final BytesRef[] toByteRefTerms(final List<String> stringValues) {
+		final BytesRef[] terms= new BytesRef[stringValues.size()];
+		for (int i = 0; i < terms.length; i++) {
+			terms[i]= new BytesRef(stringValues.get(i));
+		}
+		return terms;
+	}
 	
-	static final NumericRangeQuery<Integer> DOCTYPE_PAGE_QUERY= NumericRangeQuery.newIntRange(
-			DOCTYPE_FIELD_NAME, Integer.MAX_VALUE, PAGE_DOCTYPE, PAGE_DOCTYPE, true, true );
+	static final BytesRef toByteRefTerm(final String stringValue) {
+		final BytesRef term= new BytesRef(stringValue);
+		return term;
+	}
+	
+	static final BytesRef toByteRefTerm(final int typeValue) {
+		final BytesRefBuilder bytes= new BytesRefBuilder();
+		NumericUtils.intToPrefixCoded(typeValue, 0, bytes);
+		return bytes.toBytesRef();
+	}
+	
+	static final Filter chainFilters(final List<Filter> filters) {
+		final int count= filters.size();
+		switch (count) {
+		case 0:
+			return null;
+		case 1:
+			return filters.get(0);
+		default:
+			return new ChainedFilter(filters.toArray(new Filter[count]), ChainedFilter.AND);
+		}
+	}
+	static final Filter chainFilters(final Filter... filters) {
+		final int count= filters.length;
+		switch (count) {
+		case 0:
+			return null;
+		case 1:
+			return filters[0];
+		default:
+			return new ChainedFilter(filters, ChainedFilter.AND);
+		}
+	}
+	
+	
+	static final Filter DOCTYPE_PKG_DESCRIPTION_FILTER= new TermFilter(DOCTYPE_FIELD_NAME,
+			toByteRefTerm(PKG_DESCRIPTION_DOCTYPE) );
+	
+	static final Filter DOCTYPE_PAGE_FILTER= new TermFilter(DOCTYPE_FIELD_NAME,
+			toByteRefTerm(PAGE_DOCTYPE) );
 	
 	
 	private static final FastVectorHighlighter HTML_PAGE_QUERY_HIGHLIGHTER= new FastVectorHighlighter(true, true, null, null);
@@ -138,11 +190,12 @@ public class REnvIndexReader implements IREnvIndex {
 	public IRHelpPage getPageForTopic(final IRPkgHelp pkgHelp, final String topic) {
 		check();
 		try {
-			final BooleanQuery q= new BooleanQuery(true);
-			q.add(DOCTYPE_PAGE_QUERY, Occur.MUST);
-			q.add(new TermQuery(new Term(PACKAGE_FIELD_NAME, pkgHelp.getName())), Occur.MUST);
-			q.add(new TermQuery(new Term(ALIAS_FIELD_NAME, topic)), Occur.MUST);
-			final TopDocs docs= this.indexSearcher.search(q, null, 1);
+			final Filter filter= chainFilters(
+					new TermFilter(PACKAGE_FIELD_NAME, toByteRefTerm(pkgHelp.getName())),
+					new TermFilter(ALIAS_FIELD_NAME, toByteRefTerm(topic)),
+					DOCTYPE_PAGE_FILTER );
+			
+			final TopDocs docs= this.indexSearcher.search(new MatchAllDocsQuery(), filter, 1);
 			if (docs.totalHits > 1) {
 				RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID,
 						NLS.bind("Unexpected search result: total hits= {0}; in search: {1}." + //$NON-NLS-1$
@@ -171,33 +224,53 @@ public class REnvIndexReader implements IREnvIndex {
 	public List<IRHelpPage> getPagesForTopic(final String topic, final Map<String, IRPkgHelp> packageMap) {
 		check();
 		try {
-			final BooleanQuery q= new BooleanQuery(true);
-			q.add(DOCTYPE_PAGE_QUERY, Occur.MUST);
-			q.add(new TermQuery(new Term(ALIAS_FIELD_NAME, topic)), Occur.MUST);
-			final AllDocCollector collector= new AllDocCollector();
-			this.indexSearcher.search(q, collector);
-			final IntList docs= collector.getDocs();
-			final int count= docs.size();
-			final ArrayList<IRHelpPage> pages= new ArrayList<>(count);
-			for (int i= 0; i < count; i++) {
-				final Document document= this.indexSearcher.doc(docs.get(i), LOAD_ID_SELECTOR);
-				final IRPkgHelp pkgHelp= packageMap.get(document.get(PACKAGE_FIELD_NAME));
-				final String name= document.get(PAGE_FIELD_NAME);
-				if (name == null) {
-					continue;
+			final Filter filter= chainFilters(
+					new TermFilter(ALIAS_FIELD_NAME, toByteRefTerm(topic)),
+					DOCTYPE_PAGE_FILTER );
+			
+			final List<IRHelpPage> pages= new ArrayList<>();
+			this.indexSearcher.search(new MatchAllDocsQuery(), filter, new DocFieldVisitorCollector(
+					new DocFieldVisitorCollector.Visitor(LOAD_ID_SELECTOR) {
+				
+				private String pkgName;
+				private String pageName;
+				
+				@Override
+				public void newDocMatch(final AtomicReader reader, final int doc, final float score) {
+					this.pkgName= null;
+					this.pageName= null;
 				}
-				if (pkgHelp != null) {
-					final IRHelpPage page= pkgHelp.getHelpPage(name);
-					if (page != null) {
-						pages.add(page);
-						continue;
+				@Override
+				public void stringField(final FieldInfo fieldInfo, final String value) throws IOException {
+					switch (fieldInfo.name) {
+					case PACKAGE_FIELD_NAME:
+						this.pkgName= value;
+						return;
+					case PAGE_FIELD_NAME:
+						this.pageName= value;
+						return;
+					default:
+						return;
 					}
 				}
-				RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID,
-						"Unexpected search result: page '"+ document.get(PACKAGE_FIELD_NAME) + "::" +
-						document.get(PAGE_FIELD_NAME) + "' object not found; in search: " +
-						getPagesForTopicDescription(topic) + "." ));
-			}
+				@Override
+				public void finalizeDocMatch() {
+					if (this.pkgName != null && this.pageName != null) {
+						final IRPkgHelp pkgHelp= packageMap.get(this.pkgName);
+						if (pkgHelp != null) {
+							final IRHelpPage page= pkgHelp.getHelpPage(this.pageName);
+							if (page != null) {
+								pages.add(page);
+							}
+						}
+						else {
+							RCorePlugin.log(new org.eclipse.core.runtime.Status(IStatus.WARNING, RCore.PLUGIN_ID,
+									"Unexpected search result: page '" + this.pkgName + "?" + this.pageName + "' object not found;" +
+									"in search: " + getPagesForTopicDescription(topic) + "." ));
+						}
+					}
+				}
+			} ));
 			return pages;
 		}
 		catch (final Exception e) {
@@ -215,11 +288,12 @@ public class REnvIndexReader implements IREnvIndex {
 			final String queryString, final String[] preTags, final String[] postTags) {
 		check();
 		try {
-			final BooleanQuery q= new BooleanQuery(true);
-			q.add(DOCTYPE_PAGE_QUERY, Occur.MUST);
-			q.add(new TermQuery(new Term(PACKAGE_FIELD_NAME, packageName)), Occur.MUST);
-			q.add(new TermQuery(new Term(PAGE_FIELD_NAME, pageName)), Occur.MUST);
-			final TopDocs docs= this.indexSearcher.search(q, null, 1);
+			final Filter filter= chainFilters(
+					new TermFilter(PACKAGE_FIELD_NAME, toByteRefTerm(packageName)),
+					new TermFilter(PAGE_FIELD_NAME, toByteRefTerm(pageName)),
+					DOCTYPE_PAGE_FILTER );
+			
+			final TopDocs docs= this.indexSearcher.search(new MatchAllDocsQuery(), filter, 1);
 			if (docs.totalHits > 1) {
 				RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID,
 						NLS.bind("Unexpected search result: total hits= {0}; in search: {1}.", //$NON-NLS-1$
@@ -258,14 +332,16 @@ public class REnvIndexReader implements IREnvIndex {
 	}
 	
 	
-	public boolean search(final RHelpSearchQuery.Compiled query,
+	public boolean search(final RHelpSearchQuery.Compiled searchQuery,
 			final List<IRPkgHelp> packageList, final Map<String, IRPkgHelp> packageMap,
 			final IRHelpSearchRequestor requestor) {
 		check();
 		try {
-			final SearchQuery internal= (SearchQuery) query.compiled();
-			final BooleanQuery q= internal.luceneQuery;
-			if (q.clauses().size() <= 1) {
+			final SearchQuery internal= (SearchQuery) searchQuery.compiled();
+			final Filter filter= internal.luceneFilter;
+			final Query query= internal.luceneQuery;
+			
+			if (query == null && filter == DOCTYPE_PAGE_FILTER) {
 				for (final IRPkgHelp pkgHelp : packageList) {
 					for (final IRHelpPage page : pkgHelp.getHelpPages()) {
 						requestor.matchFound(new RHelpSearchMatch(page, 1.0f));
@@ -273,15 +349,14 @@ public class REnvIndexReader implements IREnvIndex {
 				}
 			}
 			else {
-				final RequestStreamCollector collector= new RequestStreamCollector(packageMap,
-						internal, this.indexReader, requestor );
-				this.indexSearcher.search(q, collector);
+				this.indexSearcher.search(query, filter, new DocFieldVisitorCollector(
+						new RequestStreamCollector(internal, packageMap, requestor) ));
 			}
 			return true;
 		}
 		catch (final Exception e) {
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
-					"An error occurred in search: " + query.toString() + ".", e));
+					"An error occurred in search: " + searchQuery.toString() + ".", e));
 			return false;
 		}
 	}
@@ -290,69 +365,167 @@ public class REnvIndexReader implements IREnvIndex {
 	public List<RHelpTopicEntry> getPackageTopics(final IRPkgHelp pkgHelp) {
 		final List<RHelpTopicEntry> list= new ArrayList<>(64);
 		try {
-			final BooleanQuery q= new BooleanQuery(true);
-			q.add(DOCTYPE_PAGE_QUERY, Occur.MUST);
-			q.add(new TermQuery(new Term(PACKAGE_FIELD_NAME, pkgHelp.getName())), Occur.MUST);
-			this.indexSearcher.search(q, new Collector() {
+			final Filter filter= chainFilters(
+					new TermFilter(PACKAGE_FIELD_NAME, toByteRefTerm(pkgHelp.getName())),
+					DOCTYPE_PAGE_FILTER );
+			
+			this.indexSearcher.search(new MatchAllDocsQuery(), filter, new DocFieldVisitorCollector(
+					new DocFieldVisitorCollector.Visitor(LOAD_PKG_TOPICS_SELECTOR) {
 				
-				private Scorer scorer;
-				
-				private AtomicReader reader;
-				private int docBase;
+				private String pageName;
+				private final List<String> topics= new ArrayList<>();
 				
 				@Override
-				public void setScorer(final Scorer scorer) throws IOException {
-					this.scorer= scorer;
+				public void newDocMatch(final AtomicReader reader, final int doc, final float score) {
+					this.pageName= null;
+					this.topics.clear();
 				}
-				
 				@Override
-				public boolean acceptsDocsOutOfOrder() {
-					return true;
+				public void stringField(final FieldInfo fieldInfo, final String value) throws IOException {
+					switch (fieldInfo.name) {
+					case PAGE_FIELD_NAME:
+						this.pageName= value;
+						return;
+					case ALIAS_FIELD_NAME:
+						this.topics.add(value);
+						return;
+					default:
+						return;
+					}
 				}
-				
 				@Override
-				public void setNextReader(final AtomicReaderContext context) throws IOException {
-					this.reader= context.reader();
-					this.docBase= context.docBase;
-				}
-				
-				@Override
-				public void collect(final int doc) throws IOException {
-					if (this.scorer.score() > 0.0f) {
-						// TODO: reader#document not recommend
-						final Document document= this.reader.document(doc, LOAD_PKG_TOPICS_SELECTOR);
-						final String pageName= document.get(PAGE_FIELD_NAME);
-						final IRHelpPage page= pkgHelp.getHelpPage(pageName);
-						final String[] topics= document.getValues(ALIAS_FIELD_NAME);
-						for (int i= 0; i < topics.length; i++) {
-							list.add(new RHelpTopicEntry(topics[i], page));
+				public void finalizeDocMatch() {
+					if (this.pageName != null) {
+						final IRHelpPage page= pkgHelp.getHelpPage(this.pageName);
+						for (int i= 0; i < this.topics.size(); i++) {
+							list.add(new RHelpTopicEntry(this.topics.get(i), page));
 						}
 					}
 				}
-				
-			});
+			} ));
+			
 			Collections.sort(list);
 			return list;
 		}
 		catch (final Exception e) {
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 					NLS.bind("An error occurred in search: {0}.", //$NON-NLS-1$
-							getPackageTopicsDescription(pkgHelp.getName()) ),
+							getPackageTopics(pkgHelp.getName()) ),
 					e ));
 			throw new RuntimeException("R help index search error.");
 		}
 	}
 	
-	private String getPackageTopicsDescription(final String packageName) {
-		return "#getPackageTopicsDescription '" + packageName + "'"; //$NON-NLS-1$ //$NON-NLS-2$
+	private String getPackageTopics(final String packageName) {
+		return "#getPackageTopics '" + packageName + "'"; //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	public boolean searchTopics(final String prefix, final String topicType,
+			final List<String> packages, final IREnvHelp.ITopicSearchRequestor requestor) {
+		try {
+			final String uCasePrefix= (prefix != null) ? prefix.toUpperCase() : null;
+			final String topicEnd= (topicType != null) ? ("-" + topicType) : null;
+			
+			final List<Filter> filters= new ArrayList<>(4);
+			if (packages != null) {
+				filters.add(new TermsFilter(PACKAGE_FIELD_NAME, toByteRefTerms(packages)));
+			}
+			if (prefix != null && !prefix.isEmpty()) {
+				final char upperCase= uCasePrefix.charAt(0);
+				final char lowerCase= Character.toLowerCase(upperCase);
+				filters.add(new PrefixTermsFilter(ALIAS_FIELD_NAME, toByteRefTerms(
+						(lowerCase != upperCase) ?
+								ImCollections.newList(String.valueOf(lowerCase), String.valueOf(upperCase)) :
+								ImCollections.newList(String.valueOf(lowerCase)) )));
+			}
+			
+			filters.add(DOCTYPE_PAGE_FILTER);
+			
+			this.indexSearcher.search(new MatchAllDocsQuery(), chainFilters(filters), new DocFieldVisitorCollector(
+					new DocFieldVisitorCollector.Visitor(LOAD_TOPICS_SELECTOR) {
+						
+						private String pkgName;
+						private final List<String> topics= new ArrayList<>();
+						
+						@Override
+						public void newDocMatch(final AtomicReader reader, final int doc, final float score) {
+							this.pkgName= null;
+							this.topics.clear();
+						}
+						private boolean matchesPrefix(final String value, final String uCasePrefix) {
+							if (value.length() < uCasePrefix.length()) {
+								return false;
+							}
+							for (int i= 0; i < uCasePrefix.length(); i++) {
+								if (Character.toUpperCase(value.charAt(i)) != uCasePrefix.charAt(i)) {
+									return false;
+								}
+							}
+							return true;
+						}
+						@Override
+						public void stringField(final FieldInfo fieldInfo, String value) throws IOException {
+							switch (fieldInfo.name) {
+							case PACKAGE_FIELD_NAME:
+								this.pkgName= value;
+								return;
+							case ALIAS_FIELD_NAME:
+								if (topicEnd != null) {
+									if (!value.endsWith(topicEnd)) {
+										return;
+									}
+									value= value.substring(0, value.length() - topicEnd.length());
+								}
+								if (uCasePrefix != null && !matchesPrefix(value, uCasePrefix)) {
+									return;
+								}
+								this.topics.add(value);
+								return;
+							default:
+								return;
+							}
+						}
+						@Override
+						public void finalizeDocMatch() {
+							if (this.pkgName != null) {
+								for (int i= 0; i < this.topics.size(); i++) {
+									requestor.matchFound(this.topics.get(i), this.pkgName);
+								}
+							}
+						}
+					} ));
+			return true;
+		}
+		catch (final Exception e) {
+			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
+					NLS.bind("An error occurred in search: {0}.", //$NON-NLS-1$
+							getTopicsSearchDescription(prefix, topicType) ),
+					e ));
+			return false;
+		}
+	}
+	
+	private String getTopicsSearchDescription(final String prefix, final String topicType) {
+		final StringBuilder sb= new StringBuilder("#searchTopics '"); //$NON-NLS-1$
+		if (prefix != null) {
+			sb.append(prefix);
+		}
+		sb.append('*');
+		if (topicType != null) {
+			sb.append('-');
+			sb.append(topicType);
+		}
+		sb.append('\'');
+		return sb.toString();
 	}
 	
 	public IRPkgDescription getPkgDescription(final IRPkgHelp pkgHelp) {
 		try {
-			final BooleanQuery q= new BooleanQuery(true);
-			q.add(DOCTYPE_PKG_DESCRIPTION_QUERY, Occur.MUST);
-			q.add(new TermQuery(new Term(PACKAGE_FIELD_NAME, pkgHelp.getName())), Occur.MUST);
-			final TopDocs docs= this.indexSearcher.search(q, null, 1);
+			final Filter filter= chainFilters(
+					new TermFilter(PACKAGE_FIELD_NAME, toByteRefTerm(pkgHelp.getName())),
+					DOCTYPE_PKG_DESCRIPTION_FILTER );
+			
+			final TopDocs docs= this.indexSearcher.search(new MatchAllDocsQuery(), filter, 1);
 			if (docs.totalHits > 1) {
 				RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID,
 						NLS.bind("Unexpected search result: total hits= {0}; in search: {1}.", //$NON-NLS-1$

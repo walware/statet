@@ -149,7 +149,7 @@ public class REnvIndexChecker {
 	
 	public void checkPackage(final IRPkgInfo pkgInfo) {
 		if (!REnvIndexWriter.IGNORE_PKG_NAMES.contains(pkgInfo.getName())) {
-			final IRPkgHelp pkgHelp= this.rEnvHelp.getRPackage(pkgInfo.getName());
+			final IRPkgHelp pkgHelp= this.rEnvHelp.getPkgHelp(pkgInfo.getName());
 			if (pkgHelp == null) {
 				this.newPkg++;
 				this.needUpdate.put(pkgInfo.getName(), pkgInfo);
