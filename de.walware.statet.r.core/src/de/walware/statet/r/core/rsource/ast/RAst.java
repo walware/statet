@@ -329,7 +329,7 @@ public class RAst extends Ast {
 				final Symbol symbol = (Symbol) refChild;
 				if (symbol.fText != null) {
 					if (symbol.fText.equals(RCoreFunctions.BASE_ASSIGN_NAME)) {
-						final ReadedFCallArgs args = readArgs(callNode.getArgsChild(), RCoreFunctions.DEFAULT.BASE_ASSIGN_args);
+						final FCallArgMatch args = matchArgs(callNode.getArgsChild(), RCoreFunctions.DEFAULT.BASE_ASSIGN_args);
 						return new AssignExpr(node, AssignExpr.LOCAL, args.allocatedArgs[0], args.allocatedArgs[1]);
 					}
 				}
@@ -343,7 +343,7 @@ public class RAst extends Ast {
 		return null;
 	}
 	
-	public static final class ReadedFCallArgs {
+	public static final class FCallArgMatch {
 		
 		public final ArgsDefinition argsDef;
 		public final FCall.Args argsNode;
@@ -353,7 +353,7 @@ public class RAst extends Ast {
 		public final int[] argsNode2argsDef;
 		
 		
-		private ReadedFCallArgs(
+		private FCallArgMatch(
 				final ArgsDefinition argsDef, 
 				final FCall.Args argsNode, 
 				final FCall.Arg[] allocatedArgs, 
@@ -370,18 +370,18 @@ public class RAst extends Ast {
 		
 		
 		public FCall.Arg getArgNode(final String name) {
-			final int idx = argsDef.indexOf(name);
+			final int idx = this.argsDef.indexOf(name);
 			if (idx >= 0) {
-				return allocatedArgs[idx];
+				return this.allocatedArgs[idx];
 			}
 			else {
 				return null;
 			}
 		}
 		
-		public FCall.Arg getArgNode(final int idx) {
-			if (idx >= 0) {
-				return allocatedArgs[idx];
+		public FCall.Arg getArgNode(final int callArgIdx) {
+			if (callArgIdx >= 0) {
+				return this.allocatedArgs[callArgIdx];
 			}
 			else {
 				return null;
@@ -389,28 +389,42 @@ public class RAst extends Ast {
 		}
 		
 		public RAstNode getArgValueNode(final String name) {
-			final int idx = argsDef.indexOf(name);
-			if (idx >= 0 && allocatedArgs[idx] != null) {
-				return allocatedArgs[idx].getValueChild();
+			final int idx = this.argsDef.indexOf(name);
+			if (idx >= 0 && this.allocatedArgs[idx] != null) {
+				return this.allocatedArgs[idx].getValueChild();
 			}
 			else {
 				return null;
 			}
 		}
 		
-		public RAstNode getArgValueNode(final int idx) {
-			if (idx >= 0 && allocatedArgs[idx] != null) {
-				return allocatedArgs[idx].getValueChild();
+		public RAstNode getArgValueNode(final int callArgIdx) {
+			if (callArgIdx >= 0 && this.allocatedArgs[callArgIdx] != null) {
+				return this.allocatedArgs[callArgIdx].getValueChild();
 			}
 			else {
 				return null;
 			}
+		}
+		
+		public ArgsDefinition.Arg getArgDef(final int callArgIdx) {
+			if (callArgIdx >= 0 && this.argsDef.size() > 0) {
+				if (callArgIdx < this.argsNode2argsDef.length) {
+					if (this.argsNode2argsDef[callArgIdx] >= 0) {
+						return this.argsDef.get(this.argsNode2argsDef[callArgIdx]);
+					}
+				}
+				else if (callArgIdx == 0 && this.argsNode2argsDef.length == 0){
+					return this.argsDef.get(0);
+				}
+			}
+			return null;
 		}
 		
 		
 		@Override
 		public String toString() {
-			return Arrays.toString(argsNode2argsDef);
+			return Arrays.toString(this.argsNode2argsDef);
 		}
 		
 	}
@@ -454,7 +468,7 @@ public class RAst extends Ast {
 	 * @param argsDef the arguments definition
 	 * @return
 	 */
-	public static ReadedFCallArgs readArgs(final FCall.Args argsNode, final ArgsDefinition argsDef) {
+	public static FCallArgMatch matchArgs(final FCall.Args argsNode, final ArgsDefinition argsDef) {
 		final int nodeArgsCount = argsNode.getChildCount();
 		final int defArgsCount = argsDef.size();
 		final FCall.Arg[] allocatedArgs = (defArgsCount > 0) ? new FCall.Arg[defArgsCount] : NO_ARGS;
@@ -582,7 +596,7 @@ public class RAst extends Ast {
 				}
 			}
 		}
-		return new ReadedFCallArgs(argsDef, argsNode,
+		return new FCallArgMatch(argsDef, argsNode,
 				allocatedArgs, ellipsisArgs, otherArgs, match);
 	}
 	
@@ -888,12 +902,12 @@ public class RAst extends Ast {
 		return null;
 	}
 	
-	private static Double parseNum(String text) {
+	private static Double parseNum(final String text) {
 		if (text != null && !text.isEmpty()) {
 			try {
 				return Double.valueOf(text);
 			}
-			catch (NumberFormatException e) {}
+			catch (final NumberFormatException e) {}
 		}
 		return null;
 	}
@@ -912,7 +926,7 @@ public class RAst extends Ast {
 					return Integer.parseInt(text);
 				}
 			}
-			catch (NumberFormatException e) {}
+			catch (final NumberFormatException e) {}
 		}
 		return null;
 	}

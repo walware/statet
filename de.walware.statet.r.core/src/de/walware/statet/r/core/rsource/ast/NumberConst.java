@@ -19,7 +19,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  * 
  */
-public class NumberConst extends SingleValue {
+public final class NumberConst extends SingleValue {
 	
 	
 	private final RTerminal fType;

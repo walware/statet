@@ -23,7 +23,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public abstract class Logical extends StdBinary {
 	
 	
-	static class Or extends Logical {
+	static final class Or extends Logical {
 		
 		
 		Or() {
@@ -48,7 +48,7 @@ public abstract class Logical extends StdBinary {
 		
 	}
 	
-	static class OrD extends Logical {
+	static final class OrD extends Logical {
 		
 		
 		OrD() {
@@ -73,7 +73,7 @@ public abstract class Logical extends StdBinary {
 		
 	}
 	
-	static class And extends Logical {
+	static final class And extends Logical {
 		
 		
 		And() {
@@ -98,7 +98,7 @@ public abstract class Logical extends StdBinary {
 		
 	}
 	
-	static class AndD extends Logical {
+	static final class AndD extends Logical {
 		
 		
 		AndD() {

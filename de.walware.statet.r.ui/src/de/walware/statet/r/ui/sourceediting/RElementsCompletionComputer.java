@@ -916,7 +916,8 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			final ISourceUnit su = fEditor.getSourceUnit();
 			if ((su instanceof IRSourceUnit)) {
 				try {
-					fEnvirList[WS_ENVIR] = RModel.createProjectFrameList(null, (IRSourceUnit) su, fEnvirListPackages);
+					fEnvirList[WS_ENVIR] = RModel.createProjectFrameList(null, (IRSourceUnit) su,
+							null, fEnvirListPackages);
 				}
 				catch (final CoreException e) {
 					// CANCELLED possible?

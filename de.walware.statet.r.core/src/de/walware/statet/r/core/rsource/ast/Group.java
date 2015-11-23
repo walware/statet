@@ -24,7 +24,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  * <code>( ... )</code>
  */
-public class Group extends RAstNode {
+public final class Group extends RAstNode {
 	
 	
 	final Expression fExpr = new Expression();

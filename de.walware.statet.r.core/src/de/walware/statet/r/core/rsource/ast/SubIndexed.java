@@ -30,7 +30,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public abstract class SubIndexed extends RAstNode {
 	
 	
-	static class S extends SubIndexed {
+	static final class S extends SubIndexed {
 		
 		
 		S() {
@@ -55,7 +55,7 @@ public abstract class SubIndexed extends RAstNode {
 		
 	}
 	
-	static class D extends SubIndexed {
+	static final class D extends SubIndexed {
 		
 		
 		D() {
@@ -80,7 +80,7 @@ public abstract class SubIndexed extends RAstNode {
 		
 	}
 	
-	public static class Args extends RAstNode {
+	public static final class Args extends RAstNode {
 		
 		
 		final List<SubIndexed.Arg> fSpecs;
@@ -182,7 +182,7 @@ public abstract class SubIndexed extends RAstNode {
 		
 	}
 	
-	public static class Arg extends SpecItem {
+	public static final class Arg extends SpecItem {
 		
 		
 		Arg(final SubIndexed.Args parent) {

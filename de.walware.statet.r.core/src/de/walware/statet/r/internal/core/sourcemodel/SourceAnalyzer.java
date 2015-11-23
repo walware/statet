@@ -64,7 +64,7 @@ import de.walware.statet.r.core.rsource.ast.NullConst;
 import de.walware.statet.r.core.rsource.ast.NumberConst;
 import de.walware.statet.r.core.rsource.ast.Power;
 import de.walware.statet.r.core.rsource.ast.RAst;
-import de.walware.statet.r.core.rsource.ast.RAst.ReadedFCallArgs;
+import de.walware.statet.r.core.rsource.ast.RAst.FCallArgMatch;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RAstVisitor;
 import de.walware.statet.r.core.rsource.ast.Relational;
@@ -224,7 +224,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			if (text == null) {
 				return;
 			}
-			final ElementAccess access= new ElementAccess.Package(symbol.getRParent(), symbol);
+			final ElementAccess access= new ElementAccess.Namespace(symbol.getRParent(), symbol);
 			access.fFlags |= ElementAccess.A_IMPORT;
 			this.fModelInfo.fPackageRefs.add(text, access);
 		}
@@ -412,7 +412,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		this.fCallAnalyzers.put(RCoreFunctions.BASE_REMOVE_ALIAS_RM, analyzer);
 		this.fCallAnalyzers.put(RCoreFunctions.BASE_EXISTS_NAME,
 				new BaseExists(rdef));
-		this.fCallAnalyzers.put(RCoreFunctions.BASE_GET_NAME, 
+		this.fCallAnalyzers.put(RCoreFunctions.BASE_GET_NAME,
 				new BaseGet(rdef));
 		this.fCallAnalyzers.put(RCoreFunctions.BASE_SAVE_NAME,
 				new BaseSave(rdef));
@@ -431,23 +431,12 @@ public class SourceAnalyzer extends RAstVisitor {
 		this.fCallAnalyzers.put(RCoreFunctions.BASE_C_NAME,
 				new BaseC(rdef));
 		
-		this.fCallAnalyzers.put(RCoreFunctions.BASE_USEMETHOD_NAME,
-				new CommonDefBased(rdef.BASE_USEMETHOD_args));
-		this.fCallAnalyzers.put(RCoreFunctions.BASE_NEXTMETHOD_NAME,
-				new CommonDefBased(rdef.BASE_NEXTMETHOD_args));
-		this.fCallAnalyzers.put(RCoreFunctions.UTILS_METHODS_NAME,
-				new CommonDefBased(rdef.UTILS_METHODS_args));
-		
 		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SETGENERIC_NAME,
 				new MethodsSetGeneric(rdef));
 		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SETGROUPGENERIC_NAME,
 				new MethodsSetGroupGeneric(rdef));
 		this.fCallAnalyzers.put(RCoreFunctions.METHODS_REMOVEGENERIC_NAME,
 				new MethodsRemoveGeneric(rdef));
-		this.fCallAnalyzers.put(RCoreFunctions.METHODS_ISGENERIC_NAME,
-				new CommonDefBased(rdef.METHODS_ISGENERIC_args));
-		this.fCallAnalyzers.put(RCoreFunctions.METHODS_ISGROUP_NAME,
-				new CommonDefBased(rdef.METHODS_ISGROUP_args));
 		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SIGNATURE_NAME,
 				new MethodsSignature(rdef));
 		
@@ -469,18 +458,12 @@ public class SourceAnalyzer extends RAstVisitor {
 				new MethodsSetAs(rdef));
 		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SETVALIDITY_NAME,
 				new MethodsSetValidity(rdef));
-		this.fCallAnalyzers.put(RCoreFunctions.METHODS_ISCLASS_NAME,
-				new CommonDefBased(rdef.METHODS_ISCLASS_args));
 		this.fCallAnalyzers.put(RCoreFunctions.METHODS_GETCLASS_NAME,
 				new MethodsGetClass(rdef));
 		this.fCallAnalyzers.put(RCoreFunctions.METHODS_GETCLASSDEF_NAME,
 				new MethodsGetClassDef(rdef));
 		this.fCallAnalyzers.put(RCoreFunctions.METHODS_FINDCLASS_NAME,
 				new MethodsFindClass(rdef));
-		this.fCallAnalyzers.put(RCoreFunctions.METHODS_EXTENDS_NAME,
-				new CommonDefBased(rdef.METHODS_EXTENDS_args));
-		this.fCallAnalyzers.put(RCoreFunctions.METHODS_IS_NAME,
-				new CommonDefBased(rdef.METHODS_IS_args));
 		
 		this.fCallAnalyzers.put(RCoreFunctions.METHODS_NEW_NAME,
 				new MethodsNew(rdef));
@@ -494,10 +477,6 @@ public class SourceAnalyzer extends RAstVisitor {
 		this.fCallAnalyzers.put(RCoreFunctions.METHODS_REMOVEMETHODS_NAME,
 				new MethodsRemoveMethods(rdef));
 		
-		this.fCallAnalyzers.put(RCoreFunctions.METHODS_HASMETHOD_NAME,
-				new CommonDefBased(rdef.METHODS_HASMETHOD_args));
-		this.fCallAnalyzers.put(RCoreFunctions.METHODS_EXISTSMETHOD_NAME,
-				new CommonDefBased(rdef.METHODS_EXISTSMETHOD_args));
 		this.fCallAnalyzers.put(RCoreFunctions.METHODS_GETMETHOD_NAME,
 				new MethodsGetMethod(rdef));
 		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SELECTMETHOD_NAME,
@@ -506,13 +485,15 @@ public class SourceAnalyzer extends RAstVisitor {
 				new MethodsGetMethods(rdef));
 		this.fCallAnalyzers.put(RCoreFunctions.METHODS_FINDMETHOD_NAME,
 				new MethodsFindMethod(rdef));
-		this.fCallAnalyzers.put(RCoreFunctions.METHODS_DUMPMETHOD_NAME,
-				new CommonDefBased(rdef.METHODS_DUMPMETHOD_args));
-		this.fCallAnalyzers.put(RCoreFunctions.METHODS_DUMPMETHODS_NAME,
-				new CommonDefBased(rdef.METHODS_DUMPMETHOD_args));
 		
 		this.fCallAnalyzers.put(RCoreFunctions.METHODS_SLOT_NAME,
 				new MethodsSlot(rdef));
+		
+		for (final String name : rdef.getKnownFunctions()) {
+			if (!this.fCallAnalyzers.containsKey(name)) {
+				this.fCallAnalyzers.put(name, new CommonDefBased(rdef.getArgs(name)));
+			}
+		}
 		
 		// DEBUG
 //		final Set<String> test= new HashSet<String>();
@@ -1394,7 +1375,9 @@ public class SourceAnalyzer extends RAstVisitor {
 		String namespaceName= null;
 		if (isValidPackageName(namespaceChild)) {
 			namespaceName= namespaceChild.getText();
-			final ElementAccess packageAccess= new ElementAccess.Package(access.fFullNode, namespaceChild);
+			final ElementAccess packageAccess= (node.getNodeType() == NodeType.NS_GET_INT) ?
+					new ElementAccess.NamespaceInternal(access.fFullNode, namespaceChild) :
+					new ElementAccess.Namespace(access.fFullNode, namespaceChild);
 			this.packageRefs.add(namespaceName, packageAccess);
 		}
 		// register explicit
@@ -1446,7 +1429,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode nameValue= args.getArgValueNode(this.argIdx_name);
 			
 			if (nameValue != null && nameValue.getNodeType() == NodeType.STRING_CONST) {
@@ -1478,14 +1461,32 @@ public class SourceAnalyzer extends RAstVisitor {
 			this.argsDef= argsDef;
 		}
 		
+		
+		private boolean matchesNameType(final int nameType, final int defType, final RAstNode argValue) {
+			return ((defType & nameType) != 0
+					&& (       ((defType & ArgsDefinition.NAME_AS_STRING) != 0
+									&& argValue.getNodeType() == NodeType.STRING_CONST )
+							|| ((defType & ArgsDefinition.NAME_AS_SYMBOL) != 0
+									&& argValue.getNodeType() == NodeType.SYMBOL ))
+					&& argValue.getText() != null );
+		}
+		
 		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			
 			ITER_ARGS: for (int i= 0; i < args.allocatedArgs.length; i++) {
 				final RAstNode argValue= args.getArgValueNode(i);
 				if (argValue != null) {
+					if (matchesNameType(ArgsDefinition.PACKAGE_NAME, this.argsDef.get(i).type, argValue)) {
+						final ElementAccess access= new ElementAccess.Namespace(node, argValue);
+						access.fNameNode= argValue;
+						SourceAnalyzer.this.packageRefs.add(argValue.getText(), access);
+						
+						SourceAnalyzer.this.argValueToIgnore.add(argValue);
+						continue ITER_ARGS;
+					}
 					if ((this.argsDef.get(i).type & ArgsDefinition.METHOD_NAME) != 0
 							&& argValue.getNodeType() == NodeType.STRING_CONST) {
 						final ElementAccess access= new ElementAccess.Default(node);
@@ -1510,6 +1511,10 @@ public class SourceAnalyzer extends RAstVisitor {
 						access.fNameNode= argValue;
 						SourceAnalyzer.this.topScope.addLateResolve(argValue.getText(), access);
 						
+						SourceAnalyzer.this.argValueToIgnore.add(argValue);
+						continue ITER_ARGS;
+					}
+					if (matchesNameType(ArgsDefinition.HELP_TOPIC_NAME, this.argsDef.get(i).type, argValue)) {
 						SourceAnalyzer.this.argValueToIgnore.add(argValue);
 						continue ITER_ARGS;
 					}
@@ -1539,7 +1544,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.returnValue= null;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode xNode= args.getArgValueNode(this.argIdx_x);
 			final RAstNode valueNode= args.getArgValueNode(this.argIdx_value);
 			
@@ -1582,7 +1587,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			
 			if (args.ellipsisArgs.length > 0) {
 				for (int i= 0; i < args.ellipsisArgs.length; i++) {
@@ -1641,7 +1646,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode xNode= args.getArgValueNode(this.argIdx_x);
 			
 			if (xNode != null && xNode.getNodeType() == NodeType.STRING_CONST) {
@@ -1676,7 +1681,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			
 			if (args.ellipsisArgs.length > 0) {
 				for (int i= 0; i < args.ellipsisArgs.length; i++) {
@@ -1719,7 +1724,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode nameNode= args.getArgValueNode(this.argIdx_fName);
 			
 			if (nameNode != null && nameNode.getNodeType() == NodeType.STRING_CONST) {
@@ -1750,7 +1755,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode nameNode= args.getArgValueNode(this.argIdx_fName);
 			
 			if (nameNode != null) {
@@ -1785,7 +1790,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
 			
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode nameValue= args.getArgValueNode(this.argIdx_packageName);
 			if (nameValue != null 
 					&& (nameValue.getNodeType() == NodeType.STRING_CONST
@@ -1874,7 +1879,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			Object returnValue= null;
 			REQUEST: for (int i= 0; i < SourceAnalyzer.this.request.length; i++) {
 				if (SourceAnalyzer.this.request[i] == RETURN_STRING_ARRAY) {
-					final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+					final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 					final RAstNode[] array= new RAstNode[args.ellipsisArgs.length];
 					for (int j= 0; j < array.length; j++) {
 						final FCall.Arg argNode= args.ellipsisArgs[j];
@@ -1922,7 +1927,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode fNameNode= args.getArgValueNode(this.argIdx_fName);
 			
 			if (fNameNode != null && fNameNode.getNodeType() == NodeType.STRING_CONST) {
@@ -2004,7 +2009,7 @@ public class SourceAnalyzer extends RAstVisitor {
 								continue ARGS;
 							}
 						}
-						methodDef= argsBuilder.toDef();
+						methodDef= argsBuilder.build();
 					}
 					else {
 						methodDef= new ArgsDefinition();
@@ -2058,7 +2063,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode fNameNode= args.getArgValueNode(this.argIdx_fName);
 			
 			if (fNameNode != null && fNameNode.getNodeType() == NodeType.STRING_CONST) {
@@ -2087,7 +2092,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			Object returnValue= null;
 			
 			if (args.ellipsisArgs.length > 0) {
@@ -2136,7 +2141,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			
 			final ElementAccess access= new ElementAccess.Class(node);
 			access.fFlags= ElementAccess.A_WRITE;
@@ -2228,7 +2233,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode classNameValue= args.getArgValueNode(this.argIdx_className);
 			final RAstNode superClassNamesValue= args.getArgValueNode(this.argIdx_superClassNames);
 			
@@ -2299,7 +2304,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			final boolean requested= (SourceAnalyzer.this.request == REPRESENTATION_REQUEST // || isRequested(REG_CLASS_REPRESENTATION)
 					&& SourceAnalyzer.this.currentSourceContainerBuilder.element.getElementType() == IRElement.R_S4CLASS);
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			
 			if (args.ellipsisArgs.length > 0) {
 				final RSourceElementByElementAccess.RClass rClass= requested ?
@@ -2367,7 +2372,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			final boolean requested= (SourceAnalyzer.this.request == PROTOTYPE_REQUEST // || isRequested(REG_CLASS_REPRESENTATION)
 					&& SourceAnalyzer.this.currentSourceContainerBuilder.element.getElementType() == IRElement.R_S4CLASS);
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			
 			if (args.ellipsisArgs.length > 0) {
 				final RSourceElementByElementAccess.RClass classDef= requested ?
@@ -2430,7 +2435,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode classNameNode= args.getArgValueNode(this.argIdx_className);
 			final RAstNode cToExtendNameNode= args.getArgValueNode(this.argIdx_classToExtendName);
 			RClassExt rClassExt= null;
@@ -2502,7 +2507,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode classNameNode= args.getArgValueNode(this.argIdx_className);
 			
 			if (classNameNode != null && classNameNode.getNodeType() == NodeType.STRING_CONST) {
@@ -2536,7 +2541,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode classNameNode= args.getArgValueNode(this.argIdx_className);
 			final RAstNode toClassNode= args.getArgValueNode(this.argIdx_toClass);
 			
@@ -2577,7 +2582,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode classNameNode= args.getArgValueNode(this.argIdx_className);
 			
 			if (classNameNode != null && classNameNode.getNodeType() == NodeType.STRING_CONST) {
@@ -2609,7 +2614,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode classNameNode= args.getArgValueNode(this.argIdx_className);
 			
 			if (classNameNode != null && classNameNode.getNodeType() == NodeType.STRING_CONST) {
@@ -2680,7 +2685,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode fNameArg= args.getArgValueNode(this.argIdx_fName);
 			final RAstNode fDefArg= args.getArgValueNode(this.argIdx_fDef);
 			
@@ -2741,7 +2746,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode fNameArg= args.getArgValueNode(this.argIdx_fName);
 			
 			if (fNameArg != null && fNameArg.getNodeType() == NodeType.STRING_CONST) {
@@ -2775,7 +2780,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode fNameArg= args.getArgValueNode(this.argIdx_fName);
 			
 			if (fNameArg != null && fNameArg.getNodeType() == NodeType.STRING_CONST) {
@@ -2806,7 +2811,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public final void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode fNameNode= args.getArgValueNode(this.argIdx_fName);
 			
 			if (fNameNode != null && fNameNode.getNodeType() == NodeType.STRING_CONST) {
@@ -2871,7 +2876,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		@Override
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			SourceAnalyzer.this.request= NO_REQUESTS;
-			final ReadedFCallArgs args= RAst.readArgs(node.getArgsChild(), this.argsDef);
+			final FCallArgMatch args= RAst.matchArgs(node.getArgsChild(), this.argsDef);
 			final RAstNode objectArg= args.getArgValueNode(this.argIdx_object);
 			final RAstNode slotArg= args.getArgValueNode(this.argIdx_slotName);
 			
@@ -3032,7 +3037,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				}
 			}
 		}
-		return b.toDef();
+		return b.build();
 	}
 	
 	private boolean evalBoolean(final RAstNode valueNode, final boolean defaultValue) {

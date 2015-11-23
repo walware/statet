@@ -79,6 +79,11 @@ public class RElementSearchProcessor {
 	};
 	
 	
+	protected static final String createPackageFrameId(final String packageName) {
+		return "package:" + packageName; //$NON-NLS-1$
+	}
+	
+	
 	private static ImList<Mode> MODES_LOCAL= ImCollections.newList(
 			Mode.LOCAL_FRAME );
 	
@@ -99,8 +104,8 @@ public class RElementSearchProcessor {
 	
 	protected final RElementName name;
 	protected final RElementName mainName;
-	protected final RElementName namespace;
-	protected final String namespaceFrameId;
+	protected final RElementName scope;
+	protected final String scopeFrameId;
 	
 	private final int flags;
 	
@@ -140,17 +145,17 @@ public class RElementSearchProcessor {
 		
 		if (this.status.getSeverity() < IStatus.ERROR) {
 			this.mainName= RElementName.cloneSegment(mainAccess);
-			this.namespace= (mainAccess.getNamespace() != null) ?
-					RElementName.cloneSegment(mainAccess.getNamespace()) :
+			this.scope= (mainAccess.getScope() != null) ?
+					RElementName.cloneSegment(mainAccess.getScope()) :
 					null;
-			this.namespaceFrameId= (this.namespace != null && this.namespace.getType() == RElementName.MAIN_PACKAGE) ?
-					this.namespace.getDisplayName() :
-					null;
+			this.scopeFrameId= (this.scope != null
+							&& RElementName.isPackageFacetScopeType(this.scope.getType())) ?
+					createPackageFrameId(this.scope.getSegmentName()) : null;
 		}
 		else {
 			this.mainName= null;
-			this.namespace= null;
-			this.namespaceFrameId= null;
+			this.scope= null;
+			this.scopeFrameId= null;
 		}
 	}
 	
@@ -322,9 +327,9 @@ public class RElementSearchProcessor {
 		
 		try {
 			this.definitionFrameIds.add(null);
-			if (this.namespaceFrameId != null) {
+			if (this.scopeFrameId != null) {
 				// search for specified package
-				this.definitionFrameIds.add(this.namespaceFrameId);
+				this.definitionFrameIds.add(this.scopeFrameId);
 			}
 			
 			{	// start with current project
@@ -371,10 +376,10 @@ public class RElementSearchProcessor {
 						final int found= searchDefinition(project, sus, progress.newChild(5));
 						if (found > 0) {
 							this.definitionProjects.add(project);
-							if (this.namespaceFrameId == null) {
+							if (this.scopeFrameId == null) {
 								final String packageName= project.getPackageName();
 								if (packageName != null) {
-									this.definitionFrameIds.add("package:"+packageName); //$NON-NLS-1$
+									this.definitionFrameIds.add(createPackageFrameId(packageName));
 								}
 							}
 							if (found == 2) { // || specificPackage == null 
@@ -560,12 +565,12 @@ public class RElementSearchProcessor {
 	private int searchDefinition(final IRProject project, final List<ISourceUnit> sus,
 			final SubMonitor progress) {
 		final String packageName= project.getPackageName();
-		if (this.namespaceFrameId != null && packageName != null
-				&& this.namespaceFrameId.equals("package:"+packageName)) { //$NON-NLS-1$
+		if (this.scopeFrameId != null && packageName != null
+				&& this.scopeFrameId.equals(createPackageFrameId(packageName))) {
 			progress.setWorkRemaining(2);
 			for (final ISourceUnit su : sus) {
 				searchDefinition(su, null, progress.newChild(1));
-				searchDefinition(su, this.namespaceFrameId, progress.newChild(1));
+				searchDefinition(su, this.scopeFrameId, progress.newChild(1));
 			}
 			return 2;
 		}
@@ -573,28 +578,28 @@ public class RElementSearchProcessor {
 			progress.setWorkRemaining(1);
 			boolean found= false;
 			for (final ISourceUnit su : sus) {
-				found |= searchDefinition(su, this.namespaceFrameId, progress.newChild(1));
+				found |= searchDefinition(su, this.scopeFrameId, progress.newChild(1));
 			}
 			return (found) ? 1 : 0;
 		}
 	}
 	
-	private boolean searchDefinition(final ISourceUnit su, final String specificPackage,
+	private boolean searchDefinition(final ISourceUnit su, final String specificFrameId,
 			final SubMonitor progress) {
 		progress.setWorkRemaining(10);
 		su.connect(progress.newChild(1));
 		try {
-			final IRModelInfo modelInfo= (IRModelInfo) su.getModelInfo(RModel.TYPE_ID,
+			final IRModelInfo modelInfo= (IRModelInfo) su.getModelInfo(RModel.R_TYPE_ID,
 					IModelManager.MODEL_FILE, progress.newChild(3) );
 			if (modelInfo == null) {
 				return false;
 			}
 			final IRFrame frame;
-			if (specificPackage == null) {
+			if (specificFrameId == null) {
 				frame= modelInfo.getTopFrame();
 			}
 			else {
-				frame= modelInfo.getReferencedFrames().get(specificPackage);
+				frame= modelInfo.getReferencedFrames().get(specificFrameId);
 			}
 			if (frame instanceof IRFrameInSource) {
 				final List<? extends RElementAccess> allAccess= ((IRFrameInSource) frame).getAllAccessOf(

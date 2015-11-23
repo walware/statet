@@ -19,7 +19,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  * <code>{ ... }</code>
  */
-public class Block extends ExpressionList {
+public final class Block extends ExpressionList {
 	
 	
 	int fBlockCloseOffset = NA_OFFSET;

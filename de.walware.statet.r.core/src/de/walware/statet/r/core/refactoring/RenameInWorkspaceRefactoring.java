@@ -62,7 +62,7 @@ import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.refactoring.Messages;
 
-	
+
 public class RenameInWorkspaceRefactoring extends Refactoring {
 	
 	
@@ -338,7 +338,8 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 		int found= FOUND_NONE;
 		su.connect(progress.newChild(1));
 		try {
-			final IRModelInfo modelInfo= (IRModelInfo) su.getModelInfo(RModel.TYPE_ID, IRModelManager.MODEL_FILE, progress.newChild(1));
+			final IRModelInfo modelInfo= (IRModelInfo) su.getModelInfo(RModel.R_TYPE_ID,
+					IRModelManager.MODEL_FILE, progress.newChild(1) );
 			
 			final String unquoted= RRefactoringAdapter.getUnquotedIdentifier(this.newName);
 			final String quoted= RRefactoringAdapter.getQuotedIdentifier(this.newName);

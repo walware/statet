@@ -99,16 +99,21 @@ public class RProject extends AbstractProjectNature implements IRProject, IPrefe
 		this.preferenceListener= new PreferencesManageListener(this.rCodeStyle, getPrefs(),
 				RCodeStyleSettings.ALL_GROUP_IDS );
 		
-		this.rPackageName= getProjectValue(PACKAGE_NAME_OLD_PREF);
-		if (this.rPackageName == null) {
-			this.rPackageName= getProjectValue(PACKAGE_NAME_OLD_PREF);
+		String pkgName= checkRPkgName(getProjectValue(PACKAGE_NAME_OLD_PREF));
+		if (pkgName == null) {
+			pkgName= checkRPkgName(getProjectValue(PACKAGE_NAME_OLD_PREF));
 		}
-		try {
-			if ((this.rPackageName != null) != project.hasNature(RProjects.R_PKG_NATURE_ID)) {
-				checkPackageNature();
+		synchronized (this) {
+			this.rPackageName= pkgName;
+			try {
+				RCorePlugin.getDefault().getRModelManager().getIndex().updateProjectConfig(this);
+				
+				if ((pkgName != null) != project.hasNature(RProjects.R_PKG_NATURE_ID)) {
+					checkPackageNature();
+				}
 			}
-		}
-		catch (final CoreException e) {
+			catch (final CoreException e) {
+			}
 		}
 		
 		RCorePlugin.getDefault().getResourceTracker().register(project, this);
@@ -166,7 +171,9 @@ public class RProject extends AbstractProjectNature implements IRProject, IPrefe
 			updateREnv();
 		}
 		if (event.contains(IRProject.PACKAGE_NAME_PREF)) {
-			updateRPkgConfig(checkRPkgName(getProjectValue(IRProject.PACKAGE_NAME_PREF)));
+			synchronized (this) {
+				updateRPkgConfig(checkRPkgName(getProjectValue(IRProject.PACKAGE_NAME_PREF)));
+			}
 		}
 	}
 	
@@ -246,9 +253,10 @@ public class RProject extends AbstractProjectNature implements IRProject, IPrefe
 	}
 	
 	private void updateRPkgConfig(final String pkgName) {
-		RCorePlugin.getDefault().getRModelManager().getIndex().updateProjectConfig(this, pkgName);
 		final boolean changed= (pkgName != null) != (this.rPackageName != null);
 		this.rPackageName= pkgName;
+		
+		RCorePlugin.getDefault().getRModelManager().getIndex().updateProjectConfig(this);
 		
 		if (changed) {
 			checkPackageNature();

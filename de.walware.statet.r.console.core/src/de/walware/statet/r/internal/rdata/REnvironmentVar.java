@@ -44,8 +44,8 @@ public final class REnvironmentVar extends CombinedElement
 	private String className1;
 	
 	private String environmentName;
-	private String fCombinedName;
-	private int fSpecialType;
+	private String combinedName;
+	private int specialType;
 	private long handle;
 	
 	private int length;
@@ -53,15 +53,15 @@ public final class REnvironmentVar extends CombinedElement
 	
 	private RCharacterDataImpl namesAttribute;
 	
-	private int fFrameType;
+	private int frameType;
 	private RProcess source;
 	private int stamp;
 	
 	
-	public REnvironmentVar(final String id, final boolean isSearch,
+	public REnvironmentVar(final String envName, final boolean isSearch,
 			final CombinedElement parent, final RElementName name) {
 		super(parent, name);
-		setEnvName(id, isSearch);
+		setEnvName(envName, isSearch);
 	}
 	
 	public REnvironmentVar(final RJIO io, final CombinedFactory factory,
@@ -87,7 +87,7 @@ public final class REnvironmentVar extends CombinedElement
 			this.components = new CombinedElement[l];
 			for (int i = 0; i < l; i++) {
 				this.components[i] = factory.readObject(io, this,
-						RElementName.create(RElementName.MAIN_DEFAULT, namesAttribute.getChar(i)) );
+						RElementName.create(RElementName.MAIN_DEFAULT, this.namesAttribute.getChar(i)) );
 			}
 		}
 		
@@ -114,7 +114,7 @@ public final class REnvironmentVar extends CombinedElement
 		}
 		
 		io.writeLong(this.handle);
-		io.writeString(fCombinedName);
+		io.writeString(this.combinedName);
 		io.writeInt(this.length);
 		
 		if (this.components != null) {
@@ -141,53 +141,53 @@ public final class REnvironmentVar extends CombinedElement
 	}
 	
 	
-	protected void setEnvName(final String id, final boolean isSearch) {
-		if (id != null) {
-			if (id.equals("base") || id.equals("package:base")) { //$NON-NLS-1$ //$NON-NLS-2$
-				this.environmentName = ENVNAME_BASE;
-				fSpecialType = ENVTYPE_BASE;
-				fFrameType = IRFrame.PACKAGE;
+	protected void setEnvName(final String envName, final boolean isSearch) {
+		if (envName != null) {
+			if (envName.equals("base") || envName.equals("package:base")) { //$NON-NLS-1$ //$NON-NLS-2$
+				this.environmentName= ENVNAME_BASE;
+				this.specialType= ENVTYPE_BASE;
+				this.frameType= IRFrame.PACKAGE;
 				if (getElementName() == null) {
-					setElementName(RElementName.create(RElementName.MAIN_PACKAGE, "base")); //$NON-NLS-1$
+					setElementName(RElementName.create(RElementName.SCOPE_PACKAGE, "base")); //$NON-NLS-1$
 				}
 				return;
 			}
-			else if (id.startsWith("package:")) { //$NON-NLS-1$
-				this.environmentName = id;
-				fSpecialType = ENVTYPE_PACKAGE;
-				fFrameType = IRFrame.PACKAGE;
+			else if (envName.startsWith("package:")) { //$NON-NLS-1$
+				this.environmentName= envName;
+				this.specialType= ENVTYPE_PACKAGE;
+				this.frameType= IRFrame.PACKAGE;
 				if (getElementName() == null) {
-					setElementName(RElementName.create(RElementName.MAIN_PACKAGE, id.substring(8)));
+					setElementName(RElementName.create(RElementName.SCOPE_PACKAGE, envName.substring(8)));
 				}
 				return;
 			}
-			else if (id.equals(".GlobalEnv") || id.equals("R_GlobalEnv")){ //$NON-NLS-1$ //$NON-NLS-2$
+			else if (envName.equals(".GlobalEnv") || envName.equals("R_GlobalEnv")) { //$NON-NLS-1$ //$NON-NLS-2$
 				this.environmentName = ENVNAME_GLOBAL;
-				fSpecialType = ENVTYPE_GLOBAL;
-				fFrameType = IRFrame.PROJECT;
+				this.specialType= ENVTYPE_GLOBAL;
+				this.frameType= IRFrame.PROJECT;
 				if (getElementName() == null) {
-					setElementName(RElementName.create(RElementName.MAIN_SEARCH_ENV, ".GlobalEnv")); //$NON-NLS-1$
+					setElementName(RElementName.create(RElementName.SCOPE_SEARCH_ENV, ".GlobalEnv")); //$NON-NLS-1$
 				}
 				return;
 			}
-			else if (id.equals("Autoloads")){ //$NON-NLS-1$
-				this.environmentName = ENVNAME_AUTOLOADS;
-				fSpecialType = ENVTYPE_AUTOLOADS;
-				fFrameType = IRFrame.EXPLICIT;
+			else if (envName.equals("Autoloads")){ //$NON-NLS-1$
+				this.environmentName= ENVNAME_AUTOLOADS;
+				this.specialType= ENVTYPE_AUTOLOADS;
+				this.frameType= IRFrame.EXPLICIT;
 				if (getElementName() == null) {
-					setElementName(RElementName.create(RElementName.MAIN_SEARCH_ENV, ENVNAME_AUTOLOADS));
+					setElementName(RElementName.create(RElementName.SCOPE_SEARCH_ENV, ENVNAME_AUTOLOADS));
 				}
 				return;
 			}
-			this.environmentName = id;
+			this.environmentName= envName;
 		}
 		else {
-			this.environmentName = ""; //$NON-NLS-1$
+			this.environmentName= ""; //$NON-NLS-1$
 		}
-		fSpecialType = 0;
-		fFrameType = IRFrame.EXPLICIT;
+		this.specialType= 0;
+		this.frameType= IRFrame.EXPLICIT;
 		if (getElementName() == null) {
-			setElementName(RElementName.create(isSearch ? RElementName.MAIN_SEARCH_ENV : RElementName.MAIN_OTHER, id));
+			setElementName(RElementName.create(isSearch ? RElementName.SCOPE_SEARCH_ENV : RElementName.MAIN_OTHER, envName));
 		}
 	}
 	
@@ -205,7 +205,7 @@ public final class REnvironmentVar extends CombinedElement
 	
 	@Override
 	public int getSpecialType() {
-		return fSpecialType;
+		return this.specialType;
 	}
 	
 	@Override
@@ -313,7 +313,7 @@ public final class REnvironmentVar extends CombinedElement
 	
 	@Override
 	public int getFrameType() {
-		return fFrameType;
+		return this.frameType;
 	}
 	
 	public Set<String> getElementNames() {
@@ -337,7 +337,7 @@ public final class REnvironmentVar extends CombinedElement
 		setElementName(RElementName.create(RElementName.MAIN_OTHER, this.environmentName));
 		this.components = new CombinedElement[0];
 		this.namesAttribute = new RCharacterDataImpl();
-		fCombinedName = fCombinedName + " ("+message+")"; //$NON-NLS-1$ //$NON-NLS-2$
+		this.combinedName = this.combinedName + " ("+message+")"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	
@@ -359,7 +359,7 @@ public final class REnvironmentVar extends CombinedElement
 	
 	@Override
 	protected int singleHash() {
-		return (fSpecialType > 0) ? this.environmentName.hashCode() : (int) this.handle;
+		return (this.specialType > 0) ? this.environmentName.hashCode() : (int) this.handle;
 	}
 	
 	@Override
@@ -371,7 +371,7 @@ public final class REnvironmentVar extends CombinedElement
 			return false;
 		}
 		final REnvironment other = (REnvironment) obj;
-		return (fSpecialType == other.getSpecialType()
+		return (this.specialType == other.getSpecialType()
 					&& this.environmentName.equals(other.getEnvironmentName()) );
 	}
 	

@@ -25,7 +25,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  * <code>repeat §cont§</code>
  */
-public class CRepeatLoop extends RAstNode {
+public final class CRepeatLoop extends RAstNode {
 	
 	
 	final Expression fLoopExpr = new Expression();

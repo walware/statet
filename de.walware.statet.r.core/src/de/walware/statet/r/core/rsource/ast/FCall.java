@@ -29,10 +29,10 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  * <code>§ref§ ( §args§ )</code>
  */
-public class FCall extends RAstNode {
+public final class FCall extends RAstNode {
 	
 	
-	public static class Args extends RAstNode {
+	public static final class Args extends RAstNode {
 		
 		
 		final List<FCall.Arg> fSpecs;
@@ -146,7 +146,7 @@ public class FCall extends RAstNode {
 		
 	}
 	
-	public static class Arg extends SpecItem {
+	public static final class Arg extends SpecItem {
 		
 		
 		Arg(final FCall.Args parent) {

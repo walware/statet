@@ -12,6 +12,7 @@
 package de.walware.statet.r.core.model;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -37,6 +38,16 @@ public interface IRModelManager extends IModelManager {
 	 */
 	IRFrame getProjectFrame(IRProject rProject) throws CoreException;
 	
+	/**
+	 * Returns the package names of R package projects in the workspace.
+	 * 
+	 * @return set with all package names
+	 */
+	Set<String> getPkgNames();
+	
+	IRFrame getPkgProjectFrame(String pkgName) throws CoreException;
+	
+	
 	IRModelInfo reconcile(IRSourceUnit su, ISourceUnitModelInfo modelInfo,
 			List<? extends RChunkElement> chunks, List<? extends SourceComponent> inlineNodes,
 			int level, IProgressMonitor monitor);
@@ -55,5 +66,6 @@ public interface IRModelManager extends IModelManager {
 	 */
 	List<ISourceUnit> findReferencingSourceUnits(IRProject rProject, RElementName name,
 			IProgressMonitor monitor) throws CoreException;
+	
 	
 }

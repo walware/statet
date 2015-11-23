@@ -1153,7 +1153,7 @@ public class RjsController extends AbstractRDbgController
 	@Override
 	public ICombinedRElement evalCombinedStruct(final RElementName name,
 			final int options, final int depth, final IProgressMonitor monitor) throws CoreException {
-		final String command = RElementName.createDisplayName(name, RElementName.DISPLAY_NS_PREFIX | RElementName.DISPLAY_EXACT);
+		final String command = RElementName.createDisplayName(name, RElementName.DISPLAY_FQN | RElementName.DISPLAY_EXACT);
 		if (command == null) {
 			throw new CoreException(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID, 0, "Illegal R element name.", null));
 		}

@@ -91,7 +91,33 @@ public abstract class ElementAccess extends RElementAccess {
 		
 		@Override
 		public int getType() {
-			return RElementName.MAIN_PACKAGE;
+			return RElementName.SCOPE_PACKAGE;
+		}
+		
+	}
+	
+	public final static class Namespace extends ElementAccess {
+		
+		public Namespace(final RAstNode fullNode, final RAstNode nameNode) {
+			super(fullNode, nameNode);
+		}
+		
+		@Override
+		public int getType() {
+			return RElementName.SCOPE_NS;
+		}
+		
+	}
+	
+	public final static class NamespaceInternal extends ElementAccess {
+		
+		public NamespaceInternal(final RAstNode fullNode, final RAstNode nameNode) {
+			super(fullNode, nameNode);
+		}
+		
+		@Override
+		public int getType() {
+			return RElementName.SCOPE_NS_INT;
 		}
 		
 	}
@@ -127,7 +153,7 @@ public abstract class ElementAccess extends RElementAccess {
 	}
 	
 	@Override
-	public RElementName getNamespace() {
+	public RElementName getScope() {
 		return (fShared.frame != null
 				&& (fShared.frame.getFrameType() == IRFrame.PACKAGE || fShared.isCreated >= BuildSourceFrame.CREATED_RESOLVED) ) ?
 						fShared.frame.getElementName() : null;

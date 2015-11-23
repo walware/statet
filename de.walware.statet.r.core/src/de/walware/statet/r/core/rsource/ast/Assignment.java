@@ -26,7 +26,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public abstract class Assignment extends StdBinary {
 	
 	
-	static class LeftS extends Assignment {
+	static final class LeftS extends Assignment {
 		
 		
 		LeftS() {
@@ -71,7 +71,7 @@ public abstract class Assignment extends StdBinary {
 	}
 	
 	
-	static class LeftD extends Assignment {
+	static final class LeftD extends Assignment {
 		
 		
 		LeftD() {
@@ -116,7 +116,7 @@ public abstract class Assignment extends StdBinary {
 	}
 	
 	
-	static class LeftE extends Assignment {
+	static final class LeftE extends Assignment {
 		
 		
 		LeftE() {
@@ -161,7 +161,7 @@ public abstract class Assignment extends StdBinary {
 	}
 	
 	
-	static class LeftC extends Assignment {
+	static final class LeftC extends Assignment {
 		
 		
 		LeftC() {
@@ -206,7 +206,7 @@ public abstract class Assignment extends StdBinary {
 	}
 	
 	
-	static class RightS extends Assignment {
+	static final class RightS extends Assignment {
 		
 		
 		RightS() {
@@ -251,7 +251,7 @@ public abstract class Assignment extends StdBinary {
 	}
 	
 	
-	static class RightD extends Assignment {
+	static final class RightD extends Assignment {
 		
 		
 		RightD() {

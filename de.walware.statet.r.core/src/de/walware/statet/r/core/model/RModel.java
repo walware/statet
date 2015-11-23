@@ -29,6 +29,7 @@ import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.FilteredFrame;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.RProject;
+import de.walware.statet.r.internal.core.sourcemodel.RModelManager;
 
 
 /**
@@ -92,12 +93,43 @@ public final class RModel {
 		return list;
 	}
 	
+	public static Set<String> createImportedPackageList(final IRModelInfo modelInfo) {
+		final Set<String> importedPackages= new HashSet<>();
+		importedPackages.add("base"); //$NON-NLS-1$
+		
+		if (modelInfo instanceof IRModelInfo) {
+			final IRModelInfo rModel= modelInfo;
+			final IPackageReferences packages= rModel.getReferencedPackages();
+			for (final String name : packages.getAllPackageNames()) {
+				if (packages.isImported(name)) {
+					importedPackages.add(name);
+				}
+			}
+		}
+		
+		return importedPackages;
+	}
+	
 	public static List<IRFrame> createProjectFrameList(IRProject project1,
-			final IRSourceUnit exclude, Set<String> packages) throws CoreException {
+			final IRSourceUnit scope, 
+			Set<String> importedPackages, Set<String> packages) throws CoreException {
 		final ArrayList<IRFrame> list= new ArrayList<>();
 		final IRModelManager manager= getRModelManager();
-		if (project1 == null && exclude instanceof IWorkspaceSourceUnit) {
-			project1= RProjects.getRProject(((IWorkspaceSourceUnit) exclude).getResource().getProject());
+		if (project1 == null && scope instanceof IWorkspaceSourceUnit) {
+			if (importedPackages == null) {
+				importedPackages= new HashSet<>();
+				final IRModelInfo modelInfo= (IRModelInfo) scope.getModelInfo(R_TYPE_ID,
+						RModelManager.MODEL_FILE, null );
+				if (modelInfo != null) {
+					final IPackageReferences references= modelInfo.getReferencedPackages();
+					for (final String pkgName : references.getAllPackageNames()) {
+						if (references.isImported(pkgName)) {
+							importedPackages.add(pkgName);
+						}
+					}
+				}
+			}
+			project1= RProjects.getRProject(((IWorkspaceSourceUnit) scope).getResource().getProject());
 		}
 		if (project1 == null) {
 			return list;
@@ -105,16 +137,15 @@ public final class RModel {
 		if (packages == null) {
 			packages= new HashSet<>();
 		}
-		IRFrame frame;
 		
-		frame= manager.getProjectFrame(project1);
-		if (frame != null) {
-			if (frame.getFrameType() == IRFrame.PACKAGE) {
-				packages.add(frame.getElementName().getSegmentName());
+		{	final IRFrame frame= manager.getProjectFrame(project1);
+			if (frame != null) {
+				if (frame.getFrameType() == IRFrame.PACKAGE) {
+					packages.add(frame.getElementName().getSegmentName());
+				}
+				list.add(new FilteredFrame(frame, scope));
 			}
-			list.add(new FilteredFrame(frame, exclude));
 		}
-		
 		final List<IRProject> projects= new ArrayList<>();
 		try {
 			final IProject[] referencedProjects= project1.getProject().getReferencedProjects();
@@ -127,7 +158,7 @@ public final class RModel {
 		} catch (final CoreException e) {}
 		for (int i= 0; i < projects.size(); i++) {
 			final IRProject project= projects.get(i);
-			frame= manager.getProjectFrame(project);
+			final IRFrame frame= manager.getProjectFrame(project);
 			if (frame != null) {
 				if (frame.getFrameType() == IRFrame.PACKAGE) {
 					packages.add(frame.getElementName().getSegmentName());
@@ -144,6 +175,18 @@ public final class RModel {
 				}
 			} catch (final CoreException e) {}
 		}
+		
+		if (importedPackages != null) {
+			for (final String pkgName : importedPackages) {
+				if (!packages.contains(pkgName)) {
+					final IRFrame frame= manager.getPkgProjectFrame(pkgName);
+					if (frame != null) {
+						list.add(frame);
+					}
+				}
+			}
+		}
+		
 		return list;
 	}
 	
@@ -159,7 +202,7 @@ public final class RModel {
 				return list;
 			}
 		}
-		final List<IRFrame> projectFrames= RModel.createProjectFrameList(null, su, null);
+		final List<IRFrame> projectFrames= RModel.createProjectFrameList(null, su, null, null);
 		for (final IRFrame frame : projectFrames) {
 			if (checkFrame(frame, access, list)) {
 				return list;

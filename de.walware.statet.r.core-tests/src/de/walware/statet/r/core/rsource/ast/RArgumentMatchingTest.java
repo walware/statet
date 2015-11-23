@@ -8,7 +8,7 @@ import de.walware.ecommons.text.core.input.StringParserInput;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.rsource.ast.FCall.Args;
-import de.walware.statet.r.core.rsource.ast.RAst.ReadedFCallArgs;
+import de.walware.statet.r.core.rsource.ast.RAst.FCallArgMatch;
 
 
 public class RArgumentMatchingTest {
@@ -68,7 +68,7 @@ public class RArgumentMatchingTest {
 	private void assertArgs(final ArgsDefinition argsDef, final String code, final int[] expected) {
 		final Args callArgs = this.scanner.scanFCallArgs(this.input.reset(code).init(), true);
 		
-		final ReadedFCallArgs readedArgs = RAst.readArgs(callArgs, argsDef);
+		final FCallArgMatch readedArgs = RAst.matchArgs(callArgs, argsDef);
 		
 		Assert.assertArrayEquals(expected, readedArgs.argsNode2argsDef);
 	}

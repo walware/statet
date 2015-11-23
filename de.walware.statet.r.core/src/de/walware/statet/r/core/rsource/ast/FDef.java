@@ -28,10 +28,10 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  * <code>function( §args§ ) §cont§</code>
  */
-public class FDef extends RAstNode {
+public final class FDef extends RAstNode {
 	
 	
-	public static class Args extends RAstNode {
+	public static final class Args extends RAstNode {
 		
 		
 		final List<Arg> fSpecs;
@@ -135,7 +135,7 @@ public class FDef extends RAstNode {
 	}
 	
 	
-	public static class Arg extends RAstNode {
+	public static final class Arg extends RAstNode {
 		
 		
 		SingleValue fArgName;

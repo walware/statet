@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
+import de.walware.jcommons.lang.ObjectUtils;
+
 import de.walware.ecommons.ltk.core.model.IModelElement.Filter;
 
 import de.walware.statet.r.core.model.IRElement;
@@ -32,31 +34,44 @@ import de.walware.statet.r.core.model.RElementName;
 public class CompositeFrame implements IRFrame {
 	
 	
-	private final int fFrameType;
-	private final RElementName fElementName;
+	private final int frameType;
+	private final RElementName elementName;
 	
-	public final Map<String, RUnitElement> fModelElements;
-	private final Lock fLock;
+	public final Map<String, RUnitElement> modelElements;
+	private final Lock lock;
 	
 	
-	public CompositeFrame(final ReadWriteLock lock, final String packageName, final String projectName, final Map<String, RUnitElement> elements) {
-		fLock = lock.readLock();
-		fModelElements = (elements != null) ? elements : new HashMap<String, RUnitElement>();
+	public CompositeFrame(final ReadWriteLock lock,
+			final String packageName, final String projectName,
+			final Map<String, RUnitElement> elements) {
+		this.lock= lock.readLock();
+		this.modelElements= (elements != null) ? elements : new HashMap<String, RUnitElement>();
 		
 		if (packageName != null) {
-			fFrameType = PACKAGE;
-			fElementName = RElementName.create(RElementName.MAIN_PACKAGE, packageName);
+			this.frameType= PACKAGE;
+			this.elementName= RElementName.create(RElementName.SCOPE_PACKAGE, packageName);
 		}
 		else {
-			fFrameType = PROJECT;
-			fElementName = RElementName.create(RElementName.MAIN_PROJECT, projectName);
+			this.frameType= PROJECT;
+			this.elementName= RElementName.create(RElementName.SCOPE_PROJECT, projectName);
 		}
+	}
+	
+	public CompositeFrame(final ReadWriteLock lock,
+			final String packageName, final String projectName,
+			final CompositeFrame copyFrom) {
+		this(lock, packageName, projectName, copyFrom.modelElements);
+	}
+	
+	public CompositeFrame(final ReadWriteLock lock,
+			final String packageName, final String projectName) {
+		this(lock, packageName, projectName, (Map<String, RUnitElement>) null);
 	}
 	
 	
 	@Override
 	public RElementName getElementName() {
-		return fElementName;
+		return this.elementName;
 	}
 	
 	@Override
@@ -66,31 +81,31 @@ public class CompositeFrame implements IRFrame {
 	
 	@Override
 	public int getFrameType() {
-		return fFrameType;
+		return this.frameType;
 	}
 	
 	@Override
 	public List<? extends IRElement> getModelElements() {
-		fLock.lock();
+		this.lock.lock();
 		try {
-			final Collection<RUnitElement> values = fModelElements.values();
+			final Collection<RUnitElement> values= this.modelElements.values();
 			final List<IRElement> list= new ArrayList<>(values.size());
 			list.addAll(values);
 			return list;
 		}
 		finally {
-			fLock.unlock();
+			this.lock.unlock();
 		}
 	}
 	
 	@Override
 	public boolean hasModelChildren(final Filter filter) {
-		fLock.lock();
+		this.lock.lock();
 		try {
-			if (fModelElements.isEmpty()) {
+			if (this.modelElements.isEmpty()) {
 				return false;
 			}
-			for (final IRElement element : fModelElements.values()) {
+			for (final IRElement element : this.modelElements.values()) {
 				if (element.hasModelChildren(filter)) {
 					return true;
 				}
@@ -98,20 +113,20 @@ public class CompositeFrame implements IRFrame {
 			return false;
 		}
 		finally {
-			fLock.unlock();
+			this.lock.unlock();
 		}
 	}
 	
 	@Override
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
-		fLock.lock();
+		this.lock.lock();
 		try {
-			if (fModelElements.isEmpty()) {
+			if (this.modelElements.isEmpty()) {
 				return Collections.EMPTY_LIST;
 			}
 			final ArrayList<IRLangElement> children= new ArrayList<>();
-			for (final IRLangElement element : fModelElements.values()) {
-				final List<? extends IRLangElement> elementChildren = element.getModelChildren(null);
+			for (final IRLangElement element : this.modelElements.values()) {
+				final List<? extends IRLangElement> elementChildren= element.getModelChildren(null);
 				if (!elementChildren.isEmpty()) {
 					children.ensureCapacity(children.size() + elementChildren.size());
 					for (final IRLangElement child : elementChildren) {
@@ -124,7 +139,7 @@ public class CompositeFrame implements IRFrame {
 			return children;
 		}
 		finally {
-			fLock.unlock();
+			this.lock.unlock();
 		}
 	}
 	
@@ -135,21 +150,30 @@ public class CompositeFrame implements IRFrame {
 	
 	
 	public RUnitElement setModelElement(final String suId, final RUnitElement element) {
-		element.fEnvir = this;
-		return fModelElements.put(suId, element);
+		element.fEnvir= this;
+		return this.modelElements.put(suId, element);
 	}
 	
 	public RUnitElement removeModelElement(final String suId) {
-		return fModelElements.remove(suId);
+		return this.modelElements.remove(suId);
 	}
 	
 	public void removeModelElements(final String modelTypeId) {
-		for (final Iterator<RUnitElement> iter= fModelElements.values().iterator(); iter.hasNext(); ) {
+		for (final Iterator<RUnitElement> iter= this.modelElements.values().iterator(); iter.hasNext(); ) {
 			final RUnitElement unitElement= iter.next();
 			if (unitElement.getModelTypeId() == modelTypeId) {
 				iter.remove();
 			}
 		}
+	}
+	
+	@Override
+	public String toString() {
+		final ObjectUtils.ToStringBuilder builder= new ObjectUtils.ToStringBuilder(
+				"CompositeFrame", getClass() ); //$NON-NLS-1$
+		builder.addProp("frameType", "0x%02X", this.frameType); //$NON-NLS-1$ //$NON-NLS-2$
+		builder.addProp("elementName", this.elementName); //$NON-NLS-1$
+		return builder.build();
 	}
 	
 }

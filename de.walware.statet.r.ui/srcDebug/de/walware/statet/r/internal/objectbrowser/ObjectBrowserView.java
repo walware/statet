@@ -286,7 +286,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		protected Object prepareHoverInformation(final ViewerCell cell) {
 			final TreePath treePath = cell.getViewerRow().getTreePath();
 			final RElementName elementName = getElementName(treePath);
-			if (elementName != null && elementName.getNamespace() != null) {
+			if (elementName != null && elementName.getScope() != null) {
 				return elementName;
 			}
 			return null;
@@ -974,7 +974,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			final ICombinedRElement rElement= ContentProvider.getCombinedRElement(object);
 			names.add(rElement.getElementName());
 		}
-		return RElementName.concat(names);
+		return RElementName.create(names);
 	}
 	
 }

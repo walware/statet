@@ -251,7 +251,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 		
 		RElementName elementName = fFunction.getElementName();
 		while (elementName.getNextSegment() != null) {
-			elementName = elementName.getNamespace();
+			elementName = elementName.getScope();
 		}
 		fFunctionName = elementName.getDisplayName();
 		

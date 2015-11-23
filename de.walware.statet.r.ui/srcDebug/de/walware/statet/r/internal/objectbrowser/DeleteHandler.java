@@ -172,10 +172,10 @@ class DeleteHandler extends AbstractHandler {
 				case RObject.TYPE_ENV: {
 					final RElementName envirName = (treePath.getSegmentCount() > 1) ? this.view.getElementName(treePath.getParentPath()) : parent.getElementName();
 					final IElementName itemName = element.getElementName();
-					topName = elementName.getNamespace();
+					topName = elementName.getScope();
 					if (envirName != null) { // elementName ok => segmentName ok
 						commands.add("rm(`"+itemName.getSegmentName()+"`,"+ //$NON-NLS-1$ //$NON-NLS-2$ 
-								"pos="+RElementName.createDisplayName(envirName, RElementName.DISPLAY_NS_PREFIX | RElementName.DISPLAY_EXACT)+ //$NON-NLS-1$
+								"pos="+RElementName.createDisplayName(envirName, RElementName.DISPLAY_FQN | RElementName.DISPLAY_EXACT)+ //$NON-NLS-1$
 								")"); //$NON-NLS-1$
 						names.add(elementName.getDisplayName());
 						topEnvirs.add(topName);
@@ -185,9 +185,9 @@ class DeleteHandler extends AbstractHandler {
 				case RObject.TYPE_LIST:
 				case RObject.TYPE_DATAFRAME:
 				case RObject.TYPE_S4OBJECT:
-					topName = elementName.getNamespace();
+					topName = elementName.getScope();
 					final String name = RElementName.createDisplayName(elementName, RElementName.DISPLAY_EXACT);
-					commands.add("with("+RElementName.createDisplayName(topName, RElementName.DISPLAY_NS_PREFIX)+","+ //$NON-NLS-1$ //$NON-NLS-2$ 
+					commands.add("with("+RElementName.createDisplayName(topName, RElementName.DISPLAY_FQN)+","+ //$NON-NLS-1$ //$NON-NLS-2$ 
 							name+"<-NULL"+ //$NON-NLS-1$
 							")"); //$NON-NLS-1$
 					names.add(elementName.getDisplayName());

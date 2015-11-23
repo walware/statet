@@ -26,7 +26,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public abstract class CLoopCommand extends RAstNode {
 	
 	
-	static class Break extends CLoopCommand {
+	static final class Break extends CLoopCommand {
 		
 		
 		Break() {
@@ -61,7 +61,7 @@ public abstract class CLoopCommand extends RAstNode {
 		
 	}
 	
-	static class Next extends CLoopCommand {
+	static final class Next extends CLoopCommand {
 		
 		
 		Next() {

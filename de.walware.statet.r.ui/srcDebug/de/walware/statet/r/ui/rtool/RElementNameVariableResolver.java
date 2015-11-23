@@ -113,7 +113,7 @@ public class RElementNameVariableResolver implements IDynamicVariableResolver {
 	private String checkName(final IElementName elementName) throws CoreException {
 		if (elementName instanceof RElementName) {
 			final String name = ((RElementName) elementName).getDisplayName(
-					(RElementName.DISPLAY_NS_PREFIX | RElementName.DISPLAY_EXACT) );
+					(RElementName.DISPLAY_FQN | RElementName.DISPLAY_EXACT) );
 			if (name != null) {
 				return name;
 			}

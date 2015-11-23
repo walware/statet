@@ -19,7 +19,7 @@ import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
-public class DocuTag extends RAstNode {
+public final class DocuTag extends RAstNode {
 	
 	
 	private final String fName;

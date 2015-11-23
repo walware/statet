@@ -13,6 +13,8 @@ package de.walware.statet.r.internal.core;
 
 import java.util.List;
 
+import de.walware.jcommons.lang.ObjectUtils;
+
 import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ltk.core.model.ISourceElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
@@ -26,57 +28,67 @@ import de.walware.statet.r.core.model.RElementName;
 public class FilteredFrame implements IRFrame, IModelElement.Filter {
 	
 	
-	private final IRFrame fFrame;
-	private final ISourceUnit fExclude;
+	private final IRFrame frame;
+	private final ISourceUnit exclude;
 	
 	
 	public FilteredFrame(final IRFrame frame, final ISourceUnit exclude) {
-		fFrame = frame;
-		fExclude = exclude;
+		this.frame= frame;
+		this.exclude= exclude;
 	}
 	
 	
 	@Override
 	public String getFrameId() {
-		return fFrame.getFrameId();
+		return this.frame.getFrameId();
 	}
 	
 	@Override
 	public int getFrameType() {
-		return fFrame.getFrameType();
+		return this.frame.getFrameType();
 	}
 	
 	@Override
 	public RElementName getElementName() {
-		return fFrame.getElementName();
+		return this.frame.getElementName();
 	}
 	
 	@Override
 	public boolean hasModelChildren(final IModelElement.Filter filter) {
-		return fFrame.hasModelChildren((fExclude != null) ? this : null);
+		return this.frame.hasModelChildren((this.exclude != null) ? this : null);
 	}
 	
 	@Override
 	public List<? extends IRLangElement> getModelChildren(final IModelElement.Filter filter) {
-		return fFrame.getModelChildren((fExclude != null) ? this : null);
+		return this.frame.getModelChildren((this.exclude != null) ? this : null);
 	}
 	
 	@Override
 	public List<? extends IRElement> getModelElements() {
-		return fFrame.getModelElements();
+		return this.frame.getModelElements();
 	}
 	
 	@Override
 	public List<? extends IRFrame> getPotentialParents() {
-		return fFrame.getPotentialParents();
+		return this.frame.getPotentialParents();
 	}
 	
 	
 	@Override
 	public boolean include(final IModelElement element) {
-		final ISourceUnit su = (element instanceof ISourceElement) ?
+		final ISourceUnit su= (element instanceof ISourceElement) ?
 				((ISourceElement) element).getSourceUnit() : null;
-		return (su == null || !fExclude.getId().equals(su.getId()) );
+		return (su == null || !this.exclude.getId().equals(su.getId()) );
+	}
+	
+	
+	@Override
+	public String toString() {
+		final ObjectUtils.ToStringBuilder builder= new ObjectUtils.ToStringBuilder(
+				"FilteredFrame", getClass() ); //$NON-NLS-1$
+		builder.addProp("frame", this.frame); //$NON-NLS-1$
+		builder.addProp("exclude", this.exclude); //$NON-NLS-1$
+		return builder.build();
 	}
 	
 }

@@ -19,7 +19,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  * <code>:</code>
  */
-public class Seq extends StdBinary {
+public final class Seq extends StdBinary {
 	
 	
 	Seq() {

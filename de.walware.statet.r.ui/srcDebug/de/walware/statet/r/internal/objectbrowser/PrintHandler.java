@@ -77,7 +77,7 @@ class PrintHandler extends AbstractHandler {
 		final TreePath treePath = selection.getPaths()[0];
 		final RElementName elementName = this.view.getElementName(treePath);
 		if (elementName != null) {
-			String cmd = RElementName.createDisplayName(elementName, RElementName.DISPLAY_NS_PREFIX | RElementName.DISPLAY_EXACT);
+			String cmd = RElementName.createDisplayName(elementName, RElementName.DISPLAY_FQN | RElementName.DISPLAY_EXACT);
 			if (treePath.getLastSegment() instanceof IElementPartition) {
 				IElementPartition partition = (IElementPartition) treePath.getLastSegment();
 				cmd = cmd + '[' + (partition.getPartitionStart() + 1) + ':' + (partition.getPartitionStart() + partition.getPartitionLength()) + ']';

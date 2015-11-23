@@ -23,8 +23,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -79,7 +82,7 @@ public class RModelIndex {
 		
 		static final String NAME= "RINDEX";
 		
-		static final String VERSION= "17";
+		static final String VERSION= "18";
 		
 		static final class Properties {
 			
@@ -136,26 +139,35 @@ public class RModelIndex {
 			static final String COL_NAME= "NAME";
 			/** db-id of project */
 			static final String COL_ID= "ID";
+			/** name of R package */
+			static final String COL_PKG_NAME= "PKG_NAME";
 			
 			static final String DEFINE_1= "create table " + QNAME + " ("
 						+ COL_ID            + " int not null "
 								+ "primary key "
 								+ "generated always as identity, "
 						+ COL_NAME          + " varchar(512) not null, "
+						+ COL_PKG_NAME      + " varchar(512), "
 						+ "unique ("
 							+ COL_NAME + ")"
 					+ ")";
 			
 			static final String OP_insert= "insert into " + QNAME + " ("
-						+ COL_NAME + ") "
-					+ "values (?)";
+						+ COL_NAME + ", "
+						+ COL_PKG_NAME + ") "
+					+ "values (?, ?)";
+			
+			static final String OP_update= "update " + QNAME + " set "
+					+ COL_PKG_NAME + " = ? "
+				+ "where (" + COL_ID + " = ?)";
 			
 			static final String OP_delete= "delete from " + QNAME + " "
 					+ "where (" + COL_ID + " = ?)";
 			
 			static final String OP_getAll= "select "
 						+ COL_ID + ", "
-						+ COL_NAME + " "
+						+ COL_NAME + ", "
+						+ COL_PKG_NAME + " "
 					+ "from " + QNAME;
 			
 		}
@@ -324,12 +336,35 @@ public class RModelIndex {
 	private static final class Proj {
 		
 		public final int id;
-		public boolean removed;
+		
+		public final String name;
+		
+		private boolean removed;
+		
+		private volatile String pkgName;
 		
 		
-		public Proj(final int id) {
+		public Proj(final int id, final String name, final String pkgName) {
 			this.id= id;
+			this.name= name;
+			
 			this.removed= false;
+			
+			setPkgName(pkgName);
+		}
+		
+		
+		public boolean isRemoved() {
+			return this.removed;
+		}
+		
+		
+		public void setPkgName(final String pkgName) {
+			this.pkgName= (pkgName != null) ? pkgName.intern() : null;
+		}
+		
+		public String getPkgName() {
+			return this.pkgName;
 		}
 		
 		
@@ -373,18 +408,29 @@ public class RModelIndex {
 		}
 		
 		private PreparedStatement addProj;
-		public int addProj(final String name) throws SQLException {
+		public int addProj(final String name, final String pkgName) throws SQLException {
 			if (this.addProj == null) {
 				this.addProj= this.connection.prepareStatement(RIndex.Projects.OP_insert,
 						new String[] { RIndex.Projects.COL_ID } );
 			}
 			this.addProj.setString(1, name);
+			this.addProj.setString(2, pkgName);
 			this.addProj.executeUpdate();
 			final ResultSet result= this.addProj.getGeneratedKeys();
 			if (result.next()) {
 				return result.getInt(1);
 			}
 			throw new SQLException(MISSING_GENERATED_RESULT);
+		}
+		
+		private PreparedStatement updateProj;
+		public void updateProj(final Proj proj) throws SQLException {
+			if (this.updateProj == null) {
+				this.updateProj= this.connection.prepareStatement(RIndex.Projects.OP_update);
+			}
+			this.updateProj.setString(1, proj.getPkgName());
+			this.updateProj.setInt(2, proj.id);
+			this.updateProj.executeUpdate();
 		}
 		
 		private PreparedStatement removeProjStatement;
@@ -433,7 +479,7 @@ public class RModelIndex {
 		}
 		/** requires {@link #initProjForSu(Proj)}, {@link #prepareUnits(Proj)} */
 		private PreparedStatement updateUnitModelStatement;
-		public void executeGetOrAddUnit(final String unitId, int modelId) throws SQLException {
+		public void executeGetOrAddUnit(final String unitId, final int modelId) throws SQLException {
 			{	// get / update
 				this.getUnitStatement.setString(2, unitId);
 				final ResultSet result= this.getUnitStatement.executeQuery();
@@ -592,7 +638,7 @@ public class RModelIndex {
 		final RModelIndexUpdate indexUpdate= new RModelIndexUpdate(rProject, R_MODEL_TYPES,
 				(remove == null) );
 		for (final IRWorkspaceSourceUnit sourceUnit : update) {
-			final RSuModelContainer adapter= (RSuModelContainer) sourceUnit.getAdapter(RSuModelContainer.class);
+			final RSuModelContainer adapter= sourceUnit.getAdapter(RSuModelContainer.class);
 			if (adapter != null) {
 				try {
 					final IRModelInfo model= this.reconciler.build(adapter, progress);
@@ -643,8 +689,8 @@ public class RModelIndex {
 				
 				if (frame == null) {
 					if (order.isFullBuild) {
-						frame= new CompositeFrame(this.lock, order.rProject.getPackageName(),
-								order.projectName, null );
+						frame= new CompositeFrame(this.lock,
+								order.rProject.getPackageName(), order.projectName );
 						this.elementsList.put(proj, frame);
 					}
 					else {
@@ -843,15 +889,19 @@ public class RModelIndex {
 	private Proj getOrCreateProjectId(final IProject project) throws SQLException {
 		Proj proj= this.projects.get(project.getName());
 		if (proj == null) {
-			if (!project.isOpen() || RProject.getRProject(project) == null) {
+			final RProject rProject;
+			if (!project.isOpen() || (rProject= RProject.getRProject(project)) == null) {
 				return null;
 			}
+			final String name= project.getName();
+			final String pkgName= rProject.getPackageName();
+			
 			final DbTools tools= getDbTools();
-			final int id= tools.addProj(project.getName());
+			final int id= tools.addProj(name, pkgName);
 			tools.connection.commit();
 			
-			proj= new Proj(id);
-			this.projects.put(project.getName(), proj);
+			proj= new Proj(id, name, pkgName);
+			this.projects.put(name, proj);
 		}
 		return proj;
 	}
@@ -999,10 +1049,11 @@ public class RModelIndex {
 				final ResultSet result= statement.executeQuery(RIndex.Projects.OP_getAll);
 				while (result.next()) {
 					final int id= result.getInt(1);
-					final String name= result.getString(2);
+					final String name= result.getString(2).intern();
+					final String pkgName= result.getString(3);
 					final IProject project= root.getProject(name);
 					if (project != null && project.isOpen()) {
-						final Proj proj= new Proj(id);
+						final Proj proj= new Proj(id, name, pkgName);
 						this.projects.put(name, proj);
 					}
 					else {
@@ -1043,16 +1094,34 @@ public class RModelIndex {
 		}
 	}
 	
-	public void updateProjectConfig(final IRProject rProject, final String packageName) {
+	public void updateProjectConfig(final IRProject rProject) {
 		final IProject project= rProject.getProject();
-		final Proj projectId= this.projects.get(project.getName());
-		if (projectId != null) {
+		final Proj proj= this.projects.get(project.getName());
+		if (proj != null) {
 			this.lock.writeLock().lock();
 			try {
-				final CompositeFrame frame= this.elementsList.get(projectId);
-				if (frame != null) {
-					this.elementsList.put(projectId, new CompositeFrame(this.lock, packageName, project.getName(), frame.fModelElements));
+				final String pkgName= rProject.getPackageName();
+				
+				if (Objects.equals(proj.getPkgName(), pkgName)) {
+					return;
 				}
+				
+				proj.setPkgName(pkgName);
+				
+				if (this.dbInitialized == 1) {
+					final DbTools tools= getDbTools();
+					tools.updateProj(proj);
+					tools.connection.commit();
+				}
+				
+				final CompositeFrame frame= this.elementsList.get(proj);
+				if (frame != null) {
+					this.elementsList.put(proj, new CompositeFrame(this.lock,
+							pkgName, project.getName(), frame ));
+				}
+			}
+			catch (final SQLException e) {
+				onDbToolsError(e);
 			}
 			finally {
 				this.lock.writeLock().unlock();
@@ -1145,6 +1214,26 @@ public class RModelIndex {
 		return null;
 	}
 	
+	public Set<String> getPkgNames() {
+		final Set<String> names= new HashSet<>(this.projects.size());
+		for (final Proj proj : this.projects.values()) {
+			final String pkgName= proj.pkgName;
+			if (pkgName != null) {
+				names.add(pkgName);
+			}
+		}
+		return names;
+	}
+	
+	public String getPkgProject(final String pkgName) throws CoreException {
+		for (final Proj proj : this.projects.values()) {
+			if (pkgName.equals(proj.pkgName)) {
+				return proj.name;
+			}
+		}
+		return null;
+	}
+	
 	public List<ISourceUnit> findReferencingSourceUnits(final IRProject rProject, final RElementName name,
 			final IProgressMonitor monitor) throws CoreException {
 		if (name.getNextSegment() != null || name.getType() != RElementName.MAIN_DEFAULT || name.getSegmentName() == null) {
@@ -1157,7 +1246,7 @@ public class RModelIndex {
 		this.lock.readLock().lock();
 		Connection connection= null;
 		try {
-			if (proj == null || proj.removed
+			if (proj == null || proj.isRemoved()
 					|| this.dbInitialized != 1) {
 				return null;
 			}

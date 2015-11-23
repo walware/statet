@@ -25,7 +25,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  * <code>~</code>
  */
-public class Model extends RAstNode {
+public final class Model extends RAstNode {
 	
 	
 	final Expression fLeftExpr = new Expression();

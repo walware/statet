@@ -189,11 +189,11 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 			switch (type) {
 			case PROJECT:
 				fElementName = null;
-//				fElementName = RElementName.create(RElementName.MAIN_SEARCH_ENV, ".GlobalEnv");
+//				fElementName = RElementName.create(RElementName.SCOPE_SEARCH_ENV, ".GlobalEnv");
 				fClasses = new HashMap<>();
 				break;
 			case PACKAGE:
-				fElementName = RElementName.create(RElementName.MAIN_PACKAGE, name);
+				fElementName = RElementName.create(RElementName.SCOPE_PACKAGE, name);
 				fClasses = new HashMap<>();
 				break;
 			default:

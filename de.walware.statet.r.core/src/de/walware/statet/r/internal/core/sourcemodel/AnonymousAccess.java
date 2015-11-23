@@ -76,7 +76,7 @@ public final class AnonymousAccess extends RElementAccess {
 	
 	
 	@Override
-	public RElementName getNamespace() {
+	public RElementName getScope() {
 		return null;
 	}
 	

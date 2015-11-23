@@ -44,7 +44,7 @@ public class RToolDataTableInput implements IRDataTableInput {
 		}
 		
 		fElementName = name;
-		fFullName = RElementName.createDisplayName(name, RElementName.DISPLAY_NS_PREFIX | RElementName.DISPLAY_EXACT);
+		fFullName = RElementName.createDisplayName(name, RElementName.DISPLAY_FQN | RElementName.DISPLAY_EXACT);
 		
 		while (name.getNextSegment() != null) {
 			name = name.getNextSegment();

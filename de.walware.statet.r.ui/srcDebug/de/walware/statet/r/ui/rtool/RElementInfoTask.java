@@ -283,24 +283,24 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 			final IProgressMonitor monitor) throws CoreException {
 		boolean inherits;
 		RElementName envName;
-		if (this.fElementName.getNamespace() != null) {
+		if (this.fElementName.getScope() != null) {
 			inherits = false;
-			envName = this.fElementName.getNamespace();
+			envName = this.fElementName.getScope();
 		}
 		else {
 			inherits = true;
 			final int position = getFramePosition(r, monitor);
 			if (position > 0) {
-				envName = RElementName.create(RElementName.MAIN_SYSFRAME, Integer.toString(position));
+				envName = RElementName.create(RElementName.SCOPE_SYSFRAME, Integer.toString(position));
 			}
 			else {
-				envName = RElementName.create(RElementName.MAIN_SEARCH_ENV, ".GlobalEnv");
+				envName = RElementName.create(RElementName.SCOPE_SEARCH_ENV, ".GlobalEnv");
 			}
 		}
 		if (envName == null) {
 			return null;
 		}
-		final String name = envName.getDisplayName(RElementName.DISPLAY_NS_PREFIX);
+		final String name = envName.getDisplayName(RElementName.DISPLAY_FQN);
 		if (name == null) {
 			return null;
 		}
@@ -352,8 +352,8 @@ public class RElementInfoTask extends AbstractRDataRunnable {
 			segments.add(a);
 			a = a.getNextSegment();
 		}
-		final RElementName name = RElementName.concat(segments);
-		if (name.getNamespace() == null) {
+		final RElementName name = RElementName.create(segments);
+		if (name.getScope() == null) {
 			return false;
 		}
 		

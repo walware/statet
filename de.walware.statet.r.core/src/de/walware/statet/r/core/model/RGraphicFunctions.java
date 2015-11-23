@@ -30,7 +30,7 @@ import de.walware.statet.r.core.rsource.ast.FCall;
 import de.walware.statet.r.core.rsource.ast.NSGet;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAst;
-import de.walware.statet.r.core.rsource.ast.RAst.ReadedFCallArgs;
+import de.walware.statet.r.core.rsource.ast.RAst.FCallArgMatch;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
@@ -840,7 +840,7 @@ for (i in cc) {
 		final String fName = resolveElementName(node.getRefChild());
 		if (fName != null && !fName.isEmpty()) {
 			if (fName.equals(RGraphicFunctions.RGB_NAME)) {
-				final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), RGB_args);
+				final FCallArgMatch args = RAst.matchArgs(node.getArgsChild(), RGB_args);
 				final Integer red = RAst.toJavaInt(args.getArgValueNode(0));
 				final Integer green = RAst.toJavaInt(args.getArgValueNode(1));
 				final Integer blue = RAst.toJavaInt(args.getArgValueNode(2));
@@ -858,7 +858,7 @@ for (i in cc) {
 				return null;
 			}
 			if (fName.equals(RGraphicFunctions.HSV_NAME)) {
-				final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), HSV_args);
+				final FCallArgMatch args = RAst.matchArgs(node.getArgsChild(), HSV_args);
 				final Float hue = RAst.toJavaFloat(args.getArgValueNode(0));
 				final Float saturation = RAst.toJavaFloat(args.getArgValueNode(1));
 				final Float value = RAst.toJavaFloat(args.getArgValueNode(2));
@@ -875,7 +875,7 @@ for (i in cc) {
 				return null;
 			}
 			if (fName.equals(RGraphicFunctions.ADJUST_COLOR_NAME)) {
-				final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), ADJUST_COLOR_args);
+				final FCallArgMatch args = RAst.matchArgs(node.getArgsChild(), ADJUST_COLOR_args);
 				final RAstNode colorArg = args.getArgValueNode(0);
 				if (colorArg != null && !hasMoreArgs(args, 2)) {
 					try {
@@ -894,7 +894,7 @@ for (i in cc) {
 		return null;
 	}
 	
-	private boolean hasMoreArgs(final ReadedFCallArgs args, int first) {
+	private boolean hasMoreArgs(final FCallArgMatch args, int first) {
 		final int size = args.argsDef.size();
 		while (first < size) {
 			if (args.getArgValueNode(first++) != null) {

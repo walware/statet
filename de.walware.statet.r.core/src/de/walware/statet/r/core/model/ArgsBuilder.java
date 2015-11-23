@@ -14,13 +14,15 @@ package de.walware.statet.r.core.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.walware.jcommons.lang.Builder;
+
 import de.walware.statet.r.core.model.ArgsDefinition.Arg;
 
 
 /**
  * Builder for {@link ArgsDefinition}
  */
-public final class ArgsBuilder {
+public final class ArgsBuilder implements Builder<ArgsDefinition> {
 	
 	
 	private final List<Arg> fArgs= new ArrayList<>();
@@ -53,7 +55,8 @@ public final class ArgsBuilder {
 	}
 	
 	
-	public ArgsDefinition toDef() {
+	@Override
+	public ArgsDefinition build() {
 		return new ArgsDefinition(fArgs.toArray(new Arg[fArgs.size()]));
 	}
 	

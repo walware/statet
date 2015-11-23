@@ -33,23 +33,61 @@ import de.walware.statet.r.core.rsource.RLexer;
 public abstract class RElementName implements IElementName {
 	
 	
-	public static final int RESOURCE =        0x00f;
+	public static final int RESOURCE=                       0x0_0f;
 	
-	public static final int MAIN_OTHER =      0x010;
-	public static final int MAIN_DEFAULT =    0x011;
-	public static final int MAIN_CLASS =      0x013;
-	public static final int MAIN_SEARCH_ENV = 0x015;
-	public static final int MAIN_PACKAGE =    0x016;
-	public static final int MAIN_SYSFRAME =   0x017;
-	public static final int MAIN_PROJECT =    0x018;
-	public static final int SUB_NAMEDSLOT =   0x01a;
-	public static final int SUB_NAMEDPART =   0x01b;
-	public static final int SUB_INDEXED_S =   0x01d;
-	public static final int SUB_INDEXED_D =   0x01e;
-	public static final int ANONYMOUS =       0x020;
+	public static final int MAIN_OTHER=                     0x0_10;
+	public static final int MAIN_DEFAULT=                   0x0_11;
+	public static final int MAIN_CLASS=                     0x0_15;
 	
-	public static final int DISPLAY_NS_PREFIX = 0x1;
-	public static final int DISPLAY_EXACT = 0x2;
+	public static final int SUB_NAMEDSLOT=                  0x0_19;
+	public static final int SUB_NAMEDPART=                  0x0_1a;
+	public static final int SUB_INDEXED_S=                  0x0_1b;
+	public static final int SUB_INDEXED_D=                  0x0_1c;
+	
+	public static final int SCOPE_NS=                       0x0_21;
+	public static final int SCOPE_NS_INT=                   0x0_22;
+	
+	public static final int SCOPE_SEARCH_ENV=               0x0_25;
+	public static final int SCOPE_PACKAGE=                  0x0_26;
+	public static final int SCOPE_SYSFRAME=                 0x0_27;
+	public static final int SCOPE_PROJECT=                  0x0_29;
+	
+	public static final int ANONYMOUS=                      0x0_30;
+	
+	public static final int DISPLAY_FQN=                    1 << 0;
+	public static final int DISPLAY_EXACT=                  1 << 1;
+	
+	
+	public static boolean isMainType(final int type) {
+		return (type >= MAIN_OTHER && type < SUB_NAMEDSLOT);
+	}
+	
+	public static boolean isRegularMainType(final int type) {
+		return (type > MAIN_OTHER && type < SUB_NAMEDSLOT);
+	}
+	
+	public static boolean isScopeType(final int type) {
+		return ((type & 0x0_F0) == 0x0_20);
+	}
+	
+	public static boolean isNamespaceScopeType(final int type) {
+		return (type >= SCOPE_NS && type < SCOPE_SEARCH_ENV);
+	}
+	
+	public static boolean isSearchScopeType(final int type) {
+		return (type >= SCOPE_SEARCH_ENV && type < ANONYMOUS);
+	}
+	
+	public static boolean isPackageFacetScopeType(final int type) {
+		switch (type) {
+		case SCOPE_NS:
+		case SCOPE_NS_INT:
+		case SCOPE_PACKAGE:
+			return true;
+		default:
+			return false;
+		}
+	}
 	
 	
 	/**
@@ -61,143 +99,154 @@ public abstract class RElementName implements IElementName {
 		
 	}
 	
-	public static String createDisplayName(RElementName a, final int options) {
-		StringBuilder sb = null;
+	public static String createDisplayName(RElementName elementName, final int options) {
+		if (elementName == null) {
+			throw new NullPointerException("elementName"); //$NON-NLS-1$
+		}
+		StringBuilder sb= null;
 		
-		if ((options & DISPLAY_NS_PREFIX) != 0) {
-			final RElementName namespace = a.getNamespace();
-			if (namespace != null) {
-				sb = new StringBuilder(32);
-				if (!appendEnvAccess(namespace, sb, options)
-						|| a.getType() != MAIN_DEFAULT) {
+		if ((options & DISPLAY_FQN) != 0) {
+			RElementName scopeName= elementName.getScope();
+			if (scopeName == null && isScopeType(elementName.getType())) {
+				scopeName= elementName;
+				elementName= elementName.getNextSegment();
+			}
+			if (scopeName != null) {
+				if (elementName != null && elementName.getType() != MAIN_DEFAULT) {
 					return null;
 				}
-			}
-			else if (a.getType() == MAIN_SEARCH_ENV
-					|| a.getType() == MAIN_PACKAGE
-					|| a.getType() == MAIN_SYSFRAME) {
-				sb = new StringBuilder(32);
-				if (!appendEnvAccess(a, sb, options)
-						|| (a = a.getNextSegment()) != null && a.getType() != MAIN_DEFAULT) {
+				sb= new StringBuilder(32);
+				if (!printScopeFQ(scopeName, sb, options, elementName != null)) {
 					return null;
 				}
-			}
-			
-			if (sb != null && a != null) {
-				sb.append('$');
-				final String name = a.getSegmentName();
-				if (name != null) {
-					appendSymbol(sb, name);
+				if (elementName != null) {
+					final String name= elementName.getSegmentName();
+					if (name != null) {
+						appendSymbol(sb, name);
+					}
+					elementName= elementName.getNextSegment();
 				}
-				a = a.getNextSegment();
 			}
 		}
 		if (sb == null) {
 			String firstName;
-			final int type = a.getType();
+			final int type= elementName.getType();
 			switch (type) {
 			case MAIN_DEFAULT:
 			case MAIN_CLASS:
 			case SUB_NAMEDPART:
 			case SUB_NAMEDSLOT:
-				firstName = a.getSegmentName();
+				firstName= elementName.getSegmentName();
 				if (firstName != null) {
-					sb = appendSymbol(sb, firstName);
+					sb= appendSymbol(sb, firstName);
 				}
 				else {
-					firstName = ""; //$NON-NLS-1$
+					firstName= ""; //$NON-NLS-1$
 				}
-				a = a.getNextSegment();
-				if (a == null) {
+				elementName= elementName.getNextSegment();
+				if (elementName == null) {
 					return (sb != null) ? sb.toString() : firstName;
 				}
 				if (sb == null) {
-					sb = new StringBuilder(firstName);
+					sb= new StringBuilder(firstName);
 				}
 				break;
-			case MAIN_SEARCH_ENV:
-				firstName = a.getSegmentName();
-				if (firstName != null) {
-					return firstName;
+			case SCOPE_NS:
+				if (elementName.getNextSegment() == null) {
+					return printScopeUI("namespace:", elementName.getSegmentName(), options); //$NON-NLS-1$
+				}
+				else {
+					printScopeFQ(elementName, sb, options, true);
+					break;
+				}
+			case SCOPE_NS_INT:
+				if (elementName.getNextSegment() == null) {
+					return printScopeUI("namespace-internal:", elementName.getSegmentName(), options); //$NON-NLS-1$
+				}
+				else {
+					printScopeFQ(elementName, sb, options, true);
+					break;
+				}
+			case SCOPE_SEARCH_ENV:
+				if (elementName.getNextSegment() == null) {
+					firstName= elementName.getSegmentName();
+					if (firstName != null) {
+						return firstName;
+					}
 				}
 				return null;
-			case MAIN_SYSFRAME:
-				firstName = a.getSegmentName();
-				if (firstName != null) {
-					return "frame:"+firstName;
-				}
-				return null;
-			case MAIN_PACKAGE:
-				firstName = a.getSegmentName();
-				if (firstName != null) {
-					return "package:"+firstName;
-				}
-				else if ((options & DISPLAY_EXACT) == 0) {
-					return "package:<unknown>";
+			case SCOPE_SYSFRAME:
+				if (elementName.getNextSegment() == null) {
+					return printScopeUI("frame:", elementName.getSegmentName(), options); //$NON-NLS-1$
 				}
 				else {
 					return null;
 				}
-			case MAIN_PROJECT:
-				firstName = a.getSegmentName();
-				if (firstName != null) {
-					return "project:"+firstName;
+			case SCOPE_PACKAGE:
+				if (elementName.getNextSegment() == null) {
+					return printScopeUI("package:", elementName.getSegmentName(), options); //$NON-NLS-1$
 				}
-				else if ((options & DISPLAY_EXACT) == 0) {
-					return "project:<unknown>";
+				else {
+					return null;
+				}
+			case SCOPE_PROJECT:
+				if (elementName.getNextSegment() == null) {
+					return printScopeUI("project:", elementName.getSegmentName(), options); //$NON-NLS-1$
 				}
 				else {
 					return null;
 				}
 			case SUB_INDEXED_D:
-				if (a instanceof DefaultImpl) {
-					sb = new StringBuilder("[["); //$NON-NLS-1$
-					sb.append(a.getSegmentName());
+				if (elementName instanceof DefaultImpl) {
+					sb= new StringBuilder("[["); //$NON-NLS-1$
+					sb.append(elementName.getSegmentName());
 					sb.append("]]"); //$NON-NLS-1$
-					a = a.getNextSegment();
+					elementName= elementName.getNextSegment();
 					break;
 				}
 				return null;
 			case RESOURCE:
 			case MAIN_OTHER:
-				return a.getSegmentName();
+				return elementName.getSegmentName();
 			case ANONYMOUS:
 				if ((options & DISPLAY_EXACT) == 0) {
-					return "<anonymous>";
+					return "<anonymous>"; //$NON-NLS-1$
 				}
-				return null;
+				else {
+					return null;
+				}
 			default:
 				return null;
 			}
 		}
 		
-		APPEND_SUB : while (a != null) {
+		APPEND_SUB : while (elementName != null) {
 			String name;
-			switch (a.getType()) {
+			switch (elementName.getType()) {
 			case MAIN_DEFAULT:
 			case MAIN_CLASS:
 			case SUB_NAMEDPART:
-				if (((options & DISPLAY_EXACT) != 0) && a instanceof IndexElementName) {
-					sb.append("[[");
-					sb.append(((IndexElementName) a).getIndex());
-					sb.append("L]]");
+				if (((options & DISPLAY_EXACT) != 0) && elementName instanceof IndexElementName) {
+					sb.append("[["); //$NON-NLS-1$
+					sb.append(((IndexElementName) elementName).getIndex());
+					sb.append("L]]"); //$NON-NLS-1$
 				}
 				else {
 					sb.append('$');
-					name = a.getSegmentName();
+					name= elementName.getSegmentName();
 					if (name != null) {
 						appendSymbol(sb, name);
 					}
 				}
-				a = a.getNextSegment();
+				elementName= elementName.getNextSegment();
 				continue APPEND_SUB;
 			case SUB_NAMEDSLOT:
 				sb.append('@');
-				name = a.getSegmentName();
+				name= elementName.getSegmentName();
 				if (name != null) {
 					appendSymbol(sb, name);
 				}
-				a = a.getNextSegment();
+				elementName= elementName.getNextSegment();
 				continue APPEND_SUB;
 			case SUB_INDEXED_S:
 				if (((options & DISPLAY_EXACT) != 0)) {
@@ -206,16 +255,16 @@ public abstract class RElementName implements IElementName {
 				sb.append("[…]"); //$NON-NLS-1$
 				break APPEND_SUB;
 			case SUB_INDEXED_D:
-				if (a instanceof DefaultImpl) {
+				if (elementName instanceof DefaultImpl) {
 					sb.append("[["); //$NON-NLS-1$
-					sb.append(a.getSegmentName());
+					sb.append(elementName.getSegmentName());
 					sb.append("]]"); //$NON-NLS-1$
-					a = a.getNextSegment();
+					elementName= elementName.getNextSegment();
 					continue APPEND_SUB;
 				}
 				else if ((options & DISPLAY_EXACT) == 0) {
 					sb.append("[[…]]"); //$NON-NLS-1$
-					a = a.getNextSegment();
+					elementName= elementName.getNextSegment();
 					continue APPEND_SUB;
 				}
 				else {
@@ -232,105 +281,171 @@ public abstract class RElementName implements IElementName {
 		return sb.toString();
 	}
 	
-	private static boolean appendEnvAccess(final RElementName a, StringBuilder sb, final int options) {
-		final String namespaceName;
+	private static boolean isValidSymbol(final String name) {
+		final int l= name.length();
+		if (l == 0) {
+			return false;
+		}
+		final char c0= name.charAt(0);
+		int check;
+		if (Character.isLetter(c0)) {
+			check= 1;
+		}
+		else if (c0 == '.') {
+			if (l == 1) {
+				check= 1;
+			}
+			else {
+				final char c1= name.charAt(1);
+				if (c1 == '.' || c1 == '_' || Character.isLetter(c1)) {
+					check= 2;
+				}
+				else {
+					return false;
+				}
+			}
+		}
+		else {
+			return false;
+		}
+		for (; check < l; check++) {
+			final char cn= name.charAt(check);
+			if ((cn < 'a' || cn > 'z') && cn != '.' && cn != '_'  && !Character.isLetterOrDigit(cn)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private static StringBuilder appendSymbol(StringBuilder sb, final String name) {
+		if (isValidSymbol(name)) {
+			return (sb != null) ? sb.append(name) : null;
+		}
+		if (sb == null) {
+			sb= new StringBuilder(name.length() + 18);
+		}
+		else {
+			sb.ensureCapacity(name.length() + 2);
+		}
+		if (name.isEmpty()) {
+			sb.append("``"); //$NON-NLS-1$
+		}
+		else {
+			sb.append('`');
+			sb.append(name);
+			sb.append('`');
+		}
+		return sb;
+	}
+	
+	private static String printScopeUI(final String itemPrefix, String segmentName,
+			final int options) {
+		if (segmentName == null) {
+			if ((options & DISPLAY_EXACT) == 0) {
+				segmentName= "<unknown>"; //$NON-NLS-1$
+			}
+			else {
+				return null;
+			}
+		}
+		final StringBuilder sb= new StringBuilder(itemPrefix.length() + segmentName.length());
+		sb.append(itemPrefix);
+		sb.append(segmentName);
+		return sb.toString();
+	}
+	
+	private static boolean printScopeFQ(final RElementName a, StringBuilder sb,
+			final int options, final boolean operator) {
+		final String scopeName;
 		switch (a.getType()) {
-		case MAIN_SEARCH_ENV:
-			namespaceName = a.getSegmentName();
-			if (namespaceName == null) {
+		case SCOPE_NS:
+			scopeName= a.getSegmentName();
+			if (scopeName == null) {
+				return false;
+			}
+			if (operator) {
+				appendSymbol(sb, scopeName);
+				sb.append("::"); //$NON-NLS-1$
+			}
+			else {
+				return false;
+			}
+			return true;
+		case SCOPE_NS_INT:
+			scopeName= a.getSegmentName();
+			if (scopeName == null) {
+				return false;
+			}
+			if (operator) {
+				appendSymbol(sb, scopeName);
+				sb.append(":::"); //$NON-NLS-1$
+			}
+			else {
+				sb.append("getNamespace(\""); //$NON-NLS-1$
+				sb.append(scopeName);
+				sb.append("\")"); //$NON-NLS-1$
+			}
+			return true;
+		case SCOPE_SEARCH_ENV:
+			scopeName= a.getSegmentName();
+			if (scopeName == null) {
 				return false;
 			}
 			sb.append("as.environment(\""); //$NON-NLS-1$
-			sb.append(namespaceName);
+			sb.append(scopeName);
 			sb.append("\")"); //$NON-NLS-1$
+			if (operator) {
+				sb.append('$');
+			}
 			return true;
-		case MAIN_PACKAGE:
-			namespaceName = a.getSegmentName();
-			if (namespaceName == null) {
+		case SCOPE_PACKAGE:
+			scopeName= a.getSegmentName();
+			if (scopeName == null) {
 				return false;
 			}
 			sb.append("as.environment(\"package:"); //$NON-NLS-1$
-			sb.append(namespaceName);
+			sb.append(scopeName);
 			sb.append("\")"); //$NON-NLS-1$
+			if (operator) {
+				sb.append('$');
+			}
 			return true;
-		case MAIN_SYSFRAME:
-			namespaceName = a.getSegmentName();
-			if (namespaceName == null) {
+		case SCOPE_SYSFRAME:
+			scopeName= a.getSegmentName();
+			if (scopeName == null) {
 				return false;
 			}
 			sb.append("sys.frame("); //$NON-NLS-1$
-			sb.append(namespaceName);
-			sb.append(((options & DISPLAY_EXACT) != 0) ? "L)" : ")"); //$NON-NLS-1$
+			sb.append(scopeName);
+			sb.append(((options & DISPLAY_EXACT) != 0) ? "L)" : ")"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (operator) {
+				sb.append('$');
+			}
 			return true;
-		case MAIN_PROJECT:
-			sb = new StringBuilder(44);
-			sb.append("as.environment(\".GlobalEnv\")"); //$NON-NLS-1$
+		case SCOPE_PROJECT:
+			sb= new StringBuilder(44);
+			sb.append(".GlobalEnv"); //$NON-NLS-1$
+			if (operator) {
+				sb.append('$');
+			}
 			return true;
 		default:
 			return false;
 		}
 	}
 	
-	private static StringBuilder appendSymbol(StringBuilder sb, final String name) {
-		if (name == null) {
-			return null;
-		}
-		final int l = name.length();
-		if (l == 0) {
-			return (sb != null) ? sb.append("``") : new StringBuilder("``"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		final char c0 = name.charAt(0);
-		int check;
-		if (Character.isLetter(c0)) {
-			check = 1;
-		}
-		else if (c0 == '.') {
-			if (l == 1) {
-				check = 1;
-			}
-			else {
-				final char c1 = name.charAt(1);
-				if (c1 == '.' || c1 == '_' || Character.isLetter(c1)) {
-					check = 2;
-				}
-				else {
-					check = -1;
-				}
-			}
-		}
-		else {
-			check = -1;
-		}
-		VALID : if (check >= 0) {
-			for (; check < l; check++) {
-				final char cn = name.charAt(check);
-				if ((cn < 'a' || cn > 'z') && cn != '.' && cn != '_'  && !Character.isLetterOrDigit(cn)) {
-					break VALID;
-				}
-			}
-			return (sb != null) ? sb.append(name) : null;
-		}
-		// no valid
-		if (sb == null) {
-			sb = new StringBuilder(name.length()+18);
-		}
-		sb.append('`');
-		sb.append(name);
-		sb.append('`');
-		return sb;
-	}
 	
-	private static final Collator NAME_COLLATOR = RSymbolComparator.R_NAMES_COLLATOR;
+	private static final Collator NAME_COLLATOR= RSymbolComparator.R_NAMES_COLLATOR;
 	
-	public static final Comparator<IElementName> NAMEONLY_COMPARATOR = new Comparator<IElementName>() {
+	public static final Comparator<IElementName> NAMEONLY_COMPARATOR= new Comparator<IElementName>() {
 		
 		@Override
 		public int compare(IElementName o1, IElementName o2) {
-			final String n1 = o1.getSegmentName();
-			final String n2 = o2.getSegmentName();
+			final String n1= o1.getSegmentName();
+			final String n2= o2.getSegmentName();
 			if (n1 != null) {
 				if (n2 != null) {
-					final int diff = NAME_COLLATOR.compare(n1, n2);
+					final int diff= NAME_COLLATOR.compare(n1, n2);
 					if (diff != 0) {
 						return diff;
 					}
@@ -343,11 +458,11 @@ public abstract class RElementName implements IElementName {
 				return Integer.MAX_VALUE;
 			}
 			
-			o1 = o1.getNextSegment();
-			o2 = o2.getNextSegment();
+			o1= o1.getNextSegment();
+			o2= o2.getNextSegment();
 			if (o1 != null) {
 				if (o2 != null) {
-					final int diff = o1.getType() - o2.getType();
+					final int diff= o1.getType() - o2.getType();
 					if (diff != 0) {
 						return diff;
 					}
@@ -368,84 +483,84 @@ public abstract class RElementName implements IElementName {
 	private static class DefaultImpl extends RElementName implements Serializable {
 		
 		
-		private static final long serialVersionUID = 315497720879434929L;
+		private static final long serialVersionUID= 315497720879434929L;
 		
 		
-		private final int fType;
-		private final String fSegmentName;
-		private RElementName fNamespace;
-		private RElementName fNextSegment;
+		private final int type;
+		private final String segmentName;
+		private RElementName scope;
+		private RElementName nextSegment;
 		
 		
 		public DefaultImpl(final int type, final String segmentName) {
-			fType = type;
-			fSegmentName = segmentName;
-			fNextSegment = null;
+			this.type= type;
+			this.segmentName= segmentName;
+			this.nextSegment= null;
 		}
 		
-		public DefaultImpl(final int type, final RElementName namespace, final String segmentName, final RElementName next) {
-			fType = type;
-			fSegmentName = segmentName;
-			fNamespace = namespace;
-			fNextSegment = next;
+		public DefaultImpl(final int type, final RElementName scope, final String segmentName, final RElementName next) {
+			this.type= type;
+			this.segmentName= segmentName;
+			this.scope= scope;
+			this.nextSegment= next;
 		}
 		
 		public DefaultImpl(final int type, final String segmentName, final RElementName next) {
-			fType = type;
-			fSegmentName = segmentName;
-			fNextSegment = next;
+			this.type= type;
+			this.segmentName= segmentName;
+			this.nextSegment= next;
 		}
 		
 		
 		@Override
 		public int getType() {
-			return fType;
+			return this.type;
 		}
 		
 		@Override
 		public String getSegmentName() {
-			return fSegmentName;
+			return this.segmentName;
 		}
 		
 		@Override
-		public RElementName getNamespace() {
-			return fNamespace;
+		public RElementName getScope() {
+			return this.scope;
 		}
 		
 		@Override
 		public RElementName getNextSegment() {
-			return fNextSegment;
+			return this.nextSegment;
 		}
 		
 	}
 	
 	private static class DualImpl extends DefaultImpl implements IndexElementName {
 		
-		private static final long serialVersionUID = 7040207683623992047L;
+		private static final long serialVersionUID= 7040207683623992047L;
 		
-		private final int fIdx;
+		private final int idx;
 		
 		public DualImpl(final int type, final String segmentName, final int idx) {
 			super(type, segmentName);
-			fIdx = idx;
+			this.idx= idx;
 		}
 		
 		public DualImpl(final int type, final String segmentName, final int idx,
 				final RElementName next) {
 			super(type, segmentName, next);
-			fIdx = idx;
+			this.idx= idx;
 		}
 		
 		
 		@Override
 		protected DefaultImpl cloneSegment0(final RElementName next) {
-			return new DualImpl(getType(), getSegmentName(), fIdx, next);
+			return new DualImpl(getType(), getSegmentName(), this.idx, next);
 		}
 		
 		
 		@Override
 		public int getIndex() {
-			return fIdx;
+			return this.idx;
 		}
 		
 	}
@@ -462,29 +577,49 @@ public abstract class RElementName implements IElementName {
 		return new DualImpl(type, segmentName, idx);
 	}
 	
+	public static RElementName create(final List<RElementName> segments) {
+		if (segments.size() > 0) {
+			int first= 0;
+			RElementName scopeName= segments.get(first);
+			if (isScopeType(scopeName.getType())) {
+				first++;
+			}
+			else {
+				scopeName= null;
+			}
+			if (segments.size() > first) {
+				RElementName next= null;
+				for (int i= segments.size()-1; i > first; i--) {
+					next= segments.get(i).cloneSegment0(next);
+				}
+				next= new DefaultImpl(segments.get(first).getType(), scopeName, segments.get(first).getSegmentName(), next);
+				return next;
+			}
+		}
+		return null;
+	}
+	
+	
+	private static final int PARSE_OP= -1;
+	private static final int PARSE_EXIT= -3;
+	
 	public static RElementName parseDefault(final String code) {
 		final RLexer lexer= new RLexer((RLexer.DEFAULT |
 						RLexer.SKIP_WHITESPACE | RLexer.SKIP_LINEBREAK | RLexer.SKIP_COMMENT ));
 		lexer.reset(new StringParserInput(code).init());
 		
-		int mode = MAIN_DEFAULT;
-		DefaultImpl main = null;
-		DefaultImpl last = null;
-		while (true) {
-			DefaultImpl tmp = null;
-			RTerminal type = lexer.next();
+		int mode= MAIN_DEFAULT;
+		DefaultImpl main= null;
+		DefaultImpl last= null;
+		while (mode != PARSE_EXIT) {
+			DefaultImpl tmp= null;
+			RTerminal type= lexer.next();
 			if (type == null || type == RTerminal.EOF) {
-				if (mode >= 0) {
-					tmp = new DefaultImpl(mode, ""); //$NON-NLS-1$
-					if (main == null) {
-						main = last = tmp;
-					}
-					else {
-						last.fNextSegment = tmp;
-						last = tmp;
-					}
+				if (mode < 0) {
+					return main;
 				}
-				return main;
+				tmp= new DefaultImpl(mode, ""); //$NON-NLS-1$
+				mode= PARSE_EXIT;
 			}
 			else {
 				switch (type) {
@@ -507,127 +642,151 @@ public abstract class RElementName implements IElementName {
 				case NULL:
 				case NAN:
 				case INF:
-					if (mode != MAIN_DEFAULT && mode != MAIN_PACKAGE
+					if (mode != MAIN_DEFAULT
 							&& mode != SUB_NAMEDPART && mode != SUB_NAMEDSLOT) {
 						return null;
 					}
-					tmp = new DefaultImpl(mode, type.text);
-					if (main == null) {
-						main = last = tmp;
+					tmp= new DefaultImpl(mode, type.text);
+					type= lexer.next();
+					if (type != null && type != RTerminal.EOF) {
+						return null;
 					}
-					else {
-						last.fNextSegment = tmp;
-						last = tmp;
-					}
-					type = lexer.next();
-					if (type == null || type == RTerminal.EOF) {
-						return main; // valid prefix
-					}
-					else {
-						return null; // invalid
-					}
+					mode= PARSE_EXIT; // valid prefix
+					break;
 				case SYMBOL:
 				case SYMBOL_G:
-					if (mode != MAIN_DEFAULT && mode != MAIN_PACKAGE
+					if (mode != MAIN_DEFAULT
 							&& mode != SUB_NAMEDPART && mode != SUB_NAMEDSLOT) {
 						return null;
 					}
-					tmp = new DefaultImpl(mode, lexer.getText());
-					if (main == null) {
-						main = last = tmp;
+					tmp= new DefaultImpl(mode, lexer.getText());
+					mode= PARSE_OP;
+					break;
+				case STRING_S:
+				case STRING_D:
+					if (mode != MAIN_DEFAULT
+							&& mode != SUB_NAMEDPART && mode != SUB_NAMEDSLOT) {
+						return null;
 					}
-					else {
-						last.fNextSegment = tmp;
-						last = tmp;
-					}
-					mode = -1;
-					continue;
+					tmp= new DefaultImpl(mode, lexer.getText());
+					mode= PARSE_OP;
+					break;
 				case NUM_INT:
 				case NUM_NUM:
 					if (mode != SUB_INDEXED_S && mode != SUB_INDEXED_D) {
 						return null;
 					}
-					tmp = new DefaultImpl(mode, lexer.getText());
-					type = lexer.next();
+					tmp= new DefaultImpl(mode, lexer.getText());
+					type= lexer.next();
 					if (type != RTerminal.SUB_INDEXED_CLOSE) {
 						return null;
 					}
-					if (main == null) {
-						main = last = tmp;
+					if (mode == SUB_INDEXED_D) {
+						type= lexer.next();
+						if (type != RTerminal.SUB_INDEXED_CLOSE) {
+							return null;
+						}
 					}
-					else {
-						last.fNextSegment = tmp;
-						last = tmp;
-					}
-					mode = -2;
-					continue;
+					mode= PARSE_OP;
+					break;
 				case SUB_NAMED_PART:
 					if (main == null || mode >= 0) {
 						return null;
 					}
-					mode = SUB_NAMEDPART;
+					mode= SUB_NAMEDPART;
 					continue;
 				case SUB_NAMED_SLOT:
 					if (main == null || mode >= 0) {
 						return null;
 					}
-					mode = SUB_NAMEDSLOT;
+					mode= SUB_NAMEDSLOT;
 					continue;
 				case SUB_INDEXED_S_OPEN:
 					if (main == null || mode >= 0) {
 						return null;
 					}
-					mode = SUB_INDEXED_S;
+					mode= SUB_INDEXED_S;
 					continue;
 				case SUB_INDEXED_D_OPEN:
 					if (main == null || mode >= 0) {
 						return null;
 					}
-					mode = SUB_INDEXED_S;
+					mode= SUB_INDEXED_D;
 					continue;
-				case SUB_INDEXED_CLOSE:
-					if (mode != -2) {
-						return null;
-					}
-					continue;
+//				case SUB_INDEXED_CLOSE:
+//					return null;
 				case NS_GET:
-				case NS_GET_INT:
-					if (main != null || mode >= 0) {
+					if (main == null || main != last || mode >= 0) {
 						return null;
 					}
-					mode = MAIN_PACKAGE;
+					if (main.getType() == MAIN_DEFAULT) {
+						main= new DefaultImpl(SCOPE_NS, main.getSegmentName());
+					}
+					else {
+						return null;
+					}
+					
+					mode= MAIN_DEFAULT;
+					continue;
+				case NS_GET_INT:
+					if (main == null || main != last || mode >= 0) {
+						return null;
+					}
+					if (main.getType() == MAIN_DEFAULT) {
+						main= new DefaultImpl(SCOPE_NS_INT, main.getSegmentName());
+					}
+					else {
+						return null;
+					}
+					
+					mode= MAIN_DEFAULT;
 					continue;
 				default:
 					return null;
 				}
+				
+			}
+			
+			if (main == null) {
+				main= last= tmp;
+			}
+			else if (isScopeType(main.getType())) {
+				tmp.scope= main;
+				main= last= tmp;
+			}
+			else {
+				last.nextSegment= tmp;
+				last= tmp;
 			}
 		}
+		return main;
 	}
+	
 	
 	/**
 	 * Creates a copy of the specified element name.
 	 * 
 	 * @param name the element name to copy
-	 * @param withNamespace to include the namespace in the copy, if available
+	 * @param withScope to include the scope in the copy, if available
 	 * @return the copy of the element name
 	 */
 	public static RElementName cloneName(RElementName name,
-			final boolean withNamespace) {
+			final boolean withScope) {
 		if (name == null) {
 			return null;
 		}
-		RElementName namespace = (withNamespace) ? name.getNamespace() : null;
-		if (namespace != null) {
-			namespace = new DefaultImpl(namespace.getType(), namespace.getSegmentName(), null);
+		RElementName scopeName= (withScope) ? name.getScope() : null;
+		if (scopeName != null) {
+			scopeName= new DefaultImpl(scopeName.getType(), scopeName.getSegmentName(), null);
 		}
-		final DefaultImpl main = new DefaultImpl(name.getType(), namespace, name.getSegmentName(), null);
-		DefaultImpl last = main;
-		name = name.getNextSegment();
+		final DefaultImpl main= new DefaultImpl(name.getType(), scopeName, name.getSegmentName(), null);
+		DefaultImpl last= main;
+		name= name.getNextSegment();
 		while (name != null) {
-			final DefaultImpl copy = name.cloneSegment0(null);
-			last.fNextSegment = copy;
-			last = copy;
-			name = name.getNextSegment();
+			final DefaultImpl copy= name.cloneSegment0(null);
+			last.nextSegment= copy;
+			last= copy;
+			name= name.getNextSegment();
 		}
 		return main;
 	}
@@ -638,26 +797,26 @@ public abstract class RElementName implements IElementName {
 	 * 
 	 * @param name the element name to copy
 	 * @param end the end segment or <code>null</code>, to copy the complete name
-	 * @param withNamespace to include the namespace in the copy, if available
+	 * @param withScope to include the scope in the copy, if available
 	 * @return the copy of the element name
 	 */
 	public static RElementName cloneSegments(RElementName name, final RElementName end,
-			final boolean withNamespace) {
+			final boolean withScope) {
 		if (name == null) {
 			return null;
 		}
-		RElementName namespace = (withNamespace) ? name.getNamespace() : null;
-		if (namespace != null) {
-			namespace = new DefaultImpl(namespace.getType(), namespace.getSegmentName(), null);
+		RElementName scopeName= (withScope) ? name.getScope() : null;
+		if (scopeName != null) {
+			scopeName= new DefaultImpl(scopeName.getType(), scopeName.getSegmentName(), null);
 		}
-		final DefaultImpl main = new DefaultImpl(name.getType(), namespace, name.getSegmentName(), null);
-		DefaultImpl last = main;
-		name = name.getNextSegment();
+		final DefaultImpl main= new DefaultImpl(name.getType(), scopeName, name.getSegmentName(), null);
+		DefaultImpl last= main;
+		name= name.getNextSegment();
 		while (name != null && name != end) {
-			final DefaultImpl copy = name.cloneSegment0(null);
-			last.fNextSegment = copy;
-			last = copy;
-			name = name.getNextSegment();
+			final DefaultImpl copy= name.cloneSegment0(null);
+			last.nextSegment= copy;
+			last= copy;
+			name= name.getNextSegment();
 		}
 		return main;
 	}
@@ -672,31 +831,21 @@ public abstract class RElementName implements IElementName {
 		return name.cloneSegment0(null);
 	}
 	
-	public static RElementName concat(final List<RElementName> segments) {
-		if (segments.size() > 0) {
-			int first = 0;
-			RElementName namespace = segments.get(first);
-			switch (namespace.getType()) {
-			case MAIN_SEARCH_ENV:
-			case MAIN_PACKAGE:
-			case MAIN_SYSFRAME:
-			case MAIN_PROJECT:
-				first++;
-				break;
-			default:
-				namespace = null;
-				break;
-			}
-			if (segments.size() > first) {
-				RElementName next = null;
-				for (int i = segments.size()-1; i > first; i--) {
-					next = segments.get(i).cloneSegment0(next);
-				}
-				next = new DefaultImpl(segments.get(first).getType(), namespace, segments.get(first).getSegmentName(), next);
-				return next;
-			}
+	public static RElementName addScope(final RElementName name, final RElementName scope) {
+		if (!isScopeType(scope.getType())) {
+			throw new IllegalArgumentException("scope.type= " + scope.getType()); //$NON-NLS-1$
 		}
-		return null;
+		return new DefaultImpl(name.getType(),
+				(scope.getNextSegment() == null) ? scope : cloneSegment(scope),
+				name.getSegmentName(), name.getNextSegment() );
+	}
+	
+	public static RElementName normalize(final RElementName name) {
+		if (name != null && name.getScope() == null && isScopeType(name.getType())
+				&& name.getNextSegment() != null) {
+			return addScope(name.getNextSegment(), name);
+		}
+		return name;
 	}
 	
 	
@@ -704,7 +853,7 @@ public abstract class RElementName implements IElementName {
 	}
 	
 	
-	public abstract RElementName getNamespace();
+	public abstract RElementName getScope();
 	@Override
 	public abstract RElementName getNextSegment();
 	
@@ -725,8 +874,8 @@ public abstract class RElementName implements IElementName {
 	
 	@Override
 	public final int hashCode() {
-		final String name = getSegmentName();
-		final IElementName next = getNextSegment();
+		final String name= getSegmentName();
+		final IElementName next= getNextSegment();
 		if (next != null) {
 			return getType() * ((name != null) ? name.hashCode() : 1) * (next.hashCode()+7);
 		}
@@ -740,9 +889,9 @@ public abstract class RElementName implements IElementName {
 		if (!(obj instanceof RElementName)) {
 			return false;
 		}
-		final IElementName other = (RElementName) obj;
-		final String thisName = getSegmentName();
-		final String otherName = other.getSegmentName();
+		final IElementName other= (RElementName) obj;
+		final String thisName= getSegmentName();
+		final String otherName= other.getSegmentName();
 		return ((getType() == other.getType())
 				&& ((thisName != null) ? 
 						(thisName == otherName || (otherName != null && thisName.hashCode() == otherName.hashCode() && thisName.equals(otherName)) ) : 

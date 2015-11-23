@@ -367,7 +367,7 @@ public class RHelpView extends PageBookBrowserView
 	}
 	
 	private boolean show(final LTKInputData state, final boolean explicite) {
-		if (state.getInputElement().getModelTypeId() == RModel.TYPE_ID
+		if (state.getInputElement().getModelTypeId() == RModel.R_TYPE_ID
 				|| state.getInputElement() instanceof IRSourceUnit) {
 			final AstSelection astSelection= state.getAstSelection();
 			final ISelection selection= state.getSelection();
@@ -397,7 +397,7 @@ public class RHelpView extends PageBookBrowserView
 				if (help != null) {
 					final String url;
 					try {
-						if (name.getType() == RElementName.MAIN_PACKAGE) {
+						if (RElementName.isPackageFacetScopeType(name.getType())) {
 							final IRPkgHelp packageHelp= help.getRPackage(name.getSegmentName());
 							if (packageHelp != null) {
 								url= rHelpManager.getPackageHttpUrl(packageHelp, RHelpUIServlet.BROWSE_TARGET);
@@ -412,8 +412,8 @@ public class RHelpView extends PageBookBrowserView
 								url= rHelpManager.getPageHttpUrl(topics.get(0), RHelpUIServlet.BROWSE_TARGET);
 							}
 							else if (topics.size() > 1) {
-								url= rHelpManager.toHttpUrl("rhelp:///topic/"+name.getSegmentName(), rEnv,
-										RHelpUIServlet.BROWSE_TARGET);
+								url= rHelpManager.toHttpUrl("rhelp:///topic/" + name.getSegmentName(),
+										rEnv, RHelpUIServlet.BROWSE_TARGET );
 							}
 							else {
 								url= null;

@@ -19,7 +19,7 @@ import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
-public class DocuText extends RAstNode {
+public final class DocuText extends RAstNode {
 	
 	
 	private final String fText;

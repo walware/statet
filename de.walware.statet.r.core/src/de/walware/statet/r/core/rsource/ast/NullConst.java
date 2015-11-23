@@ -22,7 +22,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  * <code>NULL</code>
  */
-public class NullConst extends RAstNode {
+public final class NullConst extends RAstNode {
 	
 	
 	NullConst() {

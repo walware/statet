@@ -51,7 +51,7 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 		final RDataTableColumn[] dataColumns = new RDataTableColumn[columnCount];
 		for (int i = 0; i < columnCount; i++) {
 			final String columnName = struct.getColumnNames().getChar(i);
-			final RElementName elementName= RElementName.concat(ImCollections.newList(BASE_NAME,
+			final RElementName elementName= RElementName.create(ImCollections.newList(BASE_NAME,
 					RElementName.create(RElementName.SUB_NAMEDPART, columnName, i+1 )));
 			dataColumns[i] = createColumn(struct.getColumn(i),
 					fInput.getFullName() + "[[" + (i+1) + "]]", elementName, i, columnName,

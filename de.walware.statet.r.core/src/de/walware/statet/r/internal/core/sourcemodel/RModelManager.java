@@ -13,7 +13,10 @@ package de.walware.statet.r.internal.core.sourcemodel;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -34,6 +37,7 @@ import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.model.RSuModelContainer;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
+import de.walware.statet.r.internal.core.RProject;
 
 
 public class RModelManager extends AbstractModelManager implements IRModelManager {
@@ -45,37 +49,37 @@ public class RModelManager extends AbstractModelManager implements IRModelManage
 		
 		public RContextItem(final WorkingContext context) {
 			super(context);
-			this.worksheets = new HashMap<>();
+			this.worksheets= new HashMap<>();
 		}
 		
 	}
 	
 	
-	private final RReconciler fReconciler = new RReconciler(this);
-	private final RModelEventJob fEventJob = new RModelEventJob(this);
+	private final RReconciler reconciler= new RReconciler(this);
+	private final RModelEventJob eventJob= new RModelEventJob(this);
 	
-	private final RModelIndex fIndex = new RModelIndex(this);
+	private final RModelIndex index= new RModelIndex(this);
 	
 	
 	public RModelManager() {
-		super(RModel.TYPE_ID);
+		super(RModel.R_TYPE_ID);
 		getContextItem(LTK.PERSISTENCE_CONTEXT, true);
 		getContextItem(LTK.EDITOR_CONTEXT, true);
 	}
 	
 	
 	public void dispose() {
-		fEventJob.dispose();
-		fIndex.dispose();
+		this.eventJob.dispose();
+		this.index.dispose();
 	}
 	
 	
 	public RModelEventJob getEventJob() {
-		return fEventJob;
+		return this.eventJob;
 	}
 	
 	public RModelIndex getIndex() {
-		return fIndex;
+		return this.index;
 	}
 	
 	
@@ -89,29 +93,29 @@ public class RModelManager extends AbstractModelManager implements IRModelManage
 		assert (copy.getModelTypeId().equals(RModel.TYPE_ID) ?
 				copy.getElementType() == IRSourceUnit.R_OTHER_SU : true);
 		
-		final RContextItem contextItem = (RContextItem) getContextItem(
+		final RContextItem contextItem= (RContextItem) getContextItem(
 				copy.getWorkingContext(), true );
 		synchronized (contextItem) {
-			final String key = copy.getId()+'+'+copy.getModelTypeId();
+			final String key= copy.getId() + '+' + copy.getModelTypeId();
 			contextItem.worksheets.put(key, copy);
 		}
 	}
 	
 	@Override
 	public void deregisterDependentUnit(final ISourceUnit copy) {
-		final RContextItem contextItem = (RContextItem) getContextItem(
+		final RContextItem contextItem= (RContextItem) getContextItem(
 				copy.getWorkingContext(), true );
 		synchronized (contextItem) {
-			contextItem.worksheets.remove(copy.getId()+'+'+copy.getModelTypeId());
+			contextItem.worksheets.remove(copy.getId() + '+' + copy.getModelTypeId());
 		}
 	}
 	
 	public ISourceUnit getWorksheetCopy(final String type, final String id, final WorkingContext context) {
-		final RContextItem contextItem = (RContextItem) getContextItem(
+		final RContextItem contextItem= (RContextItem) getContextItem(
 				context, false );
 		if (contextItem != null) {
 			synchronized (contextItem) {
-				return contextItem.worksheets.get(id+'+'+type);
+				return contextItem.worksheets.get(id + '+' + type);
 			}
 		}
 		return null;
@@ -122,7 +126,7 @@ public class RModelManager extends AbstractModelManager implements IRModelManage
 	public void reconcile(final SourceUnitModelContainer<?, ?> adapter,
 			final int level, final IProgressMonitor monitor) {
 		if (adapter instanceof RSuModelContainer) {
-			fReconciler.reconcile((RSuModelContainer) adapter, level, monitor);
+			this.reconciler.reconcile((RSuModelContainer) adapter, level, monitor);
 		}
 	}
 	
@@ -133,19 +137,40 @@ public class RModelManager extends AbstractModelManager implements IRModelManage
 		if (sourceUnit == null) {
 			throw new NullPointerException("sourceUnit"); //$NON-NLS-1$
 		}
-		return fReconciler.reconcile(sourceUnit, modelInfo, chunks, inlineNodes, level, monitor);
+		return this.reconciler.reconcile(sourceUnit, modelInfo, chunks, inlineNodes, level, monitor);
 	}
 	
 	
 	@Override
 	public IRFrame getProjectFrame(final IRProject rProject) throws CoreException {
-		return fIndex.getProjectFrame(rProject);
+		return this.index.getProjectFrame(rProject);
+	}
+	
+	@Override
+	public Set<String> getPkgNames() {
+		return this.index.getPkgNames();
+	}
+	
+	@Override
+	public IRFrame getPkgProjectFrame(final String pkgName) throws CoreException {
+		if (pkgName == null) {
+			throw new NullPointerException("pkgName"); //$NON-NLS-1$
+		}
+		final String projectName= this.index.getPkgProject(pkgName);
+		if (projectName != null) {
+			final IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+			final RProject rProject= RProject.getRProject(project);
+			if (rProject != null) {
+				return getProjectFrame(rProject);
+			}
+		}
+		return null;
 	}
 	
 	@Override
 	public List<ISourceUnit> findReferencingSourceUnits(final IRProject rProject, final RElementName name,
 			final IProgressMonitor monitor) throws CoreException {
-		return fIndex.findReferencingSourceUnits(rProject, name, monitor);
+		return this.index.findReferencingSourceUnits(rProject, name, monitor);
 	}
 	
 }

@@ -27,7 +27,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public abstract class Relational extends StdBinary {
 	
 	
-	static class LT extends Relational {
+	static final class LT extends Relational {
 		
 		
 		LT() {
@@ -53,7 +53,7 @@ public abstract class Relational extends StdBinary {
 		
 	}
 	
-	static class LE extends Relational {
+	static final class LE extends Relational {
 		
 		
 		LE() {
@@ -79,7 +79,7 @@ public abstract class Relational extends StdBinary {
 		
 	}
 	
-	static class EQ extends Relational {
+	static final class EQ extends Relational {
 		
 		
 		EQ() {
@@ -102,7 +102,7 @@ public abstract class Relational extends StdBinary {
 		
 	}
 	
-	static class GE extends Relational {
+	static final class GE extends Relational {
 		
 		
 		GE() {
@@ -128,7 +128,7 @@ public abstract class Relational extends StdBinary {
 		
 	}
 	
-	static class GT extends Relational {
+	static final class GT extends Relational {
 		
 		
 		GT() {
@@ -154,7 +154,7 @@ public abstract class Relational extends StdBinary {
 		
 	}
 	
-	static class NE extends Relational {
+	static final class NE extends Relational {
 		
 		
 		NE() {

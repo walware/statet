@@ -23,7 +23,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public abstract class Arithmetic extends StdBinary {
 	
 	
-	static class Plus extends Arithmetic {
+	static final class Plus extends Arithmetic {
 		
 		
 		public Plus() {
@@ -47,7 +47,7 @@ public abstract class Arithmetic extends StdBinary {
 		
 	}
 	
-	static class Minus extends Arithmetic {
+	static final class Minus extends Arithmetic {
 		
 		
 		public Minus() {
@@ -71,7 +71,7 @@ public abstract class Arithmetic extends StdBinary {
 		
 	}
 	
-	static class Mult extends Arithmetic {
+	static final class Mult extends Arithmetic {
 		
 		
 		public Mult() {
@@ -96,7 +96,7 @@ public abstract class Arithmetic extends StdBinary {
 		
 	}
 	
-	static class Div extends Arithmetic {
+	static final class Div extends Arithmetic {
 		
 		
 		public Div() {

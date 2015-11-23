@@ -145,8 +145,8 @@ public class RWorkspace extends ToolWorkspace {
 				if (searchData.isNA(i)) {
 					continue;
 				}
-				final String name= searchData.getChar(i);
-				this.searchEnvs.add(new REnvironmentVar(name, true, null, null));
+				final String envName= searchData.getChar(i);
+				this.searchEnvs.add(new REnvironmentVar(envName, true, null, null));
 			}
 		}
 		
@@ -331,15 +331,9 @@ public class RWorkspace extends ToolWorkspace {
 			if (name == null || name.getNextSegment() != null) {
 				return;
 			}
-			switch (name.getType()) {
-			case RElementName.MAIN_SEARCH_ENV:
-			case RElementName.MAIN_PACKAGE:
-			case RElementName.MAIN_SYSFRAME:
-			case RElementName.MAIN_PROJECT:
+			
+			if (RElementName.isScopeType(name.getType())) {
 				var.setElementName(name);
-				return;
-			default:
-				return;
 			}
 		}
 		

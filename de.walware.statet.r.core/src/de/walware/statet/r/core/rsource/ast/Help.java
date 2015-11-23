@@ -26,7 +26,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
  * <code>? §topic§</code>
  * <code>§type§ ? §topic§</code>
  */
-public class Help extends RAstNode {
+public final class Help extends RAstNode {
 	
 	
 	final Expression fLeftExpr = new Expression();

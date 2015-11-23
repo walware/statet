@@ -68,7 +68,7 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 		final ISourceEditor editor = getEditor();
 		final ITool tool;
 		if (editor instanceof ConsolePageEditor) {
-			tool = (ITool) editor.getAdapter(ITool.class);
+			tool = editor.getAdapter(ITool.class);
 		}
 		else {
 			tool = NicoUITools.getTool(editor.getWorkbenchPart());
@@ -181,7 +181,7 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 					}
 					segment = segment.getNextSegment();
 				}
-				return RElementName.concat(ImCollections.newList(segments));
+				return RElementName.create(ImCollections.newList(segments));
 			}
 			current = current.getNextSegment();
 		}

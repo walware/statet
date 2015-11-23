@@ -22,7 +22,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public abstract class StringConst extends SingleValue {
 	
 	
-	static class S extends StringConst {
+	static final class S extends StringConst {
 		
 		
 		S() {
@@ -36,7 +36,7 @@ public abstract class StringConst extends SingleValue {
 		
 	}
 	
-	static class D extends StringConst {
+	static final class D extends StringConst {
 		
 		
 		D() {

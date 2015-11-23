@@ -22,7 +22,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public abstract class Symbol extends SingleValue {
 	
 	
-	static class Std extends Symbol {
+	static final class Std extends Symbol {
 		
 		
 		Std() {
@@ -37,7 +37,7 @@ public abstract class Symbol extends SingleValue {
 	}
 	
 	
-	static class G extends Symbol {
+	static final class G extends Symbol {
 		
 		
 		G() {

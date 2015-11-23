@@ -13,24 +13,42 @@ package de.walware.statet.r.core.model;
 
 import java.io.Serializable;
 
+import de.walware.jcommons.lang.Immutable;
+
 
 /**
  * Formals of an R function
  */
-public final class ArgsDefinition implements Serializable {
+public final class ArgsDefinition implements Immutable, Serializable {
 	
 	
 	private static final long serialVersionUID = -3536570586490553543L;
 	
 	
-	public static final int UNKNOWN = 0;
-	public static final int UNSPECIFIC_OBJ =     0x001;
-	public static final int UNSPECIFIC_NAME =    0x010;
-	public static final int CLASS_OBJ =          0x002;
-	public static final int CLASS_NAME =         0x020;
-	public static final int METHOD_OBJ =         0x004;
-	public static final int METHOD_NAME =        0x040;
-	public static final int FILE_NAME =          0x100;
+	public static final int UNKNOWN=                        0x0_0000_0000;
+	
+	private static final int OBJ_SHIFT= 0;
+	private static final int NAME_SHIFT= 8;
+	private static final int OTHER_SHIFT= 16;
+	private static final int FLAGS_SHIFT= 24;
+	
+	public static final int UNSPECIFIC_OBJ=                 0x01 << OBJ_SHIFT;
+	public static final int UNSPECIFIC_NAME=                1 << 0 << NAME_SHIFT;
+	
+	public static final int PACKAGE_NAME=                   1 << 1 << NAME_SHIFT;
+	
+	public static final int HELP_TOPIC_NAME=                1 << 4 << NAME_SHIFT;
+	
+	public static final int CLASS_OBJ=                      1 << 5 << OBJ_SHIFT;
+	public static final int CLASS_NAME=                     1 << 5 << NAME_SHIFT;
+	
+	public static final int METHOD_OBJ=                     1 << 6 << OBJ_SHIFT;
+	public static final int METHOD_NAME=                    1 << 6 << NAME_SHIFT;
+	
+	public static final int FILE_NAME=                      1 << 1 << OTHER_SHIFT;
+	
+	public static final int NAME_AS_SYMBOL=                 1 << 1 << FLAGS_SHIFT;
+	public static final int NAME_AS_STRING=                 1 << 2 << FLAGS_SHIFT;
 	
 	
 	public static final class Arg implements Serializable {

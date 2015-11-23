@@ -19,7 +19,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  * <code>§base§ ^ §power§</code>
  */
-public class Power extends StdBinary {
+public final class Power extends StdBinary {
 	
 	
 	Power() {

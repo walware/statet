@@ -91,7 +91,7 @@ public class RElementSearch extends RElementSearchProcessor {
 				bestUnit= sourceUnit;
 			}
 			
-			final IRModelInfo modelInfo= (IRModelInfo) sourceUnit.getModelInfo(RModel.TYPE_ID,
+			final IRModelInfo modelInfo= (IRModelInfo) sourceUnit.getModelInfo(RModel.R_TYPE_ID,
 					IRModelManager.MODEL_FILE, progress.newChild(1) );
 			final SourceContent content= sourceUnit.getContent(progress.newChild(1));
 			

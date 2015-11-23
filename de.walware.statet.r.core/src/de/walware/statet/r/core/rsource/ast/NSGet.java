@@ -25,7 +25,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
  */
 public abstract class NSGet extends RAstNode {
 	
-	static class Std extends NSGet {
+	static final class Std extends NSGet {
 		
 		
 		Std() {
@@ -56,7 +56,7 @@ public abstract class NSGet extends RAstNode {
 		
 	}
 	
-	static class Internal extends NSGet {
+	static final class Internal extends NSGet {
 		
 		
 		Internal() {

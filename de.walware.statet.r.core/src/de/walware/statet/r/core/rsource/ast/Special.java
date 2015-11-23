@@ -16,7 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
-public class Special extends StdBinary {
+public final class Special extends StdBinary {
 	
 	
 	String fQualifier;

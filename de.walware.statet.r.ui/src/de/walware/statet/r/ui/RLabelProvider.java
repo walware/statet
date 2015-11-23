@@ -346,20 +346,20 @@ public class RLabelProvider extends StyledCellLabelProvider
 		}
 		
 		if ((this.style & NAMESPACE) != 0) {
-			IElementName namespace= elementName0.getNamespace();
-			if (namespace == null) {
+			IElementName scope= elementName0.getScope();
+			if (scope == null) {
 				final IModelElement parent= element.getModelParent();
 				if (parent != null) {
 					final IRFrame frame= (IRFrame) parent.getAdapter(IRFrame.class);
 					if (frame != null) {
-						namespace= frame.getElementName();
+						scope= frame.getElementName();
 					}
 				}
 			}
-			if (namespace != null) {
+			if (scope != null) {
 				final StringBuilder textBuilder= getTextBuilder();
 				textBuilder.append(" - "); //$NON-NLS-1$
-				textBuilder.append(namespace.getDisplayName());
+				textBuilder.append(scope.getDisplayName());
 				text.append(textBuilder.toString(), StyledString.QUALIFIER_STYLER);
 			}
 		}

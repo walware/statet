@@ -27,7 +27,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public abstract class SubNamed extends RAstNode {
 	
 	
-	static class Named extends SubNamed {
+	static final class Named extends SubNamed {
 		
 		
 		Named() {
@@ -52,7 +52,7 @@ public abstract class SubNamed extends RAstNode {
 		
 	}
 	
-	static class Slot extends SubNamed {
+	static final class Slot extends SubNamed {
 		
 		
 		Slot() {

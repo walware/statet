@@ -537,7 +537,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 					ICombinedRElement element = null;
 					if (fDbgFrame.getPosition() > 0) {
 						final RReference ref = r.getWorkspaceData().createReference(fDbgFrame.getHandle(),
-								RElementName.create(RElementName.MAIN_SYSFRAME, Integer.toString(fDbgFrame.getPosition())),
+								RElementName.create(RElementName.SCOPE_SYSFRAME, Integer.toString(fDbgFrame.getPosition())),
 								RObject.CLASSNAME_ENV);
 						element = r.getWorkspaceData().resolve(ref, monitor);
 					}
@@ -576,8 +576,8 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 			}
 			final List<RElementName> segments= new ArrayList<>();
 			createName(element, segments);
-			return RElementName.createDisplayName(RElementName.concat(segments),
-						RElementName.DISPLAY_NS_PREFIX | RElementName.DISPLAY_EXACT);
+			return RElementName.createDisplayName(RElementName.create(segments),
+						RElementName.DISPLAY_FQN | RElementName.DISPLAY_EXACT);
 		}
 		catch (final Exception e) {
 			RDebugCorePlugin.log(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, 0,
@@ -659,11 +659,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 		else {
 			final RElementName name = element.getElementName();
 			if (name != null) {
-				switch (name.getType()) {
-				case RElementName.MAIN_SEARCH_ENV:
-				case RElementName.MAIN_PACKAGE:
-				case RElementName.MAIN_SYSFRAME:
-				case RElementName.MAIN_PROJECT:
+				if (RElementName.isScopeType(name.getType())) {
 					segments.add(element.getElementName());
 					return;
 				}

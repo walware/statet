@@ -98,8 +98,8 @@ public final class SlaveAccess extends RElementAccess {
 	}
 	
 	@Override
-	public RElementName getNamespace() {
-		return this.master.getNamespace();
+	public RElementName getScope() {
+		return this.master.getScope();
 	}
 	
 }

@@ -105,27 +105,34 @@ public class RHelpHover implements IInfoHover {
 		final IREnvHelp help = rHelpManager.getHelp(rEnv);
 		if (help != null) {
 			try {
-				if (name.getType() == RElementName.MAIN_PACKAGE) {
+				if (RElementName.isPackageFacetScopeType(name.getType())) {
 					helpObject = help.getRPackage(name.getSegmentName());
 				}
 				else {
-					final List<IRHelpPage> topics = help.getPagesForTopic(name.getSegmentName());
-					if (topics == null || topics.isEmpty()) {
-						return null;
+					if (name.getScope() != null
+							&& RElementName.isPackageFacetScopeType(name.getScope().getType()) ) {
+						helpObject= help.getPageForTopic(name.getScope().getSegmentName(),
+								name.getSegmentName() );
 					}
-					if (topics.size() == 1) {
-						helpObject = topics.get(0);
-					}
-					else {
-						final IRFrameInSource frame = RModel.searchFrame((RAstNode) selection.getCovering());
-						if (frame == null) {
+					if (helpObject== null) {
+						final List<IRHelpPage> topics = help.getPagesForTopic(name.getSegmentName());
+						if (topics == null || topics.isEmpty()) {
 							return null;
 						}
-						helpObject = searchFrames(topics, RModel.createDirectFrameList(frame));
-						final ISourceUnit su = context.getSourceUnit();
-						if (helpObject == null && su instanceof IRSourceUnit) {
-							helpObject = searchFrames(topics,
-									RModel.createProjectFrameList(null, (IRSourceUnit) su, null) );
+						if (topics.size() == 1) {
+							helpObject = topics.get(0);
+						}
+						else {
+							final IRFrameInSource frame = RModel.searchFrame((RAstNode) selection.getCovering());
+							if (frame == null) {
+								return null;
+							}
+							helpObject= searchFrames(topics, RModel.createDirectFrameList(frame));
+							final ISourceUnit su = context.getSourceUnit();
+							if (helpObject == null && su instanceof IRSourceUnit) {
+								helpObject = searchFrames(topics,
+										RModel.createProjectFrameList(null, (IRSourceUnit) su, null, null) );
+							}
 						}
 					}
 				}
@@ -183,7 +190,7 @@ public class RHelpHover implements IInfoHover {
 					access = (RElementAccess) attachment;
 					final IRFrame frame = access.getFrame();
 					if ((frame != null && frame.getFrameType() != IRFrame.FUNCTION)
-							|| (access.getType() == RElementName.MAIN_PACKAGE) ) {
+							|| (RElementName.isPackageFacetScopeType(access.getType())) ) {
 						final RElementName e = getElementAccessOfRegion(access, region);
 						if (e != null) {
 							return e;
@@ -210,12 +217,9 @@ public class RHelpHover implements IInfoHover {
 							if (access.getNode() == fcall
 									&& frame != null && frame.getFrameType() != IRFrame.FUNCTION
 									&& access.getNextSegment() == null) {
-								switch (access.getType()) {
-								case RElementName.MAIN_DEFAULT:
-								case RElementName.MAIN_CLASS:
-									return access;
-								default:
-									return null;
+								final RElementName fName= RElementName.normalize(access);
+								if (RElementName.isRegularMainType(fName.getType())) {
+									return fName;
 								}
 							}
 						}
@@ -229,27 +233,34 @@ public class RHelpHover implements IInfoHover {
 	}
 	
 	static RElementName getElementAccessOfRegion(final RElementAccess access, final IRegion region) {
-		int segmentCount = 0;
-		RElementAccess current = access;
+		if (access.getSegmentName() == null) {
+			return null;
+		}
+		
+		int segmentCount= 0;
+		RElementAccess current= access;
 		while (current != null) {
 			segmentCount++;
-			final RAstNode nameNode = current.getNameNode();
+			final RAstNode nameNode= current.getNameNode();
 			if (nameNode != null
 					&& nameNode.getOffset() <= region.getOffset()
-					&& nameNode.getEndOffset() >= region.getOffset()+region.getLength() ) {
-				final RElementAccess segment = access;
-				if (segment.getSegmentName() == null
-						|| segment.getNextSegment() != null) {
-					return null;
+					&& nameNode.getEndOffset() >= region.getOffset() + region.getLength() ) {
+				if (RElementName.isRegularMainType(access.getType())) {
+					return access;
 				}
-				switch (segment.getType()) {
-				case RElementName.MAIN_DEFAULT:
-				case RElementName.MAIN_CLASS:
-				case RElementName.MAIN_PACKAGE:
-					return segment;
-				default:
-					return null;
+				if (segmentCount == 1) {
+					if (RElementName.isPackageFacetScopeType(access.getType())) {
+						return access;
+					}
 				}
+				else /* (segmentCount > 1) */ {
+					if (RElementName.isPackageFacetScopeType(access.getType())
+							&& RElementName.isRegularMainType(access.getNextSegment().getType())
+							&& access.getNextSegment().getSegmentName() != null) {
+						return RElementName.normalize(access);
+					}
+				}
+				return null;
 			}
 			current = current.getNextSegment();
 		}

@@ -41,6 +41,10 @@ abstract class SpecItem extends RAstNode {
 		return null;
 	}
 	
+	public final int getAssignOffset() {
+		return this.fEqualsOffset;
+	}
+	
 	
 	@Override
 	public final boolean hasChildren() {

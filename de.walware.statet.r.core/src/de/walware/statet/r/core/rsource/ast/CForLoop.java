@@ -26,7 +26,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  * <code>for ( §var§ in §cond§ ) §cont§</code>
  */
-public class CForLoop extends RAstNode {
+public final class CForLoop extends RAstNode {
 	
 	
 	Symbol fVarSymbol;

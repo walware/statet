@@ -26,7 +26,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  * <code>while ( §cond§ ) §cont§</code>
  */
-public class CWhileLoop extends RAstNode {
+public final class CWhileLoop extends RAstNode {
 	
 	
 	int fCondOpenOffset = NA_OFFSET;

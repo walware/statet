@@ -213,13 +213,8 @@ public abstract class AbstractRController extends ToolController
 		}
 		if (changed instanceof RElementName) {
 			final RElementName name = (RElementName) changed;
-			switch (name.getType()) {
-			case RElementName.MAIN_SEARCH_ENV:
-			case RElementName.MAIN_PACKAGE:
+			if (RElementName.isSearchScopeType(name.getType())) {
 				fChangedEnvirs.add(name);
-				break;
-			default:
-				break;
 			}
 		}
 	}

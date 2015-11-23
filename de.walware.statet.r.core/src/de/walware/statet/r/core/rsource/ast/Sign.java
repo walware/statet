@@ -28,7 +28,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public abstract class Sign extends RAstNode {
 	
 	
-	static class PlusSign extends Sign {
+	static final class PlusSign extends Sign {
 		
 		
 		PlusSign() {
@@ -52,7 +52,7 @@ public abstract class Sign extends RAstNode {
 		
 	}
 	
-	static class MinusSign extends Sign {
+	static final class MinusSign extends Sign {
 		
 		
 		MinusSign() {
@@ -77,7 +77,7 @@ public abstract class Sign extends RAstNode {
 		
 	}
 	
-	static class Not extends Sign {
+	static final class Not extends Sign {
 		
 		@Override
 		public final NodeType getNodeType() {

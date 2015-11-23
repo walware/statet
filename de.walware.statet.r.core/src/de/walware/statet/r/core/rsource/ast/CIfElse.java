@@ -28,7 +28,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
  * <code>if ( §cond§ ) §then§</code>
  * <code>if ( §cond§ ) §then§ else §else§</code>
  */
-public class CIfElse extends RAstNode {
+public final class CIfElse extends RAstNode {
 	
 	boolean fWithElse = false;
 	
@@ -63,7 +63,7 @@ public class CIfElse extends RAstNode {
 	public final boolean hasChildren() {
 		return true;
 	}
-		
+	
 	@Override
 	public final int getChildCount() {
 		return fWithElse ? 3 : 2;

@@ -428,15 +428,15 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal<IR
 		
 		final RElementName elementName = getElement().getElementName();
 		if (elementName.getType() == RElementName.MAIN_DEFAULT) {
-			RElementName namespace = elementName.getNamespace();
-			if (namespace == null && (getElement().getModelParent() instanceof IRElement)) {
-				namespace = getElement().getModelParent().getElementName();
+			RElementName scope = elementName.getScope();
+			if (scope == null && (getElement().getModelParent() instanceof IRElement)) {
+				scope = getElement().getModelParent().getElementName();
 			}
-			if (namespace == null || namespace.getType() != RElementName.MAIN_PACKAGE) {
+			if (scope == null || !RElementName.isPackageFacetScopeType(scope.getType())) {
 				return null;
 			}
 			IREnv rEnv = getREnv();
-			String pkgName = namespace.getSegmentName();
+			String pkgName = scope.getSegmentName();
 			String topic = elementName.getSegmentName();
 			
 			if (rEnv == null || pkgName == null || topic == null) {
