@@ -42,12 +42,12 @@ class CopyElementNameHandler extends AbstractHandler {
 	}
 	
 	
-	private boolean isValidSelection(ITreeSelection selection) {
+	private boolean isValidSelection(final ITreeSelection selection) {
 		if (selection == null || selection.isEmpty()) {
 			return false;
 		}
 		for (final Iterator<?> iter = selection.iterator(); iter.hasNext(); ) {
-			Object element = iter.next();
+			final Object element = iter.next();
 			if (element instanceof IElementPartition) {
 				return false;
 			}

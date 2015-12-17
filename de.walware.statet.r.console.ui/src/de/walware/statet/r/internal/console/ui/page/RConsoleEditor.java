@@ -52,7 +52,7 @@ public class RConsoleEditor extends ConsolePageEditor implements IRSourceEditor,
 	
 	@Override
 	protected IRSourceUnit createSourceUnit() {
-		return new RConsoleSourceUnit((RConsolePage) getConsolePage(), this.fDocument);
+		return new RConsoleSourceUnit((RConsolePage) getConsolePage(), getDocument());
 	}
 	
 	
@@ -70,10 +70,10 @@ public class RConsoleEditor extends ConsolePageEditor implements IRSourceEditor,
 	protected void onPromptUpdate(final Prompt prompt) {
 		if ((prompt.meta & IRBasicAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) {
 			final ContinuePrompt p= (ContinuePrompt) prompt;
-			this.fDocument.setPrefix(p.getPreviousInput());
+			setInputPrefix(p.getPreviousInput());
 		}
 		else {
-			this.fDocument.setPrefix(""); //$NON-NLS-1$
+			setInputPrefix(""); //$NON-NLS-1$
 		}
 	}
 	

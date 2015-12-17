@@ -48,12 +48,10 @@ import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ui.LTKUI;
 import de.walware.ecommons.ltk.ui.sourceediting.AbstractMarkOccurrencesProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
-import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceFragmentEditorInput;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1OutlinePage;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ltk.ui.sourceediting.actions.SpecificContentAssistHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.folding.FoldingEditorAddon;
 import de.walware.ecommons.ui.SharedUIResources;
 
@@ -256,9 +254,6 @@ public class REditor extends SourceEditor1 implements IRSourceEditor {
 		{	final Action action= new RDoubleCommentAction(this, getRCoreAccess());
 			setAction(action.getId(), action);
 			markAsStateDependentAction(action.getId(), true);
-		}
-		{	final IHandler2 handler= new SpecificContentAssistHandler(this, RUIPlugin.getDefault().getREditorContentAssistRegistry());
-			handlerService.activateHandler(ISourceEditorCommandIds.SPECIFIC_CONTENT_ASSIST_COMMAND_ID, handler);
 		}
 		{	final IHandler2 handler= new RStripCommentsHandler(this);
 			handlerService.activateHandler(LTKUI.STRIP_COMMENTS_COMMAND_ID, handler);

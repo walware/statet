@@ -20,12 +20,12 @@ import java.util.Set;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
-import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 
 import de.walware.ecommons.ltk.ui.LTKUIPreferences;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
 import de.walware.ecommons.text.ICharPairMatcher;
 import de.walware.ecommons.text.PairMatcher;
 import de.walware.ecommons.text.ui.presentation.SingleTokenScanner;
@@ -133,7 +133,7 @@ public class RdSourceViewerConfiguration extends SourceEditorViewerConfiguration
 	
 	
 	@Override
-	protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
+	protected ContentAssist createContentAssistant(final ISourceViewer sourceViewer) {
 		return null;
 	}
 	

@@ -27,7 +27,7 @@ import org.eclipse.debug.core.model.IStackFrame;
 import de.walware.jcommons.collections.ImCollections;
 import de.walware.jcommons.collections.ImList;
 
-import de.walware.ecommons.ts.ISystemRunnable;
+import de.walware.ecommons.ts.ISystemReadRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
 
@@ -82,7 +82,7 @@ public class RMainThread extends RDebugElement implements IRThread,
 			fFrames = NO_FRAMES;
 		}
 		
-		fController.addSuspendUpdateRunnable(new ISystemRunnable() {
+		fController.addSuspendUpdateRunnable(new ISystemReadRunnable() {
 			@Override
 			public String getTypeId() {
 				return "r/dbg/thread"; //$NON-NLS-1$

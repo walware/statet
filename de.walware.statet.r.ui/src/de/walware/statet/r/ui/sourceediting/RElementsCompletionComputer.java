@@ -12,221 +12,134 @@
 package de.walware.statet.r.ui.sourceediting;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.debug.core.DebugException;
-import org.eclipse.debug.core.model.IDebugTarget;
-import org.eclipse.debug.core.model.IStackFrame;
-import org.eclipse.debug.core.model.IThread;
-import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITypedRegion;
-import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.IElementName;
-import de.walware.ecommons.ltk.ast.AstSelection;
+import de.walware.jcommons.collections.ImCollections;
+
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.core.model.IModelElement;
-import de.walware.ecommons.ltk.core.model.ISourceUnit;
-import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistProposalCollector;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistCompletionProposal;
-import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistInformationProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IContentAssistComputer;
-import de.walware.ecommons.ltk.ui.sourceediting.assist.ReshowCompletionsRunnable;
+import de.walware.ecommons.text.core.IFragmentDocument;
 import de.walware.ecommons.text.core.IPartitionConstraint;
-
-import de.walware.statet.nico.ui.console.ConsolePageEditor;
-import de.walware.statet.nico.ui.console.InputDocument;
 
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
 
-import de.walware.statet.r.console.core.LoadReferenceRunnable;
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
+import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RSymbolComparator;
+import de.walware.statet.r.core.RSymbolComparator.PrefixPattern;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.ArgsDefinition;
-import de.walware.statet.r.core.model.IPackageReferences;
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
+import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRMethod;
-import de.walware.statet.r.core.model.IRModelInfo;
-import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.RCoreFunctions;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
+import de.walware.statet.r.core.pkgmanager.IRPkgCollection;
+import de.walware.statet.r.core.pkgmanager.IRPkgInfo;
+import de.walware.statet.r.core.pkgmanager.IRPkgManager;
+import de.walware.statet.r.core.pkgmanager.IRPkgSet;
+import de.walware.statet.r.core.renv.IREnv;
+import de.walware.statet.r.core.rhelp.IREnvHelp;
+import de.walware.statet.r.core.rhelp.IRHelpManager;
 import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.core.rsource.ast.FCall;
-import de.walware.statet.r.core.rsource.ast.FCall.Args;
-import de.walware.statet.r.core.rsource.ast.NodeType;
+import de.walware.statet.r.core.rsource.ast.RAst;
+import de.walware.statet.r.core.rsource.ast.RAst.FCallArgMatch;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.source.IRDocumentConstants;
 import de.walware.statet.r.core.source.RHeuristicTokenScanner;
-import de.walware.statet.r.internal.ui.editors.RArgumentListContextInformation;
+import de.walware.statet.r.internal.ui.FCallNamePattern;
 import de.walware.statet.r.internal.ui.editors.RElementCompletionProposal;
 import de.walware.statet.r.internal.ui.editors.RKeywordCompletionProposal;
-import de.walware.statet.r.internal.ui.editors.RSimpleCompletionComputer;
+import de.walware.statet.r.internal.ui.editors.RSimpleCompletionProposal;
 import de.walware.statet.r.ui.RLabelProvider;
-import de.walware.statet.r.ui.RUI;
+import de.walware.statet.r.ui.editors.IRSourceEditor;
+import de.walware.statet.r.ui.sourceediting.RAssistInvocationContext.FCallInfo;
+import de.walware.statet.r.ui.sourceediting.RFrameSearchPath.RFrameIterator;
 
 
 public class RElementsCompletionComputer implements IContentAssistComputer {
 	
 	
-	private static final class ExactFCallPattern {
-		
-		private final IElementName fCodeName;
-		private final String fAssignName;
-		private final int fAssignLength;
-		
-		public ExactFCallPattern(final IElementName name) {
-			fCodeName = name;
-			if (fCodeName.getNextSegment() == null) {
-				fAssignName = fCodeName.getSegmentName();
-				fAssignLength = fAssignName.length();
-			}
-			else {
-				fAssignName = null;
-				fAssignLength = 0;
-			}
-		}
-		
-		public boolean matches(final IElementName candidateName) {
-			String candidate0;
-			return (fCodeName.equals(candidateName)
-					|| (fAssignName != null && candidateName.getNextSegment() == null
-							&& fAssignLength == (candidate0 = candidateName.getSegmentName()).length()-2
-							&& fCodeName.getType() == candidateName.getType()
-							&& candidate0.charAt(fAssignLength) == '<' && candidate0.charAt(fAssignLength+1) == '-'
-							&& candidate0.regionMatches(false, 0, fAssignName, 0, fAssignLength) ));
-		}
-		
-	}
-	
-	private static class FCallInfo {
-		
-		final FCall node;
-		final RElementAccess access;
-		
-		public FCallInfo(final FCall node, final RElementAccess access) {
-			this.node = node;
-			this.access = access;
-		}
-		
-	}
-	
-	
-	private static final char[] F_BRACKETS = new char[] { '(', ')' };
-	
-	private static final IPartitionConstraint NO_R_COMMENT_CONSTRAINT = new IPartitionConstraint() {
+	private static final IPartitionConstraint NO_R_COMMENT_CONSTRAINT= new IPartitionConstraint() {
 		@Override
 		public boolean matches(final String partitionType) {
 			return (partitionType != IRDocumentConstants.R_COMMENT_CONTENT_TYPE);
 		};
 	};
 	
-	private static final int LOCAL_ENVIR = 0;
-	private static final int WS_ENVIR = 1;
-	private static final int RUNTIME_ENVIR = 2;
-	
 	
 	private static final List<String> fgKeywords;
 	static {
-		final ArrayList<String> list = new ArrayList<String>();
+		final ArrayList<String> list= new ArrayList<>();
 		Collections.addAll(list, RTokens.CONSTANT_WORDS);
 		Collections.addAll(list, RTokens.FLOWCONTROL_WORDS);
 		Collections.sort(list, RSymbolComparator.R_NAMES_COLLATOR);
 		list.trimToSize();
-		fgKeywords = Collections.unmodifiableList(list);
+		fgKeywords= Collections.unmodifiableList(list);
 	}
 	
 	
 	public static class CompleteRuntime extends RElementsCompletionComputer {
 		
 		public CompleteRuntime() {
-			super(1);
+			super(RFrameSearchPath.ENGINE_MODE);
 		}
 		
 	}
 	
 	
-	private class EnvirIter implements Iterator<IRFrame> {
-		
-		private int fEnvirListIter0;
-		private int fEnvirListIter1 = -1;
-		private IRFrame fNext;
-		
-		@Override
-		public boolean hasNext() {
-			if (fNext != null) {
-				return true;
-			}
-			ITER_0 : while (fEnvirListIter0 < fEnvirList.length) {
-				if (++fEnvirListIter1 < fEnvirList[fEnvirListIter0].size()) {
-					fNext = fEnvirList[fEnvirListIter0].get(fEnvirListIter1);
-					return true;
-				}
-				else {
-					fEnvirListIter0++;
-					fEnvirListIter1 = -1;
-					continue ITER_0;
-				}
-			}
-			return false;
-		}
-		
-		public int getEnvirGroup() {
-			return fEnvirListIter0;
-		}
-		
-		@Override
-		public IRFrame next() {
-			if (hasNext()) {
-				final IRFrame frame = fNext;
-				fNext = null;
-				return frame;
-			}
-			return null;
-		}
-		
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
-		
-	}
+	protected static final int NA_PRIO= Integer.MIN_VALUE;
+	
+	protected static final int ARG_NAME_PRIO= 80;
+	
+	protected static final int ARG_TYPE_PRIO= 40;
+	protected static final int ARG_TYPE_NO_PRIO= -40;
 	
 	
-	private final IElementLabelProvider fLabelProvider = new RLabelProvider(RLabelProvider.NAMESPACE);
-	ISourceEditor fEditor;
-	ContentAssist fAssist;
-	private RHeuristicTokenScanner fScanner;
+	private final IElementLabelProvider labelProvider= new RLabelProvider(RLabelProvider.NAMESPACE);
 	
-	private final List<IRFrame>[] fEnvirList = new List[3];
-	private Set<String> fEnvirListPackages;
+	private final int mode;
 	
-	protected final boolean fCompleteRuntimeMode;
+	private IRSourceEditor editor;
+	private ContentAssist assist;
 	
-	private IStatus fResultStatus;
+	private final RFrameSearchPath searchPath= new RFrameSearchPath();
+	
+	private boolean inDefault;
+	private boolean inString;
+	
+	private int pkgNamePrio;
+	private int helpTopicPrio;
+	
+	private IStatus resultStatus;
 	
 	
 	public RElementsCompletionComputer() {
@@ -234,8 +147,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	}
 	
 	protected RElementsCompletionComputer(final int mode) {
-		fEnvirList[RUNTIME_ENVIR] = new ArrayList<IRFrame>();
-		fCompleteRuntimeMode = (mode == 1);
+		this.mode= mode;
 	}
 	
 	
@@ -244,12 +156,9 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	 */
 	@Override
 	public void sessionStarted(final ISourceEditor editor, final ContentAssist assist) {
-		if (fEditor != editor) {
-			fEditor = editor;
-			fScanner = null;
-		}
+		this.editor= (editor instanceof IRSourceEditor) ? (IRSourceEditor) editor : null;
 		
-		fAssist = assist;
+		this.assist= assist;
 	}
 	
 	/**
@@ -257,27 +166,35 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	 */
 	@Override
 	public void sessionEnded() {
-		fEnvirList[LOCAL_ENVIR] = null;
-		fEnvirList[WS_ENVIR] = null;
-		fEnvirList[RUNTIME_ENVIR].clear();
-		fEnvirListPackages = null;
-		fAssist = null;
-		fResultStatus = null;
+		this.searchPath.clear();
+		
+		this.assist= null;
+		this.resultStatus= null;
 	}
 	
-	private void setStatus(final IStatus status) {
-		fResultStatus = status;
+	protected final void setStatus(final IStatus status) {
+		this.resultStatus= status;
 	}
 	
-	private RHeuristicTokenScanner getScanner() {
-		if (fScanner == null && fEditor != null) {
-			fScanner= RHeuristicTokenScanner.create(fEditor.getDocumentContentInfo());
+	
+	protected final int getSearchMode(final RAssistInvocationContext context) {
+		if (this.mode != 0) {
+			return this.mode;
 		}
-		return fScanner;
+		return context.getDefaultRFrameSearchMode();
 	}
 	
 	
-	private boolean isCompletable(IElementName elementName) {
+	protected final boolean isSymbolCandidate(final String name) {
+		for (int i= 0; i < name.length(); i++) {
+			if (RTokens.isRobustSeparator(name.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private boolean isCompletable(RElementName elementName) {
 		if (elementName == null) {
 			return false;
 		}
@@ -290,181 +207,228 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			if (elementName.getSegmentName() == null) {
 				return false;
 			}
-			elementName = elementName.getNextSegment();
+			elementName= elementName.getNextSegment();
 		}
 		while (elementName != null);
 		return true;
 	}
 	
+	private RAstNode getRAstNode(final RAssistInvocationContext context) {
+		IAstNode node= context.getInvocationAstSelection().getCovering();
+		if (node == null) {
+			node= context.getAstInfo().root;
+		}
+		return (node instanceof RAstNode) ? (RAstNode) node : null;
+	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	
 	@Override
 	public IStatus computeCompletionProposals(final AssistInvocationContext context,
-			final int mode, final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
-		fResultStatus = null;
+			final int mode, final AssistProposalCollector proposals,
+			final IProgressMonitor monitor) {
+		this.resultStatus= null;
 		
 		if (context instanceof RAssistInvocationContext) {
 			computeCompletionProposals((RAssistInvocationContext) context, mode, proposals,
 					monitor );
 		}
 		
-		return fResultStatus;
+		return this.resultStatus;
 	}
 	
-	protected void computeCompletionProposals(final RAssistInvocationContext context,
-				final int mode, final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
-		if (mode == IContentAssistComputer.INFORMATION_MODE) {
-			doComputeContextInformation(context, proposals, false, monitor );
-			
-			return;
+	@Override
+	public IStatus computeInformationProposals(final AssistInvocationContext context,
+			final AssistProposalCollector proposals, final IProgressMonitor monitor) {
+		this.resultStatus= null;
+		
+		if (context instanceof RAssistInvocationContext) {
+			doComputeContextProposals((RAssistInvocationContext) context, proposals, monitor);
 		}
 		
+		return this.resultStatus;
+	}
+	
+	protected void computeCompletionProposals(final RAssistInvocationContext context, final int mode,
+			final AssistProposalCollector proposals, final IProgressMonitor monitor) {
 		if (context.getModelInfo() == null) {
 			return;
 		}
 		
 		// Get node
-		final AstSelection astSelection = context.getInvocationAstSelection();
-		IAstNode node = astSelection.getCovering();
-		if (node == null) {
-			node = context.getAstInfo().root;
-		}
-		if (!(node instanceof RAstNode)) {
-			return;
-		}
-		
-		// Get envir
-		if (!initEnvirList(context, (RAstNode) node)) {
-			return;
-		}
+		final RAstNode node= getRAstNode(context);
 		
 		// Get prefix
-		final String prefix = context.getIdentifierPrefix();
-		final RElementName prefixSegments = RElementName.parseDefault(prefix);
-		if (prefixSegments == null) {
+		final RElementName prefixName= context.getIdentifierElementName();
+		if (prefixName == null) {
 			return;
 		}
 		
-		// Collect proposals
-		if (prefixSegments.getNextSegment() == null) {
-			doComputeArgumentProposals(context, prefix, prefixSegments, proposals, monitor);
-			doComputeMainProposals(context, prefix, prefixSegments, proposals, monitor);
-			doComputeKeywordProposals(context, prefix, prefixSegments.getSegmentName(), proposals, monitor);
+		this.inString= (context.getInvocationContentType() == IRDocumentConstants.R_STRING_CONTENT_TYPE);
+		this.inDefault= !this.inString;
+		
+		this.pkgNamePrio= NA_PRIO;
+		this.helpTopicPrio= NA_PRIO;
+		
+		if (prefixName.getNextSegment() == null) {
+			final String help= checkHelp(context);
+			if (help != null) {
+				doComputeHelpTopicProposals(context, help, ARG_TYPE_PRIO, proposals);
+				
+				if (prefixName.getScope() == null) {
+					doComputePkgNameProposals(context, ARG_TYPE_NO_PRIO, proposals);
+				}
+				return;
+			}
+			
+			doComputeArgumentProposals(context, proposals, monitor);
+			if (this.inDefault) {
+				doComputeMainProposals(context, node, proposals, monitor);
+			}
+			
+			if (this.mode == 0 && this.inDefault) {
+				doComputeKeywordProposals(context, proposals, monitor);
+			}
+			
+			if (this.mode == 0) {
+				if (isPackageName(prefixName)) {
+					if (this.pkgNamePrio > 0) {
+						doComputePkgNameProposals(context, this.pkgNamePrio, proposals);
+					}
+					else if (!prefixName.getSegmentName().isEmpty()) {
+						doComputePkgNameProposals(context, ARG_TYPE_NO_PRIO, proposals);
+					}
+				}
+				{	if (this.helpTopicPrio > 0) {
+						doComputeHelpTopicProposals(context, null, this.helpTopicPrio, proposals);
+					}
+				}
+			}
 		}
 		else {
-			final String lastPrefix = computeSingleIdentifierPrefix(context);
-			doComputeSubProposals(context, lastPrefix, prefixSegments, proposals, monitor);
+			doComputeSubProposals(context, node, proposals, monitor);
 		}
 	}
 	
-	protected List<? extends IModelElement> getChildren(IModelElement e) {
+	
+	private String checkHelp(final RAssistInvocationContext context) {
+		try {
+			if (context.getIdentifierOffset() > 0
+					&& context.getDocument().getChar(context.getIdentifierOffset() - 1) == '?') {
+				final String prefix= context.computeIdentifierPrefix(context.getIdentifierOffset() - 1);
+				if (prefix != null && !prefix.isEmpty()) {
+					if (prefix.equals("class") || prefix.equals("methods")) { //$NON-NLS-1$ //$NON-NLS-2$
+						return prefix;
+					}
+					return null;
+				}
+				return ""; //$NON-NLS-1$
+			}
+			return null;
+		}
+		catch (final BadPartitioningException | BadLocationException e) {
+			return null;
+		}
+	}
+	
+	protected List<? extends IRLangElement> getChildren(final RAssistInvocationContext context,
+			IRLangElement e) {
 		if (e instanceof RReference) {
-			final RReference ref = (RReference) e;
-			RObject rObject = ref.getResolvedRObject();
-			if (rObject == null && e instanceof ICombinedRElement) {
-				rObject = loadReference(ref);
+			final RReference ref= (RReference) e;
+			final RObject rObject= ref.getResolvedRObject();
+			if (rObject == null && e instanceof ICombinedRElement && context.getTool() != null) {
+				context.getToolReferencesUtil().resolve(ref, 0);
 			}
 			if (rObject instanceof ICombinedRElement) {
-				e = (ICombinedRElement) rObject;
+				e= (ICombinedRElement) rObject;
 			}
 		}
 		return e.getModelChildren(null);
 	}
 	
-	protected void doComputeArgumentProposals(final RAssistInvocationContext context,
-			final String orgPrefix, final IElementName prefixName,
-			final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
-		final String namePrefix = prefixName.getSegmentName();
-		int offset = context.getInvocationOffset()-context.getIdentifierPrefix().length();
-		IDocument document = context.getSourceViewer().getDocument();
-		final RHeuristicTokenScanner scanner = getScanner();
-		int indexShift = 0;
-		if (document instanceof InputDocument) {
-			final InputDocument inputDoc = (InputDocument) document;
-			document = inputDoc.getMasterDocument();
-			indexShift = inputDoc.getOffsetInMasterDocument();
-			offset += indexShift;
-		}
-		if (scanner == null || offset < 2) {
-			return;
-		}
-		scanner.configureDefaultParitions(document);
-		if (IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT.matches(scanner.getPartition(offset - 1).getType())) {
-			final int index = scanner.findOpeningPeer(offset-1, F_BRACKETS);
-			if (index >= 0) {
-				final FCallInfo fcallInfo = searchFCallInfo(context, index-indexShift);
-				if (fcallInfo != null) {
-					final Args child = fcallInfo.node.getArgsChild();
-					int sep = fcallInfo.node.getArgsOpenOffset()+indexShift;
-					for (int argIdx = 0; argIdx < child.getChildCount()-1; argIdx++) {
-						final int next = child.getSeparatorOffset(argIdx);
-						if (next+indexShift < offset) {
-							sep = next+indexShift;
-						}
-						else {
-							break;
-						}
+	protected boolean doComputeArgumentProposals(final RAssistInvocationContext context,
+			final AssistProposalCollector proposals,
+			final IProgressMonitor monitor) {
+		final FCallInfo fCallInfo= context.getFCallInfo();
+		if (fCallInfo != null) {
+			boolean argName= false;
+			boolean argValue= false;
+			final int argIdx= fCallInfo.getArgIdx(context.getInvocationOffset());
+			if (argIdx >= 0) {
+				final FCall.Arg arg= fCallInfo.getArg(argIdx);
+				final int argBeginOffset= fCallInfo.getArgBeginOffset(argIdx);
+				
+				IDocument document= context.getDocument();
+				int offsetShift= 0;
+				if (document instanceof IFragmentDocument) {
+					final IFragmentDocument inputDoc= (IFragmentDocument) document;
+					document= inputDoc.getMasterDocument();
+					offsetShift= inputDoc.getOffsetInMasterDocument();
+				}
+				
+				if (argBeginOffset != Integer.MIN_VALUE) {
+					final RHeuristicTokenScanner scanner= context.getRHeuristicTokenScanner();
+					scanner.configure(document, NO_R_COMMENT_CONSTRAINT);
+					final int offset= context.getIdentifierOffset();
+					if (argBeginOffset == offset
+							|| scanner.findNonBlankForward(
+									argBeginOffset + offsetShift, offset + offsetShift, true) < 0 ) {
+						argName= (this.inDefault
+								&& (context.getIdentifierElementName().getScope() == null) );
+						argValue= true;
 					}
-					fScanner.configure(document, NO_R_COMMENT_CONSTRAINT);
-					if (sep+1 == offset
-							|| fScanner.findNonBlankForward(sep+1, offset, true) < 0) {
-						doComputeFCallArgumentProposals(context, offset-indexShift, fcallInfo, namePrefix, proposals);
+				}
+				
+				if (!argValue && arg != null && arg.getAssignOffset() != IAstNode.NA_OFFSET) {
+					final RHeuristicTokenScanner scanner= context.getRHeuristicTokenScanner();
+					scanner.configure(document, NO_R_COMMENT_CONSTRAINT);
+					final int offset= context.getIdentifierOffset();
+					if (argBeginOffset == offset
+							|| scanner.findNonBlankForward(
+									arg.getAssignOffset() + offsetShift + 1, offset + offsetShift, true) < 0 ) {
+						argValue= true;
 					}
 				}
 			}
+			if (argName || argValue) {
+				doComputeFCallArgumentProposals(context, fCallInfo, argIdx, argName, argValue,
+						proposals);
+				return true;
+			}
 		}
+		return false;
 	}
 	
 	protected void doComputeMainProposals(final RAssistInvocationContext context,
-			final String orgPrefix, final IElementName prefixName,
-			final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
-		String namePrefix = prefixName.getSegmentName();
-		if (namePrefix == null) {
-			namePrefix = ""; //$NON-NLS-1$
-		}
-		final RSymbolComparator.PrefixPattern pattern = new RSymbolComparator.PrefixPattern(namePrefix); 
-		final int offset = context.getInvocationOffset()-orgPrefix.length();
-		final Set<String> mainNames = new HashSet<String>();
-		final List<String> methodNames = new ArrayList<String>();
+			final RAstNode node,
+			final AssistProposalCollector proposals,
+			final IProgressMonitor monitor) {
+		final RElementName prefixName= context.getIdentifierElementName();
+		final String prefixSegmentName= prefixName.getSegmentName();
 		
-		int sourceLevel = 5;
-		for (final EnvirIter iter = new EnvirIter(); iter.hasNext();) {
-			final IRFrame envir = iter.next();
-			int relevance;
-			switch (envir.getFrameType()) {
-			case IRFrame.CLASS:
-			case IRFrame.FUNCTION:
-			case IRFrame.EXPLICIT:
-				relevance = Math.max(sourceLevel--, 1);
-				break;
-			case IRFrame.PROJECT:
-				relevance = 1;
-				break;
-			case IRFrame.PACKAGE:
-				relevance = -5;
-				if (iter.getEnvirGroup() > 0 && namePrefix.isEmpty()) {
-					continue;
-				}
-				break;
-			default:
-				relevance = -10;
-				break;
-			}
-			final List<? extends IRElement> elements = envir.getModelChildren(null);
+		this.searchPath.init(context, node, getSearchMode(context), prefixName.getScope());
+		
+		final RSymbolComparator.PrefixPattern pattern= new RSymbolComparator.PrefixPattern(prefixSegmentName); 
+		final int offset= context.getIdentifierLastSegmentOffset();
+		final Set<String> mainNames= new HashSet<>();
+		final List<String> methodNames= new ArrayList<>();
+		
+		for (final RFrameIterator iter= this.searchPath.iterator(); iter.hasNext();) {
+			final IRFrame envir= iter.next();
+			
+			final List<? extends IRElement> elements= envir.getModelChildren(null);
 			for (final IRElement element : elements) {
-				final IElementName elementName = element.getElementName();
-				final int c1type = (element.getElementType() & IModelElement.MASK_C1);
-				final boolean isRich = (c1type == IModelElement.C1_METHOD);
+				final RElementName elementName= element.getElementName();
+				final int c1type= (element.getElementType() & IModelElement.MASK_C1);
+				final boolean isRich= (c1type == IModelElement.C1_METHOD);
 				if ((isRich || c1type == IModelElement.C1_VARIABLE)
 						&& isCompletable(elementName)
 						&& pattern.matches(elementName.getSegmentName())) {
+					final int relevance= iter.getRelevance();
 					if ((relevance < 0) && !isRich
 							&& mainNames.contains(elementName.getSegmentName()) ) {
 						continue;
 					}
-					final IAssistCompletionProposal proposal = createProposal(context,
+					final IAssistCompletionProposal proposal= createProposal(context,
 							offset, elementName, element, relevance );
 					if (proposal != null) {
 						if (elementName.getNextSegment() == null) {
@@ -482,17 +446,19 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 		
 		mainNames.addAll(methodNames);
-		for (final EnvirIter iter = new EnvirIter(); iter.hasNext();) {
-			final IRFrame envir = iter.next();
+		for (final RFrameIterator iter= this.searchPath.iterator(); iter.hasNext();) {
+			final IRFrame envir= iter.next();
 			if (envir instanceof IRFrameInSource) {
-				final IRFrameInSource sframe = (IRFrameInSource) envir;
-				final Set<String> elementNames = sframe.getAllAccessNames();
+				final IRFrameInSource sframe= (IRFrameInSource) envir;
+				final Set<String> elementNames= sframe.getAllAccessNames();
 				for (final String candidate : elementNames) {
 					if (candidate != null
 							&& pattern.matches(candidate) 
 							&& !mainNames.contains(candidate)
-							&& !(candidate.equals(namePrefix) && (sframe.getAllAccessOf(candidate, false).size() <= 1)) ) {
-						final IAssistCompletionProposal proposal = createProposal(context, orgPrefix, candidate);
+							&& !(candidate.equals(prefixSegmentName)
+									&& (sframe.getAllAccessOf(candidate, false).size() <= 1) )) {
+						final IAssistCompletionProposal proposal= createProposal(context,
+								offset, candidate );
 						if (proposal != null) {
 							mainNames.add(candidate);
 							proposals.add(proposal);
@@ -503,147 +469,80 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 	}
 	
-	private void doComputeKeywordProposals(final AssistInvocationContext context,
-			final String orgPrefix, final String prefix,
-			final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
-		if (prefix.length() > 0 && orgPrefix.charAt(0) != '`') {
-			final int offset = context.getInvocationOffset()-orgPrefix.length();
-			final List<String> keywords = fgKeywords;
+	private void doComputeKeywordProposals(final RAssistInvocationContext context,
+			final AssistProposalCollector proposals,
+			final IProgressMonitor monitor) {
+		final RElementName prefixName= context.getIdentifierElementName();
+		final String prefixSegmentName= prefixName.getSegmentName();
+		
+		if (prefixName.getScope() != null) {
+			return;
+		}
+		
+		final String prefixSource= context.getIdentifierPrefix();
+		if (!prefixSegmentName.isEmpty() && prefixSource.charAt(0) != '`') {
+			final int offset= context.getIdentifierOffset();
+			final List<String> keywords= fgKeywords;
 			for (final String keyword : keywords) {
-				if (keyword.regionMatches(true, 0, prefix, 0, prefix.length())) {
+				if (keyword.regionMatches(true, 0, prefixSegmentName, 0, prefixSegmentName.length())) {
 					proposals.add(new RKeywordCompletionProposal(context, keyword, offset));
 				}
 			}
 		}
 	}
 	
-	protected String computeSingleIdentifierPrefix(final AssistInvocationContext context) {
-		// like RAssistInvocationContext#computeIdentifierPrefix but only one single identifier
-		final AbstractDocument document = (AbstractDocument) context.getSourceViewer().getDocument();
-		int offset = context.getInvocationOffset();
-		if (offset <= 0 || offset > document.getLength()) {
-			return ""; //$NON-NLS-1$
-		}
-		try {
-			final String partitioning= context.getEditor().getDocumentContentInfo().getPartitioning();
-			ITypedRegion partition = document.getPartition(partitioning, offset, true);
-			if (partition.getType() == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE) {
-				offset = partition.getOffset();
-			}
-			int goodStart = offset;
-			SEARCH_START: while (offset > 0) {
-				final char c = document.getChar(offset - 1);
-				if (RTokens.isRobustSeparator(c, false)) {
-					switch (c) {
-					case ':':
-					case '$':
-					case '@':
-						break SEARCH_START;
-					case ' ':
-					case '\t':
-						if (offset >= 2) {
-							final char c2 = document.getChar(offset - 2);
-							if ((offset == context.getInvocationOffset())
-									&& !RTokens.isRobustSeparator(c2, false)) {
-								offset -= 2;
-								continue SEARCH_START;
-							}
-						}
-						break SEARCH_START;
-					case '`':
-						partition = document.getPartition(partitioning, offset, false);
-						if (partition.getType() == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE) {
-							offset = goodStart = partition.getOffset();
-							break SEARCH_START;
-						}
-						else {
-							break SEARCH_START;
-						}
-					
-					default:
-						break SEARCH_START;
-					}
-				}
-				else {
-					offset --;
-					goodStart = offset;
-					continue SEARCH_START;
-				}
-			}
-			
-			return document.get(offset, context.getInvocationOffset() - goodStart);
-		}
-		catch (final BadLocationException e) {
-		}
-		catch (final BadPartitioningException e) {
-		}
-		return ""; //$NON-NLS-1$
-	}
-	
 	protected void doComputeSubProposals(final RAssistInvocationContext context,
-			final String orgPrefix, final RElementName prefixSegments,
-			final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
-		int count = 0;
+			final RAstNode node,
+			final AssistProposalCollector proposals,
+			final IProgressMonitor monitor) {
+		final RElementName prefixName= context.getIdentifierElementName();
+		
+		this.searchPath.init(context, node, getSearchMode(context), prefixName.getScope());
+		
+		int count= 0;
 		final String namePrefix;
-		{	IElementName prefixSegment = prefixSegments;
+		{	RElementName prefixSegment= prefixName;
 			while (true) {
 				count++;
 				if (prefixSegment.getNextSegment() != null) {
-					prefixSegment = prefixSegment.getNextSegment();
+					prefixSegment= prefixSegment.getNextSegment();
 					continue;
 				}
 				else {
 					break;
 				}
 			}
-			namePrefix = (prefixSegment.getSegmentName() != null) ?
+			namePrefix= (prefixSegment.getSegmentName() != null) ?
 					prefixSegment.getSegmentName() : ""; //$NON-NLS-1$
 		}
-		final RSymbolComparator.PrefixPattern pattern = new RSymbolComparator.PrefixPattern(namePrefix);
-		final int offset = context.getInvocationOffset()-orgPrefix.length();
+		final RSymbolComparator.PrefixPattern pattern= new RSymbolComparator.PrefixPattern(namePrefix);
+		final int offset= context.getIdentifierLastSegmentOffset();
 		
-		final Set<String> mainNames = new HashSet<String>();
-		final List<String> methodNames = new ArrayList<String>();
+		final Set<String> mainNames= new HashSet<>();
+		final List<String> methodNames= new ArrayList<>();
 		
-		int sourceLevel = 5;
-		for (final EnvirIter iter = new EnvirIter(); iter.hasNext();) {
-			final IRFrame envir = iter.next();
-			int relevance;
-			switch (envir.getFrameType()) {
-			case IRFrame.CLASS:
-			case IRFrame.FUNCTION:
-			case IRFrame.EXPLICIT:
-				relevance = Math.max(sourceLevel--, 1);
-				break;
-			case IRFrame.PROJECT:
-				relevance = 1;
-				break;
-			case IRFrame.PACKAGE:
-				relevance = -5;
-				break;
-			default:
-				relevance = -10;
-				break;
-			}
-			final List<? extends IRElement> elements = envir.getModelChildren(null);
-			ITER_ELEMENTS: for (final IModelElement rootElement : elements) {
-				final IElementName elementName = rootElement.getElementName();
-				final int c1type = (rootElement.getElementType() & IModelElement.MASK_C1);
-				final boolean isRich = (c1type == IModelElement.C1_METHOD);
+		for (final RFrameIterator iter= this.searchPath.iterator(); iter.hasNext();) {
+			final IRFrame envir= iter.next();
+			
+			final List<? extends IRLangElement> elements= envir.getModelChildren(null);
+			ITER_ELEMENTS: for (final IRLangElement rootElement : elements) {
+				final RElementName elementName= rootElement.getElementName();
+				final int c1type= (rootElement.getElementType() & IModelElement.MASK_C1);
+				final boolean isRich= (c1type == IModelElement.C1_METHOD);
 				if (isRich || c1type == IModelElement.C1_VARIABLE) {
-					IModelElement element = rootElement;
-					IElementName prefixSegment = prefixSegments;
-					IElementName elementSegment = elementName;
-					ITER_SEGMENTS: for (int i = 0; i < count-1; i++) {
+					IRLangElement element= rootElement;
+					RElementName prefixSegment= prefixName;
+					RElementName elementSegment= elementName;
+					ITER_SEGMENTS: for (int i= 0; i < count-1; i++) {
 						if (elementSegment == null) {
-							final List<? extends IModelElement> children = getChildren(element);
-							for (final IModelElement child : children) {
-								elementSegment = child.getElementName();
+							final List<? extends IRLangElement> children= getChildren(context, element);
+							for (final IRLangElement child : children) {
+								elementSegment= child.getElementName();
 								if (isCompletable(elementSegment)
 										&& elementSegment.getSegmentName().equals(prefixSegment.getSegmentName())) {
-									element = child;
-									prefixSegment = prefixSegment.getNextSegment();
-									elementSegment = elementSegment.getNextSegment();
+									element= child;
+									prefixSegment= prefixSegment.getNextSegment();
+									elementSegment= elementSegment.getNextSegment();
 									continue ITER_SEGMENTS;
 								}
 							}
@@ -652,8 +551,8 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 						else {
 							if (isCompletable(elementSegment)
 									&& elementSegment.getSegmentName().equals(prefixSegment.getSegmentName())) {
-								prefixSegment = prefixSegment.getNextSegment();
-								elementSegment = elementSegment.getNextSegment();
+								prefixSegment= prefixSegment.getNextSegment();
+								elementSegment= elementSegment.getNextSegment();
 								continue ITER_SEGMENTS;
 							}
 							continue ITER_ELEMENTS;
@@ -661,40 +560,39 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 					}
 					
 					final boolean childMode;
-					final List<? extends IModelElement> children;
+					final List<? extends IRLangElement> children;
 					if (elementSegment == null) {
-						childMode = true;
-						children = getChildren(element);
+						childMode= true;
+						children= getChildren(context, element);
 					}
 					else {
-						childMode = false;
-						children = Collections.singletonList(element);
+						childMode= false;
+						children= Collections.singletonList(element);
 					}
-					for (final IModelElement child : children) {
-						if (child instanceof IRElement) {
-							if (childMode) {
-								elementSegment = child.getElementName();
+					for (final IRLangElement child : children) {
+						if (childMode) {
+							elementSegment= child.getElementName();
+						}
+						final String candidate= elementSegment.getSegmentName();
+						final int relevance= iter.getRelevance();
+						if (isCompletable(elementSegment)
+								&& pattern.matches(candidate) ) {
+							if ((relevance > 0) && !isRich
+									&& mainNames.contains(candidate) ) {
+								continue ITER_ELEMENTS;
 							}
-							final String candidate = elementSegment.getSegmentName();
-							if (isCompletable(elementSegment)
-									&& pattern.matches(candidate) ) {
-								if ((relevance > 0) && !isRich
-										&& mainNames.contains(candidate) ) {
-									continue ITER_ELEMENTS;
-								}
-								final IAssistCompletionProposal proposal = createProposal(context,
-										offset, elementSegment, (IRElement) child, relevance );
-								if (proposal != null) {
-									if (elementSegment.getNextSegment() == null) {
-										if (isRich) {
-											methodNames.add(candidate);
-										}
-										else {
-											mainNames.add(candidate);
-										}
+							final IAssistCompletionProposal proposal= createProposal(context,
+									offset, elementSegment, child, relevance );
+							if (proposal != null) {
+								if (elementSegment.getNextSegment() == null) {
+									if (isRich) {
+										methodNames.add(candidate);
 									}
-									proposals.add(proposal);
+									else {
+										mainNames.add(candidate);
+									}
 								}
+								proposals.add(proposal);
 							}
 						}
 					}
@@ -703,21 +601,21 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 		
 		mainNames.addAll(methodNames);
-		for (final EnvirIter iter = new EnvirIter(); iter.hasNext();) {
-			final IRFrame envir = iter.next();
+		for (final RFrameIterator iter= this.searchPath.iterator(); iter.hasNext();) {
+			final IRFrame envir= iter.next();
 			if (envir instanceof IRFrameInSource) {
-				final IRFrameInSource sframe = (IRFrameInSource) envir;
-				final List<? extends RElementAccess> allAccess = sframe.getAllAccessOf(
-						prefixSegments.getSegmentName(), true );
+				final IRFrameInSource sframe= (IRFrameInSource) envir;
+				final List<? extends RElementAccess> allAccess= sframe.getAllAccessOf(
+						prefixName.getSegmentName(), true );
 				if (allAccess != null) {
 					ITER_ELEMENTS: for (final RElementAccess elementAccess : allAccess) {
-						RElementAccess elementSegment = elementAccess;
-						IElementName prefixSegment = prefixSegments;
-						ITER_SEGMENTS: for (int i = 0; i < count-1; i++) {
+						RElementAccess elementSegment= elementAccess;
+						RElementName prefixSegment= prefixName;
+						ITER_SEGMENTS: for (int i= 0; i < count - 1; i++) {
 							if (isCompletable(elementSegment)
 									&& elementSegment.getSegmentName().equals(prefixSegment.getSegmentName())) {
-								prefixSegment = prefixSegment.getNextSegment();
-								elementSegment = elementSegment.getNextSegment();
+								prefixSegment= prefixSegment.getNextSegment();
+								elementSegment= elementSegment.getNextSegment();
 								continue ITER_SEGMENTS;
 							}
 							continue ITER_ELEMENTS;
@@ -726,12 +624,13 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 						if (elementSegment == null || elementSegment.isSlave()) {
 							continue ITER_ELEMENTS;
 						}
-						final String candidate = elementSegment.getSegmentName();
+						final String candidate= elementSegment.getSegmentName();
 						if (candidate != null && isCompletable(elementSegment)
 								&& pattern.matches(candidate)
 								&& !mainNames.contains(candidate)
 								&& !candidate.equals(namePrefix) ) {
-							final IAssistCompletionProposal proposal = createProposal(context, orgPrefix, candidate);
+							final IAssistCompletionProposal proposal= createProposal(context,
+									offset, candidate );
 							if (proposal != null) {
 								mainNames.add(candidate);
 								proposals.add(proposal);
@@ -743,324 +642,347 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 	}
 	
-	protected IAssistCompletionProposal createProposal(final RAssistInvocationContext context, final String prefix, final String name) {
-		final int offset = context.getInvocationOffset()-prefix.length();
-		return new RSimpleCompletionComputer(context, name, offset);
+	protected IAssistCompletionProposal createProposal(final RAssistInvocationContext context,
+			final int offset, final String name) {
+		return new RSimpleCompletionProposal(context, name, offset);
 	}
 	
 	protected IAssistCompletionProposal createProposal(final RAssistInvocationContext context,
-			final int offset, final IElementName elementName, final IRElement element, final int relevance) {
-		return new RElementCompletionProposal(context, elementName, offset, element, relevance, fLabelProvider);
+			final int offset, final RElementName elementName, final IRElement element,
+			final int relevance) {
+		return new RElementCompletionProposal(context, elementName, offset, element, relevance,
+				this.labelProvider );
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public IStatus computeContextInformation(final AssistInvocationContext context,
-			final AssistProposalCollector<IAssistInformationProposal> proposals, final IProgressMonitor monitor) {
-		fResultStatus = null;
-		
-		if (context instanceof RAssistInvocationContext) {
-			computeContextInformation((RAssistInvocationContext) context, proposals, monitor);
-		}
-		
-		return fResultStatus;
-	}
-	
-	protected void computeContextInformation(final RAssistInvocationContext context,
-			final AssistProposalCollector<IAssistInformationProposal> proposals, final IProgressMonitor monitor) {
-		doComputeContextInformation(context, proposals, true, monitor);
-	}
-	
-	public void doComputeContextInformation(final RAssistInvocationContext context,
-			final AssistProposalCollector<?> proposals, final boolean createContextInfoOnly, final IProgressMonitor monitor) {
+	public void doComputeContextProposals(final RAssistInvocationContext context,
+			final AssistProposalCollector proposals, final IProgressMonitor monitor) {
 		if (context.getModelInfo() == null) {
 			return;
 		}
 		
-		int offset = context.getInvocationOffset();
-		IDocument document = context.getSourceViewer().getDocument();
-		final RHeuristicTokenScanner scanner = getScanner();
-		int indexShift = 0;
-		if (document instanceof InputDocument) {
-			final InputDocument inputDoc = (InputDocument) document;
-			document = inputDoc.getMasterDocument();
-			indexShift = inputDoc.getOffsetInMasterDocument();
-			offset += indexShift;
+		final RAssistInvocationContext.FCallInfo fCallInfo= context.getFCallInfo();
+		if (fCallInfo != null) {
+			final FCallNamePattern pattern= new FCallNamePattern(fCallInfo.getAccess()) {
+				
+				final int infoOffset= Math.max(fCallInfo.getNode().getArgsOpenOffset() + 1, 0);
+				
+				@Override
+				protected void handleMatch(final IRMethod element, final IRFrame frame,
+						final RFrameIterator iterator) {
+					proposals.add(new RElementCompletionProposal.ContextInformationProposal(context,
+									element.getElementName(), this.infoOffset, element,
+									iterator.getRelevance(),
+									RElementsCompletionComputer.this.labelProvider ));
+				}
+			};
+			pattern.searchFDef(fCallInfo.getSearchPath(getSearchMode(context)));
 		}
-		if (scanner == null || offset < 2) {
-			return;
-		}
-		scanner.configureDefaultParitions(document);
-		if (IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT.matches(scanner.getPartition(offset - 1).getType())) {
-			final int index = scanner.findOpeningPeer(offset-1, F_BRACKETS);
-			if (index >= 0) {
-				final FCallInfo fcallInfo = searchFCallInfo(context, index-indexShift);
-				if (fcallInfo != null) {
-					doComputeFCallContextInformation(context, fcallInfo, proposals, createContextInfoOnly);
+	}
+	
+	
+	protected final boolean isPackageArg(final String name) {
+		return ("package".equals(name));
+	}
+	
+	private void doComputeFCallArgumentProposals(final RAssistInvocationContext context,
+			final FCallInfo fCallInfo, final int argIdx, final boolean argName, final boolean argValue,
+			final AssistProposalCollector proposals) {
+		final RElementName prefixName= context.getIdentifierElementName();
+		final String prefixSegmentName= prefixName.getSegmentName();
+		
+		final int offset= context.getIdentifierOffset();
+		
+		if (argValue && !argName) {
+			final FCall.Arg arg= fCallInfo.getArg(argIdx);
+			if (arg != null && arg.hasName()) {
+				if (this.inString && isPackageArg(arg.getNameChild().getText())) {
+					this.pkgNamePrio= ARG_TYPE_PRIO;
 				}
 			}
 		}
-		setStatus(Status.OK_STATUS);
-	}
-	
-	private FCallInfo searchFCallInfo(final RAssistInvocationContext context, final int fcallOpen) {
-		final AstInfo astInfo = context.getAstInfo();
-		if (astInfo == null || astInfo.root == null) {
-			return null;
-		}
-		final AstSelection selection = AstSelection.search(astInfo.root,
-				fcallOpen, fcallOpen+1, AstSelection.MODE_COVERING_SAME_LAST );
-		IAstNode node = selection.getCovering();
 		
-		while (node != null && node instanceof RAstNode) {
-			final RAstNode rnode = (RAstNode) node;
-			FCall fcallNode = null;
-			if (rnode.getNodeType() == NodeType.F_CALL
-					&& (fcallOpen == (fcallNode = ((FCall) rnode)).getArgsOpenOffset())) {
-				final List<Object> attachments= fcallNode.getAttachments();
-				for (final Object attachment : attachments) {
-					if (attachment instanceof RElementAccess) {
-						final RElementAccess fcallAccess= (RElementAccess) attachment;
-						if (fcallAccess.isFunctionAccess() && !fcallAccess.isWriteAccess()) {
-							final FCallInfo info = new FCallInfo(fcallNode, fcallAccess);
-							if (initEnvirList(context, fcallNode)) {
-								return info;
+		class FCallHandler extends FCallNamePattern {
+			
+			private final RCoreFunctions coreFunction;
+			
+			private final HashSet<String> argNames= new HashSet<>();
+			
+			private int matchCount;
+			
+			
+			FCallHandler() {
+				super(fCallInfo.getAccess());
+				
+				if (fCallInfo.getAccess().getNextSegment() == null) {
+					this.coreFunction= RCoreFunctions.DEFAULT;
+				}
+				else {
+					this.coreFunction= null;
+				}
+			}
+			
+			
+			private boolean isValidNameContext(final ArgsDefinition.Arg argDef) {
+				if (RElementsCompletionComputer.this.inString) {
+					return ((argDef.type & ArgsDefinition.NAME_AS_STRING) != 0);
+				}
+				else {
+					return ((argDef.type & ArgsDefinition.NAME_AS_SYMBOL) != 0);
+				}
+			}
+			
+			private boolean checkArgsDef(final FCallArgMatch args,
+					final boolean guess, final int relevance) {
+				final ArgsDefinition.Arg argDef= args.getArgDef(argIdx);
+				if (argDef != null) {
+					final boolean typedDef= (argDef.type != 0);
+					if (RElementsCompletionComputer.this.pkgNamePrio == NA_PRIO) {
+						if (typedDef) {
+							if ((argDef.type & ArgsDefinition.PACKAGE_NAME) != 0
+									&& isValidNameContext(argDef) ) {
+								RElementsCompletionComputer.this.pkgNamePrio= ARG_TYPE_PRIO + relevance;
+							}
+						}
+						else if (guess && RElementsCompletionComputer.this.inString && isPackageArg(argDef.name)) {
+							RElementsCompletionComputer.this.pkgNamePrio= ARG_TYPE_PRIO + relevance;
+						}
+					}
+					if (RElementsCompletionComputer.this.helpTopicPrio == NA_PRIO) {
+						if (typedDef) {
+							if ((argDef.type & ArgsDefinition.HELP_TOPIC_NAME) != 0
+									&& isValidNameContext(argDef) ) {
+								RElementsCompletionComputer.this.helpTopicPrio= ARG_TYPE_PRIO + relevance;
+							}
+						}
+					}
+					return typedDef;
+				}
+				return false;
+			}
+			
+			@Override
+			public void searchFDef(final RFrameSearchPath searchPath) {
+				super.searchFDef(searchPath);
+				
+				if (this.matchCount == 0
+						&& this.coreFunction != null) {
+					final FCall.Args callArgs= fCallInfo.getNode().getArgsChild();
+					
+					final ArgsDefinition coreDef= this.coreFunction.getArgs(
+							getElementName().getSegmentName() );
+					if (coreDef != null) {
+						checkArgsDef(RAst.matchArgs(callArgs, coreDef), false, 0);
+					}
+				}
+			}
+			
+			@Override
+			protected void handleMatch(final IRMethod element, final IRFrame frame,
+					final RFrameIterator iterator) {
+				final ArgsDefinition argsDef= element.getArgsDefinition();
+				if (argsDef == null) {
+					return;
+				}
+				
+				this.matchCount++;
+				
+				final int relevance= iterator.getRelevance();
+				if (argName) {
+					for (int i= 0; i < argsDef.size(); i++) {
+						final ArgsDefinition.Arg arg= argsDef.get(i);
+						if (arg.name != null && arg.name.length() > 0 && !arg.name.equals("...")) {
+							if ((prefixSegmentName == null || arg.name.startsWith(prefixSegmentName))
+									&& this.argNames.add(arg.name)) {
+								final RElementName name= RElementName.create(RElementName.MAIN_DEFAULT, arg.name);
+								proposals.add(new RElementCompletionProposal.ArgumentProposal(
+										context, name, offset, element,
+										ARG_NAME_PRIO + relevance,
+										RElementsCompletionComputer.this.labelProvider ));
 							}
 						}
 					}
 				}
+				if (argValue) {
+					final FCall.Args callArgs= fCallInfo.getNode().getArgsChild();
+					if (!checkArgsDef(RAst.matchArgs(callArgs, argsDef), true, relevance)
+							&& frame.getFrameType() == IRFrame.PACKAGE
+							&& this.coreFunction != null
+							&& this.coreFunction.getPackageNames().contains(frame.getElementName().getSegmentName()) ) {
+						final ArgsDefinition coreDef= this.coreFunction.getArgs(
+								getElementName().getSegmentName() );
+						if (coreDef != null) {
+							checkArgsDef(RAst.matchArgs(callArgs, coreDef), false, relevance);
+						}
+					}
+				}
 			}
-			node = rnode.getParent();
+			
+		};
+		final FCallHandler search= new FCallHandler();
+		search.searchFDef(fCallInfo.getSearchPath(getSearchMode(context)));
+	}
+	
+	
+	protected IRCoreAccess getRCoreAccess() {
+		return this.editor.getRCoreAccess();
+	}
+	
+	protected final IRPkgSet getRPkgSet() {
+		final IRPkgManager manager= RCore.getRPkgManager(getRCoreAccess().getREnv());
+		manager.getReadLock().lock();
+		try {
+			return manager.getRPkgSet();
+		}
+		finally {
+			manager.getReadLock().unlock();
+		}
+	}
+	
+	protected final boolean isPackageName(final RElementName elementName) {
+		return ((elementName.getType() == RElementName.MAIN_DEFAULT 
+						|| RElementName.isPackageFacetScopeType(elementName.getType()) )
+				&& elementName.getNextSegment() == null );
+	}
+	
+	protected final void doComputePkgNameProposals(final RAssistInvocationContext context,
+			final int prio, final AssistProposalCollector proposals) {
+		final RElementName prefixName= context.getIdentifierElementName();
+		final String prefixSegmentName= prefixName.getSegmentName();
+		
+		if (prefixName.getScope() != null
+				|| !isSymbolCandidate(prefixSegmentName)) {
+			return;
+		}
+		
+		final IRPkgSet rPkgSet= getRPkgSet();
+		
+		final PrefixPattern pattern= new RSymbolComparator.PrefixPattern(prefixSegmentName);
+		final int offset= context.getInvocationOffset() - prefixSegmentName.length();
+		
+		final Collection<String> envNames;
+		if (rPkgSet != null) {
+			final IRPkgCollection<? extends IRPkgInfo> pkgs= rPkgSet.getInstalled();
+			envNames= pkgs.getNames();
+			for (final String pkgName : envNames) {
+				if (pattern.matches(pkgName)) {
+					proposals.add(new RElementCompletionProposal.RPkgProposal(context, 
+							RElementName.create(RElementName.SCOPE_PACKAGE, pkgName), offset,
+							pkgs.getFirstByName(pkgName), prio ));
+				}
+			}
+		}
+		else {
+			envNames= ImCollections.emptySet();
+		}
+		
+		final Set<String> workspaceNames= RModel.getRModelManager().getPkgNames();
+		for (final String pkgName : workspaceNames) {
+			if (!envNames.contains(pkgName) && pattern.matches(pkgName)) {
+				proposals.add(new RElementCompletionProposal.RPkgProposal(context, 
+						RElementName.create(RElementName.SCOPE_PACKAGE, pkgName), offset,
+						null, prio ));
+			}
+		}
+	}
+	
+	private List<String> getHelpSearchPackages(final RAssistInvocationContext context,
+			final boolean onlyLoaded) {
+		final RElementName namespace= context.getIdentifierElementName().getScope();
+		if (namespace != null && namespace.getSegmentName() != null) {
+			return ImCollections.newList(namespace.getSegmentName());
+		}
+		if (onlyLoaded) {
+			final RProcess tool= context.getTool();
+			if (tool != null) {
+				final RWorkspace runtimeWorkspace= tool.getWorkspaceData();
+				if (runtimeWorkspace != null) {
+					final List<? extends ICombinedREnvironment> list= runtimeWorkspace.getRSearchEnvironments();
+					if (list != null) {
+						final List<String> names= new ArrayList<>(list.size() - 1);
+						for (final ICombinedREnvironment envir : list) {
+							if (envir instanceof IRFrame) {
+								final IRFrame frame= (IRFrame) envir;
+								if (frame.getFrameType() == IRFrame.PACKAGE) {
+									names.add(frame.getElementName().getSegmentName());
+								}
+							}
+						}
+						return names;
+					}
+				}
+			}
 		}
 		return null;
 	}
 	
-	private void doComputeFCallContextInformation(final RAssistInvocationContext context, final FCallInfo fcallInfo,
-			final AssistProposalCollector proposals, final boolean createContextInfoOnly) {
-		int distance = 0;
-		final ExactFCallPattern pattern = new ExactFCallPattern(fcallInfo.access);
-		final int infoOffset = fcallInfo.node.getArgsOpenOffset()+1;
-		for (final Iterator<IRFrame> iter = new EnvirIter(); iter.hasNext();) {
-			final IRFrame envir = iter.next();
-			final List<? extends IModelElement> elements = envir.getModelChildren(null);
-			for (final IModelElement element : elements) {
-				final IElementName elementName = element.getElementName();
-				final int c1type = (element.getElementType() & IModelElement.MASK_C1);
-				if ((c1type == IModelElement.C1_METHOD)
-						&& isCompletable(elementName)
-						&& pattern.matches(elementName)) {
-					final IRMethod method = (IRMethod) element;
-					proposals.add(createContextInfoOnly ?
-							new RArgumentListContextInformation(infoOffset, method) :
-							new RElementCompletionProposal.ContextInformationProposal(context, method.getElementName(), infoOffset,
-								method, -distance, fLabelProvider) );
-				}
-			}
-			distance++;
-		}
-	}
-	
-	private void doComputeFCallArgumentProposals(final RAssistInvocationContext context,
-			final int offset, final FCallInfo fcallInfo, final String prefix,
-			final AssistProposalCollector<IAssistCompletionProposal> proposals) {
-		int distance = 0;
-		final HashSet<String> names = new HashSet<String>();
-		for (final Iterator<IRFrame> iter = new EnvirIter(); iter.hasNext();) {
-			final IRFrame envir = iter.next();
-			final List<? extends IModelElement> elements = envir.getModelChildren(null);
-			for (final IModelElement element : elements) {
-				final IElementName elementName = element.getElementName();
-				final int c1type = (element.getElementType() & IModelElement.MASK_C1);
-				if ((c1type == IModelElement.C1_METHOD)
-						&& isCompletable(elementName)
-						&& (fcallInfo.access.equals(elementName)) ) {
-					final IRMethod method = (IRMethod) element;
-					final ArgsDefinition argsDef = method.getArgsDefinition();
-					if (argsDef != null) {
-						for (int i = 0; i < argsDef.size(); i++) {
-							final ArgsDefinition.Arg arg = argsDef.get(i);
-							if (arg.name != null && arg.name.length() > 0 && !arg.name.equals("...")) {
-								if ((prefix == null || arg.name.startsWith(prefix))
-										&& names.add(arg.name)) {
-									final RElementName name = RElementName.create(RElementName.MAIN_DEFAULT, arg.name);
-									proposals.add(new RElementCompletionProposal.ArgumentProposal(
-											context, name, offset, method, distance,
-											fLabelProvider ));
-								}
-							}
-						}
-					}
-				}
-			}
-			distance++;
-		}
-	}
-	
-	
-	private boolean initEnvirList(final RAssistInvocationContext context, final RAstNode node) {
-		if (fEnvirList[LOCAL_ENVIR] != null) {
-			return true;
-		}
-		final IRFrameInSource envir = RModel.searchFrame(node);
-		if (envir != null && !fCompleteRuntimeMode) {
-			fEnvirList[LOCAL_ENVIR] = RModel.createDirectFrameList(envir);
-		}
-		else {
-			fEnvirList[LOCAL_ENVIR] = new ArrayList<IRFrame>();
-		}
+	protected final void doComputeHelpTopicProposals(final RAssistInvocationContext context,
+			final String topicType,
+			final int prio, final AssistProposalCollector proposals) {
+		// (topic != null) => ?  /  (topic == null) => help()
+		final RElementName prefixName= context.getIdentifierElementName();
+		final String prefixSegmentName= prefixName.getSegmentName();
 		
-		fEnvirListPackages = new HashSet<String>();
-		if (!fCompleteRuntimeMode) {
-			final ISourceUnit su = fEditor.getSourceUnit();
-			if ((su instanceof IRSourceUnit)) {
-				try {
-					fEnvirList[WS_ENVIR] = RModel.createProjectFrameList(null, (IRSourceUnit) su,
-							null, fEnvirListPackages);
-				}
-				catch (final CoreException e) {
-					// CANCELLED possible?
-				}
-				if (fEnvirList[WS_ENVIR] != null && !fEnvirList[WS_ENVIR].isEmpty()) {
-					fEnvirList[LOCAL_ENVIR].add(fEnvirList[WS_ENVIR].remove(0));
-				}
-			}
-		}
-		if (fEnvirList[WS_ENVIR] == null) {
-			fEnvirList[WS_ENVIR] = new ArrayList<IRFrame>();
-		}
-		addRuntimeEnvirList(context, includeCompleteRuntime());
-		return true;
-	}
-	
-	private boolean isRuntimeAvailable(final RAssistInvocationContext context) {
-		final RProcess tool = context.getTool();
-		return (tool != null && tool.getWorkspaceData().hasRObjectDB());
-	}
-	
-	private boolean includeCompleteRuntime() {
-		return (fEditor instanceof ConsolePageEditor || fCompleteRuntimeMode);
-	}
-	
-	private void addRuntimeEnvirList(final RAssistInvocationContext context,
-			final boolean complete) {
-		if (isRuntimeAvailable(context)) {
-			if (complete) {
-				addDebugFrame(context);
-				
-				final RWorkspace data = context.getTool().getWorkspaceData();
-				final List<? extends ICombinedREnvironment> runtimeList = data.getRSearchEnvironments();
-				if (runtimeList != null && !runtimeList.isEmpty()) {
-					for (final ICombinedREnvironment envir : runtimeList) {
-						if (envir instanceof IRFrame) {
-							final IRFrame frame = (IRFrame) envir;
-							if (frame.getFrameType() == IRFrame.PROJECT) {
-								fEnvirList[LOCAL_ENVIR].add(frame);
-							}
-							else {
-								fEnvirList[WS_ENVIR].add(frame);
-							}
-						}
-					}
-				}
-			}
-			else {
-				final Set<String> requiredPackages = new HashSet<String>();
-				final ISourceUnitModelInfo modelInfo = context.getModelInfo();
-				if (modelInfo instanceof IRModelInfo) {
-					final IRModelInfo rModel = (IRModelInfo) modelInfo;
-					final IPackageReferences packages = rModel.getReferencedPackages();
-					for (final String name : packages.getAllPackageNames()) {
-						if (packages.isImported(name)) {
-							requiredPackages.add(name);
-						}
-					}
-				}
-				requiredPackages.add("base"); //$NON-NLS-1$
-				
-				final RWorkspace data = context.getTool().getWorkspaceData();
-				final List<? extends ICombinedREnvironment> runtimeList = data.getRSearchEnvironments();
-				if (runtimeList != null && !runtimeList.isEmpty()) {
-					for (final ICombinedREnvironment envir : runtimeList) {
-						final IRFrame frame = (IRFrame) envir;
-						if (frame.getFrameType() == IRFrame.PACKAGE
-								&& requiredPackages.contains(frame.getElementName().getSegmentName())
-								&& !fEnvirListPackages.contains(frame.getElementName().getSegmentName())) {
-							fEnvirList[RUNTIME_ENVIR].add(frame);
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	private void addDebugFrame(final RAssistInvocationContext context) {
-		final IDebugTarget debugTarget = context.getTool().getLaunch().getDebugTarget();
-		if (debugTarget == null) {
+		if (topicType == null && prefixName.getScope() != null) {
 			return;
 		}
-		try {
-			final IThread[] threads = debugTarget.getThreads();
-			if (threads.length > 0) {
-				final IStackFrame top = threads[0].getTopStackFrame();
-				if (top != null) {
-					final ICombinedRElement envir = (ICombinedRElement) top.getAdapter(IModelElement.class);
-					if (envir instanceof IRFrame) {
-						final IRFrame frame = (IRFrame) envir;
-						if (frame.getFrameType() != IRFrame.PACKAGE) {
-							fEnvirList[LOCAL_ENVIR].add(frame);
-						}
-					}
-				}
-			}
+		
+		final IREnv rEnv= getRCoreAccess().getREnv();
+		if (rEnv == null) {
+			return;
 		}
-		catch (final DebugException e) {
-			if (e.getStatus().getCode() == DebugException.NOT_SUPPORTED
-					|| e.getStatus().getSeverity() == IStatus.CANCEL) {
-				return;
-			}
-			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
-					"An error occurred when collecting environments for content assist.", e ));
+		
+		final List<String> packages= getHelpSearchPackages(context, topicType != null);
+		if (packages == null && (topicType != null || prefixSegmentName.isEmpty())) {
+			return;
 		}
-	}
-	
-	private RObject loadReference(final RReference reference) {
-		final RProcess process = LoadReferenceRunnable.findRProcess((ICombinedRElement) reference);
-		if (process == null) {
-			return null;
-		}
-		final LoadReferenceRunnable runnable = new LoadReferenceRunnable(reference, process, 0,
-				"Content Assist" );
-		synchronized (runnable) {
-			if (process.getQueue().addHot(runnable).isOK()) {
-				try {
-					runnable.wait(250);
-					if (runnable.isFinished()) {
-						return runnable.getResolvedElement();
-					}
-					else {
-						runnable.setFinishRunnable(new ReshowCompletionsRunnable(fEditor, fAssist) {
+		
+		final IRHelpManager rHelpManager= RCore.getRHelpManager();
+		
+		final IREnvHelp help= rHelpManager.getHelp(rEnv);
+		if (help != null) {
+			try {
+				final PrefixPattern pattern= new RSymbolComparator.PrefixPattern(prefixSegmentName);
+				final Map<String, Object> map= new HashMap<>();
+				help.searchTopics(
+						(prefixSegmentName != null && !prefixSegmentName.isEmpty()) ?
+								prefixSegmentName.substring(0, 1) : null,
+						(topicType != null && !topicType.isEmpty()) ?
+								topicType : null,
+						packages, new IREnvHelp.ITopicSearchRequestor() {
 							@Override
-							protected void cancel() {
-								synchronized (runnable) {
-									runnable.cancel();
+							public void matchFound(final String topic, final String packageName) {
+								if (pattern.matches(topic)) {
+									final Object prev= map.put(topic, packageName);
+									if (prev != null) {
+										List<String> list;
+										if (prev instanceof List) {
+											list= (List<String>) prev;
+										}
+										else {
+											list= new ArrayList<>(4);
+											list.add((String) prev);
+										}
+										final int idx= Collections.binarySearch(list, packageName);
+										if (idx < 0) {
+											list.add(-(idx + 1), packageName);
+											map.put(topic, list);
+										}
+									}
 								}
-								super.cancel();
-							}
-							@Override
-							protected boolean showCompletionsNow() {
-								return (runnable.getResolvedElement() != null);
 							}
 						});
-						return null;
-					}
-				}
-				catch (final InterruptedException e) {
-					runnable.cancel();
+				
+				final int offset= (context.getInvocationContentType() != IRDocumentConstants.R_DEFAULT_CONTENT_TYPE) ?
+						context.getIdentifierLastSegmentOffset() + 1 :
+						context.getIdentifierLastSegmentOffset();
+				for (final Map.Entry<String, Object> match : map.entrySet()) {
+					proposals.add(new RSimpleCompletionProposal.RHelpTopicCompletionProposal(
+							context, match.getKey(), match.getValue(), offset, prio ));
 				}
 			}
-			return null;
+			finally {
+				help.unlock();
+			}
 		}
 	}
 	

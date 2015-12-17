@@ -66,6 +66,7 @@ import de.walware.statet.nico.core.util.TrackingConfiguration;
 
 import de.walware.rj.RjException;
 import de.walware.rj.data.RDataJConverter;
+import de.walware.rj.data.REnvironment;
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
@@ -232,7 +233,7 @@ public class RjsController extends AbstractRDbgController
 			final IStatus status = executeHandler(INIT_RGRAPHIC_FACTORY_HANDLER_ID, handler, data, null);
 			final RClientGraphicFactory factory = (RClientGraphicFactory) data.get("factory"); //$NON-NLS-1$
 			if (status != null && status.isOK() && factory != null) {
-				setGraphicFactory(factory, new ERClientGraphicActions(this, fProcess));
+				setGraphicFactory(factory, new ERClientGraphicActions(this, getTool()));
 			}
 		}
 		
@@ -478,8 +479,9 @@ public class RjsController extends AbstractRDbgController
 		
 		fTrackingConfigurations = trackingConfigurations;
 		
-		fWorkspaceData = new RWorkspace(this, (embedded || address.isLocalHost()) ? null :
-				address.getHostAddress().getHostAddress(), workspaceConfig );
+		setWorksapceData(new RWorkspace(this,
+				(embedded || address.isLocalHost()) ? null :
+						address.getHostAddress().getHostAddress(), workspaceConfig ));
 		setWorkspaceDirL(initialWD);
 		initRunnableAdapterL();
 	}
@@ -642,9 +644,9 @@ public class RjsController extends AbstractRDbgController
 			}
 			
 			final ServerInfo info = fRjsConnection.getServer().getInfo();
-			if (fWorkspaceData.isRemote()) {
+			if (getWorkspaceData().isRemote()) {
 				try {
-					final String wd = FileUtil.toString(fWorkspaceData.toFileStore(info.getDirectory()));
+					final String wd = FileUtil.toString(getWorkspaceData().toFileStore(info.getDirectory()));
 					if (wd != null) {
 						setStartupWD(wd);
 					}
@@ -684,7 +686,7 @@ public class RjsController extends AbstractRDbgController
 			
 			if (!fStartup) {
 				handleStatus(new Status(IStatus.INFO, RConsoleCorePlugin.PLUGIN_ID,
-						addTimestampToMessage(RNicoMessages.R_Info_Reconnected_message, fProcess.getConnectionTimestamp()) ),
+						addTimestampToMessage(RNicoMessages.R_Info_Reconnected_message, getTool().getConnectionTimestamp()) ),
 						monitor);
 			}
 			// fRjs.runMainLoop(null, null, monitor); must not wait at server side
@@ -1074,7 +1076,7 @@ public class RjsController extends AbstractRDbgController
 	
 	
 	@Override
-	public String getProperty(String key) {
+	public String getProperty(final String key) {
 		return fRjs.getProperty(key);
 	}
 	
@@ -1125,7 +1127,7 @@ public class RjsController extends AbstractRDbgController
 	@Override
 	public ICombinedRElement evalCombinedStruct(final String command,
 			final int options, final int depth, final RElementName name, final IProgressMonitor monitor) throws CoreException {
-		final RObject data = evalData(command,
+		final RObject data = this.fRjs.evalData(command, null,
 				CombinedFactory.FACTORY_ID, (options | RObjectFactory.F_ONLY_STRUCT), depth,
 				monitor );
 		if (data instanceof CombinedElement) {
@@ -1139,7 +1141,32 @@ public class RjsController extends AbstractRDbgController
 	public ICombinedRElement evalCombinedStruct(final String command, final RObject envir,
 			final int options, final int depth, final RElementName name,
 			final IProgressMonitor monitor) throws CoreException {
-		final RObject data = evalData(command, envir,
+		final RObject data= this.fRjs.evalData(command, envir,
+				CombinedFactory.FACTORY_ID, (options | RObjectFactory.F_ONLY_STRUCT), depth,
+				monitor );
+		if (data instanceof CombinedElement) {
+			final CombinedElement e = (CombinedElement) data;
+			e.setElementName(name);
+			return e;
+		}
+		return null;
+	}
+	
+	private ICombinedRElement evalCombinedStructSpecialEnv(final RElementName name,
+			final int options, final int depth,
+			final IProgressMonitor monitor) throws CoreException {
+		final byte envType;
+		switch (name.getType()) {
+		case RElementName.SCOPE_NS:
+			envType= REnvironment.ENVTYPE_NAMESPACE_EXPORTS;
+			break;
+		case RElementName.SCOPE_NS_INT:
+			envType= REnvironment.ENVTYPE_NAMESPACE;
+			break;
+		default:
+			throw new IllegalArgumentException();
+		}
+		final RObject data= this.fRjs.evalData(envType, name.getSegmentName(),
 				CombinedFactory.FACTORY_ID, (options | RObjectFactory.F_ONLY_STRUCT), depth,
 				monitor );
 		if (data instanceof CombinedElement) {
@@ -1152,7 +1179,19 @@ public class RjsController extends AbstractRDbgController
 	
 	@Override
 	public ICombinedRElement evalCombinedStruct(final RElementName name,
-			final int options, final int depth, final IProgressMonitor monitor) throws CoreException {
+			final int options, final int depth,
+			final IProgressMonitor monitor) throws CoreException {
+		switch (name.getType()) {
+		case RElementName.SCOPE_NS:
+		case RElementName.SCOPE_NS_INT:
+			if (name.getNextSegment() == null) {
+				return evalCombinedStructSpecialEnv(name, options, depth, monitor);
+			}
+			break;
+		default:
+			break;
+		}
+		
 		final String command = RElementName.createDisplayName(name, RElementName.DISPLAY_FQN | RElementName.DISPLAY_EXACT);
 		if (command == null) {
 			throw new CoreException(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID, 0, "Illegal R element name.", null));
@@ -1162,7 +1201,8 @@ public class RjsController extends AbstractRDbgController
 	
 	@Override
 	public ICombinedRElement evalCombinedStruct(final RReference reference,
-			final int options, final int depth, final RElementName name, final IProgressMonitor monitor) throws CoreException {
+			final int options, final int depth, final RElementName name,
+			final IProgressMonitor monitor) throws CoreException {
 		final RObject data = evalData(reference, CombinedFactory.FACTORY_ID, (options | RObjectFactory.F_ONLY_STRUCT), depth, monitor);
 		if (data instanceof CombinedElement) {
 			final CombinedElement e = (CombinedElement) data;
@@ -1173,22 +1213,26 @@ public class RjsController extends AbstractRDbgController
 	}
 	
 	@Override
-	public void assignData(final String expression, final RObject data, final IProgressMonitor monitor) throws CoreException {
+	public void assignData(final String expression, final RObject data,
+			final IProgressMonitor monitor) throws CoreException {
 		fRjs.assignData(expression, data, null, monitor);
 	}
 	
 	@Override
-	public void downloadFile(final OutputStream out, final String fileName, final int options, final IProgressMonitor monitor) throws CoreException {
+	public void downloadFile(final OutputStream out, final String fileName, final int options,
+			final IProgressMonitor monitor) throws CoreException {
 		fRjs.downloadFile(out, fileName, options, monitor);
 	}
 	
 	@Override
-	public byte[] downloadFile(final String fileName, final int options, final IProgressMonitor monitor) throws CoreException {
+	public byte[] downloadFile(final String fileName, final int options,
+			final IProgressMonitor monitor) throws CoreException {
 		return fRjs.downloadFile(fileName, options, monitor);
 	}
 	
 	@Override
-	public void uploadFile(final InputStream in, final long length, final String fileName, final int options, final IProgressMonitor monitor) throws CoreException {
+	public void uploadFile(final InputStream in, final long length, final String fileName, final int options,
+			final IProgressMonitor monitor) throws CoreException {
 		fRjs.uploadFile(in, length, fileName, options, monitor);
 	}
 	

@@ -228,6 +228,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 		util.register(RUI.IMG_OBJ_R_PACKAGE, ImageRegistryUtil.T_OBJ, "package.png");  //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_R_PACKAGE_NA, ImageRegistryUtil.T_OBJ, "package-nota.png");  //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_R_HELP_PAGE, ImageRegistryUtil.T_OBJ, "rhelp-page.png");  //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_R_HELP_TOPIC, ImageRegistryUtil.T_OBJ, "rhelp-topic.png");  //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_R_HELP_SEARCH, ImageRegistryUtil.T_TOOL, "rhelp-search.png");  //$NON-NLS-1$
 		
 		util.register(RUI.IMG_OBJ_COMMON_FUNCTION, ImageRegistryUtil.T_OBJ, "function.png"); //$NON-NLS-1$
@@ -330,7 +331,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	public synchronized REditorOptions getREditorSettings(final IPreferenceAccess prefs) {
 		final ImList<IScopeContext> contexts = prefs.getPreferenceContexts();
-		for (IScopeContext context : contexts) {
+		for (final IScopeContext context : contexts) {
 			if (context.getName().equals(ConsoleInstanceScope.SCOPE)) {
 				if (fConsoleSettings== null) {
 					fConsoleSettings = new REditorOptions(1);

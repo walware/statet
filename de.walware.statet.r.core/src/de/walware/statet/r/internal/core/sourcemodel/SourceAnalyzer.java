@@ -1379,6 +1379,10 @@ public class SourceAnalyzer extends RAstVisitor {
 					new ElementAccess.NamespaceInternal(access.fFullNode, namespaceChild) :
 					new ElementAccess.Namespace(access.fFullNode, namespaceChild);
 			this.packageRefs.add(namespaceName, packageAccess);
+			
+			if (access instanceof ElementAccess.Main) {
+				((ElementAccess.Main) access).setScope(packageAccess);
+			}
 		}
 		// register explicit
 		BuildSourceFrame envir;

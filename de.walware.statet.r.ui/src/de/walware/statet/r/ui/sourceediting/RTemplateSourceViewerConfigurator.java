@@ -14,9 +14,9 @@ package de.walware.statet.r.ui.sourceediting;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewerExtension2;
-import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.ColorManager;
 import de.walware.ecommons.ui.SharedUIResources;
@@ -40,7 +40,7 @@ public class RTemplateSourceViewerConfigurator extends RSourceViewerConfigurator
 		}
 		
 		@Override
-		protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
+		protected ContentAssist createContentAssistant(final ISourceViewer sourceViewer) {
 			return createTemplateVariableContentAssistant(sourceViewer, fProcessor);
 		}
 		

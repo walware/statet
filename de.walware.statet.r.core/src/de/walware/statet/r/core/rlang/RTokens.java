@@ -19,7 +19,7 @@ import java.util.Arrays;
  * 'Tokes' means tokens according to R-language definition, they defines not
  * directly <code>Token</code>, implementions of <code>IToken</code>.
  */
-public class RTokens {
+public final class RTokens {
 	
 	public static final String[] CONSTANT_WORDS = new String[] {
 			RTerminal.S_NULL,
@@ -92,8 +92,24 @@ public class RTokens {
 	}
 	
 	public static boolean isRobustSeparator(final int c, final boolean isDotSeparator) {
-		return ( (c == '.')? isDotSeparator :
-				(!Character.isLetterOrDigit(c) && c != '_') );
+		switch (c) {
+		case '.':
+			return isDotSeparator;
+		case '_':
+			return false;
+		default:
+			return !Character.isLetterOrDigit(c);
+		}
+	}
+	
+	public static boolean isRobustSeparator(final int c) {
+		switch (c) {
+		case '.':
+		case '_':
+			return false;
+		default:
+			return !Character.isLetterOrDigit(c);
+		}
 	}
 	
 	public static boolean isDigit(final int c) {

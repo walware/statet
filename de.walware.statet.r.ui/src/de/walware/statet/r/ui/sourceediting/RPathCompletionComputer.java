@@ -35,7 +35,6 @@ import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistProposalCollector;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
-import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistCompletionProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.PathCompletionComputor;
 import de.walware.ecommons.net.resourcemapping.IResourceMapping;
 import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
@@ -198,9 +197,10 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	}
 	
 	@Override
-	protected IStatus tryAlternative(final AssistInvocationContext context, final AssistProposalCollector<IAssistCompletionProposal> proposals,
-			final IPath path, final int startOffset,
-			final String segmentPrefix, final String completionPrefix) throws CoreException {
+	protected IStatus tryAlternative(final AssistInvocationContext context,
+			final IPath path,
+			final int startOffset, final String segmentPrefix, final String completionPrefix,
+			final AssistProposalCollector proposals) throws CoreException {
 		if (this.associatedTool != null) {
 			final String address= this.associatedTool.getWorkspaceData().getRemoteAddress();
 			if (address != null) {
@@ -231,8 +231,8 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 				}
 			}
 		}
-		return super.tryAlternative(context, proposals, path, startOffset,
-				segmentPrefix, completionPrefix );
+		return super.tryAlternative(context, path, startOffset, segmentPrefix,
+				completionPrefix, proposals );
 	}
 	
 	@Override

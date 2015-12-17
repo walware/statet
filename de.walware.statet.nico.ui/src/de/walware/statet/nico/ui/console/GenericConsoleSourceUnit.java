@@ -24,6 +24,7 @@ import de.walware.ecommons.ltk.core.SourceContent;
 import de.walware.ecommons.ltk.core.impl.WorkingBuffer;
 import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
+import de.walware.ecommons.text.core.util.AbstractFragmentDocument;
 
 
 /**
@@ -32,35 +33,35 @@ import de.walware.ecommons.ltk.core.model.ISourceUnit;
 public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	
 	
-	private final String fId;
-	private final IElementName fName;
+	private final String id;
+	private final IElementName name;
 	
-	protected final InputDocument fDocument;
+	private final AbstractFragmentDocument document;
 	
-	private int fCounter = 0;
+	private int counter= 0;
 	
 	
-	public GenericConsoleSourceUnit(final String id, final InputDocument document) {
-		fId = id;
-		fName = new IElementName() {
+	public GenericConsoleSourceUnit(final String id, final AbstractFragmentDocument document) {
+		this.id= id;
+		this.name= new IElementName() {
 			@Override
 			public int getType() {
 				return 0x011; // see RElementName
 			}
 			@Override
 			public String getDisplayName() {
-				return fId;
+				return GenericConsoleSourceUnit.this.id;
 			}
 			@Override
 			public String getSegmentName() {
-				return fId;
+				return GenericConsoleSourceUnit.this.id;
 			}
 			@Override
 			public IElementName getNextSegment() {
 				return null;
 			}
 		};
-		fDocument = document;
+		this.document= document;
 	}
 	
 	
@@ -101,7 +102,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	 */
 	@Override
 	public IElementName getElementName() {
-		return fName;
+		return this.name;
 	}
 	
 	/**
@@ -109,7 +110,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	 */
 	@Override
 	public String getId() {
-		return fId;
+		return this.id;
 	}
 	
 	/**
@@ -117,7 +118,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	 */
 	@Override
 	public boolean exists() {
-		return fCounter > 0;
+		return this.counter > 0;
 	}
 	
 	/**
@@ -149,12 +150,16 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	}
 	
 	
+	protected final AbstractFragmentDocument getDocument() {
+		return this.document;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public AbstractDocument getDocument(final IProgressMonitor monitor) {
-		return fDocument;
+		return this.document;
 	}
 	
 	/**
@@ -162,7 +167,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	 */
 	@Override
 	public long getContentStamp(final IProgressMonitor monitor) {
-		return fDocument.getModificationStamp();
+		return this.document.getModificationStamp();
 	}
 	
 	/**
@@ -170,7 +175,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	 */
 	@Override
 	public SourceContent getContent(final IProgressMonitor monitor) {
-		return WorkingBuffer.createContentFromDocument(fDocument);
+		return WorkingBuffer.createContentFromDocument(this.document);
 	}
 	
 	/**
@@ -210,7 +215,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	 */
 	@Override
 	public synchronized final void connect(final IProgressMonitor monitor) {
-		fCounter++;
+		this.counter++;
 	}
 	
 	/**
@@ -218,7 +223,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	 */
 	@Override
 	public synchronized final void disconnect(final IProgressMonitor monitor) {
-		fCounter--;
+		this.counter--;
 	}
 	
 	/**
@@ -226,7 +231,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	 */
 	@Override
 	public synchronized boolean isConnected() {
-		return (fCounter > 0);
+		return (this.counter > 0);
 	}
 	
 	

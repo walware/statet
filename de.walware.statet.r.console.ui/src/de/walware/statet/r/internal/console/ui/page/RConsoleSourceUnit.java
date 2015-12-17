@@ -15,7 +15,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.text.ISynchronizable;
 
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
@@ -23,9 +22,10 @@ import de.walware.ecommons.ltk.core.SourceContent;
 import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.text.core.sections.IDocContentSections;
+import de.walware.ecommons.text.core.util.AbstractFragmentDocument;
+import de.walware.ecommons.text.core.util.TextUtils;
 
 import de.walware.statet.nico.ui.console.GenericConsoleSourceUnit;
-import de.walware.statet.nico.ui.console.InputDocument;
 
 import de.walware.statet.r.console.ui.RConsole;
 import de.walware.statet.r.core.IRCoreAccess;
@@ -44,24 +44,18 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit implements IRSo
 		
 		@Override
 		public SourceContent getParseContent(final IProgressMonitor monitor) {
-			Object lock = null;
-			if (RConsoleSourceUnit.this.fDocument instanceof ISynchronizable) {
-				lock = ((ISynchronizable) RConsoleSourceUnit.this.fDocument).getLockObject();
-			}
-			if (lock == null) {
-				lock = new Object();
-			}
-			synchronized (lock) {
-				return new SourceContent(
-						RConsoleSourceUnit.this.fDocument.getModificationStamp(),
-						RConsoleSourceUnit.this.fDocument.getMasterDocument().get(),
-						-RConsoleSourceUnit.this.fDocument.getOffsetInMasterDocument() );
+			final AbstractFragmentDocument doc= getDocument();
+			synchronized (TextUtils.getLockObject(doc)) {
+				return new SourceContent(doc.getModificationStamp(),
+						doc.getMasterDocument().get(), 
+						-doc.getOffsetInMasterDocument() );
 			}
 		}
+		
 	};
 	
 	
-	public RConsoleSourceUnit(final RConsolePage page, final InputDocument document) {
+	public RConsoleSourceUnit(final RConsolePage page, final AbstractFragmentDocument document) {
 		super(page.toString(), document);
 		this.rConsole = page.getConsole();
 	}

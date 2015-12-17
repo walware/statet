@@ -14,12 +14,12 @@ package de.walware.statet.r.internal.ui.preferences;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewerExtension2;
-import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 
 import de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory;
@@ -46,7 +46,7 @@ public class RdCodeTemplatesProvider implements ICodeGenerationTemplatesCategory
 			super(rCoreAccess, new RdSourceViewerConfiguration() {
 				
 				@Override
-				protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
+				protected ContentAssist createContentAssistant(final ISourceViewer sourceViewer) {
 					return createTemplateVariableContentAssistant(sourceViewer, processor);
 				}
 				

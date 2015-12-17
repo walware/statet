@@ -19,6 +19,8 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
+import de.walware.jcommons.collections.ImCollections;
+
 import de.walware.ecommons.ltk.core.model.ISourceElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.core.model.IWorkspaceSourceUnit;
@@ -78,28 +80,54 @@ public final class RModel {
 		return null;
 	}
 	
-	public static List<IRFrame> createDirectFrameList(final IRFrame frame) {
+	
+	private static boolean isValidPkgFrame(final IRFrame frame) {
+		return (frame.getFrameType() == IRFrame.PACKAGE
+				&& frame.getElementName().getSegmentName() != null );
+	}
+	
+	private static boolean isValidFrame(final IRFrame frame, final String pkgName) {
+		return (pkgName == null
+				|| (isValidPkgFrame(frame)
+						&& frame.getElementName().getSegmentName().equals(pkgName) ));
+	}
+	
+	private static boolean isValidFrame(final IRFrame frame, final Set<String> pkgNames) {
+		return (pkgNames == null
+				|| (isValidPkgFrame(frame)
+						&& pkgNames.contains(frame.getElementName().getSegmentName()) ));
+	}
+	
+	public static List<IRFrame> createDirectFrameList(final IRFrame frame,
+			final RElementName expliciteScope) {
 		final ArrayList<IRFrame> list= new ArrayList<>();
+		final String pkgName= (expliciteScope != null && RElementName.isPackageFacetScopeType(expliciteScope.getType())) ?
+				expliciteScope.getSegmentName() : null;
 		int idx= 0;
-		list.add(frame);
+		if (isValidFrame(frame, pkgName)) {
+			list.add(frame);
+		}
 		while (idx < list.size()) {
 			final List<? extends IRFrame> ps= list.get(idx++).getPotentialParents();
-			for (final IRFrame p : ps) {
-				if (!list.contains(p)) {
-					list.add(p);
+			for (final IRFrame parent : ps) {
+				if (isValidFrame(parent, pkgName) && !list.contains(parent)) {
+					list.add(parent);
 				}
 			}
 		}
 		return list;
 	}
 	
+	public static List<IRFrame> createDirectFrameList(final IRFrame frame) {
+		return createDirectFrameList(frame, null);
+	}
+	
 	public static Set<String> createImportedPackageList(final IRModelInfo modelInfo) {
 		final Set<String> importedPackages= new HashSet<>();
 		importedPackages.add("base"); //$NON-NLS-1$
 		
-		if (modelInfo instanceof IRModelInfo) {
-			final IRModelInfo rModel= modelInfo;
-			final IPackageReferences packages= rModel.getReferencedPackages();
+		if (modelInfo != null) {
+			final IPackageReferences packages= modelInfo.getReferencedPackages();
 			for (final String name : packages.getAllPackageNames()) {
 				if (packages.isImported(name)) {
 					importedPackages.add(name);
@@ -112,73 +140,74 @@ public final class RModel {
 	
 	public static List<IRFrame> createProjectFrameList(IRProject project1,
 			final IRSourceUnit scope, 
-			Set<String> importedPackages, Set<String> packages) throws CoreException {
+			final boolean pkgImports, final boolean projectDependencies,
+			Set<String> importedPackages, Set<String> pkgNames)
+			throws CoreException {
 		final ArrayList<IRFrame> list= new ArrayList<>();
 		final IRModelManager manager= getRModelManager();
 		if (project1 == null && scope instanceof IWorkspaceSourceUnit) {
-			if (importedPackages == null) {
-				importedPackages= new HashSet<>();
-				final IRModelInfo modelInfo= (IRModelInfo) scope.getModelInfo(R_TYPE_ID,
-						RModelManager.MODEL_FILE, null );
-				if (modelInfo != null) {
-					final IPackageReferences references= modelInfo.getReferencedPackages();
-					for (final String pkgName : references.getAllPackageNames()) {
-						if (references.isImported(pkgName)) {
-							importedPackages.add(pkgName);
-						}
-					}
-				}
+			if (pkgImports && importedPackages == null) {
+				importedPackages= createImportedPackageList(
+						(IRModelInfo) scope.getModelInfo(R_TYPE_ID, RModelManager.MODEL_FILE, null ));
 			}
 			project1= RProjects.getRProject(((IWorkspaceSourceUnit) scope).getResource().getProject());
 		}
-		if (project1 == null) {
-			return list;
-		}
-		if (packages == null) {
-			packages= new HashSet<>();
+		if (pkgImports && importedPackages == null) {
+			importedPackages= ImCollections.emptySet();
 		}
 		
-		{	final IRFrame frame= manager.getProjectFrame(project1);
-			if (frame != null) {
-				if (frame.getFrameType() == IRFrame.PACKAGE) {
-					packages.add(frame.getElementName().getSegmentName());
-				}
-				list.add(new FilteredFrame(frame, scope));
-			}
+		if (pkgNames == null) {
+			pkgNames= new HashSet<>();
 		}
-		final List<IRProject> projects= new ArrayList<>();
-		try {
-			final IProject[] referencedProjects= project1.getProject().getReferencedProjects();
-			for (final IProject referencedProject : referencedProjects) {
-				final IRProject rProject= RProject.getRProject(referencedProject);
-				if (rProject != null) {
-					projects.add(rProject);
+		
+		if (project1 != null) {
+			{	final IRFrame frame= manager.getProjectFrame(project1);
+				if (frame != null) {
+					if (projectDependencies || (pkgImports && isValidFrame(frame, importedPackages))) {
+						if (isValidPkgFrame(frame)) {
+							pkgNames.add(frame.getElementName().getSegmentName());
+						}
+						list.add(new FilteredFrame(frame, scope));
+					}
 				}
 			}
-		} catch (final CoreException e) {}
-		for (int i= 0; i < projects.size(); i++) {
-			final IRProject project= projects.get(i);
-			final IRFrame frame= manager.getProjectFrame(project);
-			if (frame != null) {
-				if (frame.getFrameType() == IRFrame.PACKAGE) {
-					packages.add(frame.getElementName().getSegmentName());
-				}
-				list.add(frame);
-			}
+			
+			final List<IRProject> projects= new ArrayList<>();
 			try {
-				final IProject[] referencedProjects= project.getProject().getReferencedProjects();
+				final IProject[] referencedProjects= project1.getProject().getReferencedProjects();
 				for (final IProject referencedProject : referencedProjects) {
 					final IRProject rProject= RProject.getRProject(referencedProject);
-					if (rProject != null && !projects.contains(rProject)) {
+					if (rProject != null) {
 						projects.add(rProject);
 					}
 				}
 			} catch (final CoreException e) {}
+			for (int i= 0; i < projects.size(); i++) {
+				final IRProject project= projects.get(i);
+				final IRFrame frame= manager.getProjectFrame(project);
+				if (frame != null) {
+					if (projectDependencies || (pkgImports && isValidFrame(frame, importedPackages))) {
+						if (isValidPkgFrame(frame)) {
+							pkgNames.add(frame.getElementName().getSegmentName());
+						}
+						list.add(frame);
+					}
+				}
+				try {
+					final IProject[] referencedProjects= project.getProject().getReferencedProjects();
+					for (final IProject referencedProject : referencedProjects) {
+						final IRProject rProject= RProject.getRProject(referencedProject);
+						if (rProject != null && !projects.contains(rProject)) {
+							projects.add(rProject);
+						}
+					}
+				} catch (final CoreException e) {}
+			}
 		}
 		
-		if (importedPackages != null) {
+		if (pkgImports && importedPackages != null) {
 			for (final String pkgName : importedPackages) {
-				if (!packages.contains(pkgName)) {
+				if (!pkgNames.contains(pkgName)) {
 					final IRFrame frame= manager.getPkgProjectFrame(pkgName);
 					if (frame != null) {
 						list.add(frame);
@@ -188,6 +217,11 @@ public final class RModel {
 		}
 		
 		return list;
+	}
+	
+	public static List<IRFrame> createProjectFrameList(final IRProject project1,
+			final IRSourceUnit scope) throws CoreException {
+		return createProjectFrameList(project1, scope, true, true, null, null);
 	}
 	
 	public static List<ISourceElement> searchDeclaration(final RElementAccess access,
@@ -202,7 +236,7 @@ public final class RModel {
 				return list;
 			}
 		}
-		final List<IRFrame> projectFrames= RModel.createProjectFrameList(null, su, null, null);
+		final List<IRFrame> projectFrames= RModel.createProjectFrameList(null, su);
 		for (final IRFrame frame : projectFrames) {
 			if (checkFrame(frame, access, list)) {
 				return list;

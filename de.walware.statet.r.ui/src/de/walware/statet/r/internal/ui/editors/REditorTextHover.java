@@ -25,40 +25,42 @@ import de.walware.ecommons.ltk.ui.sourceediting.assist.InfoHoverDescriptor;
 
 import de.walware.statet.r.core.source.IRDocumentConstants;
 import de.walware.statet.r.core.source.RHeuristicTokenScanner;
+import de.walware.statet.r.ui.editors.IRSourceEditor;
 import de.walware.statet.r.ui.sourceediting.RAssistInvocationContext;
 
 
 public class REditorTextHover extends EditorTextInfoHoverProxy {
 	
 	
-	private RHeuristicTokenScanner fScanner;
+	private RHeuristicTokenScanner scanner;
 	
 	
-	public REditorTextHover(final InfoHoverDescriptor descriptor, final SourceEditorViewerConfiguration config) {
+	public REditorTextHover(final IRSourceEditor editor,
+			final InfoHoverDescriptor descriptor, final SourceEditorViewerConfiguration config) {
 		super(descriptor, config);
 	}
 	
 	
 	@Override
 	public IRegion getHoverRegion(final ITextViewer textViewer, final int offset) {
-		if (fScanner == null) {
-			fScanner= RHeuristicTokenScanner.create(getEditor().getDocumentContentInfo());
+		if (this.scanner == null) {
+			this.scanner= RHeuristicTokenScanner.create(getEditor().getDocumentContentInfo());
 		}
 		try {
-			final IDocument document = getEditor().getViewer().getDocument();
-			fScanner.configure(document);
-			final IRegion word = fScanner.findRWord(offset, false, true);
+			final IDocument document= getEditor().getViewer().getDocument();
+			this.scanner.configure(document);
+			final IRegion word= this.scanner.findRWord(offset, false, true);
 			if (word != null) {
-				final ITypedRegion partition = fScanner.getPartition(word.getOffset());
+				final ITypedRegion partition= this.scanner.getPartition(word.getOffset());
 				if (IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT.matches(partition.getType())
 						|| partition.getType() == IRDocumentConstants.R_STRING_CONTENT_TYPE
 						|| partition.getType() == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE) {
 					return word;
 				}
 			}
-			final char c = document.getChar(offset);
+			final char c= document.getChar(offset);
 			if (c == '[') {
-				final ITypedRegion partition = fScanner.getPartition(offset);
+				final ITypedRegion partition= this.scanner.getPartition(offset);
 				if (IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT.matches(partition.getType())) {
 					return new Region(offset, 1);
 				}
@@ -70,10 +72,11 @@ public class REditorTextHover extends EditorTextInfoHoverProxy {
 	}
 	
 	@Override
-	protected AssistInvocationContext createContext(final IRegion region,
+	protected AssistInvocationContext createContext(final IRegion region, final String contentType,
 			final IProgressMonitor monitor) {
 		// we are not in UI thread
-		final RAssistInvocationContext context = new RAssistInvocationContext(getEditor(), region, monitor);
+		final RAssistInvocationContext context= new RAssistInvocationContext(
+				(IRSourceEditor) getEditor(), region, contentType, this.scanner, monitor );
 		if (context.getAstSelection() == null) {
 			return null;
 		}

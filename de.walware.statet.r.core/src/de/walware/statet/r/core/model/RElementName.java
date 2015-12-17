@@ -161,7 +161,7 @@ public abstract class RElementName implements IElementName {
 				}
 			case SCOPE_NS_INT:
 				if (elementName.getNextSegment() == null) {
-					return printScopeUI("namespace-internal:", elementName.getSegmentName(), options); //$NON-NLS-1$
+					return printScopeUI("namespace-env:", elementName.getSegmentName(), options); //$NON-NLS-1$
 				}
 				else {
 					printScopeFQ(elementName, sb, options, true);
@@ -580,16 +580,19 @@ public abstract class RElementName implements IElementName {
 	public static RElementName create(final List<RElementName> segments) {
 		if (segments.size() > 0) {
 			int first= 0;
-			RElementName scopeName= segments.get(first);
-			if (isScopeType(scopeName.getType())) {
-				first++;
-			}
-			else {
-				scopeName= null;
+			RElementName scopeName= null;
+			if (segments.size() > 1) {
+				scopeName= segments.get(0);
+				if (isScopeType(scopeName.getType())) {
+					first= 1;
+				}
+				else {
+					scopeName= null;
+				}
 			}
 			if (segments.size() > first) {
 				RElementName next= null;
-				for (int i= segments.size()-1; i > first; i--) {
+				for (int i= segments.size() - 1; i > first; i--) {
 					next= segments.get(i).cloneSegment0(next);
 				}
 				next= new DefaultImpl(segments.get(first).getType(), scopeName, segments.get(first).getSegmentName(), next);
@@ -597,6 +600,36 @@ public abstract class RElementName implements IElementName {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Creates a copy of segments of the specified element. The copy starts with the first element
+	 * of the element name and ends at the specified end segment (exclusive).
+	 * 
+	 * @param name the element name to copy
+	 * @param end the end segment (exlusive) or <code>null</code>, to copy the complete name
+	 * @param withScope to include the scope in the copy, if available
+	 * @return the copy of the element name
+	 */
+	public static RElementName create(RElementName name, final RElementName end,
+			final boolean withScope) {
+		if (name == null) {
+			return null;
+		}
+		RElementName scopeName= (withScope) ? name.getScope() : null;
+		if (scopeName != null) {
+			scopeName= new DefaultImpl(scopeName.getType(), scopeName.getSegmentName(), null);
+		}
+		final DefaultImpl main= new DefaultImpl(name.getType(), scopeName, name.getSegmentName(), null);
+		DefaultImpl last= main;
+		name= name.getNextSegment();
+		while (name != null && name != end) {
+			final DefaultImpl copy= name.cloneSegment0(null);
+			last.nextSegment= copy;
+			last= copy;
+			name= name.getNextSegment();
+		}
+		return main;
 	}
 	
 	
@@ -783,36 +816,6 @@ public abstract class RElementName implements IElementName {
 		DefaultImpl last= main;
 		name= name.getNextSegment();
 		while (name != null) {
-			final DefaultImpl copy= name.cloneSegment0(null);
-			last.nextSegment= copy;
-			last= copy;
-			name= name.getNextSegment();
-		}
-		return main;
-	}
-	
-	/**
-	 * Creates a copy of segments of the specified element. The copy starts with the first element
-	 * of the element name and ends at the specified end segment (exclusive).
-	 * 
-	 * @param name the element name to copy
-	 * @param end the end segment or <code>null</code>, to copy the complete name
-	 * @param withScope to include the scope in the copy, if available
-	 * @return the copy of the element name
-	 */
-	public static RElementName cloneSegments(RElementName name, final RElementName end,
-			final boolean withScope) {
-		if (name == null) {
-			return null;
-		}
-		RElementName scopeName= (withScope) ? name.getScope() : null;
-		if (scopeName != null) {
-			scopeName= new DefaultImpl(scopeName.getType(), scopeName.getSegmentName(), null);
-		}
-		final DefaultImpl main= new DefaultImpl(name.getType(), scopeName, name.getSegmentName(), null);
-		DefaultImpl last= main;
-		name= name.getNextSegment();
-		while (name != null && name != end) {
 			final DefaultImpl copy= name.cloneSegment0(null);
 			last.nextSegment= copy;
 			last= copy;

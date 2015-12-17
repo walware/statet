@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.debug.core;
 
+import static de.walware.statet.r.console.core.RWorkspace.RESOLVE_UPTODATE;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +30,7 @@ import org.eclipse.debug.core.model.IRegisterGroup;
 import org.eclipse.debug.core.model.IVariable;
 
 import de.walware.ecommons.ltk.core.model.IModelElement;
+import de.walware.ecommons.ts.ISystemReadRunnable;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
@@ -41,9 +44,9 @@ import de.walware.rj.server.dbg.CallStack;
 import de.walware.rj.server.dbg.Frame;
 import de.walware.rj.server.dbg.FrameContext;
 
-import de.walware.statet.r.console.core.LoadReferenceRunnable;
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
+import de.walware.statet.r.console.core.util.LoadReferenceRunnable;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.debug.core.IRDebugTarget;
@@ -67,7 +70,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 	}
 	
 	
-	private class LoadContextRunnable implements ISystemRunnable {
+	private class LoadContextRunnable implements ISystemReadRunnable {
 		
 		private boolean fCancel;
 		
@@ -539,7 +542,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 						final RReference ref = r.getWorkspaceData().createReference(fDbgFrame.getHandle(),
 								RElementName.create(RElementName.SCOPE_SYSFRAME, Integer.toString(fDbgFrame.getPosition())),
 								RObject.CLASSNAME_ENV);
-						element = r.getWorkspaceData().resolve(ref, monitor);
+						element = r.getWorkspaceData().resolve(ref, RESOLVE_UPTODATE, 0, monitor);
 					}
 					else if (fDbgFrame.getPosition() == 0) {
 						final List<? extends ICombinedREnvironment> environments = r.getWorkspaceData().getRSearchEnvironments();
@@ -610,7 +613,7 @@ public class RStackFrame extends RDebugElement implements IRStackFrame {
 			return null;
 		}
 		final RProcess process = getDebugTarget().getProcess();
-		final LoadReferenceRunnable runnable = new LoadReferenceRunnable(reference, process, stamp,
+		final LoadReferenceRunnable runnable= new LoadReferenceRunnable(reference, process, stamp,
 				"Debug Context" );
 		synchronized (runnable) {
 			if (process.getQueue().addHot(runnable).isOK()) {

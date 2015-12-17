@@ -16,6 +16,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.IDynamicVariable;
 import org.eclipse.core.variables.IDynamicVariableResolver;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -31,6 +33,7 @@ import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ltk.ui.IElementNameProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.util.LTKSelectionUtil;
+import de.walware.ecommons.text.core.util.TextUtils;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.core.model.IRElement;
@@ -97,12 +100,19 @@ public class RElementNameVariableResolver implements IDynamicVariableResolver {
 				}
 			}
 			
-			final ISourceEditor editor = (ISourceEditor) part.getAdapter(ISourceEditor.class);
+			final ISourceEditor editor= (ISourceEditor) part.getAdapter(ISourceEditor.class);
 			if (editor instanceof IRSourceEditor) {
-				final Point range = editor.getViewer().getSelectedRange();
-				final RAssistInvocationContext context = new RAssistInvocationContext(editor,
-						new Region(range.x, range.y), null);
-				return checkName(context.getNameSelection());
+				try {
+					final IRSourceEditor rEditor= (IRSourceEditor) editor;
+					final Point range = rEditor.getViewer().getSelectedRange();
+					final String contentType= TextUtils.getContentType(
+							rEditor.getViewer().getDocument(), rEditor.getDocumentContentInfo(),
+							range.x, (range.y == 0) );
+					final RAssistInvocationContext context= new RAssistInvocationContext(rEditor,
+							new Region(range.x, range.y), contentType, null, null);
+					return checkName(context.getNameSelection());
+				}
+				catch (final BadPartitioningException | BadLocationException e) {}
 			}
 		}
 		throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID,

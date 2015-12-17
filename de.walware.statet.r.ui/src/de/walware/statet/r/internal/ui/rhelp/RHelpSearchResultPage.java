@@ -305,7 +305,7 @@ public class RHelpSearchResultPage extends ExtTextSearchResultPage<IRPkgHelp, RH
 					true, true ));
 			column.setLabelProvider(new CellLabelProvider() {
 				@Override
-				public void update(ViewerCell cell) {
+				public void update(final ViewerCell cell) {
 					final Object element= cell.getElement();
 					String text= ""; //$NON-NLS-1$
 					

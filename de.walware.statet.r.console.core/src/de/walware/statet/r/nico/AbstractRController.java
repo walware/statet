@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
+import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
@@ -113,7 +114,7 @@ public abstract class AbstractRController extends ToolController
 	}
 	
 	@Override
-	protected IToolRunnable createCancelPostRunnable(final int options) {
+	protected ISystemRunnable createCancelPostRunnable(final int options) {
 		return new ControllerSystemRunnable(
 				"common/cancel/post", "Reset prompt") { //$NON-NLS-1$
 			

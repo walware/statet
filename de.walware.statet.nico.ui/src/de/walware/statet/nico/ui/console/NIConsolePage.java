@@ -30,7 +30,6 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.internal.ui.views.console.ConsoleRemoveAllTerminatedAction;
 import org.eclipse.debug.internal.ui.views.console.ConsoleRemoveLaunchAction;
 import org.eclipse.debug.ui.IDebugUIConstants;
-import org.eclipse.e4.core.contexts.EclipseContextFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.GroupMarker;
@@ -993,7 +992,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	 * @return
 	 */
 	public String getInput() {
-		return fInputGroup.fDocument.get();
+		return fInputGroup.getDocument().get();
 	}
 	
 	/**

@@ -10,8 +10,8 @@ Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: de.walware.statet.base.core;bundle-version="[3.6.0,3.7.0)",
  org.eclipse.team.core;resolution:=optional,
- de.walware.rj.data;bundle-version="[2.0.0,2.1.0)";visibility:=reexport,
- de.walware.rj.server;bundle-version="[2.0.0,2.1.0)",
+ de.walware.rj.data;bundle-version="[2.1.0,2.2.0)";visibility:=reexport,
+ de.walware.rj.server;bundle-version="[2.1.0,2.2.0)",
  de.walware.ecommons.text.core;visibility:=reexport,
  de.walware.ecommons.ltk.core,
  org.eclipse.ltk.core.refactoring,

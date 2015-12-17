@@ -33,6 +33,8 @@ import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.core.model.IWorkspaceSourceUnit;
+import de.walware.ecommons.ts.ISystemReadRunnable;
+import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
@@ -160,7 +162,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	
 	private boolean fTopLevelBrowserEnabled;
 	private int fTopLevelBrowserAction;
-	private final IToolRunnable fTopLevelBrowserRunnable = new ControllerSystemRunnable(
+	private final ISystemRunnable fTopLevelBrowserRunnable = new ControllerSystemRunnable(
 			"r/debug", "Debugging") { //$NON-NLS-1$
 		@Override
 		public void run(final IToolService service,
@@ -246,13 +248,20 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 		fIsDebugEnabled = true;
 		fBreakpointAdapter = breakpointAdapter;
 		
-		addSuspendUpdateRunnable(new ControllerSystemRunnable("r/callstack", "Load Callstack") { //$NON-NLS-1$
+		class LoadCallstackRunnable extends ControllerSystemRunnable implements ISystemReadRunnable {
+			
+			public LoadCallstackRunnable() {
+				super("r/callstack", "Load Callstack"); //$NON-NLS-1$
+			}
+			
 			@Override
 			public void run(final IToolService service,
 					final IProgressMonitor monitor) throws CoreException {
 				getCallStack(monitor);
 			}
-		});
+			
+		}
+		addSuspendUpdateRunnable(new LoadCallstackRunnable());
 		addToolStatusListener(new IToolStatusListener() {
 			@Override
 			public void controllerStatusRequested(final ToolStatus currentStatus, final ToolStatus requestedStatus,

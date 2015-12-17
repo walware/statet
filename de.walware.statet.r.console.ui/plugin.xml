@@ -404,13 +404,31 @@
       <computer
             id="de.walware.statet.r.contentAssistComputers.RCompletion"
             contentTypeId="de.walware.statet.r.contentTypes.RConsole"
-            categoryId="r-elements"
+            categoryId="R.Default"
             class="de.walware.statet.r.ui.sourceediting.RElementsCompletionComputer">
          <partition
                partitionType="R.Default">
          </partition>
          <partition
                partitionType="R.QuotedSymbol">
+         </partition>
+         <partition
+               partitionType="R.String">
+         </partition>
+      </computer>
+      <computer
+            id="de.walware.statet.r.contentAssistComputers.RCompletion"
+            contentTypeId="de.walware.statet.r.contentTypes.RConsole"
+            categoryId="R.Expl.PkgNames"
+            class="de.walware.statet.r.ui.sourceediting.RPkgCompletionComputer">
+         <partition
+               partitionType="R.Default">
+         </partition>
+         <partition
+               partitionType="R.QuotedSymbol">
+         </partition>
+         <partition
+               partitionType="R.String">
          </partition>
       </computer>
    </extension>

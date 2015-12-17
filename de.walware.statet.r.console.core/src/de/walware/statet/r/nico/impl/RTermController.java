@@ -42,6 +42,7 @@ import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IStreamMonitor;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ts.ISystemReadRunnable;
 import de.walware.ecommons.ts.IToolCommandHandler;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
@@ -155,7 +156,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 		}
 	}
 	
-	private class UpdateProcessIdTask extends ControllerSystemRunnable {
+	private class UpdateProcessIdTask extends ControllerSystemRunnable implements ISystemReadRunnable {
 		
 		
 		public UpdateProcessIdTask() {
@@ -204,7 +205,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 		fConfig = config;
 		fCharset = charset;
 		
-		fWorkspaceData = new RWorkspace(this, null, null) {
+		setWorksapceData(new RWorkspace(this, null, null) {
 			@Override
 			protected void refreshFromTool(final AbstractRController controller, final int options, final IProgressMonitor monitor) throws CoreException {
 				if ((options & RWorkspace.REFRESH_COMPLETE) != 0 || (options & RWorkspace.REFRESH_AUTO) == 0) {
@@ -220,7 +221,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 				fChanged = 0;
 				fChangedEnvirs.clear();
 			}
-		};
+		});
 		setWorkspaceDirL(EFS.getLocalFileSystem().fromLocalFile(config.directory()));
 		initRunnableAdapterL();
 	}
@@ -361,7 +362,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 			fProcessOutputThread.streamLock.lock();
 			streams.getInputStreamMonitor().append(fCurrentInput, submitType,
 					(fCurrentPrompt.meta & IConsoleService.META_HISTORY_DONTADD) );
-			streams.getInputStreamMonitor().append(fWorkspaceData.getLineSeparator(), submitType,
+			streams.getInputStreamMonitor().append(getWorkspaceData().getLineSeparator(), submitType,
 					IConsoleService.META_HISTORY_DONTADD);
 		}
 		finally {

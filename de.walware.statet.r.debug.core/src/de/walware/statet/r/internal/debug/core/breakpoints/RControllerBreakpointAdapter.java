@@ -49,9 +49,8 @@ import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.core.model.IModelElement;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.text.IMarkerPositionResolver;
-import de.walware.ecommons.ts.ISystemRunnable;
+import de.walware.ecommons.ts.ISystemReadRunnable;
 import de.walware.ecommons.ts.ITool;
-import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
 
 import de.walware.statet.nico.core.runtime.Queue;
@@ -199,7 +198,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 	private final Map<IResource, List<TracepointState>> fStateUpdatesMap = new HashMap<>();
 	private final Object fStateUpdatesLock = fStateUpdatesBreakpoints;
 	
-	private final IToolRunnable fUpdateRunnable = new ISystemRunnable() {
+	private final ISystemReadRunnable fUpdateRunnable = new ISystemReadRunnable() {
 		
 		private List<String> fKnownPackages = new ArrayList<>();
 		

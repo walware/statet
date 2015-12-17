@@ -36,7 +36,7 @@ import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
 import de.walware.ecommons.runtime.core.util.PathUtils;
-import de.walware.ecommons.ts.ISystemRunnable;
+import de.walware.ecommons.ts.ISystemReadRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
 import de.walware.ecommons.variables.core.DateVariable;
@@ -95,7 +95,7 @@ public class ToolWorkspace {
 		
 	}
 	
-	private class AutoUpdater implements ISystemRunnable {
+	private class AutoUpdater implements ISystemReadRunnable {
 		
 		
 		@Override

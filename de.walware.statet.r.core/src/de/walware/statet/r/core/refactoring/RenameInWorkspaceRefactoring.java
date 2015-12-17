@@ -202,7 +202,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 		this.initialAccess= RElementAccess.getMainElementAccessOfNameNode(this.initialSymbolNode);
 		final RElementAccess subAccess= RElementAccess.getElementAccessOfNameNode(this.initialSymbolNode);
 		final RElementName fullName= (this.initialAccess != null && subAccess != null) ?
-				RElementName.cloneSegments(this.initialAccess, subAccess.getNextSegment(), false) : null;
+				RElementName.create(this.initialAccess, subAccess.getNextSegment(), false) : null;
 		this.searchProcessor= new SearchProcessor(fullName, this.sourceUnit, this.initialAccess);
 		if (this.searchProcessor.getStatus().getSeverity() >= IStatus.ERROR) {
 			result.merge(RefactoringStatus.create(this.searchProcessor.getStatus()));

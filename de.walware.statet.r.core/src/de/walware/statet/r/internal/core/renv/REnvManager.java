@@ -45,6 +45,7 @@ import de.walware.ecommons.preferences.core.IPreferenceAccess;
 import de.walware.ecommons.preferences.core.IPreferenceSetService;
 import de.walware.ecommons.preferences.core.Preference;
 import de.walware.ecommons.preferences.core.Preference.IntPref;
+import de.walware.ecommons.preferences.core.Preference.LongPref;
 import de.walware.ecommons.preferences.core.Preference.StringPref;
 import de.walware.ecommons.preferences.core.util.PreferenceUtils;
 
@@ -71,7 +72,7 @@ public class REnvManager implements IREnvManager {
 	private static final IntPref PREF_VERSION= new IntPref(
 			IREnvManager.PREF_QUALIFIER, "version"); //$NON-NLS-1$
 	
-	private static final IntPref STAMP_PREF= new IntPref(
+	private static final LongPref STAMP_PREF= new LongPref(
 			IREnvManager.PREF_QUALIFIER, "stamp"); //$NON-NLS-1$
 	
 	

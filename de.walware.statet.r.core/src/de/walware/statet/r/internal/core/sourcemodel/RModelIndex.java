@@ -638,7 +638,7 @@ public class RModelIndex {
 		final RModelIndexUpdate indexUpdate= new RModelIndexUpdate(rProject, R_MODEL_TYPES,
 				(remove == null) );
 		for (final IRWorkspaceSourceUnit sourceUnit : update) {
-			final RSuModelContainer adapter= sourceUnit.getAdapter(RSuModelContainer.class);
+			final RSuModelContainer adapter= (RSuModelContainer) sourceUnit.getAdapter(RSuModelContainer.class);
 			if (adapter != null) {
 				try {
 					final IRModelInfo model= this.reconciler.build(adapter, progress);

@@ -24,7 +24,7 @@ import org.osgi.framework.Version;
 
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.core.Preference.StringPref2;
-import de.walware.ecommons.ts.ISystemRunnable;
+import de.walware.ecommons.ts.ISystemReadRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -48,7 +48,7 @@ import de.walware.statet.r.ui.pkgmanager.RPkgManagerUI;
 import de.walware.statet.r.ui.pkgmanager.StartAction;
 
 
-public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRunnable {
+public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemReadRunnable {
 	
 	
 	public static void connect(final RjsController controller, final IRPkgManager manager) {
@@ -137,7 +137,7 @@ public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRun
 	}
 	
 	private static String mainVersionString(final Version version) {
-		StringBuilder sb = new StringBuilder(8);
+		final StringBuilder sb = new StringBuilder(8);
 		sb.append(version.getMajor());
 		sb.append('.');
 		sb.append(version.getMinor());

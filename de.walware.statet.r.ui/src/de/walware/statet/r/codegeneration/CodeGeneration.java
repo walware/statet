@@ -269,7 +269,6 @@ public class CodeGeneration {
 				}
 				
 				if (paramPositions.length > 0) {
-					String list = null;
 					final ArgsDefinition args = rMethod.getArgsDefinition();
 					if (args != null) {
 						final int count = args.size();
@@ -285,15 +284,11 @@ public class CodeGeneration {
 				}
 			}
 			
-			if (sigPositions != null) {
-				for (final Position pos : sigPositions) {
-					insertRoxygen(content, pos, sigText);
-				}
+			for (final Position pos : sigPositions) {
+				insertRoxygen(content, pos, sigText);
 			}
-			if (paramPositions != null) {
-				for (final Position pos : paramPositions) {
-					insertRoxygen(content, pos, paramTags);
-				}
+			for (final Position pos : paramPositions) {
+				insertRoxygen(content, pos, paramTags);
 			}
 			
 			data.finishPostEdit();

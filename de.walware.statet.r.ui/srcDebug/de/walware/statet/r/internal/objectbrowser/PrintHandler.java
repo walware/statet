@@ -44,11 +44,11 @@ class PrintHandler extends AbstractHandler {
 	}
 	
 	
-	private boolean isValidSelection(ITreeSelection selection) {
+	private boolean isValidSelection(final ITreeSelection selection) {
 		if (selection == null || selection.size() != 1) {
 			return false;
 		}
-		Object element = selection.getFirstElement();
+		final Object element = selection.getFirstElement();
 		if (element instanceof IElementPartition) {
 			final ICombinedRElement rElement = ContentProvider.getCombinedRElement(element);
 			if (rElement == null || rElement.getRObjectType() != RObject.TYPE_LIST) {
@@ -79,7 +79,7 @@ class PrintHandler extends AbstractHandler {
 		if (elementName != null) {
 			String cmd = RElementName.createDisplayName(elementName, RElementName.DISPLAY_FQN | RElementName.DISPLAY_EXACT);
 			if (treePath.getLastSegment() instanceof IElementPartition) {
-				IElementPartition partition = (IElementPartition) treePath.getLastSegment();
+				final IElementPartition partition = (IElementPartition) treePath.getLastSegment();
 				cmd = cmd + '[' + (partition.getPartitionStart() + 1) + ':' + (partition.getPartitionStart() + partition.getPartitionLength()) + ']';
 			}
 			

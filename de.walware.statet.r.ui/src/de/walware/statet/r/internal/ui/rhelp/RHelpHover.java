@@ -131,7 +131,7 @@ public class RHelpHover implements IInfoHover {
 							final ISourceUnit su = context.getSourceUnit();
 							if (helpObject == null && su instanceof IRSourceUnit) {
 								helpObject = searchFrames(topics,
-										RModel.createProjectFrameList(null, (IRSourceUnit) su, null, null) );
+										RModel.createProjectFrameList(null, (IRSourceUnit) su) );
 							}
 						}
 					}

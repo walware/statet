@@ -148,13 +148,13 @@
          </partition>
       </computer>
       <category
-            id="r-elements"
+            id="R.Default"
             name="%contentAssist_RCategory_name">
       </category>
       <computer
             id="de.walware.statet.r.contentAssistComputers.RCompletion"
             contentTypeId="de.walware.statet.r.contentTypes.R"
-            categoryId="r-elements"
+            categoryId="R.Default"
             class="de.walware.statet.r.ui.sourceediting.RElementsCompletionComputer">
          <partition
                partitionType="R.Default">
@@ -162,15 +162,37 @@
          <partition
                partitionType="R.QuotedSymbol">
          </partition>
+         <partition
+               partitionType="R.String">
+         </partition>
       </computer>
       <category
-            id="r-elements.runtime"
+            id="R.Expl.PkgNames"
+            name="%contentAssist_RPkgNameCategory_name">
+      </category>
+      <computer
+            id="de.walware.statet.r.contentAssistComputers.RPkgCompletion"
+            contentTypeId="de.walware.statet.r.contentTypes.R"
+            categoryId="R.Expl.PkgNames"
+            class="de.walware.statet.r.ui.sourceediting.RPkgCompletionComputer">
+         <partition
+               partitionType="R.Default">
+         </partition>
+         <partition
+               partitionType="R.QuotedSymbol">
+         </partition>
+         <partition
+               partitionType="R.String">
+         </partition>
+      </computer>
+      <category
+            id="R.Expl.RuntimeElements"
             name="%contentAssist_RRuntimeCategory_name">
       </category>
       <computer
             id="de.walware.statet.r.contentAssistComputers.RCompletionFromRuntime"
             contentTypeId="de.walware.statet.r.contentTypes.R"
-            categoryId="r-elements.runtime"
+            categoryId="R.Expl.RuntimeElements"
             class="de.walware.statet.r.ui.sourceediting.RElementsCompletionComputer$CompleteRuntime">
          <partition
                partitionType="R.Default">
@@ -182,7 +204,7 @@
       <computer
             id="de.walware.statet.r.contentAssistComputers.RoxygenCompletion"
             contentTypeId="de.walware.statet.r.contentTypes.R"
-            categoryId="r-elements"
+            categoryId="R.Default"
             class="de.walware.statet.r.internal.ui.editors.RoxygenCompletionComputer">
          <partition
                partitionType="R.Roxygen">

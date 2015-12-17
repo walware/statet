@@ -25,7 +25,6 @@ import de.walware.ecommons.ltk.LTKUtil;
 import de.walware.ecommons.ltk.core.model.ISourceStructElement;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistProposalCollector;
-import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistCompletionProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IQuickAssistComputer;
 
 import de.walware.statet.r.core.model.IRCompositeSourceElement;
@@ -49,8 +48,7 @@ public class RQuickRefactoringComputer implements IQuickAssistComputer {
 	
 	@Override
 	public IStatus computeAssistProposals(final AssistInvocationContext context,
-			final AssistProposalCollector<IAssistCompletionProposal> proposals,
-			final IProgressMonitor monitor) {
+			final AssistProposalCollector proposals, final IProgressMonitor monitor) {
 		if (!(context.getAstSelection().getCovering() instanceof RAstNode)) {
 			return Status.OK_STATUS;
 		}
@@ -86,7 +84,7 @@ public class RQuickRefactoringComputer implements IQuickAssistComputer {
 	
 	protected void addAccessAssistProposals(final AssistInvocationContext context,
 			final RElementAccess access,
-			final AssistProposalCollector<IAssistCompletionProposal> proposals) {
+			final AssistProposalCollector proposals) {
 		final ImIdentityList<? extends RElementAccess> allAccess= ImCollections.toIdentityList(
 				access.getAllInUnit(false) );
 		

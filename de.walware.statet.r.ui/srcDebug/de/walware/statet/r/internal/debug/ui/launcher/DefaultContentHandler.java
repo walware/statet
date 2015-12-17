@@ -34,7 +34,7 @@ public class DefaultContentHandler implements ICodeSubmitContentHandler {
 	
 	
 	@Override
-	public void setup(IDocument document) {
+	public void setup(final IDocument document) {
 	}
 	
 	@Override

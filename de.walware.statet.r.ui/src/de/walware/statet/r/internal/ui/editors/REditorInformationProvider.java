@@ -22,38 +22,38 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 
 import de.walware.ecommons.ltk.ui.sourceediting.EditorInformationProvider;
-import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IInfoHover;
 
 import de.walware.statet.r.core.source.IRDocumentConstants;
 import de.walware.statet.r.core.source.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.ui.rhelp.RHelpHover;
+import de.walware.statet.r.ui.editors.IRSourceEditor;
 import de.walware.statet.r.ui.sourceediting.RAssistInvocationContext;
 
 
 public class REditorInformationProvider extends EditorInformationProvider {
 	
 	
-	private RHeuristicTokenScanner fScanner;
+	private RHeuristicTokenScanner scanner;
 	
 	
-	public REditorInformationProvider(final ISourceEditor editor) {
+	public REditorInformationProvider(final IRSourceEditor editor) {
 		super(editor, new IInfoHover[] { new RHelpHover(MODE_TOOLTIP | MODE_FOCUS) });
 	}
 	
 	
 	@Override
 	public IRegion getSubject(final ITextViewer textViewer, final int offset) {
-		if (fScanner == null) {
-			fScanner= RHeuristicTokenScanner.create(getEditor().getDocumentContentInfo());
+		if (this.scanner == null) {
+			this.scanner= RHeuristicTokenScanner.create(getEditor().getDocumentContentInfo());
 		}
 		try {
-			final IDocument document = getEditor().getViewer().getDocument();
-			fScanner.configure(document);
-			final IRegion word = fScanner.findRWord(offset, false, true);
+			final IDocument document= getEditor().getViewer().getDocument();
+			this.scanner.configure(document);
+			final IRegion word= this.scanner.findRWord(offset, false, true);
 			if (word != null) {
-				final ITypedRegion partition = fScanner.getPartition(word.getOffset());
+				final ITypedRegion partition= this.scanner.getPartition(word.getOffset());
 				if (IRDocumentConstants.R_DEFAULT_CONTENT_CONSTRAINT.matches(partition.getType())
 						|| partition.getType() == IRDocumentConstants.R_STRING_CONTENT_TYPE
 						|| partition.getType() == IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE) {
@@ -68,8 +68,9 @@ public class REditorInformationProvider extends EditorInformationProvider {
 	
 	@Override
 	protected AssistInvocationContext createContext(final IRegion region,
-			final IProgressMonitor monitor) {
-		final RAssistInvocationContext context = new RAssistInvocationContext(getEditor(), region, monitor);
+			final String contentType, final IProgressMonitor monitor) {
+		final RAssistInvocationContext context= new RAssistInvocationContext(
+				(IRSourceEditor) getEditor(), region, contentType, this.scanner, monitor );
 		if (context.getAstSelection() == null) {
 			return null;
 		}

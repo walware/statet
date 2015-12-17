@@ -15,11 +15,13 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.link.LinkedModeModel;
 import org.eclipse.jface.text.link.LinkedPosition;
 
 import de.walware.jcommons.collections.ImCollections;
 
 import de.walware.ecommons.text.TextUtil;
+import de.walware.ecommons.text.core.sections.IDocContentSections;
 import de.walware.ecommons.text.ui.BracketLevel;
 
 
@@ -223,15 +225,19 @@ public final class RBracketLevel extends BracketLevel {
 	}
 	
 	
-	public RBracketLevel(final IDocument document, final String partitioning, final InBracketPosition position,
+	public RBracketLevel(final LinkedModeModel model,
+			final IDocument document, final IDocContentSections documentContentInfo,
+			final InBracketPosition position,
 			final boolean consoleMode, final boolean autoDelete) {
-		this(document, partitioning, ImCollections.<LinkedPosition>newList(position),
+		this(model, document, documentContentInfo,
+				ImCollections.<LinkedPosition>newList(position),
 				((consoleMode) ? CONSOLE_MODE : 0) | ((autoDelete) ? AUTODELETE : 0));
 	}
 	
-	public RBracketLevel(final IDocument document, final String partitioning, final List<LinkedPosition> positions,
-			final int mode) {
-		super(document, partitioning, positions, mode);
+	public RBracketLevel(final LinkedModeModel model,
+			final IDocument document, final IDocContentSections documentContentInfo,
+			final List<LinkedPosition> positions, final int mode) {
+		super(model, document, documentContentInfo, positions, mode);
 	}
 	
 }

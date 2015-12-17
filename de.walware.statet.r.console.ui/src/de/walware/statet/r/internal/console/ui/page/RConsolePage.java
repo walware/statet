@@ -39,7 +39,6 @@ import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.ui.NicoUI;
-import de.walware.statet.nico.ui.console.ConsolePageEditor;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 
@@ -54,6 +53,7 @@ import de.walware.statet.r.core.pkgmanager.RPkgUtil;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.internal.console.ui.Messages;
 import de.walware.statet.r.ui.RUIHelp;
+import de.walware.statet.r.ui.editors.IRSourceEditor;
 import de.walware.statet.r.ui.pkgmanager.OpenRPkgManagerHandler;
 import de.walware.statet.r.ui.pkgmanager.StartAction;
 import de.walware.statet.r.ui.rhelp.OpenRHelpHandler;
@@ -82,11 +82,11 @@ public class RConsolePage extends NIConsolePage {
 	
 	@Override
 	protected RInputConfigurator createInputEditorConfigurator() {
-		return new RInputConfigurator(this, getInputGroup());
+		return new RInputConfigurator(this, (IRSourceEditor) getInputGroup());
 	}
 	
 	@Override
-	protected ConsolePageEditor createInputGroup() {
+	protected RConsoleEditor createInputGroup() {
 		return new RConsoleEditor(this);
 	}
 	

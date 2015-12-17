@@ -36,7 +36,81 @@ public abstract class ElementAccess extends RElementAccess {
 	public static final int A_ARG =                         0x000020;
 	
 	
-	public final static class Default extends ElementAccess {
+	public static abstract class Scope extends ElementAccess {
+		
+		public Scope(final RAstNode fullNode, final RAstNode nameNode) {
+			super(fullNode, nameNode);
+		}
+		
+	}
+	
+	public final static class Package extends Scope {
+		
+		public Package(final RAstNode fullNode, final RAstNode nameNode) {
+			super(fullNode, nameNode);
+		}
+		
+		@Override
+		public int getType() {
+			return RElementName.SCOPE_PACKAGE;
+		}
+		
+	}
+	
+	public final static class Namespace extends Scope {
+		
+		public Namespace(final RAstNode fullNode, final RAstNode nameNode) {
+			super(fullNode, nameNode);
+		}
+		
+		@Override
+		public int getType() {
+			return RElementName.SCOPE_NS;
+		}
+		
+	}
+	
+	public final static class NamespaceInternal extends Scope {
+		
+		public NamespaceInternal(final RAstNode fullNode, final RAstNode nameNode) {
+			super(fullNode, nameNode);
+		}
+		
+		@Override
+		public int getType() {
+			return RElementName.SCOPE_NS_INT;
+		}
+		
+	}
+	
+	
+	public static abstract class Main extends ElementAccess {
+		
+		private RElementAccess expliciteScope;
+		
+		public Main(final RAstNode fullNode, final RAstNode nameNode) {
+			super(fullNode, nameNode);
+		}
+		
+		void setScope(final ElementAccess packageAccess) {
+			this.expliciteScope= packageAccess;
+		}
+		
+		@Override
+		public RElementName getScope() {
+			if (this.expliciteScope != null) {
+				return this.expliciteScope;
+			}
+			if (fShared.frame != null
+					&& (fShared.frame.getFrameType() == IRFrame.PACKAGE || fShared.isCreated >= BuildSourceFrame.CREATED_RESOLVED) ) {
+				return fShared.frame.getElementName();
+			}
+			return null;
+		}
+		
+	}
+	
+	public final static class Default extends Main {
 		
 		public Default(final RAstNode fullNode) {
 			super(fullNode, null);
@@ -70,7 +144,7 @@ public abstract class ElementAccess extends RElementAccess {
 		
 	}
 	
-	public final static class Class extends ElementAccess {
+	public final static class Class extends Main {
 		
 		public Class(final RAstNode fullNode) {
 			super(fullNode, null);
@@ -79,45 +153,6 @@ public abstract class ElementAccess extends RElementAccess {
 		@Override
 		public int getType() {
 			return RElementName.MAIN_CLASS;
-		}
-		
-	}
-	
-	public final static class Package extends ElementAccess {
-		
-		public Package(final RAstNode fullNode, final RAstNode nameNode) {
-			super(fullNode, nameNode);
-		}
-		
-		@Override
-		public int getType() {
-			return RElementName.SCOPE_PACKAGE;
-		}
-		
-	}
-	
-	public final static class Namespace extends ElementAccess {
-		
-		public Namespace(final RAstNode fullNode, final RAstNode nameNode) {
-			super(fullNode, nameNode);
-		}
-		
-		@Override
-		public int getType() {
-			return RElementName.SCOPE_NS;
-		}
-		
-	}
-	
-	public final static class NamespaceInternal extends ElementAccess {
-		
-		public NamespaceInternal(final RAstNode fullNode, final RAstNode nameNode) {
-			super(fullNode, nameNode);
-		}
-		
-		@Override
-		public int getType() {
-			return RElementName.SCOPE_NS_INT;
 		}
 		
 	}
@@ -154,9 +189,7 @@ public abstract class ElementAccess extends RElementAccess {
 	
 	@Override
 	public RElementName getScope() {
-		return (fShared.frame != null
-				&& (fShared.frame.getFrameType() == IRFrame.PACKAGE || fShared.isCreated >= BuildSourceFrame.CREATED_RESOLVED) ) ?
-						fShared.frame.getElementName() : null;
+		return null;
 	}
 	
 	@Override

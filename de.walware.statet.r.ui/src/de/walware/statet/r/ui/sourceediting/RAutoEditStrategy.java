@@ -38,6 +38,7 @@ import org.eclipse.jface.text.link.LinkedModeModel;
 import org.eclipse.jface.text.link.LinkedModeUI;
 import org.eclipse.jface.text.link.LinkedPosition;
 import org.eclipse.jface.text.link.LinkedPositionGroup;
+import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
@@ -205,6 +206,10 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		return this.document;
 	}
 	
+	protected final IDocContentSections getDocumentContentInfo() {
+		return this.documentContentInfo;
+	}
+	
 	private final void quitCustomization() {
 		this.document= null;
 		this.rCodeStyle= null;
@@ -343,6 +348,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			command.caretOffset= -1;
 			int linkedMode= -1;
 			int linkedModeOffset= -1;
+			boolean contextInfo= false;
 			final int cEnd= command.offset + command.length;
 			
 			KEY: switch (c) {
@@ -403,6 +409,9 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 						else if (isCharAt(cEnd, ')')) {
 							linkedMode= 2;
 						}
+					}
+					if (isValueChar(command.offset - 1)) {
+						contextInfo= true;
 					}
 					break KEY;
 				}
@@ -504,6 +513,11 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 				}
 				finally {
 					this.viewer.getTextWidget().setRedraw(true);
+				}
+				
+				if (contextInfo
+						&& this.viewer.canDoOperation(ISourceViewer.CONTENTASSIST_CONTEXT_INFORMATION)) {
+					viewer.doOperation(ISourceViewer.CONTENTASSIST_CONTEXT_INFORMATION);
 				}
 			}
 			return true;
@@ -855,8 +869,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		
 		model.forceInstall();
 		
-		final RBracketLevel level= new RBracketLevel(this.document,
-				this.scanner.getDocumentPartitioning(),
+		final RBracketLevel level= new RBracketLevel(model,
+				getDocument(), getDocumentContentInfo(),
 				ImCollections.<LinkedPosition>newList(position), (mode & 0xffff0000) |
 						((this.viewer instanceof InputSourceViewer) ? RBracketLevel.CONSOLE_MODE : 0) );
 		

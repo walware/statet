@@ -22,11 +22,8 @@ import de.walware.statet.r.ui.RUI;
 public class RKeywordCompletionProposal extends SimpleCompletionProposal {
 	
 	
-	/**
-	 * @param keyworkd
-	 * @param replacementOffset
-	 */
-	public RKeywordCompletionProposal(final AssistInvocationContext context, final String keyword, final int replacementOffset) {
+	public RKeywordCompletionProposal(final AssistInvocationContext context, final String keyword,
+			final int replacementOffset) {
 		super(context, keyword, replacementOffset);
 	}
 	
@@ -36,18 +33,6 @@ public class RKeywordCompletionProposal extends SimpleCompletionProposal {
 		return RUI.PLUGIN_ID;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 * {@value 80}
-	 */
-	@Override
-	public int getRelevance() {
-		return 80;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Image getImage() {
 		return null;

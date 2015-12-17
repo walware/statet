@@ -27,26 +27,32 @@ public class RArgumentListContextInformation implements IAssistInformationPropos
 		IContextInformationExtension {
 	
 	
-	private final int fOffset;
-	private final ArgsDefinition fArgs;
+	private final int offset;
 	
-	private final String fInformation;
-	private final int[] fInformationIndexes;
+	private final ArgsDefinition args;
+	
+	private final String information;
+	private final int[] informationIndexes;
 	
 	
 	public RArgumentListContextInformation(final int offset, final IRMethod method) {
-		fOffset = offset;
-		fArgs = method.getArgsDefinition();
-		final StringBuilder sb = new StringBuilder();
-		final IntList idxs = new ArrayIntList();
-		new RLabelProvider().appendArgumentInformation(sb, idxs, fArgs);
-		fInformation = sb.toString();
-		fInformationIndexes = idxs.toArray();
+		this.offset= offset;
+		this.args= method.getArgsDefinition();
+		final StringBuilder sb= new StringBuilder();
+		final IntList idxs= new ArrayIntList();
+		new RLabelProvider().appendArgumentInformation(sb, idxs, this.args);
+		this.information= sb.toString();
+		this.informationIndexes= idxs.toArray();
 	}
 	
 	
 	public ArgsDefinition getArguments() {
-		return fArgs;
+		return this.args;
+	}
+	
+	@Override
+	public Image getImage() {
+		return null;
 	}
 	
 	@Override
@@ -56,21 +62,16 @@ public class RArgumentListContextInformation implements IAssistInformationPropos
 	
 	@Override
 	public int getContextInformationPosition() {
-		return Math.max(fOffset, 0);
-	}
-	
-	@Override
-	public Image getImage() {
-		return null;
+		return Math.max(this.offset, 0);
 	}
 	
 	@Override
 	public String getInformationDisplayString() {
-		return fInformation;
+		return this.information;
 	}
 	
 	public int[] getInformationDisplayStringArgumentIdxs() {
-		return fInformationIndexes;
+		return this.informationIndexes;
 	}
 	
 	@Override

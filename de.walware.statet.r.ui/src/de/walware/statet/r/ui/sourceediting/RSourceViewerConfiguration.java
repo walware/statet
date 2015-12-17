@@ -32,7 +32,6 @@ import org.eclipse.ui.texteditor.spelling.SpellingService;
 import de.walware.ecommons.ltk.ui.LTKUIPreferences;
 import de.walware.ecommons.ltk.ui.sourceediting.EcoReconciler2;
 import de.walware.ecommons.ltk.ui.sourceediting.EditorInformationProvider;
-import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewer;
@@ -67,6 +66,7 @@ import de.walware.statet.r.internal.ui.editors.REditor;
 import de.walware.statet.r.internal.ui.editors.REditorInformationProvider;
 import de.walware.statet.r.internal.ui.editors.REditorTextHover;
 import de.walware.statet.r.internal.ui.editors.RQuickOutlineInformationProvider;
+import de.walware.statet.r.ui.editors.IRSourceEditor;
 import de.walware.statet.r.ui.editors.REditorOptions;
 import de.walware.statet.r.ui.text.r.IRTextTokens;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
@@ -97,7 +97,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	}
 	
 	public RSourceViewerConfiguration(final IDocContentSections documentContentInfo,
-			final ISourceEditor sourceEditor,
+			final IRSourceEditor sourceEditor,
 			final IRCoreAccess access,
 			final IPreferenceStore preferenceStore, final TextStyleManager textStyles) {
 		super(documentContentInfo, sourceEditor);
@@ -110,6 +110,12 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	
 	protected void setCoreAccess(final IRCoreAccess access) {
 		fRCoreAccess = (access != null) ? access : RCore.getWorkbenchAccess();
+	}
+	
+	
+	@Override
+	protected IRSourceEditor getSourceEditor() {
+		return (IRSourceEditor) super.getSourceEditor();
 	}
 	
 	
@@ -226,7 +232,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	
 	@Override
 	public IReconciler getReconciler(final ISourceViewer sourceViewer) {
-		final ISourceEditor editor = getSourceEditor();
+		final IRSourceEditor editor= getSourceEditor();
 		if (!(editor instanceof SourceEditor1 || editor instanceof ConsolePageEditor)) {
 			return null;
 		}
@@ -260,33 +266,39 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	@Override
 	public void initContentAssist(final ContentAssist assistant) {
 		final ContentAssistComputerRegistry registry = RUIPlugin.getDefault().getREditorContentAssistRegistry();
+		final IRSourceEditor editor= getSourceEditor();
 		
 		final ContentAssistProcessor codeProcessor = new RContentAssistProcessor(assistant,
-				IRDocumentConstants.R_DEFAULT_CONTENT_TYPE, registry, getSourceEditor());
+				IRDocumentConstants.R_DEFAULT_CONTENT_TYPE, registry, editor);
 		codeProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '$' });
+		codeProcessor.setContextInformationAutoActivationCharacters(new char[] { ',' });
 		assistant.setContentAssistProcessor(codeProcessor, IRDocumentConstants.R_DEFAULT_CONTENT_TYPE);
 		
 		final ContentAssistProcessor symbolProcessor = new RContentAssistProcessor(assistant,
-				IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE, registry, getSourceEditor());
+				IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE, registry, editor);
 		assistant.setContentAssistProcessor(symbolProcessor, IRDocumentConstants.R_QUOTED_SYMBOL_CONTENT_TYPE);
 		
 		final ContentAssistProcessor stringProcessor = new RContentAssistProcessor(assistant,
-				IRDocumentConstants.R_STRING_CONTENT_TYPE, registry, getSourceEditor());
+				IRDocumentConstants.R_STRING_CONTENT_TYPE, registry, editor);
 		assistant.setContentAssistProcessor(stringProcessor, IRDocumentConstants.R_STRING_CONTENT_TYPE);
 		
 		final ContentAssistProcessor commentProcessor = new RContentAssistProcessor(assistant,
-				IRDocumentConstants.R_COMMENT_CONTENT_TYPE, registry, getSourceEditor());
+				IRDocumentConstants.R_COMMENT_CONTENT_TYPE, registry, editor);
 		assistant.setContentAssistProcessor(commentProcessor, IRDocumentConstants.R_COMMENT_CONTENT_TYPE);
 		
 		final ContentAssistProcessor roxygenProcessor = new RContentAssistProcessor(assistant,
-				IRDocumentConstants.R_ROXYGEN_CONTENT_TYPE, registry, getSourceEditor());
+				IRDocumentConstants.R_ROXYGEN_CONTENT_TYPE, registry, editor);
 		roxygenProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '@', '\\' });
 		assistant.setContentAssistProcessor(roxygenProcessor, IRDocumentConstants.R_ROXYGEN_CONTENT_TYPE);
 	}
 	
 	@Override
 	protected QuickAssistProcessor createQuickAssistProcessor() {
-		return new RQuickAssistProcessor(getSourceEditor());
+		final IRSourceEditor editor= getSourceEditor();
+		if (editor != null) {
+			return new RQuickAssistProcessor(editor);
+		}
+		return null;
 	}
 	
 	@Override
@@ -301,12 +313,16 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	
 	@Override
 	protected ITextHover createInfoHover(final InfoHoverDescriptor descriptor) {
-		return new REditorTextHover(descriptor, this);
+		final IRSourceEditor editor= getSourceEditor();
+		if (editor != null) {
+			return new REditorTextHover(editor, descriptor, this);
+		}
+		return null;
 	}
 	
 	@Override
 	protected EditorInformationProvider getInformationProvider() {
-		final ISourceEditor editor = getSourceEditor();
+		final IRSourceEditor editor= getSourceEditor();
 		if (editor != null) {
 			return new REditorInformationProvider(editor);
 		}
@@ -324,7 +340,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	@Override
 	protected IInformationProvider getQuickInformationProvider(final ISourceViewer sourceViewer,
 			final int operation) {
-		final ISourceEditor editor = getSourceEditor();
+		final IRSourceEditor editor= getSourceEditor();
 		if (editor == null) {
 			return null;
 		}

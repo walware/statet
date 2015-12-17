@@ -28,6 +28,7 @@ import de.walware.jcommons.collections.ImCollections;
 import de.walware.jcommons.collections.ImList;
 
 import de.walware.ecommons.ts.IQueue;
+import de.walware.ecommons.ts.ISystemReadRunnable;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.IToolRunnable;
 
@@ -152,9 +153,6 @@ public final class Queue implements IQueue {
 	private final List<DebugEvent> eventList= new ArrayList<>(5);
 	
 	private final ToolProcess process;
-	
-	int counter= 1;
-	int counterNext= this.counter + 1;
 	
 	private boolean resetOnIdle= false;
 	private final List<RankedItem> onIdleList= new ArrayList<>();
@@ -378,7 +376,7 @@ public final class Queue implements IQueue {
 		}
 	}
 	
-	public IStatus addOnIdle(final IToolRunnable runnable, final int rank) {
+	public IStatus addOnIdle(final ISystemReadRunnable runnable, final int rank) {
 		if (runnable == null) {
 			throw new NullPointerException("runnable"); //$NON-NLS-1$
 		}
@@ -584,6 +582,7 @@ public final class Queue implements IQueue {
 		this.nextIdleList.remove(runnable);
 	}
 	
+	
 	int internalNext() {
 		if (!this.hotList.isEmpty()) {
 			return RUN_HOT;
@@ -609,10 +608,6 @@ public final class Queue implements IQueue {
 		return !this.hotList.isEmpty();
 	}
 	
-	IToolRunnable internalPollHot() {
-		return this.hotList.poll();
-	}
-	
 	void internalCheck() {
 		checkIOCache();
 		fireEvents();
@@ -630,6 +625,7 @@ public final class Queue implements IQueue {
 		}
 	}
 	
+	
 	IToolRunnable internalPoll() {
 		final ImList<IToolRunnable> finalRunnable;
 		if (this.singleIOCache != null) {
@@ -646,7 +642,6 @@ public final class Queue implements IQueue {
 			if (this.resetOnIdle) {
 				internalResetIdle();
 			}
-			this.counter= this.counterNext++;
 		}
 		else if (!this.list.isEmpty() && this.insertIndex != 0) {
 			finalRunnable= ImCollections.newList(this.list.poll());
@@ -656,7 +651,6 @@ public final class Queue implements IQueue {
 			if (this.resetOnIdle) {
 				internalResetIdle();
 			}
-			this.counter= this.counterNext++;
 		}
 		else {
 			finalRunnable= ImCollections.newList(this.nextIdleList.poll());
@@ -667,6 +661,10 @@ public final class Queue implements IQueue {
 		fireEvents();
 		this.finishedExpected.push(finalRunnable);
 		return finalRunnable.get(0);
+	}
+	
+	IToolRunnable internalPollHot() {
+		return this.hotList.poll();
 	}
 	
 	/**

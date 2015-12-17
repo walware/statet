@@ -197,7 +197,7 @@ public class ToolProcess extends AbstractProcess implements IProcess, ITool, ITo
 	
 	public void init(final ToolController controller) {
 		fController = controller;
-		fWorkspaceData = fController.fWorkspaceData;
+		fWorkspaceData = fController.getWorkspaceData();
 		fWorkspaceData.addPropertyListener(new Listener() {
 			@Override
 			public void propertyChanged(final ToolWorkspace workspace, final Map<String, Object> properties) {

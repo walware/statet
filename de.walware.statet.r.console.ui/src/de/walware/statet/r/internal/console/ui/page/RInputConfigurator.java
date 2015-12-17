@@ -11,7 +11,6 @@
 
 package de.walware.statet.r.internal.console.ui.page;
 
-import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistComputerRegistry;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssistProcessor;
@@ -22,6 +21,7 @@ import de.walware.statet.r.console.ui.RConsole;
 import de.walware.statet.r.core.source.IRDocumentConstants;
 import de.walware.statet.r.core.source.RDocumentContentInfo;
 import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.ui.editors.IRSourceEditor;
 import de.walware.statet.r.ui.sourceediting.RContentAssistProcessor;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
@@ -32,7 +32,7 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 	
 	private static class ThisConfiguration extends RSourceViewerConfiguration {
 		
-		public ThisConfiguration(final ISourceEditor sourceEditor) {
+		public ThisConfiguration(final IRSourceEditor sourceEditor) {
 			super(RDocumentContentInfo.INSTANCE, sourceEditor, null, null, null);
 		}
 		
@@ -43,6 +43,7 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 			final ContentAssistProcessor codeProcessor = new RContentAssistProcessor(assistant,
 					IRDocumentConstants.R_DEFAULT_CONTENT_TYPE, registry, getSourceEditor());
 			codeProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '$', '@' });
+			codeProcessor.setContextInformationAutoActivationCharacters(new char[] { '(', ',' });
 			assistant.setContentAssistProcessor(codeProcessor, IRDocumentConstants.R_DEFAULT_CONTENT_TYPE);
 			
 			final ContentAssistProcessor symbolProcessor = new RContentAssistProcessor(assistant,
@@ -57,12 +58,12 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 	}
 	
 	
-	private final NIConsolePage fPage;
+	private final NIConsolePage page;
 	
 	
-	public RInputConfigurator(final NIConsolePage page, final ISourceEditor inputEditor) {
+	public RInputConfigurator(final NIConsolePage page, final IRSourceEditor inputEditor) {
 		super((RConsole) page.getConsole(), new ThisConfiguration(inputEditor));
-		fPage = page;
+		this.page = page;
 	}
 	
 }

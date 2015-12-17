@@ -96,7 +96,7 @@ public final class RReferenceVar extends CombinedElement
 	@Override
 	public RObject getResolvedRObject() {
 		if (fResolver != null) {
-			return fResolver.resolve(this, false);
+			return fResolver.resolve(this, 0);
 		}
 		return null;
 	}

@@ -36,6 +36,7 @@ public class RUI {
 	public static final String IMG_OBJ_R_PACKAGE = RUI.PLUGIN_ID + "/image/obj/r_package"; //$NON-NLS-1$
 	public static final String IMG_OBJ_R_PACKAGE_NA = RUI.PLUGIN_ID + "/image/obj/r_package-notavail"; //$NON-NLS-1$
 	public static final String IMG_OBJ_R_HELP_PAGE = RUI.PLUGIN_ID + "/image/obj/r_help/page"; //$NON-NLS-1$
+	public static final String IMG_OBJ_R_HELP_TOPIC = RUI.PLUGIN_ID + "/image/obj/r_help/topic"; //$NON-NLS-1$
 	public static final String IMG_OBJ_R_HELP_SEARCH = RUI.PLUGIN_ID + "/image/obj/r_help/search"; //$NON-NLS-1$
 	
 	public static final String IMG_OBJ_METHOD = RUI.PLUGIN_ID + "/image/obj/method"; //$NON-NLS-1$

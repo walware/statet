@@ -112,7 +112,7 @@ public class RElementSearchHandler extends AbstractHandler implements IExecutabl
 						final RElementAccess mainAccess= RElementAccess.getMainElementAccessOfNameNode(node);
 						final RElementAccess subAccess= RElementAccess.getElementAccessOfNameNode(node);
 						if (mainAccess != null && subAccess != null) {
-							final RElementName name= RElementName.cloneSegments(mainAccess, subAccess.getNextSegment(), false);
+							final RElementName name= RElementName.create(mainAccess, subAccess.getNextSegment(), false);
 							status= startSearch(name, (IRSourceUnit) su, mainAccess, mode);
 						}
 					}

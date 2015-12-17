@@ -670,7 +670,7 @@ public class RLabelProvider extends StyledCellLabelProvider
 			text.append("<unknown>", this.defaultStyler);
 		}
 		else if (args.size() > 0) {
-			final int last= args.size() - 2;
+			final int last= args.size() - 1;
 			if (showTypes) {
 				for (int i= 0; i < last; i++) {
 					appendArgWithType(text, args.get(i));

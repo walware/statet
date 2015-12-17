@@ -84,9 +84,21 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		PreferencesUtil.setPrefValue(scope, REditorOptions.PREF_SPELLCHECKING_ENABLED, Boolean.FALSE);
 		DefaultRFoldingPreferences.initializeDefaultValues(scope);
 		
-		scope.getNode(REDITOR_NODE).put(ContentAssistComputerRegistry.CIRCLING_ORDERED, "r-elements:false,templates:true,r-elements.runtime:true"); //$NON-NLS-1$
-		scope.getNode(REDITOR_NODE).put(ContentAssistComputerRegistry.DEFAULT_DISABLED, "r-elements.runtime"); //$NON-NLS-1$
-		scope.getNode(RCONSOLE_NODE).put(ContentAssistComputerRegistry.CIRCLING_ORDERED, "r-elements:false,templates:true"); //$NON-NLS-1$
+		scope.getNode(REDITOR_NODE).put(ContentAssistComputerRegistry.CIRCLING_ORDERED,
+				"R.Default:false," + //$NON-NLS-1$
+				"templates:true," + //$NON-NLS-1$
+				"R.Expl.RuntimeElements:true," + //$NON-NLS-1$
+				"R.Expl.PkgNames:false" ); //$NON-NLS-1$
+		scope.getNode(REDITOR_NODE).put(ContentAssistComputerRegistry.DEFAULT_DISABLED,
+				"R.Expl.PkgNames," + //$NON-NLS-1$
+				"R.Expl.RuntimeElements" ); //$NON-NLS-1$
+		
+		scope.getNode(RCONSOLE_NODE).put(ContentAssistComputerRegistry.CIRCLING_ORDERED,
+				"R.Default:false," + //$NON-NLS-1$
+				"templates:true" + //$NON-NLS-1$
+				"R.Expl.PkgNames:false" ); //$NON-NLS-1$
+		scope.getNode(RCONSOLE_NODE).put(ContentAssistComputerRegistry.DEFAULT_DISABLED,
+				"R.Expl.PkgNames" ); //$NON-NLS-1$
 		
 		scope.getNode(REDITOR_NODE).put(InfoHoverRegistry.TYPE_SETTINGS,
 				"de.walware.statet.r.contentInfoHover.RCombinedHover:true;," + //$NON-NLS-1$

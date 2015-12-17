@@ -35,7 +35,7 @@ import de.walware.statet.r.ui.sourceediting.RAssistInvocationContext;
 public class RDebugHover implements IInfoHover {
 	
 	
-	private IInformationControlCreator fControlCreator;
+	private IInformationControlCreator controlCreator;
 	
 	
 	public RDebugHover() {
@@ -64,17 +64,19 @@ public class RDebugHover implements IInfoHover {
 					return 0;
 				}
 			};
-			return info.load(process, context.getSourceViewer().getTextWidget());
+			if (info.preCheck()) {
+				return info.load(process, context.getSourceViewer().getTextWidget());
+			}
 		}
 		return null;
 	}
 	
 	@Override
 	public IInformationControlCreator getHoverControlCreator() {
-		if (fControlCreator == null) {
-			fControlCreator = new RElementInfoHoverCreator();
+		if (this.controlCreator == null) {
+			this.controlCreator = new RElementInfoHoverCreator();
 		}
-		return fControlCreator;
+		return this.controlCreator;
 	}
 	
 }

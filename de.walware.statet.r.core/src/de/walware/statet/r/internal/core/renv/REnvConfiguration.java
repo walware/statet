@@ -47,12 +47,12 @@ import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
 import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
+import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.core.IPreferenceAccess;
 import de.walware.ecommons.preferences.core.Preference;
 import de.walware.ecommons.preferences.core.Preference.IntPref;
 import de.walware.ecommons.preferences.core.Preference.StringArrayPref;
 import de.walware.ecommons.preferences.core.Preference.StringPref;
-import de.walware.ecommons.preferences.PreferencesUtil;
 
 import de.walware.rj.rsetups.RSetup;
 
@@ -663,6 +663,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return (!info.isDirectory() && info.exists());
 	}
 	
+	/** {@link IREnvConfiguration.WorkingCopy#searchAvailableSubArchs(IFileStore)} */
 	public List<String> searchAvailableSubArchs(final IFileStore rHome) {
 		if (rHome != null && rHome.fetchInfo().exists()) {
 			try {

@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.debug.core;
 
+import static de.walware.statet.r.console.core.RWorkspace.RESOLVE_UPTODATE;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.DebugException;
@@ -115,7 +117,7 @@ public class RElementVariable extends RVariable implements IRElementVariable {
 		final RWorkspace workspace = getDebugTarget().getProcess().getWorkspaceData();
 		if (workspace != null) {
 			final RReference reference = (RReference) fElement;
-			ICombinedRElement element = workspace.resolve(reference, true);
+			ICombinedRElement element = workspace.resolve(reference, RESOLVE_UPTODATE);
 			if (element != null) {
 				fFrame.registerReference(reference, fStamp);
 				return element;

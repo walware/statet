@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.SourceViewer;
@@ -28,8 +29,6 @@ import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistProposalCollector;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.ContentAssist;
-import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistCompletionProposal;
-import de.walware.ecommons.ltk.ui.sourceediting.assist.IAssistInformationProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.assist.IContentAssistComputer;
 
 
@@ -161,19 +160,27 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 	}
 	
 	@Override
-	public IStatus computeCompletionProposals(final AssistInvocationContext context,
-			final int mode, final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
+	public IStatus computeCompletionProposals(final AssistInvocationContext context, final int mode,
+			final AssistProposalCollector proposals, final IProgressMonitor monitor) {
 		final String tagPrefix= getTagPrefix(context);
 		if (tagPrefix != null) {
 			doComputeTagProposals(context, tagPrefix, proposals, monitor);
 		}
+		
+		return Status.OK_STATUS;
+	}
+	
+	@Override
+	public IStatus computeInformationProposals(final AssistInvocationContext context,
+			final AssistProposalCollector proposals, final IProgressMonitor monitor) {
 		return null;
 	}
+	
 	
 	private String getTagPrefix(final AssistInvocationContext context) {
 		try {
 			final IDocument document= context.getSourceViewer().getDocument();
-			final int start= Math.max(context.getInvocationOffset()-20, 0); // max keyword length incl 
+			final int start= Math.max(context.getInvocationOffset() - 20, 0); // max keyword length incl 
 			final String s= document.get(start, context.getInvocationOffset()-start);
 			final int last= s.length()-1;
 			int i= last;
@@ -203,7 +210,7 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 	}
 	
 	private void doComputeTagProposals(final AssistInvocationContext context, final String prefix,
-		final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
+		final AssistProposalCollector proposals, final IProgressMonitor monitor) {
 		final int offset= context.getInvocationOffset() - prefix.length();
 		final List<String> keywords= TAG_COMMANDS;
 		for (final String keyword : keywords) {
@@ -211,12 +218,6 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 				proposals.add(new TagProposal(context, keyword, offset));
 			}
 		}
-	}
-	
-	@Override
-	public IStatus computeContextInformation(final AssistInvocationContext context,
-			final AssistProposalCollector<IAssistInformationProposal> proposals, final IProgressMonitor monitor) {
-		return null;
 	}
 	
 }

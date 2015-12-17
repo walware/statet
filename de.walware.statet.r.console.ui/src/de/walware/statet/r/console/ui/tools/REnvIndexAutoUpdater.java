@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.preferences.PreferencesUtil;
-import de.walware.ecommons.ts.ISystemRunnable;
+import de.walware.ecommons.ts.ISystemReadRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -72,7 +72,7 @@ public class REnvIndexAutoUpdater {
 		if (rEnvConfig != null) {
 			final CheckRunnable checker = new CheckRunnable(process, manager,
 					new RJREnvIndexChecker(rEnvConfig) );
-			process.getQueue().addOnIdle(checker, 1000);
+			process.getQueue().addOnIdle(checker, 1100);
 			return;
 		}
 	}
@@ -205,7 +205,7 @@ public class REnvIndexAutoUpdater {
 		
 	}
 	
-	private static class CheckRunnable implements ISystemRunnable, IRPkgManager.Listener {
+	private static class CheckRunnable implements ISystemReadRunnable, IRPkgManager.Listener {
 		
 		
 		private final RProcess fProcess;
@@ -256,8 +256,8 @@ public class REnvIndexAutoUpdater {
 		
 		@Override
 		public void handleChange(final Event event) {
-			if ((event.pkgsChanged() & IRPkgManager.INSTALLED) == IRPkgManager.INSTALLED) {
-				final IRPkgChangeSet changeSet = event.getInstalledPkgChangeSet();
+			if ((event.pkgsChanged() & IRPkgManager.INSTALLED) != 0) {
+				final IRPkgChangeSet changeSet= event.getInstalledPkgChangeSet();
 				if (changeSet != null && !changeSet.getNames().isEmpty()) {
 					fChanged = true;
 				}

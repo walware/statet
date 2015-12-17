@@ -22,13 +22,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 
 import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.AssistCompletionInformationProposalWrapper;
 import de.walware.ecommons.text.core.input.OffsetStringParserInput;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.rsource.ast.FCall;
 import de.walware.statet.r.core.rsource.ast.FCall.Args;
 import de.walware.statet.r.core.rsource.ast.RAst;
-import de.walware.statet.r.core.rsource.ast.RAst.ReadedFCallArgs;
+import de.walware.statet.r.core.rsource.ast.RAst.FCallArgMatch;
 import de.walware.statet.r.core.rsource.ast.RScanner;
 
 
@@ -72,7 +73,11 @@ public class RContextInformationValidator implements IContextInformationValidato
 	}
 	
 	@Override
-	public void install(final IContextInformation info, final ITextViewer viewer, final int offset) {
+	public void install(IContextInformation info, final ITextViewer viewer, final int offset) {
+		if (info instanceof AssistCompletionInformationProposalWrapper) {
+			info= ((AssistCompletionInformationProposalWrapper) info).getContextInformation();
+		}
+		
 		fScannedArgs = null;
 		fLastPresentation = -2;
 		if (info instanceof RArgumentListContextInformation) {
@@ -140,13 +145,13 @@ public class RContextInformationValidator implements IContextInformationValidato
 	}
 	
 	private int getCurrentArgInFDef(final int offset) {
-		final int call = getCurrentArgInFCall(offset);
-		if (call >= 0) {
-			final ReadedFCallArgs args = RAst.readArgs(getScannedArgs(), fArgInfo.getArguments());
-			if (args.argsNode2argsDef.length == 0) {
-				return 0;
+		final int callArgIdx= getCurrentArgInFCall(offset);
+		if (callArgIdx >= 0) {
+			final FCallArgMatch match= RAst.matchArgs(getScannedArgs(), fArgInfo.getArguments());
+			final ArgsDefinition.Arg argDef= match.getArgDef(callArgIdx);
+			if (argDef != null) {
+				return argDef.index;
 			}
-			return args.argsNode2argsDef[call];
 		}
 		return -1;
 	}

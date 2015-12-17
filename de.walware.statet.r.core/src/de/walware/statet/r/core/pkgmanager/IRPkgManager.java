@@ -42,8 +42,8 @@ public interface IRPkgManager {
 	int NONE = 0;
 	int INITIAL = 1;
 	
-	int AVAILABLE = 1;
-	int INSTALLED = 2;
+	int AVAILABLE=                                          1 << 0;
+	int INSTALLED=                                          1 << 1;
 	
 	
 	interface Event {

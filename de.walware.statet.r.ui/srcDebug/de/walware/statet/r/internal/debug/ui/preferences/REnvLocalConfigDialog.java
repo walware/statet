@@ -185,9 +185,9 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	private static class RLibraryContainer {
 		
 		
-		private IRLibraryGroup.WorkingCopy parent;
+		private final IRLibraryGroup.WorkingCopy parent;
 		
-		private IRLibraryLocation.WorkingCopy library;
+		private final IRLibraryLocation.WorkingCopy library;
 		
 		
 		RLibraryContainer(final IRLibraryGroup.WorkingCopy parent,

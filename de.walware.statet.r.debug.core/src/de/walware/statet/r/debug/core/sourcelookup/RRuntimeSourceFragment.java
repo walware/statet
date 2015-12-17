@@ -14,7 +14,7 @@ package de.walware.statet.r.debug.core.sourcelookup;
 import org.eclipse.jface.text.AbstractDocument;
 
 import de.walware.ecommons.text.ISourceFragment;
-import de.walware.ecommons.text.ReadOnlyDocument;
+import de.walware.ecommons.text.core.util.ImmutableDocument;
 import de.walware.ecommons.ts.ITool;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -43,7 +43,7 @@ public class RRuntimeSourceFragment implements ISourceFragment {
 		fProcess = process;
 		fName = name;
 		fFullName = fullName;
-		fDocument = new ReadOnlyDocument(source, System.currentTimeMillis());
+		fDocument = new ImmutableDocument(source, System.currentTimeMillis());
 		
 		fId = "r:" + fProcess.getLabel(ITool.DEFAULT_LABEL) + '-'+  //$NON-NLS-1$
 				fProcess.getStartupTimestamp() + '/' +

@@ -9,25 +9,28 @@
  #     Stephan Wahlbrink - initial API and implementation
  #=============================================================================*/
 
-package de.walware.statet.r.console.core;
+package de.walware.statet.r.console.core.util;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.ts.ISystemRunnable;
+import de.walware.ecommons.ts.ISystemReadRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
 
 import de.walware.rj.data.RReference;
 
+import de.walware.statet.r.console.core.RProcess;
+import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
 import de.walware.statet.r.core.data.ICombinedRElement;
+import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.tool.AbstractStatetRRunnable;
-import de.walware.statet.r.nico.AbstractRDbgController;
+import de.walware.statet.r.nico.ICombinedRDataAdapter;
 
 
-public class LoadReferenceRunnable extends AbstractStatetRRunnable implements ISystemRunnable {
+public class LoadReferenceRunnable extends AbstractStatetRRunnable implements ISystemReadRunnable {
 	
 	
 	public static RProcess findRProcess(ICombinedRElement element) {
@@ -35,15 +38,19 @@ public class LoadReferenceRunnable extends AbstractStatetRRunnable implements IS
 			if (element instanceof ICombinedREnvironment) {
 				return ((ICombinedREnvironment) element).getSource();
 			}
-			element = element.getModelParent();
+			element= element.getModelParent();
 		}
 		return null;
 	}
 	
 	
 	private final RReference reference;
+	private final RElementName name;
+	
 	private final RProcess process;
+	
 	private final int stamp;
+	private int loadOptions;
 	
 	private ICombinedRElement resolvedElement;
 	
@@ -53,25 +60,59 @@ public class LoadReferenceRunnable extends AbstractStatetRRunnable implements IS
 	private Runnable finishRunnable;
 	
 	
-	public LoadReferenceRunnable(final RReference reference, final RProcess process,
+	public LoadReferenceRunnable(final RReference reference, final RProcess tool,
 			final int stamp, final String cause) {
 		super("r/workspace/loadElements", //$NON-NLS-1$
 				NLS.bind("Load elements of {0} (requested for {1})", 
 						((ICombinedRElement) reference).getElementName().getDisplayName(),
 						cause ));
 		
-		this.process = process;
-		this.reference = reference;
-		this.stamp = stamp;
+		this.reference= reference;
+		this.name= null;
+		
+		this.process= tool;
+		this.stamp= stamp;
+	}
+	
+	public LoadReferenceRunnable(final RElementName name, final RProcess tool,
+			final int stamp, final String cause) {
+		super("r/workspace/loadElements", //$NON-NLS-1$
+				NLS.bind("Load elements of {0} (requested for {1})", 
+						name.getDisplayName(),
+						cause ));
+		
+		this.reference= null;
+		this.name= name;
+		
+		this.process= tool;
+		this.stamp= stamp;
+	}
+	
+	
+	public final RProcess getTool() {
+		return this.process;
+	}
+	
+	public int getLoadOptions() {
+		return this.loadOptions;
+	}
+	
+	public void setLoadOptions(final int options) {
+		this.loadOptions= options;
 	}
 	
 	
 	public void cancel() {
-		this.cancel = true;
+		this.cancel= true;
 	}
 	
 	public ICombinedRElement getResolvedElement() {
 		return this.resolvedElement;
+	}
+	
+	
+	public boolean isStarted() {
+		return (this.state == STARTING);
 	}
 	
 	public boolean isFinished() {
@@ -79,7 +120,7 @@ public class LoadReferenceRunnable extends AbstractStatetRRunnable implements IS
 	}
 	
 	public void setFinishRunnable(final Runnable runnable) {
-		this.finishRunnable = runnable;
+		this.finishRunnable= runnable;
 	}
 	
 	
@@ -90,12 +131,12 @@ public class LoadReferenceRunnable extends AbstractStatetRRunnable implements IS
 	
 	@Override
 	public boolean changed(final int event, final ITool tool) {
-		Runnable runnable = null;
+		Runnable runnable= null;
 		switch (event) {
 		case REMOVING_FROM:
 			if (this.cancel) {
-				synchronized (LoadReferenceRunnable.this) {
-					this.state = event;
+				synchronized (this) {
+					this.state= event;
 					LoadReferenceRunnable.this.notifyAll();
 					return true;
 				}
@@ -107,9 +148,9 @@ public class LoadReferenceRunnable extends AbstractStatetRRunnable implements IS
 		case FINISHING_OK:
 		case FINISHING_ERROR:
 		case FINISHING_CANCEL:
-			synchronized (LoadReferenceRunnable.this) {
-				this.state = event;
-				runnable = this.finishRunnable;
+			synchronized (this) {
+				this.state= event;
+				runnable= this.finishRunnable;
 				LoadReferenceRunnable.this.notifyAll();
 			}
 			break;
@@ -127,12 +168,24 @@ public class LoadReferenceRunnable extends AbstractStatetRRunnable implements IS
 	@Override
 	public void run(final IToolService service,
 			final IProgressMonitor monitor) throws CoreException {
-		final AbstractRDbgController r = (AbstractRDbgController) service;
-		if (this.stamp != 0 && this.stamp != r.getCounter()) {
+		final ICombinedRDataAdapter r= (ICombinedRDataAdapter) service;
+		if (this.stamp != 0 && this.stamp != r.getController().getCounter()) {
 			return;
 		}
-		final RWorkspace workspace = r.getWorkspaceData();
-		this.resolvedElement = workspace.resolve(this.reference, monitor);
+		final int loadOptions;
+		synchronized (this) {
+			this.state= STARTING;
+			loadOptions= this.loadOptions;
+		}
+		final RWorkspace workspace= r.getWorkspaceData();
+		if (this.reference != null) {
+			this.resolvedElement= workspace.resolve(this.reference, RWorkspace.RESOLVE_UPTODATE,
+					loadOptions, monitor );
+		}
+		else {
+			this.resolvedElement= workspace.resolve(this.name, RWorkspace.RESOLVE_UPTODATE,
+					loadOptions, monitor );
+		}
 	}
 	
 }

@@ -97,9 +97,11 @@ import de.walware.ecommons.ltk.ui.sourceediting.actions.SelectLineBeginHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.SelectLineEndHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.SelectNextWordHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.actions.SelectPreviousWordHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.SpecificContentAssistHandler;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.text.ICharPairMatcher;
 import de.walware.ecommons.text.core.sections.IDocContentSections;
+import de.walware.ecommons.text.core.util.AbstractFragmentDocument;
 import de.walware.ecommons.text.ui.InformationDispatchHandler;
 import de.walware.ecommons.text.ui.TextHandlerUtil;
 import de.walware.ecommons.text.ui.TextViewerAction;
@@ -120,6 +122,7 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
+import de.walware.statet.nico.internal.ui.console.InputDocument;
 import de.walware.statet.nico.internal.ui.preferences.ConsolePreferences;
 
 
@@ -436,7 +439,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	private boolean fIsPrefixHighlighted;
 	private Image fPrefixBackground;
 	private InputSourceViewer fSourceViewer;
-	protected final InputDocument fDocument;
+	private final InputDocument fDocument;
 	private Button fSubmitButton;
 	private ScrollControl fScroller;
 	
@@ -477,6 +480,10 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		fHistoryTypesFilter = PreferencesUtil.getInstancePrefs().getPreferenceValue(ConsolePreferences.PREF_HISTORYNAVIGATION_SUBMIT_TYPES);
 	}
 	
+	
+	public AbstractFragmentDocument getDocument() {
+		return this.fDocument;
+	}
 	
 	protected ISourceUnit createSourceUnit() {
 		return null;
@@ -661,13 +668,6 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		
 		final IHandlerService handlerService = (IHandlerService) serviceLocator.getService(IHandlerService.class);
 		
-		final ICharPairMatcher matcher = fConfigurator.getSourceViewerConfiguration().getPairMatcher();
-		if (matcher != null) {
-			final IHandler2 handler = new GotoMatchingBracketHandler(matcher, this);
-			handlers.add(ISourceEditorCommandIds.GOTO_MATCHING_BRACKET, handler);
-			handlerService.activateHandler(ISourceEditorCommandIds.GOTO_MATCHING_BRACKET, handler);
-		}
-		
 		TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.DELETE_NEXT);
 		
 		// Line actions: goto, select, cut, delete
@@ -738,9 +738,20 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 			handlerService.activateHandler(ITextEditorActionDefinitionIds.DELETE_NEXT_WORD, handler);
 		}
 		
+		final ICharPairMatcher matcher = fConfigurator.getSourceViewerConfiguration().getPairMatcher();
+		if (matcher != null) {
+			final IHandler2 handler = new GotoMatchingBracketHandler(matcher, this);
+			handlers.add(ISourceEditorCommandIds.GOTO_MATCHING_BRACKET, handler);
+			handlerService.activateHandler(ISourceEditorCommandIds.GOTO_MATCHING_BRACKET, handler);
+		}
+		
 		// Assists
 		{	final IAction action = new TextViewerAction(getViewer(), ISourceViewer.CONTENTASSIST_PROPOSALS);
 			handlerService.activateHandler(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, new ActionHandler(action));
+		}
+		{	final IHandler2 handler= new SpecificContentAssistHandler(this,
+					this.fConfigurator.getSourceViewerConfiguration().getContentAssist() );
+			handlerService.activateHandler(ISourceEditorCommandIds.SPECIFIC_CONTENT_ASSIST_COMMAND_ID, handler);
 		}
 		{	final IHandler2 handler = new InformationDispatchHandler(getViewer());
 			handlers.add(ITextEditorActionDefinitionIds.SHOW_INFORMATION, handler);
@@ -840,6 +851,10 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	}
 	
 	protected void onPromptUpdate(final Prompt prompt) {
+	}
+	
+	protected void setInputPrefix(final String source) {
+		this.fDocument.setPrefix(source);
 	}
 	
 	private String getLineStart() {

@@ -602,7 +602,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			updateDirty(false);
 		}
 		else {
-			updateDirty(this.process.getWorkspaceData().isROBjectDBDirty());
+			updateDirty(this.process.getWorkspaceData().isRObjectDBDirty());
 		}
 		
 		if (fRefreshToolbarItem.isVisible() != enabled) {
@@ -810,7 +810,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		// Adapt and set selection
 		if (selection != null && !selection.isEmpty()) {
 			final ITreeSelection s = (ITreeSelection) selection;
-			TreePath[] paths = s.getPaths();
+			final TreePath[] paths = s.getPaths();
 			int j = 0;
 			for (int i = 0; i < paths.length; i++) {
 				final TreePath oldPath = paths[i];
@@ -836,7 +836,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		// Expand Global_Env, if it is a new process and has valid input
 		EXPAND_GLOBALENV : if (changed && !input.showCondensedUserspace 
 				&& input.rootElements != null && input.rootElements.length > 0) {
-			for (Object element : input.rootElements) {
+			for (final Object element : input.rootElements) {
 				if (fTreeViewer.getExpandedState(element)) {
 					break EXPAND_GLOBALENV;
 				}
