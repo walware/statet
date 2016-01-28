@@ -102,7 +102,7 @@ public class RQuickRefactoringComputer implements IQuickAssistComputer {
 				}
 			}
 			final int current= allAccess.indexOf(access);
-			if (current > 0) {
+			if (current >= 0) {
 				if (current > 0 && current < allAccess.size() - 1) {
 					proposals.add(new RLinkedNamesAssistProposal(RLinkedNamesAssistProposal.IN_FILE_PRECEDING, context, access));
 					proposals.add(new RLinkedNamesAssistProposal(RLinkedNamesAssistProposal.IN_FILE_FOLLOWING, context, access));
