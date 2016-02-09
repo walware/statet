@@ -46,6 +46,7 @@ import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
+import de.walware.statet.r.console.core.util.LoadReferenceRunnable;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.nico.impl.RjsController;
@@ -319,7 +320,8 @@ public class RElementInfoTask extends AbstractRDataRunnable implements ISystemRe
 			inherits= true;
 		}
 		
-		if (envName == null) {
+		if (envName == null
+				|| !LoadReferenceRunnable.isAccessAllowed(envName, r.getWorkspaceData()) ) {
 			return null;
 		}
 		

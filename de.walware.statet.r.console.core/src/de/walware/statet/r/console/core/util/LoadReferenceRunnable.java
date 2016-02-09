@@ -11,9 +11,14 @@
 
 package de.walware.statet.r.console.core.util;
 
+import java.util.Set;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.osgi.util.NLS;
+
+import de.walware.jcommons.collections.ImCollections;
+import de.walware.jcommons.collections.ImSet;
 
 import de.walware.ecommons.ts.ISystemReadRunnable;
 import de.walware.ecommons.ts.ITool;
@@ -41,6 +46,33 @@ public class LoadReferenceRunnable extends AbstractStatetRRunnable implements IS
 			element= element.getModelParent();
 		}
 		return null;
+	}
+	
+	
+	private static final ImSet<String> LOAD_PKG_EXCLUDE_LIST= ImCollections.newSet(
+			System.getProperty("de.walware.statet.r.console.namespaces.load.exclude", "") //$NON-NLS-1$ //$NON-NLS-2$
+					.split(",") ); //$NON-NLS-1$
+	
+	public static boolean isAccessAllowed(final RElementName name, final RWorkspace rWorkspace) {
+		final Set<String> excludePkgs= LOAD_PKG_EXCLUDE_LIST;
+		if (excludePkgs.isEmpty()) {
+			return true;
+		}
+		
+		final String pkgName;
+		if (RElementName.isPackageFacetScopeType(name.getType())) {
+			pkgName= name.getSegmentName();
+		}
+		else if (name.getScope() != null
+				&& RElementName.isPackageFacetScopeType(name.getScope().getType()) ) {
+			pkgName= name.getScope().getSegmentName();
+		}
+		else {
+			return true;
+		}
+		
+		return (!(excludePkgs.contains("*") || excludePkgs.contains(pkgName)) //$NON-NLS-1$
+				|| rWorkspace.isNamespaceLoaded(pkgName) );
 	}
 	
 	

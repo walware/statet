@@ -115,6 +115,19 @@ public class RObjectDB {
 		return this.searchEnvsStamp;
 	}
 	
+	public int getSearchEnvsElementCount() {
+		int count= 0;
+		for (final REnvironmentVar env : this.searchEnvs) {
+			if (env != null) {
+				final long l= env.getLength();
+				if (l > 0) {
+					count+= l;
+				}
+			}
+		}
+		return count;
+	}
+	
 	public REnvironmentVar getEnv(final Long handle) {
 		return this.envsMap.get(handle);
 	}
@@ -137,6 +150,14 @@ public class RObjectDB {
 			}
 		}
 		return null;
+	}
+	
+	public boolean isNamespaceLoaded(final String name) {
+		if (name != null) {
+			final RObjectDB.NamespaceEntry entry= this.namespaceMap.get(name);
+			return (entry != null && entry.na == null);
+		}
+		return false;
 	}
 	
 	public ICombinedRElement getPackageEnv(final String name) {

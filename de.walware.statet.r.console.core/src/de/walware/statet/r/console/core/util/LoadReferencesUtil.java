@@ -132,6 +132,11 @@ public class LoadReferencesUtil {
 				}
 			}
 		}
+		
+		if (!LoadReferenceRunnable.isAccessAllowed(name, this.tool.getWorkspaceData())) {
+			return null;
+		}
+		
 		task= new LoadRunnable(name, this.tool, 0, "Content Assist");
 		this.resolveTasks.put(key, task);
 		

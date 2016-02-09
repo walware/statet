@@ -284,6 +284,11 @@ public class RWorkspace extends ToolWorkspace {
 		return null;
 	}
 	
+	public boolean isNamespaceLoaded(final String name) {
+		final RObjectDB db= this.rObjectDB;
+		return (db != null && db.isNamespaceLoaded(name));
+	}
+	
 	public boolean isUptodate(ICombinedRElement element) {
 		final AbstractRController controller= (AbstractRController) getProcess().getController();
 		if (controller != null) {
@@ -495,13 +500,15 @@ public class RWorkspace extends ToolWorkspace {
 	
 	private void updateREnvironments(final IRDataAdapter r, final Set<RElementName> envirs, boolean force,
 			final IProgressMonitor monitor) throws CoreException {
-//		final long time= System.nanoTime();
-//		System.out.println(controller.getCounter() + " update");
 		if (!(r instanceof ICombinedRDataAdapter)) {
 			return;
 		}
 		
 		final AbstractRController controller= (AbstractRController) r.getController();
+		
+//		final long time= System.nanoTime();
+//		System.out.println(controller.getCounter() + " update");
+		
 		final RObjectDB previous= this.rObjectDB;
 		force|= (previous == null || previous.getSearchEnvs() == null);
 		if (!force && previous.getSearchEnvsStamp() == controller.getCounter() && envirs.isEmpty()) {
@@ -518,15 +525,9 @@ public class RWorkspace extends ToolWorkspace {
 		}
 		this.rObjectDB= db;
 		addPropertyChanged("REnvironments", updateEnvs);
+		
 //		System.out.println("RSearch Update: " + (System.nanoTime() - time));
-//		int count= 0;
-//		for (final REnvironmentVar env : fREnvMap.values()) {
-//			final int l= env.getLength();
-//			if (l > 0) {
-//				count += l;
-//			}
-//		}
-//		System.out.println("count: " + count);
+//		System.out.println("count: " + db.getSearchEnvsElementCount());
 	}
 	
 	@Override
