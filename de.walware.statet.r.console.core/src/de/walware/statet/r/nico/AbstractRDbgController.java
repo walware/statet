@@ -333,7 +333,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 		if ((getPrompt().meta & META_PROMPT_SUSPENDED) != 0) {
 			final String trimmed = input.trim();
 			if (trimmed.isEmpty()) {
-				streams.getOutputStreamMonitor().append(fLineSeparator, SubmitType.OTHER, 0);
+				streams.getOutputStreamMonitor().append(fLineSeparator, SubmitType.TOOLS, 0);
 				// revert counter?
 				return false;
 			}

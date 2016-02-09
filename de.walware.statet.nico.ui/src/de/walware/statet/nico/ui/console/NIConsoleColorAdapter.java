@@ -11,12 +11,6 @@
 
 package de.walware.statet.nico.ui.console;
 
-import static de.walware.statet.nico.ui.console.NIConsoleOutputStream.ERROR_STREAM_ID;
-import static de.walware.statet.nico.ui.console.NIConsoleOutputStream.INFO_STREAM_ID;
-import static de.walware.statet.nico.ui.console.NIConsoleOutputStream.INPUT_STREAM_ID;
-import static de.walware.statet.nico.ui.console.NIConsoleOutputStream.OUTPUT_STREAM_ID;
-import static de.walware.statet.nico.ui.console.NIConsoleOutputStream.SYSTEM_OUTPUT_STREAM_ID;
-
 import java.util.EnumSet;
 import java.util.List;
 
@@ -25,9 +19,9 @@ import org.eclipse.swt.graphics.RGB;
 
 import de.walware.jcommons.collections.ImCollections;
 
+import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.core.IPreferenceAccess;
 import de.walware.ecommons.preferences.core.Preference.BooleanPref;
-import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.ui.RGBPref;
 import de.walware.ecommons.text.ui.presentation.ITextPresentationConstants;
 import de.walware.ecommons.ui.SharedUIResources;
@@ -37,9 +31,7 @@ import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStreamProxy;
-import de.walware.statet.nico.internal.ui.preferences.ConsolePreferences;
-import de.walware.statet.nico.internal.ui.preferences.ConsolePreferences.FilterPreferences;
-import de.walware.statet.nico.ui.NicoUIPreferenceNodes;
+import de.walware.statet.nico.ui.NicoUIPreferences;
 
 
 /**
@@ -49,8 +41,15 @@ public class NIConsoleColorAdapter {
 	
 	
 	private static final List<String> STREAM_IDS= ImCollections.newList(
-			INFO_STREAM_ID, INPUT_STREAM_ID, OUTPUT_STREAM_ID, ERROR_STREAM_ID,
-			SYSTEM_OUTPUT_STREAM_ID );
+			NIConsoleOutputStream.INFO_STREAM_ID,
+			NIConsoleOutputStream.STD_INPUT_STREAM_ID,
+			NIConsoleOutputStream.STD_OUTPUT_STREAM_ID,
+			NIConsoleOutputStream.STD_ERROR_STREAM_ID,
+			NIConsoleOutputStream.SYSTEM_OUTPUT_STREAM_ID,
+			NIConsoleOutputStream.OTHER_TASKS_INFO_STREAM_ID,
+			NIConsoleOutputStream.OTHER_TASKS_STD_INPUT_STREAM_ID,
+			NIConsoleOutputStream.OTHER_TASKS_STD_OUTPUT_STREAM_ID,
+			NIConsoleOutputStream.OTHER_TASKS_STD_ERROR_STREAM_ID );
 	
 	
 	private NIConsole console;
@@ -70,20 +69,39 @@ public class NIConsoleColorAdapter {
 	void connect(final ToolProcess process, final NIConsole console) {
 		this.console= console;
 		
-		final FilterPreferences filter= new ConsolePreferences.FilterPreferences(PreferencesUtil.getInstancePrefs());
 		final ToolController controller= process.getController();
 		if (controller != null) {
 			final ToolStreamProxy proxy= controller.getStreams();
-			console.connect(proxy.getErrorStreamMonitor(), ERROR_STREAM_ID, 
-					filter.showAllErrors() ? EnumSet.allOf(SubmitType.class) : filter.getSelectedTypes());
-			console.connect(proxy.getOutputStreamMonitor(), OUTPUT_STREAM_ID, 
-					filter.getSelectedTypes());
-			console.connect(proxy.getInfoStreamMonitor(), INFO_STREAM_ID, 
-					filter.getSelectedTypes());
-			console.connect(proxy.getInputStreamMonitor(), INPUT_STREAM_ID, 
-					filter.getSelectedTypes());
-			console.connect(proxy.getSystemOutputMonitor(), SYSTEM_OUTPUT_STREAM_ID, 
-					filter.getSelectedTypes());
+			
+			final IPreferenceAccess prefs= PreferencesUtil.getInstancePrefs();
+			final EnumSet<SubmitType> includeSet= prefs.getPreferenceValue(
+					NicoUIPreferences.OUTPUT_FILTER_SUBMITTYPES_INCLUDE_PREF );
+			
+			final EnumSet<SubmitType> allTypes= EnumSet.allOf(SubmitType.class);
+			final EnumSet<SubmitType> otherTypes= EnumSet.of(SubmitType.OTHER);
+			final EnumSet<SubmitType> defaultTypes= EnumSet.complementOf(otherTypes);
+			
+			console.connect(proxy.getInfoStreamMonitor(),
+					NIConsoleOutputStream.INFO_STREAM_ID, defaultTypes );
+			console.connect(proxy.getInfoStreamMonitor(),
+					NIConsoleOutputStream.OTHER_TASKS_INFO_STREAM_ID, otherTypes );
+			console.connect(proxy.getInputStreamMonitor(),
+					NIConsoleOutputStream.STD_INPUT_STREAM_ID, defaultTypes );
+			console.connect(proxy.getOutputStreamMonitor(),
+					NIConsoleOutputStream.STD_OUTPUT_STREAM_ID, defaultTypes );
+			console.connect(proxy.getErrorStreamMonitor(),
+					NIConsoleOutputStream.STD_ERROR_STREAM_ID, defaultTypes );
+			if (includeSet.contains(SubmitType.OTHER)) {
+				console.connect(proxy.getInputStreamMonitor(),
+						NIConsoleOutputStream.OTHER_TASKS_STD_INPUT_STREAM_ID, otherTypes );
+				console.connect(proxy.getOutputStreamMonitor(),
+						NIConsoleOutputStream.OTHER_TASKS_STD_OUTPUT_STREAM_ID, otherTypes );
+				console.connect(proxy.getErrorStreamMonitor(),
+						NIConsoleOutputStream.OTHER_TASKS_STD_ERROR_STREAM_ID, otherTypes );
+			}
+			console.connect(proxy.getSystemOutputMonitor(),
+					NIConsoleOutputStream.SYSTEM_OUTPUT_STREAM_ID,
+					(includeSet.contains(SubmitType.OTHER)) ? allTypes : defaultTypes );
 			
 			updateSettings();
 		}
@@ -100,8 +118,10 @@ public class NIConsoleColorAdapter {
 				for (final String streamId : STREAM_IDS) {
 					final NIConsoleOutputStream stream= console.getStream(streamId);
 					if (stream != null) {
-						final RGB rgb= getRGB(streamId);
-						stream.setColor(SharedUIResources.getColors().getColor(rgb));
+						stream.setColor(SharedUIResources.getColors().getColor(
+								getFontRGB(streamId) ));
+						stream.setBackgroundColor(SharedUIResources.getColors().getColor(
+								getBackgroundRGB(streamId) ));
 						stream.setFontStyle(getFontStyle(streamId));
 					}
 				}
@@ -113,13 +133,22 @@ public class NIConsoleColorAdapter {
 		this.console= null;
 	}
 	
-	private RGB getRGB(final String streamId) {
+	private RGB getFontRGB(final String streamId) {
 		final String rootKey= getPrefRootKey(streamId);
-		if (rootKey == null) {
-			return null;
+		if (rootKey != null) {
+			return this.prefAccess.getPreferenceValue(
+					new RGBPref(NicoUIPreferences.OUTPUT_QUALIFIER,
+							rootKey + ITextPresentationConstants.TEXTSTYLE_COLOR_SUFFIX ));
 		}
-		return this.prefAccess.getPreferenceValue(new RGBPref(NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER,
-				rootKey + ITextPresentationConstants.TEXTSTYLE_COLOR_SUFFIX ));
+		return null;
+	}
+	
+	private RGB getBackgroundRGB(final String streamId) {
+		if (streamId.endsWith(NIConsoleOutputStream.OTHER_TASKS_STREAM_SUFFIX)) {
+			return this.prefAccess.getPreferenceValue(
+					NicoUIPreferences.OUTPUT_OTHER_TASKS_BACKGROUND_COLOR_PREF );
+		}
+		return null;
 	}
 	
 	private int getFontStyle(final String streamId) {
@@ -128,11 +157,11 @@ public class NIConsoleColorAdapter {
 			return 0;
 		}
 		int style= this.prefAccess.getPreferenceValue(new BooleanPref(
-				NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER,
+				NicoUIPreferences.OUTPUT_QUALIFIER,
 				rootKey + ITextPresentationConstants.TEXTSTYLE_BOLD_SUFFIX )) ?
 				SWT.BOLD : SWT.NORMAL;
 		if (this.prefAccess.getPreferenceValue(new BooleanPref(
-				NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER,
+				NicoUIPreferences.OUTPUT_QUALIFIER,
 				rootKey + ITextPresentationConstants.TEXTSTYLE_ITALIC_SUFFIX ))) {
 			style |= SWT.ITALIC;
 		}
@@ -140,20 +169,24 @@ public class NIConsoleColorAdapter {
 	}
 	
 	private String getPrefRootKey(final String streamId) {
-		if (streamId == INPUT_STREAM_ID) {
-			return ConsolePreferences.OUTPUT_INPUT_ROOT_KEY;
+		if (streamId == NIConsoleOutputStream.INFO_STREAM_ID
+				|| streamId == NIConsoleOutputStream.OTHER_TASKS_INFO_STREAM_ID) {
+			return NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY;
 		}
-		else if (streamId == INFO_STREAM_ID) {
-			return ConsolePreferences.OUTPUT_INFO_ROOT_KEY;
+		if (streamId == NIConsoleOutputStream.STD_INPUT_STREAM_ID
+				|| streamId == NIConsoleOutputStream.OTHER_TASKS_STD_INPUT_STREAM_ID) {
+			return NicoUIPreferences.OUTPUT_STD_INPUT_STREAM_ROOT_KEY;
 		}
-		else if (streamId == OUTPUT_STREAM_ID) {
-			return ConsolePreferences.OUTPUT_STANDARD_OUTPUT_ROOT_KEY;
+		if (streamId == NIConsoleOutputStream.STD_OUTPUT_STREAM_ID
+				|| streamId == NIConsoleOutputStream.OTHER_TASKS_STD_OUTPUT_STREAM_ID) {
+			return NicoUIPreferences.OUTPUT_STD_OUTPUT_ROOT_KEY;
 		}
-		else if (streamId == ERROR_STREAM_ID) {
-			return ConsolePreferences.OUTPUT_STANDARD_ERROR_ROOT_KEY;
+		if (streamId == NIConsoleOutputStream.STD_ERROR_STREAM_ID
+				|| streamId == NIConsoleOutputStream.OTHER_TASKS_STD_ERROR_STREAM_ID) {
+			return NicoUIPreferences.OUTPUT_STD_ERROR_STREAM_ROOT_KEY;
 		}
-		else if (streamId == SYSTEM_OUTPUT_STREAM_ID) {
-			return ConsolePreferences.OUTPUT_SYSTEM_OUTPUT_ROOT_KEY;
+		if (streamId == NIConsoleOutputStream.SYSTEM_OUTPUT_STREAM_ID) {
+			return NicoUIPreferences.OUTPUT_SYSTEM_OUTPUT_STREAM_ROOT_KEY;
 		}
 		return null;
 	}

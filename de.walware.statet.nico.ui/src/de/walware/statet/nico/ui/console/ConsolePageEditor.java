@@ -477,7 +477,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	
 	
 	private void updateSettings() {
-		fHistoryTypesFilter = PreferencesUtil.getInstancePrefs().getPreferenceValue(ConsolePreferences.PREF_HISTORYNAVIGATION_SUBMIT_TYPES);
+		fHistoryTypesFilter = PreferencesUtil.getInstancePrefs().getPreferenceValue(ConsolePreferences.HISTORYNAVIGATION_SUBMIT_TYPES_PREF);
 	}
 	
 	

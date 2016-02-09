@@ -47,6 +47,7 @@ import de.walware.statet.nico.core.runtime.ToolStreamMonitor;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 import de.walware.statet.nico.internal.ui.console.NIConsolePartitioner;
 import de.walware.statet.nico.internal.ui.preferences.ConsolePreferences;
+import de.walware.statet.nico.ui.NicoUIPreferences;
 import de.walware.statet.nico.ui.NicoUITools;
 
 
@@ -178,7 +179,7 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 	protected void updateWatermarks() {
 		final boolean limitBufferSize = true;
 		if (limitBufferSize) {
-			int lowWater = PreferencesUtil.getInstancePrefs().getPreferenceValue(ConsolePreferences.PREF_CHARLIMIT);
+			int lowWater = PreferencesUtil.getInstancePrefs().getPreferenceValue(NicoUIPreferences.OUTPUT_CHARLIMIT_PREF);
 			if (lowWater < 100000) {
 				lowWater = 100000;
 			}

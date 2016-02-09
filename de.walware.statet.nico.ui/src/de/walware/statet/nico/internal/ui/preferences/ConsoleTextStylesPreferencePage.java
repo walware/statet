@@ -15,6 +15,7 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocumentPartitioner;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.editors.text.EditorsUI;
 
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
@@ -26,7 +27,8 @@ import de.walware.ecommons.text.PartitionerDocumentSetupParticipant;
 import de.walware.ecommons.text.ui.presentation.AbstractTextStylesConfigurationBlock;
 import de.walware.ecommons.text.ui.settings.TextStyleManager;
 
-import de.walware.statet.nico.ui.NicoUIPreferenceNodes;
+import de.walware.statet.nico.core.runtime.SubmitType;
+import de.walware.statet.nico.ui.NicoUIPreferences;
 
 
 public class ConsoleTextStylesPreferencePage extends ConfigurationBlockPreferencePage {
@@ -34,7 +36,7 @@ public class ConsoleTextStylesPreferencePage extends ConfigurationBlockPreferenc
 	
 	public ConsoleTextStylesPreferencePage() {
 		final ScopedPreferenceStore store= new ScopedPreferenceStore(InstanceScope.INSTANCE,
-				NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER );
+				NicoUIPreferences.OUTPUT_QUALIFIER );
 		setPreferenceStore(store);
 	}
 	
@@ -62,26 +64,31 @@ class ConsoleTextStylesPreferenceBlock extends AbstractTextStylesConfigurationBl
 	protected SyntaxNode[] createItems() {
 		return new SyntaxNode[] {
 			new StyleNode(Messages.TextStyle_Input_label, Messages.TextStyle_Input_description,
-					ConsolePreferences.OUTPUT_INPUT_ROOT_KEY, new SyntaxNode.UseStyle[] {
+					NicoUIPreferences.OUTPUT_STD_INPUT_STREAM_ROOT_KEY, new SyntaxNode.UseStyle[] {
 						SyntaxNode.createUseCustomStyle()
 					}, null ),
 			new StyleNode(Messages.TextStyle_Info_label, Messages.TextStyle_Info_description,
-					ConsolePreferences.OUTPUT_INFO_ROOT_KEY, new SyntaxNode.UseStyle[] {
+					NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY, new SyntaxNode.UseStyle[] {
 						SyntaxNode.createUseCustomStyle()
 					}, null ),
 			new StyleNode(Messages.TextStyle_StandardOutput_label, Messages.TextStyle_StandardOutput_description,
-					ConsolePreferences.OUTPUT_STANDARD_OUTPUT_ROOT_KEY, new SyntaxNode.UseStyle[] {
+					NicoUIPreferences.OUTPUT_STD_OUTPUT_ROOT_KEY, new SyntaxNode.UseStyle[] {
 						SyntaxNode.createUseCustomStyle()
 					}, new SyntaxNode[] {
 				new StyleNode(Messages.TextStyle_SystemOutput_label, Messages.TextStyle_SystemOutput_description,
-						ConsolePreferences.OUTPUT_SYSTEM_OUTPUT_ROOT_KEY, new SyntaxNode.UseStyle[] {
+						NicoUIPreferences.OUTPUT_SYSTEM_OUTPUT_STREAM_ROOT_KEY, new SyntaxNode.UseStyle[] {
 							SyntaxNode.createUseCustomStyle()
 						}, null ),
 			}),
 			new StyleNode(Messages.TextStyle_StandardError_label, Messages.TextStyle_StandardError_description,
-					ConsolePreferences.OUTPUT_STANDARD_ERROR_ROOT_KEY, new SyntaxNode.UseStyle[] {
+					NicoUIPreferences.OUTPUT_STD_ERROR_STREAM_ROOT_KEY, new SyntaxNode.UseStyle[] {
 						SyntaxNode.createUseCustomStyle()
 					}, null ),
+			new CategoryNode(Messages.TextStyle_SpecialBackground_label, new SyntaxNode[] {
+					new BackgroundNode(SubmitType.OTHER.getLabel(),
+							NLS.bind(Messages.TextStyle_SpecialBackground_Tasks_description, SubmitType.OTHER.getLabel()),
+							NicoUIPreferences.OUTPUT_OTHER_TASKS_BACKGROUND_ROOT_KEY ),
+			}),
 		};
 	}
 	

@@ -73,7 +73,7 @@ public class SaveHistoryPage extends AbstractHistoryPage {
 		
 		final Label label = new Label(composite, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		label.setText("Include &Commands From:");
+		label.setText("Include &commands from:");
 		fSourceControl = new SubmitTypeSelectionComposite(composite);
 		fSourceControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		

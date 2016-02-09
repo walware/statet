@@ -617,7 +617,8 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 			final int rangeStart= Math.max(computedPartitions[i].getOffset(), offset);
 			final int rangeLength= computedPartitions[i].getLength();
 			styles[i]= new StyleRange(rangeStart, rangeLength,
-					computedPartitions[i].getStream().getColor(), null,
+					computedPartitions[i].getStream().getColor(),
+					computedPartitions[i].getStream().getBackgroundColor(),
 					computedPartitions[i].getStream().getFontStyle() );
 		}
 		return styles;

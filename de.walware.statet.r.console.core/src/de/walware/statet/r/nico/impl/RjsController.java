@@ -58,6 +58,7 @@ import de.walware.ecommons.ts.IToolCommandHandler;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
 
+import de.walware.statet.nico.core.runtime.IConsoleRunnable;
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -691,8 +692,15 @@ public class RjsController extends AbstractRDbgController
 			}
 			// fRjs.runMainLoop(null, null, monitor); must not wait at server side
 			fRjs.activateConsole();
-			scheduleControllerRunnable(new ControllerSystemRunnable(
-					"r/rj/start2", "Finish Initialization / Read Output") { //$NON-NLS-1$
+			class RStart2Runnable extends ControllerSystemRunnable implements IConsoleRunnable {
+				RStart2Runnable() {
+					super("r/rj/start2", "Finish Initialization / Read Output"); //$NON-NLS-1$
+				}
+				
+				@Override
+				public SubmitType getSubmitType() {
+					return SubmitType.CONSOLE;
+				}
 				
 				@Override
 				public void run(final IToolService s,
@@ -705,7 +713,8 @@ public class RjsController extends AbstractRDbgController
 					}
 				}
 				
-			});
+			}
+			scheduleControllerRunnable(new RStart2Runnable());
 		}
 		catch (final RemoteException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID,
@@ -761,6 +770,25 @@ public class RjsController extends AbstractRDbgController
 	@Override
 	protected boolean initilizeHotMode() {
 		return fRjs.startHotMode();
+	}
+	
+	@Override
+	protected void onHotModeExit(final IProgressMonitor monitor) {
+		try {
+			this.fRjs.finishTask(monitor);
+		}
+		catch (final Throwable e) {}
+	}
+	
+	@Override
+	protected void onTaskFinished(final IToolRunnable runnable, final int event,
+			final IProgressMonitor monitor) {
+		try {
+			this.fRjs.finishTask(monitor);
+		}
+		catch (final Throwable e) {}
+		
+		super.onTaskFinished(runnable, event, monitor);
 	}
 	
 	

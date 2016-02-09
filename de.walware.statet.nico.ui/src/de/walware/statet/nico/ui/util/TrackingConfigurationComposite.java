@@ -12,6 +12,7 @@
 package de.walware.statet.nico.ui.util;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.eclipse.core.databinding.UpdateValueStrategy;
@@ -41,6 +42,7 @@ import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
+import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 import de.walware.statet.nico.internal.ui.Messages;
 
@@ -107,6 +109,9 @@ public class TrackingConfigurationComposite extends Composite {
 	}
 	protected boolean enableFilePathAsCombo() {
 		return false;
+	}
+	protected EnumSet<SubmitType> getEditableSubmitTypes() {
+		return EnumSet.allOf(SubmitType.class);
 	}
 	
 	protected void configure() {
@@ -205,14 +210,13 @@ public class TrackingConfigurationComposite extends Composite {
 			}
 		}
 		
-		if (enableFullMode()) {
-			{	final Label label = new Label(composite, SWT.NONE);
-				label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-				label.setText(Messages.Tracking_Sources_label);
-			}
-			{	fSubmitTypeControl = new SubmitTypeSelectionComposite(composite);
-				fSubmitTypeControl.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-			}
+		{	final Label label= new Label(composite, SWT.NONE);
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			label.setText(Messages.Tracking_Sources_label);
+			
+			fSubmitTypeControl= new SubmitTypeSelectionComposite(composite);
+			fSubmitTypeControl.setEditable(getEditableSubmitTypes());
+			fSubmitTypeControl.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		}
 		return composite;
 	}

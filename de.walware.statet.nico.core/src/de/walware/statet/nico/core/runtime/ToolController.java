@@ -303,7 +303,7 @@ public abstract class ToolController implements IConsoleService {
 		
 	}
 	
-	protected abstract class SuspendResumeRunnable extends ControllerSystemRunnable {
+	protected abstract class SuspendResumeRunnable extends ControllerSystemRunnable implements IConsoleRunnable {
 		
 		private int detail;
 		
@@ -312,8 +312,9 @@ public abstract class ToolController implements IConsoleService {
 			this.detail= detail;
 		}
 		
+		@Override
 		public SubmitType getSubmitType() {
-			return SubmitType.OTHER;
+			return SubmitType.TOOLS;
 		}
 		
 		protected void setDetail(final int detail) {
@@ -374,6 +375,7 @@ public abstract class ToolController implements IConsoleService {
 		public QuitRunnable() {
 			super(ToolController.QUIT_TYPE_ID, "Quit", DebugEvent.CLIENT_REQUEST);
 		}
+		
 		
 		@Override
 		public void run(final IToolService service,
@@ -1272,20 +1274,20 @@ public abstract class ToolController implements IConsoleService {
 			case Queue.RUN_DEFAULT:
 				try {
 					this.currentRunnable.run(this, this.runnableProgressMonitor);
-					this.fQueue.internalFinished(this.currentRunnable, IToolRunnable.FINISHING_OK);
-					safeRunnableChanged(this.currentRunnable, IToolRunnable.FINISHING_OK);
+					onTaskFinished(this.currentRunnable, IToolRunnable.FINISHING_OK,
+							this.runnableProgressMonitor );
 					continue;
 				}
 				catch (final Throwable e) {
 					IStatus status= (e instanceof CoreException) ? ((CoreException) e).getStatus() : null;
 					if (status != null && (
 							status.getSeverity() == IStatus.CANCEL || status.getSeverity() <= IStatus.INFO)) {
-						this.fQueue.internalFinished(this.currentRunnable, IToolRunnable.FINISHING_CANCEL);
-						safeRunnableChanged(this.currentRunnable, IToolRunnable.FINISHING_CANCEL);
+						onTaskFinished(this.currentRunnable, IToolRunnable.FINISHING_CANCEL,
+								this.runnableProgressMonitor );
 					}
 					else {
-						this.fQueue.internalFinished(this.currentRunnable, IToolRunnable.FINISHING_ERROR);
-						safeRunnableChanged(this.currentRunnable, IToolRunnable.FINISHING_ERROR);
+						onTaskFinished(this.currentRunnable, IToolRunnable.FINISHING_ERROR,
+								this.runnableProgressMonitor );
 						status= new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, NicoPlugin.EXTERNAL_ERROR,
 								NLS.bind(Messages.ToolRunnable_error_RuntimeError_message,
 										new Object[] { this.process.getLabel(ITool.LONG_LABEL), this.currentRunnable.getLabel() }),
@@ -1318,6 +1320,13 @@ public abstract class ToolController implements IConsoleService {
 				}
 			}
 		}
+	}
+	
+	/** Only called for regular tasks */
+	protected void onTaskFinished(final IToolRunnable runnable, final int event,
+			final IProgressMonitor monitor) {
+		this.fQueue.internalFinished(runnable, event);
+		safeRunnableChanged(runnable, event);
 	}
 	
 	private void safeRunnableChanged(final IToolRunnable runnable, final int event) {
@@ -1375,16 +1384,23 @@ public abstract class ToolController implements IConsoleService {
 	}
 	
 	protected final void runHotModeLoop() {
+		final SubmitType savedSubmitType= this.currentSubmitType;
 		while (true) {
 			final IToolRunnable runnable;
 			synchronized (this.fQueue) {
 				runnable= pollHotRunnable();
 				if (runnable == null) {
-					this.hotMode= false;
+					if (this.hotMode) {
+						onHotModeExit(this.hotModeMonitor);
+						this.hotMode= false;
+						this.currentSubmitType= savedSubmitType;
+					}
 					return;
 				}
 				if (!this.hotMode) {
 					this.hotMode= true;
+					this.currentSubmitType= SubmitType.OTHER;
+					onHotModeEnter(this.hotModeMonitor);
 					if (this.hotModeNested && !(this.currentRunnable instanceof ISystemReadRunnable)) {
 						incrementCounter();
 					}
@@ -1417,6 +1433,12 @@ public abstract class ToolController implements IConsoleService {
 				}
 			}
 		}
+	}
+	
+	protected void onHotModeEnter(final IProgressMonitor monitor) {
+	}
+	
+	protected void onHotModeExit(final IProgressMonitor monitor) {
 	}
 	
 	

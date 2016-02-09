@@ -24,7 +24,6 @@ import de.walware.ecommons.ts.util.ToolCommandHandlerUtil;
 
 import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
-import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolStreamMonitor;
 import de.walware.statet.nico.internal.ui.AbstractConsoleCommandHandler;
 
@@ -68,8 +67,8 @@ public class ReportStatusHandler extends AbstractConsoleCommandHandler {
 			}
 			
 			try {
-				final ToolStreamMonitor infoStream = service.getController().getStreams().getInfoStreamMonitor();
-				infoStream.append(msg.toString(), SubmitType.OTHER, 0); // Error stream when error?
+				final ToolStreamMonitor infoStream= service.getController().getStreams().getInfoStreamMonitor();
+				infoStream.append(msg.toString(), service.getController().getCurrentSubmitType(), 0);
 			}
 			catch (final Exception e) {
 			}

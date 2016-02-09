@@ -28,6 +28,8 @@ public class Messages extends NLS {
 	public static String TextStyle_SystemOutput_description;
 	public static String TextStyle_StandardError_label;
 	public static String TextStyle_StandardError_description;
+	public static String TextStyle_SpecialBackground_label;
+	public static String TextStyle_SpecialBackground_Tasks_description;
 	
 	
 	static {

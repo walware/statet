@@ -33,10 +33,16 @@ public final class NIConsoleOutputStream {
 	
 	
 	public static final String INFO_STREAM_ID= NicoUI.PLUGIN_ID+".InfoStream"; //$NON-NLS-1$
-	public static final String INPUT_STREAM_ID= IDebugUIConstants.ID_STANDARD_INPUT_STREAM;
-	public static final String OUTPUT_STREAM_ID= IDebugUIConstants.ID_STANDARD_OUTPUT_STREAM;
-	public static final String ERROR_STREAM_ID= IDebugUIConstants.ID_STANDARD_ERROR_STREAM;
+	public static final String STD_INPUT_STREAM_ID= IDebugUIConstants.ID_STANDARD_INPUT_STREAM;
+	public static final String STD_OUTPUT_STREAM_ID= IDebugUIConstants.ID_STANDARD_OUTPUT_STREAM;
+	public static final String STD_ERROR_STREAM_ID= IDebugUIConstants.ID_STANDARD_ERROR_STREAM;
 	public static final String SYSTEM_OUTPUT_STREAM_ID= NicoUI.PLUGIN_ID+".SystemOutputStream"; //$NON-NLS-1$
+	
+	public static final String OTHER_TASKS_STREAM_SUFFIX= "-OtherTasks";
+	public static final String OTHER_TASKS_INFO_STREAM_ID= INFO_STREAM_ID + OTHER_TASKS_STREAM_SUFFIX;
+	public static final String OTHER_TASKS_STD_INPUT_STREAM_ID= STD_INPUT_STREAM_ID + OTHER_TASKS_STREAM_SUFFIX;
+	public static final String OTHER_TASKS_STD_OUTPUT_STREAM_ID= STD_OUTPUT_STREAM_ID + OTHER_TASKS_STREAM_SUFFIX;
+	public static final String OTHER_TASKS_STD_ERROR_STREAM_ID= STD_ERROR_STREAM_ID + OTHER_TASKS_STREAM_SUFFIX;
 	
 	
 	/**
@@ -63,6 +69,11 @@ public final class NIConsoleOutputStream {
 	 * The color used to decorate data written to this stream.
 	 */
 	private Color color;
+	
+	/**
+	 * The background color used to decorate data written to this stream.
+	 */
+	private Color backgroundColor;
 	
 	/**
 	 * The font style used to decorate data written to this stream.
@@ -134,6 +145,30 @@ public final class NIConsoleOutputStream {
 	 */
 	public Color getColor() {
 		return this.color;
+	}
+	
+	/**
+	 * Sets the background color of this stream. Use <code>null</code> to indicate
+	 * the default color.
+	 * 
+	 * @param newColor color of this stream, or <code>null</code>
+	 */
+	public void setBackgroundColor(final Color newColor) {
+		final Color old= this.color;
+		if (old == null || !old.equals(newColor)) {
+			this.backgroundColor= newColor;
+			this.console.firePropertyChange(this, IConsoleConstants.P_STREAM_COLOR, old, newColor);
+		}
+	}
+	
+	/**
+	 * Returns the background color of this stream, or <code>null</code>
+	 * if default.
+	 * 
+	 * @return the color of this stream, or <code>null</code>
+	 */
+	public Color getBackgroundColor() {
+		return this.backgroundColor;
 	}
 	
 	/**

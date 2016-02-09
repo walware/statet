@@ -11,13 +11,9 @@
 
 package de.walware.statet.nico.internal.ui.preferences;
 
-import static de.walware.statet.nico.internal.ui.preferences.ConsolePreferences.OUTPUT_INFO_ROOT_KEY;
-import static de.walware.statet.nico.internal.ui.preferences.ConsolePreferences.OUTPUT_INPUT_ROOT_KEY;
-import static de.walware.statet.nico.internal.ui.preferences.ConsolePreferences.OUTPUT_STANDARD_ERROR_ROOT_KEY;
-import static de.walware.statet.nico.internal.ui.preferences.ConsolePreferences.OUTPUT_STANDARD_OUTPUT_ROOT_KEY;
-import static de.walware.statet.nico.internal.ui.preferences.ConsolePreferences.OUTPUT_SYSTEM_OUTPUT_ROOT_KEY;
-
 import de.walware.ecommons.text.FixDocumentPartitioner;
+
+import de.walware.statet.nico.ui.NicoUIPreferences;
 
 
 class ConsoleTextStylesPreviewPartitioner extends FixDocumentPartitioner {
@@ -27,37 +23,37 @@ class ConsoleTextStylesPreviewPartitioner extends FixDocumentPartitioner {
 	
 	
 	public static final String[] PARTITIONS= new String[] {
-			OUTPUT_INPUT_ROOT_KEY,
-			OUTPUT_INFO_ROOT_KEY,
-			OUTPUT_STANDARD_OUTPUT_ROOT_KEY,
-			OUTPUT_STANDARD_ERROR_ROOT_KEY,
-			OUTPUT_SYSTEM_OUTPUT_ROOT_KEY,
+			NicoUIPreferences.OUTPUT_STD_INPUT_STREAM_ROOT_KEY,
+			NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY,
+			NicoUIPreferences.OUTPUT_STD_OUTPUT_ROOT_KEY,
+			NicoUIPreferences.OUTPUT_STD_ERROR_STREAM_ROOT_KEY,
+			NicoUIPreferences.OUTPUT_SYSTEM_OUTPUT_STREAM_ROOT_KEY,
 	};
 	
 	
 	public ConsoleTextStylesPreviewPartitioner() {
 		super(PARTITIONS);
-		append(OUTPUT_STANDARD_OUTPUT_ROOT_KEY, 21 + 44 + 22 + 1);
-		append(OUTPUT_INFO_ROOT_KEY, 2);
-		append(OUTPUT_INPUT_ROOT_KEY, 17-2);
-		append(OUTPUT_INFO_ROOT_KEY, 2);
-		append(OUTPUT_INPUT_ROOT_KEY, 4-2);
-		append(OUTPUT_STANDARD_OUTPUT_ROOT_KEY, 65 + 65);
-		append(OUTPUT_INFO_ROOT_KEY, 2);
-		append(OUTPUT_INPUT_ROOT_KEY, 13-2);
-		append(OUTPUT_STANDARD_OUTPUT_ROOT_KEY, 49 + 48);
-		append(OUTPUT_INFO_ROOT_KEY, 2);
-		append(OUTPUT_INPUT_ROOT_KEY, 5-2);
-		append(OUTPUT_STANDARD_ERROR_ROOT_KEY, 29);
-		append(OUTPUT_INFO_ROOT_KEY, 2);
-		append(OUTPUT_INPUT_ROOT_KEY, 3-2);
-		append(OUTPUT_INFO_ROOT_KEY, 2);
-		append(OUTPUT_INFO_ROOT_KEY, 15-2);
-		append(OUTPUT_SYSTEM_OUTPUT_ROOT_KEY, 41 + 41 + 11);
-		append(OUTPUT_INFO_ROOT_KEY, 2);
-		append(OUTPUT_INPUT_ROOT_KEY, 6-2);
-		append(OUTPUT_INFO_ROOT_KEY, 31);
-		append(OUTPUT_INPUT_ROOT_KEY, 33-31);
+		append(NicoUIPreferences.OUTPUT_STD_OUTPUT_ROOT_KEY, 21 + 44 + 22 + 1);
+		append(NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY, 2);
+		append(NicoUIPreferences.OUTPUT_STD_INPUT_STREAM_ROOT_KEY, 17-2);
+		append(NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY, 2);
+		append(NicoUIPreferences.OUTPUT_STD_INPUT_STREAM_ROOT_KEY, 4-2);
+		append(NicoUIPreferences.OUTPUT_STD_OUTPUT_ROOT_KEY, 65 + 65);
+		append(NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY, 2);
+		append(NicoUIPreferences.OUTPUT_STD_INPUT_STREAM_ROOT_KEY, 13-2);
+		append(NicoUIPreferences.OUTPUT_STD_OUTPUT_ROOT_KEY, 49 + 48);
+		append(NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY, 2);
+		append(NicoUIPreferences.OUTPUT_STD_INPUT_STREAM_ROOT_KEY, 5-2);
+		append(NicoUIPreferences.OUTPUT_STD_ERROR_STREAM_ROOT_KEY, 29);
+		append(NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY, 2);
+		append(NicoUIPreferences.OUTPUT_STD_INPUT_STREAM_ROOT_KEY, 3-2);
+		append(NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY, 2);
+		append(NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY, 15-2);
+		append(NicoUIPreferences.OUTPUT_SYSTEM_OUTPUT_STREAM_ROOT_KEY, 41 + 41 + 11);
+		append(NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY, 2);
+		append(NicoUIPreferences.OUTPUT_STD_INPUT_STREAM_ROOT_KEY, 6-2);
+		append(NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY, 31);
+		append(NicoUIPreferences.OUTPUT_STD_INPUT_STREAM_ROOT_KEY, 33-31);
 	}
 	
 }

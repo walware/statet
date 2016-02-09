@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
+import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.databinding.observable.Realm;
@@ -30,7 +31,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.databinding.wizard.WizardPageSupport;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -43,7 +44,6 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -56,6 +56,7 @@ import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
+import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.util.TrackWriter;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
@@ -71,65 +72,65 @@ import de.walware.statet.nico.ui.console.NIConsolePage;
 public class ExportConsoleOutputWizard extends Wizard {
 	
 	
-	private static final String FILE_HISTORY_SETTINGSKEY = "FileLocation_history";
+	private static final String FILE_HISTORY_SETTINGSKEY= "FileLocation_history";
 	
 	
 	protected static class ConfigurationPage extends WizardPage {
 		
 		
-		private final NIConsolePage fConsolePage;
+		private final NIConsolePage consolePage;
 		
-		private final TrackingConfiguration fConfig;
-		private final WritableValue fOpenValue;
+		private final TrackingConfiguration config;
+		private final WritableValue openValue;
 		
-		private TrackingConfigurationComposite fConfigControl;
-		private Button fOpenControl;
+		private TrackingConfigurationComposite configControl;
+		private Button openControl;
 		
-		private DataBindingSupport fDataBinding;
+		private DataBindingSupport dataBinding;
 		
 		
 		
 		public ConfigurationPage(final NIConsolePage page, final TrackingConfiguration config, final boolean selectionMode) {
 			super("ConfigureConsoleExportPage"); //$NON-NLS-1$
-			fConsolePage = page;
+			this.consolePage= page;
 			setTitle(selectionMode ? "Export Selected Output" : "Export Current Output");
 			setDescription("Select the content to export and the destination file");
 			
-			fConfig = config;
-			fOpenValue = new WritableValue(false, Boolean.class);
+			this.config= config;
+			this.openValue= new WritableValue(false, Boolean.class);
 		}
 		
 		@Override
 		public void createControl(final Composite parent) {
 			initializeDialogUnits(parent);
 			
-			final Composite composite = new Composite(parent, SWT.NONE);
+			final Composite composite= new Composite(parent, SWT.NONE);
 			composite.setLayout(LayoutUtil.createContentGrid(1));
 			
-			fConfigControl = createTrackingControl(composite);
-			fConfigControl.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+			this.configControl= createTrackingControl(composite);
+			this.configControl.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 			
-			fConfigControl.getPathInput().getValidator().setOnLateResolve(IStatus.ERROR);
-			fConfigControl.getPathInput().setShowInsertVariable(true,
+			this.configControl.getPathInput().getValidator().setOnLateResolve(IStatus.ERROR);
+			this.configControl.getPathInput().setShowInsertVariable(true,
 					DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS,
-					fConsolePage.getTool().getWorkspaceData().getStringVariables() );
-			fConfigControl.setInput(fConfig);
+					this.consolePage.getTool().getWorkspaceData().getStringVariables() );
+			this.configControl.setInput(this.config);
 			
-			final Composite additionalOptions = createAdditionalOptions(composite);
+			final Composite additionalOptions= createAdditionalOptions(composite);
 			additionalOptions.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 			
 			LayoutUtil.addSmallFiller(composite, true);
-			final ToolInfoGroup info = new ToolInfoGroup(composite, fConsolePage.getTool());
+			final ToolInfoGroup info= new ToolInfoGroup(composite, this.consolePage.getTool());
 			info.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			
 			Dialog.applyDialogFont(composite);
 			setControl(composite);
 			
-			fConfigControl.getPathInput().setHistory(getDialogSettings().getArray(FILE_HISTORY_SETTINGSKEY));
-			final Realm realm = Realm.getDefault();
-			fDataBinding = new DataBindingSupport(composite);
-			addBindings(fDataBinding);
-			WizardPageSupport.create(this, fDataBinding.getContext());
+			this.configControl.getPathInput().setHistory(getDialogSettings().getArray(FILE_HISTORY_SETTINGSKEY));
+			final Realm realm= Realm.getDefault();
+			this.dataBinding= new DataBindingSupport(composite);
+			addBindings(this.dataBinding);
+			WizardPageSupport.create(this, this.dataBinding.getContext());
 		}
 		
 		protected TrackingConfigurationComposite createTrackingControl(final Composite parent) {
@@ -142,52 +143,56 @@ public class ExportConsoleOutputWizard extends Wizard {
 				protected boolean enableFilePathAsCombo() {
 					return true;
 				}
+				@Override
+				protected EnumSet<SubmitType> getEditableSubmitTypes() {
+					return EnumSet.of(SubmitType.OTHER);
+				}
 			};
 		}
 		
 		protected Composite createAdditionalOptions(final Composite parent) {
-			final Group composite = new Group(parent, SWT.NONE);
+			final Group composite= new Group(parent, SWT.NONE);
 			composite.setText("Actions:");
-			composite.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 1));
+			composite.setLayout(LayoutUtil.createGroupGrid(1));
 			
-			fOpenControl = new Button(composite, SWT.CHECK);
-			fOpenControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			fOpenControl.setText("Open in &Editor");
+			this.openControl= new Button(composite, SWT.CHECK);
+			this.openControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			this.openControl.setText("Open in &Editor");
 			
 			return composite;
 		}
 		
 		protected void addBindings(final DataBindingSupport db) {
-			fConfigControl.addBindings(db);
+			this.configControl.addBindings(db);
 			
 			db.getContext().bindValue(
-					SWTObservables.observeSelection(fOpenControl),
-					fOpenValue );
+					WidgetProperties.selection().observe(this.openControl),
+					this.openValue );
 		}
 		
 		public boolean getOpenInEditor() {
-			return ((Boolean) fOpenValue.getValue()).booleanValue();
+			return ((Boolean) this.openValue.getValue()).booleanValue();
 		}
 		
 		protected void saveSettings() {
-			final IDialogSettings settings = getDialogSettings();
-			DialogUtil.saveHistorySettings(settings, FILE_HISTORY_SETTINGSKEY, fConfig.getFilePath());
+			final IDialogSettings settings= getDialogSettings();
+			DialogUtil.saveHistorySettings(settings, FILE_HISTORY_SETTINGSKEY, this.config.getFilePath());
 		}
 		
 	}
 	
 	
-	private TrackingConfiguration fConfig;
-	private final int fSelectionLength;
+	private TrackingConfiguration config;
+	private final int selectionLength;
 	
-	private final NIConsolePage fConsolePage;
+	private final NIConsolePage consolePage;
 	
-	private ConfigurationPage fConfigPage;
+	private ConfigurationPage configPage;
 	
 	
 	public ExportConsoleOutputWizard(final NIConsolePage consolePage) {
-		fConsolePage = consolePage;
-		fSelectionLength = ((ITextSelection) consolePage.getOutputViewer().getSelection()).getLength();
+		this.consolePage= consolePage;
+		this.selectionLength= ((ITextSelection) consolePage.getOutputViewer().getSelection()).getLength();
 		
 		setWindowTitle("Export Console Output");
 		setNeedsProgressMonitor(true);
@@ -196,41 +201,43 @@ public class ExportConsoleOutputWizard extends Wizard {
 	}
 	
 	protected TrackingConfiguration createTrackingConfiguration() {
-		return new TrackingConfiguration(""); //$NON-NLS-1$
+		final TrackingConfiguration config= new TrackingConfiguration(""); //$NON-NLS-1$
+		config.getSubmitTypes().remove(SubmitType.OTHER);
+		return config;
 	}
 	
 	@Override
 	public void addPages() {
-		fConfig = createTrackingConfiguration();
-		fConfigPage = new ConfigurationPage(fConsolePage, fConfig, fSelectionLength > 0);
-		addPage(fConfigPage);
+		this.config= createTrackingConfiguration();
+		this.configPage= new ConfigurationPage(this.consolePage, this.config, this.selectionLength > 0);
+		addPage(this.configPage);
 	}
 	
 	
 	@Override
 	public boolean performFinish() {
-		fConfigPage.saveSettings();
-		final boolean openInEditor = fConfigPage.getOpenInEditor();
+		this.configPage.saveSettings();
+		final boolean openInEditor= this.configPage.getOpenInEditor();
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {
 				@Override
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					final SubMonitor progress = SubMonitor.convert(monitor, "Export Output", 100);
-					final TextConsoleViewer outputViewer = fConsolePage.getOutputViewer();
-					final AbstractDocument document = (AbstractDocument) outputViewer.getDocument();
+					final SubMonitor progress= SubMonitor.convert(monitor, "Export Output", 100);
+					final TextConsoleViewer outputViewer= ExportConsoleOutputWizard.this.consolePage.getOutputViewer();
+					final AbstractDocument document= (AbstractDocument) outputViewer.getDocument();
 					
-					final IJobManager jobManager = Job.getJobManager();
-					final ISchedulingRule schedulingRule = fConsolePage.getConsole().getSchedulingRule();
+					final IJobManager jobManager= Job.getJobManager();
+					final ISchedulingRule schedulingRule= ExportConsoleOutputWizard.this.consolePage.getConsole().getSchedulingRule();
 					jobManager.beginRule(schedulingRule, progress.newChild(1));
 					try {
-						if (fSelectionLength > 0) {
+						if (ExportConsoleOutputWizard.this.selectionLength > 0) {
 							final AtomicReference<ITextSelection> currentSelection= new AtomicReference<>();
 							getShell().getDisplay().syncExec(new Runnable() {
 								@Override
 								public void run() {
-									final ITextSelection selection = (ITextSelection) outputViewer.getSelection();
-									if (selection.getLength() != fSelectionLength) {
-										final boolean continueExport = MessageDialog.openQuestion(getShell(), "Export Output",
+									final ITextSelection selection= (ITextSelection) outputViewer.getSelection();
+									if (selection.getLength() != ExportConsoleOutputWizard.this.selectionLength) {
+										final boolean continueExport= MessageDialog.openQuestion(getShell(), "Export Output",
 												"The selection is changed due to updates in the console. Do you want to continue nevertheless?");
 										if (!continueExport) {
 											return;
@@ -239,7 +246,7 @@ public class ExportConsoleOutputWizard extends Wizard {
 									currentSelection.set(selection);
 								}
 							});
-							final ITextSelection selection = currentSelection.get();
+							final ITextSelection selection= currentSelection.get();
 							if (selection == null) {
 								return;
 							}
@@ -259,7 +266,7 @@ public class ExportConsoleOutputWizard extends Wizard {
 			});
 		}
 		catch (final InvocationTargetException e) {
-			final Throwable cause = e.getCause();
+			final Throwable cause= e.getCause();
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
 					"An error occurred when exporting console output to file.", cause),
 					StatusManager.LOG | StatusManager.SHOW);
@@ -271,96 +278,115 @@ public class ExportConsoleOutputWizard extends Wizard {
 	}
 	
 	private void export(final AbstractDocument document, final int offset, final int length, final boolean openInEditor, final SubMonitor progress) throws InvocationTargetException {
-		OutputStream outputStream = null;
-		Writer outputWriter = null;
+		OutputStream outputStream= null;
+		Writer outputWriter= null;
 		try {
-			String filePath = fConfig.getFilePath();
-			filePath = TrackWriter.resolveVariables(filePath, fConsolePage.getTool().getWorkspaceData());
-			final IFileStore fileStore = FileUtil.getFileStore(filePath);
+			String filePath= this.config.getFilePath();
+			filePath= TrackWriter.resolveVariables(filePath, this.consolePage.getTool().getWorkspaceData());
+			final IFileStore fileStore= FileUtil.getFileStore(filePath);
 			
-			outputStream = fileStore.openOutputStream(fConfig.getFileMode(), progress.newChild(1));
+			outputStream= fileStore.openOutputStream(this.config.getFileMode(), progress.newChild(1));
 			if (fileStore.fetchInfo().getLength() <= 0L) {
-				FileUtil.prepareTextOutput(outputStream, fConfig.getFileEncoding());
+				FileUtil.prepareTextOutput(outputStream, this.config.getFileEncoding());
 			}
-			outputWriter = new BufferedWriter(new OutputStreamWriter(outputStream, fConfig.getFileEncoding()));
+			outputWriter= new BufferedWriter(new OutputStreamWriter(outputStream, this.config.getFileEncoding()));
 			
-			if (fConfig.getPrependTimestamp()) {
-				final ToolProcess process = fConsolePage.getConsole().getProcess();
+			if (this.config.getPrependTimestamp()) {
+				final ToolProcess process= this.consolePage.getConsole().getProcess();
 				outputWriter.append(process.createTimestampComment(process.getConnectionTimestamp()));
 			}
 			
-			if (fConfig.getTrackStreamInfo() && fConfig.getTrackStreamInput()
-					&& fConfig.getTrackStreamOutput() && !fConfig.getTrackStreamOutputTruncate()) {
-				int pOffset = offset;
-				int pLength = length;
+			if (this.config.getTrackStreamInfo() && this.config.getTrackStreamInput()
+					&& this.config.getTrackStreamOutput() && !this.config.getTrackStreamOutputTruncate()
+					&& this.config.getSubmitTypes().contains(SubmitType.OTHER) ) {
+				int pOffset= offset;
+				int pLength= length;
 				while (pLength > 0) {
-					final int currentLength = Math.min(pLength, 32768);
+					final int currentLength= Math.min(pLength, 32768);
 					outputWriter.append(document.get(pOffset, currentLength));
-					pOffset += currentLength;
-					pLength -= currentLength;
+					pOffset+= currentLength;
+					pLength-= currentLength;
 				}
 			}
 			else {
-				final ITypedRegion[] partitions = document.getDocumentPartitioner().computePartitioning(offset, length);
-				final SubMonitor exportProgress = progress.newChild(90);
-				int counter = partitions.length;
+				final ITypedRegion[] partitions= document.getDocumentPartitioner().computePartitioning(offset, length);
+				final SubMonitor exportProgress= progress.newChild(90);
+				int counter= partitions.length;
 				for (final ITypedRegion partition : partitions) {
 					exportProgress.setWorkRemaining(counter--);
-					final String type = partition.getType();
-					String text2 = null;
+					final String type= partition.getType();
+					String text2= null;
 					
 					if (type == null) {
 						continue;
 					}
 					
-					int pOffset;
-					int pLength;
-					if (type.equals(NIConsoleOutputStream.INFO_STREAM_ID)) {
-						if (!fConfig.getTrackStreamInfo()) {
+					boolean truncate= false;
+					if (type == NIConsoleOutputStream.INFO_STREAM_ID) {
+						if (!this.config.getTrackStreamInfo()) {
 							continue;
-						}
-						pOffset = Math.max(offset, partition.getOffset());
-						pLength = Math.min(offset+length, partition.getOffset()+partition.getLength()) - pOffset;
-					}
-					else if (type.equals(NIConsoleOutputStream.INPUT_STREAM_ID)) {
-						if (!fConfig.getTrackStreamInput()) {
-							continue;
-						}
-						pOffset = Math.max(offset, partition.getOffset());
-						pLength = Math.min(offset+length, partition.getOffset()+partition.getLength()) - pOffset;
-					}
-					else if (type.equals(NIConsoleOutputStream.OUTPUT_STREAM_ID)) {
-						if (!fConfig.getTrackStreamOutput()) {
-							continue;
-						}
-						pOffset = Math.max(offset, partition.getOffset());
-						pLength = Math.min(offset+length, partition.getOffset()+partition.getLength()) - pOffset;
-						if (fConfig.getTrackStreamOutputTruncate()) {
-							final int firstLine = document.getLineOfOffset(pOffset);
-							final int lastLine = document.getLineOfOffset(pOffset+pLength);
-							if (lastLine - firstLine + 1 > fConfig.getTrackStreamOutputTruncateLines()) {
-								pLength = document.getLineOffset(firstLine + fConfig.getTrackStreamOutputTruncateLines()) - pOffset;
-								text2 = "[...] (truncated)\n\n";
-							}
 						}
 					}
-					else if (type.equals(NIConsoleOutputStream.ERROR_STREAM_ID)) {
-						if (!fConfig.getTrackStreamOutput()) {
+					else if (type == NIConsoleOutputStream.OTHER_TASKS_INFO_STREAM_ID) {
+						if (!this.config.getTrackStreamInfo()
+								|| !this.config.getSubmitTypes().contains(SubmitType.OTHER)) {
 							continue;
 						}
-						pOffset = Math.max(offset, partition.getOffset());
-						pLength = Math.min(offset+length, partition.getOffset()+partition.getLength()) - pOffset;
+					}
+					else if (type == NIConsoleOutputStream.STD_INPUT_STREAM_ID) {
+						if (!this.config.getTrackStreamInput()) {
+							continue;
+						}
+					}
+					else if (type == NIConsoleOutputStream.OTHER_TASKS_STD_INPUT_STREAM_ID) {
+						if (!this.config.getTrackStreamInput()
+								|| !this.config.getSubmitTypes().contains(SubmitType.OTHER)) {
+							continue;
+						}
+					}
+					else if (type == NIConsoleOutputStream.STD_OUTPUT_STREAM_ID) {
+						if (!this.config.getTrackStreamOutput()) {
+							continue;
+						}
+						truncate= this.config.getTrackStreamOutputTruncate();
+					}
+					else if (type == NIConsoleOutputStream.OTHER_TASKS_INFO_STREAM_ID) {
+						if (!this.config.getTrackStreamOutput()
+								|| !this.config.getSubmitTypes().contains(SubmitType.OTHER)) {
+							continue;
+						}
+						truncate= this.config.getTrackStreamOutputTruncate();
+					}
+					else if (type == NIConsoleOutputStream.STD_ERROR_STREAM_ID) {
+						if (!this.config.getTrackStreamOutput()) {
+							continue;
+						}
+					}
+					else if (type == NIConsoleOutputStream.OTHER_TASKS_STD_ERROR_STREAM_ID) {
+						if (!this.config.getTrackStreamOutput()
+								|| !this.config.getSubmitTypes().contains(SubmitType.OTHER)) {
+							continue;
+						}
 					}
 					else {
-						pOffset = Math.max(offset, partition.getOffset());
-						pLength = Math.min(offset+length, partition.getOffset()+partition.getLength()) - pOffset;
+					}
+					
+					int pOffset= Math.max(offset, partition.getOffset());
+					int pLength= Math.min(offset+length, partition.getOffset()+partition.getLength()) - pOffset;
+					if (truncate) {
+						final int firstLine= document.getLineOfOffset(pOffset);
+						final int lastLine= document.getLineOfOffset(pOffset+pLength);
+						if (lastLine - firstLine + 1 > this.config.getTrackStreamOutputTruncateLines()) {
+							pLength= document.getLineOffset(firstLine + this.config.getTrackStreamOutputTruncateLines()) - pOffset;
+							text2= "[...] (truncated)\n\n";
+						}
 					}
 					
 					while (pLength > 0) {
-						final int currentLength = Math.min(pLength, 32768);
+						final int currentLength= Math.min(pLength, 32768);
 						outputWriter.append(document.get(pOffset, currentLength));
-						pOffset += currentLength;
-						pLength -= currentLength;
+						pOffset+= currentLength;
+						pLength-= currentLength;
 					}
 					if (text2 != null) {
 						outputWriter.append(text2);
@@ -369,7 +395,7 @@ public class ExportConsoleOutputWizard extends Wizard {
 			}
 			
 			outputWriter.close();
-			outputWriter = null;
+			outputWriter= null;
 			
 			if (openInEditor) {
 				UIAccess.getDisplay().asyncExec(new Runnable() {
