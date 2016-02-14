@@ -1151,6 +1151,10 @@ public class RPkgManager implements IRPkgManager.Ext, IPreferenceSetService.ICha
 				if (loadInstPkgs) {
 					this.requireLoad &= ~REQUIRE_INST_PKGS;
 				}
+				
+				if (this.pkgsExt != null) {
+					checkRViews(this.pkgsExt, r, monitor);
+				}
 			}
 			finally {
 				getWriteLock().unlock();
@@ -1224,7 +1228,7 @@ public class RPkgManager implements IRPkgManager.Ext, IPreferenceSetService.ICha
 				this.db.updatePkgs(this.rTaskEvent);
 			}
 			
-			if (this.pkgsExt != null) {
+			if (pkgs == null && this.pkgsExt != null) {
 				checkRViews(this.pkgsExt, r, monitor);
 			}
 		}
