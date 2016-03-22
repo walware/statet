@@ -23,10 +23,10 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS123_SYNTA
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS12_SYNTAX_TOKEN_NOT_CLOSED;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_MASK_12;
 
+import de.walware.jcommons.string.IStringFactory;
+
 import de.walware.ecommons.ltk.ast.StatusDetail;
 import de.walware.ecommons.text.core.input.TextParserInput;
-
-import de.walware.jcommons.string.IStringFactory;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 
@@ -41,6 +41,8 @@ public class RLexer {
 	public static final int SKIP_COMMENT=                   0b0_0000_0000_0000_0100;
 	
 	public static final int ENABLE_QUICK_CHECK=             0b0_0000_0000_0001_0000;
+	
+	public static final int ENABLE_NUM_VALUE=               0b0_0000_0000_0010_0000;
 	
 	public static final int ENABLE_COLON_EQUAL=             0b0_0000_0001_0000_0000;
 	
@@ -97,6 +99,8 @@ public class RLexer {
 	
 	private StringBuilder textBuilder;
 	private boolean textBuilderText;
+	
+	private double numValue;
 	
 	
 	/**
@@ -721,6 +725,7 @@ public class RLexer {
 			n= nIdentifier(in, 1);
 			if (n == 3
 					&& in.matches(1, 'n', 'f')) {
+				this.numValue= Double.POSITIVE_INFINITY;
 				found(in, RTerminal.INF, 3);
 				return;
 			}
@@ -1098,17 +1103,33 @@ public class RLexer {
 				return;
 			case 'L':
 				if (n < 3 + 8 || (n == 3 + 8 && in.get(2) <= '7')) { // 7FFFFFFF
+					if ((this.configFlags & ENABLE_NUM_VALUE) != 0) {
+						this.numValue= parseHexIntValue(in, 2, n - 1);
+					}
 					found(in, RTerminal.NUM_INT, n);
 					return;
 				}
 				else {
+					if ((this.configFlags & ENABLE_NUM_VALUE) != 0) {
+						this.numValue= Double.parseDouble(in.getString(0, n - 1) + "p0"); //$NON-NLS-1$
+					}
 					found(in, RTerminal.NUM_NUM, STATUS123_SYNTAX_NUMBER_NON_INT_WITH_L, n);
 					return;
 				}
 			case 'i':
+				if ((this.configFlags & ENABLE_NUM_VALUE) != 0) {
+					this.numValue= (n < 3 + 8 || (n == 3 + 8 && in.get(2) <= '7')) ?
+							parseHexIntValue(in, 2, n - 1) :
+							Double.parseDouble(in.getString(0, n - 1) + "p0"); //$NON-NLS-1$
+				}
 				found(in, RTerminal.NUM_CPLX, n);
 				return;
 			default:
+				if ((this.configFlags & ENABLE_NUM_VALUE) != 0) {
+					this.numValue= (n < 3 + 8 || (n == 3 + 8 && in.get(2) <= '7')) ?
+							parseHexIntValue(in, 2, n - 1) :
+							Double.parseDouble(in.getString(0, n - 1) + "p0"); //$NON-NLS-1$
+				}
 				found(in, RTerminal.NUM_NUM, n - 1);
 				return;
 			}
@@ -1140,14 +1161,25 @@ public class RLexer {
 				return;
 			case 'L':
 				if (n < 1 + 10 || (n == 1 + 10 && isLessEqual(in, 0, "2147483647"))) {
+					if ((this.configFlags & ENABLE_NUM_VALUE) != 0) {
+						this.numValue= parseDecIntValue(in, 0, n - 1);
+					}
 					found(in, RTerminal.NUM_INT, n);
 					return;
 				}
 				else {
+					if ((this.configFlags & ENABLE_NUM_VALUE) != 0) {
+						this.numValue= Double.parseDouble(in.getString(0, n - 1));
+					}
 					found(in, RTerminal.NUM_NUM, STATUS123_SYNTAX_NUMBER_NON_INT_WITH_L, n);
 					return;
 				}
 			case 'i':
+				if ((this.configFlags & ENABLE_NUM_VALUE) != 0) {
+					this.numValue= (n < 1 + 10) ?
+							parseDecIntValue(in, 0, n - 1) :
+							Double.parseDouble(in.getString(0, n - 1));
+				}
 				found(in, RTerminal.NUM_CPLX, n);
 				return;
 			case 'A':
@@ -1161,6 +1193,11 @@ public class RLexer {
 			case 'd':
 			case 'f':
 			default:
+				if ((this.configFlags & ENABLE_NUM_VALUE) != 0) {
+					this.numValue= (n < 1 + 10) ?
+							parseDecIntValue(in, 0, n - 1) :
+							Double.parseDouble(in.getString(0, n - 1));
+				}
 				found(in, RTerminal.NUM_NUM, n - 1);
 				return;
 			}
@@ -1169,11 +1206,13 @@ public class RLexer {
 	
 	private boolean isValidInt(final String s) {
 		try {
-			final double d= Double.parseDouble(s);
+			final double d= this.numValue= Double.parseDouble(s);
 			final int i= (int) d;
 			return (d == i);
 		}
 		catch (final NumberFormatException e) {
+			// ?
+			this.numValue= Double.NaN;
 			return false;
 		}
 	}
@@ -1207,6 +1246,9 @@ public class RLexer {
 					return;
 				}
 			case 'i':
+				if ((this.configFlags & ENABLE_NUM_VALUE) != 0) {
+					this.numValue= Double.parseDouble(in.getString(0, n - 1));
+				}
 				found(in, RTerminal.NUM_CPLX, n);
 				return;
 			case 'A':
@@ -1220,6 +1262,9 @@ public class RLexer {
 			case 'd':
 			case 'f':
 			default:
+				if ((this.configFlags & ENABLE_NUM_VALUE) != 0) {
+					this.numValue= Double.parseDouble(in.getString(0, n - 1));
+				}
 				found(in, RTerminal.NUM_NUM, n - 1);
 				return;
 			}
@@ -1326,9 +1371,15 @@ public class RLexer {
 					return;
 				}
 			case 'i':
+				if ((this.configFlags & ENABLE_NUM_VALUE) != 0) {
+					this.numValue= Double.parseDouble(in.getString(0, n - 1));
+				}
 				found(in, RTerminal.NUM_CPLX, n);
 				return;
 			default:
+				if ((this.configFlags & ENABLE_NUM_VALUE) != 0) {
+					this.numValue= Double.parseDouble(in.getString(0, n - 1));
+				}
 				found(in, RTerminal.NUM_NUM, n - 1);
 				return;
 			}
@@ -2071,6 +2122,65 @@ public class RLexer {
 	
 	
 	protected void handleNewLine(final int offset) {
+	}
+	
+	
+	private int decDigit(final int c) {
+		return c - '0';
+	}
+	
+	private int hexDigit(final int c) {
+		switch (c) {
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+			return c - '0';
+		case 'A':
+		case 'B':
+		case 'C':
+		case 'D':
+		case 'E':
+		case 'F':
+			return c - ('A' - 10);
+		case 'a':
+		case 'b':
+		case 'c':
+		case 'd':
+		case 'e':
+		case 'f':
+			return c - ('a' - 10);
+		default:
+			throw new IllegalStateException();
+		}
+	}
+	
+	private int parseDecIntValue(final TextParserInput in, int i, final int n) {
+		int result= 0;
+		while (i < n) {
+			result*= 10;
+			result+= decDigit(in.get(i++));
+		}
+		return result;
+	}
+	
+	private int parseHexIntValue(final TextParserInput in, int i, final int n) {
+		int result= 0;
+		while (i < n) {
+			result*= 16;
+			result+= hexDigit(in.get(i++));
+		}
+		return result;
+	}
+	
+	public double getNumValue() {
+		return this.numValue;
 	}
 	
 }

@@ -24,28 +24,35 @@ public class RUtil {
 	public static final Pattern LINE_SEPARATOR_PATTERN = Pattern.compile("\\r[\\n]?|\\n"); //$NON-NLS-1$
 	
 	
-	public static String escapeDoubleQuote(final String s) {
-		if (s.indexOf('"') < 0) {
-			return s;
-		}
-		final StringBuilder result = new StringBuilder(s.length()+1);
-		boolean nextEscaped = false;
-		for (int i = 0; i < s.length(); ) {
-			final char c = s.charAt(i++);
+	public static String escapeForDQuote(final String s) {
+		int idx= 0;
+		CHECK: for (; idx < s.length(); idx++) {
+			final char c= s.charAt(idx);
 			switch (c) {
 			case '\\':
-				nextEscaped = !nextEscaped;
-				result.append(c);
-				break;
+			case '\"':
+				break CHECK;
+			default:
+				continue CHECK;
+			}
+		}
+		if (idx == s.length()) {
+			return s;
+		}
+		final StringBuilder result= new StringBuilder(s.length() + 1);
+		result.append(s, 0, idx);
+		for (; idx < s.length(); idx++) {
+			final char c= s.charAt(idx);
+			switch (c) {
+			case '\\':
 			case '"':
-				if (!nextEscaped) {
-					result.append('\\');
-				}
+				result.append('\\');
+				result.append(c);
+				continue;
 				//$FALL-THROUGH$
 			default:
-				nextEscaped = false;
 				result.append(c);
-				break;
+				continue;
 			}
 		}
 		return result.toString();
