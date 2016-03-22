@@ -55,6 +55,7 @@ import de.walware.ecommons.variables.core.VariableText.LocationProcessor;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 
+import de.walware.statet.r.console.core.AbstractRController;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -65,7 +66,6 @@ import de.walware.statet.r.internal.debug.ui.RControllerCodeLaunchConnector;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.ContentHandler.FileCommand;
-import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.IRModelSrcref;
 import de.walware.statet.r.ui.RUI;
 

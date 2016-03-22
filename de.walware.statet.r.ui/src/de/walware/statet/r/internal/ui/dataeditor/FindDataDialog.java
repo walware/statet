@@ -71,7 +71,7 @@ public class FindDataDialog extends ExtStatusDialog {
 		}
 		@Override
 		public void windowClosed(final IWorkbenchWindow window) {
-			if (fWindow == window) {
+			if (FindDataDialog.this.fWindow == window) {
 				close();
 			}
 		}
@@ -87,13 +87,13 @@ public class FindDataDialog extends ExtStatusDialog {
 		}
 		@Override
 		public void partClosed(final IWorkbenchPart part) {
-			if (fPart == part) {
-				fPart = null;
+			if (FindDataDialog.this.fPart == part) {
+				FindDataDialog.this.fPart = null;
 			}
 		}
 		@Override
 		public void partActivated(final IWorkbenchPart part) {
-			fPart = part;
+			FindDataDialog.this.fPart = part;
 			update(part);
 		}
 		@Override
@@ -134,10 +134,10 @@ public class FindDataDialog extends ExtStatusDialog {
 	protected FindDataDialog(final IWorkbenchWindow window) {
 		super(window.getShell());
 		
-		fWindow = window;
-		fWindow.getWorkbench().addWindowListener(fPartListener);
-		fWindow.getActivePage().addPartListener(fPartListener);
-		fPart = fWindow.getActivePage().getActivePart();
+		this.fWindow = window;
+		this.fWindow.getWorkbench().addWindowListener(this.fPartListener);
+		this.fWindow.getActivePage().addPartListener(this.fPartListener);
+		this.fPart = this.fWindow.getActivePage().getActivePart();
 		
 		setTitle("Find");
 		setShellStyle((getShellStyle() & ~SWT.APPLICATION_MODAL) | SWT.MODELESS);
@@ -165,13 +165,13 @@ public class FindDataDialog extends ExtStatusDialog {
 	
 	@Override
 	public boolean close() {
-		fWindow.getWorkbench().removeWindowListener(fPartListener);
-		final IWorkbenchPage page = fWindow.getActivePage();
+		this.fWindow.getWorkbench().removeWindowListener(this.fPartListener);
+		final IWorkbenchPage page = this.fWindow.getActivePage();
 		if (page != null) {
-			page.removePartListener(fPartListener);
+			page.removePartListener(this.fPartListener);
 		}
 		
-		gDialogs.remove(fWindow);
+		gDialogs.remove(this.fWindow);
 		saveSettings();
 		
 		return super.close();
@@ -211,24 +211,24 @@ public class FindDataDialog extends ExtStatusDialog {
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		label.setText("Find:");
 		
-		fTextControl = new Combo(composite, SWT.DROP_DOWN | SWT.BORDER);
-		fTextControl.setLayoutData(LayoutUtil.hintWidth(
-				new GridData(SWT.FILL, SWT.CENTER, true, false), fTextControl, 25 ));
+		this.fTextControl = new Combo(composite, SWT.DROP_DOWN | SWT.BORDER);
+		this.fTextControl.setLayoutData(LayoutUtil.hintWidth(
+				new GridData(SWT.FILL, SWT.CENTER, true, false), this.fTextControl, 25 ));
 		
-		fTextControl.addListener(SWT.Modify, new Listener() {
+		this.fTextControl.addListener(SWT.Modify, new Listener() {
 			@Override
 			public void handleEvent(final Event event) {
 				updateStatus(null);
 				updateState();
 			}
 		});
-		fTextControl.addSelectionListener(new SelectionAdapter() {
+		this.fTextControl.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
 				final int selectionIdx;
-				if (!fTextControl.getListVisible()
-						&& (selectionIdx = fTextControl.getSelectionIndex()) >= 0) {
-					loadQuery(fTextControl.getItem(selectionIdx));
+				if (!FindDataDialog.this.fTextControl.getListVisible()
+						&& (selectionIdx = FindDataDialog.this.fTextControl.getSelectionIndex()) >= 0) {
+					loadQuery(FindDataDialog.this.fTextControl.getItem(selectionIdx));
 				}
 			}
 		});
@@ -241,18 +241,18 @@ public class FindDataDialog extends ExtStatusDialog {
 		composite.setText("Direction");
 		composite.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(0, true), 2));
 		
-		{	fDirectionFirstInColumnControl = new Button(composite, SWT.RADIO);
-			fDirectionFirstInColumnControl.setText("&Column, Row");
-			fDirectionFirstInColumnControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			fDirectionFirstInColumnControl.setSelection(true);
+		{	this.fDirectionFirstInColumnControl = new Button(composite, SWT.RADIO);
+			this.fDirectionFirstInColumnControl.setText("&Column, Row");
+			this.fDirectionFirstInColumnControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			this.fDirectionFirstInColumnControl.setSelection(true);
 		}
-		{	fDirectionFirstInRowControl = new Button(composite, SWT.RADIO);
-			fDirectionFirstInRowControl.setText("&Row, Column");
-			fDirectionFirstInRowControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		{	this.fDirectionFirstInRowControl = new Button(composite, SWT.RADIO);
+			this.fDirectionFirstInRowControl.setText("&Row, Column");
+			this.fDirectionFirstInRowControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		}
-		{	fSelectedOnlyControl = new Button(composite, SWT.CHECK);
-			fSelectedOnlyControl.setText("Only Selec&ted Cells");
-			fSelectedOnlyControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		{	this.fSelectedOnlyControl = new Button(composite, SWT.CHECK);
+			this.fSelectedOnlyControl.setText("Only Selec&ted Cells");
+			this.fSelectedOnlyControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		}
 		
 		return composite;
@@ -268,9 +268,9 @@ public class FindDataDialog extends ExtStatusDialog {
 			button.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			button.setSelection(true);
 		}
-		{	fSelectedOnlyControl = new Button(composite, SWT.CHECK);
-			fSelectedOnlyControl.setText("Selec&ted Cells");
-			fSelectedOnlyControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		{	this.fSelectedOnlyControl = new Button(composite, SWT.CHECK);
+			this.fSelectedOnlyControl.setText("Selec&ted Cells");
+			this.fSelectedOnlyControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		}
 		return composite;
 	}
@@ -280,29 +280,29 @@ public class FindDataDialog extends ExtStatusDialog {
 		composite.setText("Options");
 		composite.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(0, true), 2));
 		
-		{	fRExpressionModeControl = new Button(composite, SWT.CHECK);
-			fRExpressionModeControl.setText("R expression");
-			fRExpressionModeControl.setToolTipText("Use x to reference the object itself, e.g. 'x >= 1'");
-			fRExpressionModeControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			fRExpressionModeControl.addSelectionListener(new SelectionAdapter() {
+		{	this.fRExpressionModeControl = new Button(composite, SWT.CHECK);
+			this.fRExpressionModeControl.setText("R expression");
+			this.fRExpressionModeControl.setToolTipText("Use x to reference the object itself, e.g. 'x >= 1'");
+			this.fRExpressionModeControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			this.fRExpressionModeControl.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(final SelectionEvent e) {
-					if (fRExpressionModeControl.getSelection()) {
-						fIsNaModeControl.setSelection(false);
+					if (FindDataDialog.this.fRExpressionModeControl.getSelection()) {
+						FindDataDialog.this.fIsNaModeControl.setSelection(false);
 					}
 				}
 			});
 		}
 		
-		{	fIsNaModeControl = new Button(composite, SWT.CHECK);
-			fIsNaModeControl.setText("Is NA");
-			fIsNaModeControl.setToolTipText("The search expression is ignored");
-			fIsNaModeControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			fIsNaModeControl.addSelectionListener(new SelectionAdapter() {
+		{	this.fIsNaModeControl = new Button(composite, SWT.CHECK);
+			this.fIsNaModeControl.setText("Is NA");
+			this.fIsNaModeControl.setToolTipText("The search expression is ignored");
+			this.fIsNaModeControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			this.fIsNaModeControl.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(final SelectionEvent e) {
-					if (fIsNaModeControl.getSelection()) {
-						fRExpressionModeControl.setSelection(false);
+					if (FindDataDialog.this.fIsNaModeControl.getSelection()) {
+						FindDataDialog.this.fRExpressionModeControl.setSelection(false);
 					}
 				}
 			});
@@ -346,14 +346,14 @@ public class FindDataDialog extends ExtStatusDialog {
 			return;
 		}
 		
-		final String mode = fHistoryModeMap.get(text);
+		final String mode = this.fHistoryModeMap.get(text);
 		if (mode != null) {
 			if ("r_expression".equals(mode)) {
-				fRExpressionModeControl.setSelection(true);
-				fIsNaModeControl.setSelection(false);
+				this.fRExpressionModeControl.setSelection(true);
+				this.fIsNaModeControl.setSelection(false);
 			}
 			else {
-				fRExpressionModeControl.setSelection(false);
+				this.fRExpressionModeControl.setSelection(false);
 			}
 		}
 	}
@@ -361,95 +361,95 @@ public class FindDataDialog extends ExtStatusDialog {
 	private void doFind(final boolean forward) {
 		final String expression = getExpression();
 		if (!expression.equals("is.na(x)")) {
-			final String text = fTextControl.getText();
-			final int idx = fTextControl.indexOf(text);
+			final String text = this.fTextControl.getText();
+			final int idx = this.fTextControl.indexOf(text);
 			if (idx != 0) {
 				if (idx > 0) {
-					fTextControl.remove(idx);
+					this.fTextControl.remove(idx);
 				}
-				fTextControl.add(text, 0);
-				fTextControl.setText(text);
+				this.fTextControl.add(text, 0);
+				this.fTextControl.setText(text);
 			}
-			fHistoryModeMap.put(text,
-					fRExpressionModeControl.getSelection() ? "r_expression" : "default");
+			this.fHistoryModeMap.put(text,
+					this.fRExpressionModeControl.getSelection() ? "r_expression" : "default");
 		}
-		fTable.find(expression,
-				fSelectedOnlyControl.getSelection(),
-				fDirectionFirstInRowControl.getSelection(),
+		this.fTable.find(expression,
+				this.fSelectedOnlyControl.getSelection(),
+				this.fDirectionFirstInRowControl.getSelection(),
 				forward);
 	}
 	
 	protected String getExpression() {
-		if (fRExpressionModeControl.getSelection()) {
-			return fTextControl.getText();
+		if (this.fRExpressionModeControl.getSelection()) {
+			return this.fTextControl.getText();
 		}
-		else if (fIsNaModeControl.getSelection()) {
+		else if (this.fIsNaModeControl.getSelection()) {
 			return "is.na(x)";
 		}
 		else {
-			return "x == " + fTextControl.getText();
+			return "x == " + this.fTextControl.getText();
 		}
 	}
 	
 	protected void loadSettings() {
 		final IDialogSettings settings = getDialogSettings();
 		final String[] history = DialogUtil.noNull(settings.getArray("SearchText.history"));
-		fTextControl.setItems(history);
+		this.fTextControl.setItems(history);
 		final String[] historyModes = DialogUtil.noNull(settings.getArray("SearchMode.history"));
 		if (history.length == historyModes.length) {
 			for (int i = 0; i < history.length; i++) {
-				fHistoryModeMap.put(history[i], historyModes[i]);
+				this.fHistoryModeMap.put(history[i], historyModes[i]);
 			}
 		}
 		if (history.length > 0) {
-			fTextControl.setText(history[0]);
+			this.fTextControl.setText(history[0]);
 			loadQuery(history[0]);
 		}
 		if (settings.getBoolean("Direction.firstInRow")) {
-			fDirectionFirstInColumnControl.setSelection(false);
-			fDirectionFirstInRowControl.setSelection(true);
+			this.fDirectionFirstInColumnControl.setSelection(false);
+			this.fDirectionFirstInRowControl.setSelection(true);
 		}
 		else {
-			fDirectionFirstInColumnControl.setSelection(true);
-			fDirectionFirstInRowControl.setSelection(false);
+			this.fDirectionFirstInColumnControl.setSelection(true);
+			this.fDirectionFirstInRowControl.setSelection(false);
 		}
 	}
 	
 	protected void saveSettings() {
 		final IDialogSettings settings = getDialogSettings();
-		final String[] history = DialogUtil.combineHistoryItems(fTextControl.getItems(), null);
+		final String[] history = DialogUtil.combineHistoryItems(this.fTextControl.getItems(), null);
 		settings.put("SearchText.history", history);
 		final String[] historyModes = new String[history.length];
 		for (int i = 0; i < history.length; i++) {
-			String mode = fHistoryModeMap.get(history[i]);
+			String mode = this.fHistoryModeMap.get(history[i]);
 			if (mode == null) {
 				mode = "default";
 			}
 			historyModes[i] = mode;
 		}
 		settings.put("SearchMode.history", historyModes);
-		settings.put("Direction.firstInRow", fDirectionFirstInRowControl.getSelection());
+		settings.put("Direction.firstInRow", this.fDirectionFirstInRowControl.getSelection());
 	}
 	
 	
 	public void update(final IWorkbenchPart part) {
-		if (part != null && fPart == part) {
+		if (part != null && this.fPart == part) {
 			final RDataTableComposite table = (RDataTableComposite) part.getAdapter(RDataTableComposite.class);
-			if (fTable != null && fTable != table) {
-				fTable.removeFindListener(fFindListener);
+			if (this.fTable != null && this.fTable != table) {
+				this.fTable.removeFindListener(this.fFindListener);
 				updateStatus(null);
 			}
 			
-			fTable = table;
-			if (fTable != null) {
-				table.addFindListener(fFindListener);
+			this.fTable = table;
+			if (this.fTable != null) {
+				table.addFindListener(this.fFindListener);
 			}
 			updateState();
 		}
 	}
 	
 	private void updateState() {
-		final boolean enabled = (fTable != null && fTextControl.getText().length() > 0);
+		final boolean enabled = (this.fTable != null && this.fTextControl.getText().length() > 0);
 		getButton(FIND_NEXT_ID).setEnabled(enabled);
 		getButton(FIND_PREVIOUS_ID).setEnabled(enabled);
 	}

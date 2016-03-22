@@ -11,34 +11,32 @@
 
 package de.walware.statet.r.internal.debug.core.breakpoints;
 
-import de.walware.rj.server.dbg.Tracepoint;
 import de.walware.rj.server.dbg.TracepointEvent;
-import de.walware.rj.server.dbg.TracepointState;
 
 import de.walware.statet.r.debug.core.breakpoints.IRBreakpoint;
-import de.walware.statet.r.debug.core.breakpoints.IRMethodBreakpointStatus;
+import de.walware.statet.r.debug.core.breakpoints.IRBreakpointStatus;
 
 
-public class BreakpointStatus implements IRMethodBreakpointStatus {
+public class BreakpointStatus implements IRBreakpointStatus {
 	
 	
-	protected final TracepointEvent fEvent;
+	protected final TracepointEvent event;
 	
-	protected String fLabel;
-	protected final IRBreakpoint fBreakpoint;
+	protected final String label;
+	protected final IRBreakpoint breakpoint;
 	
 	
 	public BreakpointStatus(final TracepointEvent event, final String label,
 			final IRBreakpoint breakpoint) {
-		fEvent = event;
-		fLabel = label;
-		fBreakpoint = breakpoint;
+		this.event= event;
+		this.label= label;
+		this.breakpoint= breakpoint;
 	}
 	
 	
 	@Override
 	public int getKind() {
-		switch (fEvent.getKind()) {
+		switch (this.event.getKind()) {
 		case TracepointEvent.KIND_ABOUT_TO_HIT:
 			return HIT;
 		}
@@ -47,24 +45,12 @@ public class BreakpointStatus implements IRMethodBreakpointStatus {
 	
 	@Override
 	public String getLabel() {
-		return fLabel;
+		return this.label;
 	}
 	
 	@Override
 	public IRBreakpoint getBreakpoint() {
-		return fBreakpoint;
-	}
-	
-	@Override
-	public boolean isEntry() {
-		return (fEvent.getType() == Tracepoint.TYPE_FB
-				&& (fEvent.getFlags() & TracepointState.FLAG_MB_ENTRY) != 0 );
-	}
-	
-	@Override
-	public boolean isExit() {
-		return (fEvent.getType() == Tracepoint.TYPE_FB
-				&& (fEvent.getFlags() & TracepointState.FLAG_MB_EXIT) != 0 );
+		return this.breakpoint;
 	}
 	
 }

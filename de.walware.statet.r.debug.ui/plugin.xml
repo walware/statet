@@ -30,7 +30,8 @@
             id="de.walware.statet.r.debug.detailPane.RBreakpointDetailPaneFactory"
             class="de.walware.statet.r.internal.debug.ui.breakpoints.BreakpointDetailFactory">
          <enablement>
-            <with variable="selection">
+            <with
+                  variable="selection">
                <count
                      value="1">
                </count>
@@ -78,23 +79,376 @@
             adaptableType="de.walware.statet.r.debug.core.sourcelookup.IRSourceLookupMatch"
             class="de.walware.statet.r.internal.debug.ui.sourcelookup.RSourceLookupAdapterFactory">
          <adapter
-               type="org.eclipse.ui.model.IWorkbenchAdapter">
-         </adapter>
+               type="org.eclipse.ui.model.IWorkbenchAdapter"/>
          <adapter
-               type="org.eclipse.ui.IContributorResourceAdapter">
-         </adapter>
+               type="org.eclipse.ui.IContributorResourceAdapter"/>
+      </factory>
+      <factory
+            adaptableType="de.walware.statet.r.debug.core.IRVariable"
+            class="de.walware.statet.r.internal.debug.ui.variables.VariableUIAdapterFactory">
+         <adapter
+               type="org.eclipse.debug.internal.ui.viewers.model.provisional.IElementLabelProvider"/>
+         <adapter
+               type="org.eclipse.debug.internal.ui.viewers.model.provisional.IElementEditor"/>
+         <adapter
+               type="org.eclipse.debug.ui.actions.IWatchExpressionFactoryAdapter"/>
       </factory>
    </extension>
+   
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="de.walware.statet.r.expressions.isSelection.RDebugVariable">
+         <with
+               variable="selection">
+            <count
+                  value="1"/>
+            <iterate>
+               <instanceof
+                     value="de.walware.statet.r.debug.core.IRVariable">
+               </instanceof>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.walware.statet.r.expressions.isSelection.RDebugElementVariable">
+         <with
+               variable="selection">
+            <count
+                  value="1"/>
+            <iterate>
+               <instanceof
+                     value="de.walware.statet.r.debug.core.IRElementVariable"/>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.walware.statet.r.expressions.isSelection.RDebugVariables">
+         <with 
+               variable="selection">
+            <count
+                  value="+"/>
+            <iterate>
+               <instanceof
+                     value="de.walware.statet.r.debug.core.IRVariable">
+               </instanceof>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.walware.statet.r.expressions.isSelection.RDebugExpression">
+         <with
+               variable="selection">
+            <count
+                  value="1"/>
+            <iterate>
+               <and>
+                  <instanceof
+                        value="org.eclipse.debug.core.model.IExpression"/>
+                  <test property="de.walware.ecommons.debug.equalsModelIdentifier"
+                        value="de.walware.statet.r.debug"/>
+               </and>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.walware.statet.r.expressions.isSelection.RDebugExpressionWithElementVariable">
+         <with
+               variable="selection">
+            <count
+                  value="1"/>
+            <iterate>
+               <and>
+                  <instanceof
+                        value="org.eclipse.debug.core.model.IExpression"/>
+                  <test property="de.walware.ecommons.debug.equalsModelIdentifier"
+                        value="de.walware.statet.r.debug"/>
+                  <adapt
+                        type="de.walware.statet.r.debug.core.IRVariable">
+                     <instanceof
+                           value="de.walware.statet.r.debug.core.IRElementVariable"/>
+                  </adapt>
+               </and>
+            </iterate>
+         </with>
+      </definition>
+   </extension>
+   
+<!-- breakpoint actions --> 
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="de.walware.statet.r.commands.AddExceptionBreakpoint"
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_AddExceptionBreakpoint_label"
+            description="%commands_AddExceptionBreakpoint_description"
+            defaultHandler="de.walware.statet.r.internal.debug.ui.actions.AddExceptionBreakpointHandler">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commandImages">
+      <image
+            commandId="de.walware.statet.r.commands.AddExceptionBreakpoint"
+            icon="icons/obj_16/r_exception.png"/>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.run?endof=breakpointGroup">
+         <separator
+               name="Debug.R.Breakpoints">
+         </separator>
+         <command
+               commandId="de.walware.statet.r.commands.AddExceptionBreakpoint"
+               label="%menus_AddExceptionBreakpoint_label">
+            <visibleWhen
+                  checkEnabled="false">
+               <or>
+                  <with
+                        variable="debugContext">
+                     <count value="+"/>
+                  </with>
+                  <with
+                        variable="activePartId">
+                     <equals
+                           value="org.eclipse.debug.ui.BreakpointView"/>
+                  </with>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isEditorActive.RSourceEditor"/>
+               </or>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+   
+<!-- variable/expression actions --> 
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="de.walware.statet.r.commands.InspectAttributes"
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_InspectAttributes_label"
+            description="%commands_InspectAttributes_description">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commandImages">
+      <image
+            commandId="org.eclipse.jdt.debug.ui.commands.Watch"
+            icon="platform:/plugin/org.eclipse.debug.ui/icons/full/etool16/watch_exp.png"
+            disabledIcon="platform:/plugin/org.eclipse.debug.ui/icons/full/dtool16/watch_exp.png"/>
+      <image
+            commandId="org.eclipse.jdt.debug.ui.commands.Inspect"
+            icon="platform:/plugin/org.eclipse.jdt.debug.ui/icons/full/etool16/insp_sbook.gif"
+            disabledIcon="platform:/plugin/org.eclipse.jdt.debug.ui/icons/full/dtool16/insp_sbook.gif"/>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            commandId="de.walware.ecommons.base.commands.CopyElementName"
+            class="de.walware.statet.r.internal.debug.ui.actions.CopyQualifiedNameHandler">
+         <activeWhen>
+            <reference
+                  definitionId="de.walware.statet.r.expressions.isSelection.RDebugVariables"/>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="org.eclipse.jdt.ui.edit.text.java.open.editor"
+            class="de.walware.statet.r.internal.debug.ui.actions.OpenInEditorHandler">
+         <activeWhen>
+            <reference
+                  definitionId="de.walware.statet.r.expressions.isSelection.RDebugVariable"/>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="org.eclipse.jdt.debug.ui.commands.Watch"
+            class="de.walware.statet.r.internal.debug.ui.actions.WatchHandler">
+         <activeWhen>
+            <or>
+               <reference
+                     definitionId="de.walware.statet.r.expressions.isSelection.RDebugVariables"/>
+               <reference
+                     definitionId="de.walware.statet.r.expressions.isPartActive.RSourceEditor"/>
+            </or>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="org.eclipse.jdt.debug.ui.commands.Inspect"
+            class="de.walware.statet.r.internal.debug.ui.actions.InspectHandler">
+         <activeWhen>
+            <or>
+               <reference
+                     definitionId="de.walware.statet.r.expressions.isSelection.RDebugVariable"/>
+               <reference
+                     definitionId="de.walware.statet.r.expressions.isSelection.RDebugExpression"/>
+               <reference
+                     definitionId="de.walware.statet.r.expressions.isPartActive.RSourceEditor"/>
+            </or>
+         </activeWhen>
+         <enabledWhen>
+            <and>
+               <with
+                     variable="debugContext">
+                  <count value="+"/>
+               </with>
+               <or>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isSelection.RDebugElementVariable"/>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isPartActive.RSourceEditor"/>
+               </or>
+            </and>
+         </enabledWhen>
+      </handler>
+      <handler
+            commandId="de.walware.statet.r.commands.InspectAttributes"
+            class="de.walware.statet.r.internal.debug.ui.actions.InspectAttributesHandler">
+         <activeWhen>
+            <or>
+               <reference
+                     definitionId="de.walware.statet.r.expressions.isSelection.RDebugVariable"/>
+               <reference
+                     definitionId="de.walware.statet.r.expressions.isSelection.RDebugExpression"/>
+               <reference
+                     definitionId="de.walware.statet.r.expressions.isPartActive.RSourceEditor"/>
+            </or>
+         </activeWhen>
+         <enabledWhen>
+            <and>
+               <with
+                     variable="debugContext">
+                  <count value="+"/>
+               </with>
+               <or>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isSelection.RDebugElementVariable"/>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isSelection.RDebugExpressionWithElementVariable"/>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isPartActive.RSourceEditor"/>
+               </or>
+            </and>
+         </enabledWhen>
+      </handler>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?after=variableGroup">
+         <command
+               commandId="de.walware.ecommons.base.commands.CopyElementName"
+               label="%menus_CopyQualifiedName_label">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.walware.statet.r.expressions.isSelection.RDebugVariables"/>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <separator
+               name="debug.inspect"
+               visible="true">
+         </separator>
+         <command
+               commandId="org.eclipse.jdt.debug.ui.commands.Inspect"
+               label="%menus_Inspect_label">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.walware.statet.r.expressions.isSelection.RDebugElementVariable"/>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.walware.statet.r.commands.InspectAttributes"
+               label="%menus_InspectAttributes_label">
+            <visibleWhen
+                  checkEnabled="false">
+               <or>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isSelection.RDebugElementVariable"/>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isSelection.RDebugExpressionWithElementVariable"/>
+               </or>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?after=emptyNavigationGroup">
+         <command
+               commandId="org.eclipse.jdt.ui.edit.text.java.open.editor"
+               label="%menus_OpenInDataEditor_label">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.walware.statet.r.expressions.isSelection.RDebugVariable"/>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.run?endof=Debug.R.Breakpoints">
+         <separator
+               name="Debug.R.Inspect"
+               visible="true">
+         </separator>
+         <command
+                commandId="org.eclipse.jdt.debug.ui.commands.Inspect">
+             <visibleWhen
+                   checkEnabled="false">
+                <or>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isSelection.RDebugVariables"/>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isSelection.RDebugExpression"/>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isEditorActive.RSourceEditor"/>
+                </or>
+             </visibleWhen>
+         </command>
+         <command
+                commandId="de.walware.statet.r.commands.InspectAttributes"
+                label="%menus_InspectAttributes_label">
+             <visibleWhen
+                   checkEnabled="false">
+                <or>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isSelection.RDebugVariable"/>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isSelection.RDebugExpression"/>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isEditorActive.RSourceEditor"/>
+                </or>
+             </visibleWhen>
+         </command>
+         <command
+                commandId="org.eclipse.jdt.debug.ui.commands.Watch"
+                label="%menus_Watch_label">
+             <visibleWhen
+                   checkEnabled="false">
+                <or>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isSelection.RDebugVariables"/>
+                  <reference
+                        definitionId="de.walware.statet.r.expressions.isEditorActive.RSourceEditor"/>
+                </or>
+             </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
 
-<!-- editors -->
+<!-- editor contributions -->
    <extension
          point="org.eclipse.core.runtime.adapters">
       <factory
             adaptableType="de.walware.statet.r.internal.ui.editors.REditor"
             class="de.walware.statet.r.internal.debug.ui.actions.RetargettableActionAdapterFactory">
          <adapter
-               type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget">
-         </adapter>
+               type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget"/>
       </factory>
    </extension>
    
@@ -131,15 +485,8 @@
             commandId="org.eclipse.jdt.debug.ui.commands.StepIntoSelection"
             class="de.walware.statet.r.internal.debug.ui.actions.StepIntoSelectionHandler">
          <activeWhen>
-            <with
-                  variable="activeEditor">
-               <adapt
-                     type="de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor">
-                  <instanceof
-                        value="de.walware.statet.r.ui.editors.IRSourceEditor">
-                  </instanceof>
-               </adapt>
-            </with>
+            <reference
+                  definitionId="de.walware.statet.r.expressions.isEditorActive.RSourceEditor"/>
          </activeWhen>
          <enabledWhen>
             <with
@@ -186,6 +533,50 @@
                menubarPath="debug">
          </action>
       </viewerContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:de.walware.statet.r.menus.REditorContextMenu?before=additions">
+         <separator
+               name="Debug.R"
+               visible="true">
+         </separator>
+         <command
+                commandId="org.eclipse.jdt.debug.ui.commands.Inspect">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="debugContext">
+                  <count value="+"/>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+                commandId="de.walware.statet.r.commands.InspectAttributes">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="debugContext">
+                  <count value="+"/>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+                commandId="org.eclipse.jdt.debug.ui.commands.Watch">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="debugContext">
+                  <count value="+"/>
+               </with>
+            </visibleWhen>
+         </command>
+         <separator
+               name="Debug.R.additions"
+               visible="true">
+         </separator>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">

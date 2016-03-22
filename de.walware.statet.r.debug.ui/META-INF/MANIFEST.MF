@@ -18,11 +18,14 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.11",
  de.walware.statet.r.console.ui,
  de.walware.statet.r.debug.core,
  org.eclipse.debug.core,
- org.eclipse.debug.ui
+ org.eclipse.debug.ui,
+ org.eclipse.ui.workbench,
+ org.eclipse.jdt.annotation;bundle-version="[2.0.0,3.0.0)";resolution:=optional
 Import-Package: de.walware.ecommons,
  de.walware.ecommons.debug.core.util,
  de.walware.ecommons.ts,
  de.walware.jcommons.collections;version="1.0",
  de.walware.rj.server.dbg,
+ de.walware.rj.services,
  org.apache.commons.collections.primitives;version="1.0.0"
 Export-Package: de.walware.statet.r.debug.ui.actions

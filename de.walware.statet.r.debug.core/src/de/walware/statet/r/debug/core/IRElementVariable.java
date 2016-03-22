@@ -11,18 +11,27 @@
 
 package de.walware.statet.r.debug.core;
 
-import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 import de.walware.statet.r.core.data.ICombinedRElement;
+import de.walware.statet.r.core.model.RElementName;
 
 
 /**
  * Represents a main variable (not dim or index) associated with an {@link ICombinedRElement}
  * in the Eclipse debug model for R.
  */
-public interface IRElementVariable extends IVariable {
+public interface IRElementVariable extends IRVariable {
 	
 	
-	ICombinedRElement getElement();
+	@Override
+	@NonNull IRDebugTarget getDebugTarget();
+	
+	@NonNull IRThread getThread();
+	
+	@NonNull ICombinedRElement getElement();
+	
+	@Nullable RElementName getFQElementName();
 	
 }

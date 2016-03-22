@@ -20,11 +20,11 @@ import org.eclipse.osgi.util.NLS;
 import de.walware.jcommons.collections.ImCollections;
 import de.walware.jcommons.collections.ImSet;
 
-import de.walware.ecommons.ts.ISystemReadRunnable;
+import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
-import de.walware.ecommons.ts.IToolService;
 
 import de.walware.rj.data.RReference;
+import de.walware.rj.eclient.IRToolService;
 
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RWorkspace;
@@ -35,7 +35,7 @@ import de.walware.statet.r.core.tool.AbstractStatetRRunnable;
 import de.walware.statet.r.nico.ICombinedRDataAdapter;
 
 
-public class LoadReferenceRunnable extends AbstractStatetRRunnable implements ISystemReadRunnable {
+public class LoadReferenceRunnable extends AbstractStatetRRunnable implements ISystemRunnable {
 	
 	
 	public static RProcess findRProcess(ICombinedRElement element) {
@@ -133,6 +133,10 @@ public class LoadReferenceRunnable extends AbstractStatetRRunnable implements IS
 		this.loadOptions= options;
 	}
 	
+	public int getRequiredStamp() {
+		return this.stamp;
+	}
+	
 	
 	public void cancel() {
 		this.cancel= true;
@@ -198,10 +202,10 @@ public class LoadReferenceRunnable extends AbstractStatetRRunnable implements IS
 	}
 	
 	@Override
-	public void run(final IToolService service,
+	public void run(final IRToolService service,
 			final IProgressMonitor monitor) throws CoreException {
 		final ICombinedRDataAdapter r= (ICombinedRDataAdapter) service;
-		if (this.stamp != 0 && this.stamp != r.getController().getCounter()) {
+		if (this.stamp != 0 && this.stamp != r.getChangeStamp()) {
 			return;
 		}
 		final int loadOptions;

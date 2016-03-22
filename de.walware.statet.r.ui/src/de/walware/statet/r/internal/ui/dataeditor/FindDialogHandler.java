@@ -28,12 +28,12 @@ public class FindDialogHandler extends AbstractHandler {
 	
 	
 	public FindDialogHandler(final IWorkbenchPart part) {
-		fWorkbenchPart = part;
+		this.fWorkbenchPart = part;
 	}
 	
 	
 	protected RDataTableComposite getTable() {
-		return (RDataTableComposite) fWorkbenchPart.getAdapter(RDataTableComposite.class);
+		return (RDataTableComposite) this.fWorkbenchPart.getAdapter(RDataTableComposite.class);
 	}
 	
 	@Override
@@ -41,21 +41,21 @@ public class FindDialogHandler extends AbstractHandler {
 		final RDataTableComposite table = getTable();
 		setBaseEnabled(table != null);
 		
-		final IWorkbenchPage page = fWorkbenchPart.getSite().getPage();
-		if (page.getActivePart() == fWorkbenchPart) {
+		final IWorkbenchPage page = this.fWorkbenchPart.getSite().getPage();
+		if (page.getActivePart() == this.fWorkbenchPart) {
 			final FindDataDialog dialog = FindDataDialog.get(page.getWorkbenchWindow(), false);
 			if (dialog != null) {
-				dialog.update(fWorkbenchPart);
+				dialog.update(this.fWorkbenchPart);
 			}
 		}
 	}
 	
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		final IWorkbenchWindow window = fWorkbenchPart.getSite().getWorkbenchWindow();
+		final IWorkbenchWindow window = this.fWorkbenchPart.getSite().getWorkbenchWindow();
 		
 		final FindDataDialog dialog = FindDataDialog.get(window, true);
-		dialog.update(fWorkbenchPart);
+		dialog.update(this.fWorkbenchPart);
 		dialog.open();
 		
 		return null;

@@ -25,10 +25,12 @@ import de.walware.statet.r.debug.ui.actions.RToggleBreakpointAdapter;
 public class RetargettableActionAdapterFactory implements IAdapterFactory {
 	
 	
-	private static final Class<?>[] ADAPTERS = new Class<?>[] { IToggleBreakpointsTarget.class };
+	private static final Class<?>[] ADAPTERS= new Class<?>[] {
+			IToggleBreakpointsTarget.class
+	};
 	
 	
-	private IToggleBreakpointsTarget fBreakpointAdapter;
+	private IToggleBreakpointsTarget breakpointAdapter;
 	
 	
 	public RetargettableActionAdapterFactory() {
@@ -44,10 +46,10 @@ public class RetargettableActionAdapterFactory implements IAdapterFactory {
 	public Object getAdapter(final Object adaptableObject, final Class adapterType) {
 		if (IToggleBreakpointsTarget.class.equals(adapterType)) {
 			synchronized (this) {
-				if (fBreakpointAdapter == null) {
-					fBreakpointAdapter = new RToggleBreakpointAdapter();
+				if (this.breakpointAdapter == null) {
+					this.breakpointAdapter= new RToggleBreakpointAdapter();
 				}
-				return fBreakpointAdapter;
+				return this.breakpointAdapter;
 			}
 		} 
 		return null;

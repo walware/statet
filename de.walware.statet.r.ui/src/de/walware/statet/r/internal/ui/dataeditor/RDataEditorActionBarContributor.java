@@ -23,7 +23,7 @@ public class RDataEditorActionBarContributor extends EditorActionBarContributor 
 	
 	
 	public RDataEditorActionBarContributor() {
-		fContributionItem = new StatusLineContributionItem("data.dimension", 26);
+		this.fContributionItem = new StatusLineContributionItem("data.dimension", 26);
 	}
 	
 	
@@ -31,7 +31,7 @@ public class RDataEditorActionBarContributor extends EditorActionBarContributor 
 	public void contributeToStatusLine(final IStatusLineManager statusLineManager) {
 		super.contributeToStatusLine(statusLineManager);
 		
-		statusLineManager.add(fContributionItem);
+		statusLineManager.add(this.fContributionItem);
 	}
 	
 	
@@ -39,7 +39,7 @@ public class RDataEditorActionBarContributor extends EditorActionBarContributor 
 	public void dispose() {
 		super.dispose();
 		
-		fContributionItem.dispose();
+		this.fContributionItem.dispose();
 	}
 	
 }

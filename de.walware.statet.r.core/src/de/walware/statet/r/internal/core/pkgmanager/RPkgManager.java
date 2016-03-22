@@ -427,8 +427,8 @@ public class RPkgManager implements IRPkgManager.Ext, IPreferenceSetService.ICha
 			final ISelectedRepos settings= runLoadRepos(r, monitor);
 			if (settings != null) {
 				runApplyRepo(settings, r, monitor);
-				runLoadPkgs(settings, r, monitor);
 			}
+			runLoadPkgs(settings, r, monitor);
 			fireUpdate(this.rTaskEvent);
 		}
 		finally {
@@ -1099,7 +1099,7 @@ public class RPkgManager implements IRPkgManager.Ext, IPreferenceSetService.ICha
 					ids[i]= repo.getId();
 					urls[i]= repo.getURL();
 				}
-				final RVector<RCharacterStore> data= new RVectorImpl<RCharacterStore>(
+				final RVector<RCharacterStore> data= new RVectorImpl<>(
 						new RCharacterDataImpl(urls), RObject.CLASSNAME_CHARACTER, ids);
 				
 				final FunctionCall call= r.createFunctionCall("options");
@@ -1287,6 +1287,7 @@ public class RPkgManager implements IRPkgManager.Ext, IPreferenceSetService.ICha
 				beginRTask(r, monitor);
 				try {
 					checkNewCommand(r, monitor);
+					r.briefAboutToChange();
 					op.runActions(actions, r, monitor);
 				}
 				catch (final UnexpectedRDataException | CoreException e) {
@@ -1297,7 +1298,7 @@ public class RPkgManager implements IRPkgManager.Ext, IPreferenceSetService.ICha
 				finally {
 					endRTask();
 					
-					r.briefAboutChange(0x10); // packages
+					r.briefChanged(IRConsoleService.PACKAGE_CHANGE);
 				}
 			}
 		});

@@ -45,7 +45,7 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStreamMonitor;
 import de.walware.statet.nico.core.runtime.ToolStreamProxy;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
-import de.walware.statet.nico.internal.core.NicoPlugin;
+import de.walware.statet.nico.internal.core.NicoCorePlugin;
 
 
 public class TrackWriter implements ITrack, IStreamListener, IDisposable {
@@ -204,7 +204,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 			fOutputWriter.write(text);
 		}
 		catch (final IOException e) {
-			NicoPlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, "An error occurred when writing to the tracking file. Tracking is stopped.", e));
+			NicoCorePlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, "An error occurred when writing to the tracking file. Tracking is stopped.", e));
 			onError();
 		}
 	}
@@ -238,7 +238,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 			}
 		}
 		catch (final IOException e) {
-			NicoPlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, "An error occurred when writing to the tracking file. Tracking is stopped.", e));
+			NicoCorePlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, "An error occurred when writing to the tracking file. Tracking is stopped.", e));
 			onError();
 		}
 	}
@@ -250,7 +250,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 			fOutputWriter.write('\n');
 		}
 		catch (final IOException e) {
-			NicoPlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, "An error occurred when writing to the tracking file. Tracking is stopped.", e));
+			NicoCorePlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, "An error occurred when writing to the tracking file. Tracking is stopped.", e));
 			onError();
 		}
 	}
@@ -284,7 +284,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 				fOutputWriter.close();
 			}
 			catch (final IOException e) {
-				NicoPlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, "An error occurred when closing the tracking file. Tracking is stopped.", e));
+				NicoCorePlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, "An error occurred when closing the tracking file. Tracking is stopped.", e));
 			}
 			finally {
 				fOutputWriter = null;

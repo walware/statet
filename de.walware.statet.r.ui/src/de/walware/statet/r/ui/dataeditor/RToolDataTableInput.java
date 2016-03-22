@@ -11,12 +11,14 @@
 
 package de.walware.statet.r.ui.dataeditor;
 
-import de.walware.ecommons.FastList;
+import de.walware.jcommons.collections.CopyOnWriteIdentityListSet;
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.ts.ITool;
 
-import de.walware.statet.nico.core.IToolLifeListener;
-import de.walware.statet.nico.core.NicoCore;
-import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.util.ToolTerminateListener;
+
+import de.walware.rj.services.IFQRObjectRef;
 
 import de.walware.statet.r.core.model.RElementName;
 
@@ -24,103 +26,110 @@ import de.walware.statet.r.core.model.RElementName;
 public class RToolDataTableInput implements IRDataTableInput {
 	
 	
-	private final RElementName fElementName;
+	private final RElementName elementName;
 	
-	private final String fFullName;
-	private final String fLastName;
+	private final String fullName;
+	private final String shortName;
 	
-	private final ToolProcess fProcess;
-	private IToolLifeListener fProcessListener;
+	private final IFQRObjectRef elementRef;
 	
-	private final FastList<IRDataTableInput.StateListener> fListeners= new FastList<>(IRDataTableInput.StateListener.class);
+	private final ITool tool;
+	private ToolTerminateListener processListener;
+	
+	private final CopyOnWriteIdentityListSet<IRDataTableInput.StateListener> listeners= new CopyOnWriteIdentityListSet<>();
 	
 	
-	public RToolDataTableInput(RElementName name, final ToolProcess process) {
-		if (process == null) {
-			throw new NullPointerException("process");
+	public RToolDataTableInput(RElementName elementName, final IFQRObjectRef elementRef) {
+		if (elementName == null) {
+			throw new NullPointerException("name"); //$NON-NLS-1$
 		}
-		if (name == null) {
-			throw new NullPointerException("name");
+		if (elementRef == null) {
+			throw new NullPointerException("elementRef"); //$NON-NLS-1$
+		}
+		if (!(elementRef.getRHandle() instanceof ITool)) {
+			throw new IllegalArgumentException("Unsupported elementRef.rHandle"); //$NON-NLS-1$
 		}
 		
-		fElementName = name;
-		fFullName = RElementName.createDisplayName(name, RElementName.DISPLAY_FQN | RElementName.DISPLAY_EXACT);
+		this.elementName= elementName;
+		this.elementRef= elementRef;
+		this.fullName= RElementName.createDisplayName(elementName, RElementName.DISPLAY_FQN | RElementName.DISPLAY_EXACT);
 		
-		while (name.getNextSegment() != null) {
-			name = name.getNextSegment();
+		RElementName name= elementName;
+		while (elementName.getNextSegment() != null) {
+			if (elementName.getType() == RElementName.MAIN_DEFAULT) {
+				name= elementName;
+			}
+			
+			elementName= elementName.getNextSegment();
 		}
-		fLastName = name.getDisplayName();
+		this.shortName= name.getDisplayName();
 		
-		fProcess = process;
+		this.tool= (ITool) elementRef.getRHandle();
 	}
 	
 	
 	@Override
 	public RElementName getElementName() {
-		return fElementName;
+		return this.elementName;
 	}
 	
 	@Override
 	public String getFullName() {
-		return fFullName;
+		return this.fullName;
 	}
 	
 	@Override
-	public String getLastName() {
-		return fLastName;
+	public String getName() {
+		return this.shortName;
 	}
 	
+	@Override
+	public IFQRObjectRef getElementRef() {
+		return this.elementRef;
+	}
+	
+	@Override
 	public ITool getTool() {
-		return fProcess;
+		return this.tool;
 	}
 	
 	@Override
 	public boolean isAvailable() {
-		return !fProcess.isTerminated();
+		return !this.tool.isTerminated();
 	}
 	
 	@Override
 	public void addStateListener(final StateListener listener) {
-		synchronized (fListeners) {
-			fListeners.add(listener);
-			if (fListeners.size() > 0 && fProcessListener == null) {
-				fProcessListener = new IToolLifeListener() {
+		synchronized (this.listeners) {
+			if (this.listeners.add(listener)
+					&& this.processListener == null) {
+				this.processListener= new ToolTerminateListener(this.tool) {
 					@Override
-					public void toolStarted(final ToolProcess process) {
-					}
-					@Override
-					public void toolTerminated(final ToolProcess process) {
-						if (fProcess == process) {
-							final IRDataTableInput.StateListener[] listeners;
-							synchronized (fListeners) {
-								if (fProcessListener != null) {
-									NicoCore.removeToolLifeListener(fProcessListener);
-									fProcessListener = null;
-								}
-								listeners = fListeners.toArray();
-							}
-							for (final IRDataTableInput.StateListener listener : listeners) {
-								listener.tableUnavailable();
-							}
+					public void toolTerminated() {
+						final ImList<StateListener> listeners;
+						synchronized (RToolDataTableInput.this.listeners) {
+							dispose();
+							processListener= null;
+							
+							listeners= RToolDataTableInput.this.listeners.toList();
+						}
+						for (final IRDataTableInput.StateListener listener : listeners) {
+							listener.tableUnavailable();
 						}
 					}
 				};
-				NicoCore.addToolLifeListener(fProcessListener);
-				if (fProcess.isTerminated()) {
-					NicoCore.removeToolLifeListener(fProcessListener);
-					fProcessListener = null;
-				}
+				this.processListener.install();
 			}
 		}
 	}
 	
 	@Override
 	public void removeStateListener(final StateListener listener) {
-		synchronized (fListeners) {
-			fListeners.remove(listener);
-			if (fListeners.size() == 0 && fProcessListener != null) {
-				NicoCore.removeToolLifeListener(fProcessListener);
-				fProcessListener = null;
+		synchronized (this.listeners) {
+			if (this.listeners.remove(listener)
+					&& this.listeners.isEmpty() && this.processListener != null) {
+				this.processListener.dispose();
+				this.processListener= null;
 			}
 		}
 	}
@@ -128,7 +137,7 @@ public class RToolDataTableInput implements IRDataTableInput {
 	
 	@Override
 	public int hashCode() {
-		return fLastName.hashCode();
+		return this.shortName.hashCode();
 	}
 	
 	@Override
@@ -136,16 +145,16 @@ public class RToolDataTableInput implements IRDataTableInput {
 		if (!(obj instanceof RToolDataTableInput)) {
 			return false;
 		}
-		final RToolDataTableInput other = (RToolDataTableInput) obj;
+		final RToolDataTableInput other= (RToolDataTableInput) obj;
 		return (this == other || (
-				fProcess.equals(other.fProcess)
-				&& fFullName.equals(other.fFullName) ));
+				this.tool.equals(other.tool)
+				&& this.fullName.equals(other.fullName) ));
 	}
 	
 	@Override
 	public String toString() {
-		return getClass().getName() + "(" + fFullName //$NON-NLS-1$
-				+ " in " + fProcess.getLabel(ITool.LONG_LABEL) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		return getClass().getName() + "(" + this.fullName //$NON-NLS-1$
+				+ " in " + this.tool.getLabel(ITool.LONG_LABEL) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 }

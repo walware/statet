@@ -159,20 +159,20 @@ public class QueueView extends ViewPart {
 						if (event.getDetail() != DebugEvent.CONTENT) {
 							continue EVENT;
 						}
-						final Queue.Delta delta = (Queue.Delta) event.getData();
-						switch (delta.type) {
+						final Queue.TaskDelta taskDelta = (Queue.TaskDelta) event.getData();
+						switch (taskDelta.type) {
 						case IToolRunnable.ADDING_TO:
 						case IToolRunnable.MOVING_TO:
 							if (!fExpectInfoEvent) {
-								if (events.length > i+1 && delta.data.size() == 1) {
+								if (events.length > i+1 && taskDelta.data.size() == 1) {
 									// Added and removed in same set
 									final DebugEvent next = events[i+1];
 									if (next.getSource() == queue
 											&& next.getKind() == DebugEvent.CHANGE
 											&& next.getDetail() == DebugEvent.CONTENT) {
-										final Queue.Delta nextDelta = (Queue.Delta) next.getData();
+										final Queue.TaskDelta nextDelta = (Queue.TaskDelta) next.getData();
 										if (nextDelta.type == IToolRunnable.STARTING
-												&& delta.data.get(0) == nextDelta.data.get(0)) {
+												&& taskDelta.data.get(0) == nextDelta.data.get(0)) {
 											updateProgress = true;
 											i++;
 											continue EVENT;
@@ -185,13 +185,13 @@ public class QueueView extends ViewPart {
 										if (!UIAccess.isOkToUse(fTableViewer)) {
 											return;
 										}
-										if (delta.position >= 0) {
-											for (int j = 0; j < delta.data.size(); j++) {
-												fTableViewer.insert(delta.data.get(j), delta.position+j);
+										if (taskDelta.position >= 0) {
+											for (int j = 0; j < taskDelta.data.size(); j++) {
+												fTableViewer.insert(taskDelta.data.get(j), taskDelta.position+j);
 											}
 										}
 										else {
-											fTableViewer.add(delta.data);
+											fTableViewer.add(taskDelta.data);
 										}
 									}
 								});
@@ -210,7 +210,7 @@ public class QueueView extends ViewPart {
 										if (!UIAccess.isOkToUse(fTableViewer)) {
 											return;
 										}
-										fTableViewer.remove(delta.data);
+										fTableViewer.remove(taskDelta.data);
 									}
 								});
 							}

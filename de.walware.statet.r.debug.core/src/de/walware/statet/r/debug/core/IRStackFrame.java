@@ -12,6 +12,10 @@
 package de.walware.statet.r.debug.core;
 
 import org.eclipse.debug.core.model.IStackFrame;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
+import de.walware.statet.r.core.model.RElementName;
 
 
 /**
@@ -20,11 +24,18 @@ import org.eclipse.debug.core.model.IStackFrame;
 public interface IRStackFrame extends IStackFrame {
 	
 	
+	@Override
+	@NonNull IRDebugTarget getDebugTarget();
+	
+	@Override
+	@NonNull IRThread getThread();
+	
+	
 	/**
 	 * Informal filename
 	 * @return filename or <code>null</code>, if not available
 	 */
-	String getInfoFileName();
+	@Nullable String getInfoFileName();
 	
 	/**
 	 * Informal line number
@@ -36,5 +47,14 @@ public interface IRStackFrame extends IStackFrame {
 	 * Position index of the frame in R (one-based like in R)
 	 */
 	int getPosition();
+	
+	/**
+	 * R element name
+	 */
+	@NonNull RElementName getElementName();
+	
+	
+	@Override
+	<T> @Nullable T getAdapter(final Class<T> type);
 	
 }

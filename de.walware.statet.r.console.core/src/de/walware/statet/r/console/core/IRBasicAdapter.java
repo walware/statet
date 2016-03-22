@@ -47,8 +47,9 @@ public interface IRBasicAdapter extends IConsoleService {
 	 */
 	void quit(final IProgressMonitor monitor) throws CoreException;
 	
-	void briefAboutChange(int o);
-	void briefAboutChange(Object changed, int o);
-	int getBriefedChanges();
+	void briefAboutToChange();
+	void briefChanged(int o);
+	void briefChanged(Object changed, int o);
+	int getChangeStamp();
 	
 }

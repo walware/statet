@@ -38,12 +38,12 @@ public final class RReferenceVar extends CombinedElement
 	private RWorkspace fResolver;
 	
 	
-	public RReferenceVar(final long handle, final String className,
+	public RReferenceVar(final long handle, final byte type, final String className,
 			final CombinedElement parent, final RElementName name) {
 		super(parent, name);
 		
 		this.handle = handle;
-		this.type = 0;
+		this.type = type;
 		this.baseClassName = className;
 	}
 	

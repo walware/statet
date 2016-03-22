@@ -62,7 +62,7 @@ public class FTableDataProvider extends RMatrixDataProvider {
 			for (long idx = vars.getLength() - 1; idx > varIdx; idx--) {
 				span *= vars.get(idx).getLength();
 			}
-			final RStore values = vars.get(varIdx).getData();
+			final RStore<?> values = vars.get(varIdx).getData();
 			valueIdx %= span * values.getLength(); // remove iteration
 			valueIdx /= span; // remove span
 			return values.get(valueIdx);
@@ -89,12 +89,12 @@ public class FTableDataProvider extends RMatrixDataProvider {
 		
 		@Override
 		public long getRowCount() {
-			return fColVars.getLength();
+			return FTableDataProvider.this.fColVars.getLength();
 		}
 		
 		@Override
 		public DataCell getCellByPosition(final long columnIndex, final long rowIndex) {
-			return getCell(fColVars, rowIndex, columnIndex);
+			return getCell(FTableDataProvider.this.fColVars, rowIndex, columnIndex);
 		}
 		
 		@Override
@@ -104,7 +104,7 @@ public class FTableDataProvider extends RMatrixDataProvider {
 		
 		@Override
 		public Object getDataValue(final long columnIndex, final long rowIndex) {
-			return getDataValue(fColVars, rowIndex, columnIndex);
+			return getDataValue(FTableDataProvider.this.fColVars, rowIndex, columnIndex);
 		}
 		
 	}
@@ -118,7 +118,7 @@ public class FTableDataProvider extends RMatrixDataProvider {
 		
 		@Override
 		public long getColumnCount() {
-			return fRowVars.getLength();
+			return FTableDataProvider.this.fRowVars.getLength();
 		}
 		
 		@Override
@@ -128,7 +128,7 @@ public class FTableDataProvider extends RMatrixDataProvider {
 		
 		@Override
 		public DataCell getCellByPosition(final long columnIndex, final long rowIndex) {
-			return getCell(fRowVars, columnIndex, rowIndex);
+			return getCell(FTableDataProvider.this.fRowVars, columnIndex, rowIndex);
 		}
 		
 		@Override
@@ -138,7 +138,7 @@ public class FTableDataProvider extends RMatrixDataProvider {
 		
 		@Override
 		public Object getDataValue(final long columnIndex, final long rowIndex) {
-			return getDataValue(fRowVars, columnIndex, rowIndex);
+			return getDataValue(FTableDataProvider.this.fRowVars, columnIndex, rowIndex);
 		}
 		
 	}
@@ -161,41 +161,41 @@ public class FTableDataProvider extends RMatrixDataProvider {
 //		description.rowHeaderColumn = createNamesColumn("rownames(" + fInput.getFullName() + ")", getRowCount(struct), r, monitor);
 		
 		final RDataTableColumn template = createColumn(struct.getData(),
-				fInput.getFullName(), null, -1, null,
+				getInput().getFullName(), null, -1, null,
 				r, monitor );
 		
 		{	final FunctionCall call = r.createFunctionCall("attr"); //$NON-NLS-1$
-			call.add(fInput.getFullName());
+			call.add(getInput().getFullName());
 			call.addChar("col.vars"); //$NON-NLS-1$
-			fColVars = RDataUtil.checkRList(call.evalData(monitor));
+			this.fColVars = RDataUtil.checkRList(call.evalData(monitor));
 			
-			if (checkVars(fColVars) != getColumnCount()) {
-				fColVars = null;
+			if (checkVars(this.fColVars) != getColumnCount()) {
+				this.fColVars = null;
 				throw new UnexpectedRDataException("col.vars"); //$NON-NLS-1$
 			}
 		}
 		{	final FunctionCall call = r.createFunctionCall("attr"); //$NON-NLS-1$
-			call.add(fInput.getFullName());
+			call.add(getInput().getFullName());
 			call.addChar("row.vars"); //$NON-NLS-1$
-			fRowVars = RDataUtil.checkRList(call.evalData(monitor));
+			this.fRowVars = RDataUtil.checkRList(call.evalData(monitor));
 			
-			if (checkVars(fRowVars) != getFullRowCount()) {
-				fColVars = null;
-				fRowVars = null;
+			if (checkVars(this.fRowVars) != getFullRowCount()) {
+				this.fColVars = null;
+				this.fRowVars = null;
 				throw new UnexpectedRDataException("row.vars"); //$NON-NLS-1$
 			}
 		}
-		{	final int cols = (int) fColVars.getLength();
-			final int rows = (int) fRowVars.getLength();
+		{	final int cols = (int) this.fColVars.getLength();
+			final int rows = (int) this.fRowVars.getLength();
 			final IRDataTableVariable[] variables = new IRDataTableVariable[cols + rows];
 			int i = 0;
 			for (int j = 0; j < cols; j++) {
-				variables[i++] = new FTableVariable(IRDataTableVariable.COLUMN, fColVars.getName(j),
-						fColVars.get(j).getData() );
+				variables[i++] = new FTableVariable(IRDataTableVariable.COLUMN, this.fColVars.getName(j),
+						this.fColVars.get(j).getData() );
 			}
 			for (int j = 0; j < rows; j++) {
-				variables[i++] = new FTableVariable(IRDataTableVariable.ROW, fRowVars.getName(j),
-						fRowVars.get(j).getData() );
+				variables[i++] = new FTableVariable(IRDataTableVariable.ROW, this.fRowVars.getName(j),
+						this.fRowVars.get(j).getData() );
 			}
 			description.setVariables(variables);
 		}
@@ -221,12 +221,12 @@ public class FTableDataProvider extends RMatrixDataProvider {
 	
 	@Override
 	public boolean hasRealColumns() {
-		return (fColVars.getLength() > 0);
+		return (this.fColVars.getLength() > 0);
 	}
 	
 	@Override
 	public boolean hasRealRows() {
-		return (fRowVars.getLength() > 0);
+		return (this.fRowVars.getLength() > 0);
 	}
 	
 	@Override
@@ -250,12 +250,12 @@ public class FTableDataProvider extends RMatrixDataProvider {
 			
 			@Override
 			public long getRowCount() {
-				return fColVars.getLength();
+				return FTableDataProvider.this.fColVars.getLength();
 			}
 			
 			@Override
 			public Object getDataValue(final long columnIndex, final long rowIndex) {
-				return fColVars.getName(rowIndex);
+				return FTableDataProvider.this.fColVars.getName(rowIndex);
 			}
 			
 			@Override
@@ -272,7 +272,7 @@ public class FTableDataProvider extends RMatrixDataProvider {
 			
 			@Override
 			public long getColumnCount() {
-				return fRowVars.getLength();
+				return FTableDataProvider.this.fRowVars.getLength();
 			}
 			
 			@Override
@@ -282,7 +282,7 @@ public class FTableDataProvider extends RMatrixDataProvider {
 			
 			@Override
 			public Object getDataValue(final long columnIndex, final long rowIndex) {
-				return fRowVars.getName(columnIndex);
+				return FTableDataProvider.this.fRowVars.getName(columnIndex);
 			}
 			
 			@Override

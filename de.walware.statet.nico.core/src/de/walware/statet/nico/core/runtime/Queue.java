@@ -28,7 +28,6 @@ import de.walware.jcommons.collections.ImCollections;
 import de.walware.jcommons.collections.ImList;
 
 import de.walware.ecommons.ts.IQueue;
-import de.walware.ecommons.ts.ISystemReadRunnable;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.IToolRunnable;
 
@@ -60,28 +59,13 @@ import de.walware.statet.nico.internal.core.Messages;
  */
 public final class Queue implements IQueue {
 	
-	/**
-	 * Delta for events of the queue.
-	 * 
-	 * Type is a event type of {@link IToolRunnable} events
-	 */
-	public static class Delta {
-		
-		public final int type;
-		public final int position;
-		/**
-		 * One or multiple runnable effected by this event.
-		 * STARTING and FINISHING events have always only a single item.
-		 */
-		public final ImList<IToolRunnable> data;
-		
-		private Delta(final int type, final int position, final ImList<IToolRunnable> data) {
-			this.type= type;
-			this.position= position;
-			this.data= data;
-		}
-		
-	}
+	
+	public static final byte INIT_STATE= 1;
+	public static final byte PROCESSING_STATE= 2;
+	public static final byte IDLING_STATE= 3;
+	public static final byte PAUSED_STATE= 5;
+	public static final byte TERMINATED_STATE= 6;
+	
 	
 	/**
 	 * Constant for detail of a DebugEvent, sending the complete queue.
@@ -109,10 +93,61 @@ public final class Queue implements IQueue {
 //	 */
 //	public static final int QUEUE_MAJOR_CHANGE= 2;
 	
+	public static final int STATE_REQUEST= 5;
+	
+	
+	/**
+	 * TaskDelta for events of the queue.
+	 * 
+	 * Type is a event type of {@link IToolRunnable} events
+	 */
+	public static final class TaskDelta {
+		
+		public final int type;
+		public final int position;
+		
+		/**
+		 * One or multiple runnable effected by this event.
+		 * STARTING and FINISHING events have always only a single item.
+		 */
+		public final ImList<IToolRunnable> data;
+		
+		private TaskDelta(final int type, final int position, final ImList<IToolRunnable> data) {
+			this.type= type;
+			this.position= position;
+			this.data= data;
+		}
+		
+	}
+	
+	public static final boolean isStateChange(final DebugEvent event) {
+		return (event.getKind() == DebugEvent.CHANGE && event.getDetail() == DebugEvent.STATE);
+	}
+	
+	public static final boolean isStateRequest(final DebugEvent event) {
+		return (event.getKind() == DebugEvent.MODEL_SPECIFIC && event.getDetail() == STATE_REQUEST);
+	}
+	
+	public static final class StateDelta {
+		
+		public final byte oldState;
+		public final byte newState;
+		
+		private StateDelta(final byte oldState, final byte newState) {
+			this.oldState= oldState;
+			this.newState= newState;
+		}
+		
+	}
+	
+	private static final int toRequestState(final int state) {
+		return (state == IDLING_STATE) ? PROCESSING_STATE : state;
+	}
+	
 	
 	static final int RUN_NONE= -2;
 	static final int RUN_SUSPEND= -1;
-	static final int RUN_RESERVED= 1;
+	static final int RUN_CONTROL= 1;
 	static final int RUN_HOT= 2;
 	static final int RUN_OTHER= 3;
 	static final int RUN_DEFAULT= 4;
@@ -160,6 +195,9 @@ public final class Queue implements IQueue {
 	
 	private final LinkedList<IToolRunnable> hotList= new LinkedList<>();
 	
+	private byte state;
+	private byte stateRequest= PROCESSING_STATE;
+	
 	
 	Queue(final ToolProcess process) {
 		this.process= process;
@@ -180,7 +218,7 @@ public final class Queue implements IQueue {
 		final DebugEvent event= new DebugEvent(this, DebugEvent.MODEL_SPECIFIC, QUEUE_INFO);
 		event.setData(queueElements);
 		this.eventList.add(event);
-		fireEvents();
+		internalFireEvents();
 	}
 	
 	public synchronized int size() {
@@ -284,7 +322,7 @@ public final class Queue implements IQueue {
 	//		addDebugEvent(COMPLETE_CHANGE, queueElements);
 			final ImList<IToolRunnable> finalRunnables= ImCollections.toList(removed);
 			addChangeEvent(IToolRunnable.REMOVING_FROM, finalRunnables);
-			fireEvents();
+			internalFireEvents();
 		}
 	}
 	
@@ -315,7 +353,7 @@ public final class Queue implements IQueue {
 			}
 			finalRunnables= ImCollections.toList(removed);
 			addChangeEvent(IToolRunnable.MOVING_FROM, finalRunnables);
-			fireEvents();
+			internalFireEvents();
 		}
 		
 		synchronized (to) {
@@ -325,8 +363,8 @@ public final class Queue implements IQueue {
 				for (final IToolRunnable runnable : finalRunnables) {
 					runnable.changed(IToolRunnable.MOVING_TO, to.process);
 				}
-				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-						new Delta(IToolRunnable.MOVING_TO, this.insertIndex, finalRunnables));
+				addContentEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+						new TaskDelta(IToolRunnable.MOVING_TO, this.insertIndex, finalRunnables));
 				this.insertIndex+= finalRunnables.size();
 			}
 			else {
@@ -336,7 +374,7 @@ public final class Queue implements IQueue {
 				}
 				to.addChangeEvent(IToolRunnable.MOVING_TO, finalRunnables);
 			}
-			to.fireEvents();
+			to.internalFireEvents();
 			to.notifyAll();
 		}
 	}
@@ -361,7 +399,7 @@ public final class Queue implements IQueue {
 			}
 			finalRunnables= ImCollections.toList(removed);
 			addChangeEvent(IToolRunnable.MOVING_FROM, finalRunnables);
-			fireEvents();
+			internalFireEvents();
 		}
 		
 		synchronized (to) {
@@ -371,12 +409,12 @@ public final class Queue implements IQueue {
 				runnable.changed(IToolRunnable.MOVING_TO, to.process);
 			}
 			to.addChangeEvent(IToolRunnable.MOVING_TO, finalRunnables);
-			to.fireEvents();
+			to.internalFireEvents();
 			to.notifyAll();
 		}
 	}
 	
-	public IStatus addOnIdle(final ISystemReadRunnable runnable, final int rank) {
+	public IStatus addOnIdle(final ISystemRunnable runnable, final int rank) {
 		if (runnable == null) {
 			throw new NullPointerException("runnable"); //$NON-NLS-1$
 		}
@@ -496,8 +534,8 @@ public final class Queue implements IQueue {
 			else {
 				this.list.addAll(this.insertIndex, runnables);
 			}
-			addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-					new Delta(IToolRunnable.ADDING_TO, this.insertIndex, runnables) );
+			addContentEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+					new TaskDelta(IToolRunnable.ADDING_TO, this.insertIndex, runnables) );
 			this.insertIndex += runnables.size();
 		}
 		else {
@@ -507,10 +545,10 @@ public final class Queue implements IQueue {
 			else {
 				this.list.addAll(runnables);
 			}
-			addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-					new Delta(IToolRunnable.ADDING_TO, -1, runnables) );
+			addContentEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+					new TaskDelta(IToolRunnable.ADDING_TO, -1, runnables) );
 		}
-		fireEvents();
+		internalFireEvents();
 	}
 	
 	void internalAddInsert(final IToolRunnable runnable) {
@@ -520,9 +558,9 @@ public final class Queue implements IQueue {
 		this.insertRunnable= runnable;
 		this.insertIndex= 0;
 		this.list.add(0, runnable);
-		addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-				new Delta(IToolRunnable.ADDING_TO, 0, ImCollections.newList(runnable)) );
-		fireEvents();
+		addContentEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+				new TaskDelta(IToolRunnable.ADDING_TO, 0, ImCollections.newList(runnable)) );
+		internalFireEvents();
 	}
 	
 	void internalRemoveInsert(final IToolRunnable runnable) {
@@ -565,7 +603,7 @@ public final class Queue implements IQueue {
 			this.insertRunnable= this.insertRunnableStack.get(this.insertRunnableStack.size()-1);
 			this.insertIndex= this.list.indexOf(this.insertRunnable);
 		}
-		fireEvents();
+		internalFireEvents();
 	}
 	
 	void internalScheduleIdle(final IToolRunnable runnable) {
@@ -610,7 +648,7 @@ public final class Queue implements IQueue {
 	
 	void internalCheck() {
 		checkIOCache();
-		fireEvents();
+		internalFireEvents();
 	}
 	
 	void internalResetIdle() {
@@ -631,12 +669,12 @@ public final class Queue implements IQueue {
 		if (this.singleIOCache != null) {
 			finalRunnable= this.singleIOCache;
 			if (this.insertIndex >= 0) {
-				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-						new Delta(IToolRunnable.ADDING_TO, this.insertIndex, this.singleIOCache));
+				addContentEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+						new TaskDelta(IToolRunnable.ADDING_TO, this.insertIndex, this.singleIOCache));
 			}
 			else {
-				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-						new Delta(IToolRunnable.ADDING_TO, -1, this.singleIOCache));
+				addContentEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+						new TaskDelta(IToolRunnable.ADDING_TO, -1, this.singleIOCache));
 			}
 			this.singleIOCache= null;
 			if (this.resetOnIdle) {
@@ -658,7 +696,7 @@ public final class Queue implements IQueue {
 		}
 		addChangeEvent(IToolRunnable.STARTING, finalRunnable);
 		
-		fireEvents();
+		internalFireEvents();
 		this.finishedExpected.push(finalRunnable);
 		return finalRunnable.get(0);
 	}
@@ -691,15 +729,96 @@ public final class Queue implements IQueue {
 		}
 	}
 	
+	
+	public synchronized boolean isRequested(final byte state) {
+		return (this.state == state || this.stateRequest == state);
+	}
+	
+	public synchronized boolean pause() {
+		if (this.state == TERMINATED_STATE) {
+			return false;
+		}
+		final byte oldState= this.stateRequest;
+		if (oldState != PAUSED_STATE) {
+			this.stateRequest= PAUSED_STATE;
+			addStateEvent(DebugEvent.MODEL_SPECIFIC, STATE_REQUEST,
+					new StateDelta(oldState, PAUSED_STATE));
+			internalFireEvents();
+			notifyAll();
+		}
+		return true;
+	}
+	
+	public synchronized boolean resume() {
+		if (this.state == TERMINATED_STATE) {
+			return false;
+		}
+		final byte oldState= this.stateRequest;
+		if (oldState != PROCESSING_STATE) {
+			this.stateRequest= PROCESSING_STATE;
+			addStateEvent(DebugEvent.MODEL_SPECIFIC, STATE_REQUEST,
+					new StateDelta(oldState, PROCESSING_STATE) );
+			internalFireEvents();
+			notifyAll();
+		}
+		return true;
+	}
+	
+	void internalStatusChanged(final ToolStatus newStatus) {
+		final byte oldState= this.state;
+		switch (newStatus) {
+		case STARTED_IDLING:
+		case STARTED_SUSPENDED:
+			this.state= IDLING_STATE;
+			break;
+		case STARTED_PAUSED:
+			this.state= PAUSED_STATE;
+			break;
+		case TERMINATED:
+			this.state= TERMINATED_STATE;
+			break;
+		default:
+			this.state= PROCESSING_STATE;
+			break;
+		}
+		
+		addStateEvent(DebugEvent.CHANGE, DebugEvent.STATE,
+				new StateDelta(oldState, this.state) );
+		
+		if (this.stateRequest == PAUSED_STATE && oldState == PAUSED_STATE) {
+			this.stateRequest= PROCESSING_STATE;
+			addStateEvent(DebugEvent.MODEL_SPECIFIC, STATE_REQUEST,
+					new StateDelta(PAUSED_STATE, PROCESSING_STATE) );
+		}
+		else if (this.stateRequest == TERMINATED_STATE && this.state == TERMINATED_STATE) {
+			this.stateRequest= PROCESSING_STATE;
+			addStateEvent(DebugEvent.MODEL_SPECIFIC, STATE_REQUEST,
+					new StateDelta(TERMINATED_STATE, PROCESSING_STATE) );
+		}
+	}
+	
+	boolean internalIsPauseRequested() {
+		return (this.stateRequest == PAUSED_STATE);
+	}
+	
+	
 	void dispose() {
 		checkIOCache();
+		
+		final byte oldState= this.state;
+		if (oldState != TERMINATED_STATE) {
+			this.state= TERMINATED_STATE;
+			addStateEvent(DebugEvent.CHANGE, DebugEvent.STATE,
+					new StateDelta(oldState, TERMINATED_STATE) );
+		}
+		
 		if (!this.list.isEmpty()) {
 			final ImList<IToolRunnable> finalRunnables= ImCollections.toList(this.list);
 			for (final IToolRunnable runnable : finalRunnables) {
 				runnable.changed(IToolRunnable.BEING_ABANDONED, this.process);
 			}
-			addDebugEvent(DebugEvent.TERMINATE, DebugEvent.UNSPECIFIED,
-					new Delta(IToolRunnable.BEING_ABANDONED, -1, finalRunnables) );
+			addContentEvent(DebugEvent.TERMINATE, DebugEvent.UNSPECIFIED,
+					new TaskDelta(IToolRunnable.BEING_ABANDONED, -1, finalRunnables) );
 			this.list.clear();
 		}
 		if (!this.hotList.isEmpty()){
@@ -716,21 +835,22 @@ public final class Queue implements IQueue {
 			}
 			this.onIdleList.clear();
 		}
-		fireEvents();
+		
+		internalFireEvents();
 	}
 	
 	
 	private void checkIOCache() {
 		if (this.singleIOCache != null) {
 			if (this.insertIndex >= 0) {
-				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-						new Delta(IToolRunnable.ADDING_TO, this.insertIndex, this.singleIOCache) );
+				addContentEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+						new TaskDelta(IToolRunnable.ADDING_TO, this.insertIndex, this.singleIOCache) );
 				this.list.add(this.insertIndex, this.singleIOCache.get(0));
 				this.insertIndex++;
 			}
 			else {
-				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-						new Delta(IToolRunnable.ADDING_TO, -1, this.singleIOCache) );
+				addContentEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+						new TaskDelta(IToolRunnable.ADDING_TO, -1, this.singleIOCache) );
 				this.list.add(this.singleIOCache.get(0));
 			}
 			this.singleIOCache= null;
@@ -738,28 +858,34 @@ public final class Queue implements IQueue {
 	}
 	
 	private void addChangeEvent(final int deltaType, final ImList<IToolRunnable> deltaData) {
-		addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT, new Delta(deltaType, -1, deltaData));
+		addContentEvent(DebugEvent.CHANGE, DebugEvent.CONTENT, new TaskDelta(deltaType, -1, deltaData));
 	}
 	
-	private void addDebugEvent(final int code, final int detail, final Delta delta) {
+	private void addContentEvent(final int code, final int detail, final TaskDelta delta) {
 		final DebugEvent event= new DebugEvent(this, code, detail);
 		event.setData(delta);
-		synchronized (this.eventList) {
-			this.eventList.add(event);
-		}
+		this.eventList.add(event);
 	}
 	
-	private void fireEvents() {
+	private void addStateEvent(final int kind, final int detail, final StateDelta delta) {
+		final DebugEvent event= new DebugEvent(this, kind, detail);
+		event.setData(delta);
+		this.eventList.add(event);
+	}
+	
+	List<DebugEvent> internalGetEventList() {
+		return this.eventList;
+	}
+	
+	void internalFireEvents() {
 		if (this.eventList.isEmpty()) {
 			return;
 		}
 		final DebugPlugin manager= DebugPlugin.getDefault();
-		synchronized (this.eventList) {
-			if (manager != null) {
-				manager.fireDebugEventSet(this.eventList.toArray(new DebugEvent[this.eventList.size()]));
-			}
-			this.eventList.clear();
+		if (manager != null) {
+			manager.fireDebugEventSet(this.eventList.toArray(new DebugEvent[this.eventList.size()]));
 		}
+		this.eventList.clear();
 	}
 	
 }

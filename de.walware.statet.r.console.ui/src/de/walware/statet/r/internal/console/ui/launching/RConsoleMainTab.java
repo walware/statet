@@ -57,9 +57,9 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.databinding.core.util.UpdateableErrorValidator;
 import de.walware.ecommons.debug.core.util.LaunchUtils;
-import de.walware.ecommons.debug.ui.HelpRequestor;
 import de.walware.ecommons.debug.ui.config.InputArgumentsComposite;
 import de.walware.ecommons.debug.ui.config.LaunchConfigTabWithDbc;
+import de.walware.ecommons.debug.ui.util.HelpRequestor;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.DialogUtil;

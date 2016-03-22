@@ -24,6 +24,8 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 
+import de.walware.jcommons.collections.CollectionUtils;
+
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.models.core.util.IElementPartition;
 import de.walware.ecommons.ui.components.StatusInfo;
@@ -73,41 +75,39 @@ class CopyElementNameHandler extends AbstractHandler {
 		if (treePaths.length == 0) {
 			return null;
 		}
-		final List<String> list= new ArrayList<>();
-		int length = 0;
+		final List<String> names= new ArrayList<>();
 		int failed = 0;
 		for (int i = 0; i < treePaths.length; i++) {
-			final IElementName elementName = this.view.getElementName(treePaths[i]);
+			final IElementName elementName = this.view.getFQElementName(treePaths[i]);
 			final String name = (elementName != null) ? elementName.getDisplayName() : null;
 			if (name != null) {
-				length += name.length();
-				list.add(name);
+				names.add(name);
 			}
 			else {
 				failed++;
 			}
 		}
 		
-		String text;
-		if (list.size() > 0) {
-			final StringBuilder sb = new StringBuilder(length + list.size()*2);
-			for (final String name : list) {
-				sb.append(name);
-				sb.append(", "); //$NON-NLS-1$
-			}
-			text = sb.substring(0, sb.length()-2);
+		if (names.size() == 1) {
+			copy(names.get(0));
+		}
+		else if (names.size() > 1) {
+			copy(CollectionUtils.toString(names, ", ")); //$NON-NLS-1$
 		}
 		else {
-			text = ""; //$NON-NLS-1$
+			copy(""); //$NON-NLS-1$
 		}
 		if (failed > 0) {
 			this.view.getStatusLine().setMessage(new StatusInfo(IStatus.WARNING, "Could not copy element name for " + failed + " of " + treePaths.length + " objects."));
 		}
+		
+		return null;
+	}
+	
+	private void copy(final String text) {
 		DNDUtil.setContent(this.view.getClipboard(), 
 				new String[] { text }, 
 				new Transfer[] { TextTransfer.getInstance() } );
-		
-		return null;
 	}
 	
 }

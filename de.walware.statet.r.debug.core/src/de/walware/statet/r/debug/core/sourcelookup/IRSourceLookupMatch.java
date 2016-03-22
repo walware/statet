@@ -15,6 +15,17 @@ package de.walware.statet.r.debug.core.sourcelookup;
 public interface IRSourceLookupMatch {
 	
 	
+	IRSourceLookupMatch NO_CONTEXT_INFORMATION= new IRSourceLookupMatch() {
+		@Override
+		public Object getElement() {
+			return null;
+		}
+		@Override
+		public void select() {
+		}
+	};
+	
+	
 	Object getElement();
 	
 	void select();

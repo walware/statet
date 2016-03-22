@@ -18,11 +18,10 @@ import org.eclipse.ui.IPersistableElement;
 
 import de.walware.ecommons.ts.ITool;
 
-import de.walware.statet.nico.core.runtime.ToolProcess;
-
 import de.walware.rj.data.RArray;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
+import de.walware.rj.services.IFQRObjectRef;
 
 import de.walware.statet.r.core.model.RElementName;
 
@@ -46,11 +45,11 @@ public class RLiveDataEditorInput extends PlatformObject implements IRDataEditor
 	}
 	
 	
-	private final RToolDataTableInput fInput;
+	private final RToolDataTableInput input;
 	
 	
-	public RLiveDataEditorInput(final ToolProcess process, final RElementName elementName) {
-		fInput = new RToolDataTableInput(elementName, process);
+	public RLiveDataEditorInput(final RElementName elementName, final IFQRObjectRef elementRef) {
+		this.input= new RToolDataTableInput(elementName, elementRef);
 	}
 	
 	
@@ -61,18 +60,18 @@ public class RLiveDataEditorInput extends PlatformObject implements IRDataEditor
 	
 	@Override
 	public String getName() {
-		return fInput.getLastName();
+		return this.input.getName();
 	}
 	
 	@Override
 	public String getToolTipText() {
-		return NLS.bind("{0} in {1}", fInput.getElementName().getDisplayName(),
-				fInput.getTool().getLabel(ITool.LONG_LABEL));
+		return NLS.bind("{0} in {1}", this.input.getElementName().getDisplayName(),
+				this.input.getTool().getLabel(ITool.LONG_LABEL));
 	}
 	
 	@Override
 	public boolean exists() {
-		return fInput.isAvailable();
+		return this.input.isAvailable();
 	}
 	
 	@Override
@@ -82,13 +81,13 @@ public class RLiveDataEditorInput extends PlatformObject implements IRDataEditor
 	
 	@Override
 	public RToolDataTableInput getRDataTableInput() {
-		return fInput;
+		return this.input;
 	}
 	
 	
 	@Override
 	public int hashCode() {
-		return fInput.hashCode();
+		return this.input.hashCode();
 	}
 	
 	@Override
@@ -96,7 +95,7 @@ public class RLiveDataEditorInput extends PlatformObject implements IRDataEditor
 		if (!(obj instanceof RLiveDataEditorInput)) {
 			return false;
 		}
-		return (fInput.equals(((RLiveDataEditorInput) obj).fInput));
+		return (this.input.equals(((RLiveDataEditorInput) obj).input));
 	}
 	
 }

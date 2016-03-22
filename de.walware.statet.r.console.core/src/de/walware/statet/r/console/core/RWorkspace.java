@@ -11,8 +11,9 @@
 
 package de.walware.statet.r.console.core;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -29,29 +30,28 @@ import de.walware.jcommons.collections.ImList;
 import de.walware.statet.nico.core.NicoVariables;
 import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.Prompt;
-import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 
 import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.REnvironment;
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
-import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RReference;
 import de.walware.rj.services.RService;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.RElementName;
+import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.pkgmanager.IRPkgChangeSet;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager;
 import de.walware.statet.r.core.pkgmanager.IRPkgManager.Event;
 import de.walware.statet.r.core.renv.IREnv;
+import de.walware.statet.r.core.tool.IRConsoleService;
 import de.walware.statet.r.internal.console.core.RObjectDB;
 import de.walware.statet.r.internal.rdata.REnvironmentVar;
 import de.walware.statet.r.internal.rdata.RReferenceVar;
 import de.walware.statet.r.internal.rdata.VirtualMissingVar;
-import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.ICombinedRDataAdapter;
 import de.walware.statet.r.nico.RWorkspaceConfig;
 
@@ -62,9 +62,9 @@ import de.walware.statet.r.nico.RWorkspaceConfig;
 public class RWorkspace extends ToolWorkspace {
 	
 	
-	public static final int REFRESH_AUTO=                   0x01;
+	public static final int REFRESH_AUTO=                   IRConsoleService.AUTO_CHANGE;
 	public static final int REFRESH_COMPLETE=               0x02;
-	public static final int REFRESH_PACKAGES=               0x10;
+	public static final int REFRESH_PACKAGES=               IRConsoleService.PACKAGE_CHANGE;
 	
 	
 	public static final int RESOLVE_UPTODATE=               1 << 1;
@@ -90,6 +90,8 @@ public class RWorkspace extends ToolWorkspace {
 		
 		RProcess getSource();
 		
+		int getStamp();
+		
 	}
 	
 	public static final ImList<IStringVariable> ADDITIONAL_R_VARIABLES= ImCollections.<IStringVariable>newList(
@@ -100,30 +102,23 @@ public class RWorkspace extends ToolWorkspace {
 			NicoVariables.SESSION_STARTUP_WD_VARIABLE );
 	
 	
-	private static RElementName toFullName(ICombinedRElement var) {
-		final List<RElementName> segments= new ArrayList<>();
+	protected static final class Changes {
 		
-		while (var != null) {
-			final RElementName elementName= var.getElementName();
-			if (elementName == null) {
-				break;
-			}
-			segments.add(elementName);
-			if (RElementName.isScopeType(elementName.getType())) {
-				Collections.reverse(segments);
-				return RElementName.create(segments);
-			}
-			var= var.getModelParent();
+		private final int changeFlags;
+		private final Set<RElementName> changedEnvirs;
+		
+		public Changes(final int changeFlags, final Set<RElementName> changedEnvirs) {
+			this.changeFlags= changeFlags;
+			this.changedEnvirs= changedEnvirs;
 		}
 		
-		return null;
 	}
+	
 	
 	private static RReferenceVar verifyVar(final RElementName fullName,
 			final ICombinedRDataAdapter r, final IProgressMonitor monitor) {
 		try {
-			return (RReferenceVar) r.evalCombinedStruct(fullName,
-					RObjectFactory.F_ONLY_STRUCT, RService.DEPTH_REFERENCE,
+			return (RReferenceVar) r.evalCombinedStruct(fullName, 0, RService.DEPTH_REFERENCE,
 					monitor );
 		}
 		catch (final Exception e) {
@@ -138,6 +133,8 @@ public class RWorkspace extends ToolWorkspace {
 	
 	private IRPkgManager pkgManager;
 	private IRPkgManager.Listener pkgManagerListener;
+	
+	private final HashSet<RElementName> changedEnvirs= new HashSet<>();
 	
 	
 	public RWorkspace(final AbstractRController controller, final String remoteHost,
@@ -172,6 +169,8 @@ public class RWorkspace extends ToolWorkspace {
 				this.pkgManager.addListener(this.pkgManagerListener);
 			}
 		}
+		
+		controlBriefChanged(null, RWorkspace.REFRESH_COMPLETE);
 	}
 	
 	
@@ -180,11 +179,14 @@ public class RWorkspace extends ToolWorkspace {
 		return (RProcess) super.getProcess();
 	}
 	
+	private AbstractRController getController() {
+		return (AbstractRController) getProcess().getController();
+	}
 	
 	@Override
 	public IFileStore toFileStore(final IPath toolPath) throws CoreException {
 		if (!toolPath.isAbsolute() && toolPath.getDevice() == null && "~".equals(toolPath.segment(0))) { //$NON-NLS-1$
-			final ToolController controller= getProcess().getController();
+			final AbstractRController controller= getController();
 			if (controller != null) {
 				final IPath homePath= createToolPath(controller.getProperty("R:file.~")); //$NON-NLS-1$
 				if (homePath != null) {
@@ -212,8 +214,10 @@ public class RWorkspace extends ToolWorkspace {
 	protected void enableRObjectDB(final boolean enable) {
 		this.rObjectDBEnabled= enable;
 		if (enable) {
-			final AbstractRController controller= (AbstractRController) getProcess().getController();
-			controller.briefAboutChange(REFRESH_COMPLETE);
+			final AbstractRController controller= getController();
+			if (controller != null) {
+				controller.briefChanged(REFRESH_COMPLETE);
+			}
 		}
 		else {
 			this.rObjectDB= null;
@@ -221,8 +225,50 @@ public class RWorkspace extends ToolWorkspace {
 	}
 	
 	private int getStamp() {
-		final ToolController controller= getProcess().getController();
-		return (controller != null) ? controller.getCounter() : 0;
+		final AbstractRController controller= getController();
+		return (controller != null) ? controller.getChangeStamp() : 0;
+	}
+	
+	
+	@Override
+	protected void controlBriefChanged(final Object obj, final int flags) {
+		if (obj instanceof Collection) {
+			final Collection<?> collection = (Collection<?>) obj;
+			for (final Object child : collection) {
+				controlBriefChanged(child, flags);
+			}
+			return;
+		}
+		if (obj instanceof RElementName) {
+			final RElementName name = (RElementName) obj;
+			if (RElementName.isSearchScopeType(name.getType())) {
+				this.changedEnvirs.add(name);
+				return;
+			}
+		}
+		super.controlBriefChanged(obj, flags);
+	}
+	
+	protected Changes saveChanges() {
+		return new Changes(getChangeFlags(),
+				(!this.changedEnvirs.isEmpty()) ?
+						(Set<RElementName>) this.changedEnvirs.clone() :
+						Collections.EMPTY_SET );
+	}
+	
+	protected void restoreChanges(final Changes changes) {
+		super.controlBriefChanged(null, changes.changeFlags);
+		this.changedEnvirs.addAll(changes.changedEnvirs);
+	}
+	
+	private boolean hasBriefedChanges() {
+		return (getChangeFlags() != 0 || !this.changedEnvirs.isEmpty());
+	}
+	
+	@Override
+	protected void clearBriefedChanges() {
+		super.clearBriefedChanges();
+		this.changedEnvirs.clear();
 	}
 	
 	
@@ -290,18 +336,18 @@ public class RWorkspace extends ToolWorkspace {
 	}
 	
 	public boolean isUptodate(ICombinedRElement element) {
-		final AbstractRController controller= (AbstractRController) getProcess().getController();
+		final AbstractRController controller= getController();
 		if (controller != null) {
 			if (element instanceof VirtualMissingVar) {
 				final VirtualMissingVar var= (VirtualMissingVar) element;
 				return (var.getSource() == controller.getTool()
-						&& var.getStamp() == controller.getCounter() );
+						&& var.getStamp() == controller.getChangeStamp() );
 			}
 			while (element != null) {
 				if (element.getRObjectType() == RObject.TYPE_ENV) {
 					final REnvironmentVar var= (REnvironmentVar) element;
 					return (var.getSource() == controller.getTool()
-							&& var.getStamp() == controller.getCounter() );
+							&& var.getStamp() == controller.getChangeStamp() );
 				}
 				element= element.getModelParent();
 			}
@@ -314,14 +360,15 @@ public class RWorkspace extends ToolWorkspace {
 	}
 	
 	
-	public RReference createReference(final long handle, final RElementName name, final String className) {
-		return new RReferenceVar(handle, className, null, name);
+	public RReference createReference(final long handle, final RElementName name,
+			final byte type, final String className) {
+		return new RReferenceVar(handle, type, className, null, name);
 	}
 	
 	
 	public ICombinedRElement resolve(final RReference reference, final int resolve,
 			final int loadOptions, final IProgressMonitor monitor) throws CoreException {
-		final AbstractRController controller= (AbstractRController) getProcess().getController();
+		final AbstractRController controller= getController();
 		if (controller == null || !(controller instanceof ICombinedRDataAdapter)) {
 			return null;
 		}
@@ -338,8 +385,9 @@ public class RWorkspace extends ToolWorkspace {
 		RReferenceVar ref= null;
 		if (reference instanceof RReferenceVar) {
 			ref= (RReferenceVar) reference;
-			if (ref.getHandle() == 0 || !isUptodate(ref)) {
-				ref= verifyVar(toFullName(ref), (ICombinedRDataAdapter) controller, monitor);
+			if (ref.getHandle() == 0 || controller.getHotTasksState() > 1 || !isUptodate(ref)) {
+				ref= verifyVar(RModel.getFQElementName(ref),
+						(ICombinedRDataAdapter) controller, monitor );
 			}
 		}
 		if (ref == null) {
@@ -347,11 +395,11 @@ public class RWorkspace extends ToolWorkspace {
 		}
 		
 		if (db == null) {
-			db= new RObjectDB(this, controller.getCounter() - 1000,
+			db= new RObjectDB(this, controller.getChangeStamp() - 1000,
 					controller, monitor );
 			this.rObjectDB= db;
 		}
-		else if (db.getLazyEnvsStamp() != controller.getCounter()) {
+		else if (db.getLazyEnvsStamp() != controller.getChangeStamp()) {
 			db.updateLazyEnvs(controller, monitor);
 		}
 		
@@ -361,7 +409,7 @@ public class RWorkspace extends ToolWorkspace {
 	
 	public ICombinedRElement resolve(final RElementName name, final int resolve,
 			final int loadOptions, final IProgressMonitor monitor) throws CoreException {
-		final AbstractRController controller= (AbstractRController) getProcess().getController();
+		final AbstractRController controller= getController();
 		if (controller == null || !(controller instanceof ICombinedRDataAdapter)) {
 			return null;
 		}
@@ -380,7 +428,7 @@ public class RWorkspace extends ToolWorkspace {
 		final RReferenceVar ref;
 		if (name.getNextSegment() == null
 				&& name.getType() == RElementName.SCOPE_NS ) {
-			ref= new RReferenceVar(0, RObject.CLASSNAME_ENV, null, name);
+			ref= new RReferenceVar(0, RObject.TYPE_ENV, RObject.CLASSNAME_ENV, null, name);
 		}
 		else {
 			ref= verifyVar(name, (ICombinedRDataAdapter) controller, monitor);
@@ -399,11 +447,11 @@ public class RWorkspace extends ToolWorkspace {
 		
 		
 		if (db == null) {
-			db= new RObjectDB(this, controller.getCounter() - 1000,
+			db= new RObjectDB(this, controller.getChangeStamp() - 1000,
 					controller, monitor );
 			this.rObjectDB= db;
 		}
-		else if (db.getLazyEnvsStamp() != controller.getCounter()) {
+		else if (db.getLazyEnvsStamp() != controller.getChangeStamp()) {
 			db.updateLazyEnvs(controller, monitor);
 		}
 		
@@ -419,18 +467,18 @@ public class RWorkspace extends ToolWorkspace {
 	@Override
 	protected final void autoRefreshFromTool(final IConsoleService adapter,
 			final IProgressMonitor monitor) throws CoreException {
-		final AbstractRController controller= (AbstractRController) adapter.getController();
-		if (controller.hasBriefedChanges() || controller.isSuspended()) {
-			refreshFromTool(controller, controller.getBriefedChanges(), monitor);
+		final AbstractRController controller= getController();
+		if (hasBriefedChanges() || controller.isSuspended()) {
+			refreshFromTool(controller, getChangeFlags(), monitor);
 		}
 	}
 	
 	@Override
 	protected final void refreshFromTool(int options, final IConsoleService adapter,
 			final IProgressMonitor monitor) throws CoreException {
-		final AbstractRController controller= (AbstractRController) adapter.getController();
+		final AbstractRController controller= getController();
 		if ((options & (REFRESH_AUTO | REFRESH_COMPLETE)) != 0) {
-			options |= controller.getBriefedChanges();
+			options |= getChangeFlags();
 		}
 		refreshFromTool(controller, options, monitor);
 	}
@@ -443,24 +491,24 @@ public class RWorkspace extends ToolWorkspace {
 			updateWorkspaceDir(r, monitor);
 			updateOptions(r, monitor);
 			if (this.rObjectDBEnabled) {
-				final Set<RElementName> elements= controller.getBriefedChangedElements();
+				final Set<RElementName> elements= this.changedEnvirs;
 				if ( ((options & REFRESH_COMPLETE) != 0)
 						|| ( ((((options & REFRESH_AUTO)) != 0) || !elements.isEmpty()
 								|| controller.isSuspended() )
 								&& isAutoRefreshEnabled() ) ) {
 					updateREnvironments(r, elements, ((options & REFRESH_COMPLETE) != 0), monitor);
-					controller.clearBriefedChanges();
+					clearBriefedChanges();
 				}
 			}
 			else {
-				controller.clearBriefedChanges();
+				clearBriefedChanges();
 			}
 		}
 		else {
-			controller.clearBriefedChanges();
+			clearBriefedChanges();
 		}
 		
-		final boolean dirty= !isAutoRefreshEnabled() && controller.hasBriefedChanges();
+		final boolean dirty= !isAutoRefreshEnabled() && hasBriefedChanges();
 		if (dirty != this.autoRefreshDirty) {
 			this.autoRefreshDirty= dirty;
 			addPropertyChanged("RObjectDB.dirty", dirty);
@@ -504,17 +552,17 @@ public class RWorkspace extends ToolWorkspace {
 			return;
 		}
 		
-		final AbstractRController controller= (AbstractRController) r.getController();
+		final AbstractRController controller= getController();
 		
 //		final long time= System.nanoTime();
 //		System.out.println(controller.getCounter() + " update");
 		
 		final RObjectDB previous= this.rObjectDB;
 		force|= (previous == null || previous.getSearchEnvs() == null);
-		if (!force && previous.getSearchEnvsStamp() == controller.getCounter() && envirs.isEmpty()) {
+		if (!force && previous.getSearchEnvsStamp() == controller.getChangeStamp() && envirs.isEmpty()) {
 			return;
 		}
-		final RObjectDB db= new RObjectDB(this, controller.getCounter(),
+		final RObjectDB db= new RObjectDB(this, controller.getChangeStamp(),
 				controller, monitor );
 		final List<REnvironmentVar> updateEnvs= db.update(
 				envirs, previous, force,

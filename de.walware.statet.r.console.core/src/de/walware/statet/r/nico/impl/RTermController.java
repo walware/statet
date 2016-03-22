@@ -42,7 +42,7 @@ import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IStreamMonitor;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.ts.ISystemReadRunnable;
+import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.IToolCommandHandler;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
@@ -55,12 +55,12 @@ import de.walware.statet.nico.core.runtime.ToolStatus;
 import de.walware.statet.nico.core.runtime.ToolStreamMonitor;
 import de.walware.statet.nico.core.runtime.ToolStreamProxy;
 
+import de.walware.statet.r.console.core.AbstractRController;
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.console.core.RConsoleCorePlugin;
 import de.walware.statet.r.internal.nico.RNicoMessages;
-import de.walware.statet.r.nico.AbstractRController;
 
 
 /**
@@ -150,13 +150,13 @@ public class RTermController extends AbstractRController implements IRequireSync
 		
 		private void onRTerminated() {
 			markAsTerminated();
-			synchronized (fQueue) {
-				fQueue.notifyAll();
+			synchronized (getQueue()) {
+				getQueue().notifyAll();
 			}
 		}
 	}
 	
-	private class UpdateProcessIdTask extends ControllerSystemRunnable implements ISystemReadRunnable {
+	private class UpdateProcessIdTask extends ControllerSystemRunnable implements ISystemRunnable {
 		
 		
 		public UpdateProcessIdTask() {
@@ -218,8 +218,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 						}
 					}
 				}
-				fChanged = 0;
-				fChangedEnvirs.clear();
+				clearBriefedChanges();
 			}
 		});
 		setWorkspaceDirL(EFS.getLocalFileSystem().fromLocalFile(config.directory()));
@@ -258,10 +257,10 @@ public class RTermController extends AbstractRController implements IRequireSync
 			
 			initTracks(fConfig.directory().toString(), monitor, warnings);
 			
-			fQueue.add(new UpdateProcessIdTask());
-			if (!fStartupsRunnables.isEmpty()) {
-				fQueue.add(fStartupsRunnables);
-				fStartupsRunnables.clear();
+			getQueue().add(new UpdateProcessIdTask());
+			if (!this.startupsRunnables.isEmpty()) {
+				getQueue().add(this.startupsRunnables);
+				this.startupsRunnables.clear();
 			}
 			
 			scheduleControllerRunnable(new ControllerSystemRunnable(

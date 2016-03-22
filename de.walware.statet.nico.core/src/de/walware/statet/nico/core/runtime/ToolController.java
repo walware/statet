@@ -18,7 +18,6 @@ import static de.walware.statet.nico.core.runtime.IToolEventHandler.SCHEDULE_QUI
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,18 +27,20 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugEvent;
-import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.model.IThread;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.jcommons.collections.CopyOnWriteList;
 import de.walware.jcommons.collections.ImCollections;
 import de.walware.jcommons.collections.ImList;
+import de.walware.jcommons.lang.ObjectUtils;
+import de.walware.jcommons.lang.ObjectUtils.ToStringBuilder;
 
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.IDisposable;
-import de.walware.ecommons.ts.ISystemReadRunnable;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolCommandHandler;
@@ -49,7 +50,7 @@ import de.walware.ecommons.ts.IToolService;
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoCoreMessages;
 import de.walware.statet.nico.internal.core.Messages;
-import de.walware.statet.nico.internal.core.NicoPlugin;
+import de.walware.statet.nico.internal.core.NicoCorePlugin;
 import de.walware.statet.nico.internal.core.RunnableProgressMonitor;
 
 
@@ -68,6 +69,12 @@ import de.walware.statet.nico.internal.core.RunnableProgressMonitor;
 public abstract class ToolController implements IConsoleService {
 	
 	
+	private static final boolean DEBUG_LOG_STATE= Boolean.parseBoolean(
+			Platform.getDebugOption("de.walware.statet.nico/debug/ToolController/logState") ); //$NON-NLS-1$
+	
+	private static final int STEP_BEGIN= (DebugEvent.STEP_INTO | DebugEvent.STEP_OVER | DebugEvent.STEP_RETURN);
+	
+	
 	/**
 	 * Listens for changes of the status of a controller.
 	 * 
@@ -75,10 +82,6 @@ public abstract class ToolController implements IConsoleService {
 	 * debug events of the ToolProcess.
 	 */
 	public static interface IToolStatusListener {
-		
-		void controllerStatusRequested(ToolStatus currentStatus, ToolStatus requestedStatus, List<DebugEvent> eventCollection);
-		
-		void controllerStatusRequestCanceled(ToolStatus currentStatus, ToolStatus requestedStatus, List<DebugEvent> eventCollection);
 		
 		/**
 		 * Should be fast!
@@ -235,7 +238,7 @@ public abstract class ToolController implements IConsoleService {
 		
 	};
 	
-	private class SuspendedInsertRunnable extends ControllerSystemRunnable implements ISystemReadRunnable {
+	private class SuspendedInsertRunnable extends ControllerSystemRunnable implements ISystemRunnable {
 		
 		private final int level;
 		
@@ -261,7 +264,7 @@ public abstract class ToolController implements IConsoleService {
 		
 	}
 	
-	private class SuspendedUpdateRunnable extends ControllerSystemRunnable implements ISystemReadRunnable {
+	private class SuspendedUpdateRunnable extends ControllerSystemRunnable implements ISystemRunnable {
 		
 		public SuspendedUpdateRunnable() {
 			super(SUSPENDED_INSERT_TYPE_ID, "Update Debug Context");
@@ -279,8 +282,8 @@ public abstract class ToolController implements IConsoleService {
 		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
-			final ImList<ISystemReadRunnable> runnables= ToolController.this.suspendUpdateRunnables.toList();
-			for (final ISystemReadRunnable runnable : runnables) {
+			final ImList<ISystemRunnable> runnables= ToolController.this.suspendUpdateRunnables.toList();
+			for (final ISystemRunnable runnable : runnables) {
 				try {
 					runnable.run(service, monitor);
 				}
@@ -290,7 +293,7 @@ public abstract class ToolController implements IConsoleService {
 						// ignore
 					}
 					else {
-						NicoPlugin.logError(-1, NLS.bind(
+						NicoCorePlugin.logError(-1, NLS.bind(
 								"An error occurred when running suspend task ''{0}''.", //$NON-NLS-1$
 								runnable.getLabel() ), e);
 					}
@@ -383,6 +386,7 @@ public abstract class ToolController implements IConsoleService {
 			super.run(service, monitor);
 			if (!ToolController.this.isTerminated) {
 				try {
+					briefAboutToChange();
 					((ToolController) service).doQuitL(monitor);
 				}
 				catch (final CoreException e) {
@@ -419,13 +423,13 @@ public abstract class ToolController implements IConsoleService {
 	protected static final int SUSPENDED_TOPLEVEL= 0x1;
 	protected static final int SUSPENDED_DEEPLEVEL= 0x2;
 	
+	
 	private ToolStreamProxy streams;
 	
 	private final ToolProcess process;
-	protected final Queue fQueue;
+	private final Queue queue;
 	
-	private int counter= 1;
-	private int counterNext= this.counter + 1;
+	private int counter= 0;
 	
 	private IToolRunnable currentRunnable;
 	private SubmitType currentSubmitType;
@@ -437,9 +441,7 @@ public abstract class ToolController implements IConsoleService {
 	private ToolStatus status= ToolStatus.STARTING;
 	private ToolStatus statusPrevious;
 	private final FastList<IToolStatusListener> toolStatusListeners= new FastList<>(IToolStatusListener.class, FastList.IDENTITY);
-	private final List<DebugEvent> eventCollector= new LinkedList<>();
 	private int internalTask;
-	private boolean pauseRequested;
 	private boolean terminateForced;
 	private volatile boolean isTerminated;
 	
@@ -448,17 +450,21 @@ public abstract class ToolController implements IConsoleService {
 	private boolean hotModeNested= true;
 	private final IProgressMonitor hotModeMonitor= new NullProgressMonitor();
 	
+	private boolean isDebugEnabled;
+	
 	private int suspendedRequestLevel;
 	private int loopCurrentLevel; // only within loop
 	private int suspendedRunLevel; // also when running exit/continue suspended
 	private int suspendedLowerLevel;
-	private final CopyOnWriteList<ISystemReadRunnable> suspendUpdateRunnables= new CopyOnWriteList<>();
+	private final CopyOnWriteList<ISystemRunnable> suspendUpdateRunnables= new CopyOnWriteList<>();
 	private SuspendResumeRunnable suspendExitRunnable;
 	private int suspendEnterDetail;
 	private Object suspendEnterData;
 	private int suspendExitDetail;
 	
 	private ToolWorkspace workspaceData;
+	
+	private volatile int changeStamp;
 	
 	private final Map<String, IToolCommandHandler> actionHandlers= new HashMap<>();
 	
@@ -477,7 +483,7 @@ public abstract class ToolController implements IConsoleService {
 		
 		this.streams= new ToolStreamProxy();
 		
-		this.fQueue= process.getQueue();
+		this.queue= process.getQueue();
 		this.toolStatusListeners.add(this.process);
 		
 		this.status= ToolStatus.STARTING;
@@ -531,11 +537,11 @@ public abstract class ToolController implements IConsoleService {
 	}
 	
 	protected final Queue getQueue() {
-		return this.fQueue;
+		return this.queue;
 	}
 	
 	public final ToolStatus getStatus() {
-		synchronized (this.fQueue) {
+		synchronized (this.queue) {
 			return this.status;
 		}
 	}
@@ -581,78 +587,27 @@ public abstract class ToolController implements IConsoleService {
 			setCurrentRunnable(createStartRunnable());
 			startToolL(this.runnableProgressMonitor);
 			setCurrentRunnable(null);
-			synchronized (this.fQueue) {
+			synchronized (this.queue) {
 				loopChangeStatus((this.controllerRunnables.isEmpty()) ?
 						ToolStatus.STARTED_IDLING : ToolStatus.STARTED_PROCESSING, null);
 			}
 			loop();
 		}
 		finally {
-			synchronized (this.fQueue) {
+			synchronized (this.queue) {
 				if (!this.isTerminated) {
 					this.isTerminated= true;
 				}
 				loopChangeStatus(ToolStatus.TERMINATED, null);
-				this.fQueue.notifyAll();
+				this.queue.notifyAll();
 			}
 			clear();
 			this.controllerThread= null;
 		}
 	}
 	
-	/**
-	 * Set/unsets the tool in pause mode.
-	 * <p>
-	 * This implementation don't stop the current calculation, but no new
-	 * runnables were started.
-	 * 
-	 * @param doPause <code>true</code> to switch in pause mode, <code>false</code>
-	 * 		to continue the calculation.
-	 * @return isPaused()
-	 */
-	public final boolean pause(final boolean doPause) {
-		synchronized (this.fQueue) {
-			if (doPause) {
-				if (this.status.isRunning() || this.status.isWaiting()) {
-					if (!this.pauseRequested) {
-						this.pauseRequested= true;
-						statusRequested(ToolStatus.STARTED_PAUSED, true);
-					}
-					this.fQueue.notifyAll(); // so we can switch to pause status
-				}
-				return true;
-			}
-			else { // !doPause
-				if (this.status == ToolStatus.STARTED_PAUSED) {
-					this.pauseRequested= false;
-					this.fQueue.notifyAll();
-					return true;
-				}
-				else if (this.pauseRequested) {
-					this.pauseRequested= false;
-					statusRequested(ToolStatus.STARTED_PAUSED, false);
-					return false;
-				}
-				return false;
-			}
-		}
-	}
-	
-	/**
-	 * Checks, whether the controller is paused.
-	 * It is paused if the tool has the pause status or if the pause status is requested while
-	 * the tool is still processing.
-	 * 
-	 * @return <code>true</code> if paused, otherwise <code>false</code>.
-	 */
-	public final boolean isPaused() {
-		synchronized (this.fQueue) {
-			return (this.pauseRequested || this.status == ToolStatus.STARTED_PAUSED);
-		}
-	}
-	
 	public final int getHotTasksState() {
-		synchronized (this.fQueue) {
+		synchronized (this.queue) {
 			if (this.hotMode) {
 				return (this.hotModeNested) ? 2 : 1;
 			}
@@ -673,7 +628,7 @@ public abstract class ToolController implements IConsoleService {
 	 * @return <code>true</code> if suspended, otherwise <code>false</code>
 	 */
 	public final boolean isSuspended() {
-		synchronized (this.fQueue) {
+		synchronized (this.queue) {
 			return (this.suspendedRequestLevel > 0 || this.loopCurrentLevel > 0);
 		}
 	}
@@ -691,7 +646,7 @@ public abstract class ToolController implements IConsoleService {
 	 *
 	 * @return the counter value
 	 */
-	public int getCounter() {
+	public int getTaskCounter() {
 		return this.counter;
 	}
 	
@@ -704,13 +659,13 @@ public abstract class ToolController implements IConsoleService {
 	 * @return hint about success.
 	 */
 	public final boolean cancelTask(final int options) {
-		synchronized (this.fQueue) {
+		synchronized (this.queue) {
 			if ((options & CANCEL_ALL) != 0) {
-				final List<IToolRunnable> list= this.fQueue.internalGetList();
-				this.fQueue.remove(list.toArray(new IToolRunnable[list.size()]));
+				final List<IToolRunnable> list= this.queue.internalGetList();
+				this.queue.remove(list.toArray(new IToolRunnable[list.size()]));
 			}
 			if ((options & CANCEL_PAUSE) != 0) {
-				pause(true);
+				this.queue.pause();
 			}
 			this.runnableProgressMonitor.setCanceled(true);
 			beginInternalTask();
@@ -733,7 +688,7 @@ public abstract class ToolController implements IConsoleService {
 			return false;
 		}
 		finally {
-			synchronized (this.fQueue) {
+			synchronized (this.queue) {
 				scheduleControllerRunnable(createCancelPostRunnable(options));
 				endInternalTask();
 			}
@@ -747,7 +702,7 @@ public abstract class ToolController implements IConsoleService {
 	 * The tool will shutdown (after the next runnable) usually.
 	 */
 	public final void scheduleQuit() {
-		synchronized (this.fQueue) {
+		synchronized (this.queue) {
 			if (this.status == ToolStatus.TERMINATED) {
 				return;
 			}
@@ -768,11 +723,11 @@ public abstract class ToolController implements IConsoleService {
 			}
 		}
 		finally {
-			synchronized (this.fQueue) {
+			synchronized (this.queue) {
 				if (this.status != ToolStatus.TERMINATED) {
 					if (schedule) {
 						final IToolRunnable runnable= createQuitRunnable();
-						this.fQueue.add(runnable);
+						this.queue.add(runnable);
 					}
 				}
 				endInternalTask();
@@ -791,7 +746,7 @@ public abstract class ToolController implements IConsoleService {
 	protected final void endInternalTask() {
 		this.internalTask--;
 		if (this.controllerRunnables.size() > 0 || this.internalTask == 0) {
-			this.fQueue.notifyAll();
+			this.queue.notifyAll();
 		}
 	}
 	
@@ -814,8 +769,8 @@ public abstract class ToolController implements IConsoleService {
 	 * Cancels requests to terminate the controller.
 	 */
 	public final void cancelQuit() {
-		synchronized(this.fQueue) {
-			this.fQueue.remove(getQuitTasks());
+		synchronized(this.queue) {
+			this.queue.remove(getQuitTasks());
 			
 			if (this.status == ToolStatus.TERMINATED) {
 				return;
@@ -835,7 +790,7 @@ public abstract class ToolController implements IConsoleService {
 		if (current != null && current.getTypeId() == QUIT_TYPE_ID) {
 			quit.add(current);
 		}
-		final List<IToolRunnable> list= this.fQueue.internalGetCurrentList();
+		final List<IToolRunnable> list= this.queue.internalGetCurrentList();
 		for (final IToolRunnable runnable : list) {
 			if (runnable.getTypeId() == QUIT_TYPE_ID) {
 				quit.add(runnable);
@@ -852,10 +807,10 @@ public abstract class ToolController implements IConsoleService {
 				if (isTerminated()) {
 					return;
 				}
-				synchronized (this.fQueue) {
-					this.fQueue.notifyAll();
+				synchronized (this.queue) {
+					this.queue.notifyAll();
 					try {
-						this.fQueue.wait(10);
+						this.queue.wait(10);
 					}
 					catch (final Exception e) {}
 				}
@@ -865,31 +820,6 @@ public abstract class ToolController implements IConsoleService {
 		if (!isTerminated()) {
 			markAsTerminated();
 		}
-	}
-	
-	/**
-	 * Should be only called inside synchronized(fQueue) blocks.
-	 * 
-	 * @param newStatus
-	 */
-	private final void statusRequested(final ToolStatus requestedStatus, final boolean on) {
-		final IToolStatusListener[] listeners= this.toolStatusListeners.toArray();
-		if (on) {
-			for (int i= 0; i < listeners.length; i++) {
-				listeners[i].controllerStatusRequested(this.status, requestedStatus, this.eventCollector);
-			}
-		}
-		else {
-			for (int i= 0; i < listeners.length; i++) {
-				listeners[i].controllerStatusRequestCanceled(this.status, requestedStatus, this.eventCollector);
-			}
-		}
-		
-		final DebugPlugin manager= DebugPlugin.getDefault();
-		if (manager != null) {
-			manager.fireDebugEventSet(this.eventCollector.toArray(new DebugEvent[this.eventCollector.size()]));
-		}
-		this.eventCollector.clear();
 	}
 	
 	/**
@@ -907,30 +837,47 @@ public abstract class ToolController implements IConsoleService {
 			this.runnableProgressMonitor= newMonitor;
 		}
 		
-		// update status
-		if (this.status == newStatus) {
-			return;
+		if (newStatus == this.status) {
+			if (newStatus == ToolStatus.STARTED_PROCESSING && this.loopCurrentLevel > 0) {
+				// for changed resume detail
+				final IToolStatusListener[] listeners= this.toolStatusListeners.toArray();
+				final List<DebugEvent> eventList= this.queue.internalGetEventList();
+				for (int i= 0; i < listeners.length; i++) {
+					if (listeners[i] instanceof IThread) {
+						listeners[i].controllerStatusChanged(this.statusPrevious, newStatus, eventList);
+					}
+				}
+			}
+			else {
+				return;
+			}
+		}
+		else {
+			if (newStatus == ToolStatus.STARTED_SUSPENDED) {
+				this.suspendExitDetail= DebugEvent.UNSPECIFIED;
+			}
+			if (newStatus == ToolStatus.STARTED_PROCESSING
+					&& (this.status != ToolStatus.STARTED_PAUSED || this.statusPrevious != ToolStatus.STARTED_PROCESSING)) {
+				this.queue.internalResetIdle();
+			}
+			
+			this.queue.internalStatusChanged(newStatus);
+			
+			this.statusPrevious= this.status;
+			this.status= newStatus;
+			
+			final IToolStatusListener[] listeners= this.toolStatusListeners.toArray();
+			final List<DebugEvent> eventList= this.queue.internalGetEventList();
+			for (int i= 0; i < listeners.length; i++) {
+				listeners[i].controllerStatusChanged(this.statusPrevious, newStatus, eventList);
+			}
 		}
 		
-		if (newStatus == ToolStatus.STARTED_PROCESSING
-				&& (this.status != ToolStatus.STARTED_PAUSED || this.statusPrevious != ToolStatus.STARTED_PROCESSING)) {
-			this.counterNext= ++this.counter;
-			this.fQueue.internalResetIdle();
+		if (DEBUG_LOG_STATE) {
+			logEvents("loopChangeStatus", newStatus); //$NON-NLS-1$
 		}
 		
-		this.statusPrevious= this.status;
-		this.status= newStatus;
-		
-		// send debug events
-		final IToolStatusListener[] listeners= this.toolStatusListeners.toArray();
-		for (int i= 0; i < listeners.length; i++) {
-			listeners[i].controllerStatusChanged(this.statusPrevious, newStatus, this.eventCollector);
-		}
-		final DebugPlugin manager= DebugPlugin.getDefault();
-		if (manager != null) {
-			manager.fireDebugEventSet(this.eventCollector.toArray(new DebugEvent[this.eventCollector.size()]));
-		}
-		this.eventCollector.clear();
+		this.queue.internalFireEvents();
 	}
 	
 //	protected final void loopBusyChanged(final boolean isBusy) {
@@ -947,9 +894,9 @@ public abstract class ToolController implements IConsoleService {
 	
 //	public final boolean isStarted() {
 //		switch (fStatus) {
-//		case STARTED_PROCESSING:
-//		case STARTED_IDLING:
-//		case STARTED_PAUSED:
+//		case PROCESSING_STATE:
+//		case IDLING_STATE:
+//		case PAUSED_STATE:
 //			return true;
 //		default:
 //			return false;
@@ -964,12 +911,12 @@ public abstract class ToolController implements IConsoleService {
 	 * Only for internal short tasks.
 	 */
 	protected final void scheduleControllerRunnable(final ISystemRunnable runnable) {
-		synchronized (this.fQueue) {
+		synchronized (this.queue) {
 			if (!this.controllerRunnables.contains(runnable)) {
 				this.controllerRunnables.add(runnable);
 			}
 			if (this.status != ToolStatus.STARTED_PROCESSING) {
-				this.fQueue.notifyAll();
+				this.queue.notifyAll();
 			}
 		}
 	}
@@ -1023,7 +970,7 @@ public abstract class ToolController implements IConsoleService {
 			}
 			monitor.worked(1);
 			
-			return this.fQueue.add(ImCollections.newList(runs));
+			return this.queue.add(ImCollections.newList(runs));
 		}
 		finally {
 			monitor.done();
@@ -1058,14 +1005,6 @@ public abstract class ToolController implements IConsoleService {
 	public abstract IToolRunnable createCommandRunnable(final String command, final SubmitType type);
 	
 	
-	private void incrementCounter() {
-		this.counter= this.counterNext++;
-	}
-	
-	private void incrementCounterForce() {
-		this.counterNext= ++this.counter + 1;
-	}
-	
 	private final void loop() {
 		if (this.hotModeDeferred) {
 			this.hotModeDeferred= false;
@@ -1082,12 +1021,12 @@ public abstract class ToolController implements IConsoleService {
 				loopRunTask();
 			}
 			
-			synchronized (this.fQueue) { // if interrupted run loop, all states are checked
-				this.fQueue.internalCheck();
+			synchronized (this.queue) { // if interrupted run loop, all states are checked
+				this.queue.internalCheck();
 				
 				if (this.internalTask > 0) {
 					try {
-						this.fQueue.wait();
+						this.queue.wait();
 					}
 					catch (final InterruptedException e) {}
 					continue;
@@ -1104,18 +1043,18 @@ public abstract class ToolController implements IConsoleService {
 					enterSuspended= true;
 					continue;
 				}
-				if (this.pauseRequested) {
+				if (this.queue.internalIsPauseRequested()) {
 					loopChangeStatus(ToolStatus.STARTED_PAUSED, null);
 					try {
-						this.fQueue.wait();
+						this.queue.wait();
 					}
 					catch (final InterruptedException e) {}
 					continue;
 				}
-				if (this.fQueue.internalNext() < 0) {
+				if (this.queue.internalNext() < 0) {
 					loopChangeStatus(ToolStatus.STARTED_IDLING, null);
 					try {
-						this.fQueue.wait();
+						this.queue.wait();
 					}
 					catch (final InterruptedException e) {}
 					continue;
@@ -1136,12 +1075,12 @@ public abstract class ToolController implements IConsoleService {
 				loopRunTask();
 			}
 			
-			synchronized (this.fQueue) { // if interrupted run loop, all states are checked
-				this.fQueue.internalCheck();
+			synchronized (this.queue) { // if interrupted run loop, all states are checked
+				this.queue.internalCheck();
 				
 				if (this.internalTask > 0) {
 					try {
-						this.fQueue.wait();
+						this.queue.wait();
 					}
 					catch (final InterruptedException e) {}
 					continue;
@@ -1159,18 +1098,18 @@ public abstract class ToolController implements IConsoleService {
 					enterSuspended= true;
 					continue;
 				}
-				if (this.pauseRequested) {
+				if (this.queue.internalIsPauseRequested()) {
 					loopChangeStatus(ToolStatus.STARTED_PAUSED, null);
 					try {
-						this.fQueue.wait();
+						this.queue.wait();
 					}
 					catch (final InterruptedException e) {}
 					continue;
 				}
-				if (this.fQueue.internalNext() < 0) {
+				if (this.queue.internalNext() < 0) {
 					loopChangeStatus(ToolStatus.STARTED_SUSPENDED, null);
 					try {
-						this.fQueue.wait();
+						this.queue.wait();
 					}
 					catch (final InterruptedException e) {}
 					continue;
@@ -1183,23 +1122,23 @@ public abstract class ToolController implements IConsoleService {
 		while (true) {
 			final int type;
 			final IToolRunnable savedCurrentRunnable= this.currentRunnable;
-			synchronized (this.fQueue) {
+			synchronized (this.queue) {
 				if (this.controllerRunnables.size() > 0) {
-					type= Queue.RUN_RESERVED;
+					type= Queue.RUN_CONTROL;
 					setCurrentRunnable(this.controllerRunnables.remove(0));
 				}
 				else if (this.loopCurrentLevel != this.suspendedRequestLevel || this.isTerminated
-						|| this.internalTask > 0 || this.pauseRequested) {
+						|| this.internalTask > 0 || this.queue.internalIsPauseRequested()) {
 					return;
 				}
 				else {
-					type= this.fQueue.internalNext();
+					type= this.queue.internalNext();
 					switch (type) {
 					case Queue.RUN_HOT:
 						break;
 					case Queue.RUN_OTHER:
 					case Queue.RUN_DEFAULT:
-						setCurrentRunnable(this.fQueue.internalPoll());
+						setCurrentRunnable(this.queue.internalPoll());
 						break;
 					default:
 						return;
@@ -1207,28 +1146,34 @@ public abstract class ToolController implements IConsoleService {
 				}
 				if (type != Queue.RUN_HOT) {
 					if (this.loopCurrentLevel > 0) {
-						if (type != Queue.RUN_RESERVED
+						if (type != Queue.RUN_CONTROL
 								&& (this.currentRunnable instanceof ConsoleCommandRunnable)
 								&& !runConsoleCommandInSuspend(((ConsoleCommandRunnable) this.currentRunnable).fText) ) {
-//							this.counterNext= this.counter--;
 							try {
-								this.fQueue.internalFinished(this.currentRunnable, IToolRunnable.FINISHING_CANCEL);
+								this.queue.internalFinished(this.currentRunnable, IToolRunnable.FINISHING_CANCEL);
 							}
 							finally {
 								setCurrentRunnable(savedCurrentRunnable);
 							}
 							return;
 						}
-						this.suspendExitDetail= (this.currentRunnable instanceof ToolController.SuspendResumeRunnable) ?
-								((ToolController.SuspendResumeRunnable) this.currentRunnable).detail :
-								DebugEvent.EVALUATION;
+						if (this.currentRunnable instanceof ToolController.SuspendResumeRunnable) {
+							this.suspendExitDetail= ((ToolController.SuspendResumeRunnable) this.currentRunnable).detail;
+						}
+						else {
+							final int detail= getDebugResumeDetailL(this.currentRunnable);
+							if (this.status == ToolStatus.STARTED_SUSPENDED
+									|| getDebugResumeDetailPriority(detail) >= getDebugResumeDetailPriority(this.suspendExitDetail)) {
+								this.suspendExitDetail= detail;
+							}
+						}
 					}
 					loopChangeStatus(ToolStatus.STARTED_PROCESSING,
 							new RunnableProgressMonitor(this.currentRunnable));
 				}
 			}
 			switch (type) {
-			case Queue.RUN_RESERVED:
+			case Queue.RUN_CONTROL:
 				try {
 					this.currentRunnable.run(this, this.runnableProgressMonitor);
 					safeRunnableChanged(this.currentRunnable, IToolRunnable.FINISHING_OK);
@@ -1241,7 +1186,7 @@ public abstract class ToolController implements IConsoleService {
 						// ignore
 					}
 					else {
-						NicoPlugin.logError(-1, NLS.bind(
+						NicoCorePlugin.logError(-1, NLS.bind(
 								"An Error occurred when running internal controller task ''{0}''.", //$NON-NLS-1$
 								this.currentRunnable.getLabel() ), e);
 						safeRunnableChanged(this.currentRunnable, IToolRunnable.FINISHING_ERROR);
@@ -1273,6 +1218,7 @@ public abstract class ToolController implements IConsoleService {
 			case Queue.RUN_OTHER:
 			case Queue.RUN_DEFAULT:
 				try {
+					this.counter++;
 					this.currentRunnable.run(this, this.runnableProgressMonitor);
 					onTaskFinished(this.currentRunnable, IToolRunnable.FINISHING_OK,
 							this.runnableProgressMonitor );
@@ -1288,15 +1234,16 @@ public abstract class ToolController implements IConsoleService {
 					else {
 						onTaskFinished(this.currentRunnable, IToolRunnable.FINISHING_ERROR,
 								this.runnableProgressMonitor );
-						status= new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, NicoPlugin.EXTERNAL_ERROR,
+						status= new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, NicoCorePlugin.EXTERNAL_ERROR,
 								NLS.bind(Messages.ToolRunnable_error_RuntimeError_message,
-										new Object[] { this.process.getLabel(ITool.LONG_LABEL), this.currentRunnable.getLabel() }),
+										this.process.getLabel(ITool.LONG_LABEL),
+										this.currentRunnable.getLabel() ),
 								e);
 						if (type == Queue.RUN_DEFAULT) {
 							handleStatus(status, this.runnableProgressMonitor);
 						}
 						else {
-							NicoPlugin.log(status);
+							NicoCorePlugin.log(status);
 						}
 					}
 					
@@ -1306,11 +1253,8 @@ public abstract class ToolController implements IConsoleService {
 					return;
 				}
 				finally {
-					if (!(this.currentRunnable instanceof ISystemReadRunnable)) {
-						incrementCounter();
-					}
 					if (this.postControllerRunnable != null) {
-						synchronized (this.fQueue) {
+						synchronized (this.queue) {
 							this.controllerRunnables.remove(this.postControllerRunnable);
 							this.controllerRunnables.add(this.postControllerRunnable);
 						}
@@ -1325,7 +1269,7 @@ public abstract class ToolController implements IConsoleService {
 	/** Only called for regular tasks */
 	protected void onTaskFinished(final IToolRunnable runnable, final int event,
 			final IProgressMonitor monitor) {
-		this.fQueue.internalFinished(runnable, event);
+		this.queue.internalFinished(runnable, event);
 		safeRunnableChanged(runnable, event);
 	}
 	
@@ -1334,9 +1278,10 @@ public abstract class ToolController implements IConsoleService {
 			runnable.changed(event, this.process);
 		}
 		catch (final Throwable e) {
-			NicoPlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, NicoPlugin.EXTERNAL_ERROR,
+			NicoCorePlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, NicoCorePlugin.EXTERNAL_ERROR,
 					NLS.bind(Messages.ToolRunnable_error_RuntimeError_message,
-							new Object[] { this.process.getLabel(ITool.LONG_LABEL), runnable.getLabel() }),
+							this.process.getLabel(ITool.LONG_LABEL),
+							runnable.getLabel() ),
 					e ));
 		}
 	}
@@ -1368,15 +1313,15 @@ public abstract class ToolController implements IConsoleService {
 	private final IToolRunnable pollHotRunnable() {
 		IToolRunnable runnable= null;
 		if (!this.isTerminated) {
-			runnable= this.fQueue.internalPollHot();
+			runnable= this.queue.internalPollHot();
 			if (runnable == null && !this.hotModeNested) {
 				try {
-					this.fQueue.wait(100);
+					this.queue.wait(100);
 				}
 				catch (final InterruptedException e) {
 				}
 				if (!this.isTerminated) {
-					runnable= this.fQueue.internalPollHot();
+					runnable= this.queue.internalPollHot();
 				}
 			}
 		}
@@ -1387,7 +1332,7 @@ public abstract class ToolController implements IConsoleService {
 		final SubmitType savedSubmitType= this.currentSubmitType;
 		while (true) {
 			final IToolRunnable runnable;
-			synchronized (this.fQueue) {
+			synchronized (this.queue) {
 				runnable= pollHotRunnable();
 				if (runnable == null) {
 					if (this.hotMode) {
@@ -1401,9 +1346,6 @@ public abstract class ToolController implements IConsoleService {
 					this.hotMode= true;
 					this.currentSubmitType= SubmitType.OTHER;
 					onHotModeEnter(this.hotModeMonitor);
-					if (this.hotModeNested && !(this.currentRunnable instanceof ISystemReadRunnable)) {
-						incrementCounter();
-					}
 				}
 				this.hotModeMonitor.setCanceled(false);
 			}
@@ -1420,16 +1362,11 @@ public abstract class ToolController implements IConsoleService {
 				}
 				else {
 					safeRunnableChanged(runnable, IToolRunnable.FINISHING_ERROR);
-					NicoPlugin.logError(-1, "An Error occurred when running hot task.", e); // //$NON-NLS-1$
+					NicoCorePlugin.logError(-1, "An Error occurred when running hot task.", e); // //$NON-NLS-1$
 				}
 				
 				if (!isToolAlive()) {
 					markAsTerminated();
-				}
-			}
-			finally {
-				if (!(runnable instanceof ISystemReadRunnable)) {
-					incrementCounter();
 				}
 			}
 		}
@@ -1442,14 +1379,59 @@ public abstract class ToolController implements IConsoleService {
 	}
 	
 	
+	public final boolean isDebugEnabled() {
+		return this.isDebugEnabled;
+	}
+	
+	protected void setDebugEnabled(final boolean enabled) {
+		this.isDebugEnabled= enabled;
+	}
+	
+	protected int getDebugResumeDetailL(final IToolRunnable runnable) {
+		switch (getSubmitTypeL(runnable)) {
+		case CONSOLE:
+		case EDITOR:
+			return DebugEvent.UNSPECIFIED;
+		case OTHER:
+			return DebugEvent.EVALUATION_IMPLICIT;
+		default:
+			return DebugEvent.EVALUATION;
+		}
+	}
+	
+	private int getDebugResumeDetailPriority(final int detail) {
+		switch (detail) {
+		case DebugEvent.EVALUATION_IMPLICIT:
+			return 1;
+		case DebugEvent.EVALUATION:
+			return 2;
+		case DebugEvent.STEP_INTO:
+		case DebugEvent.STEP_OVER:
+		case DebugEvent.STEP_RETURN:
+			return 3;
+		case DebugEvent.UNSPECIFIED:
+		default:
+			return 4;
+		}
+	}
+	
+	
 	protected int setSuspended(final int level, final int enterDetail, final Object enterData) {
 		this.suspendedRequestLevel= level;
-		this.suspendEnterDetail= enterDetail;
-		this.suspendEnterData= enterData;
+		if (enterDetail == 0
+				&& (this.suspendExitDetail & STEP_BEGIN) != 0) {
+			this.suspendEnterDetail= DebugEvent.STEP_END;
+			this.suspendEnterData= null;
+		}
+		else {
+			this.suspendEnterDetail= enterDetail;
+			this.suspendEnterData= enterData;
+		}
+		
 		return (level - this.suspendedRunLevel);
 	}
 	
-	public void addSuspendUpdateRunnable(final ISystemReadRunnable runnable) {
+	public void addSuspendUpdateRunnable(final ISystemRunnable runnable) {
 		this.suspendUpdateRunnables.add(runnable);
 	}
 	
@@ -1458,12 +1440,12 @@ public abstract class ToolController implements IConsoleService {
 	}
 	
 	protected void scheduleSuspendExitRunnable(final SuspendResumeRunnable runnable) throws CoreException {
-		synchronized (this.fQueue) {
+		synchronized (this.queue) {
 			if (this.loopCurrentLevel == 0) {
 				return;
 			}
 			if (this.suspendExitRunnable != null) {
-				this.fQueue.remove(this.suspendExitRunnable);
+				this.queue.remove(this.suspendExitRunnable);
 				this.controllerRunnables.remove(this.suspendExitRunnable);
 			}
 			this.suspendExitRunnable= runnable;
@@ -1478,7 +1460,7 @@ public abstract class ToolController implements IConsoleService {
 	
 	protected void runSuspendedLoopL(final int o) {
 		IToolRunnable insertMarker= null;
-		ISystemReadRunnable updater= null;
+		ISystemRunnable updater= null;
 		
 		final IToolRunnable savedCurrentRunnable= this.currentRunnable;
 		final RunnableProgressMonitor savedProgressMonitor= this.runnableProgressMonitor;
@@ -1489,7 +1471,7 @@ public abstract class ToolController implements IConsoleService {
 		try {
 			while (true) {
 				final int thisLevel;
-				synchronized (this.fQueue) {
+				synchronized (this.queue) {
 					thisLevel= this.suspendedRequestLevel;
 					if (thisLevel <= savedLevel) {
 						setSuspended(this.suspendedRequestLevel, 0, null);
@@ -1499,10 +1481,10 @@ public abstract class ToolController implements IConsoleService {
 						this.loopCurrentLevel= this.suspendedRunLevel= thisLevel;
 						
 						insertMarker= new SuspendedInsertRunnable(thisLevel);
-						this.fQueue.internalAddInsert(insertMarker);
+						this.queue.internalAddInsert(insertMarker);
 						if (savedLevel == 0 && updater == null) {
 							updater= new SuspendedUpdateRunnable();
-							this.fQueue.addOnIdle(updater, 6000);
+							this.queue.addOnIdle(updater, 6000);
 						}
 					}
 					this.suspendExitDetail= DebugEvent.UNSPECIFIED;
@@ -1513,9 +1495,8 @@ public abstract class ToolController implements IConsoleService {
 				
 				// resume main runnable
 				final SuspendResumeRunnable runnable;
-				synchronized (this.fQueue) {
+				synchronized (this.queue) {
 					this.suspendExitDetail= DebugEvent.UNSPECIFIED;
-					incrementCounterForce();
 					if (this.isTerminated) {
 						setSuspended(0, 0, null);
 						return;
@@ -1523,7 +1504,7 @@ public abstract class ToolController implements IConsoleService {
 					this.loopCurrentLevel= savedLevel;
 					this.suspendEnterDetail= DebugEvent.UNSPECIFIED;
 					
-					this.fQueue.internalRemoveInsert(insertMarker);
+					this.queue.internalRemoveInsert(insertMarker);
 					insertMarker= null;
 					
 					if (thisLevel <= this.suspendedRequestLevel) {
@@ -1533,7 +1514,7 @@ public abstract class ToolController implements IConsoleService {
 					runnable= this.suspendExitRunnable;
 					if (runnable != null) {
 						this.suspendExitRunnable= null;
-						this.fQueue.remove(runnable);
+						this.queue.remove(runnable);
 					}
 				}
 				
@@ -1542,27 +1523,27 @@ public abstract class ToolController implements IConsoleService {
 						setCurrentRunnable((savedCurrentRunnable != null) ?
 								savedCurrentRunnable : runnable);
 						if (runnable.canExec(savedProgressMonitor)) { // exec resume
-							synchronized (this.fQueue) {
+							synchronized (this.queue) {
 								this.suspendExitDetail= runnable.detail;
 								loopChangeStatus(ToolStatus.STARTED_PROCESSING, savedProgressMonitor);
 							}
 							runnable.doExec(savedProgressMonitor);
 						}
 						else { // cancel resume
-							synchronized (this.fQueue) {
+							synchronized (this.queue) {
 								this.suspendedRequestLevel= thisLevel;
 							}
 						}
 					}
 					catch (final Exception e) {
-						NicoPlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, 0,
+						NicoCorePlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, 0,
 								"An error occurred when executing debug command.", e)); //$NON-NLS-1$
 					}
 				}
 				else { // resume without runnable
 					this.suspendExitDetail= DebugEvent.UNSPECIFIED;
 					if (savedCurrentRunnable != null) {
-						synchronized (this.fQueue) {
+						synchronized (this.queue) {
 							loopChangeStatus(ToolStatus.STARTED_PROCESSING, savedProgressMonitor);
 						}
 					}
@@ -1574,7 +1555,7 @@ public abstract class ToolController implements IConsoleService {
 			this.suspendedRunLevel= savedLevel;
 			setCurrentRunnable(savedCurrentRunnable);
 			
-			synchronized (this.fQueue) {
+			synchronized (this.queue) {
 				loopChangeStatus(savedStatus, savedProgressMonitor);
 				
 				// if not exit normally
@@ -1583,10 +1564,10 @@ public abstract class ToolController implements IConsoleService {
 					this.suspendEnterDetail= DebugEvent.UNSPECIFIED;
 				}
 				if (updater != null) {
-					this.fQueue.removeOnIdle(updater);
+					this.queue.removeOnIdle(updater);
 				}
 				if (insertMarker != null) {
-					this.fQueue.internalRemoveInsert(insertMarker);
+					this.queue.internalRemoveInsert(insertMarker);
 				}
 				
 				this.suspendExitRunnable= null;
@@ -1621,7 +1602,7 @@ public abstract class ToolController implements IConsoleService {
 	
 	protected final void markAsTerminated() {
 		if (isToolAlive()) {
-			NicoPlugin.logError(NicoCore.STATUSCODE_RUNTIME_ERROR, "Illegal state: tool marked as terminated but still alive.", null); //$NON-NLS-1$
+			NicoCorePlugin.logError(NicoCore.STATUSCODE_RUNTIME_ERROR, "Illegal state: tool marked as terminated but still alive.", null); //$NON-NLS-1$
 		}
 		this.isTerminated= true;
 	}
@@ -1694,7 +1675,7 @@ public abstract class ToolController implements IConsoleService {
 				disposable.dispose();
 			}
 			catch (final Exception e) {
-				NicoPlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, "An unexepected exception is thrown when disposing a controller extension.", e));
+				NicoCorePlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, "An unexepected exception is thrown when disposing a controller extension.", e));
 			}
 		}
 		this.fDisposables.clear();
@@ -1714,7 +1695,7 @@ public abstract class ToolController implements IConsoleService {
 			}
 		}
 		if (status.getSeverity() > IStatus.INFO) {
-			NicoPlugin.log(status);
+			NicoCorePlugin.log(status);
 		}
 	}
 	
@@ -1724,7 +1705,7 @@ public abstract class ToolController implements IConsoleService {
 			return handler.execute(commandID, this, data, monitor);
 		}
 		catch (final Exception e) {
-			NicoPlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID,
+			NicoCorePlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID,
 					NLS.bind("An error occurred when executing tool command ''{0}''.", commandID)));
 			return null;
 		}
@@ -1822,6 +1803,43 @@ public abstract class ToolController implements IConsoleService {
 	protected void setRemoteWorkspaceDirL(final IPath directory) {
 		this.workspaceData.controlSetRemoteWorkspaceDir(directory);
 	}
+	
+	
+	public void briefAboutToChange() {
+		this.changeStamp++;
+	}
+	
+	public void briefChanged(final int flags) {
+		briefChanged(null, flags);
+	}
+	
+	public void briefChanged(final Object obj, final int flags) {
+		this.changeStamp++;
+		this.workspaceData.controlBriefChanged(obj, flags);
+		if (DEBUG_LOG_STATE) {
+			logChanged();
+		}
+	}
+	
+	public final int getChangeStamp() {
+		return this.changeStamp;
+	}
+	
+	
+	private void logEvents(final String label, final ToolStatus status) {
+		final ToStringBuilder sb= new ObjectUtils.ToStringBuilder(label);
+		sb.addProp("status", this.status); //$NON-NLS-1$
+		sb.addProp("changeStamp", this.changeStamp); //$NON-NLS-1$
+		sb.addProp("events", this.queue.internalGetEventList()); //$NON-NLS-1$
+		NicoCorePlugin.log(new Status(IStatus.INFO, NicoCore.PLUGIN_ID, sb.toString()));
+	}
+	
+	private void logChanged() {
+		final ToStringBuilder sb= new ObjectUtils.ToStringBuilder("changed"); //$NON-NLS-1$
+		sb.addProp("changeStamp", this.changeStamp); //$NON-NLS-1$
+		NicoCorePlugin.log(new Status(IStatus.INFO, NicoCore.PLUGIN_ID, sb.toString()));
+	}
+	
 	
 	@Override
 	public void submitToConsole(final String input,

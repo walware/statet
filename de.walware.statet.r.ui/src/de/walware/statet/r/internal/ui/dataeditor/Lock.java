@@ -25,8 +25,8 @@ abstract class Lock {
 	
 	
 	boolean isReady() throws LoadDataException {
-		if (state > 0) {
-			switch (state) {
+		if (this.state > 0) {
+			switch (this.state) {
 			case Lock.LOCAL_PAUSE_STATE:
 			case Lock.PAUSE_STATE:
 				return false;

@@ -48,7 +48,7 @@ public class RunHelpInR extends AbstractRCommandHandler {
 				return null;
 			}
 		}
-		runCommand("help(\""+RUtil.escapeDoubleQuote(topic)+"\")", false); //$NON-NLS-1$ //$NON-NLS-2$
+		runCommand("help(\""+RUtil.escapeForDQuote(topic)+"\")", false); //$NON-NLS-1$ //$NON-NLS-2$
 		return null;
 	}
 	

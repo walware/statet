@@ -55,70 +55,70 @@ public final class RDataTableContentDescription {
 		if (struct == null) {
 			throw new NullPointerException("struct");
 		}
-		fElementName = elementName;
-		fStruct = struct;
-		fLabel = elementName.getDisplayName();
-		fRHandle = rHandle;
+		this.fElementName = elementName;
+		this.fStruct = struct;
+		this.fLabel = elementName.getDisplayName();
+		this.fRHandle = rHandle;
 	}
 	
 	
 	public RElementName getElementName() {
-		return fElementName;
+		return this.fElementName;
 	}
 	
 	public RObject getRElementStruct() {
-		return fStruct;
+		return this.fStruct;
 	}
 	
 	public String getLabel() {
-		return fLabel;
+		return this.fLabel;
 	}
 	
 	public ITool getRHandle() {
-		return fRHandle;
+		return this.fRHandle;
 	}
 	
 	
 	void setColumnHeaderRows(final RDataTableColumn... dataColumns) {
-		fColumnHeaderRows= ImCollections.newList(dataColumns);
+		this.fColumnHeaderRows= ImCollections.newList(dataColumns);
 	}
 	
 	void setRowHeaderColumns(final RDataTableColumn... dataColumns) {
-		fRowHeaderColumns= ImCollections.newList(dataColumns);
+		this.fRowHeaderColumns= ImCollections.newList(dataColumns);
 	}
 	
 	void setDataColumns(final RDataTableColumn... dataColumns) {
-		fDataColumns = ImCollections.newList(dataColumns);
+		this.fDataColumns = ImCollections.newList(dataColumns);
 	}
 	
 	void setVariables(final IRDataTableVariable... variables) {
-		fDataVariables = variables;
+		this.fDataVariables = variables;
 	}
 	
 	void setDefaultDataFormat(final RDataFormatter format) {
-		fDefaultDataFormat = format;
+		this.fDefaultDataFormat = format;
 	}
 	
 	
 	public List<RDataTableColumn> getColumnHeaderRows() {
-		return fColumnHeaderRows;
+		return this.fColumnHeaderRows;
 	}
 	
 	public List<RDataTableColumn> getRowHeaderColumns() {
-		return fRowHeaderColumns;
+		return this.fRowHeaderColumns;
 	}
 	
 	public List<RDataTableColumn> getDataColumns() {
-		return fDataColumns;
+		return this.fDataColumns;
 	}
 	
 	IRDataTableVariable[] getVariables() {
-		return fDataVariables;
+		return this.fDataVariables;
 	}
 	
 	
 	public RDataFormatter getDefaultDataFormat() {
-		return fDefaultDataFormat;
+		return this.fDefaultDataFormat;
 	}
 	
 	

@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.preferences.PreferencesUtil;
-import de.walware.ecommons.ts.ISystemReadRunnable;
+import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -205,7 +205,7 @@ public class REnvIndexAutoUpdater {
 		
 	}
 	
-	private static class CheckRunnable implements ISystemReadRunnable, IRPkgManager.Listener {
+	private static class CheckRunnable implements ISystemRunnable, IRPkgManager.Listener {
 		
 		
 		private final RProcess fProcess;

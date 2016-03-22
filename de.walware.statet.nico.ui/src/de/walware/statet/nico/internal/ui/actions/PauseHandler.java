@@ -14,20 +14,17 @@ package de.walware.statet.nico.internal.ui.actions;
 import java.util.Map;
 
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
 import org.eclipse.ui.services.IServiceLocator;
-import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.statet.nico.core.runtime.ToolController;
+import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.util.IToolProvider;
 import de.walware.statet.nico.ui.NicoUI;
-import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.actions.ToolRetargetableHandler;
 
 
@@ -81,8 +78,9 @@ public class PauseHandler extends ToolRetargetableHandler implements IElementUpd
 	public boolean handleToolChanged() {
 		final ToolProcess tool = getTool();
 		final boolean wasChecked = fIsChecked;
-		final ToolController controller = (tool != null) ? tool.getController() : null;
-		fIsChecked = (controller != null && controller.isPaused());
+		fIsChecked = (tool != null) ?
+				tool.getQueue().isRequested(Queue.PAUSED_STATE) :
+				false;
 		
 		setBaseEnabled(evaluateEnabled());
 		return (wasChecked != fIsChecked);
@@ -95,39 +93,12 @@ public class PauseHandler extends ToolRetargetableHandler implements IElementUpd
 		}
 		boolean update = false;
 		final ToolProcess tool = getTool();
-		for (final DebugEvent event : events) {
+		if (tool == null) {
+			return;
+		}
+		ITER_EVENTS: for (final DebugEvent event : events) {
 			if (event.getSource() == tool) {
-				switch (event.getKind()) {
-				case DebugEvent.MODEL_SPECIFIC:
-					Boolean checked = null;
-					final int detail = event.getDetail();
-					switch (detail) {
-					case ToolProcess.REQUEST_PAUSE:
-					case ToolProcess.STATUS_PAUSE:
-						checked = Boolean.TRUE;
-						break;
-					case ToolProcess.REQUEST_PAUSE_CANCELED:
-						checked = Boolean.FALSE;
-						break;
-					default:
-						if ((detail & ToolProcess.STATUS) == ToolProcess.STATUS) { // status other than QUEUE_PAUSE
-							checked = Boolean.FALSE;
-						}
-						break;
-					}
-					if (checked != null) {
-						synchronized (this) {
-							if (getState() != S_ONAIR || getTool() != tool) {
-								return;
-							}
-							final boolean wasChecked = fIsChecked;
-							fIsChecked = checked;
-							
-							update = (wasChecked != fIsChecked);
-						}
-					}
-					break;
-				case DebugEvent.TERMINATE:
+				if (event.getKind() == DebugEvent.TERMINATE) {
 					synchronized (this) {
 						if (getTool() != tool) {
 							return;
@@ -136,6 +107,37 @@ public class PauseHandler extends ToolRetargetableHandler implements IElementUpd
 					}
 					break;
 				}
+				continue ITER_EVENTS;
+			}
+			if (event.getSource() == tool.getQueue()) {
+				Boolean checked= null;
+				if (Queue.isStateRequest(event)) {
+					final Queue.StateDelta delta= (Queue.StateDelta) event.getData();
+					if (delta.newState == Queue.PAUSED_STATE) {
+						checked= Boolean.TRUE;
+					}
+					else {
+						checked= Boolean.FALSE;
+					}
+				}
+				else if (Queue.isStateChange(event)) {
+					final Queue.StateDelta delta= (Queue.StateDelta) event.getData();
+					if (delta.newState == Queue.PAUSED_STATE) {
+						checked= Boolean.TRUE;
+					}
+				}
+				if (checked != null) {
+					synchronized (this) {
+						if (getState() != S_ONAIR || getTool() != tool) {
+							return;
+						}
+						final boolean wasChecked = fIsChecked;
+						fIsChecked = checked;
+						
+						update = (wasChecked != fIsChecked);
+					}
+				}
+				continue ITER_EVENTS;
 			}
 		}
 		
@@ -149,18 +151,17 @@ public class PauseHandler extends ToolRetargetableHandler implements IElementUpd
 		boolean update = false;
 		synchronized (this) {
 			final ToolProcess tool = getCheckedTool();
-			final ToolController controller;
-			final boolean wasChecked;
-			try {
-				controller = NicoUITools.accessController(null, tool);
-				wasChecked = fIsChecked;
+			final boolean wasChecked= fIsChecked;
+			if (tool != null) {
+				final boolean success= (!wasChecked) ?
+						tool.getQueue().pause() : tool.getQueue().resume();
+				if (success) {
+					fIsChecked= !wasChecked;
+				}
 			}
-			catch (final CoreException e) {
-				StatusManager.getManager().handle(e.getStatus(), StatusManager.SHOW | StatusManager.LOG);
-				return null;
+			else {
+				fIsChecked= false;
 			}
-			
-			fIsChecked = controller.pause(!wasChecked);
 			update = (wasChecked != fIsChecked);
 		}
 		

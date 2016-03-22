@@ -118,8 +118,8 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 	
 	@Override
 	public void dispose() {
-		getEditorSite().getWorkbenchWindow().getPartService().removePartListener(fActivationListener);
-		fEditorHandlers.dispose();
+		getEditorSite().getWorkbenchWindow().getPartService().removePartListener(this.fActivationListener);
+		this.fEditorHandlers.dispose();
 		
 		disposeTableInput();
 		
@@ -160,7 +160,7 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 	}
 	
 	public RDataTableComposite getRDataTable() {
-		return fTable;
+		return this.fTable;
 	}
 	
 	
@@ -185,15 +185,15 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 	
 	@Override
 	public void createPartControl(final Composite parent) {
-		fTable = new RDataTableComposite(parent, new Runnable() {
+		this.fTable = new RDataTableComposite(parent, new Runnable() {
 			@Override
 			public void run() {
 				close(false);
 			}
 		});
-		getEditorSite().getWorkbenchWindow().getPartService().addPartListener(fActivationListener);
+		getEditorSite().getWorkbenchWindow().getPartService().addPartListener(this.fActivationListener);
 		
-		initActions(getSite(), fEditorHandlers);
+		initActions(getSite(), this.fEditorHandlers);
 		
 		initStatusLine();
 		initTableInput();
@@ -204,9 +204,9 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 		if (editorInput != null) {
 			final IRDataTableInput tableInput = editorInput.getRDataTableInput();
 			if (tableInput != null) {
-				tableInput.addStateListener(fInputStateListener);
+				tableInput.addStateListener(this.fInputStateListener);
 				if (tableInput.isAvailable()) {
-					fTable.setInput(tableInput);
+					this.fTable.setInput(tableInput);
 				}
 				else {
 					close(false);
@@ -220,7 +220,7 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 		if (editorInput != null) {
 			final IRDataTableInput tableInput = editorInput.getRDataTableInput();
 			if (tableInput != null) {
-				tableInput.removeStateListener(fInputStateListener);
+				tableInput.removeStateListener(this.fInputStateListener);
 			}
 		}
 	}
@@ -230,11 +230,11 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 		
 		final IHandlerService handlerService = (IHandlerService) serviceLocator.getService(IHandlerService.class);
 		
-		{	final IHandler2 handler = new RefreshHandler(fTable);
+		{	final IHandler2 handler = new RefreshHandler(this.fTable);
 			handlers.add(IWorkbenchCommandConstants.FILE_REFRESH, handler);
 			handlerService.activateHandler(IWorkbenchCommandConstants.FILE_REFRESH, handler);
 		}
-		{	final IHandler2 handler = new SelectAllHandler(fTable);
+		{	final IHandler2 handler = new SelectAllHandler(this.fTable);
 			handlers.add(IWorkbenchCommandConstants.EDIT_SELECT_ALL, handler);
 			handlerService.activateHandler(IWorkbenchCommandConstants.EDIT_SELECT_ALL, handler);
 		}
@@ -246,14 +246,14 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 			handlers.add(IWorkbenchCommandConstants.EDIT_FIND_AND_REPLACE, handler);
 			handlerService.activateHandler(IWorkbenchCommandConstants.EDIT_FIND_AND_REPLACE, handler);
 		}
-		{	final IHandler2 handler = new GotoCellHandler(fTable);
+		{	final IHandler2 handler = new GotoCellHandler(this.fTable);
 			handlers.add(ITextEditorActionDefinitionIds.LINE_GOTO, handler);
 			handlerService.activateHandler(ITextEditorActionDefinitionIds.LINE_GOTO, handler);
 		}
 	}
 	
 	protected void initStatusLine() {
-		fTable.addSelectionChangedListener(new ISelectionChangedListener() {
+		this.fTable.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(final SelectionChangedEvent event) {
 				final IStatusLineManager manager = getEditorSite().getActionBars().getStatusLineManager();
@@ -289,7 +289,7 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 	private void updateStatusLine() {
 		final IStatusLineManager manager = getEditorSite().getActionBars().getStatusLineManager();
 		final IContributionItem dimItem = manager.find("data.dimension");
-		final long[] dimension = fTable.getTableDimension();
+		final long[] dimension = this.fTable.getTableDimension();
 		if (dimItem != null) {
 			((StatusLineContributionItem) dimItem).setText((dimension != null) ?
 					("Dim: " + dimension[0] + " × " + dimension[1]) : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -298,7 +298,7 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 	
 	@Override
 	public void setFocus() {
-		fTable.setFocus();
+		this.fTable.setFocus();
 	}
 	
 	public void close(final boolean save) {
@@ -324,19 +324,19 @@ public class RDataEditor extends EditorPart { // INavigationLocationProvider ?
 	@Override
 	public Object getAdapter(final Class required) {
 		if (RDataTableComposite.class.equals(required)) {
-			return fTable;
+			return this.fTable;
 		}
 		if (IContentOutlinePage.class.equals(required)) {
-			if (fOutlinePage == null) {
-				fOutlinePage = createOutlinePage();
+			if (this.fOutlinePage == null) {
+				this.fOutlinePage = createOutlinePage();
 			}
-			return fOutlinePage;
+			return this.fOutlinePage;
 		}
 		if (IFilterPage.class.equals(required)) {
-			if (fFilterPage == null) {
-				fFilterPage = createFilterPage();
+			if (this.fFilterPage == null) {
+				this.fFilterPage = createFilterPage();
 			}
-			return fFilterPage;
+			return this.fFilterPage;
 		}
 		return super.getAdapter(required);
 	}

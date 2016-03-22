@@ -16,7 +16,7 @@ import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.RefreshTab;
 
-import de.walware.ecommons.debug.ui.CheckedCommonTab;
+import de.walware.ecommons.debug.ui.util.CheckedCommonTab;
 
 import de.walware.statet.r.launching.ui.EnvironmentTabForR;
 import de.walware.statet.r.launching.ui.REnvTab;

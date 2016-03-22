@@ -14,6 +14,7 @@ package de.walware.statet.r.nico;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
 
 import de.walware.statet.r.console.core.IRDataAdapter;
@@ -23,7 +24,12 @@ import de.walware.statet.r.core.model.RElementName;
 
 public interface ICombinedRDataAdapter extends IRDataAdapter {
 	
+	
 	public ICombinedRElement evalCombinedStruct(final String command,
+			final int options, final int depth, final RElementName name,
+			final IProgressMonitor monitor) throws CoreException;
+	
+	public ICombinedRElement evalCombinedStruct(final String command, final RObject envir,
 			final int options, final int depth, final RElementName name,
 			final IProgressMonitor monitor) throws CoreException;
 	

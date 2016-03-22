@@ -19,11 +19,11 @@ public class LoadDataException extends Exception {
 	private final boolean fIsUnrecoverable;
 	
 	public LoadDataException(final boolean isUnrecoverable) {
-		fIsUnrecoverable = isUnrecoverable;
+		this.fIsUnrecoverable = isUnrecoverable;
 	}
 	
 	public boolean isUnrecoverable() {
-		return fIsUnrecoverable;
+		return this.fIsUnrecoverable;
 	}
 	
 }

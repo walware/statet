@@ -20,6 +20,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler2;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.internal.text.html.BrowserInformationControl;
 import org.eclipse.jface.resource.JFaceResources;
@@ -91,15 +92,20 @@ public class RHelpInfoHoverCreator extends AbstractReusableInformationControlCre
 	
 	public static class Data {
 		
-		final Control control;
+		private final Control control;
 		
 		final Object helpObject;
 		final String httpUrl;
 		
 		public Data(final Control control, final Object helpObject, final String httpUrl) {
-			this.control = control;
-			this.helpObject = helpObject;
-			this.httpUrl = httpUrl;
+			this.control= control;
+			this.helpObject= helpObject;
+			this.httpUrl= httpUrl;
+		}
+		
+		
+		public Control getControl() {
+			return this.control;
 		}
 		
 	}
@@ -109,7 +115,7 @@ public class RHelpInfoHoverCreator extends AbstractReusableInformationControlCre
 	
 	
 	public RHelpInfoHoverCreator(final int mode) {
-		this.mode = mode;
+		this.mode= mode;
 	}
 	
 	
@@ -128,9 +134,9 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 	
 	
 	/** Action id (command) to navigate one page back. */
-	protected static final String NAVIGATE_BACK_ID = IWorkbenchCommandConstants.NAVIGATE_BACK;
+	protected static final String NAVIGATE_BACK_ID= IWorkbenchCommandConstants.NAVIGATE_BACK;
 	/** Action id (command) to navigate one page forward. */
-	protected static final String NAVIGATE_FORWARD_ID = IWorkbenchCommandConstants.NAVIGATE_FORWARD;
+	protected static final String NAVIGATE_FORWARD_ID= IWorkbenchCommandConstants.NAVIGATE_FORWARD;
 	
 	
 	/**
@@ -139,33 +145,33 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 	private static Point gScrollBarSize;
 	
 	
-	private final int fMode;
+	private final int mode;
 	
-	private RHelpLabelProvider fLabelProvider;
+	private RHelpLabelProvider labelProvider;
 	
-	private Composite fContentComposite;
-	private Label fTitleImage;
-	private StyledText fTitleText;
-	private Browser fInfoBrowser;
+	private Composite contentComposite;
+	private Label titleImage;
+	private StyledText titleText;
+	private Browser infoBrowser;
 	
-	private final HandlerCollection fHandlerCollection = new HandlerCollection();
+	private final HandlerCollection handlerCollection= new HandlerCollection();
 	
-	private boolean fLayoutWorkaround;
-	private boolean fLayoutHint;
+	private boolean layoutWorkaround;
+	private boolean layoutHint;
 	
-	private RHelpInfoHoverCreator.Data fInput;
-	private boolean fInputChanged;
+	private RHelpInfoHoverCreator.Data input;
+	private boolean inputChanged;
 	
-	private boolean fLoadingCompleted;
-	private String fBrowserTitle;
+	private boolean loadingCompleted;
+	private String browserTitle;
 	
-	private boolean fHide;
+	private boolean hide;
 	
 	
 	RHelpInfoControl(final Shell shell, final int mode) {
 		super(shell, ""); //$NON-NLS-1$
 		assert ((mode & MODE_FOCUS) == 0);
-		fMode = mode;
+		this.mode= mode;
 		
 		JFaceResources.getFontRegistry().addListener(this);
 		create();
@@ -174,7 +180,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 	RHelpInfoControl(final Shell shell, final int mode, final boolean dummy) {
 		super(shell, new ToolBarManager(SWT.FLAT));
 		assert ((mode & MODE_FOCUS) != 0);
-		fMode = mode;
+		this.mode= mode;
 		
 		create();
 	}
@@ -182,103 +188,103 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 	
 	@Override
 	public void setInput(final Object input) {
-		fInputChanged = true;
+		this.inputChanged= true;
 		if (input instanceof RHelpInfoHoverCreator.Data) {
-			fInput = (RHelpInfoHoverCreator.Data) input;
+			this.input= (RHelpInfoHoverCreator.Data) input;
 		}
 		else {
-			fInput = null;
+			this.input= null;
 		}
 	}
 	
 	@Override
 	public boolean hasContents() {
-		return (fInput != null);
+		return (this.input != null);
 	}
 	
 	@Override
 	protected void createContent(final Composite parent) {
-		fContentComposite = new Composite(parent, SWT.NONE) {
+		this.contentComposite= new Composite(parent, SWT.NONE) {
 			@Override
 			public Point computeSize(final int width, final int height, final boolean changed) {
 				return super.computeSize(width, height, changed || width != getSize().x);
 			}
 		};
-		fContentComposite.setBackgroundMode(SWT.INHERIT_FORCE);
+		this.contentComposite.setBackgroundMode(SWT.INHERIT_FORCE);
 		
-		final GridLayout gridLayout = LayoutUtil.createCompositeGrid(2);
-		gridLayout.horizontalSpacing = (int) ((gridLayout.horizontalSpacing) / 1.5);
-		fContentComposite.setLayout(gridLayout);
+		final GridLayout gridLayout= LayoutUtil.createCompositeGrid(2);
+		gridLayout.horizontalSpacing= (int) ((gridLayout.horizontalSpacing) / 1.5);
+		this.contentComposite.setLayout(gridLayout);
 		
-		final int vIndent = Math.max(1, LayoutUtil.defaultVSpacing() / 4);
-		final int hIndent = Math.max(3, LayoutUtil.defaultHSpacing() / 3);
+		final int vIndent= Math.max(1, LayoutUtil.defaultVSpacing() / 4);
+		final int hIndent= Math.max(3, LayoutUtil.defaultHSpacing() / 3);
 		
 		{	// Title image
-			fTitleImage = new Label(fContentComposite, SWT.NULL);
-			final Image image = SharedUIResources.getImages().get(SharedUIResources.PLACEHOLDER_IMAGE_ID);
-			fTitleImage.setImage(image);
+			this.titleImage= new Label(this.contentComposite, SWT.NULL);
+			final Image image= SharedUIResources.getImages().get(SharedUIResources.PLACEHOLDER_IMAGE_ID);
+			this.titleImage.setImage(image);
 			
-			final GridData textGd = new GridData(SWT.FILL, SWT.TOP, false, false);
-			fTitleText = new StyledText(fContentComposite, SWT.MULTI | SWT.READ_ONLY | SWT.WRAP) {
+			final GridData textGd= new GridData(SWT.FILL, SWT.TOP, false, false);
+			this.titleText= new StyledText(this.contentComposite, SWT.MULTI | SWT.READ_ONLY | SWT.WRAP) {
 				@Override
 				public Point computeSize(int width, final int height, final boolean changed) {
-					if (!fLayoutHint && width <= 0 && fContentComposite.getSize().x > 0) {
-						width = fContentComposite.getSize().x -
-								LayoutUtil.defaultHMargin() - fTitleImage.getSize().x - LayoutUtil.defaultHSpacing() - 10;
+					if (!RHelpInfoControl.this.layoutHint && width <= 0 && RHelpInfoControl.this.contentComposite.getSize().x > 0) {
+						width= RHelpInfoControl.this.contentComposite.getSize().x -
+								LayoutUtil.defaultHMargin() - RHelpInfoControl.this.titleImage.getSize().x - LayoutUtil.defaultHSpacing() - 10;
 					}
 					
-					final Point size = super.computeSize(width, -1, true);
+					final Point size= super.computeSize(width, -1, true);
 //					if (width >= 0) {
-//						size.x = Math.min(size.x, width);
+//						size.x= Math.min(size.x, width);
 //					}
 					return size;
 				}
 			};
 			
-			fTitleText.setFont(JFaceResources.getDialogFont());
-			final GC gc = new GC(fTitleText);
-			final FontMetrics fontMetrics = gc.getFontMetrics();
-			final GridData imageGd = new GridData(SWT.FILL, SWT.TOP, false, false);
-			imageGd.horizontalIndent = hIndent - 2;
-			final int textHeight = fontMetrics.getAscent() + fontMetrics.getLeading();
-			final int imageHeight = image.getBounds().height;
-			final int shift = Math.max(3, (int) ((fontMetrics.getDescent()) / 1.5));
+			this.titleText.setFont(JFaceResources.getDialogFont());
+			final GC gc= new GC(this.titleText);
+			final FontMetrics fontMetrics= gc.getFontMetrics();
+			final GridData imageGd= new GridData(SWT.FILL, SWT.TOP, false, false);
+			imageGd.horizontalIndent= hIndent - 2;
+			final int textHeight= fontMetrics.getAscent() + fontMetrics.getLeading();
+			final int imageHeight= image.getBounds().height;
+			final int shift= Math.max(3, (int) ((fontMetrics.getDescent()) / 1.5));
 			if (textHeight+shift < imageHeight) {
-				imageGd.verticalIndent = vIndent+shift;
-				textGd.verticalIndent = vIndent+(imageHeight-textHeight);
+				imageGd.verticalIndent= vIndent+shift;
+				textGd.verticalIndent= vIndent+(imageHeight-textHeight);
 			}
 			else {
-				imageGd.verticalIndent = vIndent+(textHeight-imageHeight)+shift;
-				textGd.verticalIndent = vIndent;
+				imageGd.verticalIndent= vIndent+(textHeight-imageHeight)+shift;
+				textGd.verticalIndent= vIndent;
 			}
-			fTitleImage.setLayoutData(imageGd);
-			fTitleText.setLayoutData(textGd);
-			fLayoutWorkaround = true;
+			this.titleImage.setLayoutData(imageGd);
+			this.titleText.setLayoutData(textGd);
+			this.layoutWorkaround= true;
 			
 			gc.dispose();
 		}
 		
-		fInfoBrowser = new Browser(fContentComposite, SWT.NONE);
+		this.infoBrowser= new Browser(this.contentComposite, SWT.NONE);
 		
-		fInfoBrowser.addOpenWindowListener(this);
-		fInfoBrowser.addLocationListener(this);
-		fInfoBrowser.addProgressListener(this);
-		fInfoBrowser.addTitleListener(this);
+		this.infoBrowser.addOpenWindowListener(this);
+		this.infoBrowser.addLocationListener(this);
+		this.infoBrowser.addProgressListener(this);
+		this.infoBrowser.addTitleListener(this);
 		
-		fInfoBrowser.addOpenWindowListener(new OpenWindowListener() {
+		this.infoBrowser.addOpenWindowListener(new OpenWindowListener() {
 			@Override
 			public void open(final WindowEvent event) {
-				event.required = true;
+				event.required= true;
 			}
 		});
 		// Disable context menu
-		fInfoBrowser.setMenu(new Menu(getShell(), SWT.NONE));
+		this.infoBrowser.setMenu(new Menu(getShell(), SWT.NONE));
 		
-		final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
-//		gd.widthHint = LayoutUtil.hintWidth(fInfoText, INFO_FONT, 50);
-		fInfoBrowser.setLayoutData(gd);
+		final GridData gd= new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+//		gd.widthHint= LayoutUtil.hintWidth(fInfoText, INFO_FONT, 50);
+		this.infoBrowser.setLayoutData(gd);
 		
-		fInfoBrowser.addKeyListener(new KeyListener() {
+		this.infoBrowser.addKeyListener(new KeyListener() {
 			@Override
 			public void keyPressed(final KeyEvent e)  {
 				if (e.character == SWT.ESC) {
@@ -292,22 +298,23 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 		setBackgroundColor(getShell().getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		setForegroundColor(getShell().getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND));
 		
-		if ((fMode & MODE_FOCUS) != 0) {
-			initActions(fHandlerCollection);
-			final ToolBarManager toolBarManager = getToolBarManager();
-			contributeToActionBars(PlatformUI.getWorkbench(), toolBarManager, fHandlerCollection);
+		if ((this.mode & MODE_FOCUS) != 0) {
+			initActions(this.handlerCollection);
+			final ToolBarManager toolBarManager= getToolBarManager();
+			contributeToActionBars(PlatformUI.getWorkbench(), toolBarManager, this.handlerCollection);
 			toolBarManager.update(true);
 		}
+		
 		updateInput();
 	}
 	
 	protected void initActions(final HandlerCollection handlers) {
-		{	final IHandler2 handler = new NavigateBackHandler(this);
+		{	final IHandler2 handler= new NavigateBackHandler(this);
 			handlers.add(NAVIGATE_BACK_ID, handler);
 //			handlerService.activateHandler(NAVIGATE_BACK_ID, handler);
 //			handlerService.activateHandler(IWorkbenchCommandConstants.NAVIGATE_BACKWARD_HISTORY, handler);
 		}
-		{	final IHandler2 handler = new NavigateForwardHandler(this);
+		{	final IHandler2 handler= new NavigateForwardHandler(this);
 			handlers.add(NAVIGATE_FORWARD_ID, handler);
 //			handlerService.activateHandler(NAVIGATE_FORWARD_ID, handler);
 //			handlerService.activateHandler(IWorkbenchCommandConstants.NAVIGATE_FORWARD_HISTORY, handler);
@@ -324,19 +331,21 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 				new HandlerContributionItem(new CommandContributionItemParameter(
 						serviceLocator, null, NAVIGATE_FORWARD_ID, HandlerContributionItem.STYLE_PUSH),
 						handlers.get(NAVIGATE_FORWARD_ID)));
+		
+		toolBarManager.add(new Separator());
 		toolBarManager.add(new SimpleContributionItem(
 				RUI.getImageDescriptor(RUI.IMG_OBJ_R_HELP_SEARCH), null,
 				"Show in R Help View", "V") {
 			@Override
 			protected void execute() throws ExecutionException {
-				if (UIAccess.isOkToUse(fInfoBrowser)) {
+				if (UIAccess.isOkToUse(RHelpInfoControl.this.infoBrowser)) {
 					try {
-						String url = fInfoBrowser.getUrl();
-						final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
-						final RHelpView view = (RHelpView) page.showView(RUI.R_HELP_VIEW_ID);
-						final String browseUrl = RCore.getRHelpManager().toHttpUrl(url, null, RHelpUIServlet.BROWSE_TARGET);
+						String url= RHelpInfoControl.this.infoBrowser.getUrl();
+						final IWorkbenchPage page= UIAccess.getActiveWorkbenchPage(true);
+						final RHelpView view= (RHelpView) page.showView(RUI.R_HELP_VIEW_ID);
+						final String browseUrl= RCore.getRHelpManager().toHttpUrl(url, null, RHelpUIServlet.BROWSE_TARGET);
 						if (browseUrl != null) {
-							url = browseUrl;
+							url= browseUrl;
 						}
 						view.openUrl(url, null);
 					}
@@ -349,7 +358,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 	
 	@Override
 	public Browser getBrowser() {
-		return fInfoBrowser;
+		return this.infoBrowser;
 	}
 	
 	@Override
@@ -369,7 +378,7 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 		if (event.location.equals("about:blank")) { //$NON-NLS-1$
 			return;
 		}
-		event.doit = false;
+		event.doit= false;
 	}
 	
 	@Override
@@ -377,86 +386,87 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 		if (!event.top) {
 			return;
 		}
-		final String url = fInfoBrowser.getUrl();
-		final Object obj = RCore.getRHelpManager().getContentOfUrl(url);
-		updateTitle(obj, fBrowserTitle);
+		final String url= this.infoBrowser.getUrl();
+		final Object obj= RCore.getRHelpManager().getContentOfUrl(url);
+		updateTitle(obj, this.browserTitle);
 	}
 	
 	@Override
 	public void changed(final ProgressEvent event) {
-		fHandlerCollection.update(null);
+		this.handlerCollection.update(null);
 	}
 	
 	@Override
 	public void completed(final ProgressEvent event) {
-		fLoadingCompleted = true;
-		fHandlerCollection.update(null);
+		this.loadingCompleted= true;
+		this.handlerCollection.update(null);
 	}
 	
 	@Override
 	public void changed(final TitleEvent event) {
-		String title = event.title;
+		String title= event.title;
 		if (title == null) {
-			title = ""; //$NON-NLS-1$
+			title= ""; //$NON-NLS-1$
 		}
 		else if (title.startsWith("http://")) { //$NON-NLS-1$
-			final int idx = title.lastIndexOf('/');
+			final int idx= title.lastIndexOf('/');
 			if (idx >= 0) {
-				title = title.substring(idx+1);
+				title= title.substring(idx+1);
 			}
 		}
-		fBrowserTitle = title;
+		this.browserTitle= title;
 	}
 	
 	@Override
 	public void open(final WindowEvent event) {
-		event.required = true;
+		event.required= true;
 	}
+	
 	
 	@Override
 	public void setBackgroundColor(final Color background) {
 		super.setBackgroundColor(background);
-		fContentComposite.setBackground(background);
-		fInfoBrowser.setBackground(background);
+		this.contentComposite.setBackground(background);
+		this.infoBrowser.setBackground(background);
 	}
 	
 	@Override
 	public void setForegroundColor(final Color foreground) {
 		super.setForegroundColor(foreground);
-		fContentComposite.setForeground(foreground);
-		fTitleText.setForeground(foreground);
-		fInfoBrowser.setForeground(foreground);
+		this.contentComposite.setForeground(foreground);
+		this.titleText.setForeground(foreground);
+		this.infoBrowser.setForeground(foreground);
 	}
 	
 	@Override
 	public void setSize(final int width, final int height) {
-		fInfoBrowser.setRedraw(false); // avoid flickering
+		this.infoBrowser.setRedraw(false); // avoid flickering
 		try {
 			super.setSize(width, height);
 		}
 		finally {
-			fInfoBrowser.setRedraw(true);
+			this.infoBrowser.setRedraw(true);
 		}
 	}
 	
 	
 	@Override
 	public Rectangle computeTrim() {
-		final Rectangle trim = super.computeTrim();
+		final Rectangle trim= super.computeTrim();
 		
-		final Rectangle textTrim = fInfoBrowser.computeTrim(0, 0, 0, 0);
-		if ((fMode & MODE_FOCUS) != 0 && textTrim.width == 0) {
+		final Rectangle textTrim= this.infoBrowser.computeTrim(0, 0, 0, 0);
+		if ((this.mode & MODE_FOCUS) != 0 && textTrim.width == 0) {
 			if (gScrollBarSize == null) {
-				final Text text = new Text(fContentComposite, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
-				gScrollBarSize = new Point(
+				final Text text= new Text(this.contentComposite, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
+				gScrollBarSize= new Point(
 						text.getVerticalBar().getSize().x,
 						text.getHorizontalBar().getSize().y);
 				text.dispose();
 			}
-			textTrim.x = 0;
-			textTrim.y = 0;
-			textTrim.width = gScrollBarSize.x;
-			textTrim.height = gScrollBarSize.y;
+			textTrim.x= 0;
+			textTrim.y= 0;
+			textTrim.width= gScrollBarSize.x;
+			textTrim.height= gScrollBarSize.y;
 		}
 		trim.x += textTrim.x;
 		trim.y += textTrim.y;
@@ -469,146 +479,149 @@ class RHelpInfoControl extends AbstractInformationControl implements IInformatio
 	@Override
 	public Point computeSizeHint() {
 		updateInput();
-		final Point sizeConstraints = getSizeConstraints();
-		final Rectangle trim = computeTrim();
+		final Point sizeConstraints= getSizeConstraints();
+		final Rectangle trim= computeTrim();
 		
-		fTitleText.setFont(JFaceResources.getDialogFont());
-		final PixelConverter converter = new PixelConverter(fTitleText);
-		int widthHint = converter.convertWidthInCharsToPixels(60);
-		final GC gc = new GC(fContentComposite);
+		this.titleText.setFont(JFaceResources.getDialogFont());
+		final PixelConverter converter= new PixelConverter(this.titleText);
+		int widthHint= converter.convertWidthInCharsToPixels(60);
+		final GC gc= new GC(this.contentComposite);
 		gc.setFont(JFaceResources.getTextFont());
-		widthHint = Math.max(widthHint, gc.getFontMetrics().getAverageCharWidth() * 60);
+		widthHint= Math.max(widthHint, gc.getFontMetrics().getAverageCharWidth() * 60);
 		gc.dispose();
 		
-		final int heightHint = fTitleText.getLineHeight() * 12;
+		final int heightHint= this.titleText.getLineHeight() * 12;
 		
-		final int widthMax = ((sizeConstraints != null && sizeConstraints.x != SWT.DEFAULT) ?
+		final int widthMax= ((sizeConstraints != null && sizeConstraints.x != SWT.DEFAULT) ?
 				sizeConstraints.x : widthHint+100) - trim.width;
-		final int heightMax = ((sizeConstraints != null && sizeConstraints.y != SWT.DEFAULT) ?
-				sizeConstraints.y : fTitleText.getLineHeight()*12) - trim.height;
+		final int heightMax= ((sizeConstraints != null && sizeConstraints.y != SWT.DEFAULT) ?
+				sizeConstraints.y : this.titleText.getLineHeight()*12) - trim.height;
 		
-		final Point size = new Point(widthHint, heightHint);
+		final Point size= new Point(widthHint, heightHint);
 		size.y += LayoutUtil.defaultVSpacing();
-		size.x = Math.max(Math.min(size.x, widthMax), 200) + trim.width;
-		size.y = Math.max(Math.min(size.y, heightMax), 100) + trim.height;
+		size.x= Math.max(Math.min(size.x, widthMax), 200) + trim.width;
+		size.y= Math.max(Math.min(size.y, heightMax), 100) + trim.height;
 		return size;
 	}
 	
 	@Override
 	public Point computeSizeConstraints(final int widthInChars, final int heightInChars) {
-		final int width = LayoutUtil.hintWidth(fTitleText, JFaceResources.DIALOG_FONT, widthInChars);
-		final int lineHeight = fTitleText.getLineHeight();
+		final int width= LayoutUtil.hintWidth(this.titleText, JFaceResources.DIALOG_FONT, widthInChars);
+		final int lineHeight= this.titleText.getLineHeight();
 		
-		return new Point(width, lineHeight*heightInChars + LayoutUtil.defaultVSpacing());
+		return new Point(width, lineHeight * heightInChars + LayoutUtil.defaultVSpacing());
 	}
 	
 	@Override
 	public void setVisible(final boolean visible) {
 		if (visible) {
-			fHide = false;
+			this.hide= false;
 			updateInput();
-			
-			final Display display = Display.getCurrent();
-			display.timerExec(200, new Runnable() {
-				@Override
-				public void run() {
-					fLoadingCompleted = true;
-				}
-			});
-			while (!fLoadingCompleted) {
-				// Drive the event loop to process the events required to load the browser widget's contents:
-				if (!display.readAndDispatch()) {
-					display.sleep();
-				}
-			}
-			
-			if (fHide) {
+			waitCompleted();
+			if (this.hide) {
 				return;
 			}
 			
-			if (fLayoutWorkaround) {
-				fContentComposite.layout(true, true);
-				fLayoutWorkaround = false;
+			if (this.layoutWorkaround) {
+				this.contentComposite.layout(true, true);
+				this.layoutWorkaround= false;
 			}
 			
-			if (Platform.OS_WIN32.equals(SWT.getPlatform())) {
-				final Shell shell = getShell();
+			if (Platform.WS_WIN32.equals(SWT.getPlatform())) {
+				final Shell shell= getShell();
 				if (shell != null) {
 					shell.moveAbove(null);
 				}
 			}
 		}
 		else {
-			fHide = true;
+			this.hide= true;
 		}
 		super.setVisible(visible);
 	}
 	
+	private void waitCompleted() {
+		final Display display= Display.getCurrent();
+		display.timerExec(200, new Runnable() {
+			@Override
+			public void run() {
+				RHelpInfoControl.this.loadingCompleted= true;
+			}
+		});
+		while (!this.loadingCompleted) {
+			// Drive the event loop to process the events required to load the browser widget's contents:
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+	}
+	
 	@Override
 	public void setFocus() {
-		fInfoBrowser.setFocus();
+		this.infoBrowser.setFocus();
 	}
 	
 	private void updateInput() {
-		if (fInfoBrowser == null || !fInputChanged) {
+		if (this.infoBrowser == null || !this.inputChanged) {
 			return;
 		}
-		if (fLabelProvider == null) {
-			fLabelProvider = new RHelpLabelProvider(RHelpLabelProvider.WITH_TITLE | RHelpLabelProvider.WITH_QUALIFIER | RHelpLabelProvider.HEADER);
+		if (this.labelProvider == null) {
+			this.labelProvider= new RHelpLabelProvider(RHelpLabelProvider.WITH_TITLE | RHelpLabelProvider.WITH_QUALIFIER | RHelpLabelProvider.HEADER);
 		}
-		fLoadingCompleted = false;
-		fInputChanged = false;
-		fBrowserTitle = null;
-		updateTitle(fInput.helpObject, null);
-		if (fInput != null && fInput.httpUrl != null) {
-			String url = fInput.httpUrl;
-			if ((fMode & MODE_FOCUS) == 0) { // disable scrollbars
+		this.loadingCompleted= false;
+		this.inputChanged= false;
+		this.browserTitle= null;
+		updateTitle(this.input.helpObject, null);
+		if (this.input != null && this.input.httpUrl != null) {
+			String url= this.input.httpUrl;
+			if ((this.mode & MODE_FOCUS) == 0) { // disable scrollbars
 				url += "?style=hover"; //$NON-NLS-1$
 			}
-			fInfoBrowser.setUrl(url);
+			this.infoBrowser.setUrl(url);
 		}
 		else {
-			fInfoBrowser.setUrl("about:blank"); //$NON-NLS-1$
+			this.infoBrowser.setUrl("about:blank"); //$NON-NLS-1$
 		}
-		if ((fMode & MODE_FOCUS) == 0) {
-			setStatusText((fInput.control != null && fInput.control.isFocusControl()) ?
-					InformationDispatchHandler.getAffordanceString(fMode) : ""); //$NON-NLS-1$
+		if ((this.mode & MODE_FOCUS) == 0) {
+			setStatusText((this.input.getControl() != null
+							&& this.input.getControl().isFocusControl() ) ?
+					InformationDispatchHandler.getAffordanceString(this.mode) : "" ); //$NON-NLS-1$
 		}
 	}
 	
 	private void updateTitle(final Object helpObject, final String alt) {
 		if (helpObject != null) {
-			final Image image = fLabelProvider.getImage(helpObject);
-			fTitleImage.setImage((image != null) ? image : SharedUIResources.getImages().get(SharedUIResources.PLACEHOLDER_IMAGE_ID));
-			final StyledString styleString = fLabelProvider.getStyledText(helpObject);
-			fTitleText.setText(styleString.getString());
-			fTitleText.setStyleRanges(styleString.getStyleRanges());
+			final Image image= this.labelProvider.getImage(helpObject);
+			this.titleImage.setImage((image != null) ? image : SharedUIResources.getImages().get(SharedUIResources.PLACEHOLDER_IMAGE_ID));
+			final StyledString styleString= this.labelProvider.getStyledText(helpObject);
+			this.titleText.setText(styleString.getString());
+			this.titleText.setStyleRanges(styleString.getStyleRanges());
 		}
 		else {
-			fTitleImage.setImage(SharedUIResources.getImages().get(SharedUIResources.PLACEHOLDER_IMAGE_ID));
-			fTitleText.setText((alt != null) ? alt : ""); //$NON-NLS-1$
+			this.titleImage.setImage(SharedUIResources.getImages().get(SharedUIResources.PLACEHOLDER_IMAGE_ID));
+			this.titleText.setText((alt != null) ? alt : ""); //$NON-NLS-1$
 		}
 	}
+	
 	
 	@Override
 	public IInformationControlCreator getInformationPresenterControlCreator() {
 		// enriched mode
-		return new RHelpInfoHoverCreator(fMode | MODE_FOCUS);
+		return new RHelpInfoHoverCreator(this.mode | MODE_FOCUS);
 	}
 	
 	@Override
 	public void propertyChange(final PropertyChangeEvent event) {
-		final String property = event.getProperty();
+		final String property= event.getProperty();
 		if (property.equals(PREF_DETAIL_PANE_FONT) || property.equals(JFaceResources.DEFAULT_FONT)) {
 			dispose();
 		}
 	}
 	
-	
 	@Override
 	public void dispose() {
 		JFaceResources.getFontRegistry().removeListener(this);
-		fHandlerCollection.dispose();
+		this.handlerCollection.dispose();
 		super.dispose();
 	}
 	

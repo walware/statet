@@ -75,7 +75,7 @@ public class RDataLabelProvider extends StyledCellLabelProvider {
 		if (element instanceof RDataTableContentDescription) {
 			final RDataTableContentDescription description = (RDataTableContentDescription) element;
 			if (description.getRElementStruct() instanceof ICombinedRElement) {
-				fRLabelProvider.update(cell, (IModelElement) description.getRElementStruct());
+				this.fRLabelProvider.update(cell, (IModelElement) description.getRElementStruct());
 				super.update(cell);
 				return;
 			}
@@ -143,7 +143,7 @@ public class RDataLabelProvider extends StyledCellLabelProvider {
 	public void dispose() {
 		super.dispose();
 		
-		fRLabelProvider.dispose();
+		this.fRLabelProvider.dispose();
 	}
 	
 }

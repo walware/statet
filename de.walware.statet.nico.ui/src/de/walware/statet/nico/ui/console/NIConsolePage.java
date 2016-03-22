@@ -112,6 +112,7 @@ import de.walware.ecommons.ui.util.NestedServices;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.Prompt;
+import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStatus;
@@ -303,31 +304,31 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			Prompt prompt = null;
 			boolean match = false;
 			
-			for (final DebugEvent event : events) {
-				final Object source = event.getSource();
-				
-				if (source == process) {
-					switch (event.getKind()) {
-					case DebugEvent.TERMINATE:
-						match = true;
-						isTerminated = true;
+			ITER_EVENTS: for (final DebugEvent event : events) {
+				if (event.getSource() == process) {
+					if (event.getKind() == DebugEvent.TERMINATE) {
+						match= true;
+						this.isTerminated= true;
 						onToolTerminated();
-						break;
-					case DebugEvent.MODEL_SPECIFIC:
-						match = true;
-						final int type = (event.getDetail() & ToolProcess.TYPE_MASK);
-						if (type == ToolProcess.STATUS) {
-							isProcessing = (event.getDetail() == ToolProcess.STATUS_PROCESS);
-						}
-						break;
 					}
+					continue ITER_EVENTS;
 				}
-				else if (source == data) {
+				if (event.getSource() == process.getQueue()) {
+					if (Queue.isStateChange(event)) {
+						final Queue.StateDelta delta= (Queue.StateDelta) event.getData();
+						match= true;
+						this.isProcessing= (delta.newState == Queue.PROCESSING_STATE);
+						this.isTerminated= (delta.newState == Queue.TERMINATED_STATE);
+					}
+					continue ITER_EVENTS;
+				}
+				if (event.getSource() == data) {
 					if (event.getKind() == DebugEvent.CHANGE
 							&& event.getDetail() == ToolWorkspace.DETAIL_PROMPT) {
-						match = true;
-						prompt = (Prompt) event.getData();
+						match= true;
+						prompt= (Prompt) event.getData();
 					}
+					continue ITER_EVENTS;
 				}
 			}
 			if (!match) {
@@ -615,7 +616,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		NicoUIPlugin.getDefault().getToolRegistry().consoleActivated(fConsoleView, fConsole);
 		
 		// E-Bug 473941
-		final IEclipseContext service= (IEclipseContext) fSite.getService(IEclipseContext.class);
+		final IEclipseContext service= fSite.getService(IEclipseContext.class);
 		if (service != null) {
 			service.activate();
 		}
@@ -623,7 +624,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	
 	private void deactivated() {
 		// E-Bug 473941
-		final IEclipseContext service= (IEclipseContext) fSite.getService(IEclipseContext.class);
+		final IEclipseContext service= fSite.getService(IEclipseContext.class);
 		if (service != null) {
 			service.deactivate();
 		}
@@ -638,9 +639,9 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fInputServices = new NestedServices(pageServiceLocator, "ConsoleInput");
 		fInputServices.bindTo(inputControl);
 		
-		final IHandlerService pageHandlerService = (IHandlerService) pageServiceLocator
+		final IHandlerService pageHandlerService = pageServiceLocator
 				.getService(IHandlerService.class);
-		final IHandlerService inputHandlerService = (IHandlerService) fInputServices.getLocator()
+		final IHandlerService inputHandlerService = fInputServices.getLocator()
 				.getService(IHandlerService.class);
 		
 		fMultiActionHandler = new MultiActionHandler();
@@ -1036,7 +1037,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		if (process == null) {
 			return null;
 		}
-		final IDebugTarget target = (IDebugTarget) process.getAdapter(IDebugTarget.class);
+		final IDebugTarget target = process.getAdapter(IDebugTarget.class);
 		ISelection selection = null;
 		if (target == null) {
 			selection = new TreeSelection(new TreePath(new Object[]{

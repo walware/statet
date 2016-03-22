@@ -41,8 +41,8 @@ import org.eclipse.ui.console.TextConsole;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.core.util.LaunchUtils;
-import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
 import de.walware.ecommons.debug.ui.config.LaunchConfigUtils;
+import de.walware.ecommons.debug.ui.util.UnterminatedLaunchAlerter;
 import de.walware.ecommons.io.FileUtil;
 
 import de.walware.statet.r.cmd.ui.launching.RCmdLaunching;
@@ -63,7 +63,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 	
 	@Override
 	public void launch(final ILaunchConfiguration configuration, final String mode,	final ILaunch launch,
-			IProgressMonitor monitor) throws CoreException {
+			final IProgressMonitor monitor) throws CoreException {
 		final SubMonitor m= LaunchUtils.initProgressMonitor(configuration, monitor, 25);
 		final long timestamp= System.currentTimeMillis();
 		try {

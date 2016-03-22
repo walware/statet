@@ -43,11 +43,12 @@ public class RVectorDataProvider extends AbstractRDataProvider<RVector<?>> {
 		final RDataTableContentDescription description = new RDataTableContentDescription(name, struct, r.getTool());
 		
 		description.setRowHeaderColumns(
-				createNamesColumn("names(" + fInput.getFullName() + ")", fAdapter.getRowCount(struct),
+				createNamesColumn("names(" + getInput().getFullName() + ")",
+						getAdapter().getRowCount(struct),
 						r, monitor ));
 		
 		final RDataTableColumn dataColumn = createColumn(struct.getData(),
-						fInput.getFullName(), BASE_NAME, 0, fInput.getLastName(),
+						getInput().getFullName(), BASE_NAME, 0, getInput().getName(),
 						r, monitor );
 		description.setDataColumns(dataColumn);
 		description.setVariables(dataColumn);
@@ -60,7 +61,7 @@ public class RVectorDataProvider extends AbstractRDataProvider<RVector<?>> {
 	@Override
 	protected void appendOrderCmd(final StringBuilder cmd, final SortColumn sortColumn) {
 		cmd.append("order(");
-		cmd.append(fInput.getFullName());
+		cmd.append(getInput().getFullName());
 		cmd.append(",decreasing=");
 		cmd.append(sortColumn.decreasing ? "TRUE" : "FALSE");
 		cmd.append(')');
@@ -84,7 +85,7 @@ public class RVectorDataProvider extends AbstractRDataProvider<RVector<?>> {
 		return new ColumnDataProvider() {
 			@Override
 			public Object getDataValue(final long columnIndex, final long rowIndex) {
-				return fInput.getLastName();
+				return getInput().getName();
 			}
 		};
 	}

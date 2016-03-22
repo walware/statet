@@ -45,6 +45,9 @@ public final class RModel {
 	public static final String TYPE_ID= R_TYPE_ID;
 	
 	
+	public static final RElementName GLOBAL_ENV_NAME= RElementName.create(RElementName.SCOPE_SEARCH_ENV, ".GlobalEnv");
+	
+	
 	/**
 	 * @return the manager for the R model
 	 */
@@ -266,6 +269,54 @@ public final class RModel {
 			}
 		}
 		return false;
+	}
+	
+	
+	public static RElementName getFQElementName(final IRElement var) {
+		final List<RElementName> segments= getFQFullName(var, 0);
+		return (segments != null) ? RElementName.create(segments) : null;
+	}
+	
+	private static List<RElementName> getFQFullName(final IRElement var, int count) {
+		if (var != null) {
+			final RElementName elementName= var.getElementName();
+			if (elementName != null) {
+				{	RElementName segment= elementName;
+					do {
+						count++;
+						segment= segment.getNextSegment();
+					} while (segment != null);
+				}
+				List<RElementName> segments;
+				final RElementName scope= elementName.getScope();
+				if (scope != null) {
+					if (RElementName.isScopeType(scope.getType())) {
+						segments= new ArrayList<>(count + 1);
+						segments.add(scope);
+					}
+					else {
+						segments= getFQFullName(var.getModelParent(), count);
+					}
+				}
+				else {
+					if (RElementName.isScopeType(elementName.getType())) {
+						segments= new ArrayList<>(count);
+					}
+					else {
+						segments= getFQFullName(var.getModelParent(), count);
+					}
+				}
+				if (segments != null) {
+					RElementName segment= elementName;
+					do {
+						segments.add(segment);
+						segment= segment.getNextSegment();
+					} while (segment != null);
+					return segments;
+				}
+			}
+		}
+		return null;
 	}
 	
 	

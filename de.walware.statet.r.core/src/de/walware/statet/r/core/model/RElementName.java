@@ -12,6 +12,8 @@
 package de.walware.statet.r.core.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
@@ -553,6 +555,11 @@ public abstract class RElementName implements IElementName {
 		
 		
 		@Override
+		protected boolean isDefaultImpl() {
+			return (getClass() == DualImpl.class);
+		}
+		
+		@Override
 		protected DefaultImpl cloneSegment0(final RElementName next) {
 			return new DualImpl(getType(), getSegmentName(), this.idx, next);
 		}
@@ -566,6 +573,12 @@ public abstract class RElementName implements IElementName {
 	}
 	
 	
+	private static DefaultImpl checkSegment(final RElementName name, final RElementName next) {
+		return (name.isDefaultImpl() && name.getNextSegment() == next) ?
+				(DefaultImpl) name :
+				name.cloneSegment0(next);
+	}
+	
 	public static RElementName create(final int type, final String segmentName) {
 		return new DefaultImpl(type, segmentName);
 	}
@@ -578,28 +591,28 @@ public abstract class RElementName implements IElementName {
 	}
 	
 	public static RElementName create(final List<RElementName> segments) {
-		if (segments.size() > 0) {
-			int first= 0;
-			RElementName scopeName= null;
-			if (segments.size() > 1) {
-				scopeName= segments.get(0);
-				if (isScopeType(scopeName.getType())) {
-					first= 1;
-				}
-				else {
-					scopeName= null;
-				}
-			}
-			if (segments.size() > first) {
-				RElementName next= null;
-				for (int i= segments.size() - 1; i > first; i--) {
-					next= segments.get(i).cloneSegment0(next);
-				}
-				next= new DefaultImpl(segments.get(first).getType(), scopeName, segments.get(first).getSegmentName(), next);
-				return next;
-			}
+		if (segments.isEmpty()) {
+			return null;
 		}
-		return null;
+		if (segments.size() == 1) {
+			return checkSegment(segments.get(0), null);
+		}
+		int first= 0;
+		RElementName scopeName= segments.get(0);
+		if (isScopeType(scopeName.getType())) {
+			scopeName= checkSegment(scopeName, null);
+			first= 1;
+		}
+		else {
+			scopeName= null;
+		}
+		RElementName next= null;
+		for (int i= segments.size() - 1; i > first; i--) {
+			next= checkSegment(segments.get(i), next);
+		}
+		next= new DefaultImpl(segments.get(first).getType(), scopeName,
+				segments.get(first).getSegmentName(), next );
+		return next;
 	}
 	
 	/**
@@ -611,25 +624,17 @@ public abstract class RElementName implements IElementName {
 	 * @param withScope to include the scope in the copy, if available
 	 * @return the copy of the element name
 	 */
-	public static RElementName create(RElementName name, final RElementName end,
+	public static RElementName create(final RElementName name, final RElementName end,
 			final boolean withScope) {
 		if (name == null) {
 			return null;
 		}
-		RElementName scopeName= (withScope) ? name.getScope() : null;
-		if (scopeName != null) {
-			scopeName= new DefaultImpl(scopeName.getType(), scopeName.getSegmentName(), null);
+		final List<RElementName> segments= new ArrayList<>();
+		if (withScope && name.getScope() != null) {
+			segments.add(name.getScope());
 		}
-		final DefaultImpl main= new DefaultImpl(name.getType(), scopeName, name.getSegmentName(), null);
-		DefaultImpl last= main;
-		name= name.getNextSegment();
-		while (name != null && name != end) {
-			final DefaultImpl copy= name.cloneSegment0(null);
-			last.nextSegment= copy;
-			last= copy;
-			name= name.getNextSegment();
-		}
-		return main;
+		addSegments(segments, name, end);
+		return create(segments);
 	}
 	
 	
@@ -839,8 +844,19 @@ public abstract class RElementName implements IElementName {
 			throw new IllegalArgumentException("scope.type= " + scope.getType()); //$NON-NLS-1$
 		}
 		return new DefaultImpl(name.getType(),
-				(scope.getNextSegment() == null) ? scope : cloneSegment(scope),
+				checkSegment(scope, null),
 				name.getSegmentName(), name.getNextSegment() );
+	}
+	
+	public static RElementName removeScope(final RElementName name) {
+		final RElementName scope= name.getScope();
+		if (scope == null) {
+			return name;
+		}
+		if (!isScopeType(scope.getType())) {
+			throw new IllegalArgumentException("scope.type= " + scope.getType()); //$NON-NLS-1$
+		}
+		return new DefaultImpl(name.getType(), scope, name.getSegmentName(), name.getNextSegment());
 	}
 	
 	public static RElementName normalize(final RElementName name) {
@@ -851,6 +867,20 @@ public abstract class RElementName implements IElementName {
 		return name;
 	}
 	
+	public static void addSegments(final Collection<? super RElementName> segments, RElementName name) {
+		while (name != null) {
+			segments.add(name);
+			name= name.getNextSegment();
+		}
+	}
+	
+	public static void addSegments(final Collection<? super RElementName> segments,
+			RElementName name, final RElementName end) {
+		while (name != null && name != end) {
+			segments.add(name);
+			name= name.getNextSegment();
+		}
+	}
 	
 	protected RElementName() {
 	}
@@ -870,10 +900,13 @@ public abstract class RElementName implements IElementName {
 	}
 	
 	
+	protected boolean isDefaultImpl() {
+		return (getClass() == DefaultImpl.class);
+	}
+	
 	protected RElementName.DefaultImpl cloneSegment0(final RElementName next) {
 		return new DefaultImpl(getType(), getSegmentName(), next);
 	}
-	
 	
 	@Override
 	public final int hashCode() {

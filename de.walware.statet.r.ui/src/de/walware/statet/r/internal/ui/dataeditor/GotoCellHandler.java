@@ -33,7 +33,7 @@ public class GotoCellHandler extends AbstractHandler implements IElementUpdater 
 	
 	
 	public GotoCellHandler(final RDataTableComposite table) {
-		this.tableComposite = table;
+		this.tableComposite= table;
 	}
 	
 	
@@ -48,14 +48,18 @@ public class GotoCellHandler extends AbstractHandler implements IElementUpdater 
 			return null;
 		}
 		
-		final GotoCellDialog dialog = new GotoCellDialog(this.tableComposite);
-		final long[] anchor = this.tableComposite.getAnchor();
+		final GotoCellDialog dialog= new GotoCellDialog(this.tableComposite);
+		final long[] anchor= this.tableComposite.getAnchorDataIdxs();
 		if (anchor != null) {
-			dialog.set(HORIZONTAL, anchor[0]);
-			dialog.set(VERTICAL, anchor[1]);
+			if (anchor[0] >= 0) {
+				dialog.set(HORIZONTAL, anchor[0]);
+			}
+			if (anchor[1] >= 0) {
+				dialog.set(VERTICAL, anchor[1]);
+			}
 		}
 		if (dialog.open() == Window.OK) {
-			this.tableComposite.setAnchor(dialog.get(HORIZONTAL), dialog.get(VERTICAL));
+			this.tableComposite.setAnchorDataIdxs(dialog.get(HORIZONTAL), dialog.get(VERTICAL));
 		}
 		return null;
 	}

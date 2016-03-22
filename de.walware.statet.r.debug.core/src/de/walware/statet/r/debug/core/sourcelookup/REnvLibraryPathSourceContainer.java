@@ -39,7 +39,7 @@ public class REnvLibraryPathSourceContainer extends CompositeSourceContainer {
 	
 	public REnvLibraryPathSourceContainer(final IREnv rEnv) {
 		if (rEnv == null) {
-			throw new NullPointerException("rEnv");
+			throw new NullPointerException("rEnv"); //$NON-NLS-1$
 		}
 		this.rEnv= rEnv;
 	}

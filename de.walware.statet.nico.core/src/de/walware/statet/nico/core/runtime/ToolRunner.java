@@ -27,7 +27,7 @@ import de.walware.ecommons.ts.ITool;
 
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.internal.core.Messages;
-import de.walware.statet.nico.internal.core.NicoPlugin;
+import de.walware.statet.nico.internal.core.NicoCorePlugin;
 
 
 /**
@@ -109,8 +109,8 @@ public class ToolRunner {
 							handler.handleStatus(status, null);
 						}
 						catch (final CoreException e1) {
-							NicoPlugin.log(status);
-							NicoPlugin.logError(NicoPlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
+							NicoCorePlugin.log(status);
+							NicoCorePlugin.logError(NicoCorePlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
 						}
 					}
 				}
@@ -123,12 +123,12 @@ public class ToolRunner {
 						handler.handleStatus(status, null);
 					}
 					catch (final CoreException e1) {
-						NicoPlugin.log(status);
-						NicoPlugin.logError(NicoPlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
+						NicoCorePlugin.log(status);
+						NicoCorePlugin.logError(NicoCorePlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
 					}
 					final IStatus logStatus = createOutputLogStatus((ILogOutput) process.getAdapter(ILogOutput.class));
 					if (logStatus != null) {
-						NicoPlugin.log(status);
+						NicoCorePlugin.log(status);
 					}
 				}
 				

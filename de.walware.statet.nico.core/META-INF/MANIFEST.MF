@@ -4,7 +4,7 @@ Bundle-Vendor: WalWare.de
 Bundle-Name: StatET Nico Core
 Bundle-SymbolicName: de.walware.statet.nico.core;singleton:=true
 Bundle-Version: 3.6.0.qualifier
-Bundle-Activator: de.walware.statet.nico.internal.core.NicoPlugin
+Bundle-Activator: de.walware.statet.nico.internal.core.NicoCorePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -24,7 +24,8 @@ Import-Package: com.ibm.icu.text;version="54.1",
  de.walware.ecommons.ts;version="1.1.0",
  de.walware.ecommons.ts.util,
  de.walware.ecommons.variables.core,
- de.walware.jcommons.collections;version="1.0"
+ de.walware.jcommons.collections;version="1.0",
+ de.walware.jcommons.lang;version="1.0.0"
 Export-Package: de.walware.statet.nico.core,
  de.walware.statet.nico.core.runtime,
  de.walware.statet.nico.core.util,

@@ -72,6 +72,12 @@ public class AbstractStatetRRunnable extends AbstractRToolRunnable {
 		}
 		
 		@Override
+		public void evalVoid(final String expression, final RObject envir,
+				final IProgressMonitor monitor) throws CoreException {
+			fService.evalVoid(expression, monitor);
+		}
+		
+		@Override
 		public RObject evalData(final String expression,
 				final IProgressMonitor monitor) throws CoreException {
 			return fService.evalData(expression, monitor);
@@ -79,6 +85,13 @@ public class AbstractStatetRRunnable extends AbstractRToolRunnable {
 		
 		@Override
 		public RObject evalData(final String expression, final String factoryId, final int options, final int depth,
+				final IProgressMonitor monitor) throws CoreException {
+			return fService.evalData(expression, factoryId, options, depth, monitor);
+		}
+		
+		@Override
+		public RObject evalData(final String expression, final RObject envir,
+				final String factoryId, final int options, final int depth,
 				final IProgressMonitor monitor) throws CoreException {
 			return fService.evalData(expression, factoryId, options, depth, monitor);
 		}
@@ -140,7 +153,11 @@ public class AbstractStatetRRunnable extends AbstractRToolRunnable {
 		}
 		
 		@Override
-		public void briefAboutChange(final int o) {
+		public void briefAboutToChange() {
+		}
+		
+		@Override
+		public void briefChanged(final int o) {
 		}
 		
 	}

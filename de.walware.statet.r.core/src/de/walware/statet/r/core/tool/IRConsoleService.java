@@ -14,13 +14,18 @@ package de.walware.statet.r.core.tool;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import de.walware.ecommons.ts.IToolService;
-
 import de.walware.rj.eclient.IRToolService;
 import de.walware.rj.services.RService;
 
 
-public interface IRConsoleService extends IRToolService, RService, IToolService {
+public interface IRConsoleService extends IRToolService, RService {
+	
+	
+	int AUTO_CHANGE=                    0b0_0000_0000_0000_0001;
+	
+//	int DATA_CHANGE=                    0b0_0000_0000_0000_1000;
+	
+	int PACKAGE_CHANGE=                 0b0_0000_0000_0001_0000;
 	
 	
 	boolean acceptNewConsoleCommand();
@@ -32,9 +37,10 @@ public interface IRConsoleService extends IRToolService, RService, IToolService 
 	 * @param monitor the progress monitor of the current run (or a child)
 	 * @throws CoreException if an error occurred or the operation was canceled
 	 */
-	void submitToConsole(String input, IProgressMonitor monitor)
-			throws CoreException;
+	void submitToConsole(String input,
+			IProgressMonitor monitor) throws CoreException;
 	
-	void briefAboutChange(int o);
+	void briefAboutToChange();
+	void briefChanged(int flags);
 	
 }

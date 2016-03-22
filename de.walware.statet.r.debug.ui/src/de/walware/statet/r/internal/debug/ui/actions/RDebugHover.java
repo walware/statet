@@ -35,28 +35,31 @@ import de.walware.statet.r.ui.sourceediting.RAssistInvocationContext;
 public class RDebugHover implements IInfoHover {
 	
 	
+	private final int mode;
+	
 	private IInformationControlCreator controlCreator;
 	
 	
 	public RDebugHover() {
+		this.mode= MODE_TOOLTIP;
 	}
 	
 	
 	@Override
 	public Object getHoverInfo(final AssistInvocationContext context) {
-		final IWorkbenchPart part = context.getEditor().getWorkbenchPart();
-		final ToolProcess process = NicoUITools.getTool(part);
-		if (process == null || !(context instanceof RAssistInvocationContext)) {
+		final IWorkbenchPart part= context.getEditor().getWorkbenchPart();
+		final ToolProcess tool= NicoUITools.getTool(part);
+		if (tool == null || !(context instanceof RAssistInvocationContext)) {
 			return null;
 		}
-		final RElementName name = ((RAssistInvocationContext) context).getNameSelection();
+		final RElementName name= ((RAssistInvocationContext) context).getNameSelection();
 		if (name != null) {
-			final RElementInfoTask info = new RElementInfoTask(name) {
+			final RElementInfoTask info= new RElementInfoTask(name) {
 				@Override
 				protected int getFramePosition(final IRDataAdapter r,
 						final IProgressMonitor monitor) throws CoreException {
-					if (process.getToolStatus() == ToolStatus.STARTED_SUSPENDED) {
-						final IRStackFrame frame = RDebugUIUtils.getFrame(part, process);
+					if (tool.getToolStatus() == ToolStatus.STARTED_SUSPENDED) {
+						final IRStackFrame frame= RDebugUIUtils.getFrame(part, tool);
 						if (frame != null && frame.getPosition() > 0) {
 							return frame.getPosition();
 						}
@@ -65,7 +68,7 @@ public class RDebugHover implements IInfoHover {
 				}
 			};
 			if (info.preCheck()) {
-				return info.load(process, context.getSourceViewer().getTextWidget());
+				return info.load(tool, context.getSourceViewer().getTextWidget(), part);
 			}
 		}
 		return null;
@@ -74,7 +77,7 @@ public class RDebugHover implements IInfoHover {
 	@Override
 	public IInformationControlCreator getHoverControlCreator() {
 		if (this.controlCreator == null) {
-			this.controlCreator = new RElementInfoHoverCreator();
+			this.controlCreator= new RElementInfoHoverCreator(this.mode);
 		}
 		return this.controlCreator;
 	}

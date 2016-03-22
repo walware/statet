@@ -42,6 +42,7 @@ import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RFactorStore;
 import de.walware.rj.data.RIntegerStore;
+import de.walware.rj.data.RLanguage;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
@@ -49,11 +50,15 @@ import de.walware.rj.data.RVector;
 import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.data.defaultImpl.RFactorDataStruct;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
+import de.walware.rj.eclient.FQRObjectRef;
 import de.walware.rj.eclient.IRToolService;
 import de.walware.rj.services.FunctionCall;
+import de.walware.rj.services.IFQRObjectRef;
+import de.walware.rj.services.RService;
 import de.walware.rj.services.utils.dataaccess.AbstractRDataAdapter;
 import de.walware.rj.services.utils.dataaccess.LazyRStore;
 import de.walware.rj.services.utils.dataaccess.LazyRStore.Fragment;
+import de.walware.rj.services.utils.dataaccess.RDataAssignment;
 
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.internal.ui.intable.InfoString;
@@ -62,16 +67,15 @@ import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.dataeditor.IRDataTableInput;
 import de.walware.statet.r.ui.dataeditor.IRDataTableVariable;
 import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
-import de.walware.statet.r.ui.dataeditor.RToolDataTableInput;
 
 
 public abstract class AbstractRDataProvider<T extends RObject> implements IDataProvider {
 	
 	
-	public static final Object LOADING = new InfoString("loading...");
-	public static final Object ERROR = new InfoString("ERROR");
+	public static final Object LOADING= new InfoString("loading...");
+	public static final Object ERROR= new InfoString("ERROR");
 	
-	protected static final RElementName BASE_NAME = RElementName.create(RElementName.MAIN_DEFAULT, "x"); //$NON-NLS-1$
+	protected static final RElementName BASE_NAME= RElementName.create(RElementName.MAIN_DEFAULT, "x"); //$NON-NLS-1$
 	
 	
 	static void checkCancel(final Exception e) throws CoreException {
@@ -82,7 +86,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	}
 	
 	static void cleanTmp(final String name, final IRToolService r, final IProgressMonitor monitor) throws CoreException {
-		final FunctionCall call = r.createFunctionCall(RJTmp.REMOVE); 
+		final FunctionCall call= r.createFunctionCall(RJTmp.REMOVE); 
 		call.addChar(RJTmp.NAME_PAR, name);
 		call.evalVoid(monitor);
 	}
@@ -96,15 +100,15 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 		
 		public SortColumn(final long columnIdx, final boolean decreasing) {
-			this.columnIdx = columnIdx;
-			this.decreasing = decreasing;
+			this.columnIdx= columnIdx;
+			this.decreasing= decreasing;
 		}
 		
 		
 		@Override
 		public int hashCode() {
-			final int h = (int) (this.columnIdx ^ (this.columnIdx >>> 32));
-			return (decreasing) ? (-h) : h;
+			final int h= (int) (this.columnIdx ^ (this.columnIdx >>> 32));
+			return (this.decreasing) ? (-h) : h;
 		}
 		
 		@Override
@@ -112,8 +116,8 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			if (!(obj instanceof SortColumn)) {
 				return false;
 			}
-			final SortColumn other = (SortColumn) obj;
-			return (columnIdx == other.columnIdx && decreasing == other.decreasing);
+			final SortColumn other= (SortColumn) obj;
+			return (this.columnIdx == other.columnIdx && this.decreasing == other.decreasing);
 		}
 		
 	}
@@ -121,7 +125,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	public static interface IDataProviderListener {
 		
 		
-		static final int ERROR_STRUCT_CHANGED = 1;
+		static final int ERROR_STRUCT_CHANGED= 1;
 		
 		
 		void onInputInitialized(boolean structChanged);
@@ -142,20 +146,21 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 		
 		@Override
-		public void scheduleUpdate(final LazyRStore store, final Fragment fragment) {
-			if (!scheduled) {
-				scheduled = true;
-				AbstractRDataProvider.this.schedule(fUpdateRunnable);
+		public void scheduleUpdate(final LazyRStore store,
+				final RDataAssignment assignment, final Fragment fragment) {
+			if (!this.scheduled) {
+				this.scheduled= true;
+				AbstractRDataProvider.this.schedule(AbstractRDataProvider.this.fUpdateRunnable);
 				if (fragment != null) {
-					waiting = fragment;
+					this.waiting= fragment;
 					try {
-						fFragmentsLock.wait(25);
+						AbstractRDataProvider.this.fragmentsLock.wait(25);
 					}
 					catch (final InterruptedException e) {
 					}
 					finally {
-						if (waiting == fragment) {
-							waiting = null;
+						if (this.waiting == fragment) {
+							this.waiting= null;
 						}
 					}
 				}
@@ -163,7 +168,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		}
 		
 		void notify(final Object obj) {
-			if (obj == waiting) {
+			if (obj == this.waiting) {
 				notifyAll();
 			}
 		}
@@ -190,8 +195,8 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		@Override
 		public Object getDataValue(final long columnIndex, final long rowIndex) {
 			try {
-				final LazyRStore.Fragment<T> fragment = fFragmentsLock.getFragment(
-						fDataStore, 0, columnIndex);
+				final LazyRStore.Fragment<T> fragment= AbstractRDataProvider.this.fragmentsLock.getFragment(
+						AbstractRDataProvider.this.dataStore, 0, columnIndex);
 				if (fragment != null) {
 					return getColumnName(fragment, columnIndex);
 				}
@@ -214,8 +219,8 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	protected class RowDataProvider implements IDataProvider {
 		
 		
-		private final LazyRStore<RVector<?>> fRowNamesStore= new LazyRStore<>(fRowCount, 1,
-				10, fFragmentsLock);
+		private final LazyRStore<RVector<?>> fRowNamesStore= new LazyRStore<>(AbstractRDataProvider.this.rowCount, 1,
+				10, AbstractRDataProvider.this.fragmentsLock);
 		
 		
 		public RowDataProvider() {
@@ -235,12 +240,16 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		@Override
 		public Object getDataValue(final long columnIndex, final long rowIndex) {
 			try {
-				final LazyRStore.Fragment<RVector<?>> fragment = fFragmentsLock.getFragment(
-						fRowNamesStore, rowIndex, 0 );
+				final LazyRStore.Fragment<RVector<?>> fragment= AbstractRDataProvider
+						.this.fragmentsLock.getFragment(this.fRowNamesStore, rowIndex, 0);
 				if (fragment != null) {
-					if (fragment.getRObject() != null) {
-						return fragment.getRObject().getData().get(
-								rowIndex - fragment.getRowBeginIdx() );
+					final RVector<?> vector= fragment.getRObject();
+					if (vector != null) {
+						RStore<?> names= vector.getNames();
+						if (names == null) {
+							names= vector.getData();
+						}
+						return names.get(rowIndex - fragment.getRowBeginIdx());
 					}
 					return Long.toString(rowIndex + 1);
 				}
@@ -251,6 +260,31 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			catch (final LoadDataException e) {
 				return handleLoadDataException(e);
 			}
+		}
+		
+		public long getRowIdx(final long rowIndex) {
+			try {
+				final LazyRStore.Fragment<RVector<?>> fragment= AbstractRDataProvider
+						.this.fragmentsLock.getFragment(this.fRowNamesStore, rowIndex, 0);
+				if (fragment != null) {
+					final RVector<?> vector= fragment.getRObject();
+					if (vector != null) {
+						final RStore<?> idxs= vector.getData();
+						return ((idxs.getStoreType() == RStore.INTEGER) ?
+										(long) idxs.getInt(rowIndex - fragment.getRowBeginIdx()) :
+										(long) idxs.getNum(rowIndex - fragment.getRowBeginIdx()) )
+								- 1;
+					}
+					return rowIndex;
+				}
+				else {
+					return -1;
+				}
+			}
+			catch (final LoadDataException e) {
+				return -2;
+			}
+			
 		}
 		
 		@Override
@@ -265,7 +299,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 		@Override
 		public List<Long> getSortedColumnIndexes() {
-			final SortColumn sortColumn = getSortColumn();
+			final SortColumn sortColumn= getSortColumn();
 			if (sortColumn != null) {
 				return Collections.singletonList(sortColumn.columnIdx);
 			}
@@ -277,13 +311,13 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			SortColumn sortColumn;
 			switch (sortDirection) {
 			case ASC:
-				sortColumn = new SortColumn(columnIndex, false);
+				sortColumn= new SortColumn(columnIndex, false);
 				break;
 			case DESC:
-				sortColumn = new SortColumn(columnIndex, true);
+				sortColumn= new SortColumn(columnIndex, true);
 				break;
 			default:
-				sortColumn = null;
+				sortColumn= null;
 				break;
 			}
 			setSortColumn(sortColumn);
@@ -291,7 +325,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 		@Override
 		public int getSortOrder(final long columnIndex) {
-			final SortColumn sortColumn = getSortColumn();
+			final SortColumn sortColumn= getSortColumn();
 			if (sortColumn != null && sortColumn.columnIdx == columnIndex) {
 				return 0;
 			}
@@ -300,7 +334,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 		@Override
 		public boolean isColumnIndexSorted(final long columnIndex) {
-			final SortColumn sortColumn = getSortColumn();
+			final SortColumn sortColumn= getSortColumn();
 			if (sortColumn != null && sortColumn.columnIdx == columnIndex) {
 				return true;
 			}
@@ -309,7 +343,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 		@Override
 		public SortDirectionEnum getSortDirection(final long columnIndex) {
-			final SortColumn sortColumn = getSortColumn();
+			final SortColumn sortColumn= getSortColumn();
 			if (sortColumn != null && sortColumn.columnIdx == columnIndex) {
 				return (!sortColumn.decreasing) ? SortDirectionEnum.ASC : SortDirectionEnum.DESC;
 			}
@@ -329,7 +363,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	}
 	
 	
-	private final IToolRunnable fInitRunnable = new ISystemRunnable() {
+	private final IToolRunnable fInitRunnable= new ISystemRunnable() {
 		
 		@Override
 		public String getTypeId() {
@@ -338,7 +372,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 		@Override
 		public String getLabel() {
-			return "Prepare Data Viewer (" + fInput.getLastName() + ")";
+			return "Prepare Data Viewer (" + AbstractRDataProvider.this.input.getName() + ")";
 		}
 		
 		@Override
@@ -362,7 +396,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 	};
 	
-	private final IToolRunnable fUpdateRunnable = new ISystemRunnable() {
+	private final IToolRunnable fUpdateRunnable= new ISystemRunnable() {
 		
 		@Override
 		public String getTypeId() {
@@ -371,7 +405,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 		@Override
 		public String getLabel() {
-			return "Load Data (" + fInput.getLastName() + ")";
+			return "Load Data (" + AbstractRDataProvider.this.input.getName() + ")";
 		}
 		
 		@Override
@@ -386,9 +420,9 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 				return false;
 			case REMOVING_FROM:
 			case BEING_ABANDONED:
-				synchronized (fFragmentsLock) {
-					fFragmentsLock.scheduled = false;
-					fFragmentsLock.notifyAll();
+				synchronized (AbstractRDataProvider.this.fragmentsLock) {
+					AbstractRDataProvider.this.fragmentsLock.scheduled= false;
+					AbstractRDataProvider.this.fragmentsLock.notifyAll();
 				}
 				break;
 			default:
@@ -405,7 +439,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 	};
 	
-	private final IToolRunnable fCleanRunnable = new ISystemRunnable() {
+	private final IToolRunnable fCleanRunnable= new ISystemRunnable() {
 		
 		@Override
 		public String getTypeId() {
@@ -414,7 +448,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 		@Override
 		public String getLabel() {
-			return "Clean Cache (" + fInput.getLastName() + ")";
+			return "Clean Cache (" + AbstractRDataProvider.this.input.getName() + ")";
 		}
 		
 		@Override
@@ -443,96 +477,104 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	};
 	
 	
-	private final Display fRealm;
+	private final Display realm;
 	
-	protected final IRDataTableInput fInput;
+	private final IRDataTableInput input;
 	
-	private final long fColumnCount;
-	private long fFullRowCount;
-	private long fRowCount;
+	private final long columnCount;
+	private long fullRowCount;
+	private long rowCount;
 	
-	private final FastList<IDataProviderListener> fDataListeners= new FastList<>(IDataProviderListener.class);
+	private final FastList<IDataProviderListener> dataListeners= new FastList<>(IDataProviderListener.class);
 	
-	private boolean fInitScheduled;
-	private volatile boolean fDisposeScheduled;
+	private boolean initScheduled;
+	private volatile boolean disposeScheduled;
 	
 	
-	protected RDataTableContentDescription fDescription;
+	private RDataTableContentDescription description;
 	
-	private final IDataProvider fColumnDataProvider;
-	private final IDataProvider fRowDataProvider;
+	private final IDataProvider columnDataProvider;
+	private final IDataProvider rowDataProvider;
 	
-	private final IDataProvider fColumnLabelProvider;
-	private final IDataProvider fRowLabelProvider;
+	private final IDataProvider columnLabelProvider;
+	private final IDataProvider rowLabelProvider;
 	
-	private final MainLock fFragmentsLock = new MainLock();
+	private final MainLock fragmentsLock= new MainLock();
 	
-	protected final AbstractRDataAdapter<T, T> fAdapter;
-	private final LazyRStore<T> fDataStore;
+	protected final AbstractRDataAdapter<T, T> adapter;
+	private final LazyRStore<T> dataStore;
 	
-	private boolean fUpdateSorting;
-	private boolean fUpdateFiltering;
+	private boolean updateSorting;
+	private boolean updateFiltering;
 	
-	private final StringBuilder fRStringBuilder = new StringBuilder(128);
-	private String fRCacheId; // only in R jobs
-	private T fRObjectStruct;
+	private final StringBuilder rStringBuilder= new StringBuilder(128);
+	private String rCacheId; // only in R jobs
+	private T rObjectStruct;
 	
-	private final ISortModel fSortModel;
-	private SortColumn fSortColumn = null;
-	private String fRCacheSort; // only in R jobs
+	private final ISortModel sortModel;
+	private SortColumn sortColumn= null;
+	private String rCacheSort; // only in R jobs
 	
-	private String fFilter;
-	private String fRCacheFilter;
+	private String filter;
+	private String rCacheFilter;
 	
-	private boolean fUpdateIdx; // only in R jobs
-	private String fRCacheIdx; // only in R jobs
-	private String fRCacheIdxR; // only in R jobs
+	private boolean updateIdx; // only in R jobs
+	private String rCacheIdx; // only in R jobs
+	private String rCacheIdxR; // only in R jobs
 	
-	private final FindManager fFindManager;
+	private final FindManager findManager;
 	
 	
 	protected AbstractRDataProvider(final IRDataTableInput input,
 			final AbstractRDataAdapter<T, T> adapter, final T initialRObject) {
-		fRealm = UIAccess.getDisplay();
-		fInput = input;
+		this.realm= UIAccess.getDisplay();
+		this.input= input;
 		
-		fAdapter = adapter;
-		fFullRowCount = fRowCount = fAdapter.getRowCount(initialRObject);
-		fColumnCount = fAdapter.getColumnCount(initialRObject);
+		this.adapter= adapter;
+		this.fullRowCount= this.rowCount= this.adapter.getRowCount(initialRObject);
+		this.columnCount= this.adapter.getColumnCount(initialRObject);
 		
 		final int dataMax;
-		if (fColumnCount <= 25) {
-			dataMax = 10;
+		if (this.columnCount <= 25) {
+			dataMax= 10;
 		}
-		else if (fColumnCount <= 50) {
-			dataMax = 20;
+		else if (this.columnCount <= 50) {
+			dataMax= 20;
 		}
 		else {
-			dataMax = 25;
+			dataMax= 25;
 		}
-		fDataStore= new LazyRStore<>(fRowCount, fColumnCount, dataMax, fFragmentsLock);
-		fFindManager = new FindManager(this);
+		this.dataStore= new LazyRStore<>(this.rowCount, this.columnCount, dataMax, this.fragmentsLock);
+		this.findManager= new FindManager(this);
 		
-		fColumnDataProvider = createColumnDataProvider();
-		fRowDataProvider = createRowDataProvider();
-		fColumnLabelProvider = createColumnLabelProvider();
-		fRowLabelProvider = createRowLabelProvider();
-		fSortModel = createSortModel();
+		this.columnDataProvider= createColumnDataProvider();
+		this.rowDataProvider= createRowDataProvider();
+		this.columnLabelProvider= createColumnLabelProvider();
+		this.rowLabelProvider= createRowLabelProvider();
+		this.sortModel= createSortModel();
 	}
 	
 	
+	public final IRDataTableInput getInput() {
+		return this.input;
+	}
+	
+	protected final AbstractRDataAdapter<T, T> getAdapter() {
+		return this.adapter;
+	}
+	
 	public final T getRObject() {
-		return fRObjectStruct;
+		return this.rObjectStruct;
 	}
 	
 	final int getLockState() {
-		return fFragmentsLock.state;
+		return this.fragmentsLock.state;
 	}
 	
 	final void schedule(final IToolRunnable runnable) {
 		try {
-			final ITool tool = ((RToolDataTableInput) fInput).getTool();
-			final IStatus status = tool.getQueue().add(runnable);
+			final ITool tool= this.input.getTool();
+			final IStatus status= tool.getQueue().add(runnable);
 			if (status.getSeverity() == IStatus.ERROR && !tool.isTerminated()) {
 				throw new CoreException(status);
 			}
@@ -545,34 +587,34 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	}
 	
 	private void runInit(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
-		if (fDisposeScheduled) {
-			synchronized (fInitRunnable) {
-				fInitScheduled = false;
+		if (this.disposeScheduled) {
+			synchronized (this.fInitRunnable) {
+				this.initScheduled= false;
 			}
 			return;
 		}
 		
 		try {
-			if (fRCacheId == null) {
-//				r.evalVoid("require(\"rj\", quietly = TRUE)", monitor);
-				final FunctionCall call = r.createFunctionCall(RJTmp.CREATE_ID);
-				call.addChar("viewer"); //$NON-NLS-1$
-				fRCacheId = RDataUtil.checkSingleCharValue(call.evalData(monitor));
+			if (this.rCacheId == null) {
+//				r.evalVoid("require(\"rj\", quietly= TRUE)", monitor);
+				final FunctionCall call= r.createFunctionCall(RJTmp.CREATE_ID);
+				call.addChar(RJTmp.PREFIX_PAR, "viewer"); //$NON-NLS-1$
+				this.rCacheId= RDataUtil.checkSingleCharValue(call.evalData(monitor));
 			}
 		}
 		catch (final Exception e) {
-			synchronized (fInitRunnable) {
-				fInitScheduled = false;
+			synchronized (this.fInitRunnable) {
+				this.initScheduled= false;
 			}
 			checkCancel(e);
 			clear(Lock.ERROR_STATE);
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
 					"An error occurred when preparing tmp variables for data viewer.", e));
 			
-			fRealm.syncExec(new Runnable() {
+			this.realm.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					for (final IDataProviderListener listener : fDataListeners.toArray()) {
+					for (final IDataProviderListener listener : AbstractRDataProvider.this.dataListeners.toArray()) {
 						listener.onInputFailed(0);
 					}
 				}
@@ -581,29 +623,29 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		}
 		
 		try {
-			final RObject rObject = (r instanceof ICombinedRDataAdapter) ?
-					((ICombinedRDataAdapter) r).evalCombinedStruct(fInput.getElementName(), 0, 1, monitor) :
-						r.evalData(fInput.getFullName(), null, RObjectFactory.F_ONLY_STRUCT, 1, monitor);
-			if (fRObjectStruct == null) {
-				fRObjectStruct = fAdapter.validate(rObject);
+			final RObject rObject= (r instanceof ICombinedRDataAdapter) ?
+					((ICombinedRDataAdapter) r).evalCombinedStruct(this.input.getElementName(), 0, 1, monitor) :
+					r.evalData(this.input.getFullName(), null, RObjectFactory.F_ONLY_STRUCT, 1, monitor);
+			if (this.rObjectStruct == null) {
+				this.rObjectStruct= this.adapter.validate(rObject);
 			}
 			else {
-				fRObjectStruct = fAdapter.validate(rObject, fRObjectStruct, 0);
+				this.rObjectStruct= this.adapter.validate(rObject, this.rObjectStruct, 0);
 			}
 		}
 		catch (final Exception e) {
-			synchronized (fInitRunnable) {
-				fInitScheduled = false;
+			synchronized (this.fInitRunnable) {
+				this.initScheduled= false;
 			}
 			checkCancel(e);
 			clear(Lock.RELOAD_STATE);
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
 					"An error occurred when initializing structure data for data viewer.", e));
 			
-			fRealm.syncExec(new Runnable() {
+			this.realm.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					for (final IDataProviderListener listener : fDataListeners.toArray()) {
+					for (final IDataProviderListener listener : AbstractRDataProvider.this.dataListeners.toArray()) {
 						listener.onInputFailed(IDataProviderListener.ERROR_STRUCT_CHANGED);
 					}
 				}
@@ -612,11 +654,11 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		}
 		final RDataTableContentDescription description;
 		try {
-			description = loadDescription(fInput.getElementName(), fRObjectStruct, r, monitor);
+			description= loadDescription(this.input.getElementName(), this.rObjectStruct, r, monitor);
 		}
 		catch (final Exception e) {
-			synchronized (fInitRunnable) {
-				fInitScheduled = false;
+			synchronized (this.fInitRunnable) {
+				this.initScheduled= false;
 			}
 			checkCancel(e);
 			clear(Lock.RELOAD_STATE);
@@ -625,23 +667,23 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			return;
 		}
 		
-		fRealm.syncExec(new Runnable() {
+		this.realm.syncExec(new Runnable() {
 			@Override
 			public void run() {
-				fDescription = description;
-				final long rowCount = fAdapter.getRowCount(fRObjectStruct);
-				final boolean rowsChanged = (rowCount != getRowCount());
+				AbstractRDataProvider.this.description= description;
+				final long rowCount= AbstractRDataProvider.this.adapter.getRowCount(AbstractRDataProvider.this.rObjectStruct);
+				final boolean rowsChanged= (rowCount != getRowCount());
 				clear(0, rowCount, rowCount, true, true, true);
 				
-				synchronized (fInitRunnable) {
-					fInitScheduled = false;
+				synchronized (AbstractRDataProvider.this.fInitRunnable) {
+					AbstractRDataProvider.this.initScheduled= false;
 				}
 //				if (rowsChanged) {
 //					for (final IDataProviderListener listener : dataListeners) {
 //						listener.onRowCountChanged();
 //					}
 //				}
-				for (final IDataProviderListener listener : fDataListeners.toArray()) {
+				for (final IDataProviderListener listener : AbstractRDataProvider.this.dataListeners.toArray()) {
 					listener.onInputInitialized(rowsChanged);
 				}
 			}
@@ -649,70 +691,76 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	}
 	
 	final String createTmp(final String key) {
-		return fRCacheId + key;
+		return this.rCacheId + key;
 	}
 	
 	private void runUpdate(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
-		boolean work = true;
+		boolean work= true;
 		while (work) {
 			try {
-				boolean updateSorting = false;
-				boolean updateFiltering = false;
-				work = false;
+				boolean updateSorting= false;
+				boolean updateFiltering= false;
+				work= false;
 				
-				synchronized (fFragmentsLock) {
-					if (fUpdateSorting) {
-						updateSorting = true;
+				synchronized (this.fragmentsLock) {
+					if (this.updateSorting) {
+						updateSorting= true;
 					}
-					if (fUpdateFiltering) {
-						updateFiltering = true;
+					if (this.updateFiltering) {
+						updateFiltering= true;
 					}
 					
-					fFragmentsLock.scheduled = false;
+					this.fragmentsLock.scheduled= false;
 				}
+				
+				IFQRObjectRef elementRef= null;
 				
 				if (updateSorting) {
 					if (!work) {
-						work = true;
-						fAdapter.check(fInput.getFullName(), fRObjectStruct, r, monitor);
+						work= true;
+						elementRef= checkElementRef(this.input.getElementRef(), r, monitor);
+						this.adapter.check(elementRef, this.rObjectStruct, r, monitor);
 					}
 					updateSorting(r, monitor);
 				}
 				if (updateFiltering) {
 					if (!work) {
-						work = true;
-						fAdapter.check(fInput.getFullName(), fRObjectStruct, r, monitor);
+						work= true;
+						elementRef= checkElementRef(this.input.getElementRef(), r, monitor);
+						this.adapter.check(elementRef, this.rObjectStruct, r, monitor);
 					}
 					updateFiltering(r, monitor);
 				}
-				if (fUpdateIdx) {
+				if (this.updateIdx) {
 					if (!work) {
-						work = true;
-						fAdapter.check(fInput.getFullName(), fRObjectStruct, r, monitor);
+						work= true;
+						elementRef= checkElementRef(this.input.getElementRef(), r, monitor);
+						this.adapter.check(elementRef, this.rObjectStruct, r, monitor);
 					}
 					updateIdx(r, monitor);
 				}
 				
-				if (!work && fRowDataProvider instanceof AbstractRDataProvider<?>.RowDataProvider) {
-					final LazyRStore<RVector<?>> namesStore = ((RowDataProvider) fRowDataProvider).fRowNamesStore;
+				if (!work && this.rowDataProvider instanceof AbstractRDataProvider<?>.RowDataProvider) {
+					final LazyRStore<RVector<?>> namesStore= ((RowDataProvider) this.rowDataProvider).fRowNamesStore;
 					while (true) {
 						final Fragment<RVector<?>> fragment;
-						synchronized (fFragmentsLock) {
-							fragment = namesStore.getNextScheduledFragment();
+						synchronized (this.fragmentsLock) {
+							fragment= namesStore.getNextScheduledFragment();
 						}
 						if (fragment == null) {
 							break;
 						}
 						if (!work) {
-							work = true;
-							fAdapter.check(fInput.getFullName(), fRObjectStruct, r, monitor);
+							work= true;
+							elementRef= checkElementRef(this.input.getElementRef(), r, monitor);
+							this.adapter.check(elementRef, this.rObjectStruct, r, monitor);
 						}
-						final RVector<?> fragmentObject = fAdapter.loadRowNames(fInput.getFullName(),
-								fRObjectStruct, fragment, fRCacheIdx, r, monitor);
-						synchronized (fFragmentsLock) {
+						final RVector<?> fragmentObject= this.adapter.loadRowNames(elementRef,
+								this.rObjectStruct, fragment, this.rCacheIdx, r, monitor);
+						synchronized (this.fragmentsLock) {
 							namesStore.updateFragment(fragment, fragmentObject);
 							
-							fFragmentsLock.notify(fragment);
+							this.fragmentsLock.notify(fragment);
 						}
 						notifyListener(fragment);
 					}
@@ -720,22 +768,23 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 				if (!work) {
 					while (true) {
 						final Fragment<T> fragment;
-						synchronized (fFragmentsLock) {
-							fragment = fDataStore.getNextScheduledFragment();
+						synchronized (this.fragmentsLock) {
+							fragment= this.dataStore.getNextScheduledFragment();
 						}
 						if (fragment == null) {
 							break;
 						}
 						if (!work) {
-							work = true;
-							fAdapter.check(fInput.getFullName(), fRObjectStruct, r, monitor);
+							work= true;
+							elementRef= checkElementRef(this.input.getElementRef(), r, monitor);
+							this.adapter.check(elementRef, this.rObjectStruct, r, monitor);
 						}
-						final T fragmentObject = fAdapter.loadData(fInput.getFullName(),
-								fRObjectStruct, fragment, fRCacheIdx, r, monitor);
-						synchronized (fFragmentsLock) {
-							fDataStore.updateFragment(fragment, fragmentObject);
+						final T fragmentObject= this.adapter.loadData(elementRef,
+								this.rObjectStruct, fragment, this.rCacheIdx, r, monitor);
+						synchronized (this.fragmentsLock) {
+							this.dataStore.updateFragment(fragment, fragmentObject);
 							
-							fFragmentsLock.notify(fragment);
+							this.fragmentsLock.notify(fragment);
 						}
 						notifyListener(fragment);
 					}
@@ -745,9 +794,27 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 				checkCancel(e);
 				clear(Lock.RELOAD_STATE);
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
-						NLS.bind("An error occurred when loading data of ''{0}'' for data viewer.", fInput.getFullName()), e));
+						NLS.bind("An error occurred when loading data of ''{0}'' for data viewer.", this.input.getFullName()), e));
 				return;
 			}
+		}
+	}
+	
+	private IFQRObjectRef checkElementRef(final IFQRObjectRef elementRef,
+			final RService r, final IProgressMonitor monitor) throws UnexpectedRDataException, CoreException {
+		RObject env= elementRef.getEnv();
+		switch (env.getRObjectType()) {
+		case RObject.TYPE_REFERENCE:
+			return elementRef;
+		case RObject.TYPE_LANGUAGE:
+			env= RDataUtil.checkRReference(
+					r.evalData(((RLanguage) env).getSource(),
+							null, 0, RService.DEPTH_REFERENCE, monitor ),
+					RObject.TYPE_ENV );
+			return new FQRObjectRef((ITool) elementRef.getRHandle(), env, elementRef.getName());
+		default:
+			throw new UnexpectedRDataException(
+					"Unexpected R object type: " + RDataUtil.getObjectTypeName(env.getRObjectType()) );
 		}
 	}
 	
@@ -756,17 +823,17 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		cleanSorting(r, monitor);
 		
 		final SortColumn sortColumn;
-		synchronized (fFragmentsLock) {
-			sortColumn = fSortColumn;
-			fUpdateSorting = false;
+		synchronized (this.fragmentsLock) {
+			sortColumn= this.sortColumn;
+			this.updateSorting= false;
 		}
 		if (sortColumn != null) {
-			if (fRCacheSort == null) {
-				fRCacheSort = fRCacheId + ".order"; //$NON-NLS-1$
+			if (this.rCacheSort == null) {
+				this.rCacheSort= this.rCacheId + ".order"; //$NON-NLS-1$
 			}
-			final FunctionCall call = r.createFunctionCall(RJTmp.SET); 
-			call.addChar(RJTmp.NAME_PAR, fRCacheSort);
-			final StringBuilder cmd = getRCmdStringBuilder();
+			final FunctionCall call= r.createFunctionCall(RJTmp.SET); 
+			call.addChar(RJTmp.NAME_PAR, this.rCacheSort);
+			final StringBuilder cmd= getRCmdStringBuilder();
 			appendOrderCmd(cmd, sortColumn);
 			call.add(RJTmp.VALUE_PAR, cmd.toString()); 
 			call.evalVoid(monitor);
@@ -778,33 +845,33 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		cleanFiltering(r, monitor);
 		
 		String filter;
-		synchronized (fFragmentsLock) {
-			filter = fFilter;
-			fUpdateFiltering = false;
+		synchronized (this.fragmentsLock) {
+			filter= this.filter;
+			this.updateFiltering= false;
 		}
 		final long filteredRowCount;
 		if (filter == null) {
-			filteredRowCount = getFullRowCount();
+			filteredRowCount= getFullRowCount();
 		}
 		else {
-			if (fRCacheFilter == null) {
-				fRCacheFilter = fRCacheId + ".include"; //$NON-NLS-1$
+			if (this.rCacheFilter == null) {
+				this.rCacheFilter= this.rCacheId + ".include"; //$NON-NLS-1$
 			}
-			{	final FunctionCall call = r.createFunctionCall(RJTmp.SET); 
-				call.addChar(RJTmp.NAME_PAR, fRCacheFilter);
+			{	final FunctionCall call= r.createFunctionCall(RJTmp.SET); 
+				call.addChar(RJTmp.NAME_PAR, this.rCacheFilter);
 				call.add(RJTmp.VALUE_PAR, filter); 
 				call.evalVoid(monitor);
 			}
-			{	final FunctionCall call = r.createFunctionCall(RJTmp.GET_FILTERED_COUNT);
-				call.addChar(RJTmp.FILTER_PAR, fRCacheFilter);
-				filteredRowCount = RDataUtil.checkSingleIntValue(call.evalData(monitor));
+			{	final FunctionCall call= r.createFunctionCall(RJTmp.GET_FILTERED_COUNT);
+				call.addChar(RJTmp.FILTER_PAR, this.rCacheFilter);
+				filteredRowCount= RDataUtil.checkSingleIntValue(call.evalData(monitor));
 			}
 		}
-		fRealm.syncExec(new Runnable() {
+		this.realm.syncExec(new Runnable() {
 			@Override
 			public void run() {
 				clear(0, filteredRowCount, getFullRowCount(), false, false, false);
-				for (final IDataProviderListener listener : fDataListeners.toArray()) {
+				for (final IDataProviderListener listener : AbstractRDataProvider.this.dataListeners.toArray()) {
 					listener.onRowCountChanged();
 				}
 			}
@@ -814,55 +881,57 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	private void updateIdx(
 			final IRToolService r, final IProgressMonitor monitor) throws UnexpectedRDataException, CoreException {
 		cleanIdx(r, monitor);
-		if (fRCacheSort != null || fRCacheFilter != null) {
-			if (fRCacheIdx == null) {
-				fRCacheIdx = fRCacheId + ".idx"; //$NON-NLS-1$
+		if (this.rCacheSort != null || this.rCacheFilter != null) {
+			if (this.rCacheIdx == null) {
+				this.rCacheIdx= this.rCacheId + ".idx"; //$NON-NLS-1$
 			}
-			if (fRCacheFilter == null) { // fRCacheSort != null
-				final FunctionCall call = r.createFunctionCall(RJTmp.SET);
-				call.addChar(RJTmp.NAME_PAR, fRCacheIdx);
-				call.add(RJTmp.VALUE_PAR, RJTmp.ENV+'$'+ fRCacheSort);
+			if (this.rCacheFilter == null) { // fRCacheSort != null
+				final FunctionCall call= r.createFunctionCall(RJTmp.SET);
+				call.addChar(RJTmp.NAME_PAR, this.rCacheIdx);
+				call.add(RJTmp.VALUE_PAR, RJTmp.ENV+'$'+ this.rCacheSort);
 				call.evalVoid(monitor);
 			}
-			else if (fRCacheSort == null) { // fRCacheFilter != null
-				final FunctionCall call = r.createFunctionCall(RJTmp.SET_WHICH_INDEX);
-				call.addChar(RJTmp.NAME_PAR, fRCacheIdx);
-				call.addChar(RJTmp.FILTER_PAR, fRCacheFilter);
+			else if (this.rCacheSort == null) { // fRCacheFilter != null
+				final FunctionCall call= r.createFunctionCall(RJTmp.SET_WHICH_INDEX);
+				call.addChar(RJTmp.NAME_PAR, this.rCacheIdx);
+				call.addChar(RJTmp.FILTER_PAR, this.rCacheFilter);
 				call.evalVoid(monitor);
 			}
 			else { // fRCacheSort != null && fRCacheFilter != null
-				final FunctionCall call = r.createFunctionCall(RJTmp.SET_FILTERED_INDEX);
-				call.addChar(RJTmp.NAME_PAR, fRCacheIdx);
-				call.addChar(RJTmp.FILTER_PAR, fRCacheFilter);
-				call.addChar(RJTmp.INDEX_PAR, fRCacheSort);
+				final FunctionCall call= r.createFunctionCall(RJTmp.SET_FILTERED_INDEX);
+				call.addChar(RJTmp.NAME_PAR, this.rCacheIdx);
+				call.addChar(RJTmp.FILTER_PAR, this.rCacheFilter);
+				call.addChar(RJTmp.INDEX_PAR, this.rCacheSort);
 				call.evalVoid(monitor);
 			}
 		}
-		fUpdateIdx = false;
+		this.updateIdx= false;
 	}
 	
 	String checkFilter() {
-		return fRCacheFilter;
+		return this.rCacheFilter;
 	}
 	
 	String checkRevIndex(
 			final IRToolService r, final IProgressMonitor monitor) throws CoreException {
-		if (fRCacheIdx != null && fRCacheIdxR == null) {
-			final String name = fRCacheIdx + ".r"; //$NON-NLS-1$
-			try {
-				final FunctionCall call = r.createFunctionCall(RJTmp.SET_REVERSE_INDEX);
-				call.addChar(RJTmp.NAME_PAR, name);
-				call.addChar(RJTmp.INDEX_PAR, fRCacheIdx);
-				call.addNum(RJTmp.LEN_PAR, getFullRowCount());
-				call.evalVoid(monitor);
-				fRCacheIdxR = name;
-				return name;
-			}
-			finally {
-				if (fRCacheIdxR == null) {
-					cleanTmp(name, r, monitor);
+		if (this.rCacheIdx != null) {
+			if (this.rCacheIdxR == null) {
+				final String name= this.rCacheIdx + ".r"; //$NON-NLS-1$
+				try {
+					final FunctionCall call= r.createFunctionCall(RJTmp.SET_REVERSE_INDEX);
+					call.addChar(RJTmp.NAME_PAR, name);
+					call.addChar(RJTmp.INDEX_PAR, this.rCacheIdx);
+					call.addNum(RJTmp.LEN_PAR, getFullRowCount());
+					call.evalVoid(monitor);
+					return this.rCacheIdxR= name;
+				}
+				finally {
+					if (this.rCacheIdxR == null) {
+						cleanTmp(name, r, monitor);
+					}
 				}
 			}
+			return this.rCacheIdxR;
 		}
 		else {
 			return null;
@@ -881,115 +950,115 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		final ImList<String> classNames;
 		
 		RObject rObject;
-		{	final FunctionCall call = r.createFunctionCall("class"); //$NON-NLS-1$
+		{	final FunctionCall call= r.createFunctionCall("class"); //$NON-NLS-1$
 			call.add(expression);
-			rObject = call.evalData(monitor);
-			final RVector<RCharacterStore> names = RDataUtil.checkRCharVector(rObject);
+			rObject= call.evalData(monitor);
+			final RVector<RCharacterStore> names= RDataUtil.checkRCharVector(rObject);
 			classNames= ImCollections.newList(names.getData().toArray());
 		}
 		RDataTableColumn column;
-		final RDataFormatter format = new RDataFormatter();
+		final RDataFormatter format= new RDataFormatter();
 		switch (store.getStoreType()) {
 		case RStore.LOGICAL:
 			format.setAutoWidth(5);
-			column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+			column= new RDataTableColumn(columnIndex, columnName, expression, elementName,
 					IRDataTableVariable.LOGI, store, classNames, format);
 			break;
 		case RStore.NUMERIC:
 			if (checkDateFormat(expression, classNames, format, r, monitor)) {
-				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+				column= new RDataTableColumn(columnIndex, columnName, expression, elementName,
 						IRDataTableVariable.DATE, store, classNames, format);
 				break;
 			}
 			if (checkDateTimeFormat(expression, classNames, format, r, monitor)) {
-				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+				column= new RDataTableColumn(columnIndex, columnName, expression, elementName,
 						IRDataTableVariable.DATETIME, store, classNames, format);
 				break;
 			}
-			{	final FunctionCall call = r.createFunctionCall("rj:::.getFormatInfo"); //$NON-NLS-1$
+			{	final FunctionCall call= r.createFunctionCall("rj:::.getFormatInfo"); //$NON-NLS-1$
 				call.add("x", expression); //$NON-NLS-1$
-				rObject = call.evalData(monitor);
+				rObject= call.evalData(monitor);
 			}
-			{	final RIntegerStore formatInfo = RDataUtil.checkRIntVector(rObject).getData();
+			{	final RIntegerStore formatInfo= RDataUtil.checkRIntVector(rObject).getData();
 				RDataUtil.checkLengthGreaterOrEqual(formatInfo, 3);
 				format.setAutoWidth(Math.max(formatInfo.getInt(0), 3));
 				format.initNumFormat(formatInfo.getInt(1), formatInfo.getInt(2) > 0 ?
 						formatInfo.getInt(2) + 1 : 0);
-				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+				column= new RDataTableColumn(columnIndex, columnName, expression, elementName,
 						IRDataTableVariable.NUM, store, classNames, format);
 				break;
 			}
 		case RStore.INTEGER:
 			if (checkDateFormat(expression, classNames, format, r, monitor)) {
-				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+				column= new RDataTableColumn(columnIndex, columnName, expression, elementName,
 						IRDataTableVariable.DATE, store, classNames, format);
 				break;
 			}
 			if (checkDateTimeFormat(expression, classNames, format, r, monitor)) {
-				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+				column= new RDataTableColumn(columnIndex, columnName, expression, elementName,
 						IRDataTableVariable.DATETIME, store, classNames, format);
 				break;
 			}
-			{	final FunctionCall call = r.createFunctionCall("rj:::.getFormatInfo"); //$NON-NLS-1$
+			{	final FunctionCall call= r.createFunctionCall("rj:::.getFormatInfo"); //$NON-NLS-1$
 				call.add("x", expression); //$NON-NLS-1$
-				rObject = call.evalData(monitor);
+				rObject= call.evalData(monitor);
 			}
-			{	final RIntegerStore formatInfo = RDataUtil.checkRIntVector(rObject).getData();
+			{	final RIntegerStore formatInfo= RDataUtil.checkRIntVector(rObject).getData();
 				RDataUtil.checkLengthGreaterOrEqual(formatInfo, 1);
 				format.setAutoWidth(Math.max(formatInfo.getInt(0), 3));
-				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+				column= new RDataTableColumn(columnIndex, columnName, expression, elementName,
 						IRDataTableVariable.INT, store, classNames, format);
 				break;
 			}
 		case RStore.CHARACTER:
-			{	final FunctionCall call = r.createFunctionCall("rj:::.getFormatInfo"); //$NON-NLS-1$
+			{	final FunctionCall call= r.createFunctionCall("rj:::.getFormatInfo"); //$NON-NLS-1$
 				call.add("x", expression); //$NON-NLS-1$
-				rObject = call.evalData(monitor);
+				rObject= call.evalData(monitor);
 			}
-			{	final RIntegerStore formatInfo = RDataUtil.checkRIntVector(rObject).getData();
+			{	final RIntegerStore formatInfo= RDataUtil.checkRIntVector(rObject).getData();
 				RDataUtil.checkLengthGreaterOrEqual(formatInfo, 1);
 				format.setAutoWidth(Math.max(formatInfo.getInt(0), 3));
-				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+				column= new RDataTableColumn(columnIndex, columnName, expression, elementName,
 						IRDataTableVariable.CHAR, store, classNames, format);
 				break;
 			}
 		case RStore.COMPLEX:
-			{	final FunctionCall call = r.createFunctionCall("rj:::.getFormatInfo"); //$NON-NLS-1$
+			{	final FunctionCall call= r.createFunctionCall("rj:::.getFormatInfo"); //$NON-NLS-1$
 				call.add("x", expression); //$NON-NLS-1$
-				rObject = call.evalData(monitor);
+				rObject= call.evalData(monitor);
 			}
-			{	final RIntegerStore formatInfo = RDataUtil.checkRIntVector(rObject).getData();
+			{	final RIntegerStore formatInfo= RDataUtil.checkRIntVector(rObject).getData();
 				RDataUtil.checkLengthGreaterOrEqual(formatInfo, 3);
 				format.setAutoWidth(Math.max(formatInfo.getInt(0), 3));
 				format.initNumFormat(formatInfo.getInt(1), formatInfo.getInt(2) > 0 ?
 						formatInfo.getInt(2) + 1 : 0);
-				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+				column= new RDataTableColumn(columnIndex, columnName, expression, elementName,
 						IRDataTableVariable.CPLX, store, classNames, format);
 				break;
 			}
 		case RStore.RAW:
 			format.setAutoWidth(2);
-			column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+			column= new RDataTableColumn(columnIndex, columnName, expression, elementName,
 					IRDataTableVariable.RAW, store, classNames, format);
 			break;
 		case RStore.FACTOR:
-			{	final FunctionCall call = r.createFunctionCall("levels"); //$NON-NLS-1$
+			{	final FunctionCall call= r.createFunctionCall("levels"); //$NON-NLS-1$
 				call.add(expression);
-				rObject = call.evalData(monitor);
+				rObject= call.evalData(monitor);
 			}
 			{	format.setAutoWidth(3);
-				final RCharacterStore levels = RDataUtil.checkRCharVector(rObject).getData();
-				final int l = RDataUtil.checkIntLength(levels);
-				for (int i = 0; i < l; i++) {
+				final RCharacterStore levels= RDataUtil.checkRCharVector(rObject).getData();
+				final int l= RDataUtil.checkIntLength(levels);
+				for (int i= 0; i < l; i++) {
 					if (!levels.isNA(i)) {
-						final int length = levels.getChar(i).length();
+						final int length= levels.getChar(i).length();
 						if (length > format.getAutoWidth()) {
 							format.setAutoWidth(length);
 						}
 					}
 				}
 				format.initFactorLevels(levels);
-				column = new RDataTableColumn(columnIndex, columnName, expression, elementName,
+				column= new RDataTableColumn(columnIndex, columnName, expression, elementName,
 						IRDataTableVariable.FACTOR, RFactorDataStruct.addLevels((RFactorStore) store, levels),
 						classNames, format);
 				break;
@@ -1019,10 +1088,10 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			formatter.initDateTimeFormat(RDataFormatter.MILLIS_PER_SECOND);
 			formatter.setAutoWidth(27);
 			
-			{	final FunctionCall call = r.createFunctionCall("base::attr"); //$NON-NLS-1$
+			{	final FunctionCall call= r.createFunctionCall("base::attr"); //$NON-NLS-1$
 				call.add(expression);
 				call.addChar("tzone"); //$NON-NLS-1$
-				rObject = call.evalData(monitor);
+				rObject= call.evalData(monitor);
 			}
 			if (rObject.getRObjectType() != RObject.TYPE_NULL) {
 				formatter.setDateTimeZone(TimeZone.getTimeZone(RDataUtil.checkSingleCharValue(rObject)));
@@ -1034,7 +1103,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	
 	protected RDataTableColumn createNamesColumn(final String expression, final long count,
 			final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
-		final RObject names = r.evalData(expression, null, RObjectFactory.F_ONLY_STRUCT, 1, monitor);
+		final RObject names= r.evalData(expression, null, RObjectFactory.F_ONLY_STRUCT, 1, monitor);
 		if (names != null && names.getRObjectType() == RObject.TYPE_VECTOR
 				&& names.getLength() == count
 				&& (names.getData().getStoreType() == RStore.CHARACTER
@@ -1045,7 +1114,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	}
 	
 	private RDataTableColumn createAutoNamesColumn(final long count) {
-		final RDataFormatter format = new RDataFormatter();
+		final RDataFormatter format= new RDataFormatter();
 		format.setAutoWidth(Math.max(Long.toString(count).length(), 3));
 		return new RDataTableColumn(-1, null, null, null,
 				IRDataTableVariable.INT, RObjectFactoryImpl.INT_STRUCT_DUMMY,
@@ -1060,42 +1129,42 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		clear(Lock.ERROR_STATE);
 		cleanSorting(r, monitor);
 		cleanFiltering(r, monitor);
-		fFindManager.clean(r, monitor);
-		cleanTmp(fRCacheId, r, monitor);
+		this.findManager.clean(r, monitor);
+		cleanTmp(this.rCacheId, r, monitor);
 	}
 	
 	private void cleanSorting(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
 		cleanIdx(r, monitor);
-		if (fRCacheSort != null) {
-			cleanTmp(fRCacheSort, r, monitor);
-			fRCacheSort = null;
+		if (this.rCacheSort != null) {
+			cleanTmp(this.rCacheSort, r, monitor);
+			this.rCacheSort= null;
 		}
 	}
 	
 	private void cleanFiltering(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
 		cleanIdx(r, monitor);
-		if (fRCacheFilter != null) {
-			cleanTmp(fRCacheFilter, r, monitor);
-			fRCacheFilter = null;
+		if (this.rCacheFilter != null) {
+			cleanTmp(this.rCacheFilter, r, monitor);
+			this.rCacheFilter= null;
 		}
 	}
 	
 	private void cleanIdx(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
-		fUpdateIdx = true;
-		if (fRCacheIdx != null) {
-			cleanTmp(fRCacheIdx, r, monitor);
-			fRCacheIdx = null;
+		this.updateIdx= true;
+		if (this.rCacheIdx != null) {
+			cleanTmp(this.rCacheIdx, r, monitor);
+			this.rCacheIdx= null;
 		}
-		if (fRCacheIdxR != null) {
-			cleanTmp(fRCacheIdxR, r, monitor);
-			fRCacheIdxR = null;
+		if (this.rCacheIdxR != null) {
+			cleanTmp(this.rCacheIdxR, r, monitor);
+			this.rCacheIdxR= null;
 		}
 	}
 	
 	
 	protected final StringBuilder getRCmdStringBuilder() {
-		fRStringBuilder.setLength(0);
-		return fRStringBuilder;
+		this.rStringBuilder.setLength(0);
+		return this.rStringBuilder;
 	}
 	
 	
@@ -1104,28 +1173,28 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	}
 	
 	public RDataTableContentDescription getDescription() {
-		return fDescription;
+		return this.description;
 	}
 	
 	@Override
 	public long getColumnCount() {
-		return fColumnCount;
+		return this.columnCount;
 	}
 	
 	public long getFullRowCount() {
-		return fFullRowCount;
+		return this.fullRowCount;
 	}
 	
 	@Override
 	public long getRowCount() {
-		return fRowCount;
+		return this.rowCount;
 	}
 	
 	@Override
 	public Object getDataValue(final long columnIndex, final long rowIndex) {
 		try {
-			final LazyRStore.Fragment<T> fragment = fFragmentsLock.getFragment(
-					fDataStore, rowIndex, columnIndex );
+			final LazyRStore.Fragment<T> fragment= this.fragmentsLock.getFragment(
+					this.dataStore, rowIndex, columnIndex );
 			if (fragment != null) {
 				return getDataValue(fragment, rowIndex, columnIndex);
 			}
@@ -1156,19 +1225,19 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	}
 	
 	public IDataProvider getColumnDataProvider() {
-		return fColumnDataProvider;
+		return this.columnDataProvider;
 	}
 	
 	public IDataProvider getRowDataProvider() {
-		return fRowDataProvider;
+		return this.rowDataProvider;
 	}
 	
 	public IDataProvider getColumnLabelProvider() {
-		return fColumnLabelProvider;
+		return this.columnLabelProvider;
 	}
 	
 	public IDataProvider getRowLabelProvider() {
-		return fRowLabelProvider;
+		return this.rowLabelProvider;
 	}
 	
 	
@@ -1202,67 +1271,83 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	
 	
 	public ISortModel getSortModel() {
-		return fSortModel;
+		return this.sortModel;
 	}
 	
 	public SortColumn getSortColumn() {
-		return fSortColumn;
+		return this.sortColumn;
 	}
 	
 	private void setSortColumn(final SortColumn column) {
-		synchronized (fFragmentsLock) {
-			if ((fSortColumn != null) ? fSortColumn.equals(column) : null == column) {
+		synchronized (this.fragmentsLock) {
+			if ((this.sortColumn != null) ? this.sortColumn.equals(column) : null == column) {
 				return;
 			}
-			fSortColumn = column;
+			this.sortColumn= column;
 			
 			clear(-1, -1, -1, true, false, false);
 			
-			fFindManager.reset(false);
+			this.findManager.reset(false);
 		}
 	}
 	
 	public void setFilter(final String filter) {
-		synchronized (fFragmentsLock) {
-			if ((fFilter != null) ? fFilter.equals(filter) : null == filter) {
+		synchronized (this.fragmentsLock) {
+			if ((this.filter != null) ? this.filter.equals(filter) : null == filter) {
 				return;
 			}
-			fFilter = filter;
+			this.filter= filter;
 			
 			clear(-1, -1, -1, false, true, false);
 			
-			fFindManager.reset(true);
+			this.findManager.reset(true);
 			
-			fFragmentsLock.scheduleUpdate(null, null);
+			this.fragmentsLock.scheduleUpdate(null, null, null);
 		}
 	}
 	
+	public String getFilter() {
+		return this.filter;
+	}
 	
 	
 	public void addFindListener(final IFindListener listener) {
-		fFindManager.addFindListener(listener);
+		this.findManager.addFindListener(listener);
 	}
 	
 	public void removeFindListener(final IFindListener listener) {
-		fFindManager.removeFindListener(listener);
+		this.findManager.removeFindListener(listener);
 	}
 	
 	public void find(final FindTask task) {
-		fFindManager.find(task);
+		this.findManager.find(task);
+	}
+	
+	
+	public long[] toDataIdxs(final long columnIndex, final long rowIndex) {
+		if (getFilter() != null || getSortColumn() != null) {
+			if (this.rowDataProvider instanceof AbstractRDataProvider.RowDataProvider) {
+				final long rowIdx= ((AbstractRDataProvider.RowDataProvider) this.rowDataProvider)
+						.getRowIdx(rowIndex);
+				return new long[] { columnIndex, rowIdx };
+			}
+			return new long[] { columnIndex, -2 };
+		}
+		return new long[] { columnIndex, rowIndex };
 	}
 	
 	
 	public void addDataChangedListener(final IDataProviderListener listener) {
-		fDataListeners.add(listener);
+		this.dataListeners.add(listener);
 	}
 	
 	public void removeDataChangedListener(final IDataProviderListener listener) {
-		fDataListeners.remove(listener);
+		this.dataListeners.remove(listener);
 	}
 	
 	protected void notifyListener(final LazyRStore.Fragment<?> item) {
 		try {
-			for (final IDataProviderListener listener : fDataListeners.toArray()) {
+			for (final IDataProviderListener listener : this.dataListeners.toArray()) {
 				listener.onRowsChanged(item.getRowBeginIdx(), item.getRowEndIdx());
 			}
 		}
@@ -1275,14 +1360,14 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	
 	public void reset() {
 		clear(Lock.PAUSE_STATE);
-		synchronized (fInitRunnable) {
-			if (fInitScheduled) {
+		synchronized (this.fInitRunnable) {
+			if (this.initScheduled) {
 				return;
 			}
-			fInitScheduled = true;
+			this.initScheduled= true;
 		}
 		try {
-			final IStatus status = ((RToolDataTableInput) fInput).getTool().getQueue().add(fInitRunnable);
+			final IStatus status= this.input.getTool().getQueue().add(this.fInitRunnable);
 			if (status.getSeverity() >= IStatus.ERROR) {
 				throw new CoreException(status);
 			}
@@ -1298,31 +1383,31 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	private void clear(final int newState, final long filteredRowCount, final long fullRowCount,
 			final boolean updateSorting, final boolean updateFiltering,
 			final boolean clearFind) {
-		synchronized (fFragmentsLock) {
-			fDataStore.clear(filteredRowCount);
-			if (fRowDataProvider instanceof AbstractRDataProvider<?>.RowDataProvider) {
-				((RowDataProvider) fRowDataProvider).fRowNamesStore.clear(filteredRowCount);
+		synchronized (this.fragmentsLock) {
+			this.dataStore.clear(filteredRowCount);
+			if (this.rowDataProvider instanceof AbstractRDataProvider<?>.RowDataProvider) {
+				((RowDataProvider) this.rowDataProvider).fRowNamesStore.clear(filteredRowCount);
 			}
-			fUpdateSorting |= updateSorting;
-			fUpdateFiltering |= updateFiltering;
+			this.updateSorting |= updateSorting;
+			this.updateFiltering |= updateFiltering;
 			
-			if (newState >= 0 && fFragmentsLock.state < Lock.ERROR_STATE) {
-				fFragmentsLock.state = newState;
+			if (newState >= 0 && this.fragmentsLock.state < Lock.ERROR_STATE) {
+				this.fragmentsLock.state= newState;
 			}
 			if (filteredRowCount >= 0) {
-				fRowCount = filteredRowCount;
-				fFullRowCount = fullRowCount;
+				this.rowCount= filteredRowCount;
+				this.fullRowCount= fullRowCount;
 			}
 			
 			if (clearFind) {
-				fFindManager.clear(newState);
+				this.findManager.clear(newState);
 			}
 		}
 	}
 	
 	public void dispose() {
-		fDisposeScheduled = true;
-		schedule(fCleanRunnable);
+		this.disposeScheduled= true;
+		schedule(this.fCleanRunnable);
 	}
 	
 }

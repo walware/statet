@@ -20,9 +20,9 @@ import de.walware.ecommons.ts.IToolService;
 import de.walware.statet.nico.core.runtime.IConsoleRunnable;
 import de.walware.statet.nico.core.runtime.SubmitType;
 
+import de.walware.statet.r.console.core.AbstractRController;
 import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.console.core.RWorkspace;
-import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.IRSrcref;
 
 
@@ -93,11 +93,12 @@ public class SubmitEntireCommandRunnable implements IConsoleRunnable {
 	public void run(final IToolService service,
 			final IProgressMonitor monitor) throws CoreException {
 		final AbstractRController r = (AbstractRController) service;
+		r.briefAboutToChange();
 		try {
 			r.submitCommandToConsole(fLines, fSrcref, monitor);
 		}
 		finally {
-			r.briefAboutChange(RWorkspace.REFRESH_AUTO);
+			r.briefChanged(RWorkspace.REFRESH_AUTO);
 		}
 	}
 	

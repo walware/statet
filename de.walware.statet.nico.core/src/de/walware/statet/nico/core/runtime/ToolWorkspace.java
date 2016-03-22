@@ -36,7 +36,7 @@ import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
 import de.walware.ecommons.runtime.core.util.PathUtils;
-import de.walware.ecommons.ts.ISystemReadRunnable;
+import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolService;
 import de.walware.ecommons.variables.core.DateVariable;
@@ -46,7 +46,7 @@ import de.walware.ecommons.variables.core.TimeVariable;
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoVariables;
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
-import de.walware.statet.nico.internal.core.NicoPlugin;
+import de.walware.statet.nico.internal.core.NicoCorePlugin;
 
 
 /**
@@ -63,14 +63,6 @@ public class ToolWorkspace {
 	
 	
 	private class ControllerListener implements IToolStatusListener {
-		
-		@Override
-		public void controllerStatusRequested(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
-		}
-		
-		@Override
-		public void controllerStatusRequestCanceled(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
-		}
 		
 		@Override
 		public void controllerStatusChanged(final ToolStatus oldStatus, final ToolStatus newStatus, final List<DebugEvent> eventCollection) {
@@ -95,7 +87,7 @@ public class ToolWorkspace {
 		
 	}
 	
-	private class AutoUpdater implements ISystemReadRunnable {
+	private class AutoUpdater implements ISystemRunnable {
 		
 		
 		@Override
@@ -165,6 +157,8 @@ public class ToolWorkspace {
 	private boolean isRefreshing;
 	
 	private final ImList<IDynamicVariable> stringVariables;
+	
+	private int changeFlags;
 	
 	
 	public ToolWorkspace(final ToolController controller,
@@ -254,6 +248,19 @@ public class ToolWorkspace {
 	}
 	
 	protected void refreshFromTool(final int options, final IConsoleService s, final IProgressMonitor monitor) throws CoreException {
+	}
+	
+	
+	protected final int getChangeFlags() {
+		return this.changeFlags;
+	}
+	
+	protected void controlBriefChanged(final Object obj, final int flags) {
+		this.changeFlags|= flags;
+	}
+	
+	protected void clearBriefedChanges() {
+		this.changeFlags= 0;
 	}
 	
 	public final String getLineSeparator() {
@@ -486,7 +493,7 @@ public class ToolWorkspace {
 				listener.propertyChanged(ToolWorkspace.this, this.properties);
 			}
 			catch (final Exception e) {
-				NicoPlugin.logError(ICommonStatusConstants.INTERNAL_PLUGGED_IN, "An unexpected exception was thrown when notifying a tool workspace listener about changes.", e);
+				NicoCorePlugin.logError(ICommonStatusConstants.INTERNAL_PLUGGED_IN, "An unexpected exception was thrown when notifying a tool workspace listener about changes.", e);
 			}
 		}
 		this.properties.clear();

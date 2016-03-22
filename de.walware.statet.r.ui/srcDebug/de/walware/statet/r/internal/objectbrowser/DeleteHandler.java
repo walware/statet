@@ -83,13 +83,14 @@ class DeleteHandler extends AbstractHandler {
 		@Override
 		protected void run(final IRDataAdapter r,
 				final IProgressMonitor monitor) throws CoreException {
+			r.briefAboutToChange();
 			try {
 				for (int i = 0; i < this.names.size(); i++) {
 					r.evalVoid(this.commands.get(i), monitor);
 				}
 			}
 			finally {
-				r.briefAboutChange(this.topEnvirs, 0);
+				r.briefChanged(this.topEnvirs, 0);
 			}
 		}
 		
@@ -165,12 +166,12 @@ class DeleteHandler extends AbstractHandler {
 			final ICombinedRElement element = ContentProvider.getCombinedRElement(treePath.getLastSegment());
 			final ICombinedRElement parent = element.getModelParent();
 			
-			final RElementName elementName = this.view.getElementName(treePath);
+			final RElementName elementName = this.view.getFQElementName(treePath);
 			if (parent != null && elementName != null) {
 				final RElementName topName;
 				switch (parent.getRObjectType()) {
 				case RObject.TYPE_ENV: {
-					final RElementName envirName = (treePath.getSegmentCount() > 1) ? this.view.getElementName(treePath.getParentPath()) : parent.getElementName();
+					final RElementName envirName = (treePath.getSegmentCount() > 1) ? this.view.getFQElementName(treePath.getParentPath()) : parent.getElementName();
 					final IElementName itemName = element.getElementName();
 					topName = elementName.getScope();
 					if (envirName != null) { // elementName ok => segmentName ok

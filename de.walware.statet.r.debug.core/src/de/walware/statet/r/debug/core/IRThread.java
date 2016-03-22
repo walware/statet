@@ -12,6 +12,10 @@
 package de.walware.statet.r.debug.core;
 
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
+import de.walware.ecommons.debug.core.eval.IEvaluationListener;
 
 
 /**
@@ -21,6 +25,16 @@ public interface IRThread extends IThread {
 	
 	
 	@Override
-	IRDebugTarget getDebugTarget();
+	@NonNull IRDebugTarget getDebugTarget();
+	
+	@Override
+	@Nullable IRStackFrame getTopStackFrame();
+	
+	void evaluate(@NonNull String expressionText, @NonNull IRStackFrame stackFrame,
+			boolean forceReevaluate, @NonNull IEvaluationListener listener);
+	
+	
+	@Override
+	<T> @Nullable T getAdapter(final Class<T> type);
 	
 }

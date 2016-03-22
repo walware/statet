@@ -63,7 +63,7 @@ public enum ToolStatus {
 	
 	/**
 	 * Returns if the status indicating that the tool is evaluating.
-	 * This is true for STARTING and STARTED_PROCESSING
+	 * This is true for STARTING and PROCESSING_STATE
 	 * 
 	 * @return if tool is running
 	 */
@@ -73,7 +73,7 @@ public enum ToolStatus {
 	
 	/**
 	 * Returns if the status indicating that the tool is waiting for user input.
-	 * This is true for STARTED_IDLING and STARTED_SUSPENDED
+	 * This is true for IDLING_STATE and STARTED_SUSPENDED
 	 * 
 	 * @return if tool is waiting
 	 */

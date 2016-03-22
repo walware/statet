@@ -15,9 +15,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 
+import de.walware.statet.r.console.core.AbstractRController;
 import de.walware.statet.r.debug.core.RDebugModel;
 import de.walware.statet.r.launching.core.ILaunchDelegateAddon;
-import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.AbstractRDbgController;
 
 

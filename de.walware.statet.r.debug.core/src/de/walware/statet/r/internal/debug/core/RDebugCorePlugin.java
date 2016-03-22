@@ -19,7 +19,7 @@ import org.osgi.framework.BundleContext;
 public class RDebugCorePlugin extends Plugin {
 	
 	
-	public static final String PLUGIN_ID = "de.walware.statet.r.debug.core"; //$NON-NLS-1$
+	public static final String PLUGIN_ID= "de.walware.statet.r.debug.core"; //$NON-NLS-1$
 	
 	
 	/** The shared instance */
@@ -35,14 +35,14 @@ public class RDebugCorePlugin extends Plugin {
 	}
 	
 	public static final void log(final IStatus status) {
-		final Plugin plugin = getDefault();
+		final Plugin plugin= getDefault();
 		if (plugin != null) {
 			plugin.getLog().log(status);
 		}
 	}
 	
 	
-	private boolean fStarted;
+	private boolean started;
 	
 	
 	/** Created via framework */
@@ -53,20 +53,20 @@ public class RDebugCorePlugin extends Plugin {
 	@Override
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
-		gPlugin = this;
+		gPlugin= this;
 		
-		fStarted = true;
+		this.started= true;
 	}
 	
 	@Override
 	public void stop(final BundleContext context) throws Exception {
 		try {
 			synchronized (this) {
-				fStarted = false;
+				this.started= false;
 			}
 		}
 		finally {
-			gPlugin = null;
+			gPlugin= null;
 			super.stop(context);
 		}
 	}

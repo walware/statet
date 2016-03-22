@@ -70,6 +70,7 @@ import de.walware.ecommons.FastList;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.ui.IElementNameProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
+import de.walware.ecommons.ltk.ui.sourceediting.assist.IInfoHover;
 import de.walware.ecommons.ltk.ui.util.ViewerDragSupport;
 import de.walware.ecommons.models.core.util.IElementPartition;
 import de.walware.ecommons.ts.ITool;
@@ -174,7 +175,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		private final ElementUpdater fUpdater = new ElementUpdater(IWorkbenchCommandConstants.FILE_REFRESH);
 		
 		public RefreshHandler() {
-			super(ObjectBrowserView.this, ObjectBrowserView.this.getSite());
+			super(ObjectBrowserView.this, getSite());
 			init();
 		}
 		
@@ -253,7 +254,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		@Override
 		public IElementName getElementName(final Object selectionElement) {
 			if (selectionElement instanceof TreePath) { 
-				return ObjectBrowserView.this.getElementName((TreePath) selectionElement);
+				return getFQElementName((TreePath) selectionElement);
 			}
 			return null;
 		}
@@ -276,7 +277,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	private class HoverManager extends ColumnHoverManager {
 		
 		HoverManager() {
-			super(fTreeViewer, fTokenOwner, new RElementInfoHoverCreator());
+			super(fTreeViewer, fTokenOwner, new RElementInfoHoverCreator(IInfoHover.MODE_TOOLTIP));
 			
 			final ColumnHoverStickyManager stickyManager = new ColumnHoverStickyManager(fTokenOwner, this);
 			getInternalAccessor().setInformationControlReplacer(stickyManager);
@@ -285,7 +286,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		@Override
 		protected Object prepareHoverInformation(final ViewerCell cell) {
 			final TreePath treePath = cell.getViewerRow().getTreePath();
-			final RElementName elementName = getElementName(treePath);
+			final RElementName elementName = getFQElementName(treePath);
 			if (elementName != null && elementName.getScope() != null) {
 				return elementName;
 			}
@@ -296,7 +297,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		protected Object getHoverInformation(final Object element) {
 			if (element instanceof RElementName && process != null) {
 				final RElementInfoTask updater = new RElementInfoTask((RElementName) element);
-				return updater.load(process, getSubjectControl());
+				return updater.load(getTool(), getSubjectControl(), ObjectBrowserView.this);
 			}
 			return null;
 		}
@@ -864,7 +865,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		if (selection.size() == 1) {
 			fCurrentInfoObject = selection.getFirstElement();
 			final TreePath treePath = selection.getPaths()[0];
-			final IElementName elementName = getElementName(treePath);
+			final IElementName elementName = getFQElementName(treePath);
 			final String name = (elementName != null) ? elementName.getDisplayName() : null;
 			if (name != null) {
 				if (fCurrentInfoObject.equals(previousInfoObject)) {
@@ -949,7 +950,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	}
 	
 	
-	public RElementName getElementName(final TreePath treePath) {
+	public RElementName getFQElementName(final TreePath treePath) {
 		if (treePath.getSegmentCount() == 0) {
 			return null;
 		}

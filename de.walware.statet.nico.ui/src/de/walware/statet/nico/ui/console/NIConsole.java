@@ -138,7 +138,7 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 		fDebugListener = new IDebugEventSetListener() {
 			@Override
 			public void handleDebugEvents(final DebugEvent[] events) {
-				EVENTS: for (final DebugEvent event : events) {
+				ITER_EVENTS: for (final DebugEvent event : events) {
 					if (event.getSource() == fProcess) {
 						switch (event.getKind()) {
 						case DebugEvent.CHANGE:
@@ -149,10 +149,10 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 									runSetName(attrChange[2]);
 								}
 							}
-							continue EVENTS;
+							continue ITER_EVENTS;
 						case DebugEvent.TERMINATE:
 							disconnect();
-							continue EVENTS;
+							continue ITER_EVENTS;
 						}
 					}
 				}

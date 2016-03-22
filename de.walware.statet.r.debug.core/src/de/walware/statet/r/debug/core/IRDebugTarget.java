@@ -12,6 +12,8 @@
 package de.walware.statet.r.debug.core;
 
 import org.eclipse.debug.core.model.IDebugTarget;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 import de.walware.statet.r.console.core.RProcess;
 
@@ -23,9 +25,13 @@ public interface IRDebugTarget extends IDebugTarget {
 	
 	
 	@Override
-	RProcess getProcess();
+	@NonNull RProcess getProcess();
 	
 	@Override
-	IRDebugTarget getDebugTarget();
+	@NonNull IRDebugTarget getDebugTarget();
+	
+	
+	@Override
+	<T> @Nullable T getAdapter(final Class<T> type);
 	
 }

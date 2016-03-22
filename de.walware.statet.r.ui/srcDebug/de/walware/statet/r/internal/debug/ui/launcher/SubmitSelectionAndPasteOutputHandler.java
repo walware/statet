@@ -179,6 +179,7 @@ public class SubmitSelectionAndPasteOutputHandler extends AbstractHandler {
 				}
 			};
 			final ToolController controller = r.getController();
+			r.briefAboutToChange();
 			try {
 				controller.getStreams().getOutputStreamMonitor().addListener(listener);
 				controller.getStreams().getErrorStreamMonitor().addListener(listener);
@@ -204,7 +205,7 @@ public class SubmitSelectionAndPasteOutputHandler extends AbstractHandler {
 				}
 			}
 			finally {
-				r.briefAboutChange(RWorkspace.REFRESH_AUTO);
+				r.briefChanged(RWorkspace.REFRESH_AUTO);
 				controller.getStreams().getOutputStreamMonitor().removeListener(listener);
 				controller.getStreams().getErrorStreamMonitor().removeListener(listener);
 				UIAccess.getDisplay().asyncExec(this);
@@ -229,11 +230,11 @@ public class SubmitSelectionAndPasteOutputHandler extends AbstractHandler {
 			}
 			
 			IWorkbenchSiteProgressService progressService = null;
-			final ISourceEditor editor = (ISourceEditor) fEditor.getAdapter(ISourceEditor.class);
+			final ISourceEditor editor = fEditor.getAdapter(ISourceEditor.class);
 			if (editor != null) {
 				final IServiceLocator serviceLocator = editor.getServiceLocator();
 				if (serviceLocator != null) {
-					progressService = (IWorkbenchSiteProgressService) serviceLocator.getService(IWorkbenchSiteProgressService.class);
+					progressService = serviceLocator.getService(IWorkbenchSiteProgressService.class);
 				}
 			}
 			if (progressService != null) {
@@ -287,7 +288,7 @@ public class SubmitSelectionAndPasteOutputHandler extends AbstractHandler {
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final IWorkbenchPart workbenchPart = HandlerUtil.getActivePart(event);
-		final ISourceEditor editor = (ISourceEditor) workbenchPart.getAdapter(ISourceEditor.class);
+		final ISourceEditor editor = workbenchPart.getAdapter(ISourceEditor.class);
 		if (editor != null) {
 			if (!editor.isEditable(true)) {
 				cancel(null, new Status(IStatus.ERROR, RUI.PLUGIN_ID,

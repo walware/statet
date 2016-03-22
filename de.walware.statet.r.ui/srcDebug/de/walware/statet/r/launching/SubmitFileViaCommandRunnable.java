@@ -23,9 +23,9 @@ import de.walware.ecommons.ts.ui.IToolRunnableDecorator;
 import de.walware.statet.nico.core.runtime.IConsoleRunnable;
 import de.walware.statet.nico.core.runtime.SubmitType;
 
+import de.walware.statet.r.console.core.AbstractRController;
 import de.walware.statet.r.console.core.RConsoleTool;
 import de.walware.statet.r.console.core.RWorkspace;
-import de.walware.statet.r.nico.AbstractRController;
 
 
 public class SubmitFileViaCommandRunnable implements IConsoleRunnable, IToolRunnableDecorator {
@@ -81,11 +81,12 @@ public class SubmitFileViaCommandRunnable implements IConsoleRunnable, IToolRunn
 	public void run(final IToolService service,
 			final IProgressMonitor monitor) throws CoreException {
 		final AbstractRController r = (AbstractRController) service;
+		r.briefAboutToChange();
 		try {
 			r.submitFileCommandToConsole(new String[] { fCommand }, fSourceUnit, monitor);
 		}
 		finally {
-			r.briefAboutChange(RWorkspace.REFRESH_AUTO);
+			r.briefChanged(RWorkspace.REFRESH_AUTO);
 		}
 	}
 	

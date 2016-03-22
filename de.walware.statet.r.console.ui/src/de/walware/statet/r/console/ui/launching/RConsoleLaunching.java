@@ -26,9 +26,9 @@ import de.walware.statet.nico.ui.util.QuitHandler;
 import de.walware.statet.nico.ui.util.ReportStatusHandler;
 import de.walware.statet.nico.ui.util.RunBlockingHandler;
 
+import de.walware.statet.r.console.core.AbstractRController;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.renv.IREnv;
-import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.ui.dataeditor.ShowElementCommandHandler;
 import de.walware.statet.r.ui.graphics.RGraphicCommandHandler;
 import de.walware.statet.r.ui.pkgmanager.RPkgUICommandHandler;

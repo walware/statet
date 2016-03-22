@@ -40,6 +40,10 @@ public class RDebugUIPlugin extends AbstractUIPlugin {
 	public static final String IMG_OBJ_R_BREAKPOINT_DISABLED= R_IMAGES_ID + "/obj/r_breakpoint.disabled"; //$NON-NLS-1$
 	public static final String IMG_OBJ_R_TOPLEVEL_BREAKPOINT= R_IMAGES_ID + "/obj/r_toplevel_breakpoint"; //$NON-NLS-1$
 	public static final String IMG_OBJ_R_TOPLEVEL_BREAKPOINT_DISABLED= R_IMAGES_ID + "/obj/r_toplevel_breakpoint.disabled"; //$NON-NLS-1$
+	public static final String IMG_OBJ_R_EXCEPTION_BREAKPOINT= R_IMAGES_ID + "/obj/r_exception"; //$NON-NLS-1$
+	public static final String IMG_OBJ_R_EXCEPTION_BREAKPOINT_DISABLED= R_IMAGES_ID + "/obj/r_exception.disabled"; //$NON-NLS-1$
+	
+	public static final String IMG_OBJ_R_INSPECT_EXPRESSION= R_IMAGES_ID + "/obj/r_inspect_expression"; //$NON-NLS-1$
 	
 	public static final String IMG_OBJ_R_SOURCE_FROM_RUNTIME= R_IMAGES_ID + "/obj/r_source.runtime"; //$NON-NLS-1$
 	
@@ -120,6 +124,10 @@ public class RDebugUIPlugin extends AbstractUIPlugin {
 		util.register(IMG_OBJ_R_BREAKPOINT_DISABLED, ImageRegistryUtil.T_OBJ, "r_breakpoint-disabled.png"); //$NON-NLS-1$
 		util.register(IMG_OBJ_R_TOPLEVEL_BREAKPOINT, ImageRegistryUtil.T_OBJ, "r_toplevel_breakpoint.png"); //$NON-NLS-1$
 		util.register(IMG_OBJ_R_TOPLEVEL_BREAKPOINT_DISABLED, ImageRegistryUtil.T_OBJ, "r_toplevel_breakpoint-disabled.png"); //$NON-NLS-1$
+		util.register(IMG_OBJ_R_EXCEPTION_BREAKPOINT, ImageRegistryUtil.T_OBJ, "r_exception.png"); //$NON-NLS-1$
+		util.register(IMG_OBJ_R_EXCEPTION_BREAKPOINT_DISABLED, ImageRegistryUtil.T_OBJ, "r_exception-disabled.png"); //$NON-NLS-1$
+		
+		util.register(IMG_OBJ_R_INSPECT_EXPRESSION, ImageRegistryUtil.T_OBJ, "r_insp_expression.png"); //$NON-NLS-1$
 		
 		util.register(IMG_OBJ_R_SOURCE_FROM_RUNTIME, ImageRegistryUtil.T_OBJ, "r_source-runtime.png"); //$NON-NLS-1$
 	}

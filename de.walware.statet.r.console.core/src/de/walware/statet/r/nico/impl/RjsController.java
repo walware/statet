@@ -92,14 +92,16 @@ import de.walware.rj.server.dbg.CtrlReport;
 import de.walware.rj.server.dbg.DbgEnablement;
 import de.walware.rj.server.dbg.DbgFilterState;
 import de.walware.rj.server.dbg.DbgRequest;
-import de.walware.rj.server.dbg.ElementTracepointInstallationReport;
 import de.walware.rj.server.dbg.ElementTracepointInstallationRequest;
+import de.walware.rj.server.dbg.FlagTracepointInstallationRequest;
 import de.walware.rj.server.dbg.FrameContext;
 import de.walware.rj.server.dbg.FrameContextDetailRequest;
 import de.walware.rj.server.dbg.SetDebugReport;
 import de.walware.rj.server.dbg.SetDebugRequest;
 import de.walware.rj.server.dbg.SrcfileData;
 import de.walware.rj.server.dbg.TracepointEvent;
+import de.walware.rj.server.dbg.TracepointInstallationReport;
+import de.walware.rj.server.dbg.TracepointInstallationRequest;
 import de.walware.rj.server.dbg.TracepointStatesUpdate;
 import de.walware.rj.services.FunctionCall;
 import de.walware.rj.services.RGraphicCreator;
@@ -123,6 +125,7 @@ import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.tool.IRConsoleService;
 import de.walware.statet.r.internal.console.core.RConsoleCorePlugin;
 import de.walware.statet.r.internal.nico.RNicoMessages;
 import de.walware.statet.r.internal.rdata.CombinedElement;
@@ -409,7 +412,7 @@ public class RjsController extends AbstractRDbgController
 		
 		@Override
 		protected void scheduleConnectionCheck() {
-			synchronized (fQueue) {
+			synchronized (getQueue()) {
 				if (getStatusL().isWaiting()) {
 					scheduleControllerRunnable(new ControllerSystemRunnable(
 							"r/check", "Connection Check") { //$NON-NLS-1$
@@ -478,7 +481,7 @@ public class RjsController extends AbstractRDbgController
 		fRArgs = rArgs;
 		fRjsProperties = (rjsProperties != null) ? rjsProperties : new HashMap<String, Object>();
 		
-		fTrackingConfigurations = trackingConfigurations;
+		setTracksConfig(trackingConfigurations);
 		
 		setWorksapceData(new RWorkspace(this,
 				(embedded || address.isLocalHost()) ? null :
@@ -517,7 +520,7 @@ public class RjsController extends AbstractRDbgController
 		case STARTED_PROCESSING:
 		case STARTED_PAUSED:
 			monitor.beginTask("Disconnecting from R remote engine...", 1);
-			synchronized (fQueue) {
+			synchronized (getQueue()) {
 				beginInternalTask();
 			}
 			try {
@@ -530,7 +533,7 @@ public class RjsController extends AbstractRDbgController
 						"Disconnecting from R remote engine failed.", e));
 			}
 			finally {
-				synchronized (fQueue) {
+				synchronized (getQueue()) {
 					scheduleControllerRunnable(new ControllerSystemRunnable(
 							"common/disconnect/finish", "Disconnect") { //$NON-NLS-1$
 						
@@ -680,9 +683,9 @@ public class RjsController extends AbstractRDbgController
 			
 			initTracks(info.getDirectory(), monitor, warnings);
 			
-			if (fStartup && !fStartupsRunnables.isEmpty()) {
-				fQueue.add(fStartupsRunnables);
-				fStartupsRunnables.clear();
+			if (fStartup && !this.startupsRunnables.isEmpty()) {
+				getQueue().add(this.startupsRunnables);
+				this.startupsRunnables.clear();
 			}
 			
 			if (!fStartup) {
@@ -707,6 +710,8 @@ public class RjsController extends AbstractRDbgController
 						final IProgressMonitor monitor) throws CoreException {
 					if (!fRjs.isConsoleReady()) { // R is still working
 						fRjs.runMainLoop(null, null, monitor);
+						
+						briefChanged(IRConsoleService.AUTO_CHANGE);
 					}
 					for (final IStatus status : warnings) {
 						handleStatus(status, monitor);
@@ -921,11 +926,19 @@ public class RjsController extends AbstractRDbgController
 	}
 	
 	@Override
-	public ElementTracepointInstallationReport exec(
-			final ElementTracepointInstallationRequest request,
+	public TracepointInstallationReport exec(final TracepointInstallationRequest request,
 			final IProgressMonitor monitor) throws CoreException {
-		return (ElementTracepointInstallationReport) fRjs.execSyncDbgOp(
-				DbgCmdItem.OP_INSTALL_TP_POSITIONS, request, monitor );
+		if (request instanceof FlagTracepointInstallationRequest) {
+			return (TracepointInstallationReport) fRjs.execSyncDbgOp(
+					DbgCmdItem.OP_INSTALL_TP_FLAGS, request, monitor );
+		}
+		else if (request instanceof ElementTracepointInstallationRequest) {
+			return (TracepointInstallationReport) fRjs.execSyncDbgOp(
+					DbgCmdItem.OP_INSTALL_TP_POSITIONS, request, monitor );
+		}
+		else {
+			throw new IllegalArgumentException("request type not supported");
+		}
 	}
 	
 	@Override
@@ -1001,7 +1014,7 @@ public class RjsController extends AbstractRDbgController
 					final List<RObject> elementIndexes= new ArrayList<>(elements.size());
 					for (final IRLangSourceElement element : elements) {
 						if (TAG_ELEMENT_FILTER.include(element)) {
-							final FDef fdef = (FDef) element.getAdapter(FDef.class);
+							final FDef fdef = element.getAdapter(FDef.class);
 							if (fdef != null) {
 								final String elementId = RDbg.getElementId(element);
 								final RAstNode cont = fdef.getContChild();
@@ -1033,7 +1046,7 @@ public class RjsController extends AbstractRDbgController
 		fCurrentInput = lines[0];
 		doBeforeSubmitL();
 		for (int i = 1; i < lines.length; i++) {
-			setCurrentPromptL(fContinuePromptText, addToHistory);
+			setCurrentPromptL(this.continuePromptText, addToHistory);
 			fCurrentInput = lines[i];
 			doBeforeSubmitL();
 		}
@@ -1060,7 +1073,7 @@ public class RjsController extends AbstractRDbgController
 					final List<RObject> elementIndexes= new ArrayList<>(elements.size());
 					
 					for (final IRLangSourceElement element : elements) {
-						final FDef fdef = (FDef) element.getAdapter(FDef.class);
+						final FDef fdef = element.getAdapter(FDef.class);
 						if (fdef != null) {
 							final String elementId = RDbg.getElementId(element);
 							final RAstNode cont = fdef.getContChild();
@@ -1119,6 +1132,12 @@ public class RjsController extends AbstractRDbgController
 	}
 	
 	@Override
+	public void evalVoid(final String command, final RObject envir,
+			final IProgressMonitor monitor) throws CoreException {
+		fRjs.evalVoid(command, envir, monitor);
+	}
+	
+	@Override
 	public RObject evalData(final String command, final IProgressMonitor monitor) throws CoreException {
 		return fRjs.evalData(command, null, null, 0, -1, monitor);
 	}
@@ -1129,6 +1148,7 @@ public class RjsController extends AbstractRDbgController
 		return fRjs.evalData(command, null, factoryId, options, depth, monitor);
 	}
 	
+	@Override
 	public RObject evalData(final String command, final RObject envir,
 			final String factoryId, final int options, final int depth,
 			final IProgressMonitor monitor) throws CoreException {
@@ -1146,6 +1166,7 @@ public class RjsController extends AbstractRDbgController
 		return fRjs.evalData(reference, factoryId, options, depth, monitor);
 	}
 	
+	@Override
 	public RObject[] findData(final String symbol, final RObject envir, final boolean inherits,
 			final String factoryId, final int options, final int depth,
 			final IProgressMonitor monitor) throws CoreException {
@@ -1160,12 +1181,15 @@ public class RjsController extends AbstractRDbgController
 				monitor );
 		if (data instanceof CombinedElement) {
 			final CombinedElement e = (CombinedElement) data;
-			e.setElementName(name);
+			if (name != null) {
+				e.setElementName(name);
+			}
 			return e;
 		}
 		return null;
 	}
 	
+	@Override
 	public ICombinedRElement evalCombinedStruct(final String command, final RObject envir,
 			final int options, final int depth, final RElementName name,
 			final IProgressMonitor monitor) throws CoreException {
@@ -1174,7 +1198,9 @@ public class RjsController extends AbstractRDbgController
 				monitor );
 		if (data instanceof CombinedElement) {
 			final CombinedElement e = (CombinedElement) data;
-			e.setElementName(name);
+			if (name != null) {
+				e.setElementName(name);
+			}
 			return e;
 		}
 		return null;
@@ -1234,7 +1260,9 @@ public class RjsController extends AbstractRDbgController
 		final RObject data = evalData(reference, CombinedFactory.FACTORY_ID, (options | RObjectFactory.F_ONLY_STRUCT), depth, monitor);
 		if (data instanceof CombinedElement) {
 			final CombinedElement e = (CombinedElement) data;
-			e.setElementName(name);
+			if (name != null) {
+				e.setElementName(name);
+			}
 			return e;
 		}
 		return null;

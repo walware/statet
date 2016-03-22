@@ -11,9 +11,12 @@
 
 package de.walware.statet.r.internal.debug.ui;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.osgi.util.NLS;
 
 
+@NonNullByDefault
+@SuppressWarnings("null")
 public class Messages extends NLS {
 	
 	
@@ -33,6 +36,8 @@ public class Messages extends NLS {
 	public static String MethodBreakpoint_Exit_label;
 	
 	public static String Hyperlink_StepInto_label;
+	
+	public static String Expression_Context_Missing_message;
 	
 	
 	static {

@@ -46,78 +46,6 @@ public class ToolProcess extends AbstractProcess implements IProcess, ITool, ITo
 	public static final String PROCESS_TYPE_SUFFIX = ".nico"; //$NON-NLS-1$
 	
 	
-	public static final int TYPE_MASK = 0x00f000;
-	public static final int STATUS =    0x001000;
-	public static final int REQUEST =   0x002000;
-	public static final int BUSY =      0x004000;
-	
-	private static final int PROCESS = 0x010;
-	private static final int IDLE = 0x020;
-	private static final int PAUSE = 0x040;
-	private static final int OTHER = 0x080;
-	private static final int TERMINATE = 0x0f0;
-	
-	
-	/**
-	 * Constant for detail of a DebugEvent, signalising that
-	 * the process/controller started to work/calculate.
-	 * 
-	 * Applicable for DebugEvents of kind <code>MODEL_SPECIFIC</code>.
-	 * The status can be ended by another status event or by a
-	 * DebugEvent of kind <code>TERMINATE</code>.
-	 */
-	public static final int STATUS_PROCESS = STATUS | PROCESS;
-	
-	/**
-	 * Constant for detail of a DebugEvent, signalising that
-	 * the process/controller switched into idle mode.
-	 * 
-	 * Applicable for DebugEvents of kind <code>MODEL_SPECIFIC</code>.
-	 * The status can be ended by another status event or by a
-	 * DebugEvent of kind <code>TERMINATE</code>.
-	 */
-	public static final int STATUS_IDLE = STATUS | IDLE;
-	
-	/**
-	 * Constant for detail of a DebugEvent, signalising that
-	 * the process/controller was paused.
-	 * 
-	 * Applicable for DebugEvents of kind <code>MODEL_SPECIFIC</code>.
-	 * The status can be ended by another status event or by a
-	 * DebugEvent of kind <code>TERMINATE</code>.
-	 */
-	public static final int STATUS_PAUSE = STATUS | PAUSE;
-	
-	
-	public static final int REQUEST_PAUSE = REQUEST | PAUSE | 0x1;
-	public static final int REQUEST_PAUSE_CANCELED = REQUEST | PAUSE | 0x2;
-	
-	public static final int REQUEST_TERMINATE = REQUEST | TERMINATE | 0x1;
-	public static final int REQUEST_TERMINATE_CANCELED = REQUEST | TERMINATE | 0x2;
-	
-	
-	public static ToolStatus getChangedToolStatus(final DebugEvent event) {
-		switch (event.getKind()) {
-		case DebugEvent.CREATE:
-			return ToolStatus.STARTING;
-		case DebugEvent.MODEL_SPECIFIC:
-			switch (event.getDetail()) {
-			case STATUS_PROCESS:
-				return ToolStatus.STARTED_PROCESSING;
-			case STATUS_IDLE:
-				return ToolStatus.STARTED_IDLING;
-			case STATUS_PAUSE:
-				return ToolStatus.STARTED_PAUSED;
-			default:
-				return null;
-			}
-		case DebugEvent.TERMINATE:
-			return ToolStatus.TERMINATED;
-		default:
-			return null;
-		}
-	}
-	
 	public static final int EXITCODE_DISCONNECTED = 101;
 	
 	
@@ -373,59 +301,15 @@ public class ToolProcess extends AbstractProcess implements IProcess, ITool, ITo
 	}
 	
 	
-	@Override
-	public void controllerStatusRequested(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
-		switch(requestedStatus) {
-		case STARTED_PAUSED:
-			eventCollection.add(new DebugEvent(ToolProcess.this,
-					DebugEvent.MODEL_SPECIFIC, REQUEST_PAUSE) );
-			break;
-		case TERMINATED:
-			eventCollection.add(new DebugEvent(ToolProcess.this,
-					DebugEvent.MODEL_SPECIFIC, REQUEST_TERMINATE) );
-			break;
-		}
-	}
-	
-	@Override
-	public void controllerStatusRequestCanceled(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
-		switch(requestedStatus) {
-		case STARTED_PAUSED:
-			eventCollection.add(new DebugEvent(ToolProcess.this,
-					DebugEvent.MODEL_SPECIFIC, REQUEST_PAUSE_CANCELED) );
-			break;
-		case TERMINATED:
-			eventCollection.add(new DebugEvent(ToolProcess.this,
-					DebugEvent.MODEL_SPECIFIC, REQUEST_TERMINATE_CANCELED) );
-			break;
-		}
-	}
-	
 	/** Called by Controller */
 	@Override
-	public void controllerStatusChanged(final ToolStatus oldStatus, final ToolStatus newStatus, final List<DebugEvent> eventCollection) {
+	public void controllerStatusChanged(final ToolStatus oldStatus, final ToolStatus newStatus,
+			final List<DebugEvent> eventCollection) {
 		fStatus = newStatus;
-		switch(newStatus) {
 		
-		case STARTED_PROCESSING:
-			eventCollection.add(new DebugEvent(ToolProcess.this,
-					DebugEvent.MODEL_SPECIFIC, STATUS_PROCESS) );
-			break;
-		case STARTED_IDLING:
-		case STARTED_SUSPENDED:
-			eventCollection.add(new DebugEvent(ToolProcess.this,
-					DebugEvent.MODEL_SPECIFIC, STATUS_IDLE) );
-			break;
-		case STARTED_PAUSED:
-			eventCollection.add(new DebugEvent(ToolProcess.this,
-					DebugEvent.MODEL_SPECIFIC, STATUS_PAUSE) );
-			break;
-			
-		case TERMINATED:
+		if (newStatus == ToolStatus.TERMINATED) {
 			fController = null;
-			eventCollection.add(new DebugEvent(ToolProcess.this,
-					DebugEvent.TERMINATE) );
-			break;
+			eventCollection.add(new DebugEvent(ToolProcess.this, DebugEvent.TERMINATE));
 		}
 		
 		final Map<String, String> attributes= getAttributes(true);

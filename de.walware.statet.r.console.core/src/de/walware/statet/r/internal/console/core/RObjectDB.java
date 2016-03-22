@@ -34,6 +34,7 @@ import de.walware.rj.data.RVector;
 import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.services.RService;
 
+import de.walware.statet.r.console.core.AbstractRController;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedRList;
@@ -42,7 +43,6 @@ import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.internal.rdata.REnvironmentVar;
 import de.walware.statet.r.internal.rdata.RReferenceVar;
 import de.walware.statet.r.internal.rdata.VirtualMissingVar;
-import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.ICombinedRDataAdapter;
 
 
@@ -207,7 +207,7 @@ public class RObjectDB {
 		if (this.envsMap != null && !this.envsMap.isEmpty() && !this.lazyEnvs.isEmpty()) {
 			this.envsMap.keySet().removeAll(this.lazyEnvs);
 		}
-		this.lazyEnvsStamp= r.getCounter();
+		this.lazyEnvsStamp= r.getChangeStamp();
 		final Set<Long> list= r.getLazyEnvironments(monitor);
 		this.lazyEnvs= (list != null && !list.isEmpty()) ? list : NO_ENVS_SET;
 	}
@@ -274,7 +274,7 @@ public class RObjectDB {
 	
 	private void updateSearchList(final IProgressMonitor monitor) throws CoreException,
 			UnexpectedRDataException {
-		this.searchEnvsStamp= this.r.getController().getCounter();
+		this.searchEnvsStamp= this.r.getChangeStamp();
 		this.searchEnvs= new ArrayList<>();
 		this.searchEnvsPublic= Collections.unmodifiableList(this.searchEnvs);
 		final RVector<RCharacterStore> searchObj= RDataUtil.checkRCharVector(
@@ -377,7 +377,7 @@ public class RObjectDB {
 //					System.out.println(robject);
 					if (robject != null && robject.getRObjectType() == RObject.TYPE_ENV) {
 						final REnvironmentVar newEnv= (REnvironmentVar) robject;
-						newEnv.setSource(this.r.getTool(), this.r.getController().getCounter(),
+						newEnv.setSource(this.r.getTool(), this.r.getChangeStamp(),
 								loadOptions );
 						this.searchEnvs.set(idx, newEnv);
 						updateEnvs.add(newEnv);
@@ -529,7 +529,7 @@ public class RObjectDB {
 			
 			{	final REnvironmentVar env= this.envsMap.get(handle);
 				if (env != null) {
-					if (this.cacheMode || env.getStamp() == this.r.getController().getCounter()) {
+					if (this.cacheMode || env.getStamp() == this.r.getChangeStamp()) {
 						return env;
 					}
 					// we are about to replace an environment because of wrong stamp
@@ -545,7 +545,7 @@ public class RObjectDB {
 				final List<String> forcePkgNames= this.forceUpdatePkgNames;
 				final String pkgName;
 				if (env != null
-						&& (this.cacheMode || env.getStamp() == this.r.getController().getCounter())
+						&& (this.cacheMode || env.getStamp() == this.r.getChangeStamp())
 						&& (forcePkgNames == null || (pkgName= getPkgName(env)) == null 
 								|| !forcePkgNames.contains(pkgName) )) {
 					registerEnv(handle, env, false);
@@ -581,11 +581,14 @@ public class RObjectDB {
 				if (handle == null && env.getHandle() != 0) {
 					handle= Long.valueOf(env.getHandle());
 				}
-				env.setSource(this.r.getTool(), this.r.getController().getCounter(),
+				env.setSource(this.r.getTool(), this.r.getChangeStamp(),
 						loadOptions );
 				registerEnv(handle, env, true);
 				check(env, monitor);
 				return env;
+			}
+			if (element instanceof ICombinedRList) {
+				check((ICombinedRList) element, monitor);
 			}
 			return element;
 		}
@@ -594,7 +597,7 @@ public class RObjectDB {
 					&&fullName.getNextSegment() == null
 					&& RElementName.isPackageFacetScopeType(fullName.getType()) ) {
 				final VirtualMissingVar na= new VirtualMissingVar(fullName,
-						this.r.getTool(), this.r.getController().getCounter());
+						this.r.getTool(), this.r.getChangeStamp());
 				registerNA(na);
 			}
 			

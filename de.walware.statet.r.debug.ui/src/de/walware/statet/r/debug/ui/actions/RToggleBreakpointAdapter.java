@@ -369,7 +369,7 @@ public class RToggleBreakpointAdapter implements IToggleBreakpointsTargetExtensi
 	private IRLineBreakpoint findFirst(final Data data, final int lineNumber, final String type,
 			final IRBreakpoint last)
 			throws CoreException {
-		final List<IRLineBreakpoint> breakpoints = RDebugModel.getRLineBreakpoints(
+		final List<IRLineBreakpoint> breakpoints = RDebugModel.getLineBreakpoints(
 				(IFile) data.getSourceUnit().getResource() );
 		if (breakpoints.isEmpty()) {
 			return null;

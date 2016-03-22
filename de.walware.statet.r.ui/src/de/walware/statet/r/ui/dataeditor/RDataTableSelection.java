@@ -24,7 +24,8 @@ public class RDataTableSelection implements ISelection {
 	private final String fLastSelectedCellColumnLabel;
 	
 	
-	public RDataTableSelection(final String anchorRowLabel, final String anchorColumnLabel,
+	public RDataTableSelection(
+			final String anchorRowLabel, final String anchorColumnLabel,
 			final String lastSelectedCellRowLabel, final String lastSelectedCellColumnLabel) {
 		fAnchorRowLabel = anchorRowLabel;
 		fAnchorColumnLabel = anchorColumnLabel;
@@ -37,6 +38,7 @@ public class RDataTableSelection implements ISelection {
 	public boolean isEmpty() {
 		return (fAnchorRowLabel == null);
 	}
+	
 	
 	public String getAnchorRowLabel() {
 		return fAnchorRowLabel;

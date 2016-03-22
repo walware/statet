@@ -281,6 +281,28 @@
             </with>
          </or>
       </definition>
+      <definition
+            id="de.walware.statet.r.expressions.isPartActive.RSourceEditor">
+         <with
+               variable="activePart">
+            <adapt
+                  type="de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor">
+               <instanceof
+                     value="de.walware.statet.r.ui.editors.IRSourceEditor"/>
+            </adapt>
+         </with>
+      </definition>
+      <definition
+            id="de.walware.statet.r.expressions.isEditorActive.RSourceEditor">
+         <with
+               variable="activeEditor">
+            <adapt
+                  type="de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor">
+               <instanceof
+                     value="de.walware.statet.r.ui.editors.IRSourceEditor"/>
+            </adapt>
+         </with>
+      </definition>
    </extension>
    <extension
          point="org.eclipse.ui.contexts">

@@ -16,7 +16,7 @@ import static org.eclipse.nebula.widgets.nattable.coordinate.Orientation.VERTICA
 
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.value.WritableValue;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.nebula.widgets.nattable.coordinate.Orientation;
 import org.eclipse.nebula.widgets.nattable.coordinate.Range;
 import org.eclipse.nebula.widgets.nattable.viewport.IViewportDim;
@@ -40,17 +40,17 @@ public class GotoCellDialog extends ExtStatusDialog {
 	
 	private final RDataTableComposite table;
 	
-	private final Text[] indexControls = new Text[2];
+	private final Text[] indexControls= new Text[2];
 	
-	private final Range[] indexRanges = new Range[2]; // 0-based
-	private final WritableValue[] indexValues = new WritableValue[2]; // 1-based
+	private final Range[] indexRanges= new Range[2]; // 0-based
+	private final WritableValue[] indexValues= new WritableValue[2]; // 1-based
 	
 	
 	
 	public GotoCellDialog(final RDataTableComposite table) {
 		super(table.getShell(), WITH_DATABINDING_CONTEXT);
 		
-		this.table = table;
+		this.table= table;
 		
 		setTitle("Go to Cell");
 		setBlockOnOpen(true);
@@ -58,11 +58,11 @@ public class GotoCellDialog extends ExtStatusDialog {
 		setHelpAvailable(false);
 		
 		for (final Orientation orientation : Orientation.values()) {
-			final IViewportDim viewportDim = this.table.getViewport(orientation);
-			this.indexRanges[orientation.ordinal()] = new Range(
+			final IViewportDim viewportDim= this.table.getViewport(orientation);
+			this.indexRanges[orientation.ordinal()]= new Range(
 					viewportDim.getMinimumOriginPosition(),
 					viewportDim.getScrollable().getPositionCount() );
-			this.indexValues[orientation.ordinal()] = new WritableValue(
+			this.indexValues[orientation.ordinal()]= new WritableValue(
 					Long.valueOf(viewportDim.getOriginPosition() + 1), Long.TYPE );
 		}
 	}
@@ -70,27 +70,27 @@ public class GotoCellDialog extends ExtStatusDialog {
 	
 	@Override
 	protected Control createDialogArea(final Composite parent) {
-		final Composite composite = new Composite(parent, SWT.NONE);
+		final Composite composite= new Composite(parent, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		composite.setLayout(LayoutUtil.createDialogGrid(2));
 		
-		{	final Label label = new Label(composite, SWT.NONE);
+		{	final Label label= new Label(composite, SWT.NONE);
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			label.setText("&Row index:");
 			
-			final Text text = new Text(composite, SWT.BORDER | SWT.SINGLE);
+			final Text text= new Text(composite, SWT.BORDER | SWT.SINGLE);
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			indexControls[VERTICAL.ordinal()] = text;
+			this.indexControls[VERTICAL.ordinal()]= text;
 		}
-		{	final Label label = new Label(composite, SWT.NONE);
+		{	final Label label= new Label(composite, SWT.NONE);
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			label.setText("Co&lumn index:");
 			
-			final Text text = new Text(composite, SWT.BORDER | SWT.SINGLE);
-			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-			gd.widthHint = LayoutUtil.hintWidth(text, 25);
+			final Text text= new Text(composite, SWT.BORDER | SWT.SINGLE);
+			final GridData gd= new GridData(SWT.FILL, SWT.CENTER, true, false);
+			gd.widthHint= LayoutUtil.hintWidth(text, 25);
 			text.setLayoutData(gd);
-			indexControls[HORIZONTAL.ordinal()] = text;
+			this.indexControls[HORIZONTAL.ordinal()]= text;
 		}
 		
 		applyDialogFont(composite);
@@ -100,14 +100,14 @@ public class GotoCellDialog extends ExtStatusDialog {
 	@Override
 	protected void addBindings(final DataBindingSupport db) {
 		for (final Orientation orientation : Orientation.values()) {
-			final Range range = this.indexRanges[orientation.ordinal()];
+			final Range range= this.indexRanges[orientation.ordinal()];
 			db.getContext().bindValue(
-					SWTObservables.observeText(this.indexControls[orientation.ordinal()], SWT.Modify),
+					WidgetProperties.text(SWT.Modify).observe(this.indexControls[orientation.ordinal()]),
 					this.indexValues[orientation.ordinal()],
 					new UpdateValueStrategy().setAfterGetValidator(new LongValidator(
 							(range.start + 1), range.end,
 							"Invalid " + getLabel(orientation) + " index (" + (range.start + 1) + "\u2013" + range.end + ").")),
-							null );
+					null );
 			this.indexControls[orientation.ordinal()].selectAll();
 		}
 	}
@@ -117,9 +117,9 @@ public class GotoCellDialog extends ExtStatusDialog {
 	}
 	
 	
-	public void set(final Orientation orientation, final long index) {
-		if (this.indexRanges[orientation.ordinal()].contains(index)) {
-			this.indexValues[orientation.ordinal()].setValue(Long.valueOf(index + 1));
+	public void set(final Orientation orientation, final long idx) {
+		if (this.indexRanges[orientation.ordinal()].contains(idx)) {
+			this.indexValues[orientation.ordinal()].setValue(Long.valueOf(idx + 1));
 		}
 	}
 	

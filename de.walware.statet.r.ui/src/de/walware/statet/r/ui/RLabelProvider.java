@@ -26,7 +26,7 @@ import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.graphics.Image;
 
-import de.walware.ecommons.debug.ui.WaDebugImages;
+import de.walware.ecommons.debug.ui.ECommonsDebugUIResources;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.LTKUtil;
 import de.walware.ecommons.ltk.core.model.IModelElement;
@@ -156,7 +156,22 @@ public class RLabelProvider extends StyledCellLabelProvider
 	}
 	
 	private Image getImage(final ICombinedRElement element) {
-		switch (element.getRObjectType()) {
+		int rObjectType;
+		RObject rObject;
+		if (element.getRObjectType() == RObject.TYPE_REFERENCE) {
+			final RReference ref= (RReference) element;
+			rObjectType= ref.getReferencedRObjectType();
+			rObject= ref.getResolvedRObject();
+			if (rObjectType == 0) {
+				rObjectType= (rObject != null) ? rObject.getRObjectType() : RObject.TYPE_REFERENCE;
+			}
+		}
+		else {
+			rObjectType= element.getRObjectType();
+			rObject= element;
+		}
+		
+		switch (rObjectType) {
 		case RObject.TYPE_NULL:
 			return RUI.getImage(RUI.IMG_OBJ_NULL);
 		case RObject.TYPE_FUNCTION:
@@ -176,7 +191,8 @@ public class RLabelProvider extends StyledCellLabelProvider
 						RUI.getImage(RUI.IMG_OBJ_S4OBJ_DATAFRAME_COLUMN) : RUI.getImage(RUI.IMG_OBJ_S4OBJ_VECTOR);
 			}
 			return RUI.getImage(RUI.IMG_OBJ_S4OBJ);
-		case RObject.TYPE_ENV: {
+		case RObject.TYPE_ENV:
+			if (rObject instanceof REnvironment) {
 				final REnvironment renv= (REnvironment) element;
 				switch (renv.getSpecialType()) {
 				case REnvironment.ENVTYPE_GLOBAL:
@@ -350,7 +366,7 @@ public class RLabelProvider extends StyledCellLabelProvider
 			if (scope == null) {
 				final IModelElement parent= element.getModelParent();
 				if (parent != null) {
-					final IRFrame frame= (IRFrame) parent.getAdapter(IRFrame.class);
+					final IRFrame frame= parent.getAdapter(IRFrame.class);
 					if (frame != null) {
 						scope= frame.getElementName();
 					}
@@ -529,7 +545,8 @@ public class RLabelProvider extends StyledCellLabelProvider
 	}
 	
 	public void update(final ViewerCell cell, final IElementPartition partition, final IModelElement element) {
-		cell.setImage(WaDebugImages.getImageRegistry().get(WaDebugImages.OBJ_VARIABLE_PARTITION));
+		cell.setImage(ECommonsDebugUIResources.INSTANCE.getImage(
+				ECommonsDebugUIResources.OBJ_VARIABLE_PARTITION ));
 		
 		final StyledString text= new StyledString();
 		text.append("["); //$NON-NLS-1$

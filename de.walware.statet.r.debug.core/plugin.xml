@@ -87,6 +87,16 @@
       </attribute>
    </extension>
    <extension
+         point="org.eclipse.core.resources.markers"
+         id="de.walware.statet.r.debug.markers.RExceptionBreakpoint">
+      <super
+            type="de.walware.statet.r.debug.markers.RBreakpoint">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+   <extension
          point="org.eclipse.debug.core.breakpoints">
       <breakpoint
             id="de.walware.statet.r.debug.breakpoints.RLineBreakpoint"
@@ -100,6 +110,12 @@
             markerType="de.walware.statet.r.debug.markers.RMethodBreakpoint"
             name="%breakpoints_RMethodBreakpoint_name">
       </breakpoint>
+      <breakpoint
+            id="de.walware.statet.r.debug.breakpoints.RExceptionBreakpoint"
+            class="de.walware.statet.r.internal.debug.core.breakpoints.RExceptionBreakpoint"
+            markerType="de.walware.statet.r.debug.markers.RExceptionBreakpoint"
+            name="%breakpoints_RExceptionBreakpoint_name">
+      </breakpoint>
    </extension>
    <extension
          point="org.eclipse.debug.core.sourceLocators">
@@ -108,6 +124,24 @@
             class="de.walware.statet.r.debug.core.sourcelookup.RSourceLookupDirector"
             name="%sourceLocators_RSourceLocator_name">
       </sourceLocator>
+   </extension>
+   
+<!-- expressions -->
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.eclipse.debug.core.model.IExpression"
+            class="de.walware.statet.r.internal.debug.core.eval.ExpressionAdapterFactory">
+         <adapter
+               type="de.walware.statet.r.debug.core.IRVariable"/>
+      </factory>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.watchExpressionDelegates">
+      <watchExpressionDelegate
+            debugModel="de.walware.statet.r.debug"
+            delegateClass="de.walware.statet.r.internal.debug.core.eval.RWatchExpressionDelegate">
+      </watchExpressionDelegate>
    </extension>
    
 <!-- sourcelookup -->

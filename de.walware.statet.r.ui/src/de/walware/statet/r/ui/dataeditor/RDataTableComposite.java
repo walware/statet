@@ -114,6 +114,7 @@ import de.walware.statet.r.internal.ui.dataeditor.RDataFrameDataProvider;
 import de.walware.statet.r.internal.ui.dataeditor.RDataTableContentDescription;
 import de.walware.statet.r.internal.ui.dataeditor.RMatrixDataProvider;
 import de.walware.statet.r.internal.ui.dataeditor.RVectorDataProvider;
+import de.walware.statet.r.internal.ui.dataeditor.ResolveCellIndexes;
 import de.walware.statet.r.internal.ui.intable.InfoString;
 import de.walware.statet.r.internal.ui.intable.PresentationConfig;
 import de.walware.statet.r.internal.ui.intable.RDataLayer;
@@ -158,6 +159,28 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		
 	}
 	
+	private class SetAnchorByDataIndexes extends ResolveCellIndexes {
+		
+		public SetAnchorByDataIndexes(final AbstractRDataProvider<?> dataProvider) {
+			super(dataProvider);
+		}
+		
+		
+		@Override
+		protected void execute(final long columnIndex, final long rowIndex) {
+			fDisplay.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					if (getDataProvider() != RDataTableComposite.this.fDataProvider) {
+						return;
+					}
+					setAnchorViewIdxs(columnIndex, rowIndex);
+				}
+			});
+		}
+		
+	}
+	
 	
 	private final Display fDisplay;
 	
@@ -197,6 +220,8 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	private final FastList<IRDataTableListener> fTableListeners= new FastList<>(IRDataTableListener.class);
 	
 	private final RDataFormatter fFormatter = new RDataFormatter();
+	
+	private ResolveCellIndexes setAnchorByData;
 	
 	private final FindListener fFindListener = new FindListener();
 	
@@ -665,9 +690,10 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			fTable.dispose();
 			fTable = null;
 			fDataProvider = null;
+			this.setAnchorByData= null;
 		}
 		if (input != null) {
-			showDummy("Preparing (" + input.getLastName() + ")...");
+			showDummy("Preparing (" + input.getName() + ")...");
 			try {
 				final IToolRunnable runnable = new ISystemRunnable() {
 					
@@ -678,7 +704,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 					
 					@Override
 					public String getLabel() {
-						return "Prepare Data Viewer (" + input.getLastName() + ")";
+						return "Prepare Data Viewer (" + input.getName() + ")";
 					}
 					
 					@Override
@@ -768,7 +794,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 						});
 					}
 				};
-				final IStatus status = ((RToolDataTableInput) input).getTool().getQueue().add(runnable);
+				final IStatus status= input.getTool().getQueue().add(runnable);
 				if (status.getSeverity() >= IStatus.ERROR) {
 					throw new CoreException(status);
 				}
@@ -868,56 +894,70 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	}
 	
 	public void selectColumns(final Collection<Range> indexes) {
-		if (fTable != null) {
+		if (this.fTable != null) {
 			final RangeList columns = RangeList.toRangeList(indexes);
 //			final long rowIndex = fTableBodyLayerStack.getViewportLayer().getRowIndexByPosition(0);
 			final long rowIndex = 0;
-			fTable.doCommand(new SelectColumnsCommand(fTableLayers.selectionLayer,
+			this.fTable.doCommand(new SelectColumnsCommand(this.fTableLayers.selectionLayer,
 					columns, rowIndex, 0,
 					!(columns.isEmpty()) ? columns.values().first() : SelectionLayer.NO_SELECTION ));
 		}
 	}
 	
-	public long[] getAnchor() {
-		final PositionCoordinate coordinate = fTableLayers.selectionLayer.getSelectionAnchor();
-		if (coordinate.columnPosition < 0 || coordinate.rowPosition < 0) {
-			return null;
+	public void setAnchorViewIdxs(final long columnIndex, final long rowIndex) {
+		if (this.fTable != null) {
+			this.fTableLayers.selectionLayer.setSelectionAnchor(columnIndex, rowIndex, true);
 		}
-		return new long[] { coordinate.columnPosition, coordinate.rowPosition };
 	}
 	
-	public void setAnchor(final long columnIndex, final long rowIndex) {
-		fTableLayers.selectionLayer.setSelectionAnchor(columnIndex, rowIndex, true);
+	public long[] getAnchorDataIdxs() {
+		if (this.fTable != null) {
+			final PositionCoordinate coordinate= this.fTableLayers.selectionLayer.getSelectionAnchor();
+			if (coordinate.columnPosition < 0 || coordinate.rowPosition < 0) {
+				return null;
+			}
+			return this.fDataProvider.toDataIdxs(coordinate.columnPosition, coordinate.rowPosition);
+		}
+		return null;
+	}
+	
+	public void setAnchorDataIdxs(final long columnIdx, final long rowIdx) {
+		if (this.fTable != null) {
+			if (this.setAnchorByData == null) {
+				this.setAnchorByData= new SetAnchorByDataIndexes(this.fDataProvider);
+			}
+			this.setAnchorByData.resolve(columnIdx, rowIdx);
+		}
 	}
 	
 	public void selectAll() {
-		if (fTable != null) {
-			fTable.doCommand(new SelectAllCommand());
+		if (this.fTable != null) {
+			this.fTable.doCommand(new SelectAllCommand());
 		}
 	}
 	
 	public void sortByColumn(final long index, final boolean increasing) {
-		if (fTable != null) {
-			final ISortModel sortModel = fDataProvider.getSortModel();
+		if (this.fTable != null) {
+			final ISortModel sortModel = this.fDataProvider.getSortModel();
 			if (sortModel != null) {
 				sortModel.sort(
 						index, increasing ? SortDirectionEnum.ASC : SortDirectionEnum.DESC, false );
-				fTableLayers.topColumnHeaderLayer.fireLayerEvent(new SortColumnEvent(
-						fTableLayers.topColumnHeaderLayer, 0) ); //
+				this.fTableLayers.topColumnHeaderLayer.fireLayerEvent(
+						new SortColumnEvent(this.fTableLayers.topColumnHeaderLayer, 0) );
 			}
 		}
 	}
 	
 	public void clearSorting() {
-		if (fTable != null) {
-			fTable.doCommand(new ClearSortCommand());
+		if (this.fTable != null) {
+			this.fTable.doCommand(new ClearSortCommand());
 		}
 	}
 	
 	public void refresh() {
-		if (fTable != null) {
-			fDataProvider.reset();
-			fTable.redraw();
+		if (this.fTable != null) {
+			this.fDataProvider.reset();
+			this.fTable.redraw();
 		}
 	}
 	

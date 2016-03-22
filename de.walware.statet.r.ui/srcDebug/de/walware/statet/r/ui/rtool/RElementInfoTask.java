@@ -19,9 +19,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.IWorkbenchPart;
 
 import de.walware.ecommons.text.TextUtil;
-import de.walware.ecommons.ts.ISystemReadRunnable;
+import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 
 import de.walware.statet.nico.core.runtime.SubmitType;
@@ -52,13 +53,16 @@ import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.nico.impl.RjsController;
 
 
-public class RElementInfoTask extends AbstractRDataRunnable implements ISystemReadRunnable {
+public class RElementInfoTask extends AbstractRDataRunnable implements ISystemRunnable {
 	
 	
 	public static class RElementInfoData {
 		
 		
 		private Control control;
+		public IWorkbenchPart workbenchPart;
+		
+		private ITool tool;
 		
 		private ICombinedRElement element;
 		private RElementName elementName;
@@ -75,6 +79,15 @@ public class RElementInfoTask extends AbstractRDataRunnable implements ISystemRe
 		public Control getControl() {
 			return this.control;
 		}
+		
+		public IWorkbenchPart getWorkbenchPart() {
+			return this.workbenchPart;
+		}
+		
+		public ITool getTool() {
+			return this.tool;
+		}
+		
 		
 		public ICombinedRElement getElement() {
 			return this.element;
@@ -131,7 +144,8 @@ public class RElementInfoTask extends AbstractRDataRunnable implements ISystemRe
 		return true;
 	}
 	
-	public RElementInfoData load(final ITool tool, final Control control) {
+	public RElementInfoData load(final ITool tool, final Control control,
+			final IWorkbenchPart workbenchPart) {
 		if (!NicoUITools.isToolReady(RConsoleTool.TYPE, RConsoleTool.R_DATA_FEATURESET_ID, tool)) {
 			return null;
 		}
@@ -160,6 +174,8 @@ public class RElementInfoTask extends AbstractRDataRunnable implements ISystemRe
 		final RElementInfoData data= this.data;
 		if (data != null && data.element != null) {
 			data.control= control;
+			data.workbenchPart= workbenchPart;
+			data.tool= tool;
 			return data;
 		}
 		return null;
@@ -221,6 +237,9 @@ public class RElementInfoTask extends AbstractRDataRunnable implements ISystemRe
 			envir= null;
 		}
 		else {
+			return;
+		}
+		if (name == null) {
 			return;
 		}
 		
@@ -390,11 +409,7 @@ public class RElementInfoTask extends AbstractRDataRunnable implements ISystemRe
 		}
 		final List<RElementName> segments= new ArrayList<>();
 		segments.add(envName);
-		RElementName a= this.elementName;
-		while (a != null) {
-			segments.add(a);
-			a= a.getNextSegment();
-		}
+		RElementName.addSegments(segments, this.elementName);
 		final RElementName name= RElementName.create(segments);
 		if (name.getScope() == null) {
 			return false;

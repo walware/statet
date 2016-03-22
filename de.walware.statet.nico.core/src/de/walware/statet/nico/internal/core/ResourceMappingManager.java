@@ -206,7 +206,7 @@ public class ResourceMappingManager implements IResourceMappingManager {
 			}
 		}
 		catch (final BackingStoreException e) {
-			NicoPlugin.logError(-1, "Failed to load resource mappings.", e);
+			NicoCorePlugin.logError(-1, "Failed to load resource mappings.", e);
 		}
 	}
 	
@@ -259,7 +259,7 @@ public class ResourceMappingManager implements IResourceMappingManager {
 			}
 		}
 		catch (final BackingStoreException e) {
-			NicoPlugin.logError(-1, "Failed to save resource mappings.", e);
+			NicoCorePlugin.logError(-1, "Failed to save resource mappings.", e);
 		}
 	}
 	
@@ -274,7 +274,7 @@ public class ResourceMappingManager implements IResourceMappingManager {
 				return new ResourceMapping(id, local, host, remote);
 			}
 			catch (final CoreException e) {
-				NicoPlugin.logError(-1, NLS.bind("Failed to load resource mapping: ''{0}''.", id), e);
+				NicoCorePlugin.logError(-1, NLS.bind("Failed to load resource mapping: ''{0}''.", id), e);
 			}
 		}
 		return null;

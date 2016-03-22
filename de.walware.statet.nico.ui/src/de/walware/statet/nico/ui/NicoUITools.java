@@ -42,6 +42,7 @@ import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.ui.IToolRunnableDecorator;
 
+import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
@@ -85,8 +86,10 @@ public class NicoUITools {
 						case DebugEvent.TERMINATE:
 							DebugPlugin.getDefault().removeDebugEventListener(this);
 							break;
-						case DebugEvent.MODEL_SPECIFIC:
-							// register and open console
+						}
+					}
+					if (event.getSource() == process.getQueue()) {
+						if (Queue.isStateChange(event)) {
 							DebugPlugin.getDefault().removeDebugEventListener(this);
 							ConsolePlugin.getDefault().getConsoleManager().addConsoles(
 									new IConsole[] { console });

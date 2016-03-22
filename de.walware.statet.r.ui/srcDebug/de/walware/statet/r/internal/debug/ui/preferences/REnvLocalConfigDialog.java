@@ -78,7 +78,7 @@ import de.walware.jcommons.collections.ImList;
 
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.debug.core.util.LaunchUtils;
-import de.walware.ecommons.debug.ui.ProcessOutputCollector;
+import de.walware.ecommons.debug.ui.util.ProcessOutputCollector;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ui.components.ButtonGroup;
 import de.walware.ecommons.ui.components.DataAdapter;

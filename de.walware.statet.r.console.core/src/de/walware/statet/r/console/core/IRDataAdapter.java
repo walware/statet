@@ -11,6 +11,10 @@
 
 package de.walware.statet.r.console.core;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+
+import de.walware.rj.data.RObject;
 import de.walware.rj.services.RService;
 
 import de.walware.statet.r.core.tool.IRConsoleService;
@@ -23,5 +27,9 @@ import de.walware.statet.r.core.tool.IRConsoleService;
  */
 public interface IRDataAdapter extends IRBasicAdapter, IRConsoleService {
 	
+	
+	RObject[] findData(final String symbol, final RObject envir, final boolean inherits,
+			final String factoryId, final int options, final int depth,
+			final IProgressMonitor monitor) throws CoreException;
 	
 }

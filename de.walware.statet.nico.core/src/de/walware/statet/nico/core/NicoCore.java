@@ -19,8 +19,6 @@ import de.walware.jcommons.collections.ImCollections;
 import de.walware.ecommons.preferences.core.IPreferenceAccess;
 import de.walware.ecommons.preferences.core.util.PreferenceUtils;
 
-import de.walware.statet.nico.internal.core.NicoPlugin;
-
 
 public class NicoCore {
 	
@@ -57,14 +55,6 @@ public class NicoCore {
 	 */
 	public static IPreferenceAccess getInstanceConsolePreferences() {
 		return CONSOLE_PREF_ACCESS;
-	}
-	
-	public static void addToolLifeListener(final IToolLifeListener listener) {
-		NicoPlugin.getDefault().getToolLifecycle().addToolLifeListener(listener);
-	}
-	
-	public static void removeToolLifeListener(final IToolLifeListener listener) {
-		NicoPlugin.getDefault().getToolLifecycle().removeToolLifeListener(listener);
 	}
 	
 	

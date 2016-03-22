@@ -48,7 +48,7 @@ public class RunHelpSearchInR extends AbstractRCommandHandler {
 				return null;
 			}
 		}
-		runCommand("help.search(\""+RUtil.escapeDoubleQuote(text)+"\")", false); //$NON-NLS-1$ //$NON-NLS-2$
+		runCommand("help.search(\""+RUtil.escapeForDQuote(text)+"\")", false); //$NON-NLS-1$ //$NON-NLS-2$
 		return null;
 	}
 	

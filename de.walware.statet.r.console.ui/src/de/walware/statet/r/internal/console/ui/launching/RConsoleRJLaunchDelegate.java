@@ -35,7 +35,7 @@ import org.osgi.framework.Version;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.core.util.LaunchUtils;
-import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
+import de.walware.ecommons.debug.ui.util.UnterminatedLaunchAlerter;
 import de.walware.ecommons.net.RMIAddress;
 import de.walware.ecommons.net.RMIRegistry;
 import de.walware.ecommons.net.RMIUtil;
@@ -57,6 +57,7 @@ import de.walware.rj.server.srvext.ServerUtil;
 
 import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RProcess;
+import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.console.ui.RConsole;
 import de.walware.statet.r.console.ui.launching.RConsoleLaunching;
 import de.walware.statet.r.console.ui.tools.REnvAutoUpdater;
@@ -127,30 +128,36 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			final IRDataAdapter r = (IRDataAdapter) service;
-			final Version rVersion = r.getPlatform().getRVersion();
-			if (rVersion.compareTo(VERSION_2_12_0) < 0) {
-				r.evalVoid("library('rj')", monitor); //$NON-NLS-1$
-			}
-			else {
-				r.evalVoid("library('rj', quietly= TRUE)", monitor); //$NON-NLS-1$
-			}
-			if (fEnableRHelp) {
-				r.evalVoid(".statet.reassignHelp()", monitor); //$NON-NLS-1$
-			}
-			if (fEnableRGraphics) {
-				try {
-					r.evalVoid("rj.gd:::.rj.getGDVersion()", monitor); //$NON-NLS-1$
-					r.evalVoid("options(device=rj.gd::rj.GD)", monitor); //$NON-NLS-1$
+			r.briefAboutToChange();
+			try {
+				final Version rVersion = r.getPlatform().getRVersion();
+				if (rVersion.compareTo(VERSION_2_12_0) < 0) {
+					r.evalVoid("library('rj')", monitor); //$NON-NLS-1$
 				}
-				catch (final CoreException e) {
-					r.handleStatus(new Status(IStatus.INFO, RConsoleUIPlugin.PLUGIN_ID,
-							"The graphic device for the R Graphic view cannot be initialized. " +
-							"Is the R package 'rj.gd' installed?", e),
-							monitor );
+				else {
+					r.evalVoid("library('rj', quietly= TRUE)", monitor); //$NON-NLS-1$
+				}
+				if (fEnableRHelp) {
+					r.evalVoid(".statet.reassignHelp()", monitor); //$NON-NLS-1$
+				}
+				if (fEnableRGraphics) {
+					try {
+						r.evalVoid("rj.gd:::.rj.getGDVersion()", monitor); //$NON-NLS-1$
+						r.evalVoid("options(device=rj.gd::rj.GD)", monitor); //$NON-NLS-1$
+					}
+					catch (final CoreException e) {
+						r.handleStatus(new Status(IStatus.INFO, RConsoleUIPlugin.PLUGIN_ID,
+								"The graphic device for the R Graphic view cannot be initialized. " +
+								"Is the R package 'rj.gd' installed?", e),
+								monitor );
+					}
+				}
+				if (fEnableRDbgExt) {
+					r.evalVoid(".statet.initDebug()", monitor); //$NON-NLS-1$
 				}
 			}
-			if (fEnableRDbgExt) {
-				r.evalVoid(".statet.initDebug()", monitor); //$NON-NLS-1$
+			finally {
+				r.briefChanged(RWorkspace.REFRESH_COMPLETE);
 			}
 		}
 		
@@ -323,7 +330,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 				if (processes[0].isTerminated()) {
 					final boolean silent = configuration.getAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, true);
 					final IStatus logStatus = ToolRunner.createOutputLogStatus(
-							(ILogOutput) processes[0].getAdapter(ILogOutput.class) );
+							processes[0].getAdapter(ILogOutput.class) );
 					// move to R server?
 					final StringBuilder sb = new StringBuilder();
 					sb.append("Launching the R Console was cancelled, because it seems starting the R engine failed. \n");

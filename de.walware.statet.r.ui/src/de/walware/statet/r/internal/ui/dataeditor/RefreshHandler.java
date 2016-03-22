@@ -25,13 +25,13 @@ public class RefreshHandler extends AbstractHandler {
 	
 	
 	public RefreshHandler(final RDataTableComposite tableProvider) {
-		fTableComposite = tableProvider;
+		this.fTableComposite = tableProvider;
 	}
 	
 	
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		fTableComposite.refresh();
+		this.fTableComposite.refresh();
 		return null;
 	}
 	

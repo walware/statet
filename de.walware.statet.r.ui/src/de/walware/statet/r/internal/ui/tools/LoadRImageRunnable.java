@@ -65,10 +65,14 @@ public class LoadRImageRunnable implements IToolRunnable {
 	public void run(final IToolService service,
 			final IProgressMonitor monitor) throws CoreException {
 		final IRBasicAdapter r = (IRBasicAdapter) service;
-		final String toolPath = r.getWorkspaceData().toToolPath(fDataFile);
-		final String command = "load(\"" + RUtil.escapeCompletely(toolPath) + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
-		r.submitToConsole(command, monitor);
-		r.refreshWorkspaceData(RWorkspace.REFRESH_AUTO, monitor);
+		try {
+			final String toolPath = r.getWorkspaceData().toToolPath(fDataFile);
+			final String command = "load(\"" + RUtil.escapeCompletely(toolPath) + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
+			r.submitToConsole(command, monitor);
+		}
+		finally {
+			r.refreshWorkspaceData(RWorkspace.REFRESH_AUTO, monitor);
+		}
 	}
 	
 }

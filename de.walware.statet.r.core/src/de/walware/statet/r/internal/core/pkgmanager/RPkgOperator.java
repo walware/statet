@@ -224,6 +224,7 @@ public class RPkgOperator {
 	void loadPkgs(final List<? extends IRPkgInfoAndData> pkgs, final boolean expliciteLocation,
 			final IRConsoleService r, final IProgressMonitor monitor) throws CoreException {
 		fR = r;
+		fR.briefAboutToChange();
 		try {
 			final StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < pkgs.size(); i++) {
@@ -244,7 +245,7 @@ public class RPkgOperator {
 			};
 		}
 		finally {
-			fR.briefAboutChange(0x1); // auto
+			fR.briefChanged(0x1); // auto
 			fR = null;
 		}
 	}

@@ -14,7 +14,7 @@ package de.walware.statet.r.launching.core;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
-import de.walware.statet.r.nico.AbstractRController;
+import de.walware.statet.r.console.core.AbstractRController;
 
 
 public interface ILaunchDelegateAddon {

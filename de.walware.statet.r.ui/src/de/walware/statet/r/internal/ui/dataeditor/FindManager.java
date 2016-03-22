@@ -37,6 +37,7 @@ import de.walware.rj.services.FunctionCall;
 import de.walware.rj.services.RService;
 import de.walware.rj.services.utils.dataaccess.LazyRStore;
 import de.walware.rj.services.utils.dataaccess.LazyRStore.Fragment;
+import de.walware.rj.services.utils.dataaccess.RDataAssignment;
 
 import de.walware.statet.r.internal.ui.dataeditor.IFindListener.FindEvent;
 import de.walware.statet.r.ui.RUI;
@@ -44,9 +45,9 @@ import de.walware.statet.r.ui.RUI;
 
 class FindManager {
 	
-	private static final int FIND_CELL = 1;
-	private static final int FIND_ROW = 2;
-	private static final int FIND_ERROR = -1;
+	private static final int FIND_CELL= 1;
+	private static final int FIND_ROW= 2;
+	private static final int FIND_ERROR= -1;
 	
 	
 	private class FindLock extends Lock implements LazyRStore.Updater<RObject> {
@@ -54,19 +55,20 @@ class FindManager {
 		boolean scheduled;
 		
 		@Override
-		public void scheduleUpdate(final LazyRStore<RObject> store, final LazyRStore.Fragment<RObject> fragment) {
-			if (fragment != null && state > 0) {
+		public void scheduleUpdate(final LazyRStore<RObject> store,
+				final RDataAssignment assignment, final LazyRStore.Fragment<RObject> fragment) {
+			if (fragment != null && this.state > 0) {
 				return;
 			}
-			if (!scheduled) {
-				scheduled = true;
-				fDataProvider.schedule(fFindRunnable);
+			if (!this.scheduled) {
+				this.scheduled= true;
+				FindManager.this.dataProvider.schedule(FindManager.this.findRunnable);
 			}
 		}
 		
 	}
 	
-	private final IToolRunnable fFindRunnable = new ISystemRunnable() {
+	private final IToolRunnable findRunnable= new ISystemRunnable() {
 		
 		@Override
 		public String getTypeId() {
@@ -75,7 +77,7 @@ class FindManager {
 		
 		@Override
 		public String getLabel() {
-			return "Find Data (" + fDataProvider.fInput.getLastName() + ")";
+			return "Find Data (" + FindManager.this.dataProvider.getInput().getName() + ")";
 		}
 		
 		@Override
@@ -90,9 +92,9 @@ class FindManager {
 				return false;
 			case REMOVING_FROM:
 			case BEING_ABANDONED:
-				synchronized (fLock) {
-					fLock.scheduled = false;
-					fLock.notifyAll();
+				synchronized (FindManager.this.lock) {
+					FindManager.this.lock.scheduled= false;
+					FindManager.this.lock.notifyAll();
 				}
 				break;
 			default:
@@ -110,87 +112,95 @@ class FindManager {
 	};
 	
 	
-	private FindTask fScheduledTask;
+	private FindTask scheduledTask;
 	
-	private String fRCacheFind; // only in R jobs
-	private FindTask fCurrentTask;
-	private int fActiveMode;
-	private String fActiveExpression;
-	private long fFindTotalCount;
-	private long fFindFilteredCount;
-	private long fFindLastMatchIdx;
+	private String rCacheFind; // only in R jobs
+	private FindTask currentTask;
+	private int activeMode;
+	private String activeExpression;
+	private long findTotalCount;
+	private long findFilteredCount;
+	private long findLastMatchIdx;
 	
-	private final FindLock fLock = new FindLock();
-	private final LazyRStore<RObject> fFindStore;
+	private final FindLock lock= new FindLock();
+	private final LazyRStore<RObject> findStore;
 	
-	private final FastList<IFindListener> fListeners= new FastList<>(IFindListener.class);
+	private final FastList<IFindListener> listeners= new FastList<>(IFindListener.class);
 	
-	private final AbstractRDataProvider<?> fDataProvider;
+	private final AbstractRDataProvider<?> dataProvider;
 	
 	
 	public FindManager(final AbstractRDataProvider<?> dataProvider) {
-		fDataProvider = dataProvider;
+		this.dataProvider= dataProvider;
 		
-		fFindStore= new LazyRStore<>(0, 1, 5, fLock);
+		this.findStore= new LazyRStore<>(0, 1, 5, this.lock);
 	}
 	
 	
 	public void addFindListener(final IFindListener listener) {
-		fListeners.add(listener);
+		this.listeners.add(listener);
 	}
 	
 	public void removeFindListener(final IFindListener listener) {
-		fListeners.remove(listener);
+		this.listeners.remove(listener);
 	}
 	
 	void clean(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
-		if (fRCacheFind != null) {
-			AbstractRDataProvider.cleanTmp(fRCacheFind, r, monitor);
-			fRCacheFind = null;
+		if (this.rCacheFind != null) {
+			AbstractRDataProvider.cleanTmp(this.rCacheFind, r, monitor);
+			this.rCacheFind= null;
 		}
 	}
 	
 	void clear(final int newState) {
-		synchronized (fLock) {
-			fScheduledTask = null;
-			fFindStore.clear(0);
-			fActiveExpression = null;
-			fFindLastMatchIdx = -1;
+		clear(newState, true);
+	}
+	void clear(final int newState, final boolean forceUpdate) {
+		synchronized (this.lock) {
+			this.scheduledTask= null;
+			if (!forceUpdate && this.findFilteredCount >= 0) {
+				this.findStore.clear(this.findFilteredCount);
+			}
+			else {
+				this.findStore.clear(0);
+				this.activeExpression= null;
+			}
+			this.findLastMatchIdx= -1;
 			
-			if (newState >= 0 && fLock.state < Lock.ERROR_STATE) {
-				fLock.state = newState;
+			if (newState >= 0 && this.lock.state < Lock.ERROR_STATE) {
+				this.lock.state= newState;
 			}
 		}
 		notifyListeners(null, new StatusInfo(IStatus.CANCEL, ""), -1, -1, -1);
 	}
 	
 	void reset(final boolean filter) {
-		synchronized (fLock) {
-			fScheduledTask = null;
-			fFindStore.clear(-1);
+		synchronized (this.lock) {
+			this.scheduledTask= null;
+			this.findStore.clear(-1);
 			if (filter) {
-				fFindFilteredCount = -1;
+				this.findFilteredCount= -1;
 			}
-			fFindLastMatchIdx = -1;
+			this.findLastMatchIdx= -1;
 			
-			if (fLock.state < Lock.LOCAL_PAUSE_STATE) {
-				fLock.state = Lock.LOCAL_PAUSE_STATE;
+			if (this.lock.state < Lock.LOCAL_PAUSE_STATE) {
+				this.lock.state= Lock.LOCAL_PAUSE_STATE;
 			}
 		}
 	}
 	
 	
 	public void find(final FindTask task) {
-		synchronized (fLock) {
-			fScheduledTask = task;
-			if (!task.equals(fCurrentTask)) {
-				clear(-1);
-				fScheduledTask = task;
-				if (fLock.state < Lock.LOCAL_PAUSE_STATE) {
-					fLock.state = Lock.LOCAL_PAUSE_STATE;
+		synchronized (this.lock) {
+			this.scheduledTask= task;
+			if (!task.equals(this.currentTask)) {
+				clear(-1, !task.expression.equals(this.activeExpression));
+				this.scheduledTask= task;
+				if (this.lock.state < Lock.LOCAL_PAUSE_STATE) {
+					this.lock.state= Lock.LOCAL_PAUSE_STATE;
 				}
 			}
-			if (fDataProvider.getLockState() > Lock.LOCAL_PAUSE_STATE) {
+			if (this.dataProvider.getLockState() > Lock.LOCAL_PAUSE_STATE) {
 				return;
 			}
 		}
@@ -204,19 +214,19 @@ class FindManager {
 	private void runFind(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
 		try {
 			final boolean updateFinding;
-			synchronized (fLock) {
-				fCurrentTask = fScheduledTask;
-				fLock.scheduled = false;
+			synchronized (this.lock) {
+				this.currentTask= this.scheduledTask;
+				this.lock.scheduled= false;
 				
-				if (fCurrentTask == null) {
+				if (this.currentTask == null) {
 					return;
 				}
-				updateFinding = !fCurrentTask.expression.equals(fActiveExpression);
-				if (fLock.state > Lock.LOCAL_PAUSE_STATE) {
+				updateFinding= !this.currentTask.expression.equals(this.activeExpression);
+				if (this.lock.state > Lock.LOCAL_PAUSE_STATE) {
 					return;
 				}
-				if (fLock.state == Lock.LOCAL_PAUSE_STATE && !updateFinding) {
-					fLock.state = 0;
+				if (this.lock.state == Lock.LOCAL_PAUSE_STATE && !updateFinding) {
+					this.lock.state= 0;
 				}
 			}
 			if (updateFinding) {
@@ -237,7 +247,7 @@ class FindManager {
 		}
 		catch (final CoreException e) {
 			if (e.getStatus().getSeverity() == IStatus.CANCEL) {
-				notifyListeners(fCurrentTask, new StatusInfo(IStatus.CANCEL, ""), //$NON-NLS-1$
+				notifyListeners(this.currentTask, new StatusInfo(IStatus.CANCEL, ""), //$NON-NLS-1$
 						-1, -1, -1 );
 			}
 			throw e;
@@ -249,96 +259,96 @@ class FindManager {
 	}
 	
 	private void updateFindingCache(final IRToolService r, final IProgressMonitor monitor) throws UnexpectedRDataException, CoreException {
-		int mode = 0;
-		long count = 0;
-		long filteredCount = 0;
+		int mode= 0;
+		long count= 0;
+		long filteredCount= 0;
 		try {
-			if (fRCacheFind == null) {
-				fRCacheFind = fDataProvider.createTmp(".find");
+			if (this.rCacheFind == null) {
+				this.rCacheFind= this.dataProvider.createTmp(".find");
 			}
 			final boolean runWhich;
-			{	final StringBuilder cmd = fDataProvider.getRCmdStringBuilder();
+			{	final StringBuilder cmd= this.dataProvider.getRCmdStringBuilder();
 				cmd.append("local({");
-				cmd.append("x <- ").append(fDataProvider.fInput.getFullName()).append("; ");
-				cmd.append("x.find <- (").append(fCurrentTask.expression).append("); ");
+				cmd.append("x <- ").append(this.dataProvider.getInput().getFullName()).append("; ");
+				cmd.append("x.find <- (").append(this.currentTask.expression).append("); ");
 				cmd.append("dimnames(").append("x.find").append(") <- NULL; ");
-				cmd.append("assign('").append(fRCacheFind).append("', envir= ").append(RJTmp.ENV).append(", value= x.find); ");
+				cmd.append("assign('").append(this.rCacheFind).append("', envir= ").append(RJTmp.ENV).append(", value= x.find); ");
 				cmd.append("})");
-				final RObject logi = r.evalData(cmd.toString(), null, RObjectFactory.F_ONLY_STRUCT, RService.DEPTH_ONE, monitor);
+				final RObject logi= r.evalData(cmd.toString(), null, RObjectFactory.F_ONLY_STRUCT, RService.DEPTH_ONE, monitor);
 				if (logi.getRObjectType() == RObject.TYPE_ARRAY
 						&& logi.getData().getStoreType() == RStore.LOGICAL
-						&& logi.getLength() == fDataProvider.getFullRowCount() * fDataProvider.getColumnCount()) {
-					mode = (fDataProvider.getColumnCount() == 1) ? FIND_ROW : FIND_CELL;
-					runWhich = true;
+						&& logi.getLength() == this.dataProvider.getFullRowCount() * this.dataProvider.getColumnCount()) {
+					mode= (this.dataProvider.getColumnCount() == 1) ? FIND_ROW : FIND_CELL;
+					runWhich= true;
 				}
 				else if (logi.getRObjectType() == RObject.TYPE_VECTOR
 						&& logi.getData().getStoreType() == RStore.LOGICAL
-						&& logi.getLength() == fDataProvider.getFullRowCount()) {
-					mode = FIND_ROW;
-					runWhich = true;
+						&& logi.getLength() == this.dataProvider.getFullRowCount()) {
+					mode= FIND_ROW;
+					runWhich= true;
 				}
 				else if (logi.getRObjectType() == RObject.TYPE_VECTOR
 						&& logi.getData().getStoreType() == RStore.INTEGER) {
-					mode = FIND_ROW;
-					runWhich = false;
+					mode= FIND_ROW;
+					runWhich= false;
 				}
 				else {
 					throw new UnexpectedRDataException(logi.toString());
 				}
 			}
 			if (runWhich) {
-				final FunctionCall call = r.createFunctionCall(RJTmp.SET);
-				call.addChar(RJTmp.NAME_PAR, fRCacheFind);
-				final StringBuilder cmd = fDataProvider.getRCmdStringBuilder();
-				cmd.append("which(").append(RJTmp.ENV+'$').append(fRCacheFind).append(", arr.ind= TRUE)");
+				final FunctionCall call= r.createFunctionCall(RJTmp.SET);
+				call.addChar(RJTmp.NAME_PAR, this.rCacheFind);
+				final StringBuilder cmd= this.dataProvider.getRCmdStringBuilder();
+				cmd.append("which(").append(RJTmp.ENV+'$').append(this.rCacheFind).append(", arr.ind= TRUE)");
 				call.add(RJTmp.VALUE_PAR, cmd.toString());
 				call.evalVoid(monitor);
 			}
 			
-			{	final FunctionCall call = r.createFunctionCall("NROW");
-				call.add(RJTmp.ENV+'$'+fRCacheFind);
-				count = RDataUtil.checkSingleIntValue(call.evalData(monitor));
+			{	final FunctionCall call= r.createFunctionCall("NROW");
+				call.add(RJTmp.ENV+'$'+this.rCacheFind);
+				count= RDataUtil.checkSingleIntValue(call.evalData(monitor));
 			}
-			filteredCount = getFilteredCount(count, r, monitor);
+			filteredCount= getFilteredCount(count, r, monitor);
 		}
 		catch (final CoreException e) {
 			clean(r, monitor);
 			AbstractRDataProvider.checkCancel(e);
-			mode = FIND_ERROR;
+			mode= FIND_ERROR;
 			throw e;
 		}
 		catch (final UnexpectedRDataException e) {
 			clean(r, monitor);
 			AbstractRDataProvider.checkCancel(e);
-			mode = FIND_ERROR;
+			mode= FIND_ERROR;
 			throw e;
 		}
 		finally {
 			if (mode == FIND_ERROR) {
-				notifyListeners(fCurrentTask, new StatusInfo(IStatus.ERROR, "Error"), -1, -1, -1);
+				notifyListeners(this.currentTask, new StatusInfo(IStatus.ERROR, "Error"), -1, -1, -1);
 			}
-			synchronized (fLock) {
-				fActiveMode = mode;
-				fActiveExpression = fCurrentTask.expression;
-				fFindTotalCount = count;
-				fFindFilteredCount = filteredCount;
-				fFindStore.clear(filteredCount);
-				fFindLastMatchIdx = -1;
-				if (mode != FIND_ERROR && fLock.state < Lock.PAUSE_STATE) {
-					fLock.state = 0;
+			synchronized (this.lock) {
+				this.activeMode= mode;
+				this.activeExpression= this.currentTask.expression;
+				this.findTotalCount= count;
+				this.findFilteredCount= filteredCount;
+				this.findStore.clear(filteredCount);
+				this.findLastMatchIdx= -1;
+				if (mode != FIND_ERROR && this.lock.state < Lock.PAUSE_STATE) {
+					this.lock.state= 0;
 				}
 			}
 		}
 	}
 	
 	private long getFilteredCount(final long count, final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
-		final String filterVar = fDataProvider.checkFilter();
+		final String filterVar= this.dataProvider.checkFilter();
 		if (filterVar == null || count == 0) {
 			return count;
 		}
-		final FunctionCall call = r.createFunctionCall(RJTmp.GET_FILTERED_COUNT);
+		final FunctionCall call= r.createFunctionCall(RJTmp.GET_FILTERED_COUNT);
 		call.addChar(RJTmp.FILTER_PAR, filterVar);
-		call.addChar(RJTmp.INDEX_PAR, fRCacheFind);
+		call.addChar(RJTmp.INDEX_PAR, this.rCacheFind);
 		return RDataUtil.checkSingleIntValue(call.evalData(monitor));
 	}
 	
@@ -346,8 +356,8 @@ class FindManager {
 		try {
 			while (true) {
 				final Fragment<RObject> fragment;
-				synchronized (fLock) {
-					fragment = fFindStore.getNextScheduledFragment();
+				synchronized (this.lock) {
+					fragment= this.findStore.getNextScheduledFragment();
 				}
 				if (fragment == null) {
 					break;
@@ -356,18 +366,18 @@ class FindManager {
 					throw new CoreException(Status.CANCEL_STATUS);
 				}
 				
-				final RObject fragmentObject = loadFindFragment(fragment, r, monitor);
-				synchronized (fLock) {
-					fFindStore.updateFragment(fragment, fragmentObject);
+				final RObject fragmentObject= loadFindFragment(fragment, r, monitor);
+				synchronized (this.lock) {
+					this.findStore.updateFragment(fragment, fragmentObject);
 				}
 			}
 		}
 		catch (final Exception e) {
 			AbstractRDataProvider.checkCancel(e);
-			synchronized (fLock) {
+			synchronized (this.lock) {
 				clear(-1);
-				if (fLock.state < Lock.RELOAD_STATE) {
-					fLock.state = Lock.RELOAD_STATE;
+				if (this.lock.state < Lock.RELOAD_STATE) {
+					this.lock.state= Lock.RELOAD_STATE;
 				}
 			}
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
@@ -378,33 +388,33 @@ class FindManager {
 	
 	private RObject loadFindFragment(final LazyRStore.Fragment<RObject> fragment,
 			final IRToolService r, final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
-		final String revIndexName = fDataProvider.checkRevIndex(r, monitor);
-		{	final StringBuilder cmd = fDataProvider.getRCmdStringBuilder();
+		final String revIndexName= this.dataProvider.checkRevIndex(r, monitor);
+		{	final StringBuilder cmd= this.dataProvider.getRCmdStringBuilder();
 			cmd.append("local({");
 			if (revIndexName != null) {
-				if (fActiveMode == FIND_CELL) {
+				if (this.activeMode == FIND_CELL) {
 					cmd.append("x <- ").append(RJTmp.ENV+'$').append(revIndexName)
-							.append("[").append(RJTmp.ENV+'$').append(fRCacheFind).append("[,1L]").append("]\n");
-					cmd.append("x <- cbind(x, ").append(RJTmp.ENV+'$').append(fRCacheFind).append("[,2L]").append(")\n");
+							.append("[").append(RJTmp.ENV+'$').append(this.rCacheFind).append("[,1L]").append("]\n");
+					cmd.append("x <- cbind(x, ").append(RJTmp.ENV+'$').append(this.rCacheFind).append("[,2L]").append(")\n");
 				}
 				else {
 					cmd.append("x <- ").append(RJTmp.ENV+'$').append(revIndexName)
-							.append("[").append(RJTmp.ENV+'$').append(fRCacheFind).append("]\n");
+							.append("[").append(RJTmp.ENV+'$').append(this.rCacheFind).append("]\n");
 				}
 				cmd.append("x <- na.omit(x)\n");
 			}
 			else {
-				cmd.append("x <- ").append(RJTmp.ENV+'$').append(fRCacheFind).append("\n");
+				cmd.append("x <- ").append(RJTmp.ENV+'$').append(this.rCacheFind).append("\n");
 			}
 			cmd.append("x <- x[order(");
-			if (fActiveMode == FIND_CELL) {
-				cmd.append((fCurrentTask.firstInRow) ? "x[,1L], x[,2L]" : "x[,2L], x[,1L]");
+			if (this.activeMode == FIND_CELL) {
+				cmd.append((this.currentTask.firstInRow) ? "x[,1L], x[,2L]" : "x[,2L], x[,1L]");
 			}
 			else {
 				cmd.append("x");
 			}
 			cmd.append(")").append("[").append(fragment.getRowBeginIdx() + 1).append(":").append(fragment.getRowEndIdx()).append("]");
-			if (fActiveMode == FIND_CELL) {
+			if (this.activeMode == FIND_CELL) {
 				cmd.append(",");
 			}
 			cmd.append("]; ");
@@ -420,17 +430,17 @@ class FindManager {
 		long filteredCount;
 		long totalCount;
 		long globalMatchIdx;
-		synchronized (fLock) {
-			task = fScheduledTask;
-			mode = fActiveMode;
-			totalCount = fFindTotalCount;
-			filteredCount = fFindFilteredCount;
-			globalMatchIdx = fFindLastMatchIdx;
+		synchronized (this.lock) {
+			task= this.scheduledTask;
+			mode= this.activeMode;
+			totalCount= this.findTotalCount;
+			filteredCount= this.findFilteredCount;
+			globalMatchIdx= this.findLastMatchIdx;
 			
-			if (task == null || !task.equals(fCurrentTask)
-					|| fLock.state == Lock.LOCAL_PAUSE_STATE) {
+			if (task == null || !task.equals(this.currentTask)
+					|| this.lock.state == Lock.LOCAL_PAUSE_STATE) {
 				notifyListeners(task, new StatusInfo(IStatus.INFO, "Finding..."), -1, -1, -1);
-				fLock.scheduleUpdate(null, null);
+				this.lock.scheduleUpdate(null, null, null);
 				return;
 			}
 			if (mode == FIND_ERROR) {
@@ -441,18 +451,18 @@ class FindManager {
 		
 		if (filteredCount < 0) {
 			if (r != null) {
-				filteredCount = getFilteredCount(totalCount, r, monitor);
-				synchronized (fLock) {
-					fFindFilteredCount = filteredCount;
-					fFindStore.clear(filteredCount);
+				filteredCount= getFilteredCount(totalCount, r, monitor);
+				synchronized (this.lock) {
+					this.findFilteredCount= filteredCount;
+					this.findStore.clear(filteredCount);
 				}
 			}
 			else {
-				synchronized (fLock) {
-					if (task != fScheduledTask) {
+				synchronized (this.lock) {
+					if (task != this.scheduledTask) {
 						return;
 					}
-					fLock.scheduleUpdate(null, null);
+					this.lock.scheduleUpdate(null, null, null);
 				}
 				return;
 			}
@@ -470,10 +480,10 @@ class FindManager {
 					filteredCount, -1, -1 );
 		}
 		if (globalMatchIdx >= filteredCount) {
-			globalMatchIdx = filteredCount - 1;
+			globalMatchIdx= filteredCount - 1;
 		}
 		else if (globalMatchIdx < 0) {
-			globalMatchIdx = filteredCount / 2;
+			globalMatchIdx= filteredCount / 2;
 		}
 		try {
 			final long[] rPos;
@@ -482,96 +492,96 @@ class FindManager {
 			final int rowIdx;
 			final int colIdx;
 			if (mode == FIND_CELL) {
-				rowIdx = task.firstInRow ? 0 : 1;
-				colIdx = task.firstInRow ? 1 : 0;
+				rowIdx= (task.firstInRow) ? 0 : 1;
+				colIdx= (task.firstInRow) ? 1 : 0;
 				
-				rPos = new long[2];
-				rPos[rowIdx] = task.rowIdx + 1;
-				rPos[colIdx] = task.columnIdx + 1;
-				low = new long[2];
-				high = new long[2];
+				rPos= new long[2];
+				rPos[rowIdx]= task.rowIdx + 1;
+				rPos[colIdx]= task.columnIdx + 1;
+				low= new long[2];
+				high= new long[2];
 			}
 			else {
-				rowIdx = 0;
-				colIdx = -1;
+				rowIdx= 0;
+				colIdx= -1;
 				
-				rPos = new long[] { task.rowIdx + 1 };
-				low = new long[1];
-				high = new long[1];
+				rPos= new long[] { task.rowIdx + 1 };
+				low= new long[1];
+				high= new long[1];
 			}
 			
 			while (true) {
-				int last = 0;
+				int last= 0;
 				LazyRStore.Fragment<RObject> fragment;
 				while (true) {
 					if (monitor.isCanceled()) {
 						throw new CoreException(Status.CANCEL_STATUS);
 					}
 					
-					fragment = fLock.getFragment(fFindStore, globalMatchIdx, 0);
+					fragment= this.lock.getFragment(this.findStore, globalMatchIdx, 0);
 					if (fragment != null) {
-						final RStore data = fragment.getRObject().getData();
-						final int length = fragment.getRowCount();
-						low[rowIdx] = data.getInt(0);
-						high[rowIdx] = data.getInt(length-1);
+						final RStore<?> data= fragment.getRObject().getData();
+						final int length= (int) fragment.getRowCount();
+						low[rowIdx]= data.getInt(0);
+						high[rowIdx]= data.getInt(length - 1);
 						if (mode == FIND_CELL) {
-							low[colIdx] = data.getInt(length);
-							high[colIdx] = data.getInt(length+length-1);
+							low[colIdx]= data.getInt(length);
+							high[colIdx]= data.getInt(length + length - 1);
 						}
 						if (RDataUtil.compare(rPos, low) < 0) {
-							globalMatchIdx = fragment.getRowBeginIdx() - 1;
+							globalMatchIdx= fragment.getRowBeginIdx() - 1;
 							if (globalMatchIdx < 0
 									|| (task.forward && last == +1)) {
 								break;
 							}
-							last = -1;
+							last= -1;
 						}
 						if (RDataUtil.compare(rPos, high) > 0) {
-							globalMatchIdx = fragment.getRowEndIdx();
+							globalMatchIdx= fragment.getRowEndIdx();
 							if (globalMatchIdx > filteredCount
 									|| (!task.forward && last == -1)) {
 								break;
 							}
-							last = +1;
+							last= +1;
 						}
 						break;
 					}
 					else if (r != null) {
 						updateFindingFragments(r, monitor);
-						synchronized (fLock) {
-							if (task != fScheduledTask
-									|| fLock.state > 0) {
+						synchronized (this.lock) {
+							if (task != this.scheduledTask
+									|| this.lock.state > 0) {
 								return;
 							}
 						}
 					}
 					else {
-						synchronized (fLock) {
-							if (task != fScheduledTask) {
+						synchronized (this.lock) {
+							if (task != this.scheduledTask) {
 								return;
 							}
-							fLock.scheduleUpdate(null, null);
+							this.lock.scheduleUpdate(null, null, null);
 						}
 						return;
 					}
 				}
 				
-				final RStore data = fragment.getRObject().getData();
-				final int length = fragment.getRowCount();
+				final RStore<?> data= fragment.getRObject().getData();
+				final int length= (int) fragment.getRowCount();
 				long localMatchIdx;
 				if (mode == FIND_CELL) {
-					low[rowIdx] = 0;
-					low[colIdx] = length;
-					localMatchIdx = RDataUtil.binarySearch(data, low, length, rPos);
+					low[rowIdx]= 0;
+					low[colIdx]= length;
+					localMatchIdx= RDataUtil.binarySearch(data, low, length, rPos);
 				}
 				else {
-					localMatchIdx = RDataUtil.binarySearch(data, rPos[rowIdx]);
+					localMatchIdx= RDataUtil.binarySearch(data, rPos[rowIdx]);
 				}
 				if (localMatchIdx >= 0) {
 					localMatchIdx += (task.forward) ? +1 : -1;
 				}
 				else {
-					localMatchIdx = -(localMatchIdx + 1);
+					localMatchIdx= -(localMatchIdx + 1);
 					localMatchIdx += (task.forward) ? 0 : -1;
 				}
 				if (localMatchIdx < 0 || localMatchIdx >= length) {
@@ -580,22 +590,22 @@ class FindManager {
 							filteredCount, -1, -1 );
 					return;
 				}
-				synchronized (fLock) {
-					if (task != fScheduledTask) {
+				synchronized (this.lock) {
+					if (task != this.scheduledTask) {
 						return;
 					}
-					fFindLastMatchIdx = globalMatchIdx = fragment.getRowBeginIdx() + localMatchIdx;
+					this.findLastMatchIdx= globalMatchIdx= fragment.getRowBeginIdx() + localMatchIdx;
 				}
 				{	final long posCol;
 					final long posRow;
-					rPos[rowIdx] = data.getInt(localMatchIdx);
-					posRow = rPos[rowIdx] - 1;
+					rPos[rowIdx]= data.getInt(localMatchIdx);
+					posRow= rPos[rowIdx] - 1;
 					if (mode == FIND_CELL) {
-						rPos[colIdx] = data.getInt(length + localMatchIdx);
-						posCol = rPos[colIdx] - 1;
+						rPos[colIdx]= data.getInt(length + localMatchIdx);
+						posCol= rPos[colIdx] - 1;
 					}
 					else {
-						posCol = -1;
+						posCol= -1;
 					}
 					if (task.filter == null || task.filter.match(posRow, posCol)) {
 						notifyListeners(task, new StatusInfo(IStatus.INFO,
@@ -616,13 +626,13 @@ class FindManager {
 		UIAccess.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				synchronized (fLock) {
-					if (task != null && task != fScheduledTask) {
+				synchronized (FindManager.this.lock) {
+					if (task != null && task != FindManager.this.scheduledTask) {
 						return;
 					}
 				}
-				final FindEvent event = new FindEvent(status, total, rowIdx, colIdx);
-				for (final IFindListener listener : fListeners.toArray()) {
+				final FindEvent event= new FindEvent(status, total, rowIdx, colIdx);
+				for (final IFindListener listener : FindManager.this.listeners.toArray()) {
 					listener.handleFindEvent(event);
 				}
 			}

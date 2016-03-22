@@ -59,7 +59,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.core.util.LaunchUtils;
 import de.walware.ecommons.debug.core.util.OverlayLaunchConfiguration;
-import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
+import de.walware.ecommons.debug.ui.util.UnterminatedLaunchAlerter;
 import de.walware.ecommons.io.FileValidator;
 import de.walware.ecommons.net.RMIAddress;
 import de.walware.ecommons.net.RMIUtil;
@@ -578,12 +578,6 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			// move all tasks, if started
 			if (reconnect != null && prevProcess != null) {
 				controller.addToolStatusListener(new IToolStatusListener() {
-					@Override
-					public void controllerStatusRequested(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
-					}
-					@Override
-					public void controllerStatusRequestCanceled(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
-					}
 					@Override
 					public void controllerStatusChanged(final ToolStatus oldStatus, final ToolStatus newStatus, final List<DebugEvent> eventCollection) {
 						if (newStatus != ToolStatus.TERMINATED) {

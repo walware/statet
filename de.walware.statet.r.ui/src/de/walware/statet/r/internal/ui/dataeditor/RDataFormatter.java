@@ -63,28 +63,28 @@ public class RDataFormatter {
 	
 	
 	protected void clean() {
-		fNumFormat = null;
-		fMathContext = null;
-		fDateFormat = null;
-		fFactorLevels = null;
+		this.fNumFormat = null;
+		this.fMathContext = null;
+		this.fDateFormat = null;
+		this.fFactorLevels = null;
 	}
 	
 	
 	protected void appendByteHexFormat(final int b) {
-		fCurrentText.append(HEX_CHARS[((b >> 2) & 0xf)]);
-		fCurrentText.append(HEX_CHARS[(b & 0xf)]);
+		this.fCurrentText.append(HEX_CHARS[((b >> 2) & 0xf)]);
+		this.fCurrentText.append(HEX_CHARS[(b & 0xf)]);
 	}
 	
 	protected void appendNum(final double num) {
 		if (Double.isNaN(num) || Double.isInfinite(num)) {
-			fCurrentText.append(fNumFormat.format(num));
+			this.fCurrentText.append(this.fNumFormat.format(num));
 			return;
 		}
 		BigDecimal decimal = new BigDecimal(num);
-		if (fMathContext != null) {
-			decimal = decimal.multiply(BigDecimal.ONE, fMathContext);
+		if (this.fMathContext != null) {
+			decimal = decimal.multiply(BigDecimal.ONE, this.fMathContext);
 		}
-		fCurrentText.append(fNumFormat.format(decimal));
+		this.fCurrentText.append(this.fNumFormat.format(decimal));
 	}
 	
 	public Object modelToDisplayValue(Object modelValue) {
@@ -96,39 +96,39 @@ public class RDataFormatter {
 			return modelValue;
 		}
 		if (clazz == Double.class) {
-			if (fNumFormat != null) {
-				fCurrentText.setLength(0);
+			if (this.fNumFormat != null) {
+				this.fCurrentText.setLength(0);
 				appendNum((Double) modelValue);
-				return fCurrentText.toString();
+				return this.fCurrentText.toString();
 			}
-			if (fDateFormat != null) {
-				return fDateFormat.format(new Date((long)
-						((Double) modelValue).doubleValue() * fDateValueMillis) );
+			if (this.fDateFormat != null) {
+				return this.fDateFormat.format(new Date((long)
+						((Double) modelValue).doubleValue() * this.fDateValueMillis) );
 			}
 		}
 		if (clazz == Boolean.class) {
 			return ((Boolean) modelValue).booleanValue() ? "TRUE" : "FALSE";
 		}
 		INT: if (clazz == Integer.class){
-			if (fFactorLevels != null) {
+			if (this.fFactorLevels != null) {
 				final int value = ((Integer) modelValue).intValue() - 1;
-				if (value >= 0 && value < fFactorLevels.getLength()) {
-					modelValue = fFactorLevels.getChar(value);
+				if (value >= 0 && value < this.fFactorLevels.getLength()) {
+					modelValue = this.fFactorLevels.getChar(value);
 					break INT;
 				}
 				else {
 					return new InfoString("?" + modelValue + "?");
 				}
 			}
-			if (fDateFormat != null) {
-				return fDateFormat.format(new Date(
-						((Integer) modelValue).intValue() * fDateValueMillis) );
+			if (this.fDateFormat != null) {
+				return this.fDateFormat.format(new Date(
+						((Integer) modelValue).intValue() * this.fDateValueMillis) );
 			}
 			return modelValue.toString();
 		}
 		if (clazz == String.class) {
 			final String text = (String) modelValue;
-			fCurrentText.setLength(0);
+			this.fCurrentText.setLength(0);
 			
 			int beginIdx = 0;
 			int i = 0;
@@ -138,66 +138,66 @@ public class RDataFormatter {
 				switch (c) {
 				case 10:
 					if (i > beginIdx) {
-						fCurrentText.append(text, beginIdx, i);
+						this.fCurrentText.append(text, beginIdx, i);
 					}
-					fCurrentText.append("\\n");
+					this.fCurrentText.append("\\n");
 					beginIdx = ++i;
 					continue;
 				case 13:
 					if (i > beginIdx) {
-						fCurrentText.append(text, beginIdx, i);
+						this.fCurrentText.append(text, beginIdx, i);
 					}
-					fCurrentText.append("\\r");
+					this.fCurrentText.append("\\r");
 					beginIdx = ++i;
 					continue;
 				case 9:
 					if (i > beginIdx) {
-						fCurrentText.append(text, beginIdx, i);
+						this.fCurrentText.append(text, beginIdx, i);
 					}
-					fCurrentText.append("\\t");
+					this.fCurrentText.append("\\t");
 					beginIdx = ++i;
 					continue;
 				case 8:
 					if (i > beginIdx) {
-						fCurrentText.append(text, beginIdx, i);
+						this.fCurrentText.append(text, beginIdx, i);
 					}
-					fCurrentText.append("\\b");
+					this.fCurrentText.append("\\b");
 					beginIdx = ++i;
 					continue;
 				case 7:
 					if (i > beginIdx) {
-						fCurrentText.append(text, beginIdx, i);
+						this.fCurrentText.append(text, beginIdx, i);
 					}
-					fCurrentText.append("\\a");
+					this.fCurrentText.append("\\a");
 					beginIdx = ++i;
 					continue;
 				case 12:
 					if (i > beginIdx) {
-						fCurrentText.append(text, beginIdx, i);
+						this.fCurrentText.append(text, beginIdx, i);
 					}
-					fCurrentText.append("\\f");
+					this.fCurrentText.append("\\f");
 					beginIdx = ++i;
 					continue;
 				case 11:
 					if (i > beginIdx) {
-						fCurrentText.append(text, beginIdx, i);
+						this.fCurrentText.append(text, beginIdx, i);
 					}
-					fCurrentText.append("\\v");
+					this.fCurrentText.append("\\v");
 					beginIdx = ++i;
 					continue;
 				case 92:
 					if (i > beginIdx) {
-						fCurrentText.append(text, beginIdx, i);
+						this.fCurrentText.append(text, beginIdx, i);
 					}
-					fCurrentText.append("\\\\");
+					this.fCurrentText.append("\\\\");
 					beginIdx = ++i;
 					continue;
 				default:
 					if (c < 0x20) {
 						if (i > beginIdx) {
-							fCurrentText.append(text, beginIdx, i);
+							this.fCurrentText.append(text, beginIdx, i);
 						}
-						fCurrentText.append("\\0x");
+						this.fCurrentText.append("\\0x");
 						appendByteHexFormat(c);
 						beginIdx = ++i;
 						continue;
@@ -208,46 +208,46 @@ public class RDataFormatter {
 			}
 			if (beginIdx > 0) {
 				if (beginIdx < length) {
-					fCurrentText.append(text, beginIdx, length);
+					this.fCurrentText.append(text, beginIdx, length);
 				}
-				return fCurrentText.toString();
+				return this.fCurrentText.toString();
 			}
 			else {
 				return text;
 			}
 		}
 		if (clazz == Byte.class) {
-			fCurrentText.setLength(0);
+			this.fCurrentText.setLength(0);
 			appendByteHexFormat(((Byte) modelValue).intValue());
-			return fCurrentText.toString();
+			return this.fCurrentText.toString();
 		}
 		return modelValue;
 	}
 	
 	
 	public boolean hasNumFormat() {
-		return (fNumFormat != null);
+		return (this.fNumFormat != null);
 	}
 	
 	public int getMaxFractionalDigits() {
-		return fNumFormat.getMaximumFractionDigits();
+		return this.fNumFormat.getMaximumFractionDigits();
 	}
 	
 	public int getMaxExponentDigits() {
-		return fNumMaxExpDigits;
+		return this.fNumMaxExpDigits;
 	}
 	
 	public void initNumFormat(final int maxFractionalDigits, final int maxExponentDigits) {
 		clean();
 		
-		fNumMaxExpDigits = maxExponentDigits;
+		this.fNumMaxExpDigits = maxExponentDigits;
 		final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ENGLISH);
 		symbols.setExponentSeparator("e");
 		symbols.setNaN("NaN");
 		symbols.setInfinity("Inf");
 		
 		final DecimalFormat decimalFormat = new DecimalFormat("0.", symbols);
-		fNumFormat = decimalFormat;
+		this.fNumFormat = decimalFormat;
 		decimalFormat.setDecimalSeparatorAlwaysShown(false);
 		decimalFormat.setGroupingUsed(false);
 		decimalFormat.setExponentSignAlwaysShown(true);
@@ -256,7 +256,7 @@ public class RDataFormatter {
 		decimalFormat.setMaximumFractionDigits(maxFractionalDigits);
 		
 		if (maxExponentDigits > 0) {
-			fMathContext = new MathContext(maxFractionalDigits+1, MathContext.SCIENTIFIC, false, MathContext.ROUND_HALF_UP);
+			this.fMathContext = new MathContext(maxFractionalDigits+1, MathContext.SCIENTIFIC, false, MathContext.ROUND_HALF_UP);
 			decimalFormat.setScientificNotation(true);
 			decimalFormat.setMinimumExponentDigits((byte) maxExponentDigits);
 		}
@@ -271,45 +271,45 @@ public class RDataFormatter {
 		clean();
 		
 		final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
-		fDateFormat = dateFormat;
+		this.fDateFormat = dateFormat;
 		
-		fDateValueMillis = millis;
-		fDateFormat.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC"), ULocale.ENGLISH)); //$NON-NLS-1$
+		this.fDateValueMillis = millis;
+		this.fDateFormat.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC"), ULocale.ENGLISH)); //$NON-NLS-1$
 	}
 	
 	public void initDateTimeFormat(final int millis) {
 		clean();
 		
 		final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zz"); //$NON-NLS-1$
-		fDateFormat = dateFormat;
+		this.fDateFormat = dateFormat;
 		
-		fDateValueMillis = millis;
+		this.fDateValueMillis = millis;
 	}
 	
 	public void setDateTimeZone(final TimeZone zone) {
-		if (fDateFormat == null) {
+		if (this.fDateFormat == null) {
 			throw new IllegalStateException();
 		}
-		fDateFormat.setTimeZone(zone);
+		this.fDateFormat.setTimeZone(zone);
 	}
 	
 	public void initFactorLevels(final RCharacterStore levels) {
 		clean();
 		
-		fFactorLevels = levels;
+		this.fFactorLevels = levels;
 	}
 	
 	public RCharacterStore getFactorLevels() {
-		return fFactorLevels;
+		return this.fFactorLevels;
 	}
 	
 	
 	public void setAutoWidth(final int width) {
-		fAutoWidth = width;
+		this.fAutoWidth = width;
 	}
 	
 	public int getAutoWidth() {
-		return fAutoWidth;
+		return this.fAutoWidth;
 	}
 	
 	

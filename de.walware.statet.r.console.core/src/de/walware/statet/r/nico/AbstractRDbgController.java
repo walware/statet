@@ -33,7 +33,6 @@ import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.core.model.ISourceUnit;
 import de.walware.ecommons.ltk.core.model.IWorkspaceSourceUnit;
-import de.walware.ecommons.ts.ISystemReadRunnable;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
@@ -54,7 +53,6 @@ import de.walware.rj.server.dbg.CtrlReport;
 import de.walware.rj.server.dbg.DbgEnablement;
 import de.walware.rj.server.dbg.DbgFilterState;
 import de.walware.rj.server.dbg.DbgRequest;
-import de.walware.rj.server.dbg.ElementTracepointInstallationReport;
 import de.walware.rj.server.dbg.ElementTracepointInstallationRequest;
 import de.walware.rj.server.dbg.Frame;
 import de.walware.rj.server.dbg.FrameContext;
@@ -63,23 +61,27 @@ import de.walware.rj.server.dbg.SetDebugReport;
 import de.walware.rj.server.dbg.SetDebugRequest;
 import de.walware.rj.server.dbg.SrcfileData;
 import de.walware.rj.server.dbg.TracepointEvent;
+import de.walware.rj.server.dbg.TracepointInstallationReport;
+import de.walware.rj.server.dbg.TracepointInstallationRequest;
 import de.walware.rj.server.dbg.TracepointStatesUpdate;
 
+import de.walware.statet.r.console.core.AbstractRController;
 import de.walware.statet.r.console.core.ContinuePrompt;
 import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RDbg;
 import de.walware.statet.r.console.core.RProcess;
-import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
+import de.walware.statet.r.core.tool.IRConsoleService;
 import de.walware.statet.r.internal.console.core.RConsoleCorePlugin;
 
 
 /**
  * For implementations supporting debug features
  */
-public abstract class AbstractRDbgController extends AbstractRController implements IRDataAdapter {
+public abstract class AbstractRDbgController extends AbstractRController
+		implements IRDataAdapter, ICombinedRDataAdapter {
 	
 	
 	public interface IRControllerTracepointAdapter {
@@ -101,24 +103,23 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	}
 	
 	
-	private static final int TOPLEVELBROWSER_ENABLE_COMMANDS = 1;
-	private static final int TOPLEVELBROWSER_CHECK_SUSPENDED = 3;
-	private static final int TOPLEVELBROWSER_CHECK_SUBMIT = 4;
+	private static final int TOPLEVELBROWSER_ENABLE_COMMANDS= 1;
+	private static final int TOPLEVELBROWSER_CHECK_SUSPENDED= 3;
+	private static final int TOPLEVELBROWSER_CHECK_SUBMIT= 4;
 	
 	
-	protected static final RReference TOPLEVEL_ENV_FRAME = new RReferenceImpl(0, RObject.TYPE_ENV, null);
+	protected static final RReference TOPLEVEL_ENV_FRAME= new RReferenceImpl(0, RObject.TYPE_ENV, null);
 	
 	
-	protected boolean fIsDebugEnabled;
-	protected IRControllerTracepointAdapter fBreakpointAdapter;
+	private IRControllerTracepointAdapter breakpointAdapter;
 	
-	private CallStack fCallStack;
-	private int fCallStackStamp;
+	private CallStack callStack;
+	private int callStackStamp;
 	
-	private RReference fGlobalEnv;
+	private RReference globalEnv;
 	
-	private boolean fSuspendScheduled;
-	private final IToolRunnable fSuspendRunnable = new ControllerSystemRunnable(SUSPEND_TYPE_ID,
+	private boolean suspendScheduled;
+	private final IToolRunnable suspendRunnable= new ControllerSystemRunnable(SUSPEND_TYPE_ID,
 			"Suspend") {
 		
 		@Override
@@ -131,8 +132,8 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			case FINISHING_OK:
 			case FINISHING_ERROR:
 			case FINISHING_CANCEL:
-				synchronized (fSuspendRunnable) {
-					fSuspendScheduled = false;
+				synchronized (AbstractRDbgController.this.suspendRunnable) {
+					AbstractRDbgController.this.suspendScheduled= false;
 				}
 				break;
 			default:
@@ -145,46 +146,46 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			if (getStatusL() == ToolStatus.STARTED_SUSPENDED
-					|| (getHotTasksState() <= 1 && (fCurrentPrompt.meta & META_PROMPT_SUSPENDED) != 0) ) {
+					|| (getHotTasksState() <= 1 && (AbstractRDbgController.this.fCurrentPrompt.meta & META_PROMPT_SUSPENDED) != 0) ) {
 				return;
 			}
 //			if (!canSuspend(monitor)) {
 //				scheduleControllerRunnable(this);
 //				return;
 //			}
-			if (fTopLevelBrowserAction == 0) {
-				fTopLevelBrowserAction = TOPLEVELBROWSER_CHECK_SUBMIT;
+			if (AbstractRDbgController.this.topLevelBrowserAction == 0) {
+				AbstractRDbgController.this.topLevelBrowserAction= TOPLEVELBROWSER_CHECK_SUBMIT;
 			}
 			doRequestSuspend(monitor);
 		}
 		
 	};
 	
-	private boolean fTopLevelBrowserEnabled;
-	private int fTopLevelBrowserAction;
-	private final ISystemRunnable fTopLevelBrowserRunnable = new ControllerSystemRunnable(
+	private boolean topLevelBrowserEnabled;
+	private int topLevelBrowserAction;
+	private final ISystemRunnable fTopLevelBrowserRunnable= new ControllerSystemRunnable(
 			"r/debug", "Debugging") { //$NON-NLS-1$
 		@Override
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			if (getCurrentLevelL() == 0) {
-				if ((fCurrentPrompt.meta & META_PROMPT_SUSPENDED) != 0) {
-					setSuspended(getBrowserLevel(fCurrentPrompt.text), 0, null);
+				if ((AbstractRDbgController.this.fCurrentPrompt.meta & META_PROMPT_SUSPENDED) != 0) {
+					setSuspended(getBrowserLevel(AbstractRDbgController.this.fCurrentPrompt.text), 0, null);
 				}
-				else if ((fCurrentPrompt.meta & META_PROMPT_DEFAULT) != 0) {
-					switch (fTopLevelBrowserAction) {
+				else if ((AbstractRDbgController.this.fCurrentPrompt.meta & META_PROMPT_DEFAULT) != 0) {
+					switch (AbstractRDbgController.this.topLevelBrowserAction) {
 					case TOPLEVELBROWSER_ENABLE_COMMANDS:
 						initTopLevelBrowser(monitor);
 						break;
 					case TOPLEVELBROWSER_CHECK_SUSPENDED:
-						if (fQueue.size() > 0) {
-							fTopLevelBrowserAction = TOPLEVELBROWSER_CHECK_SUBMIT;
+						if (getQueue().size() > 0) {
+							AbstractRDbgController.this.topLevelBrowserAction= TOPLEVELBROWSER_CHECK_SUBMIT;
 							break;
 						}
 						setDebugBrowser(TOPLEVEL_ENV_FRAME, false, false, monitor);
 						//$FALL-THROUGH$
 					default:
-						removePostControllerRunnable(fTopLevelBrowserRunnable);
+						removePostControllerRunnable(AbstractRDbgController.this.fTopLevelBrowserRunnable);
 					}
 				}
 			}
@@ -193,7 +194,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	};
 	
 //	private int fStepFilterAction;
-//	private final IToolRunnable fStepFilterRunnable = new IToolRunnable() {
+//	private final IToolRunnable fStepFilterRunnable= new IToolRunnable() {
 //		
 //		public String getTypeId() {
 //			return "r/debug/";
@@ -216,7 +217,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 //			if (DebugPlugin.isUseStepFilters()
 //					&& (fCurrentPrompt.meta & META_PROMPT_SUSPENDED) != 0) {
 //				if (fStepFilterAction == STEPFILTER_STEP1) {
-//					fStepFilterAction = 0;
+//					fStepFilterAction= 0;
 //					debugStepOver(true);
 //				}
 //			}
@@ -224,10 +225,10 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 //		
 //	};
 	
-	private String fLastSrcfile;
-	private String fLastSrcfilePath;
+	private String lastSrcfile;
+	private String lastSrcfilePath;
 	
-	private TracepointEvent fBreakpointHit;
+	private TracepointEvent breakpointHit;
 	
 	
 	/**
@@ -245,10 +246,10 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 		if (breakpointAdapter == null) {
 			throw new NullPointerException("breakpointAdapter");
 		}
-		fIsDebugEnabled = true;
-		fBreakpointAdapter = breakpointAdapter;
+		setDebugEnabled(true);
+		this.breakpointAdapter= breakpointAdapter;
 		
-		class LoadCallstackRunnable extends ControllerSystemRunnable implements ISystemReadRunnable {
+		class LoadCallstackRunnable extends ControllerSystemRunnable implements ISystemRunnable {
 			
 			public LoadCallstackRunnable() {
 				super("r/callstack", "Load Callstack"); //$NON-NLS-1$
@@ -264,51 +265,44 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 		addSuspendUpdateRunnable(new LoadCallstackRunnable());
 		addToolStatusListener(new IToolStatusListener() {
 			@Override
-			public void controllerStatusRequested(final ToolStatus currentStatus, final ToolStatus requestedStatus,
-					final List<DebugEvent> eventCollection) {
-			}
-			@Override
-			public void controllerStatusRequestCanceled(final ToolStatus currentStatus, final ToolStatus requestedStatus,
-					final List<DebugEvent> eventCollection) {
-			}
-			@Override
 			public void controllerStatusChanged(final ToolStatus oldStatus, final ToolStatus newStatus,
 					final List<DebugEvent> eventCollection) {
 				switch (newStatus) {
 				case STARTED_IDLING:
 				case STARTED_PROCESSING:
 				case TERMINATED:
-					fCallStack = null;
+					AbstractRDbgController.this.callStack= null;
 				}
 			}
 		});
 	}
 	
 	protected final void setCurrentPromptL(final String text, final boolean addToHistory) {
-		final TracepointEvent hit = fBreakpointHit;
-		fBreakpointHit = null;
-		if (fDefaultPromptText.equals(text)) {
-			if (fIsDebugEnabled && getRequestedLevelL() != 0) {
+		final TracepointEvent hit= this.breakpointHit;
+		this.breakpointHit= null;
+		if (this.defaultPromptText.equals(text)) {
+			if (isDebugEnabled() && getRequestedLevelL() != 0) {
 				setSuspended(0, 0, null);
 			}
 			if (addToHistory) {
-				setCurrentPromptL(fDefaultPrompt);
+				setCurrentPromptL(this.fDefaultPrompt);
 				return;
 			}
-			setCurrentPromptL(new Prompt(fDefaultPromptText, META_HISTORY_DONTADD | META_PROMPT_DEFAULT));
+			setCurrentPromptL(new Prompt(this.defaultPromptText, META_HISTORY_DONTADD | META_PROMPT_DEFAULT));
 			return;
 		}
-		else if (fContinuePromptText.equals(text)) {
+		else if (this.continuePromptText.equals(text)) {
 			setCurrentPromptL(new ContinuePrompt(
-					fCurrentPrompt, fCurrentInput+fLineSeparator, fContinuePromptText,
+					this.fCurrentPrompt, this.fCurrentInput+this.fLineSeparator, this.continuePromptText,
 					addToHistory ? 0 : META_HISTORY_DONTADD));
 			return;
 		}
 		else if (text != null) {
-			if (fIsDebugEnabled && text.startsWith("Browse[") && text.endsWith("]> ")) { //$NON-NLS-1$ //$NON-NLS-2$
-				fCallStack = null;
-				setSuspended(getBrowserLevel(text), (hit != null) ? DebugEvent.BREAKPOINT : 0,
-						fBreakpointAdapter.toEclipseData(hit));
+			if (isDebugEnabled() && text.startsWith("Browse[") && text.endsWith("]> ")) { //$NON-NLS-1$ //$NON-NLS-2$
+				this.callStack= null;
+				setSuspended(getBrowserLevel(text),
+						(hit != null) ? DebugEvent.BREAKPOINT : 0,
+						(hit != null) ? this.breakpointAdapter.toEclipseData(hit) : null );
 				setCurrentPromptL(new Prompt(text, addToHistory ? (META_PROMPT_SUSPENDED) :
 						(META_PROMPT_SUSPENDED | META_HISTORY_DONTADD)));
 				return;
@@ -328,12 +322,12 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	
 	@Override
 	protected boolean runConsoleCommandInSuspend(final String input) {
-		final ToolStreamProxy streams = getStreams();
+		final ToolStreamProxy streams= getStreams();
 		
 		if ((getPrompt().meta & META_PROMPT_SUSPENDED) != 0) {
-			final String trimmed = input.trim();
+			final String trimmed= input.trim();
 			if (trimmed.isEmpty()) {
-				streams.getOutputStreamMonitor().append(fLineSeparator, SubmitType.TOOLS, 0);
+				streams.getOutputStreamMonitor().append(this.fLineSeparator, SubmitType.TOOLS, 0);
 				// revert counter?
 				return false;
 			}
@@ -375,13 +369,13 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	
 	
 	public void debugSuspend() {
-		synchronized (fSuspendRunnable) {
-			if (fSuspendScheduled) {
+		synchronized (this.suspendRunnable) {
+			if (this.suspendScheduled) {
 				return;
 			}
-			fSuspendScheduled = true;
+			this.suspendScheduled= true;
 		}
-		fQueue.addHot(fSuspendRunnable);
+		getQueue().addHot(this.suspendRunnable);
 	}
 	
 	public boolean exec(final DbgRequest request) throws CoreException {
@@ -418,7 +412,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			
 			@Override
 			protected void doExec(final IProgressMonitor monitor) throws CoreException {
-				fChanged |= RWorkspace.REFRESH_AUTO;
+				briefChanged(IRConsoleService.AUTO_CHANGE);
 			}
 			
 			protected String getResumeRCommand(final byte op) {
@@ -445,7 +439,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 				@Override
 				protected void doExec(final IProgressMonitor monitor) throws CoreException {
 					super.doExec(monitor);
-					fTopLevelBrowserEnabled= false;
+					AbstractRDbgController.this.topLevelBrowserEnabled= false;
 				}
 				
 			});
@@ -474,15 +468,15 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 						final int targetPosition= ((FrameRef.ByPosition) request.getTarget()).getPosition();
 						final int n= callStack.getFrames().size();
 						if (targetPosition >= 0 && targetPosition < n - 1) {
-							targetFrame= callStack.getFrames().get(targetPosition);
+							this.targetFrame= callStack.getFrames().get(targetPosition);
 						}
 					}
 					else if (request.getTarget() instanceof FrameRef.ByHandle) {
 						final long targetHandle= ((FrameRef.ByHandle) request.getTarget()).getHandle();
-						targetFrame= callStack.findFrame(targetHandle);
+						this.targetFrame= callStack.findFrame(targetHandle);
 					}
-					return (targetFrame != null) ?
-							new DbgRequest.StepReturn(new FrameRef.ByHandle(targetFrame.getHandle())) :
+					return (this.targetFrame != null) ?
+							new DbgRequest.StepReturn(new FrameRef.ByHandle(this.targetFrame.getHandle())) :
 							null;
 				}
 				
@@ -490,7 +484,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 				protected void doExec(final IProgressMonitor monitor) throws CoreException {
 					super.doExec(monitor);
 //					if (targetPosition == 0) {
-//						fTopLevelBrowserAction = TOPLEVELBROWSER_ENABLE_COMMANDS;
+//						fTopLevelBrowserAction= TOPLEVELBROWSER_ENABLE_COMMANDS;
 //					}
 				}
 				
@@ -507,15 +501,15 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			@Override
 			protected boolean canExec(final IProgressMonitor monitor) throws CoreException {
 				if ((getPrompt().meta & META_PROMPT_SUSPENDED) != 0) {
-					final CallStack stack = getCallStack(monitor);
+					final CallStack stack= getCallStack(monitor);
 					if (stack != null) {
-						final int n = stack.getFrames().size();
+						final int n= stack.getFrames().size();
 						if (n == 0 || position > n) {
 							return false;
 						}
-						final int pos = (position >= 0) ? position : stack.getFrames().size() - 1;
+						final int pos= (position >= 0) ? position : stack.getFrames().size() - 1;
 						try {
-							final SetDebugReport report = AbstractRDbgController.this.doExec(
+							final SetDebugReport report= AbstractRDbgController.this.doExec(
 									new SetDebugRequest(pos, fRefCode, true, true), monitor);
 							return (report != null);
 						}
@@ -531,7 +525,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			}
 			@Override
 			protected void doExec(final IProgressMonitor monitor) throws CoreException {
-				fChanged |= RWorkspace.REFRESH_AUTO;
+				briefChanged(IRConsoleService.AUTO_CHANGE);
 				submitToConsole("c", "c", monitor); //$NON-NLS-1$ //$NON-NLS-2$
 				return;
 			}
@@ -547,9 +541,9 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			}
 			@Override
 			protected void doExec(final IProgressMonitor monitor) throws CoreException {
-				fChanged |= RWorkspace.REFRESH_AUTO;
-				fTopLevelBrowserEnabled = false;
-				fTopLevelBrowserAction = TOPLEVELBROWSER_CHECK_SUBMIT;
+				briefChanged(IRConsoleService.AUTO_CHANGE);
+				AbstractRDbgController.this.topLevelBrowserEnabled= false;
+				AbstractRDbgController.this.topLevelBrowserAction= TOPLEVELBROWSER_CHECK_SUBMIT;
 				submitToConsole("Q", "Q", monitor); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		});
@@ -561,9 +555,9 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			@Override
 			protected void doExec(final IProgressMonitor monitor) throws CoreException {
 				if ((getPrompt().meta & META_PROMPT_SUSPENDED) != 0) {
-					fChanged |= RWorkspace.REFRESH_AUTO;
-					fTopLevelBrowserEnabled = false;
-					fTopLevelBrowserAction = TOPLEVELBROWSER_CHECK_SUBMIT;
+					briefChanged(IRConsoleService.AUTO_CHANGE);
+					AbstractRDbgController.this.topLevelBrowserEnabled= false;
+					AbstractRDbgController.this.topLevelBrowserAction= TOPLEVELBROWSER_CHECK_SUBMIT;
 					submitToConsole("Q", "Q", monitor); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 //				getQueue().add(createQuitRunnable());
@@ -580,35 +574,35 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	
 	@Override
 	protected void runSuspendedLoopL(final int o) {
-		if (fTopLevelBrowserAction == TOPLEVELBROWSER_CHECK_SUBMIT) {
-			fTopLevelBrowserAction = 0;
+		if (this.topLevelBrowserAction == TOPLEVELBROWSER_CHECK_SUBMIT) {
+			this.topLevelBrowserAction= 0;
 		}
-		removePostControllerRunnable(fTopLevelBrowserRunnable);
+		removePostControllerRunnable(this.fTopLevelBrowserRunnable);
 		
 		super.runSuspendedLoopL(o);
 		
 		if (getCurrentLevelL() == 0) {
-			if (fTopLevelBrowserAction == 0) {
-				fTopLevelBrowserAction = TOPLEVELBROWSER_CHECK_SUBMIT;
+			if (this.topLevelBrowserAction == 0) {
+				this.topLevelBrowserAction= TOPLEVELBROWSER_CHECK_SUBMIT;
 			}
-			addPostControllerRunnable(fTopLevelBrowserRunnable);
+			addPostControllerRunnable(this.fTopLevelBrowserRunnable);
 		}
 	}
 	
 	
 	public CallStack getCallStack(final IProgressMonitor monitor) {
-		if (fCallStack == null || fCallStackStamp != getCounter()) {
-			fCallStackStamp = getCounter();
+		if (this.callStack == null || this.callStackStamp != getChangeStamp()) {
+			this.callStackStamp= getChangeStamp();
 			try {
-				fCallStack = doEvalCallStack(monitor);
+				this.callStack= doEvalCallStack(monitor);
 			}
 			catch (final Exception e) {
-				fCallStack = null;
+				this.callStack= null;
 				RConsoleCorePlugin.log(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID, 0,
 						"An error occurred when loading the R call stack.", e ));
 			}
 		}
-		return fCallStack;
+		return this.callStack;
 	}
 	
 	public FrameContext evalFrameContext(final int position, final IProgressMonitor monitor) throws CoreException {
@@ -631,22 +625,22 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	public abstract void exec(TracepointStatesUpdate request,
 			IProgressMonitor monitor) throws CoreException;
 	
-	public abstract ElementTracepointInstallationReport exec(
-			ElementTracepointInstallationRequest request,
+	public abstract TracepointInstallationReport exec(
+			TracepointInstallationRequest request,
 			IProgressMonitor monitor) throws CoreException;
 	
 	@Override
 	public Set<Long> getLazyEnvironments(final IProgressMonitor monitor) {
-		Set<Long> list = super.getLazyEnvironments(monitor);
+		Set<Long> list= super.getLazyEnvironments(monitor);
 		if (isSuspendedL()) {
-			final CallStack stack = getCallStack(monitor);
+			final CallStack stack= getCallStack(monitor);
 			if (stack != null) {
-				final List<? extends Frame> frames = stack.getFrames();
+				final List<? extends Frame> frames= stack.getFrames();
 				if (list == null) {
 					list= new HashSet<>(frames.size());
 				}
-				for (int i = 0; i < frames.size(); i++) {
-					final long handle = frames.get(i).getHandle();
+				for (int i= 0; i < frames.size(); i++) {
+					final long handle= frames.get(i).getHandle();
 					if (handle != 0) {
 						list.add(Long.valueOf(handle));
 					}
@@ -667,21 +661,21 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	
 	
 	public void initTopLevelBrowser(final IProgressMonitor monitor) throws CoreException {
-		if ((fCurrentPrompt.meta & META_PROMPT_DEFAULT) == 0) {
+		if ((this.fCurrentPrompt.meta & META_PROMPT_DEFAULT) == 0) {
 			return;
 		}
-		if (fTopLevelBrowserAction != TOPLEVELBROWSER_CHECK_SUSPENDED) {
-			fTopLevelBrowserAction = TOPLEVELBROWSER_CHECK_SUBMIT;
+		if (this.topLevelBrowserAction != TOPLEVELBROWSER_CHECK_SUSPENDED) {
+			this.topLevelBrowserAction= TOPLEVELBROWSER_CHECK_SUBMIT;
 		}
 		setDebugBrowser(TOPLEVEL_ENV_FRAME, true, false, monitor);
-//		fStepFilterAction = STEPFILTER_STEP1;
+//		fStepFilterAction= STEPFILTER_STEP1;
 //		submitCommandToConsole(new String[] { "browser(skipCalls= 3L)" }, null, monitor);
 	}
 	
 	private void checkInit(final IProgressMonitor monitor) throws CoreException {
-		if (fGlobalEnv == null) {
+		if (this.globalEnv == null) {
 			try {
-				fGlobalEnv = RDataUtil.checkRReference(
+				this.globalEnv= RDataUtil.checkRReference(
 						evalData(".GlobalEnv", null, 0, DEPTH_REFERENCE, monitor) ); //$NON-NLS-1$
 			}
 			catch (final UnexpectedRDataException e) {
@@ -696,21 +690,21 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			final boolean temp,
 			final IProgressMonitor monitor) throws CoreException {
 		checkInit(monitor);
-		if (environment == TOPLEVEL_ENV_FRAME || environment.getHandle() == fGlobalEnv.getHandle()) {
-			fTopLevelBrowserEnabled = enable;
+		if (environment == TOPLEVEL_ENV_FRAME || environment.getHandle() == this.globalEnv.getHandle()) {
+			this.topLevelBrowserEnabled= enable;
 			if (enable) {
-				if (fTopLevelBrowserAction == 0) {
-					fTopLevelBrowserAction = TOPLEVELBROWSER_CHECK_SUBMIT;
+				if (this.topLevelBrowserAction == 0) {
+					this.topLevelBrowserAction= TOPLEVELBROWSER_CHECK_SUBMIT;
 				}
 			}
 			else {
-				if (fTopLevelBrowserAction != TOPLEVELBROWSER_ENABLE_COMMANDS) {
-					fTopLevelBrowserAction = 0;
+				if (this.topLevelBrowserAction != TOPLEVELBROWSER_ENABLE_COMMANDS) {
+					this.topLevelBrowserAction= 0;
 				}
 			}
 		}
 		try {
-			final SetDebugReport report = doExec(
+			final SetDebugReport report= doExec(
 					new SetDebugRequest(environment.getHandle(), enable, temp), monitor );
 			return (report != null && report.isChanged());
 		}
@@ -738,7 +732,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	
 	protected void handle(final TracepointEvent event) {
 		if (event.getKind() == TracepointEvent.KIND_ABOUT_TO_HIT) {
-			fBreakpointHit = event;
+			this.breakpointHit= event;
 		}
 	}
 	
@@ -750,7 +744,7 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	
 	@Override
 	public boolean acceptNewConsoleCommand() {
-		return ((fCurrentPrompt.meta & (META_PROMPT_DEFAULT | META_PROMPT_SUSPENDED)) != 0);
+		return ((this.fCurrentPrompt.meta & (META_PROMPT_DEFAULT | META_PROMPT_SUSPENDED)) != 0);
 	}
 	
 	@Override
@@ -758,10 +752,10 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			final IProgressMonitor monitor) throws CoreException {
 		if (input.indexOf('\n') >= 0) {
 			// TODO progress
-			final String[] lines = RUtil.LINE_SEPARATOR_PATTERN.split(input);
-			for (int i = 0; i < lines.length; i++) {
-				if (fTopLevelBrowserAction != 0 && getCurrentLevelL() == 0 && (fCurrentPrompt.meta & META_PROMPT_DEFAULT) != 0) {
-					fTopLevelBrowserAction = 0;
+			final String[] lines= RUtil.LINE_SEPARATOR_PATTERN.split(input);
+			for (int i= 0; i < lines.length; i++) {
+				if (this.topLevelBrowserAction != 0 && getCurrentLevelL() == 0 && (this.fCurrentPrompt.meta & META_PROMPT_DEFAULT) != 0) {
+					this.topLevelBrowserAction= 0;
 					setDebugBrowser(TOPLEVEL_ENV_FRAME, false, false, monitor);
 				}
 				super.submitToConsole(lines[i], monitor);
@@ -769,8 +763,8 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			return;
 		}
 		
-		if (fTopLevelBrowserAction != 0 && getCurrentLevelL() == 0 && (fCurrentPrompt.meta & META_PROMPT_DEFAULT) != 0) {
-			fTopLevelBrowserAction = 0;
+		if (this.topLevelBrowserAction != 0 && getCurrentLevelL() == 0 && (this.fCurrentPrompt.meta & META_PROMPT_DEFAULT) != 0) {
+			this.topLevelBrowserAction= 0;
 			setDebugBrowser(TOPLEVEL_ENV_FRAME, false, false, monitor);
 		}
 		super.submitToConsole(input, monitor);
@@ -779,26 +773,26 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	@Override
 	public void submitCommandToConsole(final String[] lines, final IRSrcref srcref,
 			final IProgressMonitor monitor) throws CoreException {
-		if (fIsDebugEnabled && getCurrentLevelL() == 0
-				&& (fCurrentPrompt.meta & META_PROMPT_DEFAULT) != 0) {
-			if (fTopLevelBrowserAction == TOPLEVELBROWSER_ENABLE_COMMANDS) {
+		if (isDebugEnabled() && getCurrentLevelL() == 0
+				&& (this.fCurrentPrompt.meta & META_PROMPT_DEFAULT) != 0) {
+			if (this.topLevelBrowserAction == TOPLEVELBROWSER_ENABLE_COMMANDS) {
 				initTopLevelBrowser(monitor);
 			}
-			else if (!fTopLevelBrowserEnabled && srcref instanceof IRModelSrcref
-					&& fBreakpointAdapter.matchScriptBreakpoint((IRModelSrcref) srcref, monitor) ) {
+			else if (!this.topLevelBrowserEnabled && srcref instanceof IRModelSrcref
+					&& this.breakpointAdapter.matchScriptBreakpoint((IRModelSrcref) srcref, monitor) ) {
 				initTopLevelBrowser(monitor);
 			}
 		}
 		
-		final SrcfileData srcfile = getSrcfile(srcref, monitor);
+		final SrcfileData srcfile= getSrcfile(srcref, monitor);
 		
 		doSubmitCommandL(lines, srcfile, srcref, monitor);
 		
-		if (fIsDebugEnabled && srcfile != null && srcref instanceof IRModelSrcref) {
-			final ElementTracepointInstallationRequest breakpointsRequest = fBreakpointAdapter
+		if (isDebugEnabled() && srcfile != null && srcref instanceof IRModelSrcref) {
+			final ElementTracepointInstallationRequest breakpointsRequest= this.breakpointAdapter
 					.getElementTracepoints(srcfile, (IRModelSrcref) srcref, monitor );
 			if (breakpointsRequest != null) {
-				fBreakpointAdapter.installElementTracepoints(breakpointsRequest, monitor);
+				this.breakpointAdapter.installElementTracepoints(breakpointsRequest, monitor);
 			}
 		}
 	}
@@ -816,16 +810,16 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			super.submitFileCommandToConsole(lines, null, monitor);
 			return;
 		}
-		final SrcfileData srcfile = getSrcfile(su, monitor);
+		final SrcfileData srcfile= getSrcfile(su, monitor);
 		final ElementTracepointInstallationRequest breakpointsRequest =
-				(fIsDebugEnabled && su instanceof IRWorkspaceSourceUnit) ?
-						fBreakpointAdapter.prepareFileElementTracepoints(srcfile, (IRSourceUnit) su, monitor ) :
+				(isDebugEnabled() && su instanceof IRWorkspaceSourceUnit) ?
+						this.breakpointAdapter.prepareFileElementTracepoints(srcfile, (IRSourceUnit) su, monitor ) :
 						null;
 		
 		doSubmitFileCommandToConsole(lines, srcfile, su, monitor);
 		
 		if (breakpointsRequest != null) {
-			fBreakpointAdapter.installElementTracepoints(breakpointsRequest, monitor);
+			this.breakpointAdapter.installElementTracepoints(breakpointsRequest, monitor);
 		}
 	}
 	
@@ -845,19 +839,19 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 	
 	protected SrcfileData getSrcfile(final ISourceUnit su,
 			final IProgressMonitor monitor) throws CoreException {
-		String fileName = null;
+		String fileName= null;
 		if (su != null && su.getResource() != null) {
-			URI uri = null;
-			final FileUtil fileUtil = FileUtil.getFileUtil(su.getResource());
+			URI uri= null;
+			final FileUtil fileUtil= FileUtil.getFileUtil(su.getResource());
 			if (fileUtil != null) {
-				uri = fileUtil.getURI();
+				uri= fileUtil.getURI();
 			}
 			if (uri != null) {
-				fileName = uri.toString();
+				fileName= uri.toString();
 				try {
-					final IFileStore store = EFS.getStore(uri);
+					final IFileStore store= EFS.getStore(uri);
 					if (store != null) {
-						fileName = getWorkspaceData().toToolPath(store);
+						fileName= getWorkspaceData().toToolPath(store);
 					}
 				}
 				catch (final CoreException e) {
@@ -867,13 +861,13 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 				return null;
 			}
 			if (su instanceof IWorkspaceSourceUnit) {
-				final IResource resource = ((IWorkspaceSourceUnit) su).getResource();
-				final IPath path = resource.getFullPath();
+				final IResource resource= ((IWorkspaceSourceUnit) su).getResource();
+				final IPath path= resource.getFullPath();
 				
 				prepareSrcfile(fileName, path, monitor);
 				
 				return new SrcfileData(
-						(fLastSrcfile == fileName) ? fLastSrcfilePath : path.toPortableString(),
+						(this.lastSrcfile == fileName) ? this.lastSrcfilePath : path.toPortableString(),
 						fileName,
 						(su.getWorkingContext() == LTK.PERSISTENCE_CONTEXT) ?
 								resource.getLocalTimeStamp()/1000 :
@@ -892,16 +886,16 @@ public abstract class AbstractRDbgController extends AbstractRController impleme
 			if (srcfile == null || path == null) {
 				return;
 			}
-			final String statetPath = path.toPortableString();
-			if (!srcfile.equals(fLastSrcfile) || !statetPath.equals(fLastSrcfilePath) ) {
+			final String statetPath= path.toPortableString();
+			if (!srcfile.equals(this.lastSrcfile) || !statetPath.equals(this.lastSrcfilePath) ) {
 				doPrepareSrcfile(srcfile, statetPath, monitor);
 			}
-			fLastSrcfile = srcfile;
-			fLastSrcfilePath = statetPath;
+			this.lastSrcfile= srcfile;
+			this.lastSrcfilePath= statetPath;
 		}
 		catch (final Exception e) {
-			fLastSrcfile = null;
-			fLastSrcfilePath = null;
+			this.lastSrcfile= null;
+			this.lastSrcfilePath= null;
 			RConsoleCorePlugin.log(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID, 0,
 					"An error occurred when preparing srcfile information in R." , e ));
 		}

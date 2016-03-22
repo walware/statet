@@ -11,6 +11,10 @@
 
 package de.walware.statet.r.ui.dataeditor;
 
+import de.walware.ecommons.ts.ITool;
+
+import de.walware.rj.services.IFQRObjectRef;
+
 import de.walware.statet.r.core.model.RElementName;
 
 
@@ -28,7 +32,10 @@ public interface IRDataTableInput {
 	
 	String getFullName();
 	
-	String getLastName();
+	String getName();
+	
+	IFQRObjectRef getElementRef();
+	ITool getTool();
 	
 	boolean isAvailable();
 	

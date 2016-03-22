@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import de.walware.ecommons.debug.ui.CheckedCommonTab;
+import de.walware.ecommons.debug.ui.util.CheckedCommonTab;
 
 import de.walware.statet.nico.core.runtime.LogRuntimeProcessFactory;
 

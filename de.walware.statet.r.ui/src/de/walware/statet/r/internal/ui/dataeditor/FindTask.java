@@ -42,7 +42,7 @@ public final class FindTask {
 	
 	@Override
 	public int hashCode() {
-		return expression.hashCode();
+		return this.expression.hashCode();
 	}
 	
 	@Override
@@ -51,8 +51,8 @@ public final class FindTask {
 			return false;
 		}
 		final FindTask other = (FindTask) obj;
-		return (expression.equals(other.expression)
-				&& firstInRow == other.firstInRow);
+		return (this.expression.equals(other.expression)
+				&& this.firstInRow == other.firstInRow);
 	}
 	
 }

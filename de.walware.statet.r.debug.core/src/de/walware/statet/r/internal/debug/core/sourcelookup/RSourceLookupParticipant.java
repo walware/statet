@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.sourcelookup.AbstractSourceLookupParticipant;
@@ -65,14 +66,16 @@ import de.walware.statet.r.debug.core.sourcelookup.IRSourceContainer;
 import de.walware.statet.r.debug.core.sourcelookup.IRSourceLookupMatch;
 import de.walware.statet.r.debug.core.sourcelookup.RRuntimeSourceFragment;
 import de.walware.statet.r.internal.debug.core.RDebugCorePlugin;
-import de.walware.statet.r.internal.debug.core.RStackFrame;
+import de.walware.statet.r.internal.debug.core.model.RStackFrame;
 import de.walware.statet.r.nico.IRSrcref;
 
 
 public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 	
 	
-	private static final boolean DEBUG= Boolean.parseBoolean(System.getProperty("de.walware.statet.r.debug.sourcelookup")); //$NON-NLS-1$
+	private static final boolean DEBUG_LOG= Boolean.parseBoolean(
+			Platform.getDebugOption("de.walware.statet.r.debug/debug/SourceLookup/log") ); //$NON-NLS-1$
+	
 	
 	private static final int QUALITY_EXACT_FILE_TIMESTAMP=  23;
 	private static final int QUALITY_EXACT_FILE_CONTENT=    22;
@@ -181,7 +184,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 		}
 		
 		public void install() {
-			if (DEBUG) {
+			if (DEBUG_LOG) {
 				RDebugCorePlugin.log(new Status(IStatus.INFO, RDebugCorePlugin.PLUGIN_ID, 0,
 						"Installing " + toString(), null));
 			}
@@ -260,16 +263,23 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 				boolean addedFile= false;
 				int bestQuality= -1;
 				final boolean findDuplicates= isFindDuplicates();
-				if (DEBUG) {
+				if (DEBUG_LOG) {
 					data.addStatus(new Status(IStatus.INFO, RDebugCorePlugin.PLUGIN_ID, 0,
 							NLS.bind("Beginning R source lookup for {0}.", object), null));
 				}
 				if (data.context == null) {
-					if (DEBUG) {
+					if (DEBUG_LOG) {
 						data.addStatus(new Status(IStatus.INFO, RDebugCorePlugin.PLUGIN_ID, 0,
 								"Context with detail is not available.", null));
 					}
-					return null;
+					return new Object[] { IRSourceLookupMatch.NO_CONTEXT_INFORMATION };
+				}
+				if (data.context.getFileName() == null && data.context.getSourceCode() == null) {
+					if (DEBUG_LOG) {
+						data.addStatus(new Status(IStatus.INFO, RDebugCorePlugin.PLUGIN_ID, 0,
+								"Context with detail is not available.", null));
+					}
+					return new Object[] { IRSourceLookupMatch.NO_CONTEXT_INFORMATION };
 				}
 				
 				URI fileUri= null;
@@ -306,7 +316,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 					if (fileUri != null && !fileUri.isAbsolute()) {
 						fileUri= null;
 					}
-					if (DEBUG) {
+					if (DEBUG_LOG) {
 						final StringBuilder sb= new StringBuilder();
 						sb.append("Resolved filenames:"); //$NON-NLS-1$
 						sb.append("\n\t" + "fileStore= ").append(fileStore != null ? fileStore.toString() : "<missing>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -432,8 +442,8 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 				}
 				
 				// fallback method 2: runtime source
-				if ((bestQuality <= 0 || findDuplicates)
-						&& data.context.getSourceCode() != null) {
+				if (data.context.getSourceCode() != null
+						&& (bestQuality <= 0 || findDuplicates) ) {
 					try {
 						createFragment(data);
 						final RSourceLookupMatch match= new RSourceLookupMatch(data.frame, data.fragment);
@@ -456,7 +466,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 					throw new DebugException(new Status(IStatus.INFO, RDebugCorePlugin.PLUGIN_ID,
 							DebugException.NOT_SUPPORTED, "Not supported.", null));
 				}
-				else if (DEBUG) {
+				else if (DEBUG_LOG) {
 					if (matches.isEmpty()) {
 						RDebugCorePlugin.log(new Status(IStatus.INFO, RDebugCorePlugin.PLUGIN_ID, 0,
 								NLS.bind("Could not find R sources ({0}, {1}).", //$NON-NLS-1$
@@ -543,7 +553,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 				try {
 					final Object element= ((IRSourceContainer) containers[i]).findSourceElement(fileUri, fileInWorkspace);
 					if (element != null) {
-						if (DEBUG) {
+						if (DEBUG_LOG) {
 							data.addStatus(new Status(IStatus.INFO, RDebugCorePlugin.PLUGIN_ID, 0,
 									NLS.bind("Source element found in ''{0}'': {1}",
 											containers[i].getName(), element.toString() ), null ));
@@ -573,7 +583,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 			if (containers[i] instanceof IRSourceContainer) {
 				try {
 					((IRSourceContainer) containers[i]).findSourceElement(path, elements);
-					if (DEBUG) {
+					if (DEBUG_LOG) {
 						for (; j < elements.size(); j++) {
 							data.addStatus(new Status(IStatus.INFO, RDebugCorePlugin.PLUGIN_ID, 0,
 									NLS.bind("Source element found in ''{0}'': {1}",
@@ -795,7 +805,7 @@ public class RSourceLookupParticipant extends AbstractSourceLookupParticipant {
 			if (children.size() == 1) {
 				final IModelElement modelElement= children.get(0);
 				if (modelElement instanceof IRMethod) {
-					fDef= (FDef) modelElement.getAdapter(FDef.class);
+					fDef= modelElement.getAdapter(FDef.class);
 				}
 			}
 			if (fDef == null && (modelInfo.getAst().root instanceof RAstNode)) {

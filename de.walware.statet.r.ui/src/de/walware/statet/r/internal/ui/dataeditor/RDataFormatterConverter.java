@@ -50,22 +50,22 @@ public class RDataFormatterConverter implements IDisplayConverter {
 	
 	
 	public RDataFormatterConverter(final AbstractRDataProvider<?> dataProvider) {
-		fDataProvider = dataProvider;
+		this.fDataProvider = dataProvider;
 	}
 	
 	
 	private RDataFormatter getFormatter(final ILayerCell cell) {
-		final RDataTableContentDescription description = fDataProvider.getDescription();
+		final RDataTableContentDescription description = this.fDataProvider.getDescription();
 		if (description != null) {
 			final RDataFormatter formatter = getFormatter(description, cell);
 			if (formatter != null) {
 				return formatter;
 			}
 		}
-		if (fFallbackFormatter == null) {
-			fFallbackFormatter = new RDataFormatter();
+		if (this.fFallbackFormatter == null) {
+			this.fFallbackFormatter = new RDataFormatter();
 		}
-		return fFallbackFormatter;
+		return this.fFallbackFormatter;
 	}
 	
 	protected RDataFormatter getFormatter(final RDataTableContentDescription description,

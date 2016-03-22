@@ -75,7 +75,7 @@ class PrintHandler extends AbstractHandler {
 			return null;
 		}
 		final TreePath treePath = selection.getPaths()[0];
-		final RElementName elementName = this.view.getElementName(treePath);
+		final RElementName elementName = this.view.getFQElementName(treePath);
 		if (elementName != null) {
 			String cmd = RElementName.createDisplayName(elementName, RElementName.DISPLAY_FQN | RElementName.DISPLAY_EXACT);
 			if (treePath.getLastSegment() instanceof IElementPartition) {

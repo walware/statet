@@ -34,7 +34,7 @@ import org.eclipse.ui.IWorkbenchPage;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.core.util.LaunchUtils;
-import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
+import de.walware.ecommons.debug.ui.util.UnterminatedLaunchAlerter;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ToolRunner;

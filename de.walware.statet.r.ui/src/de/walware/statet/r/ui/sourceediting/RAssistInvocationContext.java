@@ -52,7 +52,7 @@ import de.walware.statet.r.ui.editors.IRSourceEditor;
 
 
 /**
- * 
+ * AssistInvocationContext for R
  */
 public class RAssistInvocationContext extends AssistInvocationContext {
 	
@@ -405,7 +405,7 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 			if (nameNode != null
 					&& nameNode.getOffset() <= region.getOffset()
 					&& nameNode.getEndOffset() >= region.getOffset() + region.getLength() ) {
-				return RElementName.create(access, current, true);
+				return RElementName.create(access, current.getNextSegment(), true);
 			}
 			current= current.getNextSegment();
 		}

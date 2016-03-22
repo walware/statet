@@ -35,9 +35,10 @@ import de.walware.ecommons.ui.components.ShortedLabel;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.IProgressInfo;
+import de.walware.statet.nico.core.runtime.Queue;
+import de.walware.statet.nico.core.runtime.Queue.StateDelta;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.core.runtime.ToolStatus;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
@@ -49,7 +50,7 @@ import de.walware.statet.nico.ui.NicoUITools;
 public class ToolProgressGroup {
 	
 	
-	private static final IProgressInfo DUMMY_INFO = new IProgressInfo() {
+	private static final IProgressInfo DUMMY_INFO= new IProgressInfo() {
 		@Override
 		public String getLabel() {
 			return ""; //$NON-NLS-1$
@@ -69,8 +70,8 @@ public class ToolProgressGroup {
 	};
 	
 	
-	private static final int SCHEDULE_ON_EVENT = 50;
-	private static final int SCHEDULE_DEFAULT = 150;
+	private static final int SCHEDULE_ON_EVENT= 50;
+	private static final int SCHEDULE_DEFAULT= 150;
 	
 	
 	private class RefreshJob extends WorkbenchJob {
@@ -83,7 +84,7 @@ public class ToolProgressGroup {
 		@Override
 		public IStatus runInUIThread(final IProgressMonitor monitor) {
 			internalRefresh();
-			if (fTool.fScheduleRefresh) {
+			if (ToolProgressGroup.this.toolInfo.scheduleRefresh) {
 				schedule(SCHEDULE_DEFAULT);
 			}
 			
@@ -95,13 +96,13 @@ public class ToolProgressGroup {
 		
 		@Override
 		public void handleDebugEvents(final DebugEvent[] events) {
-			final ToolInfo tool = fTool;
+			final ToolInfo tool= ToolProgressGroup.this.toolInfo;
 			for (final DebugEvent event : events) {
-				if (tool.fProcess == event.getSource()) {
-					final ToolStatus status = ToolProcess.getChangedToolStatus(event);
-					if (status != null) {
-						tool.fScheduleRefresh = !status.isRunning();
-						fRefreshJob.schedule(SCHEDULE_ON_EVENT);
+				if (event.getSource() == tool.process.getQueue()) {
+					if (Queue.isStateChange(event)) {
+						final StateDelta delta= ((Queue.StateDelta) event.getData());
+						tool.scheduleRefresh= (delta.newState == Queue.PROCESSING_STATE);
+						ToolProgressGroup.this.refreshJob.schedule(SCHEDULE_ON_EVENT);
 					}
 				}
 			}
@@ -111,33 +112,35 @@ public class ToolProgressGroup {
 	
 	private static class ToolInfo {
 		
-		ToolProcess fProcess;
-		Image fImageCache;
-		boolean fScheduleRefresh = false;
+		final ToolProcess process;
+		
+		Image imageCache;
+		
+		boolean scheduleRefresh= false;
 		
 		ToolInfo(final ToolProcess process) {
-			fProcess = process;
+			this.process= process;
 			if (process != null) {
-				fScheduleRefresh = !process.getToolStatus().isRunning();
+				this.scheduleRefresh= process.getToolStatus().isRunning();
 			}
 			else {
-				fScheduleRefresh = false;
+				this.scheduleRefresh= false;
 			}
 		}
 		
 	}
 	
 	
-	private final DebugEventListener fDebugEventListener;
-	private final Job fRefreshJob;
+	private final DebugEventListener debugEventListener;
+	private final Job refreshJob;
 	
-	private Composite fComposite;
-	private Label fImageLabel;
-	private ShortedLabel fMainLabel;
-	private ProgressBar fProgressBar;
-	private ShortedLabel fSubLabel;
+	private Composite composite;
+	private Label imageLabel;
+	private ShortedLabel mainLabel;
+	private ProgressBar progressBar;
+	private ShortedLabel subLabel;
 	
-	private ToolInfo fTool = new ToolInfo(null);
+	private ToolInfo toolInfo= new ToolInfo(null);
 	
 	
 	/**
@@ -146,63 +149,63 @@ public class ToolProgressGroup {
 	 * @param parent the parent composite
 	 */
 	public ToolProgressGroup(final Composite parent) {
-		fDebugEventListener = new DebugEventListener();
-		fRefreshJob = new RefreshJob();
+		this.debugEventListener= new DebugEventListener();
+		this.refreshJob= new RefreshJob();
 		
 		createControls(parent);
 		
-		final DebugPlugin manager = DebugPlugin.getDefault();
+		final DebugPlugin manager= DebugPlugin.getDefault();
 		if (manager != null) {
-			manager.addDebugEventListener(fDebugEventListener);
+			manager.addDebugEventListener(this.debugEventListener);
 		}
 	}
 	
 	
 	private void createControls(final Composite parent) {
-		fComposite = new Composite(parent, SWT.NONE);
-		fComposite.addDisposeListener(new DisposeListener() {
+		this.composite= new Composite(parent, SWT.NONE);
+		this.composite.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(final DisposeEvent e) {
 				ToolProgressGroup.this.dispose();
 			}
 		});
-		final GridLayout layout = new GridLayout(2, false);
-		layout.marginHeight = 0;
-		layout.marginWidth = 2;
-		layout.verticalSpacing = 2;
-		fComposite.setLayout(layout);
+		final GridLayout layout= new GridLayout(2, false);
+		layout.marginHeight= 0;
+		layout.marginWidth= 2;
+		layout.verticalSpacing= 2;
+		this.composite.setLayout(layout);
 		
-		fImageLabel = new Label(fComposite, SWT.NONE);
-		GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, false);
-		gd.verticalSpan = 2;
-		gd.verticalIndent = 2;
-		gd.widthHint = 16;
-		gd.heightHint = 16;
-		fImageLabel.setLayoutData(gd);
+		this.imageLabel= new Label(this.composite, SWT.NONE);
+		GridData gd= new GridData(SWT.LEFT, SWT.TOP, false, false);
+		gd.verticalSpan= 2;
+		gd.verticalIndent= 2;
+		gd.widthHint= 16;
+		gd.heightHint= 16;
+		this.imageLabel.setLayoutData(gd);
 		
-		fMainLabel = new ShortedLabel(fComposite, SWT.NONE);
-		fMainLabel.getControl().setLayoutData(
+		this.mainLabel= new ShortedLabel(this.composite, SWT.NONE);
+		this.mainLabel.getControl().setLayoutData(
 				new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
-		fSubLabel = new ShortedLabel(fComposite, SWT.NONE);
-		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		fSubLabel.getControl().setLayoutData(gd);
+		this.subLabel= new ShortedLabel(this.composite, SWT.NONE);
+		gd= new GridData(SWT.FILL, SWT.CENTER, true, false);
+		this.subLabel.getControl().setLayoutData(gd);
 		
-		fProgressBar = new ProgressBar(fComposite, SWT.HORIZONTAL);
-		fProgressBar.setMinimum(0);
-		fProgressBar.setMaximum(IToolRunnable.TOTAL_WORK);
-		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gd.horizontalSpan = 2;
-		fProgressBar.setLayoutData(gd);
+		this.progressBar= new ProgressBar(this.composite, SWT.HORIZONTAL);
+		this.progressBar.setMinimum(0);
+		this.progressBar.setMaximum(IToolRunnable.TOTAL_WORK);
+		gd= new GridData(SWT.FILL, SWT.CENTER, true, false);
+		gd.horizontalSpan= 2;
+		this.progressBar.setLayoutData(gd);
 	}
 	
 	public Control getControl() {
-		return fComposite;
+		return this.composite;
 	}
 	
 	
 	public void setTool(final ToolProcess tool, final boolean directRefresh) {
-		fTool = new ToolInfo(tool);
+		this.toolInfo= new ToolInfo(tool);
 		refresh(directRefresh);
 	}
 	
@@ -215,54 +218,54 @@ public class ToolProgressGroup {
 	 */
 	public void refresh(final boolean directRefresh) {
 		if (directRefresh) {
-			fRefreshJob.cancel();
+			this.refreshJob.cancel();
 			internalRefresh();
-			fRefreshJob.schedule(SCHEDULE_DEFAULT);
+			this.refreshJob.schedule(SCHEDULE_DEFAULT);
 		}
 		else {
-			fRefreshJob.schedule(SCHEDULE_ON_EVENT);
+			this.refreshJob.schedule(SCHEDULE_ON_EVENT);
 		}
 	}
 	
 	private void internalRefresh() {
-		if (!UIAccess.isOkToUse(fComposite)) {
+		if (!UIAccess.isOkToUse(this.composite)) {
 			return;
 		}
-		final ToolInfo tool = fTool;
-		final ToolController controller = (tool.fProcess != null) ? tool.fProcess.getController() : null;
-		final IProgressInfo info = (controller != null) ? controller.getProgressInfo() : DUMMY_INFO;
-		Image image = null;
-		final IToolRunnable runnable = info.getRunnable();
+		final ToolInfo tool= this.toolInfo;
+		final ToolController controller= (tool.process != null) ? tool.process.getController() : null;
+		final IProgressInfo info= (controller != null) ? controller.getProgressInfo() : DUMMY_INFO;
+		Image image= null;
+		final IToolRunnable runnable= info.getRunnable();
 		if (runnable != null) {
-			image = NicoUITools.getImage(runnable);
+			image= NicoUITools.getImage(runnable);
 		}
-		if (image == null && tool.fProcess != null) {
-			image = getToolImage(tool);
+		if (image == null && tool.process != null) {
+			image= getToolImage(tool);
 		}
 		if (image == null) {
-			image = NicoUIPlugin.getDefault().getImageRegistry().get(NicoUI.OBJ_TASK_DUMMY_IMAGE_ID);
+			image= NicoUIPlugin.getDefault().getImageRegistry().get(NicoUI.OBJ_TASK_DUMMY_IMAGE_ID);
 		}
-		if (!(image.equals(fImageLabel.getImage()))) {
-			fImageLabel.setImage(image);
+		if (!(image.equals(this.imageLabel.getImage()))) {
+			this.imageLabel.setImage(image);
 		}
-		fMainLabel.setText(info.getLabel());
-		fSubLabel.setText(info.getSubLabel());
-		fProgressBar.setSelection(info.getWorked());
+		this.mainLabel.setText(info.getLabel());
+		this.subLabel.setText(info.getSubLabel());
+		this.progressBar.setSelection(info.getWorked());
 	}
 	
 	private Image getToolImage(final ToolInfo tool) {
-		if (tool.fImageCache == null) {
-			tool.fImageCache = NicoUITools.getImage(tool.fProcess);
+		if (tool.imageCache == null) {
+			tool.imageCache= NicoUITools.getImage(tool.process);
 		}
-		return tool.fImageCache;
+		return tool.imageCache;
 	}
 	
 	private void dispose() {
-		fTool = new ToolInfo(null);
-		fRefreshJob.cancel();
-		final DebugPlugin manager = DebugPlugin.getDefault();
+		this.toolInfo= new ToolInfo(null);
+		this.refreshJob.cancel();
+		final DebugPlugin manager= DebugPlugin.getDefault();
 		if (manager != null) {
-			manager.removeDebugEventListener(fDebugEventListener);
+			manager.removeDebugEventListener(this.debugEventListener);
 		}
 	}
 	

@@ -27,20 +27,20 @@ public class FTableVariable implements IRDataTableVariable {
 	
 	
 	public FTableVariable(final int orientation, final String name, final RStore dataStore) {
-		fPresentation = orientation;
-		fName = name;
-		fDataStore = dataStore;
+		this.fPresentation = orientation;
+		this.fName = name;
+		this.fDataStore = dataStore;
 	}
 	
 	
 	@Override
 	public int getVarPresentation() {
-		return fPresentation;
+		return this.fPresentation;
 	}
 	
 	@Override
 	public String getName() {
-		return fName;
+		return this.fName;
 	}
 	
 	@Override
@@ -49,13 +49,13 @@ public class FTableVariable implements IRDataTableVariable {
 	}
 	
 	public RStore getLevelStore() {
-		return fDataStore;
+		return this.fDataStore;
 	}
 	
 	
 	@Override
 	public int hashCode() {
-		return fName.hashCode();
+		return this.fName.hashCode();
 	}
 	
 	@Override
@@ -67,7 +67,7 @@ public class FTableVariable implements IRDataTableVariable {
 			return false;
 		}
 		final FTableVariable other = (FTableVariable) obj;
-		return fName.equals(other.fName);
+		return this.fName.equals(other.fName);
 	}
 	
 }

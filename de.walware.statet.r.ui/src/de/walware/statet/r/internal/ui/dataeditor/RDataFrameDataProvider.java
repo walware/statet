@@ -46,7 +46,7 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 		final int columnCount = (int) getColumnCount();
 		
 		description.setRowHeaderColumns(
-				createNamesColumn("attr(" + fInput.getFullName() + ", 'row.names', exact= TRUE)", //$NON-NLS-1$ //$NON-NLS-2$
+				createNamesColumn("attr(" + getInput().getFullName() + ", 'row.names', exact= TRUE)", //$NON-NLS-1$ //$NON-NLS-2$
 						struct.getRowCount(), r, monitor ));
 		final RDataTableColumn[] dataColumns = new RDataTableColumn[columnCount];
 		for (int i = 0; i < columnCount; i++) {
@@ -54,7 +54,7 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 			final RElementName elementName= RElementName.create(ImCollections.newList(BASE_NAME,
 					RElementName.create(RElementName.SUB_NAMEDPART, columnName, i+1 )));
 			dataColumns[i] = createColumn(struct.getColumn(i),
-					fInput.getFullName() + "[[" + (i+1) + "]]", elementName, i, columnName,
+					getInput().getFullName() + "[[" + (i+1) + "]]", elementName, i, columnName,
 					r, monitor);
 		}
 		description.setDataColumns(dataColumns);
@@ -66,7 +66,7 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 	@Override
 	protected void appendOrderCmd(final StringBuilder cmd, final SortColumn sortColumn) {
 		cmd.append("order(");
-		cmd.append(fInput.getFullName());
+		cmd.append(getInput().getFullName());
 		cmd.append("[[");
 		cmd.append((sortColumn.columnIdx + 1));
 		cmd.append("]], decreasing=");

@@ -36,6 +36,7 @@ import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
+import de.walware.statet.r.core.model.RModel;
 
 
 public final class REnvironmentVar extends CombinedElement
@@ -174,6 +175,7 @@ public final class REnvironmentVar extends CombinedElement
 		return this.source;
 	}
 	
+	@Override
 	public int getStamp() {
 		return this.stamp;
 	}
@@ -211,7 +213,7 @@ public final class REnvironmentVar extends CombinedElement
 			this.environmentName= ENVNAME_GLOBAL;
 			this.frameType= IRFrame.PROJECT;
 			if (getElementName() == null) {
-				setElementName(RElementName.create(RElementName.SCOPE_SEARCH_ENV, ".GlobalEnv")); //$NON-NLS-1$
+				setElementName(RModel.GLOBAL_ENV_NAME);
 			}
 			return;
 		case ENVTYPE_EMTPY:

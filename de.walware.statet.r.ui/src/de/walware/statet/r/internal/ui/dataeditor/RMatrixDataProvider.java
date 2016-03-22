@@ -51,16 +51,17 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 		final long count = getColumnCount();
 		
 		description.setRowHeaderColumns(
-				createNamesColumn("rownames(" + fInput.getFullName() + ")", fAdapter.getRowCount(struct),
+				createNamesColumn("rownames(" + getInput().getFullName() + ")",
+						getAdapter().getRowCount(struct),
 						r, monitor ));
 		
 		final RDataTableColumn template = createColumn(struct.getData(),
-						fInput.getFullName(), null, -1, null,
+						getInput().getFullName(), null, -1, null,
 						r, monitor );
 		if (count <= 2500) {
 			final int l = (int) count;
 			RStore names;
-			final RObject rObject = r.evalData("colnames(" + fInput.getFullName() + ")", monitor);
+			final RObject rObject = r.evalData("colnames(" + getInput().getFullName() + ")", monitor);
 			if (rObject != null && rObject.getRObjectType() == RObject.TYPE_VECTOR
 					&& rObject.getLength() == l) {
 				names = rObject.getData();
@@ -86,7 +87,7 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 	@Override
 	protected void appendOrderCmd(final StringBuilder cmd, final SortColumn sortColumn) {
 		cmd.append("order(");
-		cmd.append(fInput.getFullName());
+		cmd.append(getInput().getFullName());
 		cmd.append("[,");
 		cmd.append((sortColumn.columnIdx + 1));
 		cmd.append("],decreasing=");

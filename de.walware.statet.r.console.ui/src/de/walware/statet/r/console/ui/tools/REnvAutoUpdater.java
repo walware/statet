@@ -24,13 +24,14 @@ import org.osgi.framework.Version;
 
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.core.Preference.StringPref2;
-import de.walware.ecommons.ts.ISystemReadRunnable;
+import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.util.ToolMessageDialog;
 
+import de.walware.statet.r.console.core.AbstractRController;
 import de.walware.statet.r.console.core.AbstractRDataRunnable;
 import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RProcess;
@@ -42,34 +43,35 @@ import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvManager;
 import de.walware.statet.r.core.renv.IRLibraryLocation;
 import de.walware.statet.r.internal.console.ui.Messages;
-import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.impl.RjsController;
 import de.walware.statet.r.ui.pkgmanager.RPkgManagerUI;
 import de.walware.statet.r.ui.pkgmanager.StartAction;
 
 
-public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemReadRunnable {
+public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRunnable {
 	
 	
 	public static void connect(final RjsController controller, final IRPkgManager manager) {
 		if (controller == null || manager == null) {
 			return;
 		}
-		final REnvAutoUpdater checker = new REnvAutoUpdater(manager);
+		final REnvAutoUpdater checker= new REnvAutoUpdater(manager);
 		controller.getTool().getQueue().addOnIdle(checker, 1000);
 	}
 	
 	
-	private final IRPkgManager fManager;
+	private final IRPkgManager manager;
 	
-	private boolean fInitial = true;
+	private boolean initial= true;
 	
-	private boolean fVersionChecked;
+	private boolean versionChecked;
+	
+	private int checkStamp;
 	
 	
 	private REnvAutoUpdater(final IRPkgManager manager) {
 		super("r/renv/check", Messages.REnvIndex_Check_task); //$NON-NLS-1$
-		fManager = manager;
+		this.manager= manager;
 	}
 	
 	
@@ -83,44 +85,44 @@ public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRea
 	
 	@Override
 	protected void run(final IRDataAdapter r, final IProgressMonitor monitor) throws CoreException {
-		final AbstractRController rjs = (AbstractRController) r;
-		if (rjs.isBusy() || !r.isDefaultPrompt() || r.getBriefedChanges() == 0) {
+		final AbstractRController rjs= (AbstractRController) r;
+		if (rjs.isBusy() || !r.isDefaultPrompt() || r.getChangeStamp() == this.checkStamp) {
 			return;
 		}
 		
-		int flags = 0;
-		if (fInitial) {
-			fInitial = false;
+		int flags= 0;
+		if (this.initial) {
+			this.initial= false;
 			flags |= IRPkgManager.INITIAL;
 		}
-		fManager.check(flags, r, monitor);
+		this.manager.check(flags, r, monitor);
+		this.checkStamp= r.getChangeStamp();
 		
-		if (!fVersionChecked) {
-			fVersionChecked = true;
+		if (!this.versionChecked) {
+			this.versionChecked= true;
 			
 			checkRVersion(r, monitor);
 		}
-		
 	}
 	
 	private void checkRVersion(final IRDataAdapter r, final IProgressMonitor monitor) throws CoreException {
-		final Version rVersion = r.getPlatform().getRVersion();
+		final Version rVersion= r.getPlatform().getRVersion();
 		
-		final IREnvConfiguration rConfig = fManager.getREnv().getConfig();
+		final IREnvConfiguration rConfig= this.manager.getREnv().getConfig();
 		if (rConfig == null) {
 			return;
 		}
 		final StringPref2 pref= new StringPref2(
 				IREnvManager.PREF_QUALIFIER + '/' + rConfig.getReference().getId(),
 				"CheckedR.version" ); //$NON-NLS-1$
-		final String s = PreferencesUtil.getInstancePrefs().getPreferenceValue(pref);
+		final String s= PreferencesUtil.getInstancePrefs().getPreferenceValue(pref);
 		if (s != null) {
-			final Version checkedVersion = new Version(s);
+			final Version checkedVersion= new Version(s);
 			if (!checkedVersion.equals(rVersion)) {
 				PreferencesUtil.setPrefValue(InstanceScope.INSTANCE, pref, rVersion.toString());
 				if (checkedVersion.getMajor() != rVersion.getMajor()
 						|| checkedVersion.getMinor() != rVersion.getMinor() ) {
-					final IRPkgManager.Ext rPkgManager = (IRPkgManager.Ext) fManager;
+					final IRPkgManager.Ext rPkgManager= (IRPkgManager.Ext) this.manager;
 					if (rPkgManager.requiresUpdate()) {
 						rPkgManager.update(r, monitor);
 					}
@@ -137,7 +139,7 @@ public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRea
 	}
 	
 	private static String mainVersionString(final Version version) {
-		final StringBuilder sb = new StringBuilder(8);
+		final StringBuilder sb= new StringBuilder(8);
 		sb.append(version.getMajor());
 		sb.append('.');
 		sb.append(version.getMinor());
@@ -145,7 +147,7 @@ public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRea
 	}
 	
 	private boolean hasNonBasePackages(final IRPkgSet.Ext pkgSet) {
-		final List<? extends IRPkgList<? extends IRPkgInfoAndData>> all = pkgSet.getInstalled().getAll();
+		final List<? extends IRPkgList<? extends IRPkgInfoAndData>> all= pkgSet.getInstalled().getAll();
 		for (final IRPkgList<? extends IRPkgInfoAndData> pkgList : all) {
 			for (final IRPkgInfoAndData pkg : pkgList) {
 				if ((pkg.getLibraryLocation() == null || pkg.getLibraryLocation().getSource() != IRLibraryLocation.EPLUGIN)
@@ -159,9 +161,9 @@ public class REnvAutoUpdater extends AbstractRDataRunnable implements ISystemRea
 	
 	private void handleNewVersion(final IREnvConfiguration rConfig, final RProcess tool,
 			final IRPkgManager.Ext rPkgManager, final Version oldVersion, final Version newVersion) {
-		final IWorkbenchPage page = NicoUI.getToolRegistry().findWorkbenchPage(tool);
-		final Shell shell = page.getWorkbenchWindow().getShell();
-		final Display display = UIAccess.getDisplay(shell);
+		final IWorkbenchPage page= NicoUI.getToolRegistry().findWorkbenchPage(tool);
+		final Shell shell= page.getWorkbenchWindow().getShell();
+		final Display display= UIAccess.getDisplay(shell);
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {

@@ -27,7 +27,7 @@ public class CopyDataHandler extends AbstractHandler {
 	
 	
 	public CopyDataHandler(final RDataTableComposite tableProvider) {
-		fTableComposite = tableProvider;
+		this.fTableComposite = tableProvider;
 	}
 	
 	
@@ -39,7 +39,7 @@ public class CopyDataHandler extends AbstractHandler {
 	
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		final NatTable table = fTableComposite.getNatTable();
+		final NatTable table = this.fTableComposite.getNatTable();
 		if (table != null) {
 			table.doCommand(new CopyDataToClipboardCommand("\t", "\n", table.getConfigRegistry()));
 		}
