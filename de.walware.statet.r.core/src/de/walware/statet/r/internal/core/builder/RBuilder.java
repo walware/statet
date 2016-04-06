@@ -43,7 +43,6 @@ import de.walware.ecommons.ltk.LTK;
 import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProjects;
-import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.internal.core.Messages;
@@ -66,22 +65,22 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 	
 	private final ISourceUnitManager suManager= LTK.getSourceUnitManager();
 	
-	private final List<String> fRemovedRSU = new ArrayList<>();
-	private final ArrayList<IRWorkspaceSourceUnit> fToUpdateRSU = new ArrayList<>();
+	private final List<IFile> toRemoveRSU= new ArrayList<>();
+	private final ArrayList<IRWorkspaceSourceUnit> toUpdateRSU= new ArrayList<>();
 	
-	private final RModelManager fModelManager;
+	private final RModelManager modelManager;
 	
-	private MultiStatus fStatusCollector;
+	private MultiStatus statusCollector;
 	
 	
 	public RBuilder() {
-		fModelManager = RCorePlugin.getDefault().getRModelManager();
+		this.modelManager= RCorePlugin.getDefault().getRModelManager();
 	}
 	
 	
 	public IStatus buildIncremental(final IRProject project, final IResourceDelta delta, final IProgressMonitor monitor) {
-		fStatusCollector = new MultiStatus(RCore.PLUGIN_ID, 0, "R build status for "+project.getProject().getName(), null);
-		final SubMonitor progress = SubMonitor.convert(monitor);
+		this.statusCollector= new MultiStatus(RCore.PLUGIN_ID, 0, "R build status for "+project.getProject().getName(), null);
+		final SubMonitor progress= SubMonitor.convert(monitor);
 		try {
 			delta.accept(this);
 			
@@ -89,39 +88,40 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 				throw new OperationCanceledException();
 			}
 			
-			fModelManager.getIndex().update(project, fRemovedRSU, fToUpdateRSU, fStatusCollector, progress);
+			this.modelManager.getIndex().update(project, this.toRemoveRSU, this.toUpdateRSU,
+					this.statusCollector, progress );
 		}
 		catch (final CoreException e) {
-			fStatusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
+			this.statusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
 					"An error occurred when indexing the project", e) );
 		}
 		finally {
-			for (final IRSourceUnit su : fToUpdateRSU) {
+			for (final IRSourceUnit su : this.toUpdateRSU) {
 				if (su != null) {
 					su.disconnect(progress);
 				}
 			}
-			fRemovedRSU.clear();
-			fToUpdateRSU.clear();
+			this.toRemoveRSU.clear();
+			this.toUpdateRSU.clear();
 		}
-		return fStatusCollector;
+		return this.statusCollector;
 	}
 	
 	@Override
 	public boolean visit(final IResourceDelta delta) throws CoreException {
-		final IResource resource = delta.getResource();
+		final IResource resource= delta.getResource();
 		try {
 			switch (delta.getKind()) {
 			
 			case IResourceDelta.ADDED:
 			case IResourceDelta.CHANGED:
 				if (resource instanceof IFile) {
-					final IFile file = (IFile) resource;
-					final IContentDescription contentDescription = file.getContentDescription();
+					final IFile file= (IFile) resource;
+					final IContentDescription contentDescription= file.getContentDescription();
 					if (contentDescription == null) {
 						return true;
 					}
-					final IContentType contentType = contentDescription.getContentType();
+					final IContentType contentType= contentDescription.getContentType();
 					if (contentType == null) {
 						return true;
 					}
@@ -130,7 +130,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 						final IRWorkspaceSourceUnit su= (IRWorkspaceSourceUnit) this.suManager.getSourceUnit(
 								LTK.PERSISTENCE_CONTEXT, file, contentType, true, null );
 						if (su != null) {
-							fToUpdateRSU.add(su);
+							this.toUpdateRSU.add(su);
 						}
 						return true;
 					}
@@ -144,28 +144,28 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 			
 			case IResourceDelta.REMOVED:
 				if ((delta.getFlags() & IResourceDelta.MOVED_TO) != 0) {
-					final IResource movedTo = resource.getWorkspace().getRoot().findMember(delta.getMovedToPath());
+					final IResource movedTo= resource.getWorkspace().getRoot().findMember(delta.getMovedToPath());
 					if (movedTo != null && !movedTo.getProject().hasNature(RProjects.R_NATURE_ID)) {
 						clearMarkers(movedTo);
 					}
 				}
 				if (resource instanceof IFile) {
-					fRemovedRSU.add(RResourceUnit.createResourceId(resource));
+					this.toRemoveRSU.add((IFile) resource);
 				}
 				return true;
 			}
 			return true;
 		}
 		catch (final CoreException e) {
-			fStatusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
+			this.statusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
 					NLS.bind("An error occurred when checking ''{0}''", resource.getFullPath().toString()), e));
 			return false;
 		}
 	}
 	
 	public IStatus buildFull(final IRProject project, final IProgressMonitor monitor) {
-		fStatusCollector = new MultiStatus(RCore.PLUGIN_ID, 0, "R build status for "+project.getProject().getName(), null);
-		final SubMonitor progress = SubMonitor.convert(monitor);
+		this.statusCollector= new MultiStatus(RCore.PLUGIN_ID, 0, "R build status for "+project.getProject().getName(), null);
+		final SubMonitor progress= SubMonitor.convert(monitor);
 		try {
 			project.getProject().accept(this);
 			
@@ -173,34 +173,34 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 				throw new OperationCanceledException();
 			}
 			
-			fModelManager.getIndex().update(project, null, fToUpdateRSU, fStatusCollector, progress);
+			this.modelManager.getIndex().update(project, null, this.toUpdateRSU, this.statusCollector, progress);
 		}
 		catch (final CoreException e) {
-			fStatusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
+			this.statusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
 					"An error occurred when indexing the project", e) );
 		}
 		finally {
-			for (final IRSourceUnit su : fToUpdateRSU) {
+			for (final IRSourceUnit su : this.toUpdateRSU) {
 				if (su != null) {
 					su.disconnect(progress);
 				}
 			}
-			fRemovedRSU.clear();
-			fToUpdateRSU.clear();
+			this.toRemoveRSU.clear();
+			this.toUpdateRSU.clear();
 		}
-		return fStatusCollector;
+		return this.statusCollector;
 	}
 	
 	@Override
 	public boolean visit(final IResource resource) throws CoreException {
 		try {
 			if (resource instanceof IFile) {
-				final IFile file = (IFile) resource;
-				final IContentDescription contentDescription = file.getContentDescription();
+				final IFile file= (IFile) resource;
+				final IContentDescription contentDescription= file.getContentDescription();
 				if (contentDescription == null) {
 					return true;
 				}
-				final IContentType contentType = contentDescription.getContentType();
+				final IContentType contentType= contentDescription.getContentType();
 				if (contentType == null) {
 					return true;
 				}
@@ -209,7 +209,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 					final IRWorkspaceSourceUnit su= (IRWorkspaceSourceUnit) this.suManager.getSourceUnit(
 							LTK.PERSISTENCE_CONTEXT, file, contentType, true, null );
 					if (su != null) {
-						fToUpdateRSU.add(su);
+						this.toUpdateRSU.add(su);
 					}
 					return true;
 				}
@@ -222,7 +222,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 			return true;
 		}
 		catch (final CoreException e) {
-			fStatusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
+			this.statusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
 					NLS.bind("An error occurred when checking ''{0}''", resource.getFullPath().toString()), e));
 			return false;
 		}
@@ -231,45 +231,45 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 	public void clean(final IProject project, final IProgressMonitor monitor) {
 		clearMarkers(project);
 		
-		fModelManager.getIndex().clear(project);
+		this.modelManager.getIndex().clear(project);
 	}
 	
 	
 /*-- Rd --*/
 	
-	private final RTaskMarkerHandler fTaskMarkerHandler = new RTaskMarkerHandler();
+	private final RTaskMarkerHandler fTaskMarkerHandler= new RTaskMarkerHandler();
 	
 	protected void initRd(final IRProject project) {
-		fTaskMarkerHandler.init(project);
+		this.fTaskMarkerHandler.init(project);
 	}
 	
 	protected void doParseRd(final IFile file) throws CoreException {
 		try {
-			fTaskMarkerHandler.setup(file);
-			new RdParser(readFile(file), fTaskMarkerHandler).check();
+			this.fTaskMarkerHandler.setup(file);
+			new RdParser(readFile(file), this.fTaskMarkerHandler).check();
 		}
 		catch (final CoreException e) {
-			fStatusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
+			this.statusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
 					NLS.bind("An error occurred when parsing Rd file ''{0}''", file.getFullPath().toString()), e));
 		}
 	}
 	
 	protected char[] readFile(final IFile file) throws CoreException {
-		String charset = null;
-		InputStream input = null;
+		String charset= null;
+		InputStream input= null;
 		try {
-			input = file.getContents();
-			charset = file.getCharset();
-			final BufferedReader reader = new BufferedReader(new InputStreamReader(input, charset));
+			input= file.getContents();
+			charset= file.getCharset();
+			final BufferedReader reader= new BufferedReader(new InputStreamReader(input, charset));
 			
-			final StringBuilder text = new StringBuilder(1000);
-			final char[] readBuffer = new char[2048];
+			final StringBuilder text= new StringBuilder(1000);
+			final char[] readBuffer= new char[2048];
 			int n;
-			while ((n = reader.read(readBuffer)) > 0) {
+			while ((n= reader.read(readBuffer)) > 0) {
 				text.append(readBuffer, 0, n);
 			}
 			
-			final char[] chars = new char[text.length()];
+			final char[] chars= new char[text.length()];
 			text.getChars(0, chars.length, chars, 0);
 			return chars;
 		}

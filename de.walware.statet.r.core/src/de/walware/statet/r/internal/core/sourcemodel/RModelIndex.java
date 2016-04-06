@@ -34,6 +34,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.sql.DataSource;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -632,21 +633,30 @@ public class RModelIndex {
 	}
 	
 	private static final ImList<String> R_MODEL_TYPES= ImCollections.newList(RModel.R_TYPE_ID);
-	public void update(final IRProject rProject, final List<String> remove,
-			final List<IRWorkspaceSourceUnit> update, final MultiStatus status, final IProgressMonitor progress) throws CoreException {
+	public void update(final IRProject rProject,
+			final List<IFile> toRemoveRSU, final List<IRWorkspaceSourceUnit> toUpdateRSU,
+			final MultiStatus status, final IProgressMonitor progress) throws CoreException {
 		this.reconciler.init(rProject, status);
 		final RModelIndexUpdate indexUpdate= new RModelIndexUpdate(rProject, R_MODEL_TYPES,
-				(remove == null) );
-		for (final IRWorkspaceSourceUnit sourceUnit : update) {
-			final RSuModelContainer adapter= (RSuModelContainer) sourceUnit.getAdapter(RSuModelContainer.class);
-			if (adapter != null) {
-				try {
-					final IRModelInfo model= this.reconciler.build(adapter, progress);
-					indexUpdate.update(sourceUnit, model);
-				}
-				catch (final Exception e) {
-					status.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR, 
-							NLS.bind("An error occurred when indexing ''{0}''", sourceUnit.getResource().getFullPath().toString()), e));
+				(toRemoveRSU == null) );
+		
+		if (toRemoveRSU != null) {
+			for (final IFile toRemove : toRemoveRSU) {
+				indexUpdate.remove(toRemove);
+			}
+		}
+		if (toUpdateRSU != null) {
+			for (final IRWorkspaceSourceUnit sourceUnit : toUpdateRSU) {
+				final RSuModelContainer adapter= (RSuModelContainer) sourceUnit.getAdapter(RSuModelContainer.class);
+				if (adapter != null) {
+					try {
+						final IRModelInfo model= this.reconciler.build(adapter, progress);
+						indexUpdate.update(sourceUnit, model);
+					}
+					catch (final Exception e) {
+						status.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR, 
+								NLS.bind("An error occurred when indexing ''{0}''", sourceUnit.getResource().getFullPath().toString()), e));
+					}
 				}
 			}
 		}
