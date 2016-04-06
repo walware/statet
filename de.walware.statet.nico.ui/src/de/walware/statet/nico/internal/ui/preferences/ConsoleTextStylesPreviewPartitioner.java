@@ -48,7 +48,7 @@ class ConsoleTextStylesPreviewPartitioner extends FixDocumentPartitioner {
 		append(NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY, 2);
 		append(NicoUIPreferences.OUTPUT_STD_INPUT_STREAM_ROOT_KEY, 3-2);
 		append(NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY, 2);
-		append(NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY, 15-2);
+		append(NicoUIPreferences.OUTPUT_STD_INPUT_STREAM_ROOT_KEY, 15-2);
 		append(NicoUIPreferences.OUTPUT_SYSTEM_OUTPUT_STREAM_ROOT_KEY, 41 + 41 + 11);
 		append(NicoUIPreferences.OUTPUT_INFO_STREAM_ROOT_KEY, 2);
 		append(NicoUIPreferences.OUTPUT_STD_INPUT_STREAM_ROOT_KEY, 6-2);
