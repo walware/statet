@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Realm;
+import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -34,10 +35,16 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
+
+import de.walware.jcommons.collections.ImList;
 
 import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
+import de.walware.ecommons.ltk.buildpaths.core.IBuildpathElement;
+import de.walware.ecommons.ltk.buildpaths.ui.SourceContainerComponent;
 import de.walware.ecommons.preferences.core.Preference;
 import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
@@ -45,7 +52,9 @@ import de.walware.ecommons.preferences.ui.PropertyAndPreferencePage;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.r.core.IRProject;
+import de.walware.statet.r.core.RBuildpaths;
 import de.walware.statet.r.core.RProjects;
+import de.walware.statet.r.internal.ui.buildpaths.RBuildpathsUIDescription;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -85,6 +94,11 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 	
 	private final IRProject rProject;
 	
+	private RBuildpathsUIDescription buildpathUIDescription;
+	private final WritableList buildpathList;
+	
+	private SourceContainerComponent sourceFolders;
+	
 	private Text pkgNameControl;
 	
 	private RProjectContainerComposite projectComposite;
@@ -96,6 +110,11 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 		super(project, statusListener);
 		
 		this.rProject= RProjects.getRProject(project);
+		
+		this.buildpathUIDescription= new RBuildpathsUIDescription();
+		this.buildpathList= new WritableList();
+		this.sourceFolders= new SourceContainerComponent(buildpathList,
+				RBuildpaths.R_SOURCE_TYPE, null, buildpathUIDescription );
 	}
 	
 	
@@ -119,7 +138,13 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 			item.setText("&Main");
 			item.setControl(createMainTab(folder));
 		}
-		{	final TabItem item = new TabItem(folder, SWT.NONE);
+		{	final TabItem item= new TabItem(folder, SWT.NONE);
+			item.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(
+					ISharedImages.IMG_OBJ_FOLDER ));
+			item.setText("&Source");
+			item.setControl(createSourceTab(folder));
+		}
+		{	final TabItem item= new TabItem(folder, SWT.NONE);
 			item.setImage(RUI.getImage(RUI.IMG_OBJ_R_RUNTIME_ENV));
 			item.setText("R &Environment");
 			item.setControl(createREnvTab(folder));
@@ -170,6 +195,18 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 		return composite;
 	}
 	
+	private Control createSourceTab(final Composite parent) {
+		final Composite composite= new Composite(parent, SWT.NONE);
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		composite.setLayout(LayoutUtil.createTabGrid(1));
+		
+		{	final Control control= this.sourceFolders.create(composite);
+			control.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		}
+		
+		return composite;
+	}
+	
 	private Control createREnvTab(final Composite parent) {
 		final Composite composite= new Composite(parent, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -193,6 +230,8 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 				new UpdateValueStrategy().setAfterGetValidator(
 						this.rEnvControl.createValidator(db.getContext()) ),
 				null );
+		
+		this.sourceFolders.bind(db);
 	}
 	
 	@Override
@@ -207,7 +246,14 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 		}
 		
 		final String packageName= this.rProject.getPackageName();
-		this.pkgNameControl.setText((packageName != null) ? packageName : "");
+		this.pkgNameControl.setText((packageName != null) ? packageName : ""); //$NON-NLS-1$
+		
+		{	this.buildpathList.clear();
+			this.buildpathUIDescription.toListElements(getProject(), this.rProject.getRawBuildpath(),
+					this.buildpathList );
+			this.sourceFolders.init(getProject());
+		}
+		
 		super.updateControls();
 	}
 	
@@ -237,6 +283,8 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	private void saveProjectConfig() {
+		final ImList<IBuildpathElement> newBuildpath= this.buildpathUIDescription.toCoreElements(this.buildpathList);
+		RBuildpaths.set(getProject(), newBuildpath);
 		try {
 			final String packageName= this.pkgNameControl.getText();
 			this.rProject.setPackageConfig((packageName.trim().length() != 0) ? packageName : null);

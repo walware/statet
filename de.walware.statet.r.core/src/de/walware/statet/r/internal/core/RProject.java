@@ -27,7 +27,9 @@ import org.osgi.service.prefs.BackingStoreException;
 
 import de.walware.jcommons.collections.ImCollections;
 import de.walware.jcommons.collections.ImIdentitySet;
+import de.walware.jcommons.collections.ImList;
 
+import de.walware.ecommons.ltk.buildpaths.core.IBuildpathElement;
 import de.walware.ecommons.preferences.PreferencesManageListener;
 import de.walware.ecommons.preferences.core.IPreferenceAccess;
 import de.walware.ecommons.preferences.core.IPreferenceSetService;
@@ -35,6 +37,7 @@ import de.walware.ecommons.preferences.core.IPreferenceSetService.IChangeEvent;
 import de.walware.ecommons.preferences.core.Preference.StringPref2;
 import de.walware.ecommons.preferences.core.util.PreferenceUtils;
 import de.walware.ecommons.resources.core.AbstractProjectNature;
+import de.walware.ecommons.resources.core.BuildUtils;
 import de.walware.ecommons.resources.core.ProjectUtils;
 
 import de.walware.statet.r.core.IRProject;
@@ -81,6 +84,9 @@ public class RProject extends AbstractProjectNature implements IRProject, IPrefe
 	
 	private IREnv rEnv;
 	
+	private RBuildpathPrefs rBuildpathPrefs;
+	private ImList<IBuildpathElement> rRawBuildpath;
+	
 	
 	public RProject() {
 		super();
@@ -98,6 +104,10 @@ public class RProject extends AbstractProjectNature implements IRProject, IPrefe
 		this.rCodeStyle= new RCodeStyleSettings(1);
 		this.preferenceListener= new PreferencesManageListener(this.rCodeStyle, getPrefs(),
 				RCodeStyleSettings.ALL_GROUP_IDS );
+		
+		this.rBuildpathPrefs= new RBuildpathPrefs(getProjectContext(), BUILD_PREF_QUALIFIER,
+				getProject() );
+		updateBuildpath(false);
 		
 		String pkgName= checkRPkgName(getProjectValue(PACKAGE_NAME_OLD_PREF));
 		if (pkgName == null) {
@@ -170,6 +180,9 @@ public class RProject extends AbstractProjectNature implements IRProject, IPrefe
 				|| event.contains(IRProject.RENV_CODE_PREF) ) {
 			updateREnv();
 		}
+		if (event.contains(IRProject.BUILD_PREF_QUALIFIER, RBuildpathPrefs.STAMP_KEY)) {
+			updateBuildpath(true);
+		}
 		if (event.contains(IRProject.PACKAGE_NAME_PREF)) {
 			synchronized (this) {
 				updateRPkgConfig(checkRPkgName(getProjectValue(IRProject.PACKAGE_NAME_PREF)));
@@ -181,6 +194,16 @@ public class RProject extends AbstractProjectNature implements IRProject, IPrefe
 		final IREnvManager rEnvManager= RCore.getREnvManager();
 		final String s= getProjectValue(IRProject.RENV_CODE_PREF);
 		this.rEnv= (s != null) ? REnvUtil.decode(s, rEnvManager) : rEnvManager.getDefault();
+	}
+	
+	private void updateBuildpath(final boolean clean) {
+		final ImList<IBuildpathElement> rawBuildpath= this.rBuildpathPrefs.load();
+		synchronized (this) {
+			this.rRawBuildpath= rawBuildpath;
+		}
+		if (clean) {
+			BuildUtils.getCleanJob(getProject(), false).schedule();
+		}
 	}
 	
 	@Override
@@ -211,6 +234,12 @@ public class RProject extends AbstractProjectNature implements IRProject, IPrefe
 			}
 		}
 		return null;
+	}
+	
+	
+	@Override
+	public ImList<IBuildpathElement> getRawBuildpath() {
+		return this.rRawBuildpath;
 	}
 	
 	
@@ -289,6 +318,14 @@ public class RProject extends AbstractProjectNature implements IRProject, IPrefe
 		};
 		job.setRule(ResourcesPlugin.getWorkspace().getRoot());
 		job.schedule();
+	}
+	
+	
+	public void saveBuildpath(final ImList<IBuildpathElement> rawBuildpath) {
+		if (getRawBuildpath().equals(rawBuildpath)) {
+			return;
+		}
+		this.rBuildpathPrefs.save(rawBuildpath, true);
 	}
 	
 }

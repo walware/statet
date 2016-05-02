@@ -28,6 +28,7 @@ import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ui.util.DialogUtil;
 
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
+import de.walware.statet.ext.ui.wizards.NewElementWizardPage.ResourceGroup;
 
 import de.walware.statet.r.codegeneration.CodeGeneration;
 import de.walware.statet.r.core.RCore;
@@ -102,9 +103,10 @@ public class NewRFileCreationWizard extends NewElementWizard {
 	@Override
 	public boolean performFinish() {
 		// befor super, so it can be used in getSchedulingRule
+		final ResourceGroup resourceGroup= fFirstPage.getResourceGroup();
 		fNewRFile = new NewRFileCreator(
-				fFirstPage.fResourceGroup.getContainerFullPath(),
-				fFirstPage.fResourceGroup.getResourceName() );
+				resourceGroup.getContainerFullPath(),
+				resourceGroup.getResourceName() );
 		
 		final boolean result = super.performFinish();
 		

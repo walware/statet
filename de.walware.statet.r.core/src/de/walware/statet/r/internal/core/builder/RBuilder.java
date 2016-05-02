@@ -36,9 +36,13 @@ import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.osgi.util.NLS;
 
+import de.walware.jcommons.collections.ImList;
+
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.ltk.ISourceUnitManager;
 import de.walware.ecommons.ltk.LTK;
+import de.walware.ecommons.ltk.buildpaths.core.BuildpathsUtils;
+import de.walware.ecommons.ltk.buildpaths.core.IBuildpathElement;
 
 import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCore;
@@ -72,33 +76,60 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 	
 	private MultiStatus statusCollector;
 	
+	private ImList<IBuildpathElement> sourceContainters;
+	private IBuildpathElement currentSourceContainer;
+	
 	
 	public RBuilder() {
 		this.modelManager= RCorePlugin.getDefault().getRModelManager();
 	}
 	
 	
+	private void initBuildpath(final IRProject project) {
+		this.sourceContainters= project.getRawBuildpath();
+		this.currentSourceContainer= null;
+	}
+	
+	private boolean isValidSourceFolder(final IResource resource) {
+		if (this.currentSourceContainer != null) {
+			if (!BuildpathsUtils.isExcluded(resource, this.currentSourceContainer)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public IStatus buildIncremental(final IRProject project, final IResourceDelta delta, final IProgressMonitor monitor) {
 		this.statusCollector= new MultiStatus(RCore.PLUGIN_ID, 0, "R build status for "+project.getProject().getName(), null);
-		final SubMonitor progress= SubMonitor.convert(monitor);
+		initBuildpath(project);
+		final SubMonitor m= SubMonitor.convert(monitor);
 		try {
-			delta.accept(this);
-			
-			if (monitor.isCanceled()) {
-				throw new OperationCanceledException();
+			for (final IBuildpathElement sourceContainer : this.sourceContainters) {
+				final IResourceDelta sourceDelta= delta.findMember(
+						sourceContainer.getPath().removeFirstSegments(1) );
+				if (sourceDelta != null) {
+					this.currentSourceContainer= sourceContainer;
+					sourceDelta.accept(this);
+				}
+				
+				if (monitor.isCanceled()) {
+					throw new OperationCanceledException();
+				}
 			}
 			
 			this.modelManager.getIndex().update(project, this.toRemoveRSU, this.toUpdateRSU,
-					this.statusCollector, progress );
+					this.statusCollector, m );
 		}
 		catch (final CoreException e) {
 			this.statusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
 					"An error occurred when indexing the project", e) );
 		}
 		finally {
+			this.currentSourceContainer= null;
+			
 			for (final IRSourceUnit su : this.toUpdateRSU) {
 				if (su != null) {
-					su.disconnect(progress);
+					su.disconnect(m);
 				}
 			}
 			this.toRemoveRSU.clear();
@@ -111,6 +142,10 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 	public boolean visit(final IResourceDelta delta) throws CoreException {
 		final IResource resource= delta.getResource();
 		try {
+			if (!isValidSourceFolder(resource)) {
+				return false;
+			}
+			
 			switch (delta.getKind()) {
 			
 			case IResourceDelta.ADDED:
@@ -165,24 +200,34 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 	
 	public IStatus buildFull(final IRProject project, final IProgressMonitor monitor) {
 		this.statusCollector= new MultiStatus(RCore.PLUGIN_ID, 0, "R build status for "+project.getProject().getName(), null);
-		final SubMonitor progress= SubMonitor.convert(monitor);
+		initBuildpath(project);
+		final SubMonitor m= SubMonitor.convert(monitor);
 		try {
-			project.getProject().accept(this);
-			
-			if (monitor.isCanceled()) {
-				throw new OperationCanceledException();
+			for (final IBuildpathElement sourceContainer : this.sourceContainters) {
+				final IResource resource= project.getProject().findMember(
+						sourceContainer.getPath().removeFirstSegments(1) );
+				if (resource != null) {
+					this.currentSourceContainer= sourceContainer;
+					resource.accept(this);
+				}
+				
+				if (monitor.isCanceled()) {
+					throw new OperationCanceledException();
+				}
 			}
 			
-			this.modelManager.getIndex().update(project, null, this.toUpdateRSU, this.statusCollector, progress);
+			this.modelManager.getIndex().update(project, null, this.toUpdateRSU, this.statusCollector, m);
 		}
 		catch (final CoreException e) {
 			this.statusCollector.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
 					"An error occurred when indexing the project", e) );
 		}
 		finally {
+			this.currentSourceContainer= null;
+			
 			for (final IRSourceUnit su : this.toUpdateRSU) {
 				if (su != null) {
-					su.disconnect(progress);
+					su.disconnect(m);
 				}
 			}
 			this.toRemoveRSU.clear();
@@ -194,6 +239,10 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 	@Override
 	public boolean visit(final IResource resource) throws CoreException {
 		try {
+			if (!isValidSourceFolder(resource)) {
+				return false;
+			}
+			
 			if (resource instanceof IFile) {
 				final IFile file= (IFile) resource;
 				final IContentDescription contentDescription= file.getContentDescription();

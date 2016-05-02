@@ -11,11 +11,23 @@
 
 package de.walware.statet.r.internal.ui.wizards;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
+import de.walware.jcommons.collections.ImList;
+
+import de.walware.ecommons.ltk.buildpaths.core.BuildpathsUtils;
+import de.walware.ecommons.ltk.buildpaths.core.IBuildpathElement;
 import de.walware.ecommons.ui.dialogs.groups.Layouter;
+import de.walware.ecommons.ui.workbench.ContainerSelectionComposite.ContainerFilter;
 
 import de.walware.statet.ext.ui.wizards.NewElementWizardPage;
+
+import de.walware.statet.r.core.IRProject;
+import de.walware.statet.r.core.RProjects;
 
 
 /**
@@ -29,8 +41,38 @@ public class NewRFileCreationWizardPage extends NewElementWizardPage {
 	
 	private static final String fgDefaultExtension = ".R"; //$NON-NLS-1$
 	
+	private static class RSourceFolderFilter extends ContainerFilter {
+		
+		@Override
+		public boolean select(final IContainer container) {
+			try {
+				final IProject project= container.getProject();
+				if (container.getType() == IResource.PROJECT) {
+					if (project.hasNature(RProjects.R_NATURE_ID)) {
+						return true;
+					}
+				}
+				else {
+					final IRProject rProject= RProjects.getRProject(project);
+					if (rProject != null) {
+						final ImList<IBuildpathElement> buildpath= rProject.getRawBuildpath();
+						for (final IBuildpathElement sourceContainer : buildpath) {
+							if (sourceContainer.getPath().isPrefixOf(container.getFullPath())) {
+								return (!BuildpathsUtils.isExcluded(container, sourceContainer));
+							}
+						}
+					}
+				}
+			}
+			catch (final CoreException e) {	}
+			
+			return false;
+		}
+		
+	}
 	
-	ResourceGroup fResourceGroup;
+	
+	private final ResourceGroup resourceGroup;
 	
 	/**
 	 * Constructor.
@@ -41,30 +83,34 @@ public class NewRFileCreationWizardPage extends NewElementWizardPage {
 		setTitle(Messages.NewRScriptFileWizardPage_title);
 		setDescription(Messages.NewRScriptFileWizardPage_description);
 		
-		fResourceGroup = new ResourceGroup(fgDefaultExtension);
+		this.resourceGroup = new ResourceGroup(fgDefaultExtension, new RSourceFolderFilter());
 	}
 	
 	
 	@Override
 	protected void createContents(final Layouter layouter) {
-		fResourceGroup.createGroup(layouter);
+		this.resourceGroup.createGroup(layouter);
+	}
+	
+	ResourceGroup getResourceGroup() {
+		return this.resourceGroup;
 	}
 	
 	@Override
 	public void setVisible(final boolean visible) {
 		super.setVisible(visible);
 		if (visible) {
-			fResourceGroup.setFocus();
+			this.resourceGroup.setFocus();
 		}
 	}
 	
 	public void saveSettings() {
-		fResourceGroup.saveSettings();
+		this.resourceGroup.saveSettings();
 	}
 	
 	@Override
 	protected void validatePage() {
-		updateStatus(fResourceGroup.validate());
+		updateStatus(this.resourceGroup.validate());
 	}
 	
 }

@@ -39,6 +39,7 @@ import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.components.StatusInfo;
 import de.walware.ecommons.ui.dialogs.groups.Layouter;
 import de.walware.ecommons.ui.workbench.ContainerSelectionComposite;
+import de.walware.ecommons.ui.workbench.ContainerSelectionComposite.ContainerFilter;
 
 import de.walware.statet.base.core.StatetProject;
 
@@ -68,13 +69,13 @@ public abstract class NewElementWizardPage extends WizardPage {
 		
 		@Override
 		public boolean select(final IContainer container) {
-			
-			final IProject project = container.getProject();
 			try {
+				final IProject project= container.getProject();
 				if (project.hasNature(StatetProject.NATURE_ID)) {
 					return true;
 				}
-			} catch (final CoreException e) {	}
+			}
+			catch (final CoreException e) {}
 			
 			return false;
 		}
@@ -86,17 +87,25 @@ public abstract class NewElementWizardPage extends WizardPage {
 		private static final String DIALOGSETTING_ENABLEFILTER = "de.walware.statet.NewElementWizard.ContainerFilter"; //$NON-NLS-1$
 		
 		
+		private final String resourceNameDefaultSuffix;
+		private final ContainerFilter containerFilter;
+		
 		private ContainerSelectionComposite fContainerGroup;
 		private Text fResourceNameControl;
 		
 		private IPath fContainerFullPath;
 		private String fResourceName;
-		private String fResourceNameDefaultSuffix;
 		private boolean fResourceNameEdited;
 		
 		
+		public ResourceGroup(final String defaultResourceNameExtension,
+				final ContainerFilter containerFilter) {
+			this.resourceNameDefaultSuffix= defaultResourceNameExtension;
+			this.containerFilter= containerFilter;
+		}
+		
 		public ResourceGroup(final String defaultResourceNameExtension) {
-			fResourceNameDefaultSuffix = defaultResourceNameExtension;
+			this(defaultResourceNameExtension, new StatetProjectFilter());
 		}
 		
 		
@@ -115,7 +124,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 			if (getDialogSettings().get(DIALOGSETTING_ENABLEFILTER) != null) {
 				enableFilter = getDialogSettings().getBoolean(DIALOGSETTING_ENABLEFILTER);
 			}
-			fContainerGroup.setToggleFilter(new StatetProjectFilter(), enableFilter);
+			fContainerGroup.setToggleFilter(this.containerFilter, enableFilter);
 			
 			fResourceNameControl = layouter.addLabeledTextControl(getNewFileLabel());
 			fResourceNameControl.addListener(SWT.Modify, this);
@@ -156,7 +165,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 					if (object instanceof IResource) {
 						selectedResource = (IResource) object;
 					} else if (object instanceof IAdaptable) {
-						selectedResource = (IResource) ((IAdaptable) object).getAdapter(IResource.class);
+						selectedResource = ((IAdaptable) object).getAdapter(IResource.class);
 					}
 					if (selectedResource != null) {
 						if (selectedResource.getType() == IResource.FILE) {
@@ -236,8 +245,8 @@ public abstract class NewElementWizardPage extends WizardPage {
 		 */
 		public String getResourceName() {
 			String name = fResourceName;
-			if (!name.endsWith(fResourceNameDefaultSuffix)) {
-				name += fResourceNameDefaultSuffix;
+			if (!name.endsWith(this.resourceNameDefaultSuffix)) {
+				name += this.resourceNameDefaultSuffix;
 			}
 			
 			return name;

@@ -15,6 +15,9 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
+import de.walware.jcommons.collections.ImList;
+
+import de.walware.ecommons.ltk.buildpaths.core.IBuildpathElement;
 import de.walware.ecommons.preferences.core.IPreferenceAccess;
 import de.walware.ecommons.preferences.core.Preference;
 import de.walware.ecommons.preferences.core.Preference.StringPref2;
@@ -42,5 +45,6 @@ public interface IRProject extends IPreferenceAccess, IRCoreAccess {
 	
 	IContainer getBaseContainer();
 	
+	ImList<IBuildpathElement> getRawBuildpath();
 	
 }

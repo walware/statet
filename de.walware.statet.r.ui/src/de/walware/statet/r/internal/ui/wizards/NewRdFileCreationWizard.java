@@ -25,6 +25,7 @@ import de.walware.ecommons.ltk.ui.templates.TemplatesUtil.EvaluatedTemplate;
 import de.walware.ecommons.ui.util.DialogUtil;
 
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
+import de.walware.statet.ext.ui.wizards.NewElementWizardPage.ResourceGroup;
 
 import de.walware.statet.r.codegeneration.CodeGeneration;
 import de.walware.statet.r.core.RCore;
@@ -90,9 +91,10 @@ public class NewRdFileCreationWizard extends NewElementWizard {
 	@Override
 	public boolean performFinish() {
 		// befor super, so it can be used in getSchedulingRule
+		final ResourceGroup resourceGroup= fFirstPage.getResourceGroup();
 		fNewRdFile = new NewRdFileCreator(
-				fFirstPage.fResourceGroup.getContainerFullPath(),
-				fFirstPage.fResourceGroup.getResourceName() );
+				resourceGroup.getContainerFullPath(),
+				resourceGroup.getResourceName() );
 		
 		final boolean result = super.performFinish();
 		
