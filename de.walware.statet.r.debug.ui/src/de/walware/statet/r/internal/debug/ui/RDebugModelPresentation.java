@@ -41,6 +41,7 @@ import de.walware.ecommons.debug.core.model.IIndexedVariableItem;
 import de.walware.ecommons.debug.core.model.IIndexedVariablePartition;
 import de.walware.ecommons.debug.core.model.IVariableDim;
 import de.walware.ecommons.debug.ui.WaDebugImages;
+import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.ImageDescriptorRegistry;
 
 import de.walware.rj.data.RObject;
@@ -272,7 +273,8 @@ public class RDebugModelPresentation extends LabelProvider
 					RDebugUIPlugin.IMG_OBJ_R_BREAKPOINT_DISABLED;
 		}
 		final ImageDescriptor descriptor = new RBreakpointImageDescriptor(
-				RDebugUIPlugin.getDefault().getImageRegistry().getDescriptor(imageKey), flags );
+				RDebugUIPlugin.getDefault().getImageRegistry().getDescriptor(imageKey), flags,
+				SharedUIResources.INSTANCE.getIconDefaultSize() );
 		return getImageDescriptorRegistry().get(descriptor);
 	}
 	

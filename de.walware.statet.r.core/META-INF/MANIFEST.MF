@@ -7,7 +7,7 @@ Bundle-Version: 3.6.0.qualifier
 Bundle-Activator: de.walware.statet.r.internal.core.RCorePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: de.walware.statet.base.core;bundle-version="[3.6.0,3.7.0)",
  org.eclipse.team.core;resolution:=optional,
  de.walware.rj.data;bundle-version="[2.1.0,2.2.0)";visibility:=reexport,
@@ -22,10 +22,9 @@ Require-Bundle: de.walware.statet.base.core;bundle-version="[3.6.0,3.7.0)",
  org.eclipse.equinox.http.registry;bundle-version="1.0.200",
  org.eclipse.equinox.http.jetty;bundle-version="2.0.0",
  org.eclipse.core.net;bundle-version="1.2.100",
- org.eclipse.core.variables;bundle-version="3.2.400",
- org.sat4j.core;bundle-version="2.3.0",
- org.sat4j.pb;bundle-version="2.3.0"
-Import-Package: com.ibm.icu.text;version="4.4.2.2",
+ org.eclipse.core.variables;bundle-version="3.2.400"
+Import-Package: com.ibm.icu.lang;version="52.1",
+ com.ibm.icu.text;version="52.1",
  de.walware.ecommons,
  de.walware.ecommons.collections;version="1.1.0",
  de.walware.ecommons.graphics.core,
@@ -33,7 +32,7 @@ Import-Package: com.ibm.icu.text;version="4.4.2.2",
  de.walware.ecommons.preferences,
  de.walware.ecommons.preferences.core,
  de.walware.ecommons.preferences.core.util,
- de.walware.ecommons.resources;version="0.10.0",
+ de.walware.ecommons.resources.core;version="0.10.0",
  de.walware.ecommons.ts;version="1.0.0",
  de.walware.jcommons.collections;version="1.0",
  de.walware.jcommons.lang;version="1.0",

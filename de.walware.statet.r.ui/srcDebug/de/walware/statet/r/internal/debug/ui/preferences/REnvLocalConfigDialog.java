@@ -479,9 +479,8 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 //			fRLibrariesButtons.addUpButton();
 //			fRLibrariesButtons.addDownButton();
 			
-			final DataAdapter<IRLibraryLocation.WorkingCopy> adapter = new DataAdapter.ListAdapter<IRLibraryLocation.WorkingCopy>(
-					(ITreeContentProvider) fRLibrariesViewer.getContentProvider(),
-					null, null ) {
+			final DataAdapter<IRLibraryLocation.WorkingCopy> adapter = new DataAdapter.TreeAdapter<IRLibraryLocation.WorkingCopy>(
+					(ITreeContentProvider) fRLibrariesViewer.getContentProvider(), null ) {
 				private IRLibraryGroup.WorkingCopy getGroup(final Object element) {
 					if (element instanceof IRLibraryGroup.WorkingCopy) {
 						return (IRLibraryGroup.WorkingCopy) element;

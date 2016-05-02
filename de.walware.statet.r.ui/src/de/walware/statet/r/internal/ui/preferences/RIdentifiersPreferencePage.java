@@ -46,11 +46,11 @@ import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.components.EditableTextList;
-import de.walware.ecommons.ui.util.ComparatorViewerComparator;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
+import de.walware.ecommons.ui.viewers.ComparatorViewerComparator;
 
 import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.internal.ui.RIdentifierCellValidator;

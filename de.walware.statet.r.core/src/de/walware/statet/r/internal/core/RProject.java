@@ -34,8 +34,8 @@ import de.walware.ecommons.preferences.core.IPreferenceSetService;
 import de.walware.ecommons.preferences.core.IPreferenceSetService.IChangeEvent;
 import de.walware.ecommons.preferences.core.Preference.StringPref2;
 import de.walware.ecommons.preferences.core.util.PreferenceUtils;
-import de.walware.ecommons.resources.AbstractProjectNature;
-import de.walware.ecommons.resources.ProjectUtil;
+import de.walware.ecommons.resources.core.AbstractProjectNature;
+import de.walware.ecommons.resources.core.ProjectUtils;
 
 import de.walware.statet.r.core.IRProject;
 import de.walware.statet.r.core.RCodeStyleSettings;
@@ -144,7 +144,7 @@ public class RProject extends AbstractProjectNature implements IRProject, IPrefe
 		final IProject project= getProject();
 		final IProjectDescription description= project.getDescription();
 		boolean changed= false;
-		changed|= ProjectUtil.addBuilder(description, RSupportBuilder.ID);
+		changed|= ProjectUtils.addBuilder(description, RSupportBuilder.ID);
 		
 		if (changed) {
 			project.setDescription(description, null);
@@ -156,7 +156,7 @@ public class RProject extends AbstractProjectNature implements IRProject, IPrefe
 		final IProject project= getProject();
 		final IProjectDescription description= project.getDescription();
 		boolean changed= false;
-		changed|= ProjectUtil.removeBuilder(description, RSupportBuilder.ID);
+		changed|= ProjectUtils.removeBuilder(description, RSupportBuilder.ID);
 		
 		if (changed) {
 			project.setDescription(description, null);
@@ -275,10 +275,10 @@ public class RProject extends AbstractProjectNature implements IRProject, IPrefe
 					final IProjectDescription description= project.getDescription();
 					boolean changed= false;
 					if (hasPackageNature) {
-						changed|= ProjectUtil.removeNature(description, RProjects.R_PKG_NATURE_ID);
+						changed|= ProjectUtils.removeNature(description, RProjects.R_PKG_NATURE_ID);
 					}
 					else {
-						changed|= ProjectUtil.addNature(description, RProjects.R_PKG_NATURE_ID);
+						changed|= ProjectUtils.addNature(description, RProjects.R_PKG_NATURE_ID);
 					}
 					if (changed) { // should be always true
 						project.setDescription(description, monitor);

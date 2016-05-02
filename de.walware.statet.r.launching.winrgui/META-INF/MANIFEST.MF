@@ -7,7 +7,7 @@ Bundle-Version: 3.6.0.qualifier
 Bundle-Activator: de.walware.statet.r.launching.winrgui.WinRGuiConnectorPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Eclipse-PlatformFilter: (osgi.ws=win32)
 Require-Bundle: de.walware.statet.base.ui;bundle-version="[3.6.0,3.7.0)",
  org.eclipse.debug.core,

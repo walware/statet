@@ -7,8 +7,8 @@ Bundle-Version: 3.6.0.qualifier
 Bundle-Activator: de.walware.statet.base.internal.core.BaseCorePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0";visibility:=reexport,
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.10";visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,
  org.eclipse.core.filesystem;visibility:=reexport,
  org.eclipse.core.expressions;visibility:=reexport,
@@ -21,12 +21,12 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0";visibility:=reex
  de.walware.ecommons.ltk.core;bundle-version="[2.5.0,2.6.0)",
  com.jcraft.jsch;bundle-version="0.1.41",
  org.eclipse.jsch.core;bundle-version="1.1.400"
-Import-Package: com.ibm.icu.text;version="4.4.2.2",
+Import-Package: com.ibm.icu.text;version="52.1",
  de.walware.ecommons,
  de.walware.ecommons.models.core.util,
  de.walware.ecommons.preferences,
  de.walware.ecommons.preferences.core,
- de.walware.ecommons.resources;version="0.10.0",
+ de.walware.ecommons.resources.core;version="0.10.0",
  de.walware.jcommons.collections;version="1.0"
 Export-Package: de.walware.ecommons.net.resourcemapping;version="1.0.0",
  de.walware.ecommons.net.ssh,

@@ -11,13 +11,15 @@
 
 package de.walware.statet.r.internal.debug.ui;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.CompositeImageDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.debug.ui.WaDebugImages;
-
 
 
 /**
@@ -31,17 +33,17 @@ public class RBreakpointImageDescriptor extends CompositeImageDescriptor {
 //	/** Flag to render the may be out of synch adornment */
 //	public final static int MAY_BE_OUT_OF_SYNCH= 		0x0002;
 	/** Flag to render the enabled breakpoint adornment */
-	public final static int ENABLED =                       0x00000001;
+	public final static int ENABLED=                       0x00000001;
 	/** Flag to render the installed breakpoint adornment */
-	public final static int INSTALLED =                     0x00000002;
+	public final static int INSTALLED=                     0x00000002;
 	/** Flag to render the script breakpoint adornment */
-	public final static int SCRIPT =                        0x00000010;
+	public final static int SCRIPT=                        0x00000010;
 	/** Flag to render the conditional breakpoint adornment */
-	public final static int CONDITIONAL =                   0x00000020;
+	public final static int CONDITIONAL=                   0x00000020;
 	/** Flag to render the entry method breakpoint adornment */
-	public final static int ENTRY =                         0x00000100;
+	public final static int ENTRY=                         0x00000100;
 	/** Flag to render the exit method breakpoint adornment */
-	public final static int EXIT =                          0x00000200;
+	public final static int EXIT=                          0x00000200;
 //	/** Flag to render the caught breakpoint adornment */
 //	public final static int CAUGHT=						0x0080;
 //	/** Flag to render the uncaught breakpoint adornment */
@@ -64,9 +66,20 @@ public class RBreakpointImageDescriptor extends CompositeImageDescriptor {
 //	public final static int SYNCHRONIZED=				0x4000;
 	
 	
-	private final ImageDescriptor fBaseImage;
-	private final int fFlags;
-	private Point fSize;
+	private static ImageData getImageData(final ImageDescriptor descriptor) {
+		ImageData data= descriptor.getImageData(); // getImageData can return null
+		if (data == null) {
+			data= DEFAULT_IMAGE_DATA;
+			StatusManager.getManager().handle(new Status(IStatus.WARNING, RDebugUIPlugin.PLUGIN_ID,
+					"Image data not available: " + descriptor.toString() )); //$NON-NLS-1$
+		}
+		return data;
+	}
+	
+	
+	private final ImageDescriptor baseImage;
+	private final int flags;
+	private final Point size;
 	
 	
 	/**
@@ -76,44 +89,54 @@ public class RBreakpointImageDescriptor extends CompositeImageDescriptor {
 	 * @param flags flags indicating which adornments are to be rendered
 	 * 
 	 */
-	public RBreakpointImageDescriptor(final ImageDescriptor baseImage, final int flags) {
+	public RBreakpointImageDescriptor(final ImageDescriptor baseImage, final int flags,
+			final Point size) {
 		if (baseImage == null) {
 			throw new NullPointerException("baseImage");
 		}
-		fBaseImage = baseImage;
-		fFlags = flags;
+		this.baseImage= baseImage;
+		this.flags= flags;
+		if (size != null) {
+			this.size= size;
+		}
+		else {
+			final ImageData data= getImageData(baseImage);
+			this.size= new Point(data.width, data.height);
+		}
 	}
 	
 	
+	protected final ImageDescriptor getBaseImage() {
+		return this.baseImage;
+	}
+	
+	protected final int getFlags() {
+		return this.flags;
+	}
+	
 	@Override
-	protected Point getSize() {
-		if (fSize == null) {
-			final ImageData data = getBaseImage().getImageData();
-			fSize = new Point(data.width, data.height);
-		}
-		return fSize;
+	protected final Point getSize() {
+		return this.size;
 	}
 	
 	@Override
 	protected void drawCompositeImage(final int width, final int height) {
-		ImageData bg = getBaseImage().getImageData();
-		if (bg == null) {
-			bg = DEFAULT_IMAGE_DATA;
+		{	final ImageData data= getImageData(getBaseImage());
+			drawImage(data, 0, 0);
 		}
-		drawImage(bg, 0, 0);
+		
 		drawOverlays();
 	}
 	
 	protected void drawOverlays() {
-		final int flags = getFlags();
+		final int flags= getFlags();
 		if ((flags & (INSTALLED | SCRIPT)) == INSTALLED) {
-			int x = 0;
-			int y = getSize().y;
-			final ImageData data = WaDebugImages.getImageRegistry().getDescriptor(
+			final int x= 0;
+			int y= getSize().y;
+			final ImageData data= getImageData(WaDebugImages.getImageRegistry().getDescriptor(
 					((flags & ENABLED) != 0) ?
 							WaDebugImages.OVR_BREAKPOINT_INSTALLED :
-							WaDebugImages.OVR_BREAKPOINT_INSTALLED_DISABLED )
-					.getImageData();
+							WaDebugImages.OVR_BREAKPOINT_INSTALLED_DISABLED ));
 			y -= data.height;
 			drawImage(data, x, y);
 		}
@@ -149,35 +172,32 @@ public class RBreakpointImageDescriptor extends CompositeImageDescriptor {
 //			drawImage(data, x, y);
 //		}
 		if ((flags & CONDITIONAL) != 0) {
-			int x = 0;
-			int y = 0;
-			final ImageData data = WaDebugImages.getImageRegistry().getDescriptor(
+			final int x= 0;
+			final int y= 0;
+			final ImageData data= getImageData(WaDebugImages.getImageRegistry().getDescriptor(
 					((flags & ENABLED) != 0) ?
 							WaDebugImages.OVR_BREAKPOINT_CONDITIONAL :
-							WaDebugImages.OVR_BREAKPOINT_CONDITIONAL_DISABLED )
-					.getImageData();
+							WaDebugImages.OVR_BREAKPOINT_CONDITIONAL_DISABLED ));
 			drawImage(data, x, y);
 		}
 		if ((flags & ENTRY) == ENTRY) {
-			int x = getSize().x;
-			int y = 0;
-			final ImageData data = WaDebugImages.getImageRegistry().getDescriptor(
+			int x= getSize().x;
+			final int y= 0;
+			final ImageData data= getImageData(WaDebugImages.getImageRegistry().getDescriptor(
 					((flags & ENABLED) != 0) ?
 							WaDebugImages.OVR_METHOD_BREAKPOINT_ENTRY :
-							WaDebugImages.OVR_METHOD_BREAKPOINT_ENTRY_DISABLED )
-					.getImageData();
+							WaDebugImages.OVR_METHOD_BREAKPOINT_ENTRY_DISABLED ));
 			x -= data.width;
 			x -= 1;
 			drawImage(data, x, y);
 		}
 		if ((flags & EXIT) == EXIT){
-			int x = getSize().x;
-			int y = getSize().y;
-			final ImageData data = WaDebugImages.getImageRegistry().getDescriptor(
+			int x= getSize().x;
+			int y= getSize().y;
+			final ImageData data= getImageData(WaDebugImages.getImageRegistry().getDescriptor(
 					((flags & ENABLED) != 0) ?
 							WaDebugImages.OVR_METHOD_BREAKPOINT_EXIT :
-							WaDebugImages.OVR_METHOD_BREAKPOINT_EXIT_DISABLED )
-					.getImageData();
+							WaDebugImages.OVR_METHOD_BREAKPOINT_EXIT_DISABLED ));
 			x -= data.width;
 			x -= 1;
 			y -= data.height;
@@ -185,18 +205,10 @@ public class RBreakpointImageDescriptor extends CompositeImageDescriptor {
 		}
 	}
 	
-	protected final ImageDescriptor getBaseImage() {
-		return fBaseImage;
-	}
-	
-	protected final int getFlags() {
-		return fFlags;
-	}
-	
 	
 	@Override
 	public int hashCode() {
-		return getBaseImage().hashCode() | getFlags();
+		return (this.baseImage.hashCode() ^ this.flags) + this.size.hashCode();
 	}
 	
 	@Override
@@ -204,12 +216,13 @@ public class RBreakpointImageDescriptor extends CompositeImageDescriptor {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof RBreakpointImageDescriptor)){
-			return false;
+		if (obj != null && getClass().equals(obj.getClass())) {
+			final RBreakpointImageDescriptor other= (RBreakpointImageDescriptor) obj;
+			return (this.baseImage.equals(other.baseImage)
+					&& this.flags == other.flags
+					&& this.size.equals(other.size) );
 		}
-		
-		final RBreakpointImageDescriptor other = (RBreakpointImageDescriptor) obj;
-		return (getBaseImage().equals(other.getBaseImage()) && getFlags() == other.getFlags());
+		return false;
 	}
 	
 }

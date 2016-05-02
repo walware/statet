@@ -11,7 +11,7 @@
 
 package de.walware.statet.base.core;
 
-import de.walware.ecommons.resources.AbstractProjectNature;
+import de.walware.ecommons.resources.core.AbstractProjectNature;
 
 
 public final class StatetProject extends AbstractProjectNature {

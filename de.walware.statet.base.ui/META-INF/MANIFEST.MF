@@ -7,8 +7,8 @@ Bundle-Version: 3.6.0.qualifier
 Bundle-Activator: de.walware.statet.base.internal.ui.StatetUIPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.eclipse.platform;bundle-version="4.3.0",
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.platform;bundle-version="4.4",
  org.eclipse.ui;visibility:=reexport,
  de.walware.statet.base.core;bundle-version="[3.6.0,3.7.0)";visibility:=reexport,
  de.walware.ecommons.uimisc;bundle-version="[1.6.0,1.7.0)";visibility:=reexport,
@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.platform;bundle-version="4.3.0",
  org.eclipse.ui.ide,
  org.eclipse.debug.ui,
  org.eclipse.ui.forms
-Import-Package: com.ibm.icu.text;version="4.4.2.2",
+Import-Package: com.ibm.icu.text;version="52.1",
  de.walware.ecommons,
  de.walware.ecommons.collections;version="1.1.0",
  de.walware.ecommons.databinding,

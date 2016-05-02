@@ -46,11 +46,11 @@ import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.ui.components.ButtonGroup;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
-import de.walware.ecommons.ui.util.ComparatorViewerComparator;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
+import de.walware.ecommons.ui.viewers.ComparatorViewerComparator;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.nico.internal.core.ResourceMapping;

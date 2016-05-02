@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.resources.ProjectUtil;
+import de.walware.ecommons.resources.core.ProjectUtils;
 
 import de.walware.statet.base.core.StatetProject;
 
@@ -53,8 +53,8 @@ public class RProjects {
 		
 		final IProjectDescription description= project.getDescription();
 		boolean changed= false;
-		changed|= ProjectUtil.addNature(description, StatetProject.NATURE_ID);
-		changed|= ProjectUtil.addNature(description, R_NATURE_ID);
+		changed|= ProjectUtils.addNature(description, StatetProject.NATURE_ID);
+		changed|= ProjectUtils.addNature(description, R_NATURE_ID);
 		progress.worked(2);
 		
 		if (changed) {
@@ -77,9 +77,9 @@ public class RProjects {
 		
 		final IProjectDescription description= project.getDescription();
 		boolean changed= false;
-		changed|= ProjectUtil.addNature(description, StatetProject.NATURE_ID);
-		changed|= ProjectUtil.addNature(description, R_NATURE_ID);
-		changed|= ProjectUtil.addNature(description, R_PKG_NATURE_ID);
+		changed|= ProjectUtils.addNature(description, StatetProject.NATURE_ID);
+		changed|= ProjectUtils.addNature(description, R_NATURE_ID);
+		changed|= ProjectUtils.addNature(description, R_PKG_NATURE_ID);
 		progress.worked(2);
 		
 		if (changed) {
