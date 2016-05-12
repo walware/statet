@@ -8,7 +8,7 @@ Bundle-Activator: de.walware.statet.r.internal.debug.ui.RDebugUIPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.10",
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.11",
  org.eclipse.jface.text,
  org.eclipse.ui.ide,
  de.walware.ecommons.ltk.ui;bundle-version="0.10.0",

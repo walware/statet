@@ -8,13 +8,14 @@ Bundle-Activator: de.walware.statet.r.internal.debug.core.RDebugCorePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.10",
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.11",
  org.eclipse.debug.core,
  de.walware.ecommons.ltk.core,
  de.walware.statet.base.core;bundle-version="[3.6.0,3.7.0)",
  de.walware.statet.nico.core;visibility:=reexport,
  de.walware.statet.r.core,
- de.walware.statet.r.console.core
+ de.walware.statet.r.console.core,
+ org.eclipse.jdt.annotation;bundle-version="[2.0.0,3.0.0)";resolution:=optional
 Import-Package: de.walware.ecommons,
  de.walware.ecommons.io,
  de.walware.ecommons.models.core.util,
