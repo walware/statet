@@ -511,7 +511,7 @@
                         variable="activeMenuSelection">
                      <test
                            property="de.walware.ecommons.ltk.isElementSelection"
-                           value="r*">
+                           value="R*">
                      </test>
                   </with>
                   <and>
