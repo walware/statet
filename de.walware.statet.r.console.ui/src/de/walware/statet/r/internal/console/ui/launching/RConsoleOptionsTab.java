@@ -95,36 +95,53 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	static final String ATTR_INTEGRATION_RDBGEXT_ENABLED = ATTR_INTEGRATION_ROOT+"integration.rdbgext.enabled"; //$NON-NLS-1$
 	
 	
+	private final WritableValue fPinValue;
+	
+	private final WritableList fTrackingList;
+	private final WritableSet fTrackingEnabledSet;
+	
+	private final WritableValue fStartupSnippetValue;
+	
+	private final WritableValue fRHelpByStatetValue;
+	private final WritableValue fRGraphicsByStatetValue;
+	private final WritableValue fRDbgExtValue;
+	
+	private final WritableValue fObjectDBEnabledValue;
+	private final WritableValue fObjectDBAutoEnabledValue;
+	private final WritableValue fObjectDBListsChildrenValue;
+	private final WritableValue fObjectDBEnvsChildrenValue;
+	
 	private Button fPinControl;
-	private WritableValue fPinValue;
 	
 	private CheckboxTableViewer fTrackingTable;
 	private ButtonGroup<TrackingConfiguration> fTrackingButtons;
-	private WritableList fTrackingList;
-	private WritableSet fTrackingEnabledSet;
 	private int fTrackingMaxCustomId;
 	
 	private SnippetEditor fStartupSnippetEditor;
-	private WritableValue fStartupSnippetValue;
 	
 	private Button fRHelpByStatetControl;
-	private WritableValue fRHelpByStatetValue;
 	private Button fRGraphicsByStatetControl;
-	private WritableValue fRGraphicsByStatetValue;
 	private Button fRDbgExtControl;
-	private WritableValue fRDbgExtValue;
 	
 	private Button fObjectDBEnabledControl;
-	private WritableValue fObjectDBEnabledValue;
 	private Button fObjectDBAutoEnabledControl;
-	private WritableValue fObjectDBAutoEnabledValue;
 	private Text fObjectDBListsChildrenControl;
-	private WritableValue fObjectDBListsChildrenValue;
 	private Text fObjectDBEnvsChildrenControl;
-	private WritableValue fObjectDBEnvsChildrenValue;
 	
 	
 	public RConsoleOptionsTab() {
+		final Realm realm= getRealm();
+		this.fPinValue= new WritableValue(realm, false, Boolean.TYPE);
+		this.fTrackingList= new WritableList(realm, new ArrayList<>(), TrackingConfiguration.class);
+		this.fTrackingEnabledSet= new WritableSet(realm, new HashSet<>(), TrackingConfiguration.class);
+		this.fStartupSnippetValue= new WritableValue(realm, "", String.class); //$NON-NLS-1$
+		this.fRHelpByStatetValue= new WritableValue(realm, false, Boolean.TYPE);
+		this.fRGraphicsByStatetValue= new WritableValue(realm, false, Boolean.TYPE);
+		this.fRDbgExtValue= new WritableValue(realm, false, Boolean.TYPE);
+		this.fObjectDBEnabledValue= new WritableValue(realm, false, Boolean.TYPE);
+		this.fObjectDBAutoEnabledValue= new WritableValue(realm, false, Boolean.TYPE);
+		this.fObjectDBListsChildrenValue= new WritableValue(realm, 100000, Integer.TYPE);
+		this.fObjectDBEnvsChildrenValue= new WritableValue(realm, 100000, Integer.TYPE);
 	}
 	
 	
@@ -328,27 +345,17 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	
 	@Override
 	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-		fPinValue = new WritableValue(realm, Boolean.class);
 		dbc.bindValue(SWTObservables.observeSelection(fPinControl), fPinValue, null, null);
 		
-		fTrackingList= new WritableList(realm, new ArrayList<>(), TrackingConfiguration.class);
 		fTrackingTable.setContentProvider(new ObservableListContentProvider());
 		fTrackingTable.setInput(fTrackingList);
 		
-		fStartupSnippetValue = new WritableValue(realm, String.class);
 		dbc.bindValue(new SnippetEditorObservable(realm, fStartupSnippetEditor, SWT.Modify), fStartupSnippetValue, null, null);
 		
-		fRHelpByStatetValue = new WritableValue(realm, Boolean.class);
-		fRGraphicsByStatetValue = new WritableValue(realm, Boolean.class);
-		fRDbgExtValue = new WritableValue(realm, Boolean.class);
 		dbc.bindValue(SWTObservables.observeSelection(fRHelpByStatetControl), fRHelpByStatetValue, null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fRGraphicsByStatetControl), fRGraphicsByStatetValue, null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fRDbgExtControl), fRDbgExtValue, null, null);
 		
-		fObjectDBEnabledValue = new WritableValue(realm, Boolean.class);
-		fObjectDBAutoEnabledValue = new WritableValue(realm, Boolean.class);
-		fObjectDBListsChildrenValue = new WritableValue(realm, Integer.class);
-		fObjectDBEnvsChildrenValue = new WritableValue(realm, Integer.class);
 		final ISWTObservableValue dbObs = SWTObservables.observeSelection(fObjectDBEnabledControl);
 		dbc.bindValue(dbObs, fObjectDBEnabledValue, null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fObjectDBAutoEnabledControl), fObjectDBAutoEnabledValue, null, null);
@@ -370,7 +377,6 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 			}
 		});
 		
-		fTrackingEnabledSet= new WritableSet(realm, new HashSet<>(), TrackingConfiguration.class);
 		fTrackingButtons.setCheckedModel(fTrackingEnabledSet);
 		dbc.bindSet(ViewersObservables.observeCheckedElements(fTrackingTable, TrackingConfiguration.class), fTrackingEnabledSet);
 	}

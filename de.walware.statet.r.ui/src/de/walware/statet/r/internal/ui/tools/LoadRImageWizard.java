@@ -63,6 +63,9 @@ public class LoadRImageWizard extends Wizard {
 			
 			setTitle(Messages.LoadData_Wizard_SelectPage_title);
 			setDescription(Messages.LoadData_Wizard_SelectPage_description);
+			
+			final Realm realm= Realm.getDefault();
+			this.fNewLocationString= new WritableValue(realm, "", String.class); //$NON-NLS-1$
 		}
 		
 		@Override
@@ -108,7 +111,6 @@ public class LoadRImageWizard extends Wizard {
 			
 			final Realm realm = Realm.getDefault();
 			fDbc = new DataBindingContext(realm);
-			fNewLocationString = new WritableValue("", String.class); //$NON-NLS-1$
 			fDbc.bindValue(fLocationGroup.getObservable(), fNewLocationString,
 					new UpdateValueStrategy().setAfterGetValidator(fLocationGroup.getValidator()), null);
 			

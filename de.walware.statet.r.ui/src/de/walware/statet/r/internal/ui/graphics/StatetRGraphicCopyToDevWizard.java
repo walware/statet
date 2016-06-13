@@ -73,11 +73,13 @@ public class StatetRGraphicCopyToDevWizard extends Wizard {
 		
 		private final String fSettingType;
 		
+		private final WritableValue fNewLocationString;
+		
+		private final WritableValue fOpenFileValue;
+		
 		private ResourceInputComposite fLocationGroup;
-		private WritableValue fNewLocationString;
 		
 		private Button fOpenFileControl;
-		private WritableValue fOpenFileValue;
 		
 		private DataBindingContext fDbc;
 		
@@ -88,6 +90,10 @@ public class StatetRGraphicCopyToDevWizard extends Wizard {
 			fSettingType = fDevAbbr.toLowerCase();
 			setTitle(NLS.bind("Save Graphic as {0} using R", fDevAbbr.toUpperCase()));
 			setDescription("Select the file to save the graphic to.");
+			
+			final Realm realm= Realm.getDefault();
+			this.fNewLocationString= new WritableValue(realm, "", String.class);
+			this.fOpenFileValue= new WritableValue(realm, Boolean.FALSE, Boolean.class);
 		}
 		
 		@Override
@@ -139,10 +145,8 @@ public class StatetRGraphicCopyToDevWizard extends Wizard {
 			
 			final Realm realm = Realm.getDefault();
 			fDbc = new DataBindingContext(realm);
-			fNewLocationString = new WritableValue("", String.class);
 			fDbc.bindValue(fLocationGroup.getObservable(), fNewLocationString,
 					new UpdateValueStrategy().setAfterGetValidator(fLocationGroup.getValidator()), null);
-			fOpenFileValue = new WritableValue(realm, Boolean.FALSE, Boolean.class);
 			fDbc.bindValue(fOpenFileValue, SWTObservables.observeSelection(fOpenFileControl));
 			fOpenFileValue.setValue(getDialogSettings().getBoolean(SETTINGS_OPEN+fSettingType));
 			

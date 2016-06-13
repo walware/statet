@@ -97,7 +97,9 @@ public class ExportConsoleOutputWizard extends Wizard {
 			setDescription("Select the content to export and the destination file");
 			
 			this.config= config;
-			this.openValue= new WritableValue(false, Boolean.class);
+			
+			final Realm realm= Realm.getDefault();
+			this.openValue= new WritableValue(realm, false, Boolean.class);
 		}
 		
 		@Override

@@ -140,6 +140,13 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 	}
 	
 	
+	private final WritableValue fAddressValue;
+	private final WritableValue fUserValue;
+	private final WritableValue fSshPortValue;
+	private final WritableValue fSshTunnelValue;
+	private final WritableValue fCommandValue;
+	private final WritableValue fSshAddressValue;
+	
 	private Text fAddressControl;
 	private List<Control> fAddressControls;
 	private RRemoteConsoleSelectionDialog fRemoteEngineSelectionDialog;
@@ -156,17 +163,17 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 	private Text fCommandControl;
 	private List<Control> fCommandControls;
 	
-	private WritableValue fAddressValue;
-	private WritableValue fUserValue;
-	private WritableValue fSshPortValue;
-	private WritableValue fSshTunnelValue;
-	private WritableValue fCommandValue;
-	private WritableValue fSshAddressValue;
-	
 	private UpdateJob fUpdateJob;
 	
 	
 	public RRemoteConsoleMainTab() {
+		final Realm realm= getRealm();
+		this.fAddressValue= new WritableValue(realm, "", String.class); 
+		this.fUserValue= new WritableValue(realm, "", String.class); 
+		this.fSshPortValue= new WritableValue(realm, null, Integer.class); 
+		this.fSshTunnelValue= new WritableValue(realm, false, Boolean.TYPE);
+		this.fCommandValue= new WritableValue(realm, "", String.class); 
+		this.fSshAddressValue= new WritableValue(realm, "", String.class);
 	}
 	
 	
@@ -447,27 +454,21 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 		dbc.bindValue(SWTObservables.observeText(fAddressControl, SWT.Modify),
 				addressValue1, null, null);
 		validator.observeValidatedValue(addressValue1);
-		fAddressValue = new WritableValue("", String.class); 
 		dbc.bindValue(addressValue1, fAddressValue, null, null);
 		
-		fUserValue = new WritableValue("", String.class); 
 		dbc.bindValue(SWTObservables.observeText(fUsernameControl, SWT.Modify),
 				fUserValue, null, null);
 		
-		fSshPortValue = new WritableValue(null, Integer.class); 
 		dbc.bindValue(SWTObservables.observeText(fSshPortControl, SWT.Modify),
 				fSshPortValue,
 				new UpdateValueStrategy().setAfterGetValidator(new IntegerValidator(0, 65535, true,
 						"Invalid SSH port number specified (0-65535)." )), null );
-		fSshTunnelValue = new WritableValue(false, Boolean.TYPE);
 		dbc.bindValue(SWTObservables.observeSelection(fSshTunnelControl),
 				fSshTunnelValue, null, null );
 		
-		fCommandValue = new WritableValue("", String.class); 
 		dbc.bindValue(SWTObservables.observeText(fCommandControl, SWT.Modify),
 				fCommandValue, null, null);
 		
-		fSshAddressValue = new WritableValue();
 		dbc.bindValue(SWTObservables.observeText(fSshAddress, SWT.Modify),
 				fSshAddressValue, null, null);
 		

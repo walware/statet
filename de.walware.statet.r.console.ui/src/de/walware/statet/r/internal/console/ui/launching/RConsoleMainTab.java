@@ -110,14 +110,14 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	private final RConsoleType[] fTypes;
 	private final RConsoleType fDefaultType;
 	
+	private final WritableValue fTypeValue;
+	private final WritableValue fWorkingDirectoryValue;
+	protected final WritableValue fArgumentsValue;
+	
 	private ComboViewer fTypesCombo;
 	
 	private ResourceInputComposite fWorkingDirectoryControl;
 	private RArgumentsComposite fArgumentsControl;
-	
-	private WritableValue fTypeValue;
-	private WritableValue fWorkingDirectoryValue;
-	protected WritableValue fArgumentsValue;
 	
 	boolean fWithHelp = false;
 	private MenuItem fHelpItem;
@@ -129,6 +129,11 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		super();
 		fTypes = loadTypes();
 		fDefaultType = fTypes[0];
+		
+		final Realm realm= getRealm();
+		this.fTypeValue= new WritableValue(realm, null, RConsoleType.class);
+		this.fWorkingDirectoryValue= new WritableValue(realm, null, String.class);
+		this.fArgumentsValue= new WritableValue(realm, "", String.class); //$NON-NLS-1$
 	}
 	
 	
@@ -255,10 +260,6 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	
 	@Override
 	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-		fTypeValue = new WritableValue(realm, RConsoleType.class);
-		fWorkingDirectoryValue = new WritableValue(realm, null, String.class);
-		fArgumentsValue = new WritableValue(realm, String.class);
-		
 		IValidator typeValidator= null;
 		if (getLaunchConfigurationDialog().getMode().equals(ILaunchManager.DEBUG_MODE)) {
 			typeValidator= new UpdateableErrorValidator(new IValidator() {

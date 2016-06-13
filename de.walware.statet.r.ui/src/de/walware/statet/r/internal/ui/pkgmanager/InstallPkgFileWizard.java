@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 
 import org.eclipse.core.databinding.UpdateValueStrategy;
+import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.core.databinding.validation.IValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
@@ -66,13 +67,13 @@ public class InstallPkgFileWizard extends Wizard {
 		private static final String FILE_HISTORY = "RPkgFile.history"; //$NON-NLS-1$
 		
 		
+		private final WritableValue fFileValue;
+		private final WritableValue fTypeValue;
+		private final WritableValue fTargetValue;
+		
 		private ResourceInputComposite fFileControl;
 		private Label fTypeControl;
 		private RLibrarySelectionComposite fTargetControl;
-		
-		private WritableValue fFileValue;
-		private WritableValue fTypeValue;
-		private WritableValue fTargetValue;
 		
 		
 		public Page() {
@@ -80,6 +81,11 @@ public class InstallPkgFileWizard extends Wizard {
 			
 			setTitle("Install R Package from File");
 			setDescription("Select the package file and target location.");
+			
+			final Realm realm= Realm.getDefault();
+			this.fFileValue= new WritableValue(realm, "", String.class); //$NON-NLS-1$
+			this.fTypeValue= new WritableValue(realm, -1, Integer.class);
+			this.fTargetValue= new WritableValue(realm, null, IRLibraryLocation.class);
 		}
 		
 		
@@ -127,7 +133,6 @@ public class InstallPkgFileWizard extends Wizard {
 		}
 		
 		protected void addBindings(final DataBindingSupport databinding) {
-			fFileValue = new WritableValue(databinding.getRealm(), String.class);
 			fFileControl.getValidator().setOnNotLocal(IStatus.OK);
 			fFileControl.getValidator().setFileStoreValidator(new IValidator() {
 				@Override
@@ -145,7 +150,6 @@ public class InstallPkgFileWizard extends Wizard {
 					new UpdateValueStrategy().setAfterGetValidator(fFileControl.getValidator()),
 					null );
 			
-			fTypeValue = new WritableValue(databinding.getRealm(), -1, Integer.class);
 			fFileControl.getTextControl().addListener(SWT.Modify, new Listener() {
 				@Override
 				public void handleEvent(final Event event) {
@@ -153,7 +157,6 @@ public class InstallPkgFileWizard extends Wizard {
 				}
 			});
 			
-			fTargetValue = new WritableValue(databinding.getRealm(), null, IRLibraryLocation.class);
 			databinding.getContext().bindValue(
 					ViewersObservables.observeSingleSelection(fTargetControl.getSelectionViewer()),
 					fTargetValue,

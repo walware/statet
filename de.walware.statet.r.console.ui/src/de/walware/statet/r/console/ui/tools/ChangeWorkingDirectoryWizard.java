@@ -78,8 +78,9 @@ public class ChangeWorkingDirectoryWizard extends Wizard {
 		private static final String SETTINGS_HISTORY = "statet:location.workingdir"; //$NON-NLS-1$
 		
 		
+		private final WritableValue fNewLocationString;
+		
 		private ResourceInputComposite fLocationGroup;
-		private WritableValue fNewLocationString;
 		
 		private DataBindingContext fDbc;
 		
@@ -89,6 +90,9 @@ public class ChangeWorkingDirectoryWizard extends Wizard {
 			
 			setTitle(Messages.ChangeWorkingDir_SelectDialog_title);
 			setDescription(Messages.ChangeWorkingDir_SelectDialog_message);
+			
+			final Realm realm= Realm.getDefault();
+			this.fNewLocationString= new WritableValue(realm, "", String.class); //$NON-NLS-1$
 		}
 		
 		@Override
@@ -131,7 +135,6 @@ public class ChangeWorkingDirectoryWizard extends Wizard {
 			
 			final Realm realm = Realm.getDefault();
 			fDbc = new DataBindingContext(realm);
-			fNewLocationString = new WritableValue(dir, String.class);
 			fDbc.bindValue(fLocationGroup.getObservable(), fNewLocationString,
 					new UpdateValueStrategy().setAfterGetValidator(fLocationGroup.getValidator()), null);
 			

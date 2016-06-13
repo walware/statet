@@ -104,18 +104,21 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 /*-- --*/
 	
 	
-	private REnvSelectionComposite rEnvControl;
+	private final boolean fLocal;
 	
-	private WritableValue rEnvSettingValue;
+	private final WritableValue rEnvSettingValue;
 	private Binding rEnvBinding;
 	
-	private final boolean fLocal;
+	private REnvSelectionComposite rEnvControl;
 	
 	
 	public REnvTab(final boolean local) {
 		super();
 		
 		this.fLocal= local;
+		
+		final Realm realm= getRealm();
+		this.rEnvSettingValue= new WritableValue(realm, null, String.class);
 	}
 	
 	
@@ -160,8 +163,6 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	
 	@Override
 	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-		this.rEnvSettingValue= new WritableValue(realm, null, String.class);
-		
 		this.rEnvBinding= dbc.bindValue(this.rEnvControl.createObservable(realm), this.rEnvSettingValue,
 				new UpdateValueStrategy().setAfterGetValidator(
 						new UpdateableErrorValidator(this.rEnvControl.createValidator(dbc))),
