@@ -1053,9 +1053,9 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 						}
 					}
 					if (updated == null) {
-						updated= new ArrayList<>(l-i);
-						updated.add(lineBreakpoint);
+						updated= new ArrayList<>(l - i);
 					}
+					updated.add(breakpoint);
 				}
 				catch (final CoreException e) {} // only isRegistered
 			}
