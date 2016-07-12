@@ -239,6 +239,8 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 	
 	private final Map<IResource, List<TracepointState>> stateUpdatesMap= new HashMap<>();
 	
+	private final List<IResource> currentRequests= new ArrayList<>();
+	
 	private final ISystemRunnable updateRunnable= new ISystemRunnable() {
 		
 		private List<String> knownPackages= new ArrayList<>();
@@ -282,8 +284,8 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 					synchronized (RControllerBreakpointAdapter.this.flagUpdateLock) {
 						RControllerBreakpointAdapter.this.flagUpdateCheck= false;
 					}
-					final IBreakpoint[] breakpoints= RControllerBreakpointAdapter.this.breakpointManager.getBreakpoints(
-							RDebugModel.IDENTIFIER );
+					final IBreakpoint[] breakpoints= RControllerBreakpointAdapter
+							.this.breakpointManager.getBreakpoints(RDebugModel.IDENTIFIER);
 					try {
 						boolean exceptionAvailable= false;
 						synchronized (RControllerBreakpointAdapter.this.stateUpdatesLock) {
@@ -292,7 +294,8 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 									final IRBreakpoint breakpoint= (IRBreakpoint) breakpoints[i];
 									scheduleStateUpdate((IRBreakpoint) breakpoints[i]);
 									
-									if (breakpoint.getBreakpointType() == RDebugModel.R_EXCEPTION_BREAKPOINT_TYPE_ID) {
+									final String breakpointType= breakpoint.getBreakpointType();
+									if (breakpointType == RDebugModel.R_EXCEPTION_BREAKPOINT_TYPE_ID) {
 										exceptionAvailable= true;
 									}
 								}
@@ -368,10 +371,12 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 								continue;
 							}
 							
-							if (breakpoint.getBreakpointType() == RDebugModel.R_EXCEPTION_BREAKPOINT_TYPE_ID) {
+							final String breakpointType= breakpoint.getBreakpointType();
+							if (breakpointType == RDebugModel.R_EXCEPTION_BREAKPOINT_TYPE_ID) {
 								exceptionAvailable= true;
 							}
-							else if (breakpoint instanceof IRLineBreakpoint) {
+							else if (breakpointType == RDebugModel.R_LINE_BREAKPOINT_TYPE_ID
+									|| breakpointType == RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID) {
 								final IRLineBreakpoint lineBreakpoint= (IRLineBreakpoint) breakpoint;
 								
 								if (checkInstalled) {
@@ -382,8 +387,14 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 									}
 								}
 								
+								final IResource resource= marker.getResource();
+								if (RControllerBreakpointAdapter.this.currentRequests.contains(resource)) {
+									schedulePositionUpdate(lineBreakpoint);
+									continue;
+								}
+								
 								if (newPackages != null) {
-									final IProject project= marker.getResource().getProject();
+									final IProject project= resource.getProject();
 									if (rProjects == null) {
 										rProjects= new HashMap<>();
 									}
@@ -745,7 +756,19 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 			final IProgressMonitor monitor) {
 		try {
 			if (su instanceof IRWorkspaceSourceUnit) {
-				return doPrepareFileElementTracepoints(srcfile, (IRWorkspaceSourceUnit) su, monitor);
+				final ElementTracepointInstallationRequest request= doPrepareFileElementTracepoints(
+						srcfile, (IRWorkspaceSourceUnit) su, monitor);
+				if (request != null) {
+					installElementTracepoints(request, monitor);
+					
+					for (final ElementTracepointPositions positions : request.getRequests()) {
+						if (positions instanceof Element) {
+							this.currentRequests.add(((Element) positions).getResource());
+						}
+					}
+					
+					return request;
+				}
 			}
 			return null;
 		}
@@ -753,6 +776,27 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 			RDebugCorePlugin.log(new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, 0,
 					"An error occurred when looking for line breakpoints.", e));
 			return null;
+		}
+	}
+	
+	@Override
+	public void finishFileElementTracepoints(final SrcfileData srcfile, final IRSourceUnit su,
+			ElementTracepointInstallationRequest request, final IProgressMonitor monitor) {
+		if (request != null) {
+			for (final ElementTracepointPositions positions : request.getRequests()) {
+				if (positions instanceof Element) {
+					this.currentRequests.remove(((Element) positions).getResource());
+				}
+			}
+			
+			if (srcfile != null) {
+				try {
+					request= doPrepareFileElementTracepoints(srcfile, (IRWorkspaceSourceUnit) su,
+							monitor );
+				}
+				catch (final CoreException e) {}
+			}
+			installElementTracepoints(request, monitor);
 		}
 	}
 	
@@ -773,7 +817,10 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 		Map<String, Element> map= null;
 		for (final IRLineBreakpoint breakpoint : breakpoints) {
 			try {
-				if (isElementBreakpoint(breakpoint)) {
+				final String breakpointType= breakpoint.getBreakpointType();
+				if (breakpointType == RDebugModel.R_LINE_BREAKPOINT_TYPE_ID
+						|| breakpointType == RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID) {
+					rSourceUnit.getDocument(monitor).get();
 					final RLineBreakpointValidator validator= new RLineBreakpointValidator(
 							rSourceUnit, breakpoint, monitor );
 					final String elementId;
@@ -838,10 +885,12 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 		final Map<IResource, @Nullable Map<String, Element>> resourceMap= new HashMap<>();
 		// by resources
 		for (int i= 0; i < breakpointsToUpdate.length; i++) {
-			if (breakpointsToUpdate[i] instanceof IRLineBreakpoint) {
-				final IRLineBreakpoint lineBreakpoint= (IRLineBreakpoint) breakpointsToUpdate[i];
+			final IRBreakpoint rBreakpoint= breakpointsToUpdate[i];
+			final String breakpointType= rBreakpoint.getBreakpointType();
+			if (breakpointType == RDebugModel.R_LINE_BREAKPOINT_TYPE_ID
+					|| breakpointType == RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID) {
 				try {
-					final ElementData breakpointData= (ElementData) lineBreakpoint.getTargetData(this.debugTarget);
+					final ElementData breakpointData= (ElementData) rBreakpoint.getTargetData(this.debugTarget);
 					if (breakpointData != null && breakpointData.installed != null) {
 						Map<String, Element> map= resourceMap.get(breakpointData.installed.getResource());
 						if (map == null) {
@@ -851,18 +900,18 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 						map.put(breakpointData.installed.getElementId(), null);
 					}
 					
-					if (lineBreakpoint.isRegistered() && isElementBreakpoint(lineBreakpoint)) {
-						final IResource resource= lineBreakpoint.getMarker().getResource();
+					if (rBreakpoint.isRegistered()) {
+						final IResource resource= rBreakpoint.getMarker().getResource();
 						if (!resourceMap.containsKey(resource)) {
 							resourceMap.put(resource, new HashMap<String, Element>());
 						}
 					}
 					else if (breakpointData != null) {
-						lineBreakpoint.unregisterTarget(this.debugTarget);
+						rBreakpoint.unregisterTarget(this.debugTarget);
 					}
 				}
 				catch (final CoreException e) {
-					logPrepareError(e, lineBreakpoint);
+					logPrepareError(e, rBreakpoint);
 				}
 			}
 		}
@@ -927,7 +976,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 		for (final IRLineBreakpoint lineBreakpoint : breakpoints) {
 			if (contains(breakpointsToUpdate, lineBreakpoint)) {
 				try {
-					if (lineBreakpoint.isEnabled() && isElementBreakpoint(lineBreakpoint)) {
+					if (lineBreakpoint.isEnabled()) {
 						final RLineBreakpointValidator validator= new RLineBreakpointValidator(
 								rSourceUnit,
 								lineBreakpoint.getBreakpointType(), lineBreakpoint.getCharStart(),
@@ -948,7 +997,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 		for (final IRLineBreakpoint lineBreakpoint : breakpoints) {
 			if (!contains(breakpointsToUpdate, lineBreakpoint)) {
 				try {
-					if (lineBreakpoint.isEnabled() && isElementBreakpoint(lineBreakpoint)) {
+					if (lineBreakpoint.isEnabled()) {
 						final RLineBreakpointValidator validator= new RLineBreakpointValidator(
 								rSourceUnit,
 								lineBreakpoint.getBreakpointType(), lineBreakpoint.getCharStart(),
@@ -1032,17 +1081,17 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 				if (!(position instanceof Position)) {
 					continue;
 				}
-				final IRLineBreakpoint lineBreakpoint= ((Position) position).getBreakpoint();
+				final IRLineBreakpoint breakpoint= ((Position) position).getBreakpoint();
 				try {
-					if (lineBreakpoint == null || !lineBreakpoint.isRegistered()) {
+					if (breakpoint == null || !breakpoint.isRegistered()) {
 						continue;
 					}
-					final IMarker marker= lineBreakpoint.getMarker();
+					final IMarker marker= breakpoint.getMarker();
 					if (marker == null || marker.getId() != position.getId()) {
 						continue;
 					}
 					final ElementData newData= new ElementData((installed) ? current : null);
-					final ElementData oldData= (ElementData) lineBreakpoint.registerTarget(this.debugTarget, newData);
+					final ElementData oldData= (ElementData) breakpoint.registerTarget(this.debugTarget, newData);
 					if (oldData != null && oldData.installed != null
 							&& oldData.installed.getElementId().equals(current.getElementId())) {
 						if (cleanup == null) {
@@ -1094,11 +1143,11 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 	
 	private void addBreakpoint(final Map<String, Element> map,
 			final SrcfileData srcfile, final IResource resource, final String elementId,
-			final IRLineBreakpoint lineBreakpoint, final RLineBreakpointValidator validator,
+			final IRLineBreakpoint breakpoint, final RLineBreakpointValidator validator,
 			final int modCounter) throws CoreException {
 		synchronized (this.positionUpdatesLock) {
 			if (this.positionModCounter.get() == modCounter) {
-				this.positionUpdatesBreakpoints.remove(lineBreakpoint);
+				this.positionUpdatesBreakpoints.remove(breakpoint);
 			}
 		}
 		
@@ -1108,7 +1157,7 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 					RDbg.createRJSrcref(validator.computeElementSrcref()) );
 			map.put(elementId, elementPositions);
 		}
-		final IMarker marker= lineBreakpoint.getMarker();
+		final IMarker marker= breakpoint.getMarker();
 		if (marker == null) {
 			return;
 		}
@@ -1117,17 +1166,22 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 			rExpressionIndex= new int[0];
 		}
 		final int type;
-		if (lineBreakpoint.getBreakpointType() == RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID) {
-			type= Tracepoint.TYPE_FB;
+		if (breakpoint.getBreakpointType() == RDebugModel.R_LINE_BREAKPOINT_TYPE_ID) {
+			if (breakpoint.getElementType() == IRLineBreakpoint.R_TOPLEVEL_COMMAND_ELEMENT_TYPE) {
+				type= Tracepoint.TYPE_TB;
+			}
+			else {
+				type= Tracepoint.TYPE_LB;
+			}
 		}
-		else if (lineBreakpoint.getBreakpointType() == RDebugModel.R_LINE_BREAKPOINT_TYPE_ID) {
-			type= Tracepoint.TYPE_LB;
+		else if (breakpoint.getBreakpointType() == RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID) {
+			type= Tracepoint.TYPE_FB;
 		}
 		else {
 			return;
 		}
 		final Position position= new Position(type, marker.getId(), rExpressionIndex,
-				lineBreakpoint );
+				breakpoint );
 		if (!elementPositions.getPositions().contains(position)) {
 			if (elementPositions.getElementSrcref() != null) {
 				final IRSrcref rExpressionSrcref= validator.computeRExpressionSrcref();
@@ -1194,7 +1248,8 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 					final IRBreakpoint rBreakpoint= (IRBreakpoint) breakpoints[i];
 					try {
 						check= true;
-						if (rBreakpoint.getBreakpointType() == RDebugModel.R_EXCEPTION_BREAKPOINT_TYPE_ID) {
+						final String breakpointType= rBreakpoint.getBreakpointType();
+						if (breakpointType == RDebugModel.R_EXCEPTION_BREAKPOINT_TYPE_ID) {
 							final IRBreakpoint.ITargetData data;
 							synchronized (this.flagUpdateLock) {
 								data= this.exceptionBreakpointData;
@@ -1206,8 +1261,8 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 								rBreakpoint.registerTarget(this.debugTarget, data);
 							}
 						}
-						else if (rBreakpoint instanceof IRLineBreakpoint
-								&& isElementBreakpoint((IRLineBreakpoint) rBreakpoint) ) {
+						else if (breakpointType == RDebugModel.R_LINE_BREAKPOINT_TYPE_ID
+								|| breakpointType == RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID) {
 							synchronized (this.positionUpdatesLock) {
 								this.positionModCounter.incrementAndGet();
 								schedulePositionUpdate((IRLineBreakpoint) rBreakpoint);
@@ -1237,7 +1292,8 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 					final IRBreakpoint rBreakpoint= (IRBreakpoint) breakpoints[i];
 					try {
 						check= true;
-						if (rBreakpoint.getBreakpointType() == RDebugModel.R_EXCEPTION_BREAKPOINT_TYPE_ID) {
+						final String breakpointType= rBreakpoint.getBreakpointType();
+						if (breakpointType == RDebugModel.R_EXCEPTION_BREAKPOINT_TYPE_ID) {
 							final IRBreakpoint.ITargetData data;
 							synchronized (this.flagUpdateLock) {
 								data= this.exceptionBreakpointData;
@@ -1246,7 +1302,8 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 								}
 							}
 						}
-						else if (rBreakpoint instanceof IRLineBreakpoint) {
+						else if (breakpointType == RDebugModel.R_LINE_BREAKPOINT_TYPE_ID
+								|| breakpointType == RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID) {
 							final IMarkerDelta delta= deltas[i];
 							final IMarker marker= rBreakpoint.getMarker();
 							
@@ -1539,7 +1596,12 @@ public class RControllerBreakpointAdapter implements IRControllerTracepointAdapt
 		final int type;
 		int flags= breakpoint.isEnabled() ? TracepointState.FLAG_ENABLED : 0;
 		if (breakpoint.getBreakpointType() == RDebugModel.R_LINE_BREAKPOINT_TYPE_ID) {
-			type= Tracepoint.TYPE_LB;
+			if (breakpoint.getElementType() == IRLineBreakpoint.R_TOPLEVEL_COMMAND_ELEMENT_TYPE) {
+				type= Tracepoint.TYPE_TB;
+			}
+			else {
+				type= Tracepoint.TYPE_LB;
+			}
 		}
 		else if (breakpoint.getBreakpointType() == RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID) {
 			type= Tracepoint.TYPE_FB;

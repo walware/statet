@@ -63,24 +63,24 @@ public class RLineBreakpointValidator {
 		
 		
 		private ModelPosition(final RGenericLineBreakpoint.CachedData data) {
-			fData = data;
+			this.fData= data;
 		}
 		
 		
 		public String getElementId() {
-			return fData.getElementId();
+			return this.fData.getElementId();
 		}
 		
 		public int[] getRExpressionIndex() {
-			return fData.getRExpressionIndex();
+			return this.fData.getRExpressionIndex();
 		}
 		
 	}
 	
 	public static ModelPosition getModelPosition(final IRLineBreakpoint breakpoint) {
 		if (breakpoint instanceof RLineBreakpoint) {
-			final RLineBreakpoint internal = (RLineBreakpoint) breakpoint;
-			final CachedData cachedData = internal.getCachedData();
+			final RLineBreakpoint internal= (RLineBreakpoint) breakpoint;
+			final CachedData cachedData= internal.getCachedData();
 			if (cachedData != null) {
 				return new ModelPosition(cachedData);
 			}
@@ -89,61 +89,63 @@ public class RLineBreakpointValidator {
 	}
 	
 	
-	private static final int LINE_TOLERANCE = 5;
+	private static final int LINE_TOLERANCE= 5;
+	
+	private static final String TOPLEVEL_ELEMENT_ID= "200:"; // Integer.toHexString(IModelElement.C1_SOURCE) + ':' //$NON-NLS-1$
 	
 	
-	private final IRWorkspaceSourceUnit fSourceUnit;
-	private final AbstractDocument fDocument;
+	private final IRWorkspaceSourceUnit sourceUnit;
+	private final AbstractDocument document;
 	
-	private IRModelInfo fModelInfo;
+	private IRModelInfo modelInfo;
 	
-	private String fType;
+	private String type;
 	
-	private int fOriginalLine;
-	private int fLine;
-	private int fStartOffset;
-	private int fEndOffset;
+	private int originalLine;
+	private int line;
+	private int startOffset;
+	private int endOffset;
 	
-	private IRLangSourceElement fMethodElement; // the deepest method element
-	private IRLangSourceElement fBaseElement; // main element, null for script list
-	private RAstNode fAstNode;
-	private RAstNode fBaseExpressionRootNode; // the root for the R expression index
+	private IRLangSourceElement methodElement; // the deepest method element
+	private IRLangSourceElement baseElement; // main element, null for script list
+	private RAstNode astNode;
+	private RAstNode baseExpressionRootNode; // the root for the R expression index
 	
 	
 	public RLineBreakpointValidator(final IRWorkspaceSourceUnit su, final String type,
 			final int offset, final IProgressMonitor monitor) {
-		fSourceUnit = su;
+		this.sourceUnit= su;
 		if (!initType(type)
-				|| fSourceUnit.getResource().getType() != IResource.FILE ) {
-			fDocument = null;
+				|| this.sourceUnit.getResource().getType() != IResource.FILE ) {
+			this.document= null;
 			setInvalid();
 			return;
 		}
 		
-		fDocument = fSourceUnit.getDocument(monitor);
-		fOriginalLine = fLine = fStartOffset = fEndOffset = -1;
+		this.document= this.sourceUnit.getDocument(monitor);
+		this.originalLine= this.line= this.startOffset= this.endOffset= -1;
 		check(offset, monitor);
 	}
 	
 	public RLineBreakpointValidator(final IRWorkspaceSourceUnit su, final IRLineBreakpoint breakpoint,
 			final IProgressMonitor monitor) throws CoreException {
-		fSourceUnit = su;
+		this.sourceUnit= su;
 		if (!initType(breakpoint.getBreakpointType())
-				|| fSourceUnit.getResource().getType() != IResource.FILE ) {
-			fDocument = null;
+				|| this.sourceUnit.getResource().getType() != IResource.FILE ) {
+			this.document= null;
 			setInvalid();
 			return;
 		}
 		
-		fDocument = fSourceUnit.getDocument(monitor);
-		fOriginalLine = fLine = fStartOffset = fEndOffset = -1;
+		this.document= this.sourceUnit.getDocument(monitor);
+		this.originalLine= this.line= this.startOffset= this.endOffset= -1;
 		
-		final int offset = breakpoint.getCharStart();
+		final int offset= breakpoint.getCharStart();
 		check(offset, monitor);
 		
-		if (fType != null && breakpoint instanceof RGenericLineBreakpoint && su.isSynchronized()) {
+		if (this.type != null && breakpoint instanceof RGenericLineBreakpoint && su.isSynchronized()) {
 			((RGenericLineBreakpoint) breakpoint).setCachedData(new CachedData(
-					fModelInfo.getStamp().getSourceStamp(), computeElementId(), computeRExpressionIndex() ));
+					this.modelInfo.getStamp().getSourceStamp(), computeElementId(), computeRExpressionIndex() ));
 		}
 	}
 	
@@ -153,11 +155,11 @@ public class RLineBreakpointValidator {
 			return true;
 		}
 		if (type.equals(RDebugModel.R_LINE_BREAKPOINT_TYPE_ID)) {
-			fType = RDebugModel.R_LINE_BREAKPOINT_TYPE_ID;
+			this.type= RDebugModel.R_LINE_BREAKPOINT_TYPE_ID;
 			return true;
 		}
 		else if (type.equals(RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID)) {
-			fType = RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID;
+			this.type= RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID;
 			return true;
 		}
 		else {
@@ -167,68 +169,68 @@ public class RLineBreakpointValidator {
 	
 	private void check(final int offset, final IProgressMonitor monitor) {
 		try {
-			fLine = fOriginalLine = fDocument.getLineOfOffset(offset);
-			fMethodElement = searchMethodElement(offset, monitor);
-			if (fType == null) { // best
-				if (fMethodElement != null
-						&& fDocument.getLineOfOffset(fMethodElement.getSourceRange().getOffset()) == fLine ) {
-					fType = RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID;
+			this.line= this.originalLine= this.document.getLineOfOffset(offset);
+			this.methodElement= searchMethodElement(offset, monitor);
+			if (this.type == null) { // best
+				if (this.methodElement != null
+						&& this.document.getLineOfOffset(this.methodElement.getSourceRange().getOffset()) == this.line ) {
+					this.type= RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID;
 				}
 				else {
-					fType = RDebugModel.R_LINE_BREAKPOINT_TYPE_ID;
+					this.type= RDebugModel.R_LINE_BREAKPOINT_TYPE_ID;
 				}
 			}
 			
-			if (fType == RDebugModel.R_LINE_BREAKPOINT_TYPE_ID) {
-				IRegion lineInformation = fDocument.getLineInformation(fLine);
+			if (this.type == RDebugModel.R_LINE_BREAKPOINT_TYPE_ID) {
+				IRegion lineInformation= this.document.getLineInformation(this.line);
 				final RHeuristicTokenScanner scanner= RHeuristicTokenScanner.create(
-						fSourceUnit.getDocumentContentInfo() );
-				scanner.configure(fDocument, IRDocumentConstants.R_CODE_CONTENT_CONSTRAINT);
-				{	final IRegion lastLineInformation = fDocument.getLineInformation(
-							Math.min(fLine + LINE_TOLERANCE, fDocument.getNumberOfLines()-1) );
-					fStartOffset = scanner.findNonBlankForward(
+						this.sourceUnit.getDocumentContentInfo() );
+				scanner.configure(this.document, IRDocumentConstants.R_CODE_CONTENT_CONSTRAINT);
+				{	final IRegion lastLineInformation= this.document.getLineInformation(
+							Math.min(this.line + LINE_TOLERANCE, this.document.getNumberOfLines()-1) );
+					this.startOffset= scanner.findNonBlankForward(
 							lineInformation.getOffset(),
 							lastLineInformation.getOffset() + lastLineInformation.getLength(),
 							true );
 				}
-				if (fStartOffset < 0) {
+				if (this.startOffset < 0) {
 					setInvalid();
 					return;
 				}
 				
-				fAstNode = searchSuspendAstNode(fStartOffset, monitor);
-				if (fAstNode == null) {
+				this.astNode= searchSuspendAstNode(this.startOffset, monitor);
+				if (this.astNode == null) {
 					setInvalid();
 					return;
 				}
-				fStartOffset = fAstNode.getOffset();
-				if (fStartOffset < 0) {
+				this.startOffset= this.astNode.getOffset();
+				if (this.startOffset < 0) {
 					setInvalid();
 					return;
 				}
 				
-				fLine = fDocument.getLineOfOffset(fStartOffset);
-				if (fLine != fOriginalLine) {
-					lineInformation = fDocument.getLineInformation(fLine);
+				this.line= this.document.getLineOfOffset(this.startOffset);
+				if (this.line != this.originalLine) {
+					lineInformation= this.document.getLineInformation(this.line);
 				}
 				
-				fEndOffset = scanner.findNonBlankBackward(
+				this.endOffset= scanner.findNonBlankBackward(
 						lineInformation.getOffset() + lineInformation.getLength(),
-						fStartOffset - 1, true);
-				if (fEndOffset < 0) { // should never happen
+						this.startOffset - 1, true);
+				if (this.endOffset < 0) { // should never happen
 					setInvalid();
 					return;
 				}
 				
-				if (fMethodElement != null
-						&& fMethodElement.getSourceRange().getOffset() != fStartOffset) {
-					fBaseElement = searchBaseElement(fMethodElement);
-					if (fBaseElement == null) {
+				if (this.methodElement != null
+						&& this.methodElement.getSourceRange().getOffset() != this.startOffset) {
+					this.baseElement= searchBaseElement(this.methodElement);
+					if (this.baseElement == null) {
 						setInvalid();
 						return;
 					}
 					
-					fBaseExpressionRootNode = ((FDef) fBaseElement.getAdapter(FDef.class)).getContChild();
+					this.baseExpressionRootNode= this.baseElement.getAdapter(FDef.class).getContChild();
 					if (!isBaseExpressionRootNodeValid()) {
 //						new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, "Only in blocks.");
 						setInvalid();
@@ -236,45 +238,45 @@ public class RLineBreakpointValidator {
 					}
 				}
 				else { // script line
-//					fBaseExpressionRootNode = fAstNode.getRRoot();
+					this.baseExpressionRootNode= this.astNode.getRRoot();
 				}
 			}
-			else if (fType == RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID) {
-				if (fMethodElement != null) {
-					fStartOffset = fMethodElement.getSourceRange().getOffset();
-					if (fStartOffset < 0) {
+			else if (this.type == RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID) {
+				if (this.methodElement != null) {
+					this.startOffset= this.methodElement.getSourceRange().getOffset();
+					if (this.startOffset < 0) {
 						setInvalid();
 						return;
 					}
-					fLine = fDocument.getLineOfOffset(fStartOffset);
-					final IRegion lineInformation = fDocument.getLineInformation(fLine);
+					this.line= this.document.getLineOfOffset(this.startOffset);
+					final IRegion lineInformation= this.document.getLineInformation(this.line);
 					
 					final RHeuristicTokenScanner scanner= RHeuristicTokenScanner.create(
-							fSourceUnit.getDocumentContentInfo() );
-					scanner.configure(fDocument, IRDocumentConstants.R_CODE_CONTENT_CONSTRAINT);
+							this.sourceUnit.getDocumentContentInfo() );
+					scanner.configure(this.document, IRDocumentConstants.R_CODE_CONTENT_CONSTRAINT);
 					
-					fEndOffset = scanner.findNonBlankBackward(
+					this.endOffset= scanner.findNonBlankBackward(
 							Math.min(lineInformation.getOffset() + lineInformation.getLength(),
-									fStartOffset + fMethodElement.getSourceRange().getLength() ),
-							fStartOffset - 1, true );
-					if (fEndOffset < 0) {
+									this.startOffset + this.methodElement.getSourceRange().getLength() ),
+							this.startOffset - 1, true );
+					if (this.endOffset < 0) {
 						setInvalid();
 						return;
 					}
 					
-					fBaseElement = searchBaseElement(fMethodElement);
-					if (fBaseElement == null) {
+					this.baseElement= searchBaseElement(this.methodElement);
+					if (this.baseElement == null) {
 						setInvalid();
 						return;
 					}
 					
-					if (fBaseElement != fMethodElement) {
-						fAstNode = ((FDef) fMethodElement.getAdapter(FDef.class)).getContChild();
-						if (fAstNode == null) {
+					if (this.baseElement != this.methodElement) {
+						this.astNode= this.methodElement.getAdapter(FDef.class).getContChild();
+						if (this.astNode == null) {
 							setInvalid();
 							return;
 						}
-						fBaseExpressionRootNode = ((FDef) fBaseElement.getAdapter(FDef.class)).getContChild();
+						this.baseExpressionRootNode= this.baseElement.getAdapter(FDef.class).getContChild();
 						if (!isBaseExpressionRootNodeValid()) {
 //							new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, "Only in blocks.");
 							setInvalid();
@@ -288,7 +290,7 @@ public class RLineBreakpointValidator {
 				}
 			}
 			else {
-				throw new IllegalStateException(fType);
+				throw new IllegalStateException(this.type);
 			}
 		}
 		catch (final BadLocationException e) {
@@ -297,21 +299,21 @@ public class RLineBreakpointValidator {
 	}
 	
 	private boolean isBaseExpressionRootNodeValid() {
-		return (fBaseExpressionRootNode != null
-				&& fBaseExpressionRootNode.getNodeType() == NodeType.BLOCK
-				&& RAst.isParentChild(fBaseExpressionRootNode, fAstNode) );
+		return (this.baseExpressionRootNode != null
+				&& this.baseExpressionRootNode.getNodeType() == NodeType.BLOCK
+				&& RAst.isParentChild(this.baseExpressionRootNode, this.astNode) );
 	}
 	
 	private IRModelInfo getModelInfo(final IProgressMonitor monitor) {
-		if (fModelInfo == null) {
-			fModelInfo = (IRModelInfo) fSourceUnit.getModelInfo(RModel.R_TYPE_ID,
+		if (this.modelInfo == null) {
+			this.modelInfo= (IRModelInfo) this.sourceUnit.getModelInfo(RModel.R_TYPE_ID,
 					IModelManager.MODEL_FILE, monitor );
 		}
-		return fModelInfo;
+		return this.modelInfo;
 	}
 	
 	private void setInvalid() {
-		fType = null;
+		this.type= null;
 	}
 	
 	
@@ -322,18 +324,18 @@ public class RLineBreakpointValidator {
 			return null;
 		}
 		
-		final IRegion lineInformation = fDocument.getLineInformationOfOffset(offset);
+		final IRegion lineInformation= this.document.getLineInformationOfOffset(offset);
 		final RHeuristicTokenScanner scanner= RHeuristicTokenScanner.create(
-				fSourceUnit.getDocumentContentInfo() );
-		scanner.configure(fDocument, IRDocumentConstants.R_CODE_CONTENT_CONSTRAINT);
-		int charStart = scanner.findNonBlankForward(
+				this.sourceUnit.getDocumentContentInfo() );
+		scanner.configure(this.document, IRDocumentConstants.R_CODE_CONTENT_CONSTRAINT);
+		int charStart= scanner.findNonBlankForward(
 				lineInformation.getOffset(),
 				lineInformation.getOffset() + lineInformation.getLength(),
 				true);
 		if (charStart < 0) {
-			charStart = offset;
+			charStart= offset;
 		}
-		ISourceStructElement element = LTKUtil.getCoveringSourceElement(
+		ISourceStructElement element= LTKUtil.getCoveringSourceElement(
 				modelInfo.getSourceElement(), charStart, charStart );
 		
 		while (element != null) {
@@ -341,7 +343,7 @@ public class RLineBreakpointValidator {
 					&& (element.getElementType() & IModelElement.MASK_C1) == IModelElement.C1_METHOD) {
 				return (IRLangSourceElement) element;
 			}
-			element = element.getSourceParent();
+			element= element.getSourceParent();
 		}
 		return null;
 	}
@@ -352,12 +354,12 @@ public class RLineBreakpointValidator {
 			return null;
 		}
 		
-		final IAstNode astNode = AstSelection.search(modelInfo.getAst().root,
+		final IAstNode astNode= AstSelection.search(modelInfo.getAst().root,
 				offset, offset, AstSelection.MODE_COVERING_SAME_FIRST).getCovering();
 		if (astNode instanceof RAstNode) {
-			RAstNode rNode = (RAstNode) astNode;
+			RAstNode rNode= (RAstNode) astNode;
 			if (rNode.getOffset() < offset) {
-				final AtomicReference<RAstNode> ref = new AtomicReference<>();
+				final AtomicReference<RAstNode> ref= new AtomicReference<>();
 				try {
 					rNode.acceptInR(new GenericVisitor() {
 						@Override
@@ -382,8 +384,8 @@ public class RLineBreakpointValidator {
 			}
 			else {
 				RAstNode rParent;
-				while ((rParent = rNode.getRParent()) != null && rParent.getOffset() >= offset) {
-					rNode = rParent;
+				while ((rParent= rNode.getRParent()) != null && rParent.getOffset() >= offset) {
+					rNode= rParent;
 				}
 			}
 			return rNode;
@@ -393,7 +395,7 @@ public class RLineBreakpointValidator {
 	
 	private IRLangSourceElement searchBaseElement(IRLangSourceElement element) {
 		while (element != null) {
-			final ISourceStructElement parent = element.getSourceParent();
+			final ISourceStructElement parent= element.getSourceParent();
 			if (!(parent instanceof IRLangSourceElement)) {
 				return null;
 			}
@@ -404,16 +406,16 @@ public class RLineBreakpointValidator {
 				}
 				return null;
 			}
-			element = (IRLangSourceElement) parent;
+			element= (IRLangSourceElement) parent;
 		}
 //		while (element != null) {
-//			IRFrame frame = (IRFrame) element.getAdapter(IRFrame.class);
+//			IRFrame frame= (IRFrame) element.getAdapter(IRFrame.class);
 //			if (frame == null) {
 //				return null;
 //			}
 //			switch (frame.getFrameType()) {
 //			case IRFrame.FUNCTION:
-//				element = element.getSourceParent();
+//				element= element.getSourceParent();
 //				continue;
 //			case IRFrame.PROJECT:
 //			case IRFrame.PACKAGE:
@@ -427,7 +429,7 @@ public class RLineBreakpointValidator {
 	
 	
 	public String getType() {
-		return fType;
+		return this.type;
 	}
 	
 	/**
@@ -436,7 +438,7 @@ public class RLineBreakpointValidator {
 	 * @return the line number (1-based)
 	 */
 	public int getOriginalLineNumber() {
-		return (fOriginalLine + 1);
+		return (this.originalLine + 1);
 	}
 	
 	/**
@@ -445,7 +447,7 @@ public class RLineBreakpointValidator {
 	 * @return the line number (1-based)
 	 */
 	public int getLineNumber() {
-		return (fLine >= 0) ? (fLine + 1) : -1;
+		return (this.line >= 0) ? (this.line + 1) : -1;
 	}
 	
 	/**
@@ -454,7 +456,7 @@ public class RLineBreakpointValidator {
 	 * @return start offset in the document
 	 */
 	public int getCharStart() {
-		return fStartOffset;
+		return this.startOffset;
 	}
 	
 	/**
@@ -463,29 +465,29 @@ public class RLineBreakpointValidator {
 	 * @return end offset in the document
 	 */
 	public int getCharEnd() {
-		return (fEndOffset >= 0) ? (fEndOffset + 1) : -1;
+		return (this.endOffset >= 0) ? (this.endOffset + 1) : -1;
 	}
 	
 	public ISourceStructElement getMethodElement() {
-		return fMethodElement;
+		return this.methodElement;
 	}
 	
 	public ISourceStructElement getBaseElement() {
-		return fBaseElement;
+		return this.baseElement;
 	}
 	
 	public RAstNode getAstNode() {
-		return fAstNode;
+		return this.astNode;
 	}
 	
 	
 	public int computeElementType() throws CoreException {
-		if (fType == null) {
+		if (this.type == null) {
 			throw invalid();
 		}
-		if (fBaseElement != null) {
-			if ((fBaseElement.getElementType() & IModelElement.MASK_C1) == IModelElement.C1_METHOD) {
-				if (fBaseElement.getElementType() == IRElement.R_S4METHOD) {
+		if (this.baseElement != null) {
+			if ((this.baseElement.getElementType() & IModelElement.MASK_C1) == IModelElement.C1_METHOD) {
+				if (this.baseElement.getElementType() == IRElement.R_S4METHOD) {
 					return IRLineBreakpoint.R_S4_METHOD_ELEMENT_TYPE;
 				}
 				return IRLineBreakpoint.R_COMMON_FUNCTION_ELEMENT_TYPE;
@@ -498,27 +500,27 @@ public class RLineBreakpointValidator {
 	}
 	
 	public String computeElementId() throws CoreException {
-		if (fType == null) {
+		if (this.type == null) {
 			throw invalid();
 		}
-		if (fBaseElement != null) {
-			return RDbg.getElementId(fBaseElement);
+		if (this.baseElement != null) {
+			return RDbg.getElementId(this.baseElement);
 		}
 		else { // script line
-			return null;
+			return TOPLEVEL_ELEMENT_ID;
 		}
 	}
 	
 	public String computeElementLabel() throws CoreException {
-		if (fType == null) {
+		if (this.type == null) {
 			throw invalid();
 		}
-		if (fBaseElement != null) {
-			return getLabel(fBaseElement);
+		if (this.baseElement != null) {
+			return getLabel(this.baseElement);
 		}
 		else { // script line
 			try {
-				return fDocument.get(getCharStart(), getCharEnd()-getCharStart());
+				return this.document.get(getCharStart(), getCharEnd()-getCharStart());
 			}
 			catch (final BadLocationException e) {
 				return null;
@@ -527,21 +529,21 @@ public class RLineBreakpointValidator {
 	}
 	
 	public String computeSubLabel() throws CoreException {
-		if (fType == null) {
+		if (this.type == null) {
 			throw invalid();
 		}
-		if (fBaseElement != null) {
-			RAstNode astNode = fAstNode;
+		if (this.baseElement != null) {
+			RAstNode astNode= this.astNode;
 			while (astNode != null && astNode.getNodeType() != NodeType.F_DEF) {
-				astNode = astNode.getRParent();
+				astNode= astNode.getRParent();
 			}
-			if (astNode != null && (fMethodElement == null 
-					|| (astNode != fMethodElement.getAdapter(FDef.class)
-							&& astNode.getOffset() > fMethodElement.getSourceRange().getOffset() ))) {
+			if (astNode != null && (this.methodElement == null 
+					|| (astNode != this.methodElement.getAdapter(FDef.class)
+							&& astNode.getOffset() > this.methodElement.getSourceRange().getOffset() ))) {
 				return "<unnamed>";
 			}
-			else if (fMethodElement != null && fMethodElement != fBaseElement) {
-				return getLabel(fMethodElement);
+			else if (this.methodElement != null && this.methodElement != this.baseElement) {
+				return getLabel(this.methodElement);
 			}
 			else {
 				return null;
@@ -557,26 +559,34 @@ public class RLineBreakpointValidator {
 	}
 	
 	public IRSrcref computeElementSrcref() throws CoreException {
-		if (fBaseElement != null) {
-			try {
-				final FDef astNode = (FDef) fBaseElement.getAdapter(FDef.class);
-				if (astNode != null) {
-					return new RSrcref(fDocument, astNode.getContChild());
-				}
-				return null;
-			}
-			catch (final BadLocationException e) {
-				throw failedComputing(e);
-			}
+		if (this.type == null) {
+			throw invalid();
 		}
-		else {
+		try {
+			if (this.baseElement != null) {
+				final FDef astNode= this.baseElement.getAdapter(FDef.class);
+				if (astNode != null) {
+					return new RSrcref(this.document, astNode.getContChild());
+				}
+			}
+			else {
+				if (this.baseExpressionRootNode != null) {
+					return new RSrcref(this.document, this.baseExpressionRootNode);
+				}
+			}
 			return null;
+		}
+		catch (final BadLocationException e) {
+			throw failedComputing(e);
 		}
 	}
 	
-	public int[] computeRExpressionIndex() {
-		if (fBaseElement != null && fBaseExpressionRootNode != null) {
-			return RAst.computeRExpressionIndex(fAstNode, fBaseExpressionRootNode);
+	public int[] computeRExpressionIndex() throws CoreException {
+		if (this.type == null) {
+			throw invalid();
+		}
+		if (this.astNode != null && this.baseExpressionRootNode != null) {
+			return RAst.computeRExpressionIndex(this.astNode, this.baseExpressionRootNode);
 		}
 		else {
 			return null;
@@ -584,15 +594,20 @@ public class RLineBreakpointValidator {
 	}
 	
 	public IRSrcref computeRExpressionSrcref() throws CoreException {
-		if (fBaseElement != null && fBaseExpressionRootNode != null) {
+		if (this.type == null) {
+			throw invalid();
+		}
+		if (this.astNode != null && this.baseExpressionRootNode != null) {
 			try {
-				return new RSrcref(fDocument, fAstNode);
+				return new RSrcref(this.document, this.astNode);
 			}
 			catch (final BadLocationException e) {
 				throw failedComputing(e);
 			}
 		}
-		return null;
+		else {
+			return null;
+		}
 	}
 	
 	
@@ -602,19 +617,20 @@ public class RLineBreakpointValidator {
 	 * @param monitor
 	 */
 	public IRBreakpoint createBreakpoint(final IProgressMonitor monitor) {
-		if (fType == null) {
+		if (this.type == null) {
 //			new Status(IStatus.ERROR, RDebugCorePlugin.PLUGIN_ID, "No valid breakpoint position.");
 			return null;
 		}
-		else if (fType == RDebugModel.R_LINE_BREAKPOINT_TYPE_ID) {
+		else if (this.type == RDebugModel.R_LINE_BREAKPOINT_TYPE_ID) {
 			try {
-				final String elementId = computeElementId();
-				final RLineBreakpoint internal = new RLineBreakpoint(fSourceUnit.getResource(),
+				final String elementId= computeElementId();
+				final RLineBreakpoint internal= new RLineBreakpoint(this.sourceUnit.getResource(),
 						getLineNumber(), getCharStart(), getCharEnd(),
 						computeElementType(), elementId, computeElementLabel(), computeSubLabel(),
 						false );
 				internal.setCachedData(new CachedData(
-						fModelInfo.getStamp().getSourceStamp(), elementId, computeRExpressionIndex() ));
+						this.modelInfo.getStamp().getSourceStamp(), elementId,
+						computeRExpressionIndex() ));
 				return internal;
 			}
 			catch (final Exception e) {
@@ -626,15 +642,16 @@ public class RLineBreakpointValidator {
 				return null;
 			}
 		}
-		else if (fType == RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID) {
+		else if (this.type == RDebugModel.R_METHOD_BREAKPOINT_TYPE_ID) {
 			try {
-				final String elementId = computeElementId();
-				final RMethodBreakpoint internal = new RMethodBreakpoint(fSourceUnit.getResource(),
+				final String elementId= computeElementId();
+				final RMethodBreakpoint internal= new RMethodBreakpoint(this.sourceUnit.getResource(),
 						getLineNumber(), getCharStart(), getCharEnd(),
 						computeElementType(), elementId, computeElementLabel(), computeSubLabel(),
 						false );
 				internal.setCachedData(new CachedData(
-						fModelInfo.getStamp().getSourceStamp(), elementId, computeRExpressionIndex() ));
+						this.modelInfo.getStamp().getSourceStamp(), elementId,
+						computeRExpressionIndex() ));
 				return internal;
 			}
 			catch (final Exception e) {
@@ -646,25 +663,26 @@ public class RLineBreakpointValidator {
 				return null;
 			}
 		}
-		throw new IllegalStateException("type= " + fType);
+		throw new IllegalStateException("type= " + this.type);
 	}
 	
 	public void updateBreakpoint(final IRBreakpoint breakpoint) throws CoreException {
-		if (fType != breakpoint.getBreakpointType()) {
-			throw new IllegalArgumentException(fType);
+		if (this.type != breakpoint.getBreakpointType()) {
+			throw new IllegalArgumentException(this.type);
 		}
 		if (!(breakpoint instanceof IRLineBreakpoint)) {
 			throw new IllegalArgumentException(breakpoint.getClass().getName());
 		}
-		final IMarker marker = breakpoint.getMarker();
-		final String elementId = computeElementId();
+		final IMarker marker= breakpoint.getMarker();
+		final String elementId= computeElementId();
 		RGenericLineBreakpoint.updatePosition(marker,
 				getLineNumber(), getCharStart(), getCharEnd() );
 		RGenericLineBreakpoint.updateElementInfo(marker,
 				computeElementType(), elementId, computeElementLabel(), computeSubLabel() );
 		if (breakpoint instanceof RGenericLineBreakpoint) {
 			((RGenericLineBreakpoint) breakpoint).setCachedData(new CachedData(
-					fModelInfo.getStamp().getSourceStamp(), elementId, computeRExpressionIndex() ));
+					this.modelInfo.getStamp().getSourceStamp(), elementId,
+					computeRExpressionIndex() ));
 		}
 	}
 	
@@ -681,9 +699,9 @@ public class RLineBreakpointValidator {
 	
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder(getClass().getName());
+		final StringBuilder sb= new StringBuilder(getClass().getName());
 		sb.append("\n").append("validator result:");
-		sb.append("\n\t").append("type= ").append((fType != null) ? fType : "<no valid position found>");
+		sb.append("\n\t").append("type= ").append((this.type != null) ? this.type : "<no valid position found>");
 		sb.append("\n\t").append("lineNumber= ").append(getLineNumber());
 		sb.append("\n\t").append("charStart= ").append(getCharStart());
 		sb.append("\n\t").append("charEnd= ").append(getCharEnd());

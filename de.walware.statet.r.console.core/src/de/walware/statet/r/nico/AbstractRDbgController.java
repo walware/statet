@@ -19,7 +19,6 @@ import java.util.Set;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -95,10 +94,14 @@ public abstract class AbstractRDbgController extends AbstractRController
 		ElementTracepointInstallationRequest prepareFileElementTracepoints(SrcfileData srcfile,
 				IRSourceUnit su, IProgressMonitor monitor );
 		
+		void finishFileElementTracepoints(SrcfileData srcfileData, IRSourceUnit su,
+				ElementTracepointInstallationRequest request, IProgressMonitor monitor );
+		
 		void installElementTracepoints(ElementTracepointInstallationRequest request,
 				IProgressMonitor monitor );
 		
 		Object toEclipseData(TracepointEvent hit);
+		
 		
 	}
 	
@@ -810,16 +813,22 @@ public abstract class AbstractRDbgController extends AbstractRController
 			super.submitFileCommandToConsole(lines, null, monitor);
 			return;
 		}
-		final SrcfileData srcfile= getSrcfile(su, monitor);
+		SrcfileData srcfile= getSrcfile(su, monitor);
 		final ElementTracepointInstallationRequest breakpointsRequest =
 				(isDebugEnabled() && su instanceof IRWorkspaceSourceUnit) ?
 						this.breakpointAdapter.prepareFileElementTracepoints(srcfile, (IRSourceUnit) su, monitor ) :
 						null;
-		
-		doSubmitFileCommandToConsole(lines, srcfile, su, monitor);
-		
-		if (breakpointsRequest != null) {
-			this.breakpointAdapter.installElementTracepoints(breakpointsRequest, monitor);
+		try {
+			doSubmitFileCommandToConsole(lines, srcfile, su, monitor);
+		}
+		finally {
+			if (breakpointsRequest != null) {
+				if (srcfile.getTimestamp() != getRTimestamp((IRWorkspaceSourceUnit) su, monitor)) {
+					srcfile= null;
+				}
+				this.breakpointAdapter.finishFileElementTracepoints(srcfile, (IRSourceUnit) su,
+						breakpointsRequest, monitor );
+			}
 		}
 	}
 	
@@ -835,6 +844,12 @@ public abstract class AbstractRDbgController extends AbstractRController
 			return getSrcfile(((IRModelSrcref) srcref).getFile(), monitor);
 		}
 		return null;
+	}
+	
+	private long getRTimestamp(final IWorkspaceSourceUnit su, final IProgressMonitor monitor) {
+		return (su.getWorkingContext() == LTK.PERSISTENCE_CONTEXT) ?
+				su.getResource().getLocalTimeStamp()/1000 :
+				RDbg.getTimestamp(su, monitor);
 	}
 	
 	protected SrcfileData getSrcfile(final ISourceUnit su,
@@ -861,17 +876,14 @@ public abstract class AbstractRDbgController extends AbstractRController
 				return null;
 			}
 			if (su instanceof IWorkspaceSourceUnit) {
-				final IResource resource= ((IWorkspaceSourceUnit) su).getResource();
-				final IPath path= resource.getFullPath();
+				final IWorkspaceSourceUnit wsu= (IWorkspaceSourceUnit) su;
+				final IPath path= wsu.getResource().getFullPath();
 				
 				prepareSrcfile(fileName, path, monitor);
 				
 				return new SrcfileData(
 						(this.lastSrcfile == fileName) ? this.lastSrcfilePath : path.toPortableString(),
-						fileName,
-						(su.getWorkingContext() == LTK.PERSISTENCE_CONTEXT) ?
-								resource.getLocalTimeStamp()/1000 :
-								RDbg.getTimestamp(su, monitor) );
+						fileName, getRTimestamp(wsu, monitor) );
 			}
 			else {
 				return new SrcfileData(null, fileName, RDbg.getTimestamp(su, monitor));

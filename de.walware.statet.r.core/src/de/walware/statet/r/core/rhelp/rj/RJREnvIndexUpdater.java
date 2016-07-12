@@ -102,7 +102,7 @@ public class RJREnvIndexUpdater {
 			sb.append(" " + "(version= ").append((this.version != null) ? this.version : "<unknown>");
 			sb.append(')');
 			if (this.libPath != null) {
-				sb.append("in lib= '").append(this.libPath).append('\'');
+				sb.append(" in lib= '").append(this.libPath).append('\'');
 			}
 			return sb.toString();
 		}

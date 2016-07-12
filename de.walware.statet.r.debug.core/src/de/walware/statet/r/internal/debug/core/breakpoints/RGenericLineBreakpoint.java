@@ -25,49 +25,49 @@ import de.walware.statet.r.debug.core.breakpoints.IRLineBreakpoint;
 public abstract class RGenericLineBreakpoint extends RBreakpoint implements IRLineBreakpoint {
 	
 	
-	public static final String ELEMENT_TYPE_MARKER_ATTR = "de.walware.statet.r.debug.markers.ElementTypeAttribute"; //$NON-NLS-1$
-	public static final String ELEMENT_ID_MARKER_ATTR = "de.walware.statet.r.debug.markers.ElementIdAttribute"; //$NON-NLS-1$
-	public static final String ELEMENT_LABEL_MARKER_ATTR = "de.walware.statet.r.debug.markers.ElementLabelAttribute"; //$NON-NLS-1$
-	public static final String SUB_LABEL_MARKER_ATTR = "de.walware.statet.r.debug.markers.SubLabelAttribute"; //$NON-NLS-1$
-//	public static final String REXPR_INDEX_MARKER_ATTR = "de.walware.statet.r.debug.markers.RExprIndexAttribute"; //$NON-NLS-1$
+	public static final String ELEMENT_TYPE_MARKER_ATTR= "de.walware.statet.r.debug.markers.ElementTypeAttribute"; //$NON-NLS-1$
+	public static final String ELEMENT_ID_MARKER_ATTR= "de.walware.statet.r.debug.markers.ElementIdAttribute"; //$NON-NLS-1$
+	public static final String ELEMENT_LABEL_MARKER_ATTR= "de.walware.statet.r.debug.markers.ElementLabelAttribute"; //$NON-NLS-1$
+	public static final String SUB_LABEL_MARKER_ATTR= "de.walware.statet.r.debug.markers.SubLabelAttribute"; //$NON-NLS-1$
+//	public static final String REXPR_INDEX_MARKER_ATTR= "de.walware.statet.r.debug.markers.RExprIndexAttribute"; //$NON-NLS-1$
 	
-	public static final String CONDITION_ENABLED_MARKER_ATTR = "de.walware.statet.r.debug.markers.ConditionEnabledAttribute"; //$NON-NLS-1$
-	public static final String CONDITION_EXPR_MARKER_ATTR = "de.walware.statet.r.debug.markers.ConditionExprAttribute"; //$NON-NLS-1$
+	public static final String CONDITION_ENABLED_MARKER_ATTR= "de.walware.statet.r.debug.markers.ConditionEnabledAttribute"; //$NON-NLS-1$
+	public static final String CONDITION_EXPR_MARKER_ATTR= "de.walware.statet.r.debug.markers.ConditionExprAttribute"; //$NON-NLS-1$
 	
 	
 	public static class CachedData {
 		
-		private final long fStamp;
+		private final long stamp;
 		
-		private final String fElementId;
+		private final String elementId;
 		
-		private final int[] fRExpressionIndex;
+		private final int[] rExpressionIndex;
 		
 		public CachedData(final long stamp, final String elementId, final int[] rExpressionIndex) {
-			fStamp = stamp;
-			fElementId = elementId;
-			fRExpressionIndex = rExpressionIndex;
+			this.stamp= stamp;
+			this.elementId= elementId;
+			this.rExpressionIndex= rExpressionIndex;
 		}
 		
 		
 		public long getStamp() {
-			return fStamp;
+			return this.stamp;
 		}
 		
 		public String getElementId() {
-			return fElementId;
+			return this.elementId;
 		}
 		
 		public int[] getRExpressionIndex() {
-			return fRExpressionIndex;
+			return this.rExpressionIndex;
 		}
 		
 	}
 	
 	
-	private static final String[] POSITION_ATTRIBUTES = new String[] {
+	private static final String[] POSITION_ATTRIBUTES= new String[] {
 			IMarker.LINE_NUMBER, IMarker.CHAR_START, IMarker.CHAR_END };
-	private static final String[] ELEMENT_ATTRIBUTES = new String[] {
+	private static final String[] ELEMENT_ATTRIBUTES= new String[] {
 			ELEMENT_TYPE_MARKER_ATTR, ELEMENT_ID_MARKER_ATTR, ELEMENT_LABEL_MARKER_ATTR };
 	
 	public static void updatePosition(final IMarker marker,
@@ -100,7 +100,7 @@ public abstract class RGenericLineBreakpoint extends RBreakpoint implements IRLi
 			marker.setAttribute(SUB_LABEL_MARKER_ATTR, subLabel);
 		}
 //		if (rExpressionIndex != null) {
-//			final String value = encodeIntArray(rExpressionIndex);
+//			final String value= encodeIntArray(rExpressionIndex);
 //			if (!value.equals(marker.getAttribute(REXPR_INDEX_MARKER_ATTR, null)) ) {
 //				marker.setAttribute(REXPR_INDEX_MARKER_ATTR, value);
 //			}
@@ -112,12 +112,12 @@ public abstract class RGenericLineBreakpoint extends RBreakpoint implements IRLi
 	
 	
 //	private static String encodeIntArray(int[] path) {
-//		final StringBuilder sb = new StringBuilder(path.length*3);
+//		final StringBuilder sb= new StringBuilder(path.length*3);
 //		sb.append(path.length);
 //		sb.append('[');
 //		if (path.length > 0) {
 //			sb.append(path[0]);
-//			for (int i = 1; i < path.length; i++) {
+//			for (int i= 1; i < path.length; i++) {
 //				sb.append(',');
 //				sb.append(path[i]);
 //			}
@@ -128,23 +128,23 @@ public abstract class RGenericLineBreakpoint extends RBreakpoint implements IRLi
 //	private static int[] parseIntArray(final String s) {
 //		int idx1;
 //		int idx2;
-//		idx1 = s.indexOf('[');
-//		final int[] index = new int[Integer.parseInt(s.substring(0, idx1))];
-//		final int last = index.length-1;
+//		idx1= s.indexOf('[');
+//		final int[] index= new int[Integer.parseInt(s.substring(0, idx1))];
+//		final int last= index.length-1;
 //		if (last >= 0) {
 //			idx1++;
-//			for (int i = 0; i < last; i++) {
-//				idx2 = s.indexOf(',', idx1);
-//				index[i] = Integer.parseInt(s.substring(idx1, idx2));
-//				idx1 = idx2+1;
+//			for (int i= 0; i < last; i++) {
+//				idx2= s.indexOf(',', idx1);
+//				index[i]= Integer.parseInt(s.substring(idx1, idx2));
+//				idx1= idx2+1;
 //			}
-//			index[last] = Integer.parseInt(s.substring(idx1, s.length()));
+//			index[last]= Integer.parseInt(s.substring(idx1, s.length()));
 //		}
 //		return index;
 //	}
 	
 	
-	private final AtomicReference<CachedData> fCachedData= new AtomicReference<>();
+	private final AtomicReference<CachedData> cachedData= new AtomicReference<>();
 	
 	
 	protected RGenericLineBreakpoint() {
@@ -235,7 +235,7 @@ public abstract class RGenericLineBreakpoint extends RBreakpoint implements IRLi
 	
 	@Override
 	public void setConditionExpr(final String code) throws CoreException {
-		final IMarker marker = ensureMarker();
+		final IMarker marker= ensureMarker();
 		if (code != null && code.trim().length() > 0) {
 			marker.setAttribute(CONDITION_EXPR_MARKER_ATTR, code);
 		}
@@ -255,24 +255,24 @@ public abstract class RGenericLineBreakpoint extends RBreakpoint implements IRLi
 	
 	public void setCachedData(final CachedData data) {
 		if (checkTimestamp(data)) {
-			fCachedData.set(data);
+			this.cachedData.set(data);
 		}
 	}
 	
 	public CachedData getCachedData() {
-		final CachedData cachedData = fCachedData.get();
+		final CachedData cachedData= this.cachedData.get();
 		if (cachedData != null && !checkTimestamp(cachedData)) {
-			fCachedData.compareAndSet(cachedData, null);
+			this.cachedData.compareAndSet(cachedData, null);
 		}
 		return cachedData;
 	}
 	
 	private boolean checkTimestamp(final CachedData data) {
-		final IMarker marker = getMarker();
+		final IMarker marker= getMarker();
 		if (marker != null) {
-			final IResource resource = marker.getResource();
+			final IResource resource= marker.getResource();
 			if (resource != null) {
-				return (data.getStamp() == resource.getLocalTimeStamp());
+				return (data.getStamp() == resource.getModificationStamp());
 			}
 		}
 		return false;
