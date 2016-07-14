@@ -146,7 +146,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 						r.evalVoid("options(device=rj.gd::rj.GD)", monitor); //$NON-NLS-1$
 					}
 					catch (final CoreException e) {
-						r.handleStatus(new Status(IStatus.INFO, RConsoleUIPlugin.PLUGIN_ID,
+						r.handleStatus(new Status(IStatus.WARNING, RConsoleUIPlugin.PLUGIN_ID,
 								"The graphic device for the R Graphic view cannot be initialized. " +
 								"Is the R package 'rj.gd' installed?", e),
 								monitor );
