@@ -78,7 +78,7 @@ public class NewRPkgProjectWizard extends NewElementWizard {
 				) {
 			@Override
 			protected void doConfigProject(final IProject project, final IProgressMonitor monitor) throws CoreException {
-				RProjects.setupRPkgProject(fNewRProject.getProjectHandle(), pkgName, monitor);
+				RProjects.setupRPkgProject(fNewRProject.getProjectHandle(), null, pkgName, monitor);
 			}
 		};
 		

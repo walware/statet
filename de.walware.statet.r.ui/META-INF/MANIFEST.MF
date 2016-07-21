@@ -32,7 +32,8 @@ Require-Bundle: de.walware.statet.base.ui;bundle-version="[3.6.0,3.7.0)",
  de.walware.ecommons.inatable.core;bundle-version="[1.0.0,1.1.0)",
  org.eclipse.search,
  org.eclipse.equinox.http.registry;bundle-version="1.0.200",
- de.walware.ecommons.debug.core
+ de.walware.ecommons.debug.core,
+ de.walware.eutils.autonature
 Import-Package: com.ibm.icu.math;version="54.1",
  com.ibm.icu.text;version="54.1",
  com.ibm.icu.util;version="54.1",

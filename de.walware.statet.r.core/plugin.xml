@@ -22,7 +22,7 @@
    
    <extension
          id="de.walware.statet.r.RNature"
-         name="R Project Nature"
+         name="R&#x2002;[StatET]"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run class="de.walware.statet.r.internal.core.RProject"/>
@@ -32,7 +32,7 @@
    </extension>
    <extension
          id="de.walware.statet.r.RPkgNature"
-         name="R-Package Project Nature"
+         name="R-Package&#x2002;[StatET]"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
@@ -57,7 +57,7 @@
       <content-type
             id="de.walware.statet.r.contentTypes.Rd"
             base-type="org.eclipse.core.runtime.text"
-            describer="de.walware.statet.r.core.rdoc.RdTextContentDescriber"
+            describer="de.walware.statet.r.internal.core.RdTextContentDescriber"
             name="%contentTypes.Rd.name"
             file-extensions="Rd"
             priority="normal">
@@ -74,6 +74,28 @@
             base-type="org.eclipse.core.runtime.text"
             name="%contentTypes.RTranscript.name"
             file-extensions="Rtr"
+            priority="normal">
+         <property name="org.eclipse.core.runtime.bom"/>
+         <property name="org.eclipse.core.runtime.charset"/>
+      </content-type>
+      <content-type
+            id="de.walware.statet.r.contentTypes.RPkgDescription"
+            base-type="org.eclipse.core.runtime.text"
+            name="%contentTypes.RPkgDescription.name"
+            file-names="DESCRIPTION"
+            priority="normal"
+            default-charset="US-ASCII">
+         <property name="org.eclipse.core.runtime.bom"/>
+         <property name="org.eclipse.core.runtime.charset"/>
+         <describer
+               class="de.walware.statet.r.internal.core.RPkgDescriptionTextContentDescriber">
+         </describer>
+      </content-type>
+      <content-type
+            id="de.walware.statet.r.contentTypes.RPkgNamespace"
+            base-type="org.eclipse.core.runtime.text"
+            name="%contentTypes.RPkgNamespace.name"
+            file-names="NAMESPACE"
             priority="normal">
          <property name="org.eclipse.core.runtime.bom"/>
          <property name="org.eclipse.core.runtime.charset"/>

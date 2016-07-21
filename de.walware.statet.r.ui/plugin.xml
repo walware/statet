@@ -43,6 +43,26 @@
          <ensureProjectNature
                natureId="de.walware.statet.r.RNature"/>
       </onFileContent>
+      <onFileContent
+            contentTypeId="de.walware.statet.r.contentTypes.RPkgDescription"
+            enable="true">
+         <runProjectConfigurator
+               label="R Package&#x2002;[StatET]"
+               natureId="de.walware.statet.r.RPkgNature"
+               class="de.walware.statet.r.internal.ui.wizards.RPkgProjectConfigurator">
+         </runProjectConfigurator>
+      </onFileContent>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectConfigurators">
+      <projectConfigurator
+            class="de.walware.statet.r.internal.ui.wizards.RPkgProjectConfigurator"
+            label="%projectConfigurators_RPackageProject_label">
+         <activeWhen>
+            <hasFileRecursively
+                  filename="DESCRIPTION"/>
+         </activeWhen>
+      </projectConfigurator>
    </extension>
    <extension
          point="org.eclipse.ui.decorators">

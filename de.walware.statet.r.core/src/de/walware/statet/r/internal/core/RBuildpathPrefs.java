@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.osgi.service.prefs.BackingStoreException;
@@ -44,7 +43,7 @@ public class RBuildpathPrefs {
 	
 	private static final ImList<IPath> DEFAULT_INCLUSION_PATTERNS= ImCollections.newList();
 	private static final ImList<IPath> DEFAULT_EXCLUSION_PATTERNS= ImCollections.<IPath>newList(
-			new Path(".Rcheck/") ); //$NON-NLS-1$
+			RBuildpaths.PKG_RCHECK_FOLDER_PATH.addTrailingSeparator() );
 	
 	
 	private final IEclipsePreferences rootNode;
