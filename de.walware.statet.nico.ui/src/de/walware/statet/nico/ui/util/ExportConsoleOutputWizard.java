@@ -94,7 +94,7 @@ public class ExportConsoleOutputWizard extends Wizard {
 			super("ConfigureConsoleExportPage"); //$NON-NLS-1$
 			this.consolePage= page;
 			setTitle(selectionMode ? "Export Selected Output" : "Export Current Output");
-			setDescription("Select the content to export and the destination file");
+			setDescription("Select the content to export and the destination file.");
 			
 			this.config= config;
 			
