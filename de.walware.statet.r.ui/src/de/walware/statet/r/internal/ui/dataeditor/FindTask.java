@@ -29,14 +29,14 @@ public final class FindTask {
 			final long rowIdx, final long columnIdx,
 			final boolean firstInRow, final boolean forward,
 			final IFindFilter filter) {
-		this.expression = expression;
+		this.expression= expression;
 		
-		this.rowIdx = rowIdx;
-		this.columnIdx = columnIdx;
-		this.firstInRow = firstInRow;
-		this.forward = forward;
+		this.rowIdx= rowIdx;
+		this.columnIdx= columnIdx;
+		this.firstInRow= firstInRow;
+		this.forward= forward;
 		
-		this.filter = filter;
+		this.filter= filter;
 	}
 	
 	
@@ -50,7 +50,7 @@ public final class FindTask {
 		if (!(obj instanceof FindTask)) {
 			return false;
 		}
-		final FindTask other = (FindTask) obj;
+		final FindTask other= (FindTask) obj;
 		return (this.expression.equals(other.expression)
 				&& this.firstInRow == other.firstInRow);
 	}

@@ -13,7 +13,8 @@ package de.walware.statet.r.internal.ui.dataeditor;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
+
+import de.walware.ecommons.waltable.data.IDataProvider;
 
 import de.walware.rj.data.RVector;
 import de.walware.rj.data.UnexpectedRDataException;
@@ -40,14 +41,14 @@ public class RVectorDataProvider extends AbstractRDataProvider<RVector<?>> {
 	protected RDataTableContentDescription loadDescription(final RElementName name,
 			final RVector<?> struct, final IRToolService r,
 			final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
-		final RDataTableContentDescription description = new RDataTableContentDescription(name, struct, r.getTool());
+		final RDataTableContentDescription description= new RDataTableContentDescription(name, struct, r.getTool());
 		
 		description.setRowHeaderColumns(
 				createNamesColumn("names(" + getInput().getFullName() + ")",
 						getAdapter().getRowCount(struct),
 						r, monitor ));
 		
-		final RDataTableColumn dataColumn = createColumn(struct.getData(),
+		final RDataTableColumn dataColumn= createColumn(struct.getData(),
 						getInput().getFullName(), BASE_NAME, 0, getInput().getName(),
 						r, monitor );
 		description.setDataColumns(dataColumn);
@@ -84,7 +85,7 @@ public class RVectorDataProvider extends AbstractRDataProvider<RVector<?>> {
 	public IDataProvider createColumnDataProvider() {
 		return new ColumnDataProvider() {
 			@Override
-			public Object getDataValue(final long columnIndex, final long rowIndex) {
+			public Object getDataValue(final long columnIndex, final long rowIndex, final int flags) {
 				return getInput().getName();
 			}
 		};

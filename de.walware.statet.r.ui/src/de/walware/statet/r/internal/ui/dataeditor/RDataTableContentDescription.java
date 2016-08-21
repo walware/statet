@@ -28,7 +28,7 @@ import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
 public final class RDataTableContentDescription {
 	
 	
-	private static final IRDataTableVariable[] NO_COLUMNS_ARRAY = new IRDataTableVariable[0];
+	private static final IRDataTableVariable[] NO_COLUMNS_ARRAY= new IRDataTableVariable[0];
 	
 	
 	private final RElementName fElementName;
@@ -38,11 +38,11 @@ public final class RDataTableContentDescription {
 	
 	private final ITool fRHandle;
 	
-	private List<RDataTableColumn> fColumnHeaderRows = Collections.emptyList();
-	private List<RDataTableColumn> fRowHeaderColumns = Collections.emptyList();
+	private List<RDataTableColumn> fColumnHeaderRows= Collections.emptyList();
+	private List<RDataTableColumn> fRowHeaderColumns= Collections.emptyList();
 	
-	private List<RDataTableColumn> fDataColumns = Collections.emptyList();
-	private IRDataTableVariable[] fDataVariables = NO_COLUMNS_ARRAY;
+	private List<RDataTableColumn> fDataColumns= Collections.emptyList();
+	private IRDataTableVariable[] fDataVariables= NO_COLUMNS_ARRAY;
 	
 	private RDataFormatter fDefaultDataFormat;
 	
@@ -55,10 +55,10 @@ public final class RDataTableContentDescription {
 		if (struct == null) {
 			throw new NullPointerException("struct");
 		}
-		this.fElementName = elementName;
-		this.fStruct = struct;
-		this.fLabel = elementName.getDisplayName();
-		this.fRHandle = rHandle;
+		this.fElementName= elementName;
+		this.fStruct= struct;
+		this.fLabel= elementName.getDisplayName();
+		this.fRHandle= rHandle;
 	}
 	
 	
@@ -88,15 +88,15 @@ public final class RDataTableContentDescription {
 	}
 	
 	void setDataColumns(final RDataTableColumn... dataColumns) {
-		this.fDataColumns = ImCollections.newList(dataColumns);
+		this.fDataColumns= ImCollections.newList(dataColumns);
 	}
 	
 	void setVariables(final IRDataTableVariable... variables) {
-		this.fDataVariables = variables;
+		this.fDataVariables= variables;
 	}
 	
 	void setDefaultDataFormat(final RDataFormatter format) {
-		this.fDefaultDataFormat = format;
+		this.fDefaultDataFormat= format;
 	}
 	
 	

@@ -25,7 +25,7 @@ public class RefreshHandler extends AbstractHandler {
 	
 	
 	public RefreshHandler(final RDataTableComposite tableProvider) {
-		this.fTableComposite = tableProvider;
+		this.fTableComposite= tableProvider;
 	}
 	
 	

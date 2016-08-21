@@ -23,7 +23,7 @@ public class RDataEditorActionBarContributor extends EditorActionBarContributor 
 	
 	
 	public RDataEditorActionBarContributor() {
-		this.fContributionItem = new StatusLineContributionItem("data.dimension", 26);
+		this.fContributionItem= new StatusLineContributionItem("data.dimension", 26);
 	}
 	
 	

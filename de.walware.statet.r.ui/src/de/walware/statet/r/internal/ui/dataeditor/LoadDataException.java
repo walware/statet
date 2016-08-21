@@ -14,12 +14,12 @@ package de.walware.statet.r.internal.ui.dataeditor;
 
 public class LoadDataException extends Exception {
 	
-	private static final long serialVersionUID = -2599418116314887064L;
+	private static final long serialVersionUID= -2599418116314887064L;
 	
 	private final boolean fIsUnrecoverable;
 	
 	public LoadDataException(final boolean isUnrecoverable) {
-		this.fIsUnrecoverable = isUnrecoverable;
+		this.fIsUnrecoverable= isUnrecoverable;
 	}
 	
 	public boolean isUnrecoverable() {

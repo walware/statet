@@ -16,7 +16,7 @@ import org.eclipse.jface.viewers.Viewer;
 
 import de.walware.rj.data.RStore;
 
-import de.walware.statet.r.internal.ui.intable.InfoString;
+import de.walware.statet.r.internal.ui.dataeditor.AbstractRDataProvider;
 
 
 public class RStoreContentProvider implements IStructuredContentProvider {
@@ -35,7 +35,7 @@ public class RStoreContentProvider implements IStructuredContentProvider {
 		final Object[] array = new Object[(int) fStore.getLength()];
 		for (int idx = 0; idx < array.length; idx++) {
 			if (fStore.isNA(idx)) {
-				array[idx] = InfoString.NA;
+				array[idx] = AbstractRDataProvider.NA;
 			}
 			else {
 				array[idx] = fStore.get(idx);

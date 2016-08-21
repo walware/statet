@@ -11,15 +11,12 @@
 
 package de.walware.statet.r.internal.ui.dataeditor;
 
-import static org.eclipse.nebula.widgets.nattable.coordinate.Orientation.HORIZONTAL;
-import static org.eclipse.nebula.widgets.nattable.coordinate.Orientation.VERTICAL;
+import static de.walware.ecommons.waltable.coordinate.Orientation.HORIZONTAL;
+import static de.walware.ecommons.waltable.coordinate.Orientation.VERTICAL;
 
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
-import org.eclipse.nebula.widgets.nattable.coordinate.Orientation;
-import org.eclipse.nebula.widgets.nattable.coordinate.Range;
-import org.eclipse.nebula.widgets.nattable.viewport.IViewportDim;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -31,6 +28,9 @@ import de.walware.ecommons.databinding.LongValidator;
 import de.walware.ecommons.databinding.jface.DataBindingSupport;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
 import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.waltable.coordinate.LRange;
+import de.walware.ecommons.waltable.coordinate.Orientation;
+import de.walware.ecommons.waltable.viewport.IViewportDim;
 
 import de.walware.statet.r.ui.dataeditor.RDataTableComposite;
 
@@ -42,7 +42,7 @@ public class GotoCellDialog extends ExtStatusDialog {
 	
 	private final Text[] indexControls= new Text[2];
 	
-	private final Range[] indexRanges= new Range[2]; // 0-based
+	private final LRange[] indexRanges= new LRange[2]; // 0-based
 	private final WritableValue[] indexValues= new WritableValue[2]; // 1-based
 	
 	
@@ -59,7 +59,7 @@ public class GotoCellDialog extends ExtStatusDialog {
 		
 		for (final Orientation orientation : Orientation.values()) {
 			final IViewportDim viewportDim= this.table.getViewport(orientation);
-			this.indexRanges[orientation.ordinal()]= new Range(
+			this.indexRanges[orientation.ordinal()]= new LRange(
 					viewportDim.getMinimumOriginPosition(),
 					viewportDim.getScrollable().getPositionCount() );
 			this.indexValues[orientation.ordinal()]= new WritableValue(
@@ -100,13 +100,13 @@ public class GotoCellDialog extends ExtStatusDialog {
 	@Override
 	protected void addBindings(final DataBindingSupport db) {
 		for (final Orientation orientation : Orientation.values()) {
-			final Range range= this.indexRanges[orientation.ordinal()];
+			final LRange lRange= this.indexRanges[orientation.ordinal()];
 			db.getContext().bindValue(
 					WidgetProperties.text(SWT.Modify).observe(this.indexControls[orientation.ordinal()]),
 					this.indexValues[orientation.ordinal()],
 					new UpdateValueStrategy().setAfterGetValidator(new LongValidator(
-							(range.start + 1), range.end,
-							"Invalid " + getLabel(orientation) + " index (" + (range.start + 1) + "\u2013" + range.end + ").")),
+							(lRange.start + 1), lRange.end,
+							"Invalid " + getLabel(orientation) + " index (" + (lRange.start + 1) + "\u2013" + lRange.end + ").")),
 					null );
 			this.indexControls[orientation.ordinal()].selectAll();
 		}

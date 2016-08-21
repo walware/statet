@@ -40,15 +40,15 @@ public class RDataTableColumn implements IRDataTableVariable {
 			final String rExpression, final RElementName elementName,
 			final int columnType, final RStore dataStore, final List<String> classNames,
 			final RDataFormatter defaultFormat) {
-		fIndex = columnIndex;
-		fName = name;
-		fRExpression = rExpression;
-		fElementName = elementName;
-		fColumnType = columnType;
-		fDataStore = dataStore;
-		fClassNames = classNames;
+		this.fIndex= columnIndex;
+		this.fName= name;
+		this.fRExpression= rExpression;
+		this.fElementName= elementName;
+		this.fColumnType= columnType;
+		this.fDataStore= dataStore;
+		this.fClassNames= classNames;
 		
-		fDefaultFormat = defaultFormat;
+		this.fDefaultFormat= defaultFormat;
 	}
 	
 	
@@ -58,43 +58,43 @@ public class RDataTableColumn implements IRDataTableVariable {
 	}
 	
 	public long getIndex() {
-		return fIndex;
+		return this.fIndex;
 	}
 	
 	@Override
 	public String getName() {
-		return fName;
+		return this.fName;
 	}
 	
 	public String getRExpression() {
-		return fRExpression;
+		return this.fRExpression;
 	}
 	
 	public RElementName getElementName() {
-		return fElementName;
+		return this.fElementName;
 	}
 	
 	@Override
 	public int getVarType() {
-		return fColumnType;
+		return this.fColumnType;
 	}
 	
 	public RStore getDataStore() {
-		return fDataStore;
+		return this.fDataStore;
 	}
 	
 	public List<String> getClassNames() {
-		return fClassNames;
+		return this.fClassNames;
 	}
 	
 	public RDataFormatter getDefaultFormat() {
-		return fDefaultFormat;
+		return this.fDefaultFormat;
 	}
 	
 	
 	@Override
 	public int hashCode() {
-		final int h = (int) (fIndex ^ (fIndex >>> 32));
+		final int h= (int) (this.fIndex ^ (this.fIndex >>> 32));
 		return h ^ (h >>> 7);
 	}
 	
@@ -106,8 +106,8 @@ public class RDataTableColumn implements IRDataTableVariable {
 		if (!(obj instanceof RDataTableColumn)) {
 			return false;
 		}
-		final RDataTableColumn other = (RDataTableColumn) obj;
-		return (fIndex == other.fIndex);
+		final RDataTableColumn other= (RDataTableColumn) obj;
+		return (this.fIndex == other.fIndex);
 	}
 	
 }

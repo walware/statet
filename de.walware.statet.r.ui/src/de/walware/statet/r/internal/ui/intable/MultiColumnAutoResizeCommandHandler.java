@@ -11,32 +11,32 @@
 
 package de.walware.statet.r.internal.ui.intable;
 
-import org.eclipse.nebula.widgets.nattable.command.AbstractLayerCommandHandler;
-import org.eclipse.nebula.widgets.nattable.coordinate.IValueIterator;
-import org.eclipse.nebula.widgets.nattable.coordinate.RangeList.ValueIterator;
-import org.eclipse.nebula.widgets.nattable.resize.command.AutoResizeColumnsCommand;
+import de.walware.ecommons.waltable.command.AbstractLayerCommandHandler;
+import de.walware.ecommons.waltable.coordinate.ILValueIterator;
+import de.walware.ecommons.waltable.coordinate.LRangeList.ValueIterator;
+import de.walware.ecommons.waltable.resize.AutoResizePositionsCommand;
 
 
-public class MultiColumnAutoResizeCommandHandler extends AbstractLayerCommandHandler<AutoResizeColumnsCommand> {
+public class MultiColumnAutoResizeCommandHandler extends AbstractLayerCommandHandler<AutoResizePositionsCommand> {
 	
 	
 	private final RDataLayer fDataLayer;
 	
 	
 	public MultiColumnAutoResizeCommandHandler(final RDataLayer dataLayer) {
-		fDataLayer = dataLayer;
+		this.fDataLayer= dataLayer;
 	}
 	
 	
 	@Override
-	public Class<AutoResizeColumnsCommand> getCommandClass() {
-		return AutoResizeColumnsCommand.class;
+	public Class<AutoResizePositionsCommand> getCommandClass() {
+		return AutoResizePositionsCommand.class;
 	}
 	
 	@Override
-	protected boolean doCommand(final AutoResizeColumnsCommand command) {
-		for (final IValueIterator posIter = new ValueIterator(command.getPositions()); posIter.hasNext(); ) {
-			fDataLayer.setColumnWidthToAutoWidth(posIter.nextValue());
+	protected boolean doCommand(final AutoResizePositionsCommand command) {
+		for (final ILValueIterator posIter= new ValueIterator(command.getPositions()); posIter.hasNext(); ) {
+			this.fDataLayer.setColumnWidthToAutoWidth(posIter.nextValue());
 		}
 		return true;
 	}

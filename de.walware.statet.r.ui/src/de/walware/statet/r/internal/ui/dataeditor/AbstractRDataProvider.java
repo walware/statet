@@ -12,8 +12,8 @@
 package de.walware.statet.r.internal.ui.dataeditor;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import com.ibm.icu.util.TimeZone;
 
@@ -21,9 +21,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
-import org.eclipse.nebula.widgets.nattable.sort.ISortModel;
-import org.eclipse.nebula.widgets.nattable.sort.SortDirectionEnum;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -37,6 +34,11 @@ import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
 import de.walware.ecommons.ui.util.UIAccess;
+import de.walware.ecommons.waltable.coordinate.PositionId;
+import de.walware.ecommons.waltable.data.ControlData;
+import de.walware.ecommons.waltable.data.IDataProvider;
+import de.walware.ecommons.waltable.sort.ISortModel;
+import de.walware.ecommons.waltable.sort.SortDirection;
 
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RDataUtil;
@@ -61,7 +63,6 @@ import de.walware.rj.services.utils.dataaccess.LazyRStore.Fragment;
 import de.walware.rj.services.utils.dataaccess.RDataAssignment;
 
 import de.walware.statet.r.core.model.RElementName;
-import de.walware.statet.r.internal.ui.intable.InfoString;
 import de.walware.statet.r.nico.ICombinedRDataAdapter;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.dataeditor.IRDataTableInput;
@@ -72,8 +73,11 @@ import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
 public abstract class AbstractRDataProvider<T extends RObject> implements IDataProvider {
 	
 	
-	public static final Object LOADING= new InfoString("loading...");
-	public static final Object ERROR= new InfoString("ERROR");
+	public static final ControlData LOADING= new ControlData(ControlData.ASYNC, "loading...");
+	public static final ControlData ERROR= new ControlData(ControlData.ERROR, "ERROR");
+	public static final ControlData NA= new ControlData(ControlData.NA, "NA"); //$NON-NLS-1$
+	public static final ControlData DUMMY= new ControlData(0, ""); //$NON-NLS-1$
+	
 	
 	protected static final RElementName BASE_NAME= RElementName.create(RElementName.MAIN_DEFAULT, "x"); //$NON-NLS-1$
 	
@@ -95,19 +99,29 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	public static final class SortColumn {
 		
 		
-		public final long columnIdx;
+		private final long id;
+		
 		public final boolean decreasing;
 		
 		
-		public SortColumn(final long columnIdx, final boolean decreasing) {
-			this.columnIdx= columnIdx;
+		public SortColumn(final long columnId, final boolean decreasing) {
+			this.id= columnId;
 			this.decreasing= decreasing;
+		}
+		
+		
+		public long getId() {
+			return this.id;
+		}
+		
+		public long getIdx() {
+			return (this.id & PositionId.NUM_MASK);
 		}
 		
 		
 		@Override
 		public int hashCode() {
-			final int h= (int) (this.columnIdx ^ (this.columnIdx >>> 32));
+			final int h= (int) (this.id ^ (this.id >>> 32));
 			return (this.decreasing) ? (-h) : h;
 		}
 		
@@ -117,7 +131,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 				return false;
 			}
 			final SortColumn other= (SortColumn) obj;
-			return (this.columnIdx == other.columnIdx && this.decreasing == other.decreasing);
+			return (this.id == other.id && this.decreasing == other.decreasing);
 		}
 		
 	}
@@ -193,7 +207,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		}
 		
 		@Override
-		public Object getDataValue(final long columnIndex, final long rowIndex) {
+		public Object getDataValue(final long columnIndex, final long rowIndex, final int flags) {
 			try {
 				final LazyRStore.Fragment<T> fragment= AbstractRDataProvider.this.fragmentsLock.getFragment(
 						AbstractRDataProvider.this.dataStore, 0, columnIndex);
@@ -238,7 +252,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		}
 		
 		@Override
-		public Object getDataValue(final long columnIndex, final long rowIndex) {
+		public Object getDataValue(final long columnIndex, final long rowIndex, final int flags) {
 			try {
 				final LazyRStore.Fragment<RVector<?>> fragment= AbstractRDataProvider
 						.this.fragmentsLock.getFragment(this.fRowNamesStore, rowIndex, 0);
@@ -298,23 +312,23 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 		
 		@Override
-		public List<Long> getSortedColumnIndexes() {
+		public List<Long> getSortedColumnIds() {
 			final SortColumn sortColumn= getSortColumn();
 			if (sortColumn != null) {
-				return Collections.singletonList(sortColumn.columnIdx);
+				return Collections.singletonList(sortColumn.id);
 			}
 			return Collections.<Long>emptyList();
 		}
 		
 		@Override
-		public void sort(final long columnIndex, final SortDirectionEnum sortDirection, final boolean accumulate) {
+		public void sort(final long columnId, final SortDirection sortDirection, final boolean accumulate) {
 			SortColumn sortColumn;
 			switch (sortDirection) {
 			case ASC:
-				sortColumn= new SortColumn(columnIndex, false);
+				sortColumn= new SortColumn(columnId, false);
 				break;
 			case DESC:
-				sortColumn= new SortColumn(columnIndex, true);
+				sortColumn= new SortColumn(columnId, true);
 				break;
 			default:
 				sortColumn= null;
@@ -324,40 +338,35 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		}
 		
 		@Override
-		public int getSortOrder(final long columnIndex) {
+		public int getSortOrder(final long columnId) {
 			final SortColumn sortColumn= getSortColumn();
-			if (sortColumn != null && sortColumn.columnIdx == columnIndex) {
+			if (sortColumn != null && sortColumn.id == columnId) {
 				return 0;
 			}
 			return -1;
 		}
 		
 		@Override
-		public boolean isColumnIndexSorted(final long columnIndex) {
+		public boolean isSorted(final long columnId) {
 			final SortColumn sortColumn= getSortColumn();
-			if (sortColumn != null && sortColumn.columnIdx == columnIndex) {
+			if (sortColumn != null && sortColumn.id == columnId) {
 				return true;
 			}
 			return false;
 		}
 		
 		@Override
-		public SortDirectionEnum getSortDirection(final long columnIndex) {
+		public SortDirection getSortDirection(final long columnId) {
 			final SortColumn sortColumn= getSortColumn();
-			if (sortColumn != null && sortColumn.columnIdx == columnIndex) {
-				return (!sortColumn.decreasing) ? SortDirectionEnum.ASC : SortDirectionEnum.DESC;
+			if (sortColumn != null && sortColumn.id == columnId) {
+				return (!sortColumn.decreasing) ? SortDirection.ASC : SortDirection.DESC;
 			}
-			return SortDirectionEnum.NONE;
+			return SortDirection.NONE;
 		}
 		
 		@Override
 		public void clear() {
 			setSortColumn(null);
-		}
-		
-		@Override
-		public List<Comparator> getComparatorsForColumnIndex(final long columnIndex) {
-			throw new UnsupportedOperationException();
 		}
 		
 	}
@@ -1191,7 +1200,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	}
 	
 	@Override
-	public Object getDataValue(final long columnIndex, final long rowIndex) {
+	public Object getDataValue(final long columnIndex, final long rowIndex, final int flags) {
 		try {
 			final LazyRStore.Fragment<T> fragment= this.fragmentsLock.getFragment(
 					this.dataStore, rowIndex, columnIndex );
@@ -1280,7 +1289,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	
 	private void setSortColumn(final SortColumn column) {
 		synchronized (this.fragmentsLock) {
-			if ((this.sortColumn != null) ? this.sortColumn.equals(column) : null == column) {
+			if (Objects.equals(this.sortColumn, column)) {
 				return;
 			}
 			this.sortColumn= column;

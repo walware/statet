@@ -17,20 +17,20 @@ import de.walware.rj.data.RStore;
 public interface IRDataTableVariable {
 	
 	
-	int LOGI = RStore.LOGICAL;
-	int INT = RStore.INTEGER;
-	int NUM = RStore.NUMERIC;
-	int CPLX = RStore.COMPLEX;
-	int CHAR = RStore.CHARACTER;
-	int RAW = RStore.RAW;
-	int FACTOR = RStore.FACTOR;
-	int DATE = 0x11;
-	//	int TIME = 0x12;
-	int DATETIME = 0x13;
+	int LOGI= RStore.LOGICAL;
+	int INT= RStore.INTEGER;
+	int NUM= RStore.NUMERIC;
+	int CPLX= RStore.COMPLEX;
+	int CHAR= RStore.CHARACTER;
+	int RAW= RStore.RAW;
+	int FACTOR= RStore.FACTOR;
+	int DATE= 0x11;
+	//	int TIME= 0x12;
+	int DATETIME= 0x13;
 	
 	
-	int COLUMN = 1;
-	int ROW = 2;
+	int COLUMN= 1;
+	int ROW= 2;
 	
 	
 	String getName();

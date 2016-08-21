@@ -29,10 +29,10 @@ public interface IFindListener {
 		
 		
 		public FindEvent(final IStatus status, final long total, final long rowIdx, final long colIdx) {
-			this.status = status;
-			this.total = total;
-			this.rowIdx = rowIdx;
-			this.colIdx = colIdx;
+			this.status= status;
+			this.total= total;
+			this.rowIdx= rowIdx;
+			this.colIdx= colIdx;
 		}
 		
 	}

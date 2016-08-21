@@ -47,31 +47,31 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 	protected RDataTableContentDescription loadDescription(final RElementName name,
 			final RArray<?> struct, final IRToolService r,
 			final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
-		final RDataTableContentDescription description = new RDataTableContentDescription(name, struct, r.getTool());
-		final long count = getColumnCount();
+		final RDataTableContentDescription description= new RDataTableContentDescription(name, struct, r.getTool());
+		final long count= getColumnCount();
 		
 		description.setRowHeaderColumns(
 				createNamesColumn("rownames(" + getInput().getFullName() + ")",
 						getAdapter().getRowCount(struct),
 						r, monitor ));
 		
-		final RDataTableColumn template = createColumn(struct.getData(),
+		final RDataTableColumn template= createColumn(struct.getData(),
 						getInput().getFullName(), null, -1, null,
 						r, monitor );
 		if (count <= 2500) {
-			final int l = (int) count;
+			final int l= (int) count;
 			RStore names;
-			final RObject rObject = r.evalData("colnames(" + getInput().getFullName() + ")", monitor);
+			final RObject rObject= r.evalData("colnames(" + getInput().getFullName() + ")", monitor);
 			if (rObject != null && rObject.getRObjectType() == RObject.TYPE_VECTOR
 					&& rObject.getLength() == l) {
-				names = rObject.getData();
+				names= rObject.getData();
 			}
 			else {
-				names = null;
+				names= null;
 			}
-			final RDataTableColumn[] dataColumns = new RDataTableColumn[l];
-			for (int i = 0; i < l; i++) {
-				dataColumns[i] = new RDataTableColumn(i,
+			final RDataTableColumn[] dataColumns= new RDataTableColumn[l];
+			for (int i= 0; i < l; i++) {
+				dataColumns[i]= new RDataTableColumn(i,
 						(names != null) ? names.getChar(i) : Integer.toString((i+1)), null, null,
 						template.getVarType(), template.getDataStore(), template.getClassNames(),
 						template.getDefaultFormat());
@@ -89,7 +89,7 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 		cmd.append("order(");
 		cmd.append(getInput().getFullName());
 		cmd.append("[,");
-		cmd.append((sortColumn.columnIdx + 1));
+		cmd.append((sortColumn.getIdx() + 1));
 		cmd.append("],decreasing=");
 		cmd.append(sortColumn.decreasing ? "TRUE" : "FALSE");
 		cmd.append(')');
@@ -105,7 +105,7 @@ public class RMatrixDataProvider extends AbstractRDataProvider<RArray<?>> {
 	
 	@Override
 	protected Object getColumnName(final LazyRStore.Fragment<RArray<?>> fragment, final long columnIdx) {
-		final RStore names = fragment.getRObject().getNames(1);
+		final RStore names= fragment.getRObject().getNames(1);
 		if (names != null) {
 			return names.get(columnIdx - fragment.getColumnBeginIdx());
 		}

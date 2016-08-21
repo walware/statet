@@ -13,9 +13,10 @@ package de.walware.statet.r.internal.ui.dataeditor;
 
 import java.util.List;
 
-import org.eclipse.nebula.widgets.nattable.config.IConfigRegistry;
-import org.eclipse.nebula.widgets.nattable.data.convert.IDisplayConverter;
-import org.eclipse.nebula.widgets.nattable.layer.cell.ILayerCell;
+import de.walware.ecommons.waltable.config.IConfigRegistry;
+import de.walware.ecommons.waltable.coordinate.Orientation;
+import de.walware.ecommons.waltable.data.convert.IDisplayConverter;
+import de.walware.ecommons.waltable.layer.cell.ILayerCell;
 
 import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
 
@@ -32,8 +33,8 @@ public class RDataFormatterConverter implements IDisplayConverter {
 		@Override
 		protected RDataFormatter getFormatter(final RDataTableContentDescription description,
 				final ILayerCell cell) {
-			final List<RDataTableColumn> columns = description.getRowHeaderColumns();
-			final long index = cell.getColumnIndex();
+			final List<RDataTableColumn> columns= description.getRowHeaderColumns();
+			final long index= getColumnIndex(cell);
 			if (columns != null && index >= 0 && index < columns.size()) {
 				return columns.get((int) index).getDefaultFormat();
 			}
@@ -50,28 +51,28 @@ public class RDataFormatterConverter implements IDisplayConverter {
 	
 	
 	public RDataFormatterConverter(final AbstractRDataProvider<?> dataProvider) {
-		this.fDataProvider = dataProvider;
+		this.fDataProvider= dataProvider;
 	}
 	
 	
 	private RDataFormatter getFormatter(final ILayerCell cell) {
-		final RDataTableContentDescription description = this.fDataProvider.getDescription();
+		final RDataTableContentDescription description= this.fDataProvider.getDescription();
 		if (description != null) {
-			final RDataFormatter formatter = getFormatter(description, cell);
+			final RDataFormatter formatter= getFormatter(description, cell);
 			if (formatter != null) {
 				return formatter;
 			}
 		}
 		if (this.fFallbackFormatter == null) {
-			this.fFallbackFormatter = new RDataFormatter();
+			this.fFallbackFormatter= new RDataFormatter();
 		}
 		return this.fFallbackFormatter;
 	}
 	
 	protected RDataFormatter getFormatter(final RDataTableContentDescription description,
 			final ILayerCell cell) {
-		final List<RDataTableColumn> columns = description.getDataColumns();
-		final long index = cell.getColumnIndex();
+		final List<RDataTableColumn> columns= description.getDataColumns();
+		final long index= getColumnIndex(cell);
 		if (index >= 0 && index < columns.size()) {
 			return columns.get((int) index).getDefaultFormat();
 		}
@@ -79,7 +80,7 @@ public class RDataFormatterConverter implements IDisplayConverter {
 	}
 	
 	protected long getColumnIndex(final ILayerCell cell) {
-		return cell.getColumnIndex();
+		return cell.getDim(Orientation.HORIZONTAL).getId();
 	}
 	
 	

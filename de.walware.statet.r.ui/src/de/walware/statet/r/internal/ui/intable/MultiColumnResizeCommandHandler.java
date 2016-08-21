@@ -11,10 +11,10 @@
 
 package de.walware.statet.r.internal.ui.intable;
 
-import org.eclipse.nebula.widgets.nattable.command.AbstractLayerCommandHandler;
-import org.eclipse.nebula.widgets.nattable.coordinate.IValueIterator;
-import org.eclipse.nebula.widgets.nattable.coordinate.RangeList.ValueIterator;
-import org.eclipse.nebula.widgets.nattable.resize.command.MultiColumnResizeCommand;
+import de.walware.ecommons.waltable.command.AbstractLayerCommandHandler;
+import de.walware.ecommons.waltable.coordinate.ILValueIterator;
+import de.walware.ecommons.waltable.coordinate.LRangeList.ValueIterator;
+import de.walware.ecommons.waltable.resize.MultiColumnResizeCommand;
 
 
 public class MultiColumnResizeCommandHandler extends AbstractLayerCommandHandler<MultiColumnResizeCommand> {
@@ -24,7 +24,7 @@ public class MultiColumnResizeCommandHandler extends AbstractLayerCommandHandler
 	
 	
 	public MultiColumnResizeCommandHandler(final RDataLayer dataLayer) {
-		fDataLayer = dataLayer;
+		this.fDataLayer= dataLayer;
 	}
 	
 	
@@ -35,9 +35,9 @@ public class MultiColumnResizeCommandHandler extends AbstractLayerCommandHandler
 	
 	@Override
 	protected boolean doCommand(final MultiColumnResizeCommand command) {
-		for (final IValueIterator posIter = new ValueIterator(command.getPositions()); posIter.hasNext(); ) {
-			final long position = posIter.nextValue();
-			fDataLayer.setColumnWidth(position, command.getColumnWidth(position));
+		for (final ILValueIterator posIter= new ValueIterator(command.getPositions()); posIter.hasNext(); ) {
+			final long position= posIter.nextValue();
+			this.fDataLayer.setColumnWidth(position, command.getColumnWidth(position));
 		}
 		return true;
 	}

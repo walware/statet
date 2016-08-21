@@ -16,7 +16,8 @@ import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.graphics.Font;
 
-import de.walware.statet.r.internal.ui.intable.InfoString;
+import de.walware.ecommons.waltable.data.ControlData;
+
 import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
 
 
@@ -36,7 +37,7 @@ public class ColumnLabelProvider extends CellLabelProvider {
 	@Override
 	public void update(final ViewerCell cell) {
 		final Object data = fColumn.getDefaultFormat().modelToDisplayValue(cell.getElement());
-		cell.setFont((data instanceof InfoString) ? getInfoFont() : null);
+		cell.setFont((data instanceof ControlData) ? getInfoFont() : null);
 		cell.setText(data.toString());
 	}
 	

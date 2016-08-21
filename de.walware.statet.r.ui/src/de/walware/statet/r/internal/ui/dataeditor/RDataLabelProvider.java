@@ -34,7 +34,7 @@ import de.walware.statet.r.ui.dataeditor.RDataTableColumn;
 public class RDataLabelProvider extends StyledCellLabelProvider {
 	
 	
-	private final RLabelProvider fRLabelProvider = new RLabelProvider(
+	private final RLabelProvider fRLabelProvider= new RLabelProvider(
 			RLabelProvider.NO_STORE_TYPE | RLabelProvider.COUNT | RLabelProvider.NAMESPACE);
 	
 	
@@ -70,10 +70,10 @@ public class RDataLabelProvider extends StyledCellLabelProvider {
 	@Override
 	public void update(final ViewerCell cell) {
 		Image image;
-		final StyledString text = new StyledString();
-		final Object element = cell.getElement();
+		final StyledString text= new StyledString();
+		final Object element= cell.getElement();
 		if (element instanceof RDataTableContentDescription) {
-			final RDataTableContentDescription description = (RDataTableContentDescription) element;
+			final RDataTableContentDescription description= (RDataTableContentDescription) element;
 			if (description.getRElementStruct() instanceof ICombinedRElement) {
 				this.fRLabelProvider.update(cell, (IModelElement) description.getRElementStruct());
 				super.update(cell);
@@ -81,31 +81,31 @@ public class RDataLabelProvider extends StyledCellLabelProvider {
 			}
 			switch (description.getRElementStruct().getRObjectType()) {
 			case RObject.TYPE_VECTOR:
-				image = RUI.getImage(RUI.IMG_OBJ_VECTOR);
+				image= RUI.getImage(RUI.IMG_OBJ_VECTOR);
 				break;
 			case RObject.TYPE_ARRAY:
-				image = RUI.getImage(RUI.IMG_OBJ_VECTOR);
+				image= RUI.getImage(RUI.IMG_OBJ_VECTOR);
 				break;
 			case RObject.TYPE_DATAFRAME:
-				image = RUI.getImage(RUI.IMG_OBJ_VECTOR);
+				image= RUI.getImage(RUI.IMG_OBJ_VECTOR);
 				break;
 			default:
-				image = null;
+				image= null;
 				break;
 			}
 			text.append(description.getElementName().toString());
 		}
 		else if (element instanceof IRDataTableVariable) {
-			final IRDataTableVariable variable = (IRDataTableVariable) element;
-			image = getImage(variable);
+			final IRDataTableVariable variable= (IRDataTableVariable) element;
+			image= getImage(variable);
 			text.append(variable.getName());
 			
 			if (element instanceof RDataTableColumn) {
-				final RDataTableColumn column = (RDataTableColumn) variable;
+				final RDataTableColumn column= (RDataTableColumn) variable;
 				text.append(" : ", StyledString.DECORATIONS_STYLER); //$NON-NLS-1$
-				final List<String> classNames = column.getClassNames();
+				final List<String> classNames= column.getClassNames();
 				text.append(classNames.get(0), StyledString.DECORATIONS_STYLER);
-				for (int i = 1; i < classNames.size(); i++) {
+				for (int i= 1; i < classNames.size(); i++) {
 					text.append(", ", StyledString.DECORATIONS_STYLER); //$NON-NLS-1$
 					text.append(classNames.get(i), StyledString.DECORATIONS_STYLER);
 				}
@@ -117,10 +117,10 @@ public class RDataLabelProvider extends StyledCellLabelProvider {
 			}
 		}
 		else if (element instanceof VariablePropertyItem) {
-			final VariablePropertyItem item = (VariablePropertyItem) element;
-			image = null;
+			final VariablePropertyItem item= (VariablePropertyItem) element;
+			image= null;
 			text.append(item.getName());
-			final int count = item.getCount();
+			final int count= item.getCount();
 			if (count >= 0) {
 				text.append(" (", StyledString.COUNTER_STYLER); //$NON-NLS-1$
 				text.append(Integer.toString(count), StyledString.COUNTER_STYLER);
@@ -128,7 +128,7 @@ public class RDataLabelProvider extends StyledCellLabelProvider {
 			}
 		}
 		else {
-			image = null;
+			image= null;
 			text.append(element.toString());
 		}
 		

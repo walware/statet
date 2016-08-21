@@ -24,26 +24,24 @@ import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.TimeZone;
 import com.ibm.icu.util.ULocale;
 
-import de.walware.rj.data.RCharacterStore;
+import de.walware.ecommons.waltable.data.ControlData;
 
-import de.walware.statet.r.internal.ui.intable.InfoString;
+import de.walware.rj.data.RCharacterStore;
 
 
 public class RDataFormatter {
 	
 	
-	private static final char[] HEX_CHARS = new char[] {
+	private static final char[] HEX_CHARS= new char[] {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 	};
 	
-	public static final int MILLIS_PER_SECOND = 1000;
-	public static final int MILLIS_PER_MINUTE = 60 * MILLIS_PER_SECOND;
-	public static final int MILLIS_PER_HOUR = 60 * MILLIS_PER_MINUTE;
-	public static final int MILLIS_PER_DAY = 24 * MILLIS_PER_HOUR;
+	public static final int MILLIS_PER_SECOND= 1000;
+	public static final int MILLIS_PER_MINUTE= 60 * MILLIS_PER_SECOND;
+	public static final int MILLIS_PER_HOUR= 60 * MILLIS_PER_MINUTE;
+	public static final int MILLIS_PER_DAY= 24 * MILLIS_PER_HOUR;
 	
-	private static final InfoString NA = new InfoString("NA");
-	
-	private final StringBuilder fCurrentText = new StringBuilder();
+	private final StringBuilder fCurrentText= new StringBuilder();
 	
 	private DecimalFormat fNumFormat;
 	private int fNumMaxExpDigits;
@@ -54,7 +52,7 @@ public class RDataFormatter {
 	
 	private RCharacterStore fFactorLevels;
 	
-	private int fAutoWidth = -1;
+	private int fAutoWidth= -1;
 	
 	
 	
@@ -63,10 +61,10 @@ public class RDataFormatter {
 	
 	
 	protected void clean() {
-		this.fNumFormat = null;
-		this.fMathContext = null;
-		this.fDateFormat = null;
-		this.fFactorLevels = null;
+		this.fNumFormat= null;
+		this.fMathContext= null;
+		this.fDateFormat= null;
+		this.fFactorLevels= null;
 	}
 	
 	
@@ -80,19 +78,19 @@ public class RDataFormatter {
 			this.fCurrentText.append(this.fNumFormat.format(num));
 			return;
 		}
-		BigDecimal decimal = new BigDecimal(num);
+		BigDecimal decimal= new BigDecimal(num);
 		if (this.fMathContext != null) {
-			decimal = decimal.multiply(BigDecimal.ONE, this.fMathContext);
+			decimal= decimal.multiply(BigDecimal.ONE, this.fMathContext);
 		}
 		this.fCurrentText.append(this.fNumFormat.format(decimal));
 	}
 	
 	public Object modelToDisplayValue(Object modelValue) {
 		if (modelValue == null) {
-			return NA;
+			return AbstractRDataProvider.NA;
 		}
-		final Class<?> clazz = modelValue.getClass();
-		if (clazz == InfoString.class) {
+		final Class<?> clazz= modelValue.getClass();
+		if (clazz == ControlData.class) {
 			return modelValue;
 		}
 		if (clazz == Double.class) {
@@ -111,13 +109,13 @@ public class RDataFormatter {
 		}
 		INT: if (clazz == Integer.class){
 			if (this.fFactorLevels != null) {
-				final int value = ((Integer) modelValue).intValue() - 1;
+				final int value= ((Integer) modelValue).intValue() - 1;
 				if (value >= 0 && value < this.fFactorLevels.getLength()) {
-					modelValue = this.fFactorLevels.getChar(value);
+					modelValue= this.fFactorLevels.getChar(value);
 					break INT;
 				}
 				else {
-					return new InfoString("?" + modelValue + "?");
+					return new ControlData(ControlData.ERROR, "?" + modelValue + "?");
 				}
 			}
 			if (this.fDateFormat != null) {
@@ -127,70 +125,70 @@ public class RDataFormatter {
 			return modelValue.toString();
 		}
 		if (clazz == String.class) {
-			final String text = (String) modelValue;
+			final String text= (String) modelValue;
 			this.fCurrentText.setLength(0);
 			
-			int beginIdx = 0;
-			int i = 0;
-			final int length = text.length();
+			int beginIdx= 0;
+			int i= 0;
+			final int length= text.length();
 			while (i < length) {
-				final char c = text.charAt(i);
+				final char c= text.charAt(i);
 				switch (c) {
 				case 10:
 					if (i > beginIdx) {
 						this.fCurrentText.append(text, beginIdx, i);
 					}
 					this.fCurrentText.append("\\n");
-					beginIdx = ++i;
+					beginIdx= ++i;
 					continue;
 				case 13:
 					if (i > beginIdx) {
 						this.fCurrentText.append(text, beginIdx, i);
 					}
 					this.fCurrentText.append("\\r");
-					beginIdx = ++i;
+					beginIdx= ++i;
 					continue;
 				case 9:
 					if (i > beginIdx) {
 						this.fCurrentText.append(text, beginIdx, i);
 					}
 					this.fCurrentText.append("\\t");
-					beginIdx = ++i;
+					beginIdx= ++i;
 					continue;
 				case 8:
 					if (i > beginIdx) {
 						this.fCurrentText.append(text, beginIdx, i);
 					}
 					this.fCurrentText.append("\\b");
-					beginIdx = ++i;
+					beginIdx= ++i;
 					continue;
 				case 7:
 					if (i > beginIdx) {
 						this.fCurrentText.append(text, beginIdx, i);
 					}
 					this.fCurrentText.append("\\a");
-					beginIdx = ++i;
+					beginIdx= ++i;
 					continue;
 				case 12:
 					if (i > beginIdx) {
 						this.fCurrentText.append(text, beginIdx, i);
 					}
 					this.fCurrentText.append("\\f");
-					beginIdx = ++i;
+					beginIdx= ++i;
 					continue;
 				case 11:
 					if (i > beginIdx) {
 						this.fCurrentText.append(text, beginIdx, i);
 					}
 					this.fCurrentText.append("\\v");
-					beginIdx = ++i;
+					beginIdx= ++i;
 					continue;
 				case 92:
 					if (i > beginIdx) {
 						this.fCurrentText.append(text, beginIdx, i);
 					}
 					this.fCurrentText.append("\\\\");
-					beginIdx = ++i;
+					beginIdx= ++i;
 					continue;
 				default:
 					if (c < 0x20) {
@@ -199,7 +197,7 @@ public class RDataFormatter {
 						}
 						this.fCurrentText.append("\\0x");
 						appendByteHexFormat(c);
-						beginIdx = ++i;
+						beginIdx= ++i;
 						continue;
 					}
 					i++;
@@ -240,14 +238,14 @@ public class RDataFormatter {
 	public void initNumFormat(final int maxFractionalDigits, final int maxExponentDigits) {
 		clean();
 		
-		this.fNumMaxExpDigits = maxExponentDigits;
-		final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ENGLISH);
+		this.fNumMaxExpDigits= maxExponentDigits;
+		final DecimalFormatSymbols symbols= new DecimalFormatSymbols(Locale.ENGLISH);
 		symbols.setExponentSeparator("e");
 		symbols.setNaN("NaN");
 		symbols.setInfinity("Inf");
 		
-		final DecimalFormat decimalFormat = new DecimalFormat("0.", symbols);
-		this.fNumFormat = decimalFormat;
+		final DecimalFormat decimalFormat= new DecimalFormat("0.", symbols);
+		this.fNumFormat= decimalFormat;
 		decimalFormat.setDecimalSeparatorAlwaysShown(false);
 		decimalFormat.setGroupingUsed(false);
 		decimalFormat.setExponentSignAlwaysShown(true);
@@ -256,7 +254,7 @@ public class RDataFormatter {
 		decimalFormat.setMaximumFractionDigits(maxFractionalDigits);
 		
 		if (maxExponentDigits > 0) {
-			this.fMathContext = new MathContext(maxFractionalDigits+1, MathContext.SCIENTIFIC, false, MathContext.ROUND_HALF_UP);
+			this.fMathContext= new MathContext(maxFractionalDigits+1, MathContext.SCIENTIFIC, false, MathContext.ROUND_HALF_UP);
 			decimalFormat.setScientificNotation(true);
 			decimalFormat.setMinimumExponentDigits((byte) maxExponentDigits);
 		}
@@ -270,20 +268,20 @@ public class RDataFormatter {
 	public void initDateFormat(final int millis) {
 		clean();
 		
-		final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
-		this.fDateFormat = dateFormat;
+		final SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
+		this.fDateFormat= dateFormat;
 		
-		this.fDateValueMillis = millis;
+		this.fDateValueMillis= millis;
 		this.fDateFormat.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC"), ULocale.ENGLISH)); //$NON-NLS-1$
 	}
 	
 	public void initDateTimeFormat(final int millis) {
 		clean();
 		
-		final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zz"); //$NON-NLS-1$
-		this.fDateFormat = dateFormat;
+		final SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zz"); //$NON-NLS-1$
+		this.fDateFormat= dateFormat;
 		
-		this.fDateValueMillis = millis;
+		this.fDateValueMillis= millis;
 	}
 	
 	public void setDateTimeZone(final TimeZone zone) {
@@ -296,7 +294,7 @@ public class RDataFormatter {
 	public void initFactorLevels(final RCharacterStore levels) {
 		clean();
 		
-		this.fFactorLevels = levels;
+		this.fFactorLevels= levels;
 	}
 	
 	public RCharacterStore getFactorLevels() {
@@ -305,7 +303,7 @@ public class RDataFormatter {
 	
 	
 	public void setAutoWidth(final int width) {
-		this.fAutoWidth = width;
+		this.fAutoWidth= width;
 	}
 	
 	public int getAutoWidth() {

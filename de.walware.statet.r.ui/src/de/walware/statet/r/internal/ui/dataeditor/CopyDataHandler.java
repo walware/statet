@@ -14,8 +14,9 @@ package de.walware.statet.r.internal.ui.dataeditor;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.nebula.widgets.nattable.NatTable;
-import org.eclipse.nebula.widgets.nattable.copy.command.CopyDataToClipboardCommand;
+
+import de.walware.ecommons.waltable.NatTable;
+import de.walware.ecommons.waltable.copy.CopyToClipboardCommand;
 
 import de.walware.statet.r.ui.dataeditor.RDataTableComposite;
 
@@ -27,21 +28,21 @@ public class CopyDataHandler extends AbstractHandler {
 	
 	
 	public CopyDataHandler(final RDataTableComposite tableProvider) {
-		this.fTableComposite = tableProvider;
+		this.fTableComposite= tableProvider;
 	}
 	
 	
 	@Override
 	public void setEnabled(final Object evaluationContext) {
-//		final NatTable table = tableProvider.getNatTable();
+//		final NatTable table= tableProvider.getNatTable();
 //		setBaseEnabled(table != null && !table.isDisposed());
 	}
 	
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		final NatTable table = this.fTableComposite.getNatTable();
+		final NatTable table= this.fTableComposite.getTable();
 		if (table != null) {
-			table.doCommand(new CopyDataToClipboardCommand("\t", "\n", table.getConfigRegistry()));
+			table.doCommand(new CopyToClipboardCommand(", ", "\n", table.getConfigRegistry()));
 		}
 		return null;
 	}

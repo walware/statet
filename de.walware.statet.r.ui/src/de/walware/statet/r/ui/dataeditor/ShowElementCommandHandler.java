@@ -105,7 +105,7 @@ public class ShowElementCommandHandler extends AbstractRToolCommandHandler {
 		UIAccess.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
+				final IWorkbenchPage page= UIAccess.getActiveWorkbenchPage(true);
 				if (page == null) {
 					return;
 				}
@@ -115,7 +115,7 @@ public class ShowElementCommandHandler extends AbstractRToolCommandHandler {
 	}
 	
 	
-	public static final String SHOW_ELEMENT_COMMAND_ID = "showElement"; //$NON-NLS-1$
+	public static final String SHOW_ELEMENT_COMMAND_ID= "showElement"; //$NON-NLS-1$
 	
 	
 	public ShowElementCommandHandler() {
@@ -126,8 +126,8 @@ public class ShowElementCommandHandler extends AbstractRToolCommandHandler {
 	protected IStatus execute(final String id, final IRToolService r, final Map<String, Object> data,
 			final IProgressMonitor monitor) throws CoreException {
 		if (id.equals(SHOW_ELEMENT_COMMAND_ID)) {
-			final ToolProcess tool = (ToolProcess) r.getTool();
-			final String elementName = ToolCommandHandlerUtil.getCheckedData(data, "elementName",
+			final ToolProcess tool= (ToolProcess) r.getTool();
+			final String elementName= ToolCommandHandlerUtil.getCheckedData(data, "elementName",
 					String.class, true); 
 			final RElementName rElementName= RElementName.parseDefault(elementName);
 			if (rElementName != null) {

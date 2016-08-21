@@ -22,13 +22,13 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.nebula.widgets.nattable.coordinate.RangeList;
 
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.actions.SimpleContributionItem;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.workbench.AbstractEditorOutlinePage;
+import de.walware.ecommons.waltable.coordinate.LRangeList;
 
 import de.walware.rj.data.RFactorStore;
 import de.walware.rj.data.RStore;
@@ -50,7 +50,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 		
 		
 		public VariablePropertyItem(final IRDataTableVariable column) {
-			this.fVariable = column;
+			this.fVariable= column;
 		}
 		
 		
@@ -86,7 +86,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 			if (!(obj instanceof VariablePropertyItem)) {
 				return false;
 			}
-			final VariablePropertyItem other = (VariablePropertyItem) obj;
+			final VariablePropertyItem other= (VariablePropertyItem) obj;
 			return (getName() == other.getName()
 					&& this.fVariable.equals(other.fVariable));
 		}
@@ -108,7 +108,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 		
 		@Override
 		public Object[] getChildren() {
-			final RFactorStore data = (RFactorStore) ((RDataTableColumn) this.fVariable).getDataStore();
+			final RFactorStore data= (RFactorStore) ((RDataTableColumn) this.fVariable).getDataStore();
 			return data.getLevels().toArray();
 		}
 		
@@ -119,7 +119,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 		
 		@Override
 		public int getCount() {
-			final RFactorStore data = (RFactorStore) ((RDataTableColumn) this.fVariable).getDataStore();
+			final RFactorStore data= (RFactorStore) ((RDataTableColumn) this.fVariable).getDataStore();
 			return data.getLevelCount();
 		}
 		
@@ -140,7 +140,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 		
 		@Override
 		public Object[] getChildren() {
-			final RStore data = ((FTableVariable) this.fVariable).getLevelStore();
+			final RStore data= ((FTableVariable) this.fVariable).getLevelStore();
 			return data.toArray();
 		}
 		
@@ -151,7 +151,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 		
 		@Override
 		public int getCount() {
-			final RStore data = ((FTableVariable) this.fVariable).getLevelStore();
+			final RStore data= ((FTableVariable) this.fVariable).getLevelStore();
 			return (int) data.getLength();
 		}
 		
@@ -189,14 +189,14 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 				return (RDataEditorOutlinePage.this.fDescription.getVariables().length > 0);
 			}
 			if (element instanceof RDataTableColumn) {
-				final RDataTableColumn column = (RDataTableColumn) element;
+				final RDataTableColumn column= (RDataTableColumn) element;
 				return (column.getVarType() == IRDataTableVariable.FACTOR);
 			}
 			else if (element instanceof FTableVariable) {
 				return true;
 			}
 			else if (element instanceof VariablePropertyItem) {
-				final VariablePropertyItem item = (VariablePropertyItem) element;
+				final VariablePropertyItem item= (VariablePropertyItem) element;
 				return item.hasChildren();
 			}
 			return false;
@@ -205,12 +205,12 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 		@Override
 		public Object[] getChildren(final Object parentElement) {
 			{	Object[] columns;
-				if (parentElement == RDataEditorOutlinePage.this.fDescription && (columns = RDataEditorOutlinePage.this.fDescription.getVariables()).length <= 2500) {
+				if (parentElement == RDataEditorOutlinePage.this.fDescription && (columns= RDataEditorOutlinePage.this.fDescription.getVariables()).length <= 2500) {
 					return columns;
 				}
 			}
 			if (parentElement instanceof RDataTableColumn) {
-				final RDataTableColumn column = (RDataTableColumn) parentElement;
+				final RDataTableColumn column= (RDataTableColumn) parentElement;
 				if (column.getVarType() == IRDataTableVariable.FACTOR) {
 					return new Object[] { new FactorLevels(column) };
 				}
@@ -219,7 +219,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 				return new Object[] { new FTableFactorLevels((FTableVariable) parentElement) };
 			}
 			else if (parentElement instanceof VariablePropertyItem) {
-				final VariablePropertyItem item = (VariablePropertyItem) parentElement;
+				final VariablePropertyItem item= (VariablePropertyItem) parentElement;
 				return item.getChildren();
 			}
 			return new Object[0];
@@ -238,7 +238,7 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 	
 	public RDataEditorOutlinePage(final RDataEditor editor) {
 		super("de.walware.r.menu.RDataOutlineViewContextMenu"); //$NON-NLS-1$
-		this.fEditor = editor;
+		this.fEditor= editor;
 	}
 	
 	
@@ -265,12 +265,12 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 		this.fEditor.getRDataTable().addTableListener(new IRDataTableListener() {
 			@Override
 			public void inputChanged(final IRDataTableInput input, final RDataTableContentDescription description) {
-				final boolean isNew = (description != null
+				final boolean isNew= (description != null
 						&& (RDataEditorOutlinePage.this.fDescription == null
 								|| RDataEditorOutlinePage.this.fDescription.getVariables().length != description.getVariables().length ));
-				RDataEditorOutlinePage.this.fDescription = description;
+				RDataEditorOutlinePage.this.fDescription= description;
 				
-				final TreeViewer viewer = getViewer();
+				final TreeViewer viewer= getViewer();
 				if (UIAccess.isOkToUse(viewer)) {
 					viewer.refresh();
 					if (isNew && RDataEditorOutlinePage.this.fDescription != null) {
@@ -288,9 +288,9 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 			return;
 		}
 		if (selection instanceof IStructuredSelection) {
-			final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
+			final IStructuredSelection structuredSelection= (IStructuredSelection) selection;
 			if (structuredSelection.size() == 1) {
-				final Object element = structuredSelection.getFirstElement();
+				final Object element= structuredSelection.getFirstElement();
 				if (element instanceof RDataTableColumn) {
 					this.fEditor.getRDataTable().revealColumn(((RDataTableColumn) element).getIndex());
 				}
@@ -300,9 +300,9 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 	
 	@Override
 	protected void contextMenuAboutToShow(final IMenuManager m) {
-		final IStructuredSelection selection = (IStructuredSelection) getViewer().getSelection();
-		for (final Iterator<?> iterator = selection.iterator(); iterator.hasNext();) {
-			final Object element = iterator.next();
+		final IStructuredSelection selection= (IStructuredSelection) getViewer().getSelection();
+		for (final Iterator<?> iterator= selection.iterator(); iterator.hasNext();) {
+			final Object element= iterator.next();
 			if (!(element instanceof RDataTableColumn)) {
 				return;
 			}
@@ -311,10 +311,10 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 		m.add(new SimpleContributionItem("Select Column", "S") {
 			@Override
 			protected void execute() throws ExecutionException {
-				final IStructuredSelection selection = (IStructuredSelection) getViewer().getSelection();
-				final RangeList columnIndexes = new RangeList();
-				for (final Iterator<?> iterator = selection.iterator(); iterator.hasNext();) {
-					final Object element = iterator.next();
+				final IStructuredSelection selection= (IStructuredSelection) getViewer().getSelection();
+				final LRangeList columnIndexes= new LRangeList();
+				for (final Iterator<?> iterator= selection.iterator(); iterator.hasNext();) {
+					final Object element= iterator.next();
 					if (element instanceof RDataTableColumn) {
 						columnIndexes.values().add(((RDataTableColumn) element).getIndex());
 					}
@@ -333,10 +333,10 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 					"Sort Increasing by Column", "I") {
 				@Override
 				protected void execute() throws ExecutionException {
-					final IStructuredSelection selection = (IStructuredSelection) getViewer().getSelection();
-					final Object element = selection.getFirstElement();
+					final IStructuredSelection selection= (IStructuredSelection) getViewer().getSelection();
+					final Object element= selection.getFirstElement();
 					if (selection.size() == 1 && element instanceof RDataTableColumn) {
-						final RDataTableColumn column = (RDataTableColumn) element;
+						final RDataTableColumn column= (RDataTableColumn) element;
 						RDataEditorOutlinePage.this.fEditor.getRDataTable().sortByColumn(column.getIndex(), true);
 					}
 				}
@@ -345,10 +345,10 @@ public class RDataEditorOutlinePage extends AbstractEditorOutlinePage {
 					"Sort Decreasing by Column", "I") {
 				@Override
 				protected void execute() throws ExecutionException {
-					final IStructuredSelection selection = (IStructuredSelection) getViewer().getSelection();
-					final Object element = selection.getFirstElement();
+					final IStructuredSelection selection= (IStructuredSelection) getViewer().getSelection();
+					final Object element= selection.getFirstElement();
 					if (selection.size() == 1 && element instanceof RDataTableColumn) {
-						final RDataTableColumn column = (RDataTableColumn) element;
+						final RDataTableColumn column= (RDataTableColumn) element;
 						RDataEditorOutlinePage.this.fEditor.getRDataTable().sortByColumn(column.getIndex(), false);
 					}
 				}

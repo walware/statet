@@ -13,7 +13,7 @@ package de.walware.statet.r.internal.ui.datafilterview;
 
 import org.eclipse.core.databinding.conversion.IConverter;
 
-import de.walware.statet.r.internal.ui.intable.InfoString;
+import de.walware.statet.r.internal.ui.dataeditor.AbstractRDataProvider;
 
 
 public class UI2RStoreConverter implements IConverter {
@@ -38,7 +38,7 @@ public class UI2RStoreConverter implements IConverter {
 	
 	@Override
 	public Object convert(final Object fromObject) {
-		if (fromObject == InfoString.NA) {
+		if (fromObject == AbstractRDataProvider.NA) {
 			return null;
 		}
 		return fromObject;

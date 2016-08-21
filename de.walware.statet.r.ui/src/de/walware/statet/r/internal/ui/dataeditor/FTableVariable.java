@@ -27,9 +27,9 @@ public class FTableVariable implements IRDataTableVariable {
 	
 	
 	public FTableVariable(final int orientation, final String name, final RStore dataStore) {
-		this.fPresentation = orientation;
-		this.fName = name;
-		this.fDataStore = dataStore;
+		this.fPresentation= orientation;
+		this.fName= name;
+		this.fDataStore= dataStore;
 	}
 	
 	
@@ -66,7 +66,7 @@ public class FTableVariable implements IRDataTableVariable {
 		if (!(obj instanceof FTableVariable)) {
 			return false;
 		}
-		final FTableVariable other = (FTableVariable) obj;
+		final FTableVariable other= (FTableVariable) obj;
 		return this.fName.equals(other.fName);
 	}
 	

@@ -11,56 +11,56 @@
 
 package de.walware.statet.r.internal.ui.intable;
 
-import static org.eclipse.nebula.widgets.nattable.coordinate.Orientation.HORIZONTAL;
-import static org.eclipse.nebula.widgets.nattable.coordinate.Orientation.VERTICAL;
+import static de.walware.ecommons.waltable.coordinate.Orientation.HORIZONTAL;
+import static de.walware.ecommons.waltable.coordinate.Orientation.VERTICAL;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.nebula.widgets.nattable.NatTable;
-import org.eclipse.nebula.widgets.nattable.config.AbstractUiBindingConfiguration;
-import org.eclipse.nebula.widgets.nattable.coordinate.Direction;
-import org.eclipse.nebula.widgets.nattable.grid.GridRegion;
-import org.eclipse.nebula.widgets.nattable.resize.action.AutoResizeColumnAction;
-import org.eclipse.nebula.widgets.nattable.resize.action.ColumnResizeCursorAction;
-import org.eclipse.nebula.widgets.nattable.resize.command.InitializeAutoResizeColumnsCommand;
-import org.eclipse.nebula.widgets.nattable.resize.event.ColumnResizeEventMatcher;
-import org.eclipse.nebula.widgets.nattable.resize.mode.ColumnResizeDragMode;
-import org.eclipse.nebula.widgets.nattable.selection.action.CellSelectionDragMode;
-import org.eclipse.nebula.widgets.nattable.selection.action.RowSelectionDragMode;
-import org.eclipse.nebula.widgets.nattable.selection.action.SelectCellAction;
-import org.eclipse.nebula.widgets.nattable.selection.command.SelectRelativeCellCommand;
-import org.eclipse.nebula.widgets.nattable.sort.SortDirectionEnum;
-import org.eclipse.nebula.widgets.nattable.sort.action.SortColumnAction;
-import org.eclipse.nebula.widgets.nattable.sort.command.ClearSortCommand;
-import org.eclipse.nebula.widgets.nattable.sort.command.SortColumnCommand;
-import org.eclipse.nebula.widgets.nattable.ui.NatEventData;
-import org.eclipse.nebula.widgets.nattable.ui.action.AbstractNavigationAction;
-import org.eclipse.nebula.widgets.nattable.ui.action.ClearCursorAction;
-import org.eclipse.nebula.widgets.nattable.ui.action.NoOpMouseAction;
-import org.eclipse.nebula.widgets.nattable.ui.binding.UiBindingRegistry;
-import org.eclipse.nebula.widgets.nattable.ui.matcher.IMouseEventMatcher;
-import org.eclipse.nebula.widgets.nattable.ui.matcher.KeyEventMatcher;
-import org.eclipse.nebula.widgets.nattable.ui.matcher.MouseEventMatcher;
-import org.eclipse.nebula.widgets.nattable.ui.menu.PopupMenuAction;
-import org.eclipse.nebula.widgets.nattable.viewport.action.ViewportSelectDimPositionsAction;
-import org.eclipse.nebula.widgets.nattable.viewport.command.ScrollStepCommand;
-import org.eclipse.nebula.widgets.nattable.viewport.command.SelectRelativePageCommand;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyEvent;
 
 import de.walware.ecommons.ui.SharedUIResources;
+import de.walware.ecommons.waltable.NatTable;
+import de.walware.ecommons.waltable.config.AbstractUiBindingConfiguration;
+import de.walware.ecommons.waltable.coordinate.Direction;
+import de.walware.ecommons.waltable.grid.GridRegion;
+import de.walware.ecommons.waltable.resize.ColumnResizeEventMatcher;
+import de.walware.ecommons.waltable.resize.InitializeAutoResizeCommand;
+import de.walware.ecommons.waltable.resize.PositionResizeDragMode;
+import de.walware.ecommons.waltable.resize.action.AutoResizeColumnAction;
+import de.walware.ecommons.waltable.resize.action.ColumnResizeCursorAction;
+import de.walware.ecommons.waltable.selection.SelectRelativeCellCommand;
+import de.walware.ecommons.waltable.selection.action.CellSelectionDragMode;
+import de.walware.ecommons.waltable.selection.action.RowSelectionDragMode;
+import de.walware.ecommons.waltable.selection.action.SelectCellAction;
+import de.walware.ecommons.waltable.sort.ClearSortCommand;
+import de.walware.ecommons.waltable.sort.SortDimPositionCommand;
+import de.walware.ecommons.waltable.sort.SortDirection;
+import de.walware.ecommons.waltable.sort.action.SortColumnAction;
+import de.walware.ecommons.waltable.ui.NatEventData;
+import de.walware.ecommons.waltable.ui.action.AbstractNavigationAction;
+import de.walware.ecommons.waltable.ui.action.ClearCursorAction;
+import de.walware.ecommons.waltable.ui.action.NoOpMouseAction;
+import de.walware.ecommons.waltable.ui.binding.UiBindingRegistry;
+import de.walware.ecommons.waltable.ui.matcher.IMouseEventMatcher;
+import de.walware.ecommons.waltable.ui.matcher.KeyEventMatcher;
+import de.walware.ecommons.waltable.ui.matcher.MouseEventMatcher;
+import de.walware.ecommons.waltable.ui.menu.PopupMenuAction;
+import de.walware.ecommons.waltable.viewport.ScrollStepCommand;
+import de.walware.ecommons.waltable.viewport.SelectRelativePageCommand;
+import de.walware.ecommons.waltable.viewport.action.ViewportSelectDimPositionsAction;
 
 
 public class UIBindings {
 	
 	
-	private static final int CELL = 1;
-	private static final int PAGE = 2;
-	private static final int TABLE = 3;
+	private static final int CELL= 1;
+	private static final int PAGE= 2;
+	private static final int TABLE= 3;
 	
 	
 	public static class ScrollAction extends AbstractNavigationAction {
@@ -72,13 +72,13 @@ public class UIBindings {
 		public ScrollAction(final Direction direction, final int type) {
 			super(direction);
 			
-			fType = type;
+			this.fType= type;
 		}
 		
 		
 		@Override
 		public void run(final NatTable natTable, final KeyEvent event) {
-			switch (fType) {
+			switch (this.fType) {
 			case CELL:
 				natTable.doCommand(new ScrollStepCommand(getDirection()));
 				break;
@@ -103,14 +103,14 @@ public class UIBindings {
 		public SelectRelativeAction(final Direction direction, final int type) {
 			super(direction);
 			
-			fType = type;
+			this.fType= type;
 		}
 		
 		
 		@Override
 		public void run(final NatTable natTable, final KeyEvent event) {
-			final int selectionFlags = (event.stateMask & SWT.SHIFT);
-			switch (fType) {
+			final int selectionFlags= (event.stateMask & SWT.SHIFT);
+			switch (this.fType) {
 			case CELL:
 				natTable.doCommand(new SelectRelativeCellCommand(getDirection(), 1, selectionFlags));
 				break;
@@ -143,7 +143,7 @@ public class UIBindings {
 			
 			uiBindingRegistry.registerFirstMouseDragMode(new ColumnResizeEventMatcher(
 					IMouseEventMatcher.LEFT_BUTTON, true),
-					new ColumnResizeDragMode() );
+					new PositionResizeDragMode(HORIZONTAL) );
 			
 			uiBindingRegistry.registerDoubleClickBinding(new ColumnResizeEventMatcher(
 					IMouseEventMatcher.LEFT_BUTTON, true),
@@ -298,47 +298,47 @@ public class UIBindings {
 		
 		
 		public HeaderContextMenuConfiguration(final NatTable natTable) {
-			fMenuManager = new MenuManager();
-			fMenuManager.createContextMenu(natTable);
+			this.fMenuManager= new MenuManager();
+			this.fMenuManager.createContextMenu(natTable);
 			natTable.addDisposeListener(new DisposeListener() {
 				@Override
 				public void widgetDisposed(final DisposeEvent e) {
-					fMenuManager.dispose();
+					HeaderContextMenuConfiguration.this.fMenuManager.dispose();
 				}
 			});
 			
-			fMenuManager.add(new Separator("sorting"));
-			fMenuManager.add(new NatTableContributionItem(
+			this.fMenuManager.add(new Separator("sorting"));
+			this.fMenuManager.add(new NatTableContributionItem(
 					SharedUIResources.getImages().getDescriptor(SharedUIResources.LOCTOOL_SORT_ALPHA_IMAGE_ID), null,
 					"Sort Increasing by Column", "I") {
 				@Override
 				protected void execute(final NatEventData eventData) throws ExecutionException {
-					eventData.getNatTable().doCommand(new SortColumnCommand(
-							eventData.getNatTable(), eventData.getColumnPosition(),
-							SortDirectionEnum.ASC, false ));
+					eventData.getNatTable().doCommand(new SortDimPositionCommand(
+							eventData.getNatTable().getDim(HORIZONTAL),
+							eventData.getColumnPosition(), SortDirection.ASC, false ));
 				}
 			});
-			fMenuManager.add(new NatTableContributionItem("Sort Decreasing by Column", "D") {
+			this.fMenuManager.add(new NatTableContributionItem("Sort Decreasing by Column", "D") {
 				@Override
 				protected void execute(final NatEventData eventData) throws ExecutionException {
-					eventData.getNatTable().doCommand(new SortColumnCommand(
-							eventData.getNatTable(), eventData.getColumnPosition(),
-							SortDirectionEnum.DESC, false ));
+					eventData.getNatTable().doCommand(new SortDimPositionCommand(
+							eventData.getNatTable().getDim(HORIZONTAL),
+							eventData.getColumnPosition(), SortDirection.DESC, false ));
 				}
 			});
-			fMenuManager.add(new NatTableContributionItem("Clear All Sorting", "O") {
+			this.fMenuManager.add(new NatTableContributionItem("Clear All Sorting", "O") {
 				@Override
 				protected void execute(final NatEventData eventData) throws ExecutionException {
 					eventData.getNatTable().doCommand(new ClearSortCommand());
 				}
 			});
 			
-			fMenuManager.add(new Separator());
-			fMenuManager.add(new NatTableContributionItem("Auto Resize Column", "R") {
+			this.fMenuManager.add(new Separator());
+			this.fMenuManager.add(new NatTableContributionItem("Auto Resize Column", "R") {
 				@Override
 				protected void execute(final NatEventData eventData) throws ExecutionException {
-					eventData.getNatTable().doCommand(new InitializeAutoResizeColumnsCommand(
-							eventData.getNatTable(), eventData.getColumnPosition() ));
+					eventData.getNatTable().doCommand(new InitializeAutoResizeCommand(
+							eventData.getNatTable().getDim(HORIZONTAL), eventData.getColumnPosition() ));
 				}
 			});
 		}
@@ -347,11 +347,11 @@ public class UIBindings {
 		public void configureUiBindings(final UiBindingRegistry uiBindingRegistry) {
 			uiBindingRegistry.registerSingleClickBinding(
 					new MouseEventMatcher(SWT.NONE, GridRegion.COLUMN_HEADER, IMouseEventMatcher.RIGHT_BUTTON),
-					new PopupMenuAction(fMenuManager.getMenu()));
+					new PopupMenuAction(this.fMenuManager.getMenu()));
 		}
 		
 		public IMenuManager getMenuManager() {
-			return fMenuManager;
+			return this.fMenuManager;
 		}
 		
 	}

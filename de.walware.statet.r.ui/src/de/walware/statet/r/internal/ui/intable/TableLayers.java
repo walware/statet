@@ -11,11 +11,13 @@
 
 package de.walware.statet.r.internal.ui.intable;
 
-import org.eclipse.nebula.widgets.nattable.command.LayerCommandUtil;
-import org.eclipse.nebula.widgets.nattable.coordinate.ColumnPositionCoordinate;
-import org.eclipse.nebula.widgets.nattable.layer.ILayer;
-import org.eclipse.nebula.widgets.nattable.selection.SelectionLayer;
-import org.eclipse.nebula.widgets.nattable.viewport.ViewportLayer;
+import de.walware.ecommons.waltable.NatTable;
+import de.walware.ecommons.waltable.command.LayerCommandUtil;
+import de.walware.ecommons.waltable.coordinate.ColumnPositionCoordinate;
+import de.walware.ecommons.waltable.layer.DataLayer;
+import de.walware.ecommons.waltable.layer.ILayer;
+import de.walware.ecommons.waltable.selection.SelectionLayer;
+import de.walware.ecommons.waltable.viewport.ViewportLayer;
 
 
 public class TableLayers {
@@ -29,24 +31,28 @@ public class TableLayers {
 	
 	public ILayer topBodyLayer;
 	
+	public DataLayer dataColumnHeaderLayer;
 	public ILayer topColumnHeaderLayer;
+	public DataLayer dataRowHeaderLayer;
 	public ILayer topRowHeaderLayer;
+	
+	public NatTable table;
 	
 	
 	public void setAnchor(long columnPosition, final long rowPosition,
 			final boolean moveIntoViewport) {
 		if (columnPosition < 0) {
-			final ColumnPositionCoordinate colCoordinate = LayerCommandUtil.convertColumnPositionToTargetContext(
-					new ColumnPositionCoordinate(viewportLayer, 0), selectionLayer);
+			final ColumnPositionCoordinate colCoordinate= LayerCommandUtil.convertColumnPositionToTargetContext(
+					new ColumnPositionCoordinate(this.viewportLayer, 0), this.selectionLayer);
 			if (colCoordinate != null) {
-				columnPosition = colCoordinate.getColumnPosition();
+				columnPosition= colCoordinate.getColumnPosition();
 			}
 		}
-		if (columnPosition < 0 || columnPosition > selectionLayer.getColumnCount()
-				|| rowPosition < 0 || rowPosition > selectionLayer.getRowCount() ) {
+		if (columnPosition < 0 || columnPosition > this.selectionLayer.getColumnCount()
+				|| rowPosition < 0 || rowPosition > this.selectionLayer.getRowCount() ) {
 			return;
 		}
-		selectionLayer.setSelectionAnchor(columnPosition, rowPosition, moveIntoViewport);
+		this.selectionLayer.setSelectionAnchor(columnPosition, rowPosition, moveIntoViewport);
 	}
 	
 }

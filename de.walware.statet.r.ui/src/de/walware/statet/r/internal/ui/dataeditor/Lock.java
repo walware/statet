@@ -16,10 +16,10 @@ import de.walware.rj.services.utils.dataaccess.LazyRStore;
 
 abstract class Lock {
 	
-	static final int ERROR_STATE = 4;
-	static final int RELOAD_STATE = 3;
-	static final int PAUSE_STATE = 2;
-	static final int LOCAL_PAUSE_STATE = 1;
+	static final int ERROR_STATE= 4;
+	static final int RELOAD_STATE= 3;
+	static final int PAUSE_STATE= 2;
+	static final int LOCAL_PAUSE_STATE= 1;
 	
 	int state;
 	

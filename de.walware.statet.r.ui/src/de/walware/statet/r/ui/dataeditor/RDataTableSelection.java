@@ -27,42 +27,42 @@ public class RDataTableSelection implements ISelection {
 	public RDataTableSelection(
 			final String anchorRowLabel, final String anchorColumnLabel,
 			final String lastSelectedCellRowLabel, final String lastSelectedCellColumnLabel) {
-		fAnchorRowLabel = anchorRowLabel;
-		fAnchorColumnLabel = anchorColumnLabel;
-		fLastSelectedCellRowLabel = lastSelectedCellRowLabel;
-		fLastSelectedCellColumnLabel = lastSelectedCellColumnLabel;
+		this.fAnchorRowLabel= anchorRowLabel;
+		this.fAnchorColumnLabel= anchorColumnLabel;
+		this.fLastSelectedCellRowLabel= lastSelectedCellRowLabel;
+		this.fLastSelectedCellColumnLabel= lastSelectedCellColumnLabel;
 	}
 	
 	
 	@Override
 	public boolean isEmpty() {
-		return (fAnchorRowLabel == null);
+		return (this.fAnchorRowLabel == null);
 	}
 	
 	
 	public String getAnchorRowLabel() {
-		return fAnchorRowLabel;
+		return this.fAnchorRowLabel;
 	}
 	
 	public String getAnchorColumnLabel() {
-		return fAnchorColumnLabel;
+		return this.fAnchorColumnLabel;
 	}
 	
 	public String getLastSelectedCellRowLabel() {
-		return fLastSelectedCellRowLabel;
+		return this.fLastSelectedCellRowLabel;
 	}
 	
 	public String getLastSelectedCellColumnLabel() {
-		return fLastSelectedCellColumnLabel;
+		return this.fLastSelectedCellColumnLabel;
 	}
 	
 	
 	@Override
 	public int hashCode() {
-		int h = ((fAnchorRowLabel != null) ? fAnchorRowLabel.hashCode() : 0);
-		h = h * 3 + ((fAnchorColumnLabel != null) ? fAnchorColumnLabel.hashCode() : 0);
-		h = h * 17 + ((fLastSelectedCellRowLabel != null) ? fLastSelectedCellRowLabel.hashCode() : 0);
-		h = h * 99 + ((fLastSelectedCellColumnLabel != null) ? fLastSelectedCellColumnLabel.hashCode() : 0);
+		int h= ((this.fAnchorRowLabel != null) ? this.fAnchorRowLabel.hashCode() : 0);
+		h= h * 3 + ((this.fAnchorColumnLabel != null) ? this.fAnchorColumnLabel.hashCode() : 0);
+		h= h * 17 + ((this.fLastSelectedCellRowLabel != null) ? this.fLastSelectedCellRowLabel.hashCode() : 0);
+		h= h * 99 + ((this.fLastSelectedCellColumnLabel != null) ? this.fLastSelectedCellColumnLabel.hashCode() : 0);
 		return h;
 	}
 	
@@ -71,15 +71,15 @@ public class RDataTableSelection implements ISelection {
 		if (!(obj instanceof RDataTableSelection)) {
 			return false;
 		}
-		final RDataTableSelection other = (RDataTableSelection) obj;
-		return (((fAnchorRowLabel != null) ?
-						fAnchorRowLabel.equals(other.fAnchorRowLabel) : null == other.fAnchorRowLabel )
-				&& ((fAnchorColumnLabel != null) ?
-						fAnchorColumnLabel.equals(other.fAnchorColumnLabel) : null == other.fAnchorColumnLabel )
-				&& ((fLastSelectedCellRowLabel != null) ?
-						fLastSelectedCellRowLabel.equals(other.fLastSelectedCellRowLabel) : null == other.fLastSelectedCellRowLabel )
-				&& ((fLastSelectedCellColumnLabel != null) ?
-						fLastSelectedCellColumnLabel.equals(other.fLastSelectedCellColumnLabel) : null == other.fLastSelectedCellColumnLabel )
+		final RDataTableSelection other= (RDataTableSelection) obj;
+		return (((this.fAnchorRowLabel != null) ?
+						this.fAnchorRowLabel.equals(other.fAnchorRowLabel) : null == other.fAnchorRowLabel )
+				&& ((this.fAnchorColumnLabel != null) ?
+						this.fAnchorColumnLabel.equals(other.fAnchorColumnLabel) : null == other.fAnchorColumnLabel )
+				&& ((this.fLastSelectedCellRowLabel != null) ?
+						this.fLastSelectedCellRowLabel.equals(other.fLastSelectedCellRowLabel) : null == other.fLastSelectedCellRowLabel )
+				&& ((this.fLastSelectedCellColumnLabel != null) ?
+						this.fLastSelectedCellColumnLabel.equals(other.fLastSelectedCellColumnLabel) : null == other.fLastSelectedCellColumnLabel )
 		);
 	}
 	

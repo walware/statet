@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.internal.ui.dataeditor;
 
-import static org.eclipse.nebula.widgets.nattable.coordinate.Orientation.HORIZONTAL;
-import static org.eclipse.nebula.widgets.nattable.coordinate.Orientation.VERTICAL;
+import static de.walware.ecommons.waltable.coordinate.Orientation.HORIZONTAL;
+import static de.walware.ecommons.waltable.coordinate.Orientation.VERTICAL;
 
 import java.util.Map;
 

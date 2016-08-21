@@ -13,9 +13,10 @@ package de.walware.statet.r.internal.ui.dataeditor;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
 
 import de.walware.jcommons.collections.ImCollections;
+
+import de.walware.ecommons.waltable.data.IDataProvider;
 
 import de.walware.rj.data.RDataFrame;
 import de.walware.rj.data.UnexpectedRDataException;
@@ -42,18 +43,18 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 	protected RDataTableContentDescription loadDescription(final RElementName name,
 			final RDataFrame struct, final IRToolService r,
 			final IProgressMonitor monitor) throws CoreException, UnexpectedRDataException {
-		final RDataTableContentDescription description = new RDataTableContentDescription(name, struct, r.getTool());
-		final int columnCount = (int) getColumnCount();
+		final RDataTableContentDescription description= new RDataTableContentDescription(name, struct, r.getTool());
+		final int columnCount= (int) getColumnCount();
 		
 		description.setRowHeaderColumns(
 				createNamesColumn("attr(" + getInput().getFullName() + ", 'row.names', exact= TRUE)", //$NON-NLS-1$ //$NON-NLS-2$
 						struct.getRowCount(), r, monitor ));
-		final RDataTableColumn[] dataColumns = new RDataTableColumn[columnCount];
-		for (int i = 0; i < columnCount; i++) {
-			final String columnName = struct.getColumnNames().getChar(i);
+		final RDataTableColumn[] dataColumns= new RDataTableColumn[columnCount];
+		for (int i= 0; i < columnCount; i++) {
+			final String columnName= struct.getColumnNames().getChar(i);
 			final RElementName elementName= RElementName.create(ImCollections.newList(BASE_NAME,
 					RElementName.create(RElementName.SUB_NAMEDPART, columnName, i+1 )));
-			dataColumns[i] = createColumn(struct.getColumn(i),
+			dataColumns[i]= createColumn(struct.getColumn(i),
 					getInput().getFullName() + "[[" + (i+1) + "]]", elementName, i, columnName,
 					r, monitor);
 		}
@@ -68,7 +69,7 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 		cmd.append("order(");
 		cmd.append(getInput().getFullName());
 		cmd.append("[[");
-		cmd.append((sortColumn.columnIdx + 1));
+		cmd.append((sortColumn.getIdx() + 1));
 		cmd.append("]], decreasing=");
 		cmd.append(sortColumn.decreasing ? "TRUE" : "FALSE");
 		cmd.append(')');
@@ -86,7 +87,7 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 	public IDataProvider createColumnDataProvider() {
 		return new ColumnDataProvider() {
 			@Override
-			public Object getDataValue(final long columnIndex, final long rowIndex) {
+			public Object getDataValue(final long columnIndex, final long rowIndex, final int flags) {
 				return getRObject().getName(columnIndex);
 			}
 		};

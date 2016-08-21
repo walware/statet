@@ -22,7 +22,6 @@ import org.eclipse.jface.resource.DeviceResourceException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
-import org.eclipse.nebula.widgets.nattable.ui.NatEventData;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
@@ -39,6 +38,7 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ui.SharedUIResources;
+import de.walware.ecommons.waltable.ui.NatEventData;
 
 
 
@@ -51,22 +51,22 @@ public abstract class NatTableContributionItem extends ContributionItem {
 	/**
 	 * A push button tool item or menu item.
 	 */
-	public static final int STYLE_PUSH = SWT.PUSH;
+	public static final int STYLE_PUSH= SWT.PUSH;
 	
 	/**
 	 * A checked tool item or menu item.
 	 */
-	public static final int STYLE_CHECK = SWT.CHECK;
+	public static final int STYLE_CHECK= SWT.CHECK;
 	
 	/**
 	 * A radio-button style menu item.
 	 */
-	public static final int STYLE_RADIO = SWT.RADIO;
+	public static final int STYLE_RADIO= SWT.RADIO;
 	
 	/**
 	 * A ToolBar pulldown item.
 	 */
-	public static final int STYLE_PULLDOWN = SWT.DROP_DOWN;
+	public static final int STYLE_PULLDOWN= SWT.DROP_DOWN;
 	
 	/**
 	 * Mode bit: Show text on tool items or buttons, even if an image is
@@ -75,7 +75,7 @@ public abstract class NatTableContributionItem extends ContributionItem {
 	 * 
 	 * @since 3.4
 	 */
-	public static final int MODE_FORCE_TEXT = 1;
+	public static final int MODE_FORCE_TEXT= 1;
 	
 	
 	private LocalResourceManager localResourceManager;
@@ -104,7 +104,7 @@ public abstract class NatTableContributionItem extends ContributionItem {
 	
 	private String helpContextId;
 	
-	private final int mode = 0;
+	private final int mode= 0;
 	
 	
 	/**
@@ -117,82 +117,82 @@ public abstract class NatTableContributionItem extends ContributionItem {
 			final CommandContributionItemParameter contributionParameters) {
 		super(contributionParameters.id);
 		
-		icon = contributionParameters.icon;
-		disabledIcon = contributionParameters.disabledIcon;
-		hoverIcon = contributionParameters.hoverIcon;
-		label = contributionParameters.label;
-		mnemonic = contributionParameters.mnemonic;
-		tooltip = contributionParameters.tooltip;
-		style = contributionParameters.style;
-		helpContextId = contributionParameters.helpContextId;
+		this.icon= contributionParameters.icon;
+		this.disabledIcon= contributionParameters.disabledIcon;
+		this.hoverIcon= contributionParameters.hoverIcon;
+		this.label= contributionParameters.label;
+		this.mnemonic= contributionParameters.mnemonic;
+		this.tooltip= contributionParameters.tooltip;
+		this.style= contributionParameters.style;
+		this.helpContextId= contributionParameters.helpContextId;
 	}
 	
 	protected NatTableContributionItem(final ImageDescriptor icon, final ImageDescriptor disabledIcon,
 			final String label, final String mnemonic) {
 		super();
 		
-		this.icon = icon;
-		this.disabledIcon = disabledIcon;
-		this.label = label;
-		this.mnemonic = mnemonic;
-		style = STYLE_PUSH;
+		this.icon= icon;
+		this.disabledIcon= disabledIcon;
+		this.label= label;
+		this.mnemonic= mnemonic;
+		this.style= STYLE_PUSH;
 	}
 	
 	protected NatTableContributionItem(
 			final String label, final String mnemonic) {
 		super();
 		
-		this.label = label;
-		this.mnemonic = mnemonic;
-		style = STYLE_PUSH;
+		this.label= label;
+		this.mnemonic= mnemonic;
+		this.style= STYLE_PUSH;
 	}
 	
 	protected NatTableContributionItem(final ImageDescriptor icon, final ImageDescriptor disabledIcon,
 			final String label, final String mnemonic, final int style) {
 		super();
 		
-		this.icon = icon;
-		this.disabledIcon = disabledIcon;
-		this.label = label;
-		this.mnemonic = mnemonic;
-		this.style = style;
+		this.icon= icon;
+		this.disabledIcon= disabledIcon;
+		this.label= label;
+		this.mnemonic= mnemonic;
+		this.style= style;
 	}
 	
 	protected NatTableContributionItem(
 			final String label, final String mnemonic, final int style) {
 		super();
 		
-		this.label = label;
-		this.mnemonic = mnemonic;
-		this.style = style;
+		this.label= label;
+		this.mnemonic= mnemonic;
+		this.style= style;
 	}
 	
 	
 	@Override
 	public void fill(final Menu parent, final int index) {
-		if (widget != null || parent == null) {
+		if (this.widget != null || parent == null) {
 			return;
 		}
 		
 		// Menus don't support the pulldown style
-		int tmpStyle = style;
+		int tmpStyle= this.style;
 		if (tmpStyle == STYLE_PULLDOWN) {
-			tmpStyle = STYLE_PUSH;
+			tmpStyle= STYLE_PUSH;
 		}
 		
-		MenuItem item = null;
+		MenuItem item= null;
 		if (index >= 0) {
-			item = new MenuItem(parent, tmpStyle, index);
+			item= new MenuItem(parent, tmpStyle, index);
 		} else {
-			item = new MenuItem(parent, tmpStyle);
+			item= new MenuItem(parent, tmpStyle);
 		}
 		item.setData(this);
-		if (workbenchHelpSystem != null) {
-			workbenchHelpSystem.setHelp(item, helpContextId);
+		if (this.workbenchHelpSystem != null) {
+			this.workbenchHelpSystem.setHelp(item, this.helpContextId);
 		}
 		item.addListener(SWT.Dispose, getItemListener());
 		item.addListener(SWT.Selection, getItemListener());
-		widget = item;
+		this.widget= item;
 		
 		update(null);
 		updateIcons();
@@ -200,22 +200,22 @@ public abstract class NatTableContributionItem extends ContributionItem {
 	
 	@Override
 	public void fill(final ToolBar parent, final int index) {
-		if (widget != null || parent == null) {
+		if (this.widget != null || parent == null) {
 			return;
 		}
 		
-		ToolItem item = null;
+		ToolItem item= null;
 		if (index >= 0) {
-			item = new ToolItem(parent, style, index);
+			item= new ToolItem(parent, this.style, index);
 		} else {
-			item = new ToolItem(parent, style);
+			item= new ToolItem(parent, this.style);
 		}
 		
 		item.setData(this);
 		
 		item.addListener(SWT.Selection, getItemListener());
 		item.addListener(SWT.Dispose, getItemListener());
-		widget = item;
+		this.widget= item;
 		
 		update(null);
 		updateIcons();
@@ -223,24 +223,24 @@ public abstract class NatTableContributionItem extends ContributionItem {
 	
 	@Override
 	public void fill(final Composite parent) {
-		if (widget != null || parent == null) {
+		if (this.widget != null || parent == null) {
 			return;
 		}
 		
 		// Buttons don't support the pulldown style
-		int tmpStyle = style;
+		int tmpStyle= this.style;
 		if (tmpStyle == STYLE_PULLDOWN) {
-			tmpStyle = STYLE_PUSH;
+			tmpStyle= STYLE_PUSH;
 		}
 		
-		final Button item = new Button(parent, tmpStyle);
+		final Button item= new Button(parent, tmpStyle);
 		item.setData(this);
-		if (workbenchHelpSystem != null) {
-			workbenchHelpSystem.setHelp(item, helpContextId);
+		if (this.workbenchHelpSystem != null) {
+			this.workbenchHelpSystem.setHelp(item, this.helpContextId);
 		}
 		item.addListener(SWT.Dispose, getItemListener());
 		item.addListener(SWT.Selection, getItemListener());
-		widget = item;
+		this.widget= item;
 		
 		update(null);
 		updateIcons();
@@ -253,31 +253,31 @@ public abstract class NatTableContributionItem extends ContributionItem {
 	
 	@Override
 	public void update(final String id) {
-		if (widget != null) {
-			if (widget instanceof MenuItem) {
+		if (this.widget != null) {
+			if (this.widget instanceof MenuItem) {
 				updateMenuItem();
-			} else if (widget instanceof ToolItem) {
+			} else if (this.widget instanceof ToolItem) {
 				updateToolItem();
-			} else if (widget instanceof Button) {
+			} else if (this.widget instanceof Button) {
 				updateButton();
 			}
 		}
 	}
 	
 	private void updateMenuItem() {
-		final MenuItem item = (MenuItem) widget;
+		final MenuItem item= (MenuItem) this.widget;
 		
-		final boolean shouldBeEnabled = isEnabled();
+		final boolean shouldBeEnabled= isEnabled();
 		
 		// disabled command + visibility follows enablement == disposed
 		if (item.isDisposed()) {
 			return;
 		}
 		
-		String text = label;
-		text = updateMnemonic(text);
+		String text= this.label;
+		text= updateMnemonic(text);
 		
-		final String keyBindingText = null;
+		final String keyBindingText= null;
 		if (text != null) {
 			if (keyBindingText == null) {
 				item.setText(text);
@@ -286,8 +286,8 @@ public abstract class NatTableContributionItem extends ContributionItem {
 			}
 		}
 		
-		if (item.getSelection() != checkedState) {
-			item.setSelection(checkedState);
+		if (item.getSelection() != this.checkedState) {
+			item.setSelection(this.checkedState);
 		}
 		
 		if (item.getEnabled() != shouldBeEnabled) {
@@ -296,26 +296,26 @@ public abstract class NatTableContributionItem extends ContributionItem {
 	}
 	
 	private void updateToolItem() {
-		final ToolItem item = (ToolItem) widget;
+		final ToolItem item= (ToolItem) this.widget;
 		
-		final boolean shouldBeEnabled = isEnabled();
+		final boolean shouldBeEnabled= isEnabled();
 		
 		// disabled command + visibility follows enablement == disposed
 		if (item.isDisposed()) {
 			return;
 		}
 		
-		final String text = label;
-		if ((icon == null || (mode & MODE_FORCE_TEXT) == MODE_FORCE_TEXT)
+		final String text= this.label;
+		if ((this.icon == null || (this.mode & MODE_FORCE_TEXT) == MODE_FORCE_TEXT)
 				&& text != null) {
 			item.setText(text);
 		}
 		
-		final String toolTipText = getToolTipText(text);
+		final String toolTipText= getToolTipText(text);
 		item.setToolTipText(toolTipText);
 		
-		if (item.getSelection() != checkedState) {
-			item.setSelection(checkedState);
+		if (item.getSelection() != this.checkedState) {
+			item.setSelection(this.checkedState);
 		}
 		
 		if (item.getEnabled() != shouldBeEnabled) {
@@ -324,25 +324,25 @@ public abstract class NatTableContributionItem extends ContributionItem {
 	}
 	
 	private void updateButton() {
-		final Button item = (Button) widget;
+		final Button item= (Button) this.widget;
 		
-		final boolean shouldBeEnabled = isEnabled();
+		final boolean shouldBeEnabled= isEnabled();
 		
 		// disabled command + visibility follows enablement == disposed
 		if (item.isDisposed()) {
 			return;
 		}
 		
-		final String text = label;
+		final String text= this.label;
 		if (text != null) {
 			item.setText(text);
 		}
 		
-		final String toolTipText = getToolTipText(text);
+		final String toolTipText= getToolTipText(text);
 		item.setToolTipText(toolTipText);
 		
-		if (item.getSelection() != checkedState) {
-			item.setSelection(checkedState);
+		if (item.getSelection() != this.checkedState) {
+			item.setSelection(this.checkedState);
 		}
 		
 		if (item.getEnabled() != shouldBeEnabled) {
@@ -351,12 +351,12 @@ public abstract class NatTableContributionItem extends ContributionItem {
 	}
 	
 	private String getToolTipText(final String text) {
-		String tooltipText = tooltip;
-		if (tooltip == null) {
+		String tooltipText= this.tooltip;
+		if (this.tooltip == null) {
 			if (text != null) {
-				tooltipText = text;
+				tooltipText= text;
 			} else {
-				tooltipText = ""; //$NON-NLS-1$
+				tooltipText= ""; //$NON-NLS-1$
 			}
 		}
 		
@@ -364,10 +364,10 @@ public abstract class NatTableContributionItem extends ContributionItem {
 	}
 	
 	private String updateMnemonic(final String s) {
-		if (mnemonic == null || s == null) {
+		if (this.mnemonic == null || s == null) {
 			return s;
 		}
-		final int idx = s.indexOf(mnemonic);
+		final int idx= s.indexOf(this.mnemonic);
 		if (idx == -1) {
 			return s;
 		}
@@ -376,34 +376,34 @@ public abstract class NatTableContributionItem extends ContributionItem {
 	}
 	
 	private void handleWidgetDispose(final Event event) {
-		if (event.widget == widget) {
-			widget.removeListener(SWT.Selection, getItemListener());
-			widget.removeListener(SWT.Dispose, getItemListener());
-			widget = null;
+		if (event.widget == this.widget) {
+			this.widget.removeListener(SWT.Selection, getItemListener());
+			this.widget.removeListener(SWT.Dispose, getItemListener());
+			this.widget= null;
 			disposeOldImages();
 		}
 	}
 	
 	@Override
 	public void dispose() {
-		if (widget != null) {
-			widget.dispose();
-			widget = null;
+		if (this.widget != null) {
+			this.widget.dispose();
+			this.widget= null;
 		}
 		disposeOldImages();
 		super.dispose();
 	}
 	
 	private void disposeOldImages() {
-		if (localResourceManager != null) {
-			localResourceManager.dispose();
-			localResourceManager = null;
+		if (this.localResourceManager != null) {
+			this.localResourceManager.dispose();
+			this.localResourceManager= null;
 		}
 	}
 	
 	private Listener getItemListener() {
-		if (menuItemListener == null) {
-			menuItemListener = new Listener() {
+		if (this.menuItemListener == null) {
+			this.menuItemListener= new Listener() {
 				@Override
 				public void handleEvent(final Event event) {
 					switch (event.type) {
@@ -419,24 +419,24 @@ public abstract class NatTableContributionItem extends ContributionItem {
 				}
 			};
 		}
-		return menuItemListener;
+		return this.menuItemListener;
 	}
 	
 	
 	private static NatEventData getNatEventData(final Event selectionEvent) {
-		final Widget widget = selectionEvent.widget;
+		final Widget widget= selectionEvent.widget;
 		if (widget == null || !(widget instanceof MenuItem)) {
 			return null;
 		}
 		
-		final MenuItem menuItem = (MenuItem) widget;
-		Menu parentMenu = menuItem.getParent();
-		Object data = null;
+		final MenuItem menuItem= (MenuItem) widget;
+		Menu parentMenu= menuItem.getParent();
+		Object data= null;
 		while (parentMenu != null) {
 			if (parentMenu.getData() == null) {
-				parentMenu = parentMenu.getParentMenu();
+				parentMenu= parentMenu.getParentMenu();
 			} else {
-				data = parentMenu.getData();
+				data= parentMenu.getData();
 				break;
 			}
 		}
@@ -450,15 +450,15 @@ public abstract class NatTableContributionItem extends ContributionItem {
 			return;
 		}
 		
-		if ((style & (SWT.TOGGLE | SWT.CHECK)) != 0) {
+		if ((this.style & (SWT.TOGGLE | SWT.CHECK)) != 0) {
 			if (event.widget instanceof ToolItem) {
-				checkedState = ((ToolItem) event.widget).getSelection();
+				this.checkedState= ((ToolItem) event.widget).getSelection();
 			} else if (event.widget instanceof MenuItem) {
-				checkedState = ((MenuItem) event.widget).getSelection();
+				this.checkedState= ((MenuItem) event.widget).getSelection();
 			}
 		}
 		
-		final NatEventData eventData = getNatEventData(event);
+		final NatEventData eventData= getNatEventData(event);
 		if (eventData == null) {
 			return;
 		}
@@ -480,17 +480,17 @@ public abstract class NatTableContributionItem extends ContributionItem {
 	 * @return <code>true</code> iff a drop down menu was opened
 	 */
 	private boolean openDropDownMenu(final Event event) {
-		final Widget item = event.widget;
+		final Widget item= event.widget;
 		if (item != null) {
-			final int style = item.getStyle();
+			final int style= item.getStyle();
 			if ((style & SWT.DROP_DOWN) != 0) {
 				if (event.detail == 4) { // on drop-down button
-					final ToolItem ti = (ToolItem) item;
+					final ToolItem ti= (ToolItem) item;
 					
-					final MenuManager menuManager = new MenuManager();
-					final Menu menu = menuManager.createContextMenu(ti.getParent());
-					if (workbenchHelpSystem != null) {
-						workbenchHelpSystem.setHelp(menu, helpContextId);
+					final MenuManager menuManager= new MenuManager();
+					final Menu menu= menuManager.createContextMenu(ti.getParent());
+					if (this.workbenchHelpSystem != null) {
+						this.workbenchHelpSystem.setHelp(menu, this.helpContextId);
 					}
 					menuManager.addMenuListener(new IMenuListener() {
 						@Override
@@ -500,7 +500,7 @@ public abstract class NatTableContributionItem extends ContributionItem {
 					});
 					
 					// position the menu below the drop down item
-					final Point point = ti.getParent().toDisplay(
+					final Point point= ti.getParent().toDisplay(
 							new Point(event.x, event.y));
 					menu.setLocation(point.x, point.y); // waiting for SWT
 					// 0.42
@@ -514,71 +514,71 @@ public abstract class NatTableContributionItem extends ContributionItem {
 	}
 	
 	private void updateIcons() {
-		if (widget instanceof MenuItem) {
-			final MenuItem item = (MenuItem) widget;
-			final LocalResourceManager m = new LocalResourceManager(JFaceResources
+		if (this.widget instanceof MenuItem) {
+			final MenuItem item= (MenuItem) this.widget;
+			final LocalResourceManager m= new LocalResourceManager(JFaceResources
 					.getResources());
 			try {
-				item.setImage(icon == null ? null : m.createImage(icon));
+				item.setImage(this.icon == null ? null : m.createImage(this.icon));
 			} catch (final DeviceResourceException e) {
-				icon = ImageDescriptor.getMissingImageDescriptor();
-				item.setImage(m.createImage(icon));
+				this.icon= ImageDescriptor.getMissingImageDescriptor();
+				item.setImage(m.createImage(this.icon));
 				// as we replaced the failed icon, log the message once.
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, SharedUIResources.PLUGIN_ID,
 						"Failed to load image", e)); //$NON-NLS-1$
 			}
 			disposeOldImages();
-			localResourceManager = m;
-		} else if (widget instanceof ToolItem) {
-			final ToolItem item = (ToolItem) widget;
-			final LocalResourceManager m = new LocalResourceManager(JFaceResources
+			this.localResourceManager= m;
+		} else if (this.widget instanceof ToolItem) {
+			final ToolItem item= (ToolItem) this.widget;
+			final LocalResourceManager m= new LocalResourceManager(JFaceResources
 					.getResources());
-			item.setDisabledImage(disabledIcon == null ? null : m
-					.createImage(disabledIcon));
-			item.setHotImage(hoverIcon == null ? null : m
-					.createImage(hoverIcon));
-			item.setImage(icon == null ? null : m.createImage(icon));
+			item.setDisabledImage(this.disabledIcon == null ? null : m
+					.createImage(this.disabledIcon));
+			item.setHotImage(this.hoverIcon == null ? null : m
+					.createImage(this.hoverIcon));
+			item.setImage(this.icon == null ? null : m.createImage(this.icon));
 			disposeOldImages();
-			localResourceManager = m;
+			this.localResourceManager= m;
 		}
 	}
 	
 	public void setText(final String text) {
-		label = text;
+		this.label= text;
 		update(null);
 	}
 	
 	public void setChecked(final boolean checked) {
-		if (checkedState == checked) {
+		if (this.checkedState == checked) {
 			return;
 		}
-		checkedState = checked;
-		if (widget instanceof MenuItem) {
-			((MenuItem) widget).setSelection(checkedState);
-		} else if (widget instanceof ToolItem) {
-			((ToolItem) widget).setSelection(checkedState);
+		this.checkedState= checked;
+		if (this.widget instanceof MenuItem) {
+			((MenuItem) this.widget).setSelection(this.checkedState);
+		} else if (this.widget instanceof ToolItem) {
+			((ToolItem) this.widget).setSelection(this.checkedState);
 		}
 	}
 	
 	public void setTooltip(final String text) {
-		tooltip = text;
-		if (widget instanceof ToolItem) {
-			((ToolItem) widget).setToolTipText(text);
+		this.tooltip= text;
+		if (this.widget instanceof ToolItem) {
+			((ToolItem) this.widget).setToolTipText(text);
 		}
 	}
 	
 	public void setIcon(final ImageDescriptor desc) {
-		icon = desc;
+		this.icon= desc;
 		updateIcons();
 	}
 	
 	public void setDisabledIcon(final ImageDescriptor desc) {
-		disabledIcon = desc;
+		this.disabledIcon= desc;
 		updateIcons();
 	}
 	
 	public void setHoverIcon(final ImageDescriptor desc) {
-		hoverIcon = desc;
+		this.hoverIcon= desc;
 		updateIcons();
 	}
 	

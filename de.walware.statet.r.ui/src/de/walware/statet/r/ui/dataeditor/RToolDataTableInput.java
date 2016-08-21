@@ -109,7 +109,7 @@ public class RToolDataTableInput implements IRDataTableInput {
 						final ImList<StateListener> listeners;
 						synchronized (RToolDataTableInput.this.listeners) {
 							dispose();
-							processListener= null;
+							RToolDataTableInput.this.processListener= null;
 							
 							listeners= RToolDataTableInput.this.listeners.toList();
 						}

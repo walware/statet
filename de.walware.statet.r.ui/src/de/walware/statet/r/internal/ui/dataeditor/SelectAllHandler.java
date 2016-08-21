@@ -25,7 +25,7 @@ public class SelectAllHandler extends AbstractHandler {
 	
 	
 	public SelectAllHandler(final RDataTableComposite table) {
-		this.tableComposite = table;
+		this.tableComposite= table;
 	}
 	
 	

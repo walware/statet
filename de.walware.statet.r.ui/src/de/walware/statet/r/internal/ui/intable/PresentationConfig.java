@@ -15,30 +15,6 @@ import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.ColorRegistry;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.nebula.widgets.nattable.config.AbstractRegistryConfiguration;
-import org.eclipse.nebula.widgets.nattable.config.CellConfigAttributes;
-import org.eclipse.nebula.widgets.nattable.config.IConfigRegistry;
-import org.eclipse.nebula.widgets.nattable.config.LayoutSizeConfig;
-import org.eclipse.nebula.widgets.nattable.freeze.IFreezeConfigAttributes;
-import org.eclipse.nebula.widgets.nattable.grid.GridRegion;
-import org.eclipse.nebula.widgets.nattable.grid.cell.AlternatingRowConfigLabelAccumulator;
-import org.eclipse.nebula.widgets.nattable.grid.labeled.CornerGridLineCellLayerPainter;
-import org.eclipse.nebula.widgets.nattable.grid.labeled.LabelCornerLayer;
-import org.eclipse.nebula.widgets.nattable.painter.cell.DiagCellPainter;
-import org.eclipse.nebula.widgets.nattable.painter.cell.ICellPainter;
-import org.eclipse.nebula.widgets.nattable.painter.cell.decorator.LineBorderDecorator;
-import org.eclipse.nebula.widgets.nattable.painter.layer.GridLineCellLayerPainter;
-import org.eclipse.nebula.widgets.nattable.painter.layer.ILayerPainter;
-import org.eclipse.nebula.widgets.nattable.sort.config.DefaultSortConfiguration;
-import org.eclipse.nebula.widgets.nattable.sort.painter.SortableHeaderTextPainter;
-import org.eclipse.nebula.widgets.nattable.style.BorderStyle;
-import org.eclipse.nebula.widgets.nattable.style.BorderStyle.LineStyle;
-import org.eclipse.nebula.widgets.nattable.style.CellStyleAttributes;
-import org.eclipse.nebula.widgets.nattable.style.DisplayMode;
-import org.eclipse.nebula.widgets.nattable.style.HorizontalAlignment;
-import org.eclipse.nebula.widgets.nattable.style.SelectionStyleLabels;
-import org.eclipse.nebula.widgets.nattable.style.Style;
-import org.eclipse.nebula.widgets.nattable.style.VerticalAlignmentEnum;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
@@ -48,6 +24,29 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.themes.ColorUtil;
 
 import de.walware.ecommons.IDisposable;
+import de.walware.ecommons.waltable.config.AbstractRegistryConfiguration;
+import de.walware.ecommons.waltable.config.CellConfigAttributes;
+import de.walware.ecommons.waltable.config.IConfigRegistry;
+import de.walware.ecommons.waltable.config.LayoutSizeConfig;
+import de.walware.ecommons.waltable.freeze.IFreezeConfigAttributes;
+import de.walware.ecommons.waltable.grid.GridRegion;
+import de.walware.ecommons.waltable.grid.cell.AlternatingRowConfigLabelAccumulator;
+import de.walware.ecommons.waltable.grid.labeled.CornerGridLineCellLayerPainter;
+import de.walware.ecommons.waltable.painter.cell.DiagCellPainter;
+import de.walware.ecommons.waltable.painter.cell.ICellPainter;
+import de.walware.ecommons.waltable.painter.cell.decorator.LineBorderDecorator;
+import de.walware.ecommons.waltable.painter.layer.GridLineCellLayerPainter;
+import de.walware.ecommons.waltable.painter.layer.ILayerPainter;
+import de.walware.ecommons.waltable.sort.config.DefaultSortConfiguration;
+import de.walware.ecommons.waltable.sort.painter.SortableHeaderTextPainter;
+import de.walware.ecommons.waltable.style.BorderStyle;
+import de.walware.ecommons.waltable.style.BorderStyle.LineStyle;
+import de.walware.ecommons.waltable.style.CellStyleAttributes;
+import de.walware.ecommons.waltable.style.DisplayMode;
+import de.walware.ecommons.waltable.style.HorizontalAlignment;
+import de.walware.ecommons.waltable.style.SelectionStyleLabels;
+import de.walware.ecommons.waltable.style.Style;
+import de.walware.ecommons.waltable.style.VerticalAlignmentEnum;
 
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
@@ -59,7 +58,7 @@ public class PresentationConfig extends AbstractRegistryConfiguration implements
 	
 	public static PresentationConfig getInstance(final Display display) {
 		if (gInstance == null) {
-			gInstance = new PresentationConfig(display);
+			gInstance= new PresentationConfig(display);
 			RUIPlugin.getDefault().registerPluginDisposable(gInstance);
 		}
 		return gInstance;
@@ -107,201 +106,201 @@ public class PresentationConfig extends AbstractRegistryConfiguration implements
 	
 	
 	public PresentationConfig(final Display display) {
-		final FontRegistry jFaceFontRegistry = JFaceResources.getFontRegistry();
-		final ColorRegistry jFaceColorRegistry = JFaceResources.getColorRegistry();
+		final FontRegistry jFaceFontRegistry= JFaceResources.getFontRegistry();
+		final ColorRegistry jFaceColorRegistry= JFaceResources.getColorRegistry();
 		
-		fHeaderGridColor = display.getSystemColor(SWT.COLOR_DARK_GRAY);
-		fHeaderBackgroundColor = display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
-		fHeaderForegroundColor = display.getSystemColor(SWT.COLOR_WIDGET_FOREGROUND);
+		this.fHeaderGridColor= display.getSystemColor(SWT.COLOR_DARK_GRAY);
+		this.fHeaderBackgroundColor= display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
+		this.fHeaderForegroundColor= display.getSystemColor(SWT.COLOR_WIDGET_FOREGROUND);
 		
-		fBodyGridColor = display.getSystemColor(SWT.COLOR_GRAY);
-		fBodyBackgroundColor = display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
-		fBodyEvenRowBackgroundColor = fBodyBackgroundColor;
-		fBodyOddRowBackgroundColor = new Color(display, ColorUtil.blend(
+		this.fBodyGridColor= display.getSystemColor(SWT.COLOR_GRAY);
+		this.fBodyBackgroundColor= display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
+		this.fBodyEvenRowBackgroundColor= this.fBodyBackgroundColor;
+		this.fBodyOddRowBackgroundColor= new Color(display, ColorUtil.blend(
 				display.getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW).getRGB(),
-				fBodyEvenRowBackgroundColor.getRGB(), 20 ));
+				this.fBodyEvenRowBackgroundColor.getRGB(), 20 ));
 		
-		fBodyForegroundColor = display.getSystemColor(SWT.COLOR_LIST_FOREGROUND);
+		this.fBodyForegroundColor= display.getSystemColor(SWT.COLOR_LIST_FOREGROUND);
 		
-		fHeaderSelectionBackgroundColor = new Color(display, ColorUtil.blend(
+		this.fHeaderSelectionBackgroundColor= new Color(display, ColorUtil.blend(
 				display.getSystemColor(SWT.COLOR_LIST_SELECTION).getRGB(),
-				fHeaderBackgroundColor.getRGB(), 25 ));
-		fHeaderSelectionForegroundColor = fHeaderForegroundColor;
+				this.fHeaderBackgroundColor.getRGB(), 25 ));
+		this.fHeaderSelectionForegroundColor= this.fHeaderForegroundColor;
 		
-		fHeaderPlaceholderColor = new Color(display, ColorUtil.blend(
-				fBodyGridColor.getRGB(),
-				fHeaderBackgroundColor.getRGB(), 25 ));
+		this.fHeaderPlaceholderColor= new Color(display, ColorUtil.blend(
+				this.fBodyGridColor.getRGB(),
+				this.fHeaderBackgroundColor.getRGB(), 25 ));
 		
-		fHeaderFullSelectionBackgroundColor = new Color(display, ColorUtil.blend(
+		this.fHeaderFullSelectionBackgroundColor= new Color(display, ColorUtil.blend(
 				display.getSystemColor(SWT.COLOR_LIST_SELECTION).getRGB(),
 				display.getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW).getRGB(), 25 ));
-		fHeaderFullSelectionForegroundColor = display.getSystemColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW);
+		this.fHeaderFullSelectionForegroundColor= display.getSystemColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW);
 		
-		fBodySelectionBackgroundColor = display.getSystemColor(SWT.COLOR_LIST_SELECTION);
-		fBodySelectionForegroundColor = display.getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT);
+		this.fBodySelectionBackgroundColor= display.getSystemColor(SWT.COLOR_LIST_SELECTION);
+		this.fBodySelectionForegroundColor= display.getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT);
 		
-		fBodyFreezeSeparatorColor = jFaceColorRegistry.get(JFacePreferences.DECORATIONS_COLOR);
+		this.fBodyFreezeSeparatorColor= jFaceColorRegistry.get(JFacePreferences.DECORATIONS_COLOR);
 		
-		fHeaderLayerPainter = new GridLineCellLayerPainter(fHeaderGridColor);
-		fHeaderLabelLayerPainter = new CornerGridLineCellLayerPainter(fHeaderGridColor);
+		this.fHeaderLayerPainter= new GridLineCellLayerPainter(this.fHeaderGridColor);
+		this.fHeaderLabelLayerPainter= new CornerGridLineCellLayerPainter(this.fHeaderGridColor);
 		
-		fBodyAnchorBorderStyle = new BorderStyle(2, fBodyForegroundColor, LineStyle.SOLID, -1);
+		this.fBodyAnchorBorderStyle= new BorderStyle(2, this.fBodyForegroundColor, LineStyle.SOLID, -1);
 		
-		fBaseFont = jFaceFontRegistry.get(JFaceResources.DIALOG_FONT);
-		fInfoFont = jFaceFontRegistry.getItalic(JFaceResources.DIALOG_FONT);
+		this.fBaseFont= jFaceFontRegistry.get(JFaceResources.DIALOG_FONT);
+		this.fInfoFont= jFaceFontRegistry.getItalic(JFaceResources.DIALOG_FONT);
 		
-		{	final GC gc = new GC(display);
-			gc.setFont(fBaseFont);
-			final FontMetrics fontMetrics = gc.getFontMetrics();
-			final int textHeight = fontMetrics.getHeight();
-			final int charWidth = (gc.textExtent("1234567890.-120").x + 5) / 15;
+		{	final GC gc= new GC(display);
+			gc.setFont(this.fBaseFont);
+			final FontMetrics fontMetrics= gc.getFontMetrics();
+			final int textHeight= fontMetrics.getHeight();
+			final int charWidth= (gc.textExtent("1234567890.-120").x + 5) / 15;
 			gc.dispose();
-			final int textSpace = 3;
+			final int textSpace= 3;
 			
-			fBaseSizeConfig = new LayoutSizeConfig(textSpace, textHeight, charWidth);
+			this.fBaseSizeConfig= new LayoutSizeConfig(textSpace, textHeight, charWidth);
 		}
 		
-		fBaseCellPainter = new LineBorderDecorator(
-				new RTextPainter(fBaseSizeConfig.getDefaultSpace()) );
+		this.fBaseCellPainter= new LineBorderDecorator(
+				new RTextPainter(this.fBaseSizeConfig.getDefaultSpace()) );
 		
-		fHeaderCellPainter = new RTextPainter(fBaseSizeConfig.getDefaultSpace());
-		fHeaderSortedCellPainter = new SortableHeaderTextPainter(
-				new RTextPainter(fBaseSizeConfig.getDefaultSpace()), true, true );
-		fHeaderCornerCellPainter = new DiagCellPainter(fHeaderGridColor);
+		this.fHeaderCellPainter= new RTextPainter(this.fBaseSizeConfig.getDefaultSpace());
+		this.fHeaderSortedCellPainter= new SortableHeaderTextPainter(
+				new RTextPainter(this.fBaseSizeConfig.getDefaultSpace()), true, true );
+		this.fHeaderCornerCellPainter= new DiagCellPainter(this.fHeaderGridColor);
 	}
 	
 	
 	public ILayerPainter getHeaderLayerPainter() {
-		return fHeaderLayerPainter;
+		return this.fHeaderLayerPainter;
 	}
 	
 	public ILayerPainter getHeaderLabelLayerPainter() {
-		return fHeaderLabelLayerPainter;
+		return this.fHeaderLabelLayerPainter;
 	}
 	
 	public LayoutSizeConfig getBaseSizeConfig() {
-		return fBaseSizeConfig;
+		return this.fBaseSizeConfig;
 	}
 	
 	
 	@Override
 	public void dispose() {
-		fBodyOddRowBackgroundColor.dispose();
-		fHeaderSelectionBackgroundColor.dispose();
-		fHeaderFullSelectionBackgroundColor.dispose();
-		fHeaderPlaceholderColor.dispose();
+		this.fBodyOddRowBackgroundColor.dispose();
+		this.fHeaderSelectionBackgroundColor.dispose();
+		this.fHeaderFullSelectionBackgroundColor.dispose();
+		this.fHeaderPlaceholderColor.dispose();
 	}
 	
 	
 	@Override
 	public void configureRegistry(final IConfigRegistry configRegistry) {
 		// base
-		{	final Style cellStyle = new Style();
-			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, fBodyBackgroundColor);
-			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR, fBodyForegroundColor);
+		{	final Style cellStyle= new Style();
+			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, this.fBodyBackgroundColor);
+			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR, this.fBodyForegroundColor);
 			cellStyle.setAttributeValue(CellStyleAttributes.HORIZONTAL_ALIGNMENT, HorizontalAlignment.RIGHT);
 			cellStyle.setAttributeValue(CellStyleAttributes.VERTICAL_ALIGNMENT, VerticalAlignmentEnum.MIDDLE);
 			cellStyle.setAttributeValue(CellStyleAttributes.BORDER_STYLE, null);
-			cellStyle.setAttributeValue(CellStyleAttributes.FONT, fBaseFont);
-			cellStyle.setAttributeValue(InfoString.CELL_STYLE_FONT_ATTRIBUTE, fInfoFont);
+			cellStyle.setAttributeValue(CellStyleAttributes.FONT, this.fBaseFont);
+			cellStyle.setAttributeValue(CellStyleAttributes.CONTROL_FONT, this.fInfoFont);
 			
-			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER, fBaseCellPainter);
+			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER, this.fBaseCellPainter);
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_STYLE, cellStyle);
 			
-			configRegistry.registerConfigAttribute(LayoutSizeConfig.CONFIG, fBaseSizeConfig);
+			configRegistry.registerConfigAttribute(LayoutSizeConfig.CONFIG, this.fBaseSizeConfig);
 		}
 		
 		// headers
 		{	// column header
-			final Style cellStyle = new Style();
-			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, fHeaderBackgroundColor);
-			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR, fHeaderForegroundColor);
+			final Style cellStyle= new Style();
+			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, this.fHeaderBackgroundColor);
+			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR, this.fHeaderForegroundColor);
 			cellStyle.setAttributeValue(CellStyleAttributes.HORIZONTAL_ALIGNMENT, HorizontalAlignment.CENTER);
 			cellStyle.setAttributeValue(CellStyleAttributes.VERTICAL_ALIGNMENT, VerticalAlignmentEnum.MIDDLE);
 			cellStyle.setAttributeValue(CellStyleAttributes.BORDER_STYLE, null);
-			cellStyle.setAttributeValue(CellStyleAttributes.FONT, fBaseFont);
-			cellStyle.setAttributeValue(InfoString.CELL_STYLE_FONT_ATTRIBUTE, fInfoFont);
+			cellStyle.setAttributeValue(CellStyleAttributes.FONT, this.fBaseFont);
+			cellStyle.setAttributeValue(CellStyleAttributes.CONTROL_FONT, this.fInfoFont);
 			
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_STYLE, cellStyle,
 					DisplayMode.NORMAL, GridRegion.COLUMN_HEADER );
-			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER, fHeaderCellPainter,
+			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER, this.fHeaderCellPainter,
 					DisplayMode.NORMAL, GridRegion.COLUMN_HEADER );
 		}
 		{	// column header label
-			final Style cellStyle = new Style();
-			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, fHeaderBackgroundColor);
-			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR, fHeaderForegroundColor);
+			final Style cellStyle= new Style();
+			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, this.fHeaderBackgroundColor);
+			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR, this.fHeaderForegroundColor);
 			cellStyle.setAttributeValue(CellStyleAttributes.HORIZONTAL_ALIGNMENT, HorizontalAlignment.RIGHT);
 			cellStyle.setAttributeValue(CellStyleAttributes.VERTICAL_ALIGNMENT, VerticalAlignmentEnum.MIDDLE);
 			cellStyle.setAttributeValue(CellStyleAttributes.BORDER_STYLE, null);
-			cellStyle.setAttributeValue(CellStyleAttributes.FONT, fBaseFont);
-			cellStyle.setAttributeValue(InfoString.CELL_STYLE_FONT_ATTRIBUTE, fInfoFont);
+			cellStyle.setAttributeValue(CellStyleAttributes.FONT, this.fBaseFont);
+			cellStyle.setAttributeValue(CellStyleAttributes.CONTROL_FONT, this.fInfoFont);
 			
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_STYLE, cellStyle,
-					DisplayMode.NORMAL, LabelCornerLayer.COLUMN_HEADER_LABEL );
-			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER, fHeaderCellPainter,
-					DisplayMode.NORMAL, LabelCornerLayer.COLUMN_HEADER_LABEL );
+					DisplayMode.NORMAL, GridRegion.COLUMN_HEADER_LABEL );
+			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER, this.fHeaderCellPainter,
+					DisplayMode.NORMAL, GridRegion.COLUMN_HEADER_LABEL );
 			
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_STYLE, cellStyle,
 					DisplayMode.NORMAL, GridRegion.CORNER );
-			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER, fHeaderCornerCellPainter,
+			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER, this.fHeaderCornerCellPainter,
 					DisplayMode.NORMAL, GridRegion.CORNER );
 		}
 		{	// row header
-			final Style cellStyle = new Style();
-			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, fHeaderBackgroundColor);
-			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR, fHeaderForegroundColor);
+			final Style cellStyle= new Style();
+			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, this.fHeaderBackgroundColor);
+			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR, this.fHeaderForegroundColor);
 			cellStyle.setAttributeValue(CellStyleAttributes.HORIZONTAL_ALIGNMENT, HorizontalAlignment.RIGHT);
 			cellStyle.setAttributeValue(CellStyleAttributes.VERTICAL_ALIGNMENT, VerticalAlignmentEnum.MIDDLE);
 			cellStyle.setAttributeValue(CellStyleAttributes.BORDER_STYLE, null);
-			cellStyle.setAttributeValue(CellStyleAttributes.FONT, fBaseFont);
-			cellStyle.setAttributeValue(InfoString.CELL_STYLE_FONT_ATTRIBUTE, fInfoFont);
+			cellStyle.setAttributeValue(CellStyleAttributes.FONT, this.fBaseFont);
+			cellStyle.setAttributeValue(CellStyleAttributes.CONTROL_FONT, this.fInfoFont);
 			
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_STYLE, cellStyle,
 					DisplayMode.NORMAL, GridRegion.ROW_HEADER );
-			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER, fHeaderCellPainter,
+			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER, this.fHeaderCellPainter,
 					DisplayMode.NORMAL, GridRegion.ROW_HEADER );
 		}
 		{	// row header
-			final Style cellStyle = new Style();
-			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, fHeaderBackgroundColor);
-			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR, fHeaderForegroundColor);
+			final Style cellStyle= new Style();
+			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, this.fHeaderBackgroundColor);
+			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR, this.fHeaderForegroundColor);
 			cellStyle.setAttributeValue(CellStyleAttributes.HORIZONTAL_ALIGNMENT, HorizontalAlignment.LEFT);
 			cellStyle.setAttributeValue(CellStyleAttributes.VERTICAL_ALIGNMENT, VerticalAlignmentEnum.MIDDLE);
 			cellStyle.setAttributeValue(CellStyleAttributes.BORDER_STYLE, null);
-			cellStyle.setAttributeValue(CellStyleAttributes.FONT, fBaseFont);
-			cellStyle.setAttributeValue(InfoString.CELL_STYLE_FONT_ATTRIBUTE, fInfoFont);
+			cellStyle.setAttributeValue(CellStyleAttributes.FONT, this.fBaseFont);
+			cellStyle.setAttributeValue(CellStyleAttributes.CONTROL_FONT, this.fInfoFont);
 			
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_STYLE, cellStyle,
-					DisplayMode.NORMAL, LabelCornerLayer.ROW_HEADER_LABEL );
-			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER, fHeaderCellPainter,
-					DisplayMode.NORMAL, LabelCornerLayer.ROW_HEADER_LABEL );
+					DisplayMode.NORMAL, GridRegion.ROW_HEADER_LABEL );
+			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER, this.fHeaderCellPainter,
+					DisplayMode.NORMAL, GridRegion.ROW_HEADER_LABEL );
 		}
 		{	// placeholder header
-			final Style cellStyle = new Style();
-			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, fHeaderPlaceholderColor);
-			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR, fHeaderForegroundColor);
+			final Style cellStyle= new Style();
+			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, this.fHeaderPlaceholderColor);
+			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR, this.fHeaderForegroundColor);
 			cellStyle.setAttributeValue(CellStyleAttributes.HORIZONTAL_ALIGNMENT, HorizontalAlignment.RIGHT);
 			cellStyle.setAttributeValue(CellStyleAttributes.VERTICAL_ALIGNMENT, VerticalAlignmentEnum.MIDDLE);
 			cellStyle.setAttributeValue(CellStyleAttributes.BORDER_STYLE, null);
-			cellStyle.setAttributeValue(CellStyleAttributes.FONT, fBaseFont);
+			cellStyle.setAttributeValue(CellStyleAttributes.FONT, this.fBaseFont);
 			
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_STYLE, cellStyle,
-					DisplayMode.NORMAL, "PLACEHOLDER" );
+					DisplayMode.NORMAL, GridRegion.HEADER_PLACEHOLDER );
 		}
 		
 		// alternating rows
 		{	// body even row
-			final Style cellStyle = new Style();
-			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, fBodyEvenRowBackgroundColor);
+			final Style cellStyle= new Style();
+			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, this.fBodyEvenRowBackgroundColor);
 			
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_STYLE, cellStyle,
 					DisplayMode.NORMAL, AlternatingRowConfigLabelAccumulator.EVEN_ROW_CONFIG_TYPE );
 		}
 		{	// body odd row
-			final Style cellStyle = new Style();
+			final Style cellStyle= new Style();
 			
-			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, fBodyOddRowBackgroundColor);
+			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, this.fBodyOddRowBackgroundColor);
 			
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_STYLE, cellStyle,
 					DisplayMode.NORMAL, AlternatingRowConfigLabelAccumulator.ODD_ROW_CONFIG_TYPE );
@@ -309,15 +308,15 @@ public class PresentationConfig extends AbstractRegistryConfiguration implements
 		
 		// selection
 		{	// body selected cell
-			final Style cellStyle = new Style();
-			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, fBodySelectionBackgroundColor);
-			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR, fBodySelectionForegroundColor);
+			final Style cellStyle= new Style();
+			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR, this.fBodySelectionBackgroundColor);
+			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR, this.fBodySelectionForegroundColor);
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_STYLE, cellStyle,
 					DisplayMode.SELECT );
 		}
 		{	// body selection anchor
-			final Style cellStyle = new Style();
-			cellStyle.setAttributeValue(CellStyleAttributes.BORDER_STYLE, fBodyAnchorBorderStyle);
+			final Style cellStyle= new Style();
+			cellStyle.setAttributeValue(CellStyleAttributes.BORDER_STYLE, this.fBodyAnchorBorderStyle);
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_STYLE, cellStyle,
 					DisplayMode.NORMAL, SelectionStyleLabels.SELECTION_ANCHOR_STYLE );
 			
@@ -325,11 +324,11 @@ public class PresentationConfig extends AbstractRegistryConfiguration implements
 					DisplayMode.SELECT, SelectionStyleLabels.SELECTION_ANCHOR_STYLE );
 		}
 		{	// header with selection
-			final Style cellStyle = new Style();
+			final Style cellStyle= new Style();
 			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR,
-					fHeaderSelectionForegroundColor );
+					this.fHeaderSelectionForegroundColor );
 			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR,
-					fHeaderSelectionBackgroundColor );
+					this.fHeaderSelectionBackgroundColor );
 			
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_STYLE, cellStyle,
 					DisplayMode.SELECT, GridRegion.COLUMN_HEADER );
@@ -339,12 +338,12 @@ public class PresentationConfig extends AbstractRegistryConfiguration implements
 					DisplayMode.SELECT, GridRegion.ROW_HEADER );
 		}
 		{	// header fully selected
-			final Style cellStyle = new Style();
+			final Style cellStyle= new Style();
 			
 			cellStyle.setAttributeValue(CellStyleAttributes.FOREGROUND_COLOR,
-					fHeaderFullSelectionForegroundColor );
+					this.fHeaderFullSelectionForegroundColor );
 			cellStyle.setAttributeValue(CellStyleAttributes.BACKGROUND_COLOR,
-					fHeaderFullSelectionBackgroundColor );
+					this.fHeaderFullSelectionBackgroundColor );
 			
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_STYLE, cellStyle,
 					DisplayMode.SELECT, SelectionStyleLabels.COLUMN_FULLY_SELECTED_STYLE );
@@ -355,17 +354,17 @@ public class PresentationConfig extends AbstractRegistryConfiguration implements
 		// sorting
 		{	// header column sorted
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER,
-					fHeaderSortedCellPainter,
+					this.fHeaderSortedCellPainter,
 					DisplayMode.NORMAL, DefaultSortConfiguration.SORT_DOWN_CONFIG_TYPE);
 			configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER,
-					fHeaderSortedCellPainter,
+					this.fHeaderSortedCellPainter,
 					DisplayMode.NORMAL, DefaultSortConfiguration.SORT_UP_CONFIG_TYPE);
 		}
 		
 		// freezing
 		{	// body freezed
 			configRegistry.registerConfigAttribute(IFreezeConfigAttributes.SEPARATOR_COLOR,
-					fBodyFreezeSeparatorColor );
+					this.fBodyFreezeSeparatorColor );
 		}
 		
 	}
