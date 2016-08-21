@@ -156,14 +156,6 @@
    </extension>
    
    <extension
-         point="org.eclipse.ui.commandImages">
-      <image
-            commandId="org.eclipse.debug.ui.commands.ToggleBreakpoint"
-            icon="icons/tool_16/breakpoint.png">
-      </image>
-   </extension>
-   
-      <extension
          point="org.eclipse.ui.views">
       <view
             id="de.walware.statet.base.views.ContentFilter"
