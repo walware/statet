@@ -76,6 +76,19 @@ public class RDataLayer extends AbstractLayer {
 		}
 		
 		
+		public void setSize(final int charSize, final int spacing) {
+			if (charSize != this.charSize || spacing != this.spacing) {
+				final double factor= (double) charSize / this.charSize;
+				for (final Map.Entry<Long, Integer> entry : this.customPositionSizes.entrySet()) {
+					entry.setValue((int) (
+							(entry.getValue() - this.spacing) * factor + spacing + 0.5 ));
+				}
+			}
+			
+			this.charSize= charSize;
+			this.spacing= spacing;
+		}
+		
 		private long aggregateSize(final long position) {
 			if (position < 0) {
 				return -1;
@@ -197,7 +210,7 @@ public class RDataLayer extends AbstractLayer {
 	private static class RowsDim extends DataDim<RDataLayer> {
 		
 		
-		private final int positionSize;
+		private int positionSize;
 		
 		
 		public RowsDim(final RDataLayer layer, final int positionSize) {
@@ -210,6 +223,10 @@ public class RDataLayer extends AbstractLayer {
 		@Override
 		public long getPositionCount() {
 			return this.layer.dataProvider.getRowCount();
+		}
+		
+		public void setSize(final int rowHeight) {
+			this.positionSize= rowHeight;
 		}
 		
 		@Override
@@ -273,6 +290,14 @@ public class RDataLayer extends AbstractLayer {
 	
 	private RowsDim getRowDim() {
 		return (RowsDim) getDim(VERTICAL);
+	}
+	
+	
+	public void setSizeConfig(final LayoutSizeConfig sizeConfig) {
+		this.sizeConfig= sizeConfig;
+		
+		getColumnDim().setSize(sizeConfig.getCharWidth(), this.sizeConfig.getDefaultSpace() * 4);
+		getRowDim().setSize(sizeConfig.getRowHeight());
 	}
 	
 	

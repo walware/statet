@@ -251,7 +251,6 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		this.dataProvider= dataProvider;
 		
 		final PresentationConfig presentation= PresentationConfig.getInstance(this.display);
-		final LayoutSizeConfig sizeConfig= presentation.getBaseSizeConfig();
 		
 		final TableLayers layers= new TableLayers();
 		
@@ -287,11 +286,11 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		{	final IDataProvider headerDataProvider= dataProvider.getColumnDataProvider();
 			layers.dataColumnHeaderLayer= (headerDataProvider instanceof ISpanningDataProvider) ?
 				new SpanningDataLayer((ISpanningDataProvider) headerDataProvider,
-						PositionId.BODY_CAT, sizeConfig.getRowHeight(),
-						PositionId.HEADER_CAT, sizeConfig.getRowHeight() ) :
+						PositionId.BODY_CAT, 10,
+						PositionId.HEADER_CAT, 10 ) :
 				new DataLayer(headerDataProvider,
-						PositionId.BODY_CAT, sizeConfig.getRowHeight(),
-						PositionId.HEADER_CAT, sizeConfig.getRowHeight() );
+						PositionId.BODY_CAT, 10,
+						PositionId.HEADER_CAT, 10 );
 			
 			final ColumnHeaderLayer layer= new ColumnHeaderLayer(
 					layers.dataColumnHeaderLayer,
@@ -308,14 +307,13 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			layers.topColumnHeaderLayer= sortHeaderLayer;
 		}
 		{	final IDataProvider headerDataProvider= dataProvider.getRowDataProvider();
-			final int width= sizeConfig.getCharWidth() * 8 + sizeConfig.getDefaultSpace() * 2;
 			layers.dataRowHeaderLayer= (headerDataProvider instanceof ISpanningDataProvider) ?
 					new SpanningDataLayer((ISpanningDataProvider) headerDataProvider,
-							PositionId.HEADER_CAT, width,
-							PositionId.BODY_CAT, sizeConfig.getRowHeight() ) :
+							PositionId.HEADER_CAT, 10,
+							PositionId.BODY_CAT, 10 ) :
 					new DataLayer(headerDataProvider,
-							PositionId.HEADER_CAT, width,
-							PositionId.BODY_CAT, sizeConfig.getRowHeight() );
+							PositionId.HEADER_CAT, 10,
+							PositionId.BODY_CAT, 10 );
 			
 			layers.topRowHeaderLayer= new RowHeaderLayer(
 					layers.dataRowHeaderLayer,
@@ -332,8 +330,8 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			layers.topRowHeaderLayer= new ExtRowHeaderLayer(layers.topRowHeaderLayer);
 			final CornerLayer cornerLayer= new LabelCornerLayer(
 					new DataLayer(cornerDataProvider,
-							PositionId.HEADER_CAT, sizeConfig.getRowHeight(),
-							PositionId.HEADER_CAT, sizeConfig.getRowHeight() ),
+							PositionId.HEADER_CAT, 10,
+							PositionId.HEADER_CAT, 10 ),
 					layers.topRowHeaderLayer, layers.topColumnHeaderLayer,
 					dataProvider.getColumnLabelProvider(), dataProvider.getRowLabelProvider(),
 					false, presentation.getHeaderLabelLayerPainter() );
@@ -350,6 +348,31 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 					layers.topColumnHeaderLayer, layers.topRowHeaderLayer, cornerLayer, false);
 		}
 		gridLayer.addConfigLabelAccumulatorForRegion(GridRegion.BODY, new AlternatingRowConfigLabelAccumulator());
+		
+		final Runnable configRunnable= new Runnable() {
+			@Override
+			public void run() {
+				final TableLayers layers= RDataTableComposite.this.tableLayers;
+				if (layers == null) {
+					return;
+				}
+				
+				final LayoutSizeConfig sizeConfig= presentation.getBaseSizeConfig();
+				
+				layers.dataLayer.setSizeConfig(sizeConfig);
+				layers.dataColumnHeaderLayer.setDefaultRowHeight(sizeConfig.getRowHeight());
+				layers.dataRowHeaderLayer.setDefaultColumnWidth(sizeConfig.getCharWidth() * 8 + sizeConfig.getDefaultSpace() * 2);
+				if (layers.topColumnHeaderLayer instanceof ExtColumnHeaderLayer) {
+					((ExtColumnHeaderLayer) layers.topColumnHeaderLayer).setSpaceSize(sizeConfig.getRowHeight());
+					((ExtRowHeaderLayer) layers.topRowHeaderLayer).setSpaceSize(sizeConfig.getRowHeight());
+				}
+				
+				presentation.configureRegistry(layers.table.getConfigRegistry());
+				
+				layers.table.updateResize();
+			}
+		};
+		presentation.addListener(configRunnable);
 		
 //		{	final ILayerCommandHandler<?> commandHandler= new ScrollCommandHandler(fTableLayers.viewportLayer);
 //			fTableLayers.viewportLayer.registerCommandHandler(commandHandler);

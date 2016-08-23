@@ -1990,6 +1990,7 @@
             restorable="true">
       </view>
    </extension>
+   
    <extension
          point="org.eclipse.ui.contexts">
       <context
@@ -2011,13 +2012,57 @@
       </editor>
    </extension>
    <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="de.walware.statet.r.expressions.isEditorActive.RDataEditor">
+         <with
+               variable="activeEditor">
+            <instanceof
+                  value="de.walware.statet.r.internal.ui.dataeditor.RDataEditor"/>
+         </with>
+      </definition>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            commandId="org.eclipse.ui.edit.text.zoomIn"
+            class="de.walware.statet.r.internal.ui.intable.ResizeTableTextHandler$ZoomIn">
+         <activeWhen>
+            <reference
+                  definitionId="de.walware.statet.r.expressions.isEditorActive.RDataEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="org.eclipse.ui.edit.text.zoomOut"
+            class="de.walware.statet.r.internal.ui.intable.ResizeTableTextHandler$ZoomOut">
+         <activeWhen>
+            <reference
+                  definitionId="de.walware.statet.r.expressions.isEditorActive.RDataEditor"/>
+         </activeWhen>
+      </handler>
+   </extension>
+   <extension
          point="org.eclipse.ui.bindings">
       <key
             commandId="org.eclipse.ui.edit.text.goto.line"
             contextId="de.walware.statet.r.contexts.RDataEditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+L">
-      </key>
+            sequence="M1+L"/>
+      <key
+            commandId="org.eclipse.ui.edit.text.zoomIn"
+            contextId="de.walware.statet.r.contexts.RDataEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1++"/>
+      <key
+            commandId="org.eclipse.ui.edit.text.zoomIn"
+            contextId="de.walware.statet.r.contexts.RDataEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+="/>
+      <key
+            commandId="org.eclipse.ui.edit.text.zoomOut"
+            contextId="de.walware.statet.r.contexts.RDataEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+-"/>
    </extension>
    
    <!-- R Graphics -->

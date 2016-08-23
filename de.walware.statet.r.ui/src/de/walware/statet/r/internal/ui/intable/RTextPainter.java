@@ -98,7 +98,8 @@ public class RTextPainter extends AbstractTextPainter {
 	}
 	
 	@Override
-	public void paintCell(final ILayerCell cell, final GC gc, final LRectangle lRectangle, final IConfigRegistry configRegistry) {
+	public void paintCell(final ILayerCell cell, final GC gc, final LRectangle lRectangle,
+			final IConfigRegistry configRegistry) {
 		if (this.paintBg) {
 			super.paintCell(cell, gc, lRectangle, configRegistry);
 		}
@@ -119,9 +120,10 @@ public class RTextPainter extends AbstractTextPainter {
 		if (gc.getFont() == null) {
 			gc.setFont(null);
 		}
+		// first get height because https://bugs.eclipse.org/bugs/show_bug.cgi?id=319125
+		final int contentHeight= gc.getFontMetrics().getHeight();
 		text= getTextToDisplay(cell, gc, width, text);
 		final int contentWidth= getWidthFromCache(gc, text);
-		final int contentHeight= gc.getFontMetrics().getHeight();
 		
 		gc.drawText(
 				text,
