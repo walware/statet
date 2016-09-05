@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.ui.editors;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.commands.IHandler2;
@@ -229,8 +230,8 @@ public class REditor extends SourceEditor1 implements IRSourceEditor {
 	}
 	
 	@Override
-	protected void initializeKeyBindingScopes() {
-		setContexts(CONTEXT_IDS);
+	protected Collection<String> getContextIds() {
+		return CONTEXT_IDS;
 	}
 	
 	@Override
