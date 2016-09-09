@@ -48,7 +48,8 @@ public class RElementVariableValue<TRElement extends ICombinedRElement> extends 
 		
 		@Override
 		public void scheduleUpdate(final LazyRStore<V> store,
-				final @Nullable RDataAssignment assignment, @Nullable final Fragment<V> fragment) {
+				final @Nullable RDataAssignment assignment, @Nullable final Fragment<V> fragment,
+				final int flags, final IProgressMonitor monitor) {
 			final AtomicReference<IStatus> set= new AtomicReference<>();
 			V data= null;
 			try {

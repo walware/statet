@@ -11,38 +11,73 @@
 
 package de.walware.statet.r.internal.ui.dataeditor;
 
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+
 import de.walware.rj.services.utils.dataaccess.LazyRStore;
 
 
-abstract class Lock {
+abstract class Lock extends ReentrantLock {
+	
 	
 	static final int ERROR_STATE= 4;
 	static final int RELOAD_STATE= 3;
 	static final int PAUSE_STATE= 2;
 	static final int LOCAL_PAUSE_STATE= 1;
 	
+	
 	int state;
 	
+	protected final Condition requestor= newCondition();
+	protected final Condition worker= newCondition();
 	
-	boolean isReady() throws LoadDataException {
+	boolean scheduled;
+	
+	
+	Lock() {
+	}
+	
+	
+	final boolean isReady() throws LoadDataException {
 		if (this.state > 0) {
 			switch (this.state) {
 			case Lock.LOCAL_PAUSE_STATE:
 			case Lock.PAUSE_STATE:
 				return false;
 			case Lock.RELOAD_STATE:
-				throw new LoadDataException(false);
-			default:
 				throw new LoadDataException(true);
+			default:
+				throw new LoadDataException(false);
 			}
 		}
 		return true;
 	}
 	
 	/* Not nice at this place, but handy */
-	synchronized <T> LazyRStore.Fragment<T> getFragment(final LazyRStore<T> store,
-			final long rowIdx, final long columnIdx) throws LoadDataException {
-		return (isReady()) ? store.getFragment(rowIdx, columnIdx) : null;
+	final <T> LazyRStore.Fragment<T> getFragment(final LazyRStore<T> store,
+			final long rowIdx, final long columnIdx,
+			final int flags, final IProgressMonitor monitor) throws LoadDataException {
+		lock();
+		try {
+			return (isReady()) ?
+					store.getFragment(rowIdx, columnIdx, flags, monitor) :
+					null;
+		}
+		finally {
+			unlock();
+		}
+	}
+	
+	
+	void notifyWorker() {
+		this.worker.signalAll();
+	}
+	
+	void clear() {
+		this.requestor.signalAll();
+		this.worker.signalAll();
 	}
 	
 }

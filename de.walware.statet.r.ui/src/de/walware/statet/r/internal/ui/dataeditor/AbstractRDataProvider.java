@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.ui.dataeditor;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -78,18 +79,17 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	public static final ControlData NA= new ControlData(ControlData.NA, "NA"); //$NON-NLS-1$
 	public static final ControlData DUMMY= new ControlData(0, ""); //$NON-NLS-1$
 	
-	
 	protected static final RElementName BASE_NAME= RElementName.create(RElementName.MAIN_DEFAULT, "x"); //$NON-NLS-1$
 	
 	
-	static void checkCancel(final Exception e) throws CoreException {
+	static final void checkCancel(final Exception e) throws CoreException {
 		if (e instanceof CoreException
 				&& ((CoreException) e).getStatus().getSeverity() == IStatus.CANCEL) {
 			throw (CoreException) e;
 		}
 	}
 	
-	static void cleanTmp(final String name, final IRToolService r, final IProgressMonitor monitor) throws CoreException {
+	static final void cleanTmp(final String name, final IRToolService r, final IProgressMonitor monitor) throws CoreException {
 		final FunctionCall call= r.createFunctionCall(RJTmp.REMOVE); 
 		call.addChar(RJTmp.NAME_PAR, name);
 		call.evalVoid(monitor);
@@ -152,39 +152,84 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 	}
 	
+	private static final long DEFAULT_WAIT= 25_000000;
+	private static final long CANCEL_WAIT= 200_000000;
+	private static final long BLOCKING_WAIT= 300_000000;
 	
 	private class MainLock extends Lock implements LazyRStore.Updater {
 		
-		boolean scheduled;
-		Object waiting;
+		
+		private final List<Fragment> waitingFragments= new ArrayList<>();
 		
 		
 		@Override
 		public void scheduleUpdate(final LazyRStore store,
-				final RDataAssignment assignment, final Fragment fragment) {
+				final RDataAssignment assignment, final Fragment fragment,
+				final int flags, final IProgressMonitor monitor) {
+			long waitNanos;
 			if (!this.scheduled) {
 				this.scheduled= true;
-				AbstractRDataProvider.this.schedule(AbstractRDataProvider.this.fUpdateRunnable);
-				if (fragment != null) {
-					this.waiting= fragment;
-					try {
-						AbstractRDataProvider.this.fragmentsLock.wait(25);
-					}
-					catch (final InterruptedException e) {
-					}
-					finally {
-						if (this.waiting == fragment) {
-							this.waiting= null;
+				AbstractRDataProvider.this.schedule(AbstractRDataProvider.this.updateRunnable);
+				
+				waitNanos= ((flags & FORCE_SYNC) != 0) ? 0 : DEFAULT_WAIT;
+			}
+			else {
+				waitNanos= ((flags & FORCE_SYNC) != 0) ? 0 : -1;
+			}
+			
+			if (waitNanos >= 0 && fragment != null) {
+				this.waitingFragments.add(fragment);
+				this.worker.signalAll();
+//				long blockingMonitor= (monitor instanceof IProgressMonitorWithBlocking) ? 0 : -1;
+				try {
+					if (waitNanos == 0) {
+						do {
+							// wait required to check cancel state
+							waitNanos= this.requestor.awaitNanos(CANCEL_WAIT);
+							
+//							if (blockingMonitor >= 0 && blockingMonitor < BLOCKING_WAIT) {
+//								blockingMonitor+= CANCEL_WAIT - waitNanos;
+//								if (blockingMonitor >= BLOCKING_WAIT) {
+//									((IProgressMonitorWithBlocking) monitor).setBlocked(
+//											new Status(IStatus.INFO, RUI.PLUGIN_ID, "Waiting for R."));
+//								}
+//							}
 						}
+						while (this.waitingFragments.contains(fragment)
+								&& this.state == 0
+								&& (monitor == null || !monitor.isCanceled()) );
 					}
+					else {
+						do {
+							waitNanos= this.requestor.awaitNanos(waitNanos);
+						}
+						while (this.waitingFragments.contains(fragment)
+								&& this.state == 0
+								&& (monitor == null || !monitor.isCanceled())
+								&& (waitNanos > 0) );
+					}
+				}
+				catch (final InterruptedException e) {}
+				finally {
+					this.waitingFragments.remove(fragment);
+					
+//					if (blockingMonitor >= BLOCKING_WAIT) {
+//						((IProgressMonitorWithBlocking) monitor).clearBlocked();
+//					}
 				}
 			}
 		}
 		
 		void notify(final Object obj) {
-			if (obj == this.waiting) {
-				notifyAll();
+			if (this.waitingFragments.remove(obj)) {
+				this.requestor.signalAll();
 			}
+		}
+		
+		@Override
+		void clear() {
+			this.waitingFragments.clear();
+			super.clear();
 		}
 		
 	}
@@ -207,19 +252,20 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		}
 		
 		@Override
-		public Object getDataValue(final long columnIndex, final long rowIndex, final int flags) {
+		public Object getDataValue(final long columnIndex, final long rowIndex,
+				final int flags, final IProgressMonitor monitor) {
 			try {
 				final LazyRStore.Fragment<T> fragment= AbstractRDataProvider.this.fragmentsLock.getFragment(
-						AbstractRDataProvider.this.dataStore, 0, columnIndex);
+						AbstractRDataProvider.this.dataStore, 0, columnIndex, flags, monitor);
 				if (fragment != null) {
 					return getColumnName(fragment, columnIndex);
 				}
 				else {
-					return LOADING;
+					return handleMissingData(flags);
 				}
 			}
 			catch (final LoadDataException e) {
-				return handleLoadDataException(e);
+				return handleLoadDataException(e, flags);
 			}
 		}
 		
@@ -233,7 +279,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	protected class RowDataProvider implements IDataProvider {
 		
 		
-		private final LazyRStore<RVector<?>> fRowNamesStore= new LazyRStore<>(AbstractRDataProvider.this.rowCount, 1,
+		private final LazyRStore<RVector<?>> rowNamesStore= new LazyRStore<>(AbstractRDataProvider.this.rowCount, 1,
 				10, AbstractRDataProvider.this.fragmentsLock);
 		
 		
@@ -252,10 +298,11 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		}
 		
 		@Override
-		public Object getDataValue(final long columnIndex, final long rowIndex, final int flags) {
+		public Object getDataValue(final long columnIndex, final long rowIndex, final int flags, final IProgressMonitor monitor) {
 			try {
 				final LazyRStore.Fragment<RVector<?>> fragment= AbstractRDataProvider
-						.this.fragmentsLock.getFragment(this.fRowNamesStore, rowIndex, 0);
+						.this.fragmentsLock.getFragment(this.rowNamesStore, rowIndex, 0,
+								flags, monitor );
 				if (fragment != null) {
 					final RVector<?> vector= fragment.getRObject();
 					if (vector != null) {
@@ -268,18 +315,18 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 					return Long.toString(rowIndex + 1);
 				}
 				else {
-					return LOADING;
+					return handleMissingData(flags);
 				}
 			}
 			catch (final LoadDataException e) {
-				return handleLoadDataException(e);
+				return handleLoadDataException(e, flags);
 			}
 		}
 		
 		public long getRowIdx(final long rowIndex) {
 			try {
 				final LazyRStore.Fragment<RVector<?>> fragment= AbstractRDataProvider
-						.this.fragmentsLock.getFragment(this.fRowNamesStore, rowIndex, 0);
+						.this.fragmentsLock.getFragment(this.rowNamesStore, rowIndex, 0, 0, null);
 				if (fragment != null) {
 					final RVector<?> vector= fragment.getRObject();
 					if (vector != null) {
@@ -298,7 +345,6 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			catch (final LoadDataException e) {
 				return -2;
 			}
-			
 		}
 		
 		@Override
@@ -372,7 +418,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	}
 	
 	
-	private final IToolRunnable fInitRunnable= new ISystemRunnable() {
+	private final IToolRunnable initRunnable= new ISystemRunnable() {
 		
 		@Override
 		public String getTypeId() {
@@ -405,7 +451,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 	};
 	
-	private final IToolRunnable fUpdateRunnable= new ISystemRunnable() {
+	private final IToolRunnable updateRunnable= new ISystemRunnable() {
 		
 		@Override
 		public String getTypeId() {
@@ -429,9 +475,13 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 				return false;
 			case REMOVING_FROM:
 			case BEING_ABANDONED:
-				synchronized (AbstractRDataProvider.this.fragmentsLock) {
+				AbstractRDataProvider.this.fragmentsLock.lock();
+				try {
 					AbstractRDataProvider.this.fragmentsLock.scheduled= false;
-					AbstractRDataProvider.this.fragmentsLock.notifyAll();
+					AbstractRDataProvider.this.fragmentsLock.clear();
+				}
+				finally {
+					AbstractRDataProvider.this.fragmentsLock.unlock();
 				}
 				break;
 			default:
@@ -448,7 +498,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		
 	};
 	
-	private final IToolRunnable fCleanRunnable= new ISystemRunnable() {
+	private final IToolRunnable cleanRunnable= new ISystemRunnable() {
 		
 		@Override
 		public String getTypeId() {
@@ -512,6 +562,8 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	
 	protected final AbstractRDataAdapter<T, T> adapter;
 	private final LazyRStore<T> dataStore;
+	
+	private final List<Object> activeOperations= new ArrayList<>();
 	
 	private boolean updateSorting;
 	private boolean updateFiltering;
@@ -580,6 +632,29 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		return this.fragmentsLock.state;
 	}
 	
+	public final void beginOperation(final Object o) {
+		this.fragmentsLock.lock();
+		try {
+			this.activeOperations.add(o);
+		}
+		finally {
+			this.fragmentsLock.unlock();
+		}
+	}
+	
+	public final void endOperation(final Object o) {
+		this.fragmentsLock.lock();
+		try {
+			if (this.activeOperations.remove(o)
+					&& this.activeOperations.isEmpty() ) {
+				this.fragmentsLock.notifyWorker();
+			}
+		}
+		finally {
+			this.fragmentsLock.unlock();
+		}
+	}
+	
 	final void schedule(final IToolRunnable runnable) {
 		try {
 			final ITool tool= this.input.getTool();
@@ -597,7 +672,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	
 	private void runInit(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
 		if (this.disposeScheduled) {
-			synchronized (this.fInitRunnable) {
+			synchronized (this.initRunnable) {
 				this.initScheduled= false;
 			}
 			return;
@@ -612,7 +687,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			}
 		}
 		catch (final Exception e) {
-			synchronized (this.fInitRunnable) {
+			synchronized (this.initRunnable) {
 				this.initScheduled= false;
 			}
 			checkCancel(e);
@@ -643,7 +718,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			}
 		}
 		catch (final Exception e) {
-			synchronized (this.fInitRunnable) {
+			synchronized (this.initRunnable) {
 				this.initScheduled= false;
 			}
 			checkCancel(e);
@@ -666,7 +741,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			description= loadDescription(this.input.getElementName(), this.rObjectStruct, r, monitor);
 		}
 		catch (final Exception e) {
-			synchronized (this.fInitRunnable) {
+			synchronized (this.initRunnable) {
 				this.initScheduled= false;
 			}
 			checkCancel(e);
@@ -684,7 +759,7 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 				final boolean rowsChanged= (rowCount != getRowCount());
 				clear(0, rowCount, rowCount, true, true, true);
 				
-				synchronized (AbstractRDataProvider.this.fInitRunnable) {
+				synchronized (AbstractRDataProvider.this.initRunnable) {
 					AbstractRDataProvider.this.initScheduled= false;
 				}
 //				if (rowsChanged) {
@@ -704,98 +779,135 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	}
 	
 	private void runUpdate(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
-		boolean work= true;
-		while (work) {
+		int work= -1;
+		while (true) {
 			try {
-				boolean updateSorting= false;
-				boolean updateFiltering= false;
-				work= false;
+				final boolean updateSorting;
+				final boolean updateFiltering;
 				
-				synchronized (this.fragmentsLock) {
-					if (this.updateSorting) {
-						updateSorting= true;
+				this.fragmentsLock.lock();
+				try {
+					switch (work) {
+					case -1: 
+						this.fragmentsLock.scheduled= false;
+						break;
+					case 0:
+						if (!this.activeOperations.isEmpty()) {
+							try {
+								this.fragmentsLock.worker.await();
+							}
+							catch (final InterruptedException e) {}
+							break;
+						}
+						else {
+							return;
+						}
+					default:
+						break;
 					}
-					if (this.updateFiltering) {
-						updateFiltering= true;
-					}
+					work= 0;
 					
-					this.fragmentsLock.scheduled= false;
+					updateSorting= this.updateSorting;
+					updateFiltering= this.updateFiltering;
+				}
+				finally {
+					this.fragmentsLock.unlock();
 				}
 				
 				IFQRObjectRef elementRef= null;
 				
 				if (updateSorting) {
-					if (!work) {
-						work= true;
+					if (elementRef == null) {
 						elementRef= checkElementRef(this.input.getElementRef(), r, monitor);
 						this.adapter.check(elementRef, this.rObjectStruct, r, monitor);
 					}
 					updateSorting(r, monitor);
+					work++;
 				}
 				if (updateFiltering) {
-					if (!work) {
-						work= true;
+					if (elementRef == null) {
 						elementRef= checkElementRef(this.input.getElementRef(), r, monitor);
 						this.adapter.check(elementRef, this.rObjectStruct, r, monitor);
 					}
 					updateFiltering(r, monitor);
+					work++;
 				}
 				if (this.updateIdx) {
-					if (!work) {
-						work= true;
+					if (elementRef == null) {
 						elementRef= checkElementRef(this.input.getElementRef(), r, monitor);
 						this.adapter.check(elementRef, this.rObjectStruct, r, monitor);
 					}
 					updateIdx(r, monitor);
+					work++;
 				}
 				
-				if (!work && this.rowDataProvider instanceof AbstractRDataProvider<?>.RowDataProvider) {
-					final LazyRStore<RVector<?>> namesStore= ((RowDataProvider) this.rowDataProvider).fRowNamesStore;
+				if (work == 0
+						&& this.rowDataProvider instanceof AbstractRDataProvider<?>.RowDataProvider) {
+					final LazyRStore<RVector<?>> namesStore= ((RowDataProvider) this.rowDataProvider).rowNamesStore;
 					while (true) {
 						final Fragment<RVector<?>> fragment;
-						synchronized (this.fragmentsLock) {
+						this.fragmentsLock.lock();
+						try {
 							fragment= namesStore.getNextScheduledFragment();
+						}
+						finally {
+							this.fragmentsLock.unlock();
 						}
 						if (fragment == null) {
 							break;
 						}
-						if (!work) {
-							work= true;
+						
+						if (elementRef == null) {
 							elementRef= checkElementRef(this.input.getElementRef(), r, monitor);
 							this.adapter.check(elementRef, this.rObjectStruct, r, monitor);
 						}
 						final RVector<?> fragmentObject= this.adapter.loadRowNames(elementRef,
 								this.rObjectStruct, fragment, this.rCacheIdx, r, monitor);
-						synchronized (this.fragmentsLock) {
+						this.fragmentsLock.lock();
+						try {
 							namesStore.updateFragment(fragment, fragmentObject);
 							
 							this.fragmentsLock.notify(fragment);
 						}
+						finally {
+							this.fragmentsLock.unlock();
+						}
 						notifyListener(fragment);
+						work++;
 					}
 				}
-				if (!work) {
+				if (work == 0) {
 					while (true) {
 						final Fragment<T> fragment;
-						synchronized (this.fragmentsLock) {
+						this.fragmentsLock.lock();
+						try {
 							fragment= this.dataStore.getNextScheduledFragment();
+						}
+						finally {
+							this.fragmentsLock.unlock();
 						}
 						if (fragment == null) {
 							break;
 						}
-						if (!work) {
-							work= true;
+						
+						if (elementRef == null) {
 							elementRef= checkElementRef(this.input.getElementRef(), r, monitor);
 							this.adapter.check(elementRef, this.rObjectStruct, r, monitor);
 						}
 						final T fragmentObject= this.adapter.loadData(elementRef,
 								this.rObjectStruct, fragment, this.rCacheIdx, r, monitor);
-						synchronized (this.fragmentsLock) {
+						
+						this.fragmentsLock.lock();
+						try {
 							this.dataStore.updateFragment(fragment, fragmentObject);
 							
 							this.fragmentsLock.notify(fragment);
 						}
+						finally {
+							this.fragmentsLock.unlock();
+						}
 						notifyListener(fragment);
+						work++;
 					}
 				}
 			}
@@ -832,10 +944,15 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		cleanSorting(r, monitor);
 		
 		final SortColumn sortColumn;
-		synchronized (this.fragmentsLock) {
+		this.fragmentsLock.lock();
+		try {
 			sortColumn= this.sortColumn;
 			this.updateSorting= false;
 		}
+		finally {
+			this.fragmentsLock.unlock();
+		}
+		
 		if (sortColumn != null) {
 			if (this.rCacheSort == null) {
 				this.rCacheSort= this.rCacheId + ".order"; //$NON-NLS-1$
@@ -854,10 +971,15 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		cleanFiltering(r, monitor);
 		
 		String filter;
-		synchronized (this.fragmentsLock) {
+		this.fragmentsLock.lock();
+		try {
 			filter= this.filter;
 			this.updateFiltering= false;
 		}
+		finally {
+			this.fragmentsLock.unlock();
+		}
+		
 		final long filteredRowCount;
 		if (filter == null) {
 			filteredRowCount= getFullRowCount();
@@ -1200,19 +1322,20 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	}
 	
 	@Override
-	public Object getDataValue(final long columnIndex, final long rowIndex, final int flags) {
+	public Object getDataValue(final long columnIndex, final long rowIndex, final int flags,
+			final IProgressMonitor monitor) {
 		try {
 			final LazyRStore.Fragment<T> fragment= this.fragmentsLock.getFragment(
-					this.dataStore, rowIndex, columnIndex );
+					this.dataStore, rowIndex, columnIndex, flags, monitor );
 			if (fragment != null) {
 				return getDataValue(fragment, rowIndex, columnIndex);
 			}
 			else {
-				return LOADING;
+				return handleMissingData(flags);
 			}
 		}
 		catch (final LoadDataException e) {
-			return handleLoadDataException(e);
+			return handleLoadDataException(e, flags);
 		}
 	}
 	
@@ -1270,12 +1393,16 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 		return new SortModel();
 	}
 	
-	private Object handleLoadDataException(final LoadDataException e) {
-		if (e.isUnrecoverable()) {
+	private Object handleMissingData(final int flags) {
+		return ((flags & IDataProvider.FORCE_SYNC) != 0) ? ERROR : LOADING;
+	}
+	
+	private Object handleLoadDataException(final LoadDataException e, final int flags) {
+		if (!e.isRecoverable()) {
 			return ERROR;
 		}
 		reset();
-		return LOADING;
+		return handleMissingData(flags);
 	}
 	
 	
@@ -1288,7 +1415,8 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	}
 	
 	private void setSortColumn(final SortColumn column) {
-		synchronized (this.fragmentsLock) {
+		this.fragmentsLock.lock();
+		try {
 			if (Objects.equals(this.sortColumn, column)) {
 				return;
 			}
@@ -1298,10 +1426,14 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			
 			this.findManager.reset(false);
 		}
+		finally {
+			this.fragmentsLock.unlock();
+		}
 	}
 	
 	public void setFilter(final String filter) {
-		synchronized (this.fragmentsLock) {
+		this.fragmentsLock.lock();
+		try {
 			if ((this.filter != null) ? this.filter.equals(filter) : null == filter) {
 				return;
 			}
@@ -1311,7 +1443,10 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			
 			this.findManager.reset(true);
 			
-			this.fragmentsLock.scheduleUpdate(null, null, null);
+			this.fragmentsLock.scheduleUpdate(null, null, null, 0, null);
+		}
+		finally {
+			this.fragmentsLock.unlock();
 		}
 	}
 	
@@ -1369,14 +1504,14 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	
 	public void reset() {
 		clear(Lock.PAUSE_STATE);
-		synchronized (this.fInitRunnable) {
+		synchronized (this.initRunnable) {
 			if (this.initScheduled) {
 				return;
 			}
 			this.initScheduled= true;
 		}
 		try {
-			final IStatus status= this.input.getTool().getQueue().add(this.fInitRunnable);
+			final IStatus status= this.input.getTool().getQueue().add(this.initRunnable);
 			if (status.getSeverity() >= IStatus.ERROR) {
 				throw new CoreException(status);
 			}
@@ -1392,10 +1527,11 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 	private void clear(final int newState, final long filteredRowCount, final long fullRowCount,
 			final boolean updateSorting, final boolean updateFiltering,
 			final boolean clearFind) {
-		synchronized (this.fragmentsLock) {
+		this.fragmentsLock.lock();
+		try {
 			this.dataStore.clear(filteredRowCount);
 			if (this.rowDataProvider instanceof AbstractRDataProvider<?>.RowDataProvider) {
-				((RowDataProvider) this.rowDataProvider).fRowNamesStore.clear(filteredRowCount);
+				((RowDataProvider) this.rowDataProvider).rowNamesStore.clear(filteredRowCount);
 			}
 			this.updateSorting |= updateSorting;
 			this.updateFiltering |= updateFiltering;
@@ -1403,6 +1539,8 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 			if (newState >= 0 && this.fragmentsLock.state < Lock.ERROR_STATE) {
 				this.fragmentsLock.state= newState;
 			}
+			this.fragmentsLock.clear();
+			
 			if (filteredRowCount >= 0) {
 				this.rowCount= filteredRowCount;
 				this.fullRowCount= fullRowCount;
@@ -1412,11 +1550,14 @@ public abstract class AbstractRDataProvider<T extends RObject> implements IDataP
 				this.findManager.clear(newState);
 			}
 		}
+		finally {
+			this.fragmentsLock.unlock();
+		}
 	}
 	
 	public void dispose() {
 		this.disposeScheduled= true;
-		schedule(this.fCleanRunnable);
+		schedule(this.cleanRunnable);
 	}
 	
 }

@@ -87,7 +87,7 @@ public class RDataFrameDataProvider extends AbstractRDataProvider<RDataFrame> {
 	public IDataProvider createColumnDataProvider() {
 		return new ColumnDataProvider() {
 			@Override
-			public Object getDataValue(final long columnIndex, final long rowIndex, final int flags) {
+			public Object getDataValue(final long columnIndex, final long rowIndex, final int flags, final IProgressMonitor monitor) {
 				return getRObject().getName(columnIndex);
 			}
 		};

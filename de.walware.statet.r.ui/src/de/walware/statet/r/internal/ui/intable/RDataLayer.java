@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 import de.walware.ecommons.waltable.config.LayoutSizeConfig;
 import de.walware.ecommons.waltable.coordinate.Orientation;
 import de.walware.ecommons.waltable.coordinate.PositionId;
@@ -339,9 +341,9 @@ public class RDataLayer extends AbstractLayer {
 				new LayerCellDim(VERTICAL, rowId, rowPosition) ) {
 			
 			@Override
-			public Object getDataValue(final int flags) {
+			public Object getDataValue(final int flags, final IProgressMonitor monitor) {
 				return RDataLayer.this.dataProvider.getDataValue(getColumnPosition(), getRowPosition(),
-						flags );
+						flags, monitor );
 			}
 			
 		};

@@ -85,7 +85,7 @@ public class RVectorDataProvider extends AbstractRDataProvider<RVector<?>> {
 	public IDataProvider createColumnDataProvider() {
 		return new ColumnDataProvider() {
 			@Override
-			public Object getDataValue(final long columnIndex, final long rowIndex, final int flags) {
+			public Object getDataValue(final long columnIndex, final long rowIndex, final int flags, final IProgressMonitor monitor) {
 				return getInput().getName();
 			}
 		};

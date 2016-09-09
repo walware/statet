@@ -52,11 +52,11 @@ class FindManager {
 	
 	private class FindLock extends Lock implements LazyRStore.Updater<RObject> {
 		
-		boolean scheduled;
 		
 		@Override
 		public void scheduleUpdate(final LazyRStore<RObject> store,
-				final RDataAssignment assignment, final LazyRStore.Fragment<RObject> fragment) {
+				final RDataAssignment assignment, final LazyRStore.Fragment<RObject> fragment,
+				final int flags, final IProgressMonitor monitor) {
 			if (fragment != null && this.state > 0) {
 				return;
 			}
@@ -92,9 +92,13 @@ class FindManager {
 				return false;
 			case REMOVING_FROM:
 			case BEING_ABANDONED:
-				synchronized (FindManager.this.lock) {
+				FindManager.this.lock.lock();
+				try {
 					FindManager.this.lock.scheduled= false;
-					FindManager.this.lock.notifyAll();
+					FindManager.this.lock.clear();
+				}
+				finally {
+					FindManager.this.lock.unlock();
 				}
 				break;
 			default:
@@ -156,7 +160,8 @@ class FindManager {
 		clear(newState, true);
 	}
 	void clear(final int newState, final boolean forceUpdate) {
-		synchronized (this.lock) {
+		this.lock.lock();
+		try {
 			this.scheduledTask= null;
 			if (!forceUpdate && this.findFilteredCount >= 0) {
 				this.findStore.clear(this.findFilteredCount);
@@ -171,11 +176,15 @@ class FindManager {
 				this.lock.state= newState;
 			}
 		}
+		finally {
+			this.lock.unlock();
+		}
 		notifyListeners(null, new StatusInfo(IStatus.CANCEL, ""), -1, -1, -1);
 	}
 	
 	void reset(final boolean filter) {
-		synchronized (this.lock) {
+		this.lock.lock();
+		try {
 			this.scheduledTask= null;
 			this.findStore.clear(-1);
 			if (filter) {
@@ -187,11 +196,15 @@ class FindManager {
 				this.lock.state= Lock.LOCAL_PAUSE_STATE;
 			}
 		}
+		finally {
+			this.lock.unlock();
+		}
 	}
 	
 	
 	public void find(final FindTask task) {
-		synchronized (this.lock) {
+		this.lock.lock();
+		try {
 			this.scheduledTask= task;
 			if (!task.equals(this.currentTask)) {
 				clear(-1, !task.expression.equals(this.activeExpression));
@@ -204,6 +217,10 @@ class FindManager {
 				return;
 			}
 		}
+		finally {
+			this.lock.unlock();
+		}
+		
 		try {
 			findMatch(null, new NullProgressMonitor());
 		}
@@ -214,7 +231,8 @@ class FindManager {
 	private void runFind(final IRToolService r, final IProgressMonitor monitor) throws CoreException {
 		try {
 			final boolean updateFinding;
-			synchronized (this.lock) {
+			this.lock.lock();
+			try {
 				this.currentTask= this.scheduledTask;
 				this.lock.scheduled= false;
 				
@@ -228,6 +246,9 @@ class FindManager {
 				if (this.lock.state == Lock.LOCAL_PAUSE_STATE && !updateFinding) {
 					this.lock.state= 0;
 				}
+			}
+			finally {
+				this.lock.unlock();
 			}
 			if (updateFinding) {
 				try {
@@ -327,7 +348,8 @@ class FindManager {
 			if (mode == FIND_ERROR) {
 				notifyListeners(this.currentTask, new StatusInfo(IStatus.ERROR, "Error"), -1, -1, -1);
 			}
-			synchronized (this.lock) {
+			this.lock.lock();
+			try {
 				this.activeMode= mode;
 				this.activeExpression= this.currentTask.expression;
 				this.findTotalCount= count;
@@ -337,6 +359,9 @@ class FindManager {
 				if (mode != FIND_ERROR && this.lock.state < Lock.PAUSE_STATE) {
 					this.lock.state= 0;
 				}
+			}
+			finally {
+				this.lock.unlock();
 			}
 		}
 	}
@@ -356,8 +381,12 @@ class FindManager {
 		try {
 			while (true) {
 				final Fragment<RObject> fragment;
-				synchronized (this.lock) {
+				this.lock.lock();
+				try {
 					fragment= this.findStore.getNextScheduledFragment();
+				}
+				finally {
+					this.lock.unlock();
 				}
 				if (fragment == null) {
 					break;
@@ -367,18 +396,26 @@ class FindManager {
 				}
 				
 				final RObject fragmentObject= loadFindFragment(fragment, r, monitor);
-				synchronized (this.lock) {
+				this.lock.lock();
+				try {
 					this.findStore.updateFragment(fragment, fragmentObject);
+				}
+				finally {
+					this.lock.unlock();
 				}
 			}
 		}
 		catch (final Exception e) {
 			AbstractRDataProvider.checkCancel(e);
-			synchronized (this.lock) {
+			this.lock.lock();
+			try {
 				clear(-1);
 				if (this.lock.state < Lock.RELOAD_STATE) {
 					this.lock.state= Lock.RELOAD_STATE;
 				}
+			}
+			finally {
+				this.lock.unlock();
 			}
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
 					"An error occurred when loading find matches for data viewer.", e));
@@ -430,7 +467,8 @@ class FindManager {
 		long filteredCount;
 		long totalCount;
 		long globalMatchIdx;
-		synchronized (this.lock) {
+		this.lock.lock();
+		try {
 			task= this.scheduledTask;
 			mode= this.activeMode;
 			totalCount= this.findTotalCount;
@@ -440,7 +478,7 @@ class FindManager {
 			if (task == null || !task.equals(this.currentTask)
 					|| this.lock.state == Lock.LOCAL_PAUSE_STATE) {
 				notifyListeners(task, new StatusInfo(IStatus.INFO, "Finding..."), -1, -1, -1);
-				this.lock.scheduleUpdate(null, null, null);
+				this.lock.scheduleUpdate(null, null, null, 0, null);
 				return;
 			}
 			if (mode == FIND_ERROR) {
@@ -448,21 +486,32 @@ class FindManager {
 				return;
 			}
 		}
+		finally {
+			this.lock.unlock();
+		}
 		
 		if (filteredCount < 0) {
 			if (r != null) {
 				filteredCount= getFilteredCount(totalCount, r, monitor);
-				synchronized (this.lock) {
+				this.lock.lock();
+				try {
 					this.findFilteredCount= filteredCount;
 					this.findStore.clear(filteredCount);
 				}
+				finally {
+					this.lock.unlock();
+				}
 			}
 			else {
-				synchronized (this.lock) {
+				this.lock.lock();
+				try {
 					if (task != this.scheduledTask) {
 						return;
 					}
-					this.lock.scheduleUpdate(null, null, null);
+					this.lock.scheduleUpdate(null, null, null, 0, null);
+				}
+				finally {
+					this.lock.unlock();
 				}
 				return;
 			}
@@ -518,7 +567,7 @@ class FindManager {
 						throw new CoreException(Status.CANCEL_STATUS);
 					}
 					
-					fragment= this.lock.getFragment(this.findStore, globalMatchIdx, 0);
+					fragment= this.lock.getFragment(this.findStore, globalMatchIdx, 0, 0, monitor);
 					if (fragment != null) {
 						final RStore<?> data= fragment.getRObject().getData();
 						final int length= (int) fragment.getRowCount();
@@ -548,19 +597,27 @@ class FindManager {
 					}
 					else if (r != null) {
 						updateFindingFragments(r, monitor);
-						synchronized (this.lock) {
+						this.lock.lock();
+						try {
 							if (task != this.scheduledTask
 									|| this.lock.state > 0) {
 								return;
 							}
 						}
+						finally {
+							this.lock.unlock();
+						}
 					}
 					else {
-						synchronized (this.lock) {
+						this.lock.lock();
+						try {
 							if (task != this.scheduledTask) {
 								return;
 							}
-							this.lock.scheduleUpdate(null, null, null);
+							this.lock.scheduleUpdate(null, null, null, 0, null);
+						}
+						finally {
+							this.lock.unlock();
 						}
 						return;
 					}
@@ -590,11 +647,15 @@ class FindManager {
 							filteredCount, -1, -1 );
 					return;
 				}
-				synchronized (this.lock) {
+				this.lock.lock();
+				try {
 					if (task != this.scheduledTask) {
 						return;
 					}
 					this.findLastMatchIdx= globalMatchIdx= fragment.getRowBeginIdx() + localMatchIdx;
+				}
+				finally {
+					this.lock.unlock();
 				}
 				{	final long posCol;
 					final long posRow;
@@ -626,10 +687,14 @@ class FindManager {
 		UIAccess.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				synchronized (FindManager.this.lock) {
+				FindManager.this.lock.lock();
+				try {
 					if (task != null && task != FindManager.this.scheduledTask) {
 						return;
 					}
+				}
+				finally {
+					FindManager.this.lock.unlock();
 				}
 				final FindEvent event= new FindEvent(status, total, rowIdx, colIdx);
 				for (final IFindListener listener : FindManager.this.listeners.toArray()) {

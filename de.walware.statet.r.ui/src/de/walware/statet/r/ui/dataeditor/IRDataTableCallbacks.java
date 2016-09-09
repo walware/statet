@@ -1,5 +1,5 @@
 /*=============================================================================#
- # Copyright (c) 2013-2016 Stephan Wahlbrink (WalWare.de) and others.
+ # Copyright (c) 2016 Stephan Wahlbrink (WalWare.de) and others.
  # All rights reserved. This program and the accompanying materials
  # are made available under the terms of the Eclipse Public License v1.0
  # which accompanies this distribution, and is available at
@@ -9,24 +9,20 @@
  #     Stephan Wahlbrink - initial API and implementation
  #=============================================================================*/
 
-package de.walware.statet.r.internal.ui.dataeditor;
+package de.walware.statet.r.ui.dataeditor;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.ui.services.IServiceLocator;
 
 
-public class LoadDataException extends Exception {
+public interface IRDataTableCallbacks {
 	
 	
-	private static final long serialVersionUID= -2599418116314887064L;
+	IServiceLocator getServiceLocator();
 	
+	boolean isCloseSupported();
+	void close();
 	
-	private final boolean isRecoverable;
-	
-	
-	public LoadDataException(final boolean isRecoverable) {
-		this.isRecoverable= isRecoverable;
-	}
-	
-	public boolean isRecoverable() {
-		return this.isRecoverable;
-	}
+	void show(IStatus status);
 	
 }

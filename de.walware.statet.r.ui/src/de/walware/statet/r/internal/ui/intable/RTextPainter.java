@@ -45,7 +45,7 @@ public class RTextPainter extends AbstractTextPainter {
 				CellConfigAttributes.DISPLAY_CONVERTER, cell.getDisplayMode(),
 				cell.getConfigLabels().getLabels() );
 		return (displayConverter != null) ?
-				displayConverter.canonicalToDisplayValue(cell, configRegistry, cell.getDataValue(0)) : EMPTY;
+				displayConverter.canonicalToDisplayValue(cell, configRegistry, cell.getDataValue(0, null)) : EMPTY;
 	}
 	
 	

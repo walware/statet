@@ -13,6 +13,7 @@ package de.walware.statet.r.ui.dataeditor;
 
 import static de.walware.ecommons.waltable.coordinate.Orientation.HORIZONTAL;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -20,6 +21,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.operation.IRunnableContext;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -35,6 +38,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.FastList;
@@ -94,6 +98,7 @@ import de.walware.ecommons.waltable.sort.SortHeaderLayer;
 import de.walware.ecommons.waltable.sort.SortPositionCommandHandler;
 import de.walware.ecommons.waltable.style.DisplayMode;
 import de.walware.ecommons.waltable.tickupdate.config.DefaultTickUpdateConfiguration;
+import de.walware.ecommons.waltable.ui.ITableUIContext;
 import de.walware.ecommons.waltable.viewport.IViewportDim;
 import de.walware.ecommons.waltable.viewport.ViewportLayer;
 
@@ -185,6 +190,41 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		
 	}
 	
+	private class RUIContext implements ITableUIContext {
+		
+		
+		public RUIContext() {
+		}
+		
+		
+		@Override
+		public void run(final boolean fork, final boolean cancelable,
+				final IRunnableWithProgress runnable)
+				throws InvocationTargetException, InterruptedException {
+			final IRunnableContext runnableContext= (IProgressService) RDataTableComposite.this
+					.callbacks.getServiceLocator().getService(IProgressService.class);
+			runnableContext.run(fork, cancelable, new IRunnableWithProgress() {
+				@Override
+				public void run(final IProgressMonitor monitor)
+						throws InvocationTargetException, InterruptedException {
+					RDataTableComposite.this.dataProvider.beginOperation(this);
+					try {
+						runnable.run(monitor);
+					}
+					finally {
+						RDataTableComposite.this.dataProvider.endOperation(this);
+					}
+				}
+			});
+		}
+		
+		@Override
+		public void show(final IStatus status) {
+			StatusManager.getManager().handle(status, StatusManager.SHOW);
+		}
+		
+	}
+	
 	
 	private final Display display;
 	
@@ -193,7 +233,8 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	private final Label messageControl;
 	
 	private Composite reloadControl;
-	private final Runnable closeRunnable;
+	
+	private final IRDataTableCallbacks callbacks;
 	
 	private IRDataTableInput input;
 	
@@ -231,11 +272,16 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 	/**
 	 * @param parent a widget which will be the parent of the new instance (cannot be null)
 	 */
-	public RDataTableComposite(final Composite parent, final Runnable closeRunnable) {
+	public RDataTableComposite(final Composite parent, final IRDataTableCallbacks callbacks) {
 		super(parent, SWT.NONE);
 		
+		if (callbacks == null) {
+			throw new NullPointerException("callbacks"); //$NON-NLS-1$
+		}
+		
+		
 		this.display= getDisplay();
-		this.closeRunnable= closeRunnable;
+		this.callbacks= callbacks;
 		
 		this.layout= new StackLayout();
 		setLayout(this.layout);
@@ -374,6 +420,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		};
 		presentation.addListener(configRunnable);
 		
+		final ITableUIContext uiContext= new RUIContext();
 //		{	final ILayerCommandHandler<?> commandHandler= new ScrollCommandHandler(fTableLayers.viewportLayer);
 //			fTableLayers.viewportLayer.registerCommandHandler(commandHandler);
 //		}
@@ -383,7 +430,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 			layers.selectionLayer.registerCommandHandler(commandHandler);
 		}
 		{	final ILayerCommandHandler<?> commandHandler= new CopyToClipboardCommandHandler(
-					layers.selectionLayer );
+					layers.selectionLayer, uiContext );
 			layers.selectionLayer.registerCommandHandler(commandHandler);
 		}
 		{	final ILayerCommandHandler<?> commandHandler= new InitializeAutoResizeCommandHandler(
@@ -402,6 +449,8 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		layers.table= new NatTable(this, gridLayer, false);
 		layers.table.addConfiguration(presentation);
 		layers.table.addConfiguration(new UIBindings.HeaderContextMenuConfiguration(layers.table));
+		layers.table.addConfiguration(new UIBindings.BodyContextMenuConfiguration(layers.table,
+				this.callbacks.getServiceLocator() ));
 		
 		layers.table.addDisposeListener(new DisposeListener() {
 			@Override
@@ -632,11 +681,11 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		}
 		final IDataProvider dataProvider= this.dataProvider.getRowDataProvider();
 		if (dataProvider.getColumnCount() <= 1) {
-			return getHeaderLabel(dataProvider.getDataValue(0, row, 0));
+			return getHeaderLabel(dataProvider.getDataValue(0, row, 0, null));
 		}
 		final StringBuilder sb= new StringBuilder();
 		for (long i= 0; i < dataProvider.getColumnCount(); i++) {
-			final String label= getHeaderLabel(dataProvider.getDataValue(i, row, 0));
+			final String label= getHeaderLabel(dataProvider.getDataValue(i, row, 0, null));
 			if (label == null) {
 				return null;
 			}
@@ -652,11 +701,11 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 		}
 		final IDataProvider dataProvider= this.dataProvider.getColumnDataProvider();
 		if (dataProvider.getRowCount() <= 1) {
-			return getHeaderLabel(dataProvider.getDataValue(column, 0, 0));
+			return getHeaderLabel(dataProvider.getDataValue(column, 0, 0, null));
 		}
 		final StringBuilder sb= new StringBuilder();
 		for (long i= 0; i < dataProvider.getRowCount(); i++) {
-			final String label= getHeaderLabel(dataProvider.getDataValue(column, i, 0));
+			final String label= getHeaderLabel(dataProvider.getDataValue(column, i, 0, null));
 			if (label == null) {
 				return null;
 			}
@@ -903,7 +952,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 					}
 				});
 			}
-			if (this.closeRunnable != null) {
+			if (this.callbacks.isCloseSupported()) {
 				final Button button= new Button(this.reloadControl, SWT.PUSH);
 				button.setLayoutData(LayoutUtil.hintWidth(new GridData(
 						SWT.FILL, SWT.CENTER, false, false), button));
@@ -911,7 +960,7 @@ public class RDataTableComposite extends Composite implements ISelectionProvider
 				button.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(final SelectionEvent e) {
-						RDataTableComposite.this.closeRunnable.run();
+						RDataTableComposite.this.callbacks.close();
 					}
 				});
 			}

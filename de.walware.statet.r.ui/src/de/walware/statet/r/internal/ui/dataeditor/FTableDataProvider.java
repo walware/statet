@@ -103,7 +103,7 @@ public class FTableDataProvider extends RMatrixDataProvider {
 		}
 		
 		@Override
-		public Object getDataValue(final long columnIndex, final long rowIndex, final int flags) {
+		public Object getDataValue(final long columnIndex, final long rowIndex, final int flags, final IProgressMonitor monitor) {
 			return getDataValue(FTableDataProvider.this.fColVars, rowIndex, columnIndex);
 		}
 		
@@ -137,7 +137,7 @@ public class FTableDataProvider extends RMatrixDataProvider {
 		}
 		
 		@Override
-		public Object getDataValue(final long columnIndex, final long rowIndex, final int flags) {
+		public Object getDataValue(final long columnIndex, final long rowIndex, final int flags, final IProgressMonitor monitor) {
 			return getDataValue(FTableDataProvider.this.fRowVars, columnIndex, rowIndex);
 		}
 		
@@ -254,7 +254,7 @@ public class FTableDataProvider extends RMatrixDataProvider {
 			}
 			
 			@Override
-			public Object getDataValue(final long columnIndex, final long rowIndex, final int flags) {
+			public Object getDataValue(final long columnIndex, final long rowIndex, final int flags, final IProgressMonitor monitor) {
 				return FTableDataProvider.this.fColVars.getName(rowIndex);
 			}
 			
@@ -281,7 +281,7 @@ public class FTableDataProvider extends RMatrixDataProvider {
 			}
 			
 			@Override
-			public Object getDataValue(final long columnIndex, final long rowIndex, final int flags) {
+			public Object getDataValue(final long columnIndex, final long rowIndex, final int flags, final IProgressMonitor monitor) {
 				return FTableDataProvider.this.fRowVars.getName(columnIndex);
 			}
 			

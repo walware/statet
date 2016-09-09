@@ -206,7 +206,7 @@ public class RVectorValue extends RElementVariableValue<ICombinedRElement> imple
 				}
 			});
 		}
-		return this.namesStore.getFragment(idx, 0);
+		return this.namesStore.getFragment(idx, 0, 0, null);
 	}
 	
 	
@@ -308,7 +308,7 @@ public class RVectorValue extends RElementVariableValue<ICombinedRElement> imple
 	}
 	
 	private @Nullable Fragment<RVector<?>> getDataFragment(final long idx) {
-		return ensureDataStore().getFragment(idx, 0);
+		return ensureDataStore().getFragment(idx, 0, 0, null);
 	}
 	
 	private @Nullable Fragment<RVector<?>> getDataFragmentAny() {
@@ -327,7 +327,7 @@ public class RVectorValue extends RElementVariableValue<ICombinedRElement> imple
 	}
 	
 	public void setData(final RDataAssignment assignment) {
-		ensureDataStore().set(assignment);
+		ensureDataStore().set(assignment, 0, null);
 		
 		this.variable.fireChangeEvent(DebugEvent.CONTENT);
 	}

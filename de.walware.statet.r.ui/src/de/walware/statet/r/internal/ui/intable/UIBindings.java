@@ -22,7 +22,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.ui.IWorkbenchCommandConstants;
+import org.eclipse.ui.menus.CommandContributionItem;
+import org.eclipse.ui.menus.CommandContributionItemParameter;
+import org.eclipse.ui.services.IServiceLocator;
 
+import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.waltable.NatTable;
 import de.walware.ecommons.waltable.config.AbstractUiBindingConfiguration;
@@ -66,19 +71,19 @@ public class UIBindings {
 	public static class ScrollAction extends AbstractNavigationAction {
 		
 		
-		private final int fType;
+		private final int type;
 		
 		
 		public ScrollAction(final Direction direction, final int type) {
 			super(direction);
 			
-			this.fType= type;
+			this.type= type;
 		}
 		
 		
 		@Override
 		public void run(final NatTable natTable, final KeyEvent event) {
-			switch (this.fType) {
+			switch (this.type) {
 			case CELL:
 				natTable.doCommand(new ScrollStepCommand(getDirection()));
 				break;
@@ -97,20 +102,20 @@ public class UIBindings {
 	public static class SelectRelativeAction extends AbstractNavigationAction {
 		
 		
-		private final int fType;
+		private final int type;
 		
 		
 		public SelectRelativeAction(final Direction direction, final int type) {
 			super(direction);
 			
-			this.fType= type;
+			this.type= type;
 		}
 		
 		
 		@Override
 		public void run(final NatTable natTable, final KeyEvent event) {
 			final int selectionFlags= (event.stateMask & SWT.SHIFT);
-			switch (this.fType) {
+			switch (this.type) {
 			case CELL:
 				natTable.doCommand(new SelectRelativeCellCommand(getDirection(), 1, selectionFlags));
 				break;
@@ -294,21 +299,21 @@ public class UIBindings {
 	public static class HeaderContextMenuConfiguration extends AbstractUiBindingConfiguration {
 		
 		
-		private final MenuManager fMenuManager;
+		private final MenuManager menuManager;
 		
 		
 		public HeaderContextMenuConfiguration(final NatTable natTable) {
-			this.fMenuManager= new MenuManager();
-			this.fMenuManager.createContextMenu(natTable);
+			this.menuManager= new MenuManager();
+			this.menuManager.createContextMenu(natTable);
 			natTable.addDisposeListener(new DisposeListener() {
 				@Override
 				public void widgetDisposed(final DisposeEvent e) {
-					HeaderContextMenuConfiguration.this.fMenuManager.dispose();
+					HeaderContextMenuConfiguration.this.menuManager.dispose();
 				}
 			});
 			
-			this.fMenuManager.add(new Separator("sorting"));
-			this.fMenuManager.add(new NatTableContributionItem(
+			this.menuManager.add(new Separator("sorting"));
+			this.menuManager.add(new NatTableContributionItem(
 					SharedUIResources.getImages().getDescriptor(SharedUIResources.LOCTOOL_SORT_ALPHA_IMAGE_ID), null,
 					"Sort Increasing by Column", "I") {
 				@Override
@@ -318,7 +323,7 @@ public class UIBindings {
 							eventData.getColumnPosition(), SortDirection.ASC, false ));
 				}
 			});
-			this.fMenuManager.add(new NatTableContributionItem("Sort Decreasing by Column", "D") {
+			this.menuManager.add(new NatTableContributionItem("Sort Decreasing by Column", "D") {
 				@Override
 				protected void execute(final NatEventData eventData) throws ExecutionException {
 					eventData.getNatTable().doCommand(new SortDimPositionCommand(
@@ -326,15 +331,15 @@ public class UIBindings {
 							eventData.getColumnPosition(), SortDirection.DESC, false ));
 				}
 			});
-			this.fMenuManager.add(new NatTableContributionItem("Clear All Sorting", "O") {
+			this.menuManager.add(new NatTableContributionItem("Clear All Sorting", "O") {
 				@Override
 				protected void execute(final NatEventData eventData) throws ExecutionException {
 					eventData.getNatTable().doCommand(new ClearSortCommand());
 				}
 			});
 			
-			this.fMenuManager.add(new Separator());
-			this.fMenuManager.add(new NatTableContributionItem("Auto Resize Column", "R") {
+			this.menuManager.add(new Separator());
+			this.menuManager.add(new NatTableContributionItem("Auto Resize Column", "R") {
 				@Override
 				protected void execute(final NatEventData eventData) throws ExecutionException {
 					eventData.getNatTable().doCommand(new InitializeAutoResizeCommand(
@@ -347,11 +352,50 @@ public class UIBindings {
 		public void configureUiBindings(final UiBindingRegistry uiBindingRegistry) {
 			uiBindingRegistry.registerSingleClickBinding(
 					new MouseEventMatcher(SWT.NONE, GridRegion.COLUMN_HEADER, IMouseEventMatcher.RIGHT_BUTTON),
-					new PopupMenuAction(this.fMenuManager.getMenu()));
+					new PopupMenuAction(this.menuManager.getMenu()));
 		}
 		
 		public IMenuManager getMenuManager() {
-			return this.fMenuManager;
+			return this.menuManager;
+		}
+		
+	}
+	
+	public static class BodyContextMenuConfiguration extends AbstractUiBindingConfiguration {
+		
+		
+		private final MenuManager menuManager;
+		
+		
+		public BodyContextMenuConfiguration(final NatTable natTable,
+				final IServiceLocator serviceLocator) {
+			this.menuManager= new MenuManager();
+			this.menuManager.createContextMenu(natTable);
+			natTable.addDisposeListener(new DisposeListener() {
+				@Override
+				public void widgetDisposed(final DisposeEvent e) {
+					BodyContextMenuConfiguration.this.menuManager.dispose();
+				}
+			});
+			
+			this.menuManager.add(new Separator("edit"));
+			this.menuManager.add(new CommandContributionItem(new CommandContributionItemParameter(
+					serviceLocator, null,
+					IWorkbenchCommandConstants.EDIT_COPY, null,
+					null, null, null,
+					SharedMessages.CopyAction_name, null, null,
+					SWT.PUSH, null, false )));
+		}
+		
+		@Override
+		public void configureUiBindings(final UiBindingRegistry uiBindingRegistry) {
+			uiBindingRegistry.registerSingleClickBinding(
+					new MouseEventMatcher(SWT.NONE, GridRegion.BODY, IMouseEventMatcher.RIGHT_BUTTON),
+					new PopupMenuAction(this.menuManager.getMenu()));
+		}
+		
+		public IMenuManager getMenuManager() {
+			return this.menuManager;
 		}
 		
 	}
