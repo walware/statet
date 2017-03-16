@@ -15,6 +15,7 @@ import java.util.List;
 
 import de.walware.ecommons.waltable.config.IConfigRegistry;
 import de.walware.ecommons.waltable.coordinate.Orientation;
+import de.walware.ecommons.waltable.coordinate.PositionId;
 import de.walware.ecommons.waltable.data.convert.IDisplayConverter;
 import de.walware.ecommons.waltable.layer.cell.ILayerCell;
 
@@ -33,10 +34,12 @@ public class RDataFormatterConverter implements IDisplayConverter {
 		@Override
 		protected RDataFormatter getFormatter(final RDataTableContentDescription description,
 				final ILayerCell cell) {
-			final List<RDataTableColumn> columns= description.getRowHeaderColumns();
-			final long index= getColumnIndex(cell);
-			if (columns != null && index >= 0 && index < columns.size()) {
-				return columns.get((int) index).getDefaultFormat();
+			if ((cell.getDim(Orientation.VERTICAL).getId() & PositionId.CAT_MASK) == PositionId.BODY_CAT) {
+				final List<RDataTableColumn> columns= description.getRowHeaderColumns();
+				final long index= getColumnIndex(cell);
+				if (columns != null && index >= 0 && index < columns.size()) {
+					return columns.get((int) index).getDefaultFormat();
+				}
 			}
 			return null;
 		}
@@ -71,16 +74,20 @@ public class RDataFormatterConverter implements IDisplayConverter {
 	
 	protected RDataFormatter getFormatter(final RDataTableContentDescription description,
 			final ILayerCell cell) {
-		final List<RDataTableColumn> columns= description.getDataColumns();
-		final long index= getColumnIndex(cell);
-		if (index >= 0 && index < columns.size()) {
-			return columns.get((int) index).getDefaultFormat();
+		if ((cell.getDim(Orientation.HORIZONTAL).getId() & PositionId.CAT_MASK) == PositionId.BODY_CAT
+				&& (cell.getDim(Orientation.VERTICAL).getId() & PositionId.CAT_MASK) == PositionId.BODY_CAT) {
+			final List<RDataTableColumn> columns= description.getDataColumns();
+			final long index= getColumnIndex(cell);
+			if (index >= 0 && index < columns.size()) {
+				return columns.get((int) index).getDefaultFormat();
+			}
+			return description.getDefaultDataFormat();
 		}
-		return description.getDefaultDataFormat();
+		return null;
 	}
 	
 	protected long getColumnIndex(final ILayerCell cell) {
-		return cell.getDim(Orientation.HORIZONTAL).getId();
+		return (cell.getDim(Orientation.HORIZONTAL).getId() & PositionId.NUM_MASK);
 	}
 	
 	
