@@ -216,8 +216,9 @@ public class RElementInfoControl extends AbstractInformationControl implements I
 			gc.dispose();
 		}
 		
-		this.infoText= new StyledText(this.contentComposite, this.mode == MODE_FOCUS ?
-				(SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL) : (SWT.MULTI | SWT.READ_ONLY));
+		this.infoText= new StyledText(this.contentComposite, ((this.mode & MODE_FOCUS) != 0) ?
+				(SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL) :
+				(SWT.MULTI | SWT.READ_ONLY));
 		this.infoText.setIndent(hIndent);
 		this.infoText.setFont(JFaceResources.getFont(PREF_DETAIL_PANE_FONT));
 		
