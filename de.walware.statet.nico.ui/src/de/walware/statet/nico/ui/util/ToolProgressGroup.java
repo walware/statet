@@ -84,7 +84,9 @@ public class ToolProgressGroup {
 		@Override
 		public IStatus runInUIThread(final IProgressMonitor monitor) {
 			internalRefresh();
-			if (ToolProgressGroup.this.toolInfo.scheduleRefresh) {
+			
+			final ToolInfo info= ToolProgressGroup.this.toolInfo;
+			if (info.scheduleRefresh) {
 				schedule(SCHEDULE_DEFAULT);
 			}
 			
@@ -96,13 +98,15 @@ public class ToolProgressGroup {
 		
 		@Override
 		public void handleDebugEvents(final DebugEvent[] events) {
-			final ToolInfo tool= ToolProgressGroup.this.toolInfo;
-			for (final DebugEvent event : events) {
-				if (event.getSource() == tool.process.getQueue()) {
-					if (Queue.isStateChange(event)) {
-						final StateDelta delta= ((Queue.StateDelta) event.getData());
-						tool.scheduleRefresh= (delta.newState == Queue.PROCESSING_STATE);
-						ToolProgressGroup.this.refreshJob.schedule(SCHEDULE_ON_EVENT);
+			final ToolInfo info= ToolProgressGroup.this.toolInfo;
+			if (info.process != null) {
+				for (final DebugEvent event : events) {
+					if (event.getSource() == info.process.getQueue()) {
+						if (Queue.isStateChange(event)) {
+							final StateDelta delta= ((Queue.StateDelta) event.getData());
+							info.scheduleRefresh= (delta.newState == Queue.PROCESSING_STATE);
+							ToolProgressGroup.this.refreshJob.schedule(SCHEDULE_ON_EVENT);
+						}
 					}
 				}
 			}
@@ -231,16 +235,16 @@ public class ToolProgressGroup {
 		if (!UIAccess.isOkToUse(this.composite)) {
 			return;
 		}
-		final ToolInfo tool= this.toolInfo;
-		final ToolController controller= (tool.process != null) ? tool.process.getController() : null;
-		final IProgressInfo info= (controller != null) ? controller.getProgressInfo() : DUMMY_INFO;
+		final ToolInfo info= this.toolInfo;
+		final ToolController controller= (info.process != null) ? info.process.getController() : null;
+		final IProgressInfo progressInfo= (controller != null) ? controller.getProgressInfo() : DUMMY_INFO;
 		Image image= null;
-		final IToolRunnable runnable= info.getRunnable();
+		final IToolRunnable runnable= progressInfo.getRunnable();
 		if (runnable != null) {
 			image= NicoUITools.getImage(runnable);
 		}
-		if (image == null && tool.process != null) {
-			image= getToolImage(tool);
+		if (image == null && info.process != null) {
+			image= getToolImage(info);
 		}
 		if (image == null) {
 			image= NicoUIPlugin.getDefault().getImageRegistry().get(NicoUI.OBJ_TASK_DUMMY_IMAGE_ID);
@@ -248,9 +252,9 @@ public class ToolProgressGroup {
 		if (!(image.equals(this.imageLabel.getImage()))) {
 			this.imageLabel.setImage(image);
 		}
-		this.mainLabel.setText(info.getLabel());
-		this.subLabel.setText(info.getSubLabel());
-		this.progressBar.setSelection(info.getWorked());
+		this.mainLabel.setText(progressInfo.getLabel());
+		this.subLabel.setText(progressInfo.getSubLabel());
+		this.progressBar.setSelection(progressInfo.getWorked());
 	}
 	
 	private Image getToolImage(final ToolInfo tool) {
