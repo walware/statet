@@ -164,9 +164,9 @@ public class QueueView extends ViewPart {
 						case IToolRunnable.ADDING_TO:
 						case IToolRunnable.MOVING_TO:
 							if (!fExpectInfoEvent) {
-								if (events.length > i+1 && taskDelta.data.size() == 1) {
+								if (events.length > i + 1 && taskDelta.data.size() == 1) {
 									// Added and removed in same set
-									final DebugEvent next = events[i+1];
+									final DebugEvent next = events[i + 1];
 									if (next.getSource() == queue
 											&& next.getKind() == DebugEvent.CHANGE
 											&& next.getDetail() == DebugEvent.CONTENT) {
@@ -187,11 +187,11 @@ public class QueueView extends ViewPart {
 										}
 										if (taskDelta.position >= 0) {
 											for (int j = 0; j < taskDelta.data.size(); j++) {
-												fTableViewer.insert(taskDelta.data.get(j), taskDelta.position+j);
+												fTableViewer.insert(taskDelta.data.get(j), taskDelta.position + j);
 											}
 										}
 										else {
-											fTableViewer.add(taskDelta.data);
+											fTableViewer.add(taskDelta.data.toArray());
 										}
 									}
 								});
@@ -210,7 +210,7 @@ public class QueueView extends ViewPart {
 										if (!UIAccess.isOkToUse(fTableViewer)) {
 											return;
 										}
-										fTableViewer.remove(taskDelta.data);
+										fTableViewer.remove(taskDelta.data.toArray());
 									}
 								});
 							}
